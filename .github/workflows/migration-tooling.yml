@@ -1,22 +1,19 @@
 name: Migration tooling
 
 # Offline checks only. This workflow has no AWS credentials and never deploys anything.
+# It runs on every pull request so that `migration-tooling` can be a required status check
+# on main without blocking pull requests that do not touch the tooling.
 on:
   pull_request:
-    paths:
-      - 'tools/migration/**'
-      - '.github/workflows/migration-tooling.yml'
   push:
     branches: [main]
-    paths:
-      - 'tools/migration/**'
-      - '.github/workflows/migration-tooling.yml'
 
 permissions:
   contents: read
 
 jobs:
   test:
+    name: migration-tooling
     runs-on: ubuntu-latest
     defaults:
       run:
