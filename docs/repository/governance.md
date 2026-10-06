@@ -6,8 +6,28 @@ How changes reach `main`, and how work is organised. The migration-specific rule
 ## The `main` branch
 
 `main` only changes through pull requests that pass the required check and have every review
-conversation resolved. Nobody, including administrators, can push to it directly, force-push it or
-delete it.
+conversation resolved. Nobody, including the maintainer, pushes to it directly, force-pushes it or
+deletes it.
+
+### Enforcement: process, not GitHub
+
+**These rules are enforced by process, not by GitHub.** The repository is private on GitHub Free,
+where branch protection and rulesets are not available for private repositories. Until the Phase 9
+public repository exists, nothing technically stops a direct push, a force-push or a merge with a
+failing check. The rules hold because every contributor follows them:
+
+- No direct pushes to `main`. Every change is a pull request from a branch.
+- Merge only when `migration-tooling` is green on the pull request's latest commit, and the branch is
+  up to date with `main`.
+- Resolve every review conversation before merging.
+- Merge with a merge commit.
+- Never force-push `main`, and never delete it.
+
+A breach is recorded on an issue labelled `governance`, with what happened and how it was put right.
+
+When Phase 9 publishes the public repository, the same rules become **GitHub-enforced** there by
+importing [`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json), as
+described below.
 
 ### Rules
 
@@ -29,10 +49,11 @@ their own pull request, so requiring an approval would block every merge. Requir
 the passing check and resolved conversations still keeps every change reviewable and recorded. Raise
 the count to 1 when a second reviewer joins.
 
-**Plan requirement.** Rulesets and branch protection on a private repository need a paid GitHub plan
-(Pro, Team or Enterprise). On GitHub Free they apply only to public repositories.
+### Applying the rules in GitHub (Phase 9, or on a paid plan)
 
-### Applying the rules
+Rulesets and branch protection on a private repository need a paid GitHub plan (Pro, Team or
+Enterprise). On GitHub Free they apply only to public repositories, so these steps run when the
+Phase 9 public repository is created.
 
 **Option A: import the ruleset (preferred).**
 1. *Settings → Rules → Rulesets → New ruleset → Import a ruleset*.
@@ -59,6 +80,8 @@ Then, under *Settings → General → Pull Requests*, allow merge commits only.
 run once. It runs on every pull request.
 
 ### Verifying the rules
+
+Once the ruleset is applied:
 
 - `git push origin main` from a local commit is rejected.
 - A pull request shows *Merging is blocked* until `migration-tooling` passes and every conversation is resolved.
