@@ -7,3 +7,6 @@ part or engineer they need.
 > **Status:** private. This repository is being set up to take over Appliance Clinic from
 > the monorepo it was originally built in. The migration plan, safety gates and runbooks
 > live in [`docs/migration/`](docs/migration/PLAN.md).
+
+Contribution rules for this repository, including how `main` is protected, are in
+[`docs/repository/governance.md`](docs/repository/governance.md).
