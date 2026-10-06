@@ -1,0 +1,42 @@
+{
+  "name": "@appliance-clinic/migration-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phase 0 inventory, comparison and safety-check tooling for the Appliance Clinic migration.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "inventory": "node bin/inventory.mjs",
+    "denylist": "node bin/denylist.mjs",
+    "compare:source": "node bin/compare-source.mjs",
+    "compare:build": "node bin/compare-build.mjs",
+    "compare:config": "node bin/compare-config.mjs",
+    "check:changeset": "node bin/check-changeset.mjs",
+    "baseline": "node bin/baseline.mjs",
+    "backup": "node bin/backup.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "3.1146.0",
+    "@aws-sdk/client-cloudfront": "3.1146.0",
+    "@aws-sdk/client-cloudtrail": "3.1146.0",
+    "@aws-sdk/client-dynamodb": "3.1146.0",
+    "@aws-sdk/client-ecr": "3.1146.0",
+    "@aws-sdk/client-eventbridge": "3.1146.0",
+    "@aws-sdk/client-iam": "3.1146.0",
+    "@aws-sdk/client-lambda": "3.1146.0",
+    "@aws-sdk/client-s3": "3.1146.0",
+    "@aws-sdk/client-secrets-manager": "3.1146.0",
+    "@aws-sdk/client-sts": "3.1146.0",
+    "adm-zip": "0.6.1"
+  }
+}
