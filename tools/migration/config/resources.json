@@ -1,0 +1,41 @@
+{
+  "description": "Candidate Appliance Clinic resources, taken from the deploy scripts in spares4repairs@13b7a50. Inventory confirms or rejects each one; none is treated as AC-owned until docs/migration/ownership.md says so. {account} is replaced with the caller's account ID.",
+  "region": "eu-west-1",
+  "edgeRegion": "us-east-1",
+  "stackRegions": ["eu-west-1", "us-east-1"],
+  "lambdas": [
+    { "name": "spares4repairs-part-finder", "role": "diagnosis", "s4rConsumed": true },
+    { "name": "whichpart-api", "role": "api" },
+    { "name": "spares4repairs-diag-orchestrator", "role": "orchestrator" },
+    { "name": "spares4repairs-error-code-mcp", "role": "error-code-mcp" }
+  ],
+  "roles": ["whichpart-api-role", "diag-orchestrator-role", "error-code-mcp-role"],
+  "tables": ["whichpart-transcripts", "whichpart-recalls"],
+  "buckets": [
+    { "name": "whichpart-web-{account}", "purpose": "static-site", "manifest": true, "captureObjects": ["index.html"] },
+    { "name": "whichpart-learning-{account}", "purpose": "learning", "manifest": true, "captureObjects": ["acq/routing/override.json"] }
+  ],
+  "secretNamePrefixes": [
+    "spares4repairs/dev/applianceclinic-",
+    "spares4repairs/diag-orchestrator/",
+    "spares4repairs/error-code-mcp/"
+  ],
+  "aiConfigSecretSuffix": "applianceclinic-ai-config",
+  "ecrRepositories": ["spares4repairs-diag-orchestrator", "spares4repairs-error-code-mcp"],
+  "eventRules": ["whichpart-recall-ingest-daily", "whichpart-transcript-review"],
+  "cloudfront": {
+    "aliases": ["applianceclinic.ai", "www.applianceclinic.ai"],
+    "functions": ["whichpart-www-redirect"]
+  },
+  "cloudtrailEventNames": [
+    "CreateFunction20150331",
+    "CreateFunctionUrlConfig",
+    "CreateRole",
+    "PutRolePolicy",
+    "CreateTable",
+    "CreateBucket",
+    "CreateSecret",
+    "CreateRepository",
+    "PutRule"
+  ]
+}

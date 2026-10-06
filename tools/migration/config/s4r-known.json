@@ -1,0 +1,13 @@
+{
+  "description": "Spares4Repairs resources known from spares4repairs@13b7a50 without AWS access. Merged into the generated denylist. Add to this file; never remove from it without a reviewed reason.",
+  "entries": [
+    { "kind": "stack", "value": "SparesSite-dev", "reason": "Spares4Repairs production stack.", "source": "manual" },
+    { "kind": "stack", "value": "CDKToolkit", "reason": "Default CDK bootstrap used by Spares4Repairs. Appliance Clinic uses its own toolkit.", "source": "manual" },
+    { "kind": "physicalId", "value": "eu-west-1_mUWucohuX", "resourceType": "AWS::Cognito::UserPool", "reason": "S4R Cognito user pool (infra/lib/stack.ts:341). AC signs in against it until Phase 7.", "source": "manual" },
+    { "kind": "physicalId", "value": "60phdcnl0eetdq4kcp327d0fkm", "resourceType": "AWS::Cognito::UserPoolClient", "reason": "S4R admin app client used by AC sign-in.", "source": "manual" },
+    { "kind": "physicalId", "value": "65vnizdmk4", "resourceType": "AWS::ApiGateway::RestApi", "reason": "S4R catalogue API. AC calls it as a client only.", "source": "manual" },
+    { "kind": "physicalId", "value": "E2I3MGU4AZR2ZW", "resourceType": "AWS::CloudFront::Distribution", "reason": "S4R CloudFront distribution.", "source": "manual" },
+    { "kind": "physicalId", "value": "d1hrb3pgx61xww.cloudfront.net", "reason": "S4R CloudFront domain (buy links).", "source": "manual" },
+    { "kind": "physicalId", "value": "spares-clone.chnzpcm60w1x.us-east-2.rds.amazonaws.com", "reason": "S4R legacy database host.", "source": "manual" }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "s4r-denylist.schema.json",
+  "title": "Spares4Repairs resource denylist",
+  "description": "AWS resources that Appliance Clinic migration tooling must never import, modify or delete. Any change set that mentions one of these is rejected.",
+  "type": "object",
+  "required": ["schemaVersion", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "generatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "generatedBy": { "type": ["string", "null"] },
+    "accountId": { "type": ["string", "null"], "pattern": "^[0-9]{12}$" },
+    "regions": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "value", "reason", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": ["stack", "arn", "arnPrefix", "physicalId"],
+            "description": "stack: every resource of this CloudFormation stack, and the stack itself. arn: an exact ARN. arnPrefix: any ARN starting with this value. physicalId: an exact physical resource ID or name."
+          },
+          "value": { "type": "string", "minLength": 1 },
+          "resourceType": { "type": "string", "description": "CloudFormation resource type, when known." },
+          "region": { "type": "string" },
+          "reason": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "description": "manual, or cloudformation:<stack-name>, or secrets:<rule>." }
+        }
+      }
+    }
+  }
+}
