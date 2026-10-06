@@ -193,6 +193,24 @@ groups is treated as an AC admin.
 - No CloudFormation exports between stacks. Stacks: `AcDataStack` and `AcRuntimeStack` now, `AcAuthStack` in Phase 7, and a web stack only if CloudFront is imported later.
 - Stack termination protection is on, and analytics reporting is off so no `CDK::Metadata` resource blocks an import-only change set.
 
+**Operational switches after import**
+
+The canonical engine's rollback switches are Lambda environment variables: `CANONICAL_MODE` and
+`CANONICAL_CONTROL_JOURNEYS` on `whichpart-api`, and the per-journey kill switches on the diagnosis
+Lambda. Once a function is imported, changing them in the console is drift, and the next CDK deploy
+silently reverts it.
+
+- Before each function's import, record its switch values in the baseline, and declare exactly those values in CDK.
+- After import, every switch change is a reviewed CDK change. An emergency rollback is a one-line CDK
+  change, checked in update mode and deployed by a person. Document it in the function's runbook
+  before the import.
+- If an emergency console change is ever unavoidable, port it to CDK before the next deploy. The
+  config comparison against the baseline will show it.
+- Switches on the diagnosis Lambda are POTENTIALLY IMPACTS S4R.
+- Moving the switches to a runtime configuration store is a Phase 7 or 8 decision, not part of the import.
+
+See [ADR 0004](../adr/0004-import-existing-resources-into-cdk.md).
+
 **Exit criteria**
 - Every group has passed its import gate and its post-import checks (see [Safety gates](#safety-gates)).
 
@@ -293,4 +311,5 @@ groups is treated as an AC admin.
 - [`ownership.md`](ownership.md): ownership evidence per resource
 - [`s4r-denylist.json`](s4r-denylist.json): resources AC tooling must never touch
 - [`runbooks/`](runbooks/README.md): step-by-step procedures
-- [`../adr/`](../adr/README.md): architecture decision records
+- [`../adr/`](../adr/README.md): architecture decision records, including the decisions behind this
+  plan (ADRs 0002–0009)
