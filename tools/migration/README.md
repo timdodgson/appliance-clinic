@@ -13,8 +13,8 @@ and the [runbooks](../../docs/migration/runbooks/README.md).
 - **No secret values on disk.** Secret-like environment variables, secret values and opaque tokens
   are stored as SHA-256 digests only.
 - **No customer data.** DynamoDB tables are described, never read.
-- **Mutation is separate.** Only `bin/backup.mjs` changes AWS. It prints a plan unless given both
-  `--execute` and a matching `--confirm-account`, and only its named commands can run.
+- **Mutation is separate.** Only `bin/backup.mjs` and `bin/admin-hotfix.mjs` change AWS. Each prints a plan unless given both
+  `--execute` and a matching `--confirm-account`, and only their named commands can run.
 - **Baseline traffic is bounded.** Baseline requests never carry `observability`, never reach admin
   or benchmark routes, only reach configured hosts, and are capped per run.
 - **Output stays local.** Everything is written to the gitignored `.migration-output/`.
@@ -33,6 +33,9 @@ Run from this directory after `npm ci`.
 | `npm run check:changeset -- --changeset <json> --mode import\|update --step <json>` | None | READ-ONLY | Gate before executing a change set |
 | `npm run baseline -- <s4r-health\|contract capture\|contract verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline and the S4R `/part-finder` contract |
 | `npm run backup -- --inventory <dir> --backup-bucket <name> [--enable-pitr] [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 0 backups |
+| `npm run token:sub` | None | READ-ONLY | Read your Cognito `sub` from your own access token |
+| `npm run hotfix:patch -- --in <deployed.zip> --out <patched.zip>` | None | READ-ONLY | Phase 1: patch the admin check in a copy of the deployed artefact |
+| `npm run hotfix:admin -- apply\|rollback ... [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 1: apply or roll back the hotfix on `whichpart-api` only |
 
 ## Development
 
