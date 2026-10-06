@@ -24,6 +24,7 @@ Use separate named profiles so a read-only step cannot change anything even by m
 |---|---|---|
 | `ac-readonly` | AWS managed `ReadOnlyAccess` | Inventory, denylist, comparisons |
 | `ac-readonly-secrets` | `ReadOnlyAccess` plus `secretsmanager:GetSecretValue` on the AC secret ARNs only | Inventory with `--hash-secret-values` |
+| `ac-hotfix` | `lambda:GetFunctionConfiguration`, `lambda:PublishVersion`, `lambda:UpdateFunctionConfiguration`, `lambda:UpdateFunctionCode` on `whichpart-api` only; `sts:GetCallerIdentity` | Phase 1 admin hotfix |
 | `ac-backup` | `dynamodb:CreateBackup`, `dynamodb:UpdateContinuousBackups` on the two AC tables; `s3:CreateBucket`, `s3:PutBucketPublicAccessBlock` on the backup bucket; `s3:GetObject`/`s3:ListBucket` on the AC buckets; `s3:PutObject` on the backup bucket | Backups |
 
 The tooling also enforces this in code: inventory clients refuse any non-read command, and the
@@ -50,3 +51,4 @@ in a pull request.
 | [Inventory and ownership proof](phase-0-inventory.md) | 0 | READ-ONLY |
 | [Backups](phase-0-backups.md) | 0 | SAFE AC CHANGE |
 | [Behavioural baseline and S4R contract](phase-0-baseline.md) | 0 | SAFE AC CHANGE (customer-equivalent traffic) and READ-ONLY (S4R checks) |
+| [Admin allowlist hotfix](phase-1-admin-hotfix.md) | 1 | SAFE AC CHANGE (`whichpart-api` only) |
