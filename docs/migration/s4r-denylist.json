@@ -1,0 +1,23 @@
+{
+  "$schema": "../../tools/migration/schema/s4r-denylist.schema.json",
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "generatedBy": null,
+  "accountId": null,
+  "regions": [],
+  "notes": "Placeholder. Regenerate with `npm run denylist --prefix tools/migration` (READ-ONLY) before every production step. Entries below are the S4R resources known without AWS access.",
+  "entries": [
+    {
+      "kind": "stack",
+      "value": "SparesSite-dev",
+      "reason": "Spares4Repairs production stack. Every resource in it is S4R.",
+      "source": "manual"
+    },
+    {
+      "kind": "stack",
+      "value": "CDKToolkit",
+      "reason": "Default CDK bootstrap stack used by Spares4Repairs deployments. Appliance Clinic uses its own toolkit.",
+      "source": "manual"
+    }
+  ]
+}
