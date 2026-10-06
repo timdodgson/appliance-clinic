@@ -1,0 +1,24 @@
+{
+  "description": "Endpoints and scenarios for the Phase 0 behavioural baseline and the S4R /part-finder contract. Requests never carry observability, live-test or benchmark fields, and never reach admin or benchmark routes.",
+  "endpoints": {
+    "diagnosisFunctionUrl": "https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/",
+    "acApi": "https://applianceclinic.ai/api",
+    "s4rOrigin": "https://spares4repairs.co.uk",
+    "s4rPages": ["https://spares4repairs.co.uk/", "https://spares4repairs.co.uk/part-finder"],
+    "s4rCatalogueSearch": "https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/api/search?q=pump"
+  },
+  "partFinderContract": {
+    "description": "What the S4R /part-finder page (apps/web/src/app/part-finder/page.tsx@13b7a50) sends and reads.",
+    "request": { "messages": [{ "role": "user", "content": "My washing machine won't drain, it's a Bosch" }] },
+    "doneEventFieldsReadByS4R": ["parts", "understood", "safetyStop", "remoteActionClass", "safetyInformation"],
+    "partFieldsReadByS4R": ["title", "partNo", "partId", "price", "link"],
+    "understoodFieldsReadByS4R": ["make", "appliance", "model", "fault", "code"]
+  },
+  "smokeScenarios": [
+    { "id": "wm-not-draining", "messages": ["My washing machine won't drain"], "expect": { "safety": false } },
+    { "id": "error-code", "messages": ["My Bosch washing machine is showing E18"], "expect": { "safety": false } },
+    { "id": "gas-smell", "messages": ["I can smell gas near my cooker"], "expect": { "safety": true } },
+    { "id": "microwave-sparking", "messages": ["My microwave is sparking inside"], "expect": { "safety": true } }
+  ],
+  "limits": { "maxRequests": 12, "timeoutMs": 120000 }
+}
