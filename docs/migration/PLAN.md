@@ -252,6 +252,7 @@ groups is treated as an AC admin.
 - Create a clean, squashed public repository from the finished private repository. The private migration history is not exposed.
 - Before publishing, remove unnecessary AWS identifiers, migration-only detail and temporary notes, and verify there are no secrets, customer data or unlicensed media.
 - Check the README, architecture documentation, CI, licence, `SECURITY.md` and `CONTRIBUTING.md`.
+- Apply the `main` ruleset ([`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json)) to the public repository, so the rules that are process-enforced in this private repository become GitHub-enforced. See [repository governance](../repository/governance.md).
 
 ## Safety gates
 
