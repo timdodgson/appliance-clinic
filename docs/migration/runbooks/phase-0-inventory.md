@@ -79,12 +79,15 @@ inventory:
   Events are looked up in eu-west-1 and us-east-1 (IAM and CloudFront record events there). Check
   `coverage` for any event name marked `truncated`.
 - `apigateway-permissions.json`: for every API Gateway invoke permission on an AC function, whether
-  the API actually integrates the function (`invokes`, `configured-not-deployed`,
-  `no-integration-found` or `api-not-found`). Until a permission has been reviewed, it stays an
-  ownership STOP flag and is treated as S4R-sensitive.
+  the API actually reaches the function. REST APIs are checked against each deployed stage's export.
+  HTTP APIs record each route that targets a matching integration (route ID, key, target,
+  authorisation) and each stage's auto-deploy and deployment status. The conclusion is one of
+  `invokes`, `configured-not-deployed` (REST), `integration-without-route` or
+  `routed-deployment-unverified` (HTTP), `no-integration-found` or `api-not-found`. Until a permission
+  has been reviewed, it stays an ownership STOP flag and is treated as S4R-sensitive.
+- `external-dependencies.json`: record the outbound hosts in the dependency section.
 
 Record the conclusions in [`phase-0-findings.md`](../phase-0-findings.md).
-- `external-dependencies.json`: record the outbound hosts in the dependency section.
 
 Commit the updated `ownership.md` in a pull request for review.
 
@@ -111,4 +114,5 @@ Record the result in `phase-0-findings.md`. Until the route's use is known, it s
 The IaC generator (CloudFormation console, *IaC generator*) scans the account and can produce
 templates for existing resources. A scan creates a scan record in CloudFormation but changes no
 resources. Use it as a cross-check for resources the deploy scripts do not show, such as the
-diagnosis Lambda's console-created role. Do not create a stack or template from it.
+hand-added inline policies on the S4R server role that the diagnosis Lambda uses. Do not create a
+stack or template from it.

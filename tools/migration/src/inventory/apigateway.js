@@ -83,25 +83,49 @@ async function investigateHttpApi(apigatewayv2, apiId, functionName) {
     (p) => p.NextToken,
   );
   const needle = `:function:${functionName}`;
-  // HTTP API stages with auto-deploy serve the current routes; there is no separate deployed export.
+  // An HTTP API stage with auto-deploy serves the current routes; there is no separate deployed
+  // export. A route reaches the function only when its Target names a matching integration.
   const current = integrations
     .filter((i) => String(i.IntegrationUri || '').includes(needle))
     .map((i) => ({
       integrationId: i.IntegrationId,
       integrationType: i.IntegrationType || null,
+      payloadFormatVersion: i.PayloadFormatVersion || null,
+      timeoutInMillis: i.TimeoutInMillis ?? null,
       routes: routes
         .filter((r) => r.Target === `integrations/${i.IntegrationId}`)
-        .map((r) => ({ routeKey: r.RouteKey, authorizationType: r.AuthorizationType || 'NONE' })),
+        .map((r) => ({ routeId: r.RouteId, routeKey: r.RouteKey, target: r.Target, authorizationType: r.AuthorizationType || 'NONE', apiKeyRequired: Boolean(r.ApiKeyRequired) })),
     }));
   const stages = (await apigatewayv2.send(new GetStagesV2Command({ ApiId: apiId }))).Items || [];
   return {
     type: api.ProtocolType || 'HTTP',
     name: api.Name,
     createdDate: api.CreatedDate,
-    stages: stages.map((s) => ({ name: s.StageName, autoDeploy: Boolean(s.AutoDeploy), detailedMetrics: Boolean(s.DefaultRouteSettings && s.DefaultRouteSettings.DetailedMetricsEnabled) })),
+    executeApiEndpointDisabled: Boolean(api.DisableExecuteApiEndpoint),
+    stages: stages.map((s) => ({
+      name: s.StageName,
+      autoDeploy: Boolean(s.AutoDeploy),
+      deploymentId: s.DeploymentId || null,
+      lastDeploymentStatusMessage: s.LastDeploymentStatusMessage || null,
+      lastUpdatedDate: s.LastUpdatedDate || null,
+      detailedMetrics: Boolean(s.DefaultRouteSettings && s.DefaultRouteSettings.DetailedMetricsEnabled),
+      accessLogs: Boolean(s.AccessLogSettings && s.AccessLogSettings.DestinationArn),
+    })),
     current,
     deployed: null,
   };
+}
+
+/**
+ * Conclusion for an HTTP API: `invokes` needs a route targeting a matching integration AND an
+ * auto-deploy stage serving the current routes. Without auto-deploy, the deployed snapshot is not
+ * read here, so the result is `routed-deployment-unverified` rather than a guess.
+ */
+export function httpApiConclusion(found) {
+  const routed = found.current.some((c) => c.routes.length > 0);
+  if (!found.current.length) return 'no-integration-found';
+  if (!routed) return 'integration-without-route';
+  return found.stages.some((s) => s.autoDeploy) ? 'invokes' : 'routed-deployment-unverified';
 }
 
 export async function investigateApiPermissions({ apigateway, apigatewayv2, functionName, policy, stacks }) {
@@ -118,9 +142,12 @@ export async function investigateApiPermissions({ apigateway, apigatewayv2, func
         results.push({ functionName, sid: statement.sid, apiId, managedBy, conclusion: 'api-not-found', note: 'The API no longer exists in this region; the permission is stale.' });
         continue;
       }
-      const httpRouted = found.deployed === null && found.current.some((c) => !c.routes || c.routes.length > 0);
-      const deployedHits = found.deployed ? Object.values(found.deployed).flat().length : (httpRouted ? found.current.length : 0);
-      const conclusion = deployedHits > 0 ? 'invokes' : found.current.length > 0 ? 'configured-not-deployed' : 'no-integration-found';
+      let conclusion;
+      if (found.deployed === null) conclusion = httpApiConclusion(found);
+      else {
+        const deployedHits = Object.values(found.deployed).flat().length;
+        conclusion = deployedHits > 0 ? 'invokes' : found.current.length > 0 ? 'configured-not-deployed' : 'no-integration-found';
+      }
       results.push({ functionName, sid: statement.sid, apiId, managedBy, ...found, conclusion });
     }
   }
