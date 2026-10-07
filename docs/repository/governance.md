@@ -9,12 +9,13 @@ How changes reach `main`, and how work is organised. The migration-specific rule
 conversation resolved. Nobody, including the maintainer, pushes to it directly, force-pushes it or
 deletes it.
 
-### Enforcement: process, not GitHub
+### Enforcement
 
-**These rules are enforced by process, not by GitHub.** The repository is private on GitHub Free,
-where branch protection and rulesets are not available for private repositories. Until the Phase 9
-public repository exists, nothing technically stops a direct push, a force-push or a merge with a
-failing check. The rules hold because every contributor follows them:
+The repository is public, so GitHub can enforce these rules with the ruleset in
+[`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json), as described below.
+**Until that ruleset is applied, they are enforced by process only:** nothing technically stops a
+direct push, a force-push or a merge with a failing check. The rules hold because every contributor
+follows them:
 
 - No direct pushes to `main`. Every change is a pull request from a branch.
 - Merge only when `migration-tooling` is green on the pull request's latest commit, and the branch is
@@ -25,9 +26,15 @@ failing check. The rules hold because every contributor follows them:
 
 A breach is recorded on an issue labelled `governance`, with what happened and how it was put right.
 
-When Phase 9 publishes the public repository, the same rules become **GitHub-enforced** there by
-importing [`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json), as
-described below.
+Applying the ruleset is a repository settings change, made only with the owner's approval.
+
+### Public repository
+
+Everything pushed to this repository is public. Before content is pushed, it passes the secret and
+PII scan defined in the [migration plan](../migration/PLAN.md) (Phase 2):
+- **Absolute blockers:** secrets, credentials, private keys, customer data and PII.
+- **Not blockers by themselves:** non-secret infrastructure identifiers such as account IDs, resource
+  IDs and public Function URLs.
 
 ### Rules
 
@@ -49,11 +56,10 @@ their own pull request, so requiring an approval would block every merge. Requir
 the passing check and resolved conversations still keeps every change reviewable and recorded. Raise
 the count to 1 when a second reviewer joins.
 
-### Applying the rules in GitHub (Phase 9, or on a paid plan)
+### Applying the rules in GitHub
 
-Rulesets and branch protection on a private repository need a paid GitHub plan (Pro, Team or
-Enterprise). On GitHub Free they apply only to public repositories, so these steps run when the
-Phase 9 public repository is created.
+On GitHub Free, rulesets and branch protection are available for public repositories, so they can be
+applied to this repository directly.
 
 **Option A: import the ruleset (preferred).**
 1. *Settings → Rules → Rulesets → New ruleset → Import a ruleset*.
@@ -102,7 +108,7 @@ One milestone per migration phase. Every migration issue and pull request belong
 | Phase 6 — Prove CDK ownership | Configuration comparison and one harmless CDK change |
 | Phase 7 — Security hardening | AC Cognito, secrets namespace, endpoint protection, least privilege |
 | Phase 8 — Architecture cleanup | Retire the legacy pipeline, split large files, TypeScript, documentation |
-| Phase 9 — Public portfolio release | Clean, squashed public repository |
+| Phase 9 — Public portfolio release | Portfolio readiness of this repository: documentation, licence, security and contributor guides, final secret and PII scan |
 
 ## Labels
 
