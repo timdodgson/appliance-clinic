@@ -24,3 +24,4 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0008](0008-cloudfront-initially-unmanaged.md) | CloudFront initially unmanaged | Accepted |
 | [0009](0009-evaluation-strategy.md) | Evaluation strategy | Accepted |
 | [0010](0010-deterministic-policy-around-llm.md) | Deterministic policy around the language model | Accepted |
+| [0011](0011-diagnosis-lambda-keeps-the-s4r-execution-role.md) | The diagnosis Lambda keeps the S4R execution role during the migration | Accepted |
