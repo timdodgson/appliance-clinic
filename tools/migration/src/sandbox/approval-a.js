@@ -54,6 +54,8 @@ const requestTagged = { StringEquals: { [`aws:RequestTag/${TAG.Key}`]: TAG.Value
 /** Reads that IAM authorises only on "*". None of them changes anything. */
 const ACCOUNT_READS = [
   'sts:GetCallerIdentity', 'ecr:GetAuthorizationToken', 'cloudformation:ValidateTemplate', 'cloudformation:ListStacks',
+  // Drift detection status has no resource-level authorisation (found in Phase 4, T4).
+  'cloudformation:DescribeStackDriftDetectionStatus',
   'cloudformation:DescribeStacks', 'cloudformation:GetTemplateSummary', 'lambda:ListFunctions', 'lambda:GetAccountSettings',
   'dynamodb:ListTables', 'dynamodb:ListBackups', 's3:ListAllMyBuckets', 'logs:DescribeLogGroups', 'secretsmanager:ListSecrets',
   'events:ListRules', 'ssm:DescribeParameters', 'iam:ListRoles', 'iam:ListPolicies', 'cognito-idp:ListUserPools', 'tag:GetResources',
@@ -89,6 +91,9 @@ function sandboxResourceStatements() {
     { Sid: 'StandInApiCreate', Effect: 'Allow', Action: 'apigateway:POST', Resource: S.apis, Condition: requestTagged },
     { Sid: 'StandInApiList', Effect: 'Allow', Action: 'apigateway:GET', Resource: S.apis },
     { Sid: 'StandInApi', Effect: 'Allow', Action: 'apigateway:*', Resource: `${S.apis}/*`, Condition: tagged },
+    // CloudFormation tags a new API with a separate call on /tags/<api-arn>. Only resources that already carry
+    // the sandbox tag (set at CreateApi, above) may be tagged, so a production API can never be tagged into scope.
+    { Sid: 'StandInApiTags', Effect: 'Allow', Action: ['apigateway:POST', 'apigateway:GET', 'apigateway:DELETE'], Resource: `arn:aws:apigateway:${R}::/tags/*`, Condition: tagged },
     { Sid: 'StandInPoolCreate', Effect: 'Allow', Action: ['cognito-idp:CreateUserPool', 'cognito-idp:TagResource'], Resource: '*', Condition: requestTagged },
     { Sid: 'StandInPool', Effect: 'Allow', Action: 'cognito-idp:*', Resource: `arn:aws:cognito-idp:${R}:${A}:userpool/*`, Condition: tagged },
   ];
@@ -151,7 +156,7 @@ export function deniedResources() {
     ...['CDKToolkit', 'SparesSite-dev', 'ApplianceClinicToolkit', 'AcDataStack', 'AcRuntimeStack', 'AcAuthStack'].map(stack),
     ...['/cdk-bootstrap/hnb659fds/*', '/cdk-bootstrap/acclinic/*', '/spares4repairs/*'].map((p) => `arn:aws:ssm:*:${A}:parameter${p}`),
     `arn:aws:cognito-idp:*:${A}:userpool/eu-west-1_mUWucohuX`,
-    'arn:aws:apigateway:*::/apis/65vnizdmk4', 'arn:aws:apigateway:*::/apis/65vnizdmk4/*',
+    'arn:aws:apigateway:*::/apis/65vnizdmk4', 'arn:aws:apigateway:*::/apis/65vnizdmk4/*', 'arn:aws:apigateway:*::/tags/*65vnizdmk4*',
   ];
 }
 

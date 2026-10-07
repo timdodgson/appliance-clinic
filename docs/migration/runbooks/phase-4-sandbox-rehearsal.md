@@ -32,7 +32,7 @@ enforced by naming, a strict allowlist, the production and S4R denylists, and IA
 
 ## 2. Sandbox resources
 
-The exact list is [`sandbox-allowlist.json`](../sandbox-allowlist.json), 90 names. In summary:
+The exact list is [`sandbox-allowlist.json`](../sandbox-allowlist.json), 93 names. In summary:
 
 | Type | Sandbox names | Rehearses |
 |---|---|---|

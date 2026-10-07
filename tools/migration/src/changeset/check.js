@@ -94,14 +94,25 @@ export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds =
     }
   }
 
-  if (template) checkTemplate({ template, mode, secretDigests, fail });
+  if (template) checkTemplate({ template, mode, secretDigests, fail, warn });
   if (template) referenceScan(template, 'denylisted-identifier-in-template');
 
   return { ok: failures.length === 0, mode, stack: changeSet.StackName || null, changes: changes.length, failures, warnings };
 }
 
-function checkTemplate({ template, mode, secretDigests, fail }) {
+function checkTemplate({ template, mode, secretDigests, fail, warn }) {
   const resources = template.Resources || {};
+  // Rules from the Phase 4 IAM experiments (docs/migration/phase-4-results.md). Failures for Phase 5 and later
+  // (import, update); warnings in the sandbox, where T2 and T7 exercise exactly these shapes.
+  const iamRule = mode === 'sandbox' ? warn : fail;
+  for (const [logicalId, r] of Object.entries(resources)) {
+    if (r.Type === 'AWS::IAM::Role' && r.Properties?.Policies !== undefined) {
+      iamRule('role-declares-policies', { logicalId, note: 'T2: never use Role.Policies; declare each inline policy as its own AWS::IAM::RolePolicy' });
+    }
+    if (r.Type === 'AWS::IAM::Role' && r.Properties?.ManagedPolicyArns === undefined) {
+      iamRule('role-without-managed-policy-arns', { logicalId, note: 'T7: leaving ManagedPolicyArns out of an update detaches the role\'s managed policies; declare them exactly' });
+    }
+  }
   for (const [logicalId, r] of Object.entries(resources)) {
     if (mode === 'import' && r.Type === 'AWS::CDK::Metadata') fail('cdk-metadata-in-import', { logicalId });
     if (r.Type === 'AWS::CloudFormation::WaitConditionHandle' || r.Type === 'AWS::CDK::Metadata') continue;

@@ -23,13 +23,13 @@ describe('compare:config environment redaction', () => {
     const out = redactEnvironmentDifferences(diffValues(before, after));
     const byPath = Object.fromEntries(out.map((d) => [d.path, d]));
     expect(Object.keys(byPath).sort()).toEqual([
-      '[0].configuration.Environment.Variables.ADMIN_SUBS',
-      '[0].configuration.Environment.Variables.MODE',
-      '[0].configuration.Environment.Variables.NEW_VAR',
+      '[name=fn].configuration.Environment.Variables.ADMIN_SUBS',
+      '[name=fn].configuration.Environment.Variables.MODE',
+      '[name=fn].configuration.Environment.Variables.NEW_VAR',
     ]);
-    expect(byPath['[0].configuration.Environment.Variables.ADMIN_SUBS'].before).toEqual({ redacted: true, sha256: sha256Hex(PLAIN_ID), length: PLAIN_ID.length });
-    expect(byPath['[0].configuration.Environment.Variables.NEW_VAR'].before).toBeNull();
-    expect(byPath['[0].configuration.Environment.Variables.NEW_VAR'].after).toMatchObject({ redacted: true, length: PLAIN_ADDED.length });
+    expect(byPath['[name=fn].configuration.Environment.Variables.ADMIN_SUBS'].before).toEqual({ redacted: true, sha256: sha256Hex(PLAIN_ID), length: PLAIN_ID.length });
+    expect(byPath['[name=fn].configuration.Environment.Variables.NEW_VAR'].before).toBeNull();
+    expect(byPath['[name=fn].configuration.Environment.Variables.NEW_VAR'].after).toMatchObject({ redacted: true, length: PLAIN_ADDED.length });
     const text = JSON.stringify(out);
     for (const p of PLAINTEXT) expect(text).not.toContain(p);
   });

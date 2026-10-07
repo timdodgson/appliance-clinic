@@ -1,0 +1,286 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "SparesSite-sbx: Phase 4 stand-in for the S4R site stack (#34). Sandbox only. Plays the shared S4R server role, the S4R HTTP API and the S4R Cognito pool. Deployed directly with CloudFormation, never through a CDK toolkit.",
+  "Parameters": {
+    "StandInRevision": {
+      "Type": "String",
+      "Default": "1",
+      "Description": "Bumped to make an unrelated stack update (T1)."
+    },
+    "RoleRevision": {
+      "Type": "String",
+      "Default": "1",
+      "Description": "Bumped to update the role itself (T1b). The default leaves the role as first deployed."
+    }
+  },
+  "Conditions": {
+    "RoleRevisionIsDefault": {
+      "Fn::Equals": [
+        {
+          "Ref": "RoleRevision"
+        },
+        "1"
+      ]
+    }
+  },
+  "Resources": {
+    "ServerFunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "RoleName": "SparesSite-sbx-ServerFunctionRole",
+        "Description": {
+          "Fn::If": [
+            "RoleRevisionIsDefault",
+            "Stand-in for the S4R server function role (Phase 4 sandbox)",
+            {
+              "Fn::Sub": "Stand-in for the S4R server function role (Phase 4 sandbox), revision ${RoleRevision}"
+            }
+          ]
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      }
+    },
+    "ServerPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "PolicyName": "SparesSite-sbx-ServerPolicy",
+        "Roles": [
+          {
+            "Ref": "ServerFunctionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-server-sbx:*"
+            }
+          ]
+        }
+      }
+    },
+    "ServerFunctionLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/spares4repairs-server-sbx",
+        "RetentionInDays": 7,
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      }
+    },
+    "ServerFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "DependsOn": [
+        "ServerFunctionLogGroup",
+        "ServerPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "spares4repairs-server-sbx",
+        "Description": {
+          "Fn::Sub": "S4R stand-in catalogue stub (Phase 4 sandbox), revision ${StandInRevision}"
+        },
+        "Runtime": "nodejs20.x",
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Timeout": 10,
+        "Role": {
+          "Fn::GetAtt": [
+            "ServerFunctionRole",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "ZipFile": "exports.handler = async (event) => {\n  const path = event.rawPath || '';\n  const body = path.endsWith('/parts-for-model')\n    ? { model: (event.queryStringParameters || {}).model || null, parts: [{ sku: 'SBX-0001', name: 'Sandbox pump', price: 1.0 }] }\n    : { query: (event.queryStringParameters || {}).q || null, results: [{ sku: 'SBX-0001', name: 'Sandbox pump', price: 1.0 }] };\n  return { statusCode: 200, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sandbox: true, ...body }) };\n};\n"
+        },
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      }
+    },
+    "HttpApi": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Name": "spares4repairs-sbx",
+        "ProtocolType": "HTTP",
+        "Description": "Stand-in for the S4R HTTP API (Phase 4 sandbox)",
+        "Tags": {
+          "ac:sandbox": "phase-4"
+        }
+      }
+    },
+    "ServerIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "ServerFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0"
+      }
+    },
+    "SearchRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "GET /api/search",
+        "Target": {
+          "Fn::Sub": "integrations/${ServerIntegration}"
+        }
+      }
+    },
+    "PartsForModelRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "GET /api/parts-for-model",
+        "Target": {
+          "Fn::Sub": "integrations/${ServerIntegration}"
+        }
+      }
+    },
+    "DefaultStage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "StageName": "$default",
+        "AutoDeploy": true,
+        "Tags": {
+          "ac:sandbox": "phase-4"
+        }
+      }
+    },
+    "ServerInvokePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ServerFunction"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": "arn:aws:execute-api:eu-west-1:800960611664:${HttpApi}/*"
+        }
+      }
+    },
+    "UserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "UserPoolName": "SparesSite-sbx-UserPool",
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": true
+        },
+        "UserPoolTags": {
+          "ac:sandbox": "phase-4"
+        }
+      }
+    },
+    "AdminClient": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ClientName": "SparesSite-sbx-AdminClient",
+        "UserPoolId": {
+          "Ref": "UserPool"
+        },
+        "GenerateSecret": false,
+        "ExplicitAuthFlows": [
+          "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ApiId": {
+      "Value": {
+        "Ref": "HttpApi"
+      }
+    },
+    "ApiEndpoint": {
+      "Value": {
+        "Fn::GetAtt": [
+          "HttpApi",
+          "ApiEndpoint"
+        ]
+      }
+    },
+    "UserPoolId": {
+      "Value": {
+        "Ref": "UserPool"
+      }
+    },
+    "UserPoolClientId": {
+      "Value": {
+        "Ref": "AdminClient"
+      }
+    }
+  }
+}
