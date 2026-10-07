@@ -94,7 +94,7 @@ Every sandbox mutation must satisfy **both**:
 |---|---|
 | **Sandbox guard** (`tools/migration`, next PR) | Before any sandbox command, the guard checks: <ul><li>the account is `800960611664` and the region is `eu-west-1`</li><li>the caller is the `ac-operator-sbx` role or an `acsbx` toolkit role</li><li>every mutated identifier passes the allowlist and both denylists</li></ul> Tests prove that production and S4R identifiers are refused. Only named commands can run, as in the existing backup and hotfix tools |
 | **Change-set checker** (sandbox mode) | Every `PhysicalResourceId` and every ARN in the template must be allowlisted. The only exceptions are AWS-managed policy ARNs (`AWSLambdaBasicExecutionRole`) and service principals. Any non-sandbox resource with an `Add`, `Modify`, `Remove`, `Import` or replacement action fails |
-| **IAM** | `ac-deny-production-sbx` is an explicit `Deny` on every ARN from both denylists. It is attached to `ac-operator-sbx` and to the `acsbx` CloudFormation execution role. Their allow policies (`ac-operator-policy-sbx`, `ac-cfn-execution-sbx`) name only sandbox ARN patterns. The toolkit is bootstrapped with `--cloudformation-execution-policies` set to those, never `AdministratorAccess` |
+| **IAM** | `ac-deny-production-sbx` is an explicit `Deny` on every ARN from both denylists, and on `secretsmanager:*` for `secret:spares4repairs/*`. It is attached to `ac-operator-sbx` and to the `acsbx` CloudFormation execution role. Their allow policies (`ac-operator-policy-sbx`, `ac-cfn-execution-sbx`) name only sandbox ARN patterns. The toolkit is bootstrapped with `--cloudformation-execution-policies` set to those, never `AdministratorAccess` |
 | **Lambda configuration** | Before a sandbox function is first invoked, its environment is checked: every override in section 4 is set to a sandbox value, and no value contains a production or S4R identifier |
 
 ## 4. What the runtime code forces
@@ -118,13 +118,18 @@ override would reach production. Every one of these is set on the sandbox copy, 
 | Error-code MCP `-sbx` | `LEARNING_BUCKET` | (from configuration) | Sandbox bucket |
 | All | `STAGE` | `dev` | `sbx` |
 
-**Secret names the code builds itself.**
-- `whichpart-api` and the diagnosis Lambda build three secret names from `STAGE`: `spares4repairs/<STAGE>/applianceclinic-{ai-config,openai,jev}`. There is no override variable.
-- With `STAGE=sbx`, the code looks up `spares4repairs/sbx/…`. That name is not created. The sandbox roles grant only `applianceclinic-sbx/*`, so the lookup is denied and fails closed.
-- Those three secrets are therefore rehearsed **for import only**, under `applianceclinic-sbx/`. Their runtime reads are not exercised.
-
-*Decision for review:* the alternative is to create the three under `spares4repairs/sbx/`. That would exercise the runtime reads, but the
-names would sit inside the S4R server role's `spares4repairs/*` grant. This runbook does not do it.
+**Secret names the code builds itself (decision recorded on #35).**
+- **The names.** `whichpart-api` and the diagnosis Lambda build three secret names from `STAGE` alone, with no override variable:
+  `spares4repairs/<STAGE>/applianceclinic-{ai-config,openai,jev}`.
+- **Decision.** No `spares4repairs/sbx/…` secret is created in this account. It would place sandbox material inside the
+  `spares4repairs/*` namespace that the production S4R server role can read, which weakens the isolation boundary.
+- **Import only.** The three secrets are rehearsed for import and ownership only, as dummy `applianceclinic-sbx/{ai-config,openai,jev}`.
+- **Runtime reads deliberately not exercised.** Their runtime reads are not exercised in the shared-account sandbox. This is
+  not a Phase 4 blocker: the phase proves ownership, import and recovery, and does not change runtime behaviour.
+- **Runtime reads are blocked:**
+  - Every sandbox role carries an explicit `Deny` on `secretsmanager:*` for `arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/*`, so any attempt is refused before it reaches a secret.
+  - Sandbox endpoint checks never call a path that reads them: the admin AI-configuration routes, and any LLM-backed answer path.
+  - The function logs of each check are scanned. Any attempt to read a `spares4repairs/` secret is a STOP.
 
 **The reverse direction.** Production principals with broad grants can reach sandbox resources. For example, the S4R server role
 reads `spares4repairs/*` and holds four `Resource: "*"` statements across the inventoried roles. The sandbox holds no production
@@ -233,6 +238,7 @@ Stop, change nothing more, and report on #34 if any of these happens:
 5. **Deletion outside the sandbox.** A deletion or replacement is proposed for anything outside the allowlist, including through a change set.
 6. **Unexpected change-set actions.** An import-mode change set contains anything other than `Import` actions, or an update-mode change set shows an unexpected `Replace` or `Remove`.
 7. **Production values in a sandbox function.** A sandbox function's configuration would leave a section 4 override unset, or contain a production AC or S4R endpoint, name or ARN.
+   A sandbox function's logs show an attempt to read a `spares4repairs/` secret.
 8. **Production data, secrets or endpoints.** A step would need production data or production secret values, or would call a production AC or S4R endpoint.
 9. **Forbidden scripts.** A step would run an imported `deploy.sh`, anything from `spares4repairs`, or the default `CDKToolkit`.
 10. **Missing fact.** A fact can only be found in `spares4repairs`. Ask first.
