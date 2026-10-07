@@ -46,23 +46,40 @@ The plan assumed a separate, console-created role.
 
 See [ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md) and `PLAN.md`, step 5.10.
 
-### 2. API Gateway permission on the diagnosis Lambda
+### 2. The diagnosis Lambda has two public ingress paths
 
-**Finding.** The diagnosis Lambda's resource policy contains `apigateway-invoke`, which lets API
-`65vnizdmk4`, the S4R catalogue API, invoke it. No AC deploy script creates this statement.
+**Finding (resolved by the rerun of 2026-10-07, #15).** The `apigateway-invoke` statement is live, not
+stale. The diagnosis Lambda can be reached two ways, and neither requires authentication:
 
-**Status: unresolved, S4R-sensitive.** The inventory now checks this read-only (`apigateway-permissions`):
-- whether any integration in the API's current configuration targets the function
-- whether any integration in each deployed stage does (via `GetExport`)
+| # | Ingress | Used by | Authentication |
+|---|---|---|---|
+| 1 | Its Function URL (`RESPONSE_STREAM`) | The S4R `/part-finder` page, from the shopper's browser | None |
+| 2 | API Gateway `65vnizdmk4`, HTTP API `spares4repairs-dev`, route **`POST /ai/chat`**, AWS_PROXY integration `nk77gue` (payload 2.0) | Unknown. No code in the `spares4repairs` repository or its history calls `/ai/chat` | None |
 
-It concludes `invokes`, `configured-not-deployed`, `no-integration-found` or `api-not-found`.
+About the API:
+- **It is S4R's.** It also serves the shop's catalogue search, so the diagnosis Lambda and the error-code
+  tools depend on it.
+- **It was created by hand on 2026-07-20 and is not in any CloudFormation stack.** The stack-based
+  denylist rule therefore does not cover it. It is on the S4R denylist through the manual entries in
+  `tools/migration/config/s4r-known.json`.
+- **The route is live.** The `$default` stage auto-deploys and was last updated on 2026-08-20. Its
+  `$default` route goes to a different integration.
+- **Origin of the permission.** CloudTrail shows four `AddPermission` calls on the diagnosis Lambda by
+  the account owner on 2026-08-20, around the creation of the Function URL and an update to the API
+  stage. The events do not record statement IDs, so which call added `apigateway-invoke` is inferred
+  from timing.
 
-Until that check has run and been reviewed:
-- The permission is a possible second S4R consumer of the diagnosis Lambda.
-- It is not imported, changed or removed.
-- It stays an ownership STOP flag.
-
-Removing it later is POTENTIALLY IMPACTS S4R, and only if the check shows it is stale.
+**Controls until the route's use is known:**
+- **Classification.** The route, the API and the Lambda permission are S4R-sensitive, and any change to
+  them is POTENTIALLY IMPACTS S4R. They are treated as live dependencies: not imported, changed or
+  removed.
+- **Ingress check.** The route has its own check (`npm run baseline -- ingress capture|verify`),
+  separate from the `/part-finder` contract. Both run before and after any step that touches the
+  diagnosis Lambda.
+- **Traffic check.** A read-only CloudWatch check (`npm run traffic`) establishes whether the route is
+  used. HTTP APIs publish per-route counts only when detailed metrics are on. If they are off, the check
+  reports that the route's traffic cannot be separated from the API's total. Turning them on would
+  change the S4R API, so it is not done here.
 
 ### 3. The CloudFront distribution also serves `whichpart.co.uk`
 
@@ -93,22 +110,53 @@ not changed. The replacement site deployment uploads to the bucket only, so it d
 - **Rules and functions:** the EventBridge targets match the scripts, and the CloudFront function is
   not shared.
 
+## CloudTrail ownership evidence
+
+From the rerun of 2026-10-07. Events were searched in eu-west-1 and us-east-1. Only us-east-1
+`PutRolePolicy` reached the 1,000-event limit, so events before 2026-07-23 are not visible.
+
+| Resource | Created | By |
+|---|---|---|
+| `whichpart-api-role` | 2026-08-23 | Account owner (by hand) |
+| `error-code-mcp-role` | 2026-08-30 | Account owner (by hand) |
+| `diag-orchestrator-role` | 2026-08-30 | Account owner (by hand) |
+| `SparesSite-dev-ServerFunctionRole…` (current) | 2026-07-20 | AWS CloudFormation (the `SparesSite-dev` stack) |
+| CloudFront distribution and function (inferred from timing; the events carry no resource names) | 2026-08-23 | Account owner (by hand) |
+
+**Inline policies.**
+- **On the S4R server role:** every inline policy was added by hand by the account owner. CloudFormation
+  added none. That covers the S4R policies from July onwards and the three AC policies:
+  - `WhichpartLearningPut`, first put 2026-08-26
+  - `whichpart-media-overlay-s3`, from 2026-09-19 to 2026-10-05
+  - `whichpart-knowledge-overlay-s3`, 2026-10-05
+- **On the AC roles:** inline policies were put by the account owner from 2026-08-30 onwards, matching
+  the AC deploy scripts.
+
 ## Known risks recorded
 
 - **S4R deployments and the diagnosis Lambda.** A deployment of `SparesSite-dev` updates the shared
-  role. If CloudFormation removes inline policies it does not manage, the diagnosis Lambda loses
-  access to the learning bucket. That would affect both Appliance Clinic and the S4R `/part-finder`
-  page. Sandbox experiment T1 answers whether this happens. The risk existed before this migration.
-- **Shared write access.** Because the role is shared, the S4R server Lambda also has the three AC
+  role. If CloudFormation removed inline policies it does not manage, the diagnosis Lambda would lose
+  access to the learning bucket, affecting Appliance Clinic and the S4R `/part-finder` page.
+  - *Lowers concern:* the evidence above shows hand-added inline policies on that role, S4R and AC
+    alike, surviving S4R deployments since July.
+  - *Does not replace the test:* sandbox experiment T1 stays mandatory.
+- **Shared write access.** Because the role is shared, the S4R server Lambda also holds the three AC
   permissions, including writing to the AC learning bucket.
+- **Unauthenticated `/ai/chat`.** The route invokes the diagnosis Lambda, and its LLM calls, with no
+  authentication and no known client. It is not changed in this work, but it is an open cost and
+  abuse surface. Any protection is a Phase 7 decision, classified POTENTIALLY IMPACTS S4R.
 
 ## Inventory tooling corrections
 
-The first run surfaced three reporting issues:
-- **Function URL `AuthType` was redacted.** The name matched the secret-name rule. Fixed: Function URL
-  configuration is recorded as returned.
-- **CloudTrail lookup covered eu-west-1 only.** IAM and CloudFront record their events in us-east-1,
-  so role and distribution creation events were missing. Fixed: both regions are searched, with a
-  truncation flag per event name.
-- **Stack status appeared as `null`.** This was a misread of the output, not a tooling fault. A test
-  now pins status capture.
+The first run surfaced three reporting issues. All are resolved and confirmed by the rerun:
+- **Function URL `AuthType` was redacted.** Fixed: Function URL configuration is recorded as returned.
+  The rerun shows `NONE` for all four functions.
+- **CloudTrail covered eu-west-1 only.** Fixed: eu-west-1 and us-east-1 are searched, with a truncation
+  flag. The rerun returned the role creation and `PutRolePolicy` events above.
+- **Stack status appeared as `null`.** This was a misread of the output, not a tooling fault, and a test
+  now pins it. The rerun shows `SparesSite-dev` UPDATE_COMPLETE and `CDKToolkit` CREATE_COMPLETE.
+
+**Added after the rerun:**
+- HTTP API investigations record the routes and authorisation types that reach the function.
+- A read-only route traffic check.
+- A separate `/ai/chat` ingress check.
