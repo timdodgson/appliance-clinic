@@ -131,6 +131,30 @@ not changed. The replacement site deployment uploads to the bucket only, so it d
 - **Rules and functions:** the EventBridge targets match the scripts, and the CloudFront function is
   not shared.
 
+### 5. An AI provider outage was masked by template replies
+
+**Finding (2026-10-07, #7).** The first baseline attempt found production diagnosis failing. The
+diagnosis Lambda's LLM calls go to LM Studio through an ngrok tunnel, and the tunnel's account was
+suspended (`ERR_NGROK_6008`). Every request that needed the LLM returned "AI service unavailable".
+The live AI config had also drifted to the wrong model (`gpt-5.6-terra`). The owner restored the
+tunnel and corrected the model to `qwen3.6-35b-a3b-mtp`. This work made no production change.
+
+During the outage, some canonical-control journeys still looked healthy. In the canonical runtime, a
+failed COMPOSE call is replaced by the journey's deterministic template
+(`services/part-finder/canonical-runtime.js`, `word()`, at `13b7a50`). The reply looks normal and the
+request is logged `ok: true`. The only trace is `compose.source: "template"` with
+`violations: ["compose_failed"]`.
+
+**Effect.**
+- **Defect recorded in #21.** A required provider failure must not silently look healthy. It is
+  fixed after runtime extraction, as a POTENTIALLY IMPACTS S4R change, because S4R `/part-finder`
+  uses the same runtime.
+- **Baseline acceptance.** The baseline is accepted only when COMPOSE is confirmed healthy from the
+  diagnosis Lambda's metric lines: every request `ok`, and every canonical journey
+  `canonicalControl.source: "compose"`.
+- **Intentional fixed copy is separate.** Safety stops and declined unsafe requests return fixed copy
+  by design (`source: "template"`, no violations). They are not part of this defect.
+
 ## CloudTrail ownership evidence
 
 From the rerun of 2026-10-07. Events were searched in eu-west-1 and us-east-1. Only us-east-1
