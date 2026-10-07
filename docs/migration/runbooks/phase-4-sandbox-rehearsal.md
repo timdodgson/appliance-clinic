@@ -37,7 +37,7 @@ exercised. Globally unique names get a `-sbx` suffix.
 | Phase 5 step | Resource type | Sandbox stand-in for | Rehearsal | Production owner |
 |---|---|---|---|---|
 | 5.1, 5.2 | `AWS::ECR::Repository` | `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp` | Import; repository policy and lifecycle unchanged; the image digest is preserved | AC |
-| 5.2 | `AWS::SecretsManager::Secret` | The 7 AC secrets (dummy values) | Import; the value is not part of the template; consumed by Lambdas as a `{{resolve:secretsmanager:…}}` dynamic reference; nothing literal in `cdk.out` | AC |
+| 5.2 | `AWS::SecretsManager::Secret` | The 7 AC secrets (dummy values) | Import; no secret value in any template or `cdk.out`. Each secret keeps its production consumption pattern: the secrets the code reads at runtime through Secrets Manager stay that way, and only the plaintext bearer-token environment variables PLAN.md names are expressed as `{{resolve:secretsmanager:…}}` dynamic references | AC |
 | 5.3 | `AWS::DynamoDB::Table` | `whichpart-recalls`, `whichpart-transcripts` | Import with the key, GSI `gsi_activity`, TTL, on-demand billing and **PITR enabled** declared exactly; then an update in which none of them changes | AC |
 | 5.4 | `AWS::S3::Bucket`, `AWS::S3::BucketPolicy` | `whichpart-web-<sbx>`, `whichpart-learning-<sbx>` | Import the bucket and its existing policy (OAC statement shape); objects and policy unchanged | AC |
 | 5.5 | `AWS::IAM::Role` | `whichpart-api-role`, `diag-orchestrator-role`, `error-code-mcp-role` | Import without inline policies; inline policies survive (T3) | AC |
@@ -66,9 +66,14 @@ PLAN.md refers to these experiments as defined in the original review, which is 
 restated here from PLAN.md's summary ("unmanaged policy survival, `Role.Policies` behaviour, `CfnRolePolicy`
 import, removal with RETAIN"), so they can be reviewed in this PR.
 
+CloudFormation currently documents resource-import support for `AWS::IAM::RolePolicy`, `AWS::Lambda::Url`,
+`AWS::Lambda::Permission`, `AWS::Events::Rule` and `AWS::ECR::Repository` (checked during review of this PR). The
+rehearsal confirms each one in practice.
+
 | Test | Question | Pass condition |
 |---|---|---|
-| **T1** (mandatory) | Does an update of the stack that manages a role remove inline policies the stack does not manage? Two updates are tested: one unrelated to the role, and one to the role itself (tag or description) | The hand-added policies are unchanged after both updates |
+| **T1** (mandatory) | Does an unrelated update of the stack that manages a role remove inline policies the stack does not manage? | The hand-added policies are unchanged after the update. This is PLAN.md's pass condition, unchanged |
+| T1b (extra probe) | The same, when the update changes the role itself (a tag or description) | Records the behaviour. The result becomes a CDK rule, not a T1 failure. It is a Phase 5 STOP only if the production plan would make such an update to a role that carries unmanaged policies |
 | T2 | What does declaring `Policies` on `AWS::IAM::Role` (`Role.Policies`) do to inline policies that are not declared? | Records the behaviour. If undeclared policies are removed, that confirms the rule "never use `Role.Policies`" |
 | T3 | Importing a role with no `Policies` property, then updating it | Its existing inline and managed policies are unchanged |
 | T4 | Importing an existing inline policy as `AWS::IAM::RolePolicy` | The import succeeds with an `Import` action only; the policy document is unchanged; drift detection is clean |
@@ -140,8 +145,8 @@ Stop, change nothing more, and report on #34 if any of these happens:
 6. A fact can only be found in `spares4repairs`. Ask first.
 7. An import-mode change set contains anything other than `Import` actions, or an update-mode change set
    shows an unexpected `Replace` or `Remove`.
-8. A rehearsal fails its pass condition. For example, T1 finds an inline policy removed, or a Function URL
-   host changes on re-import. This is a Phase 5 blocker, recorded and turned into a rule before continuing.
+8. A rehearsal fails its pass condition. For example, T1 finds an inline policy removed after an unrelated
+   update, or a Function URL host changes on re-import. This is a Phase 5 blocker, recorded and turned into a rule before continuing.
 9. The sandbox budget alarm fires.
 
 ## 5. Approval points
