@@ -32,6 +32,10 @@ unless there is a clear technical reason recorded in the phase's PR.
   identities, data, S3 contents, secrets, IAM behaviour and request/response contracts survive.
 - **The running AWS deployment is the source of truth**, not `13b7a50`. Code was deployed by
   hand from feature branches.
+- **This repository is public.** Content is pushed only after a secret and PII scan passes.
+  Secrets, credentials, private keys, customer data and PII are absolute blockers. Non-secret
+  infrastructure identifiers (account IDs, resource IDs, public Function URLs) are not blockers by
+  themselves (Phase 2).
 - **Production AWS commands are run by a person**, never by CI. No production AWS credentials
   are stored in GitHub, and there are no automatic production deployment workflows.
 
@@ -59,7 +63,7 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 | 6 | Ownership | Prove ownership with one harmless change |
 | 7 | Improve | Security hardening through CDK |
 | 8 | Improve | Architecture cleanup |
-| 9 | Improve | Clean squashed public portfolio repository |
+| 9 | Improve | Portfolio readiness of this public repository |
 
 ### Phase 0: Freeze, inventory, ownership proof, backups, baseline
 
@@ -309,13 +313,17 @@ See [ADR 0004](../adr/0004-import-existing-resources-into-cdk.md).
 **Exit criteria**
 - The full evaluation is within agreed bands, and the `/part-finder` contract passes.
 
-### Phase 9: Public portfolio publication
+### Phase 9: Portfolio readiness
+
+This repository is already public, and its full history, including the migration record, stays as it
+is. Phase 9 does not create a second repository or squash history.
 
 **Actions**
-- Create a clean, squashed public repository from the finished private repository. The private migration history is not exposed.
-- Before publishing, remove unnecessary AWS identifiers, migration-only detail and temporary notes, and verify there are no secrets, customer data or unlicensed media.
+- Retire migration-only detail and temporary notes that no longer serve the running system, through
+  normal pull requests.
+- Re-run the secret and PII scan over the whole repository and its history. Verify there is no
+  customer data or unlicensed media.
 - Check the README, architecture documentation, CI, licence, `SECURITY.md` and `CONTRIBUTING.md`.
-- Apply the `main` ruleset ([`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json)) to the public repository, so the rules that are process-enforced in this private repository become GitHub-enforced. See [repository governance](../repository/governance.md).
 
 ## Safety gates
 
