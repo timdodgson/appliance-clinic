@@ -98,7 +98,9 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 Step #4 (deployed-vs-source comparison) does not start until the three criteria above are met.
 - `s4r-denylist.json` has been generated and reviewed.
 - The deployed-vs-source comparison is recorded, and every unmatched file is explained.
-- Backups are complete and restorable.
+- Backups are complete: DynamoDB on-demand backups are `AVAILABLE`, PITR is enabled on both AC tables,
+  and the S3 backup copies match the inventory object counts. No production restore is performed;
+  recovery is rehearsed in the sandbox (Phase 4).
 - The `/part-finder` contract and the behavioural baseline are recorded.
 
 ### Phase 1: Critical admin hotfix
@@ -168,6 +170,8 @@ groups is treated as an AC admin.
 - Lambda: Function URL import, permission import, removing a URL and importing it again (the URL host must not change), and importing a container Lambda by digest.
 - S3: import a bucket and its bucket policy.
 - Rollback with RETAIN, stack policy behaviour, the change-set checker, and the deny-S4R execution role.
+- Recovery, with sandbox test data: restore a DynamoDB on-demand backup and a PITR point into new tables, restore S3 objects
+  from a backup-bucket copy, and record the steps and timings in a recovery runbook.
 
 T1 (an unmanaged inline policy surviving an unrelated stack update) stays mandatory. In production, the
 hand-added policies on the S4R server role have survived S4R deployments, which lowers the concern but
@@ -175,6 +179,7 @@ does not replace the test.
 
 **Exit criteria**
 - Every resource type planned for Phase 5 has a recorded, passing rehearsal.
+- The recovery rehearsal has passed and its runbook is merged.
 - Every surprise has been turned into a rule, a checker test or a runbook step.
 
 ### Phase 5: Production CDK import
