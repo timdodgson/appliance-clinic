@@ -35,6 +35,16 @@ export const GENERATED_PARENT_TYPES = {
   'AWS::S3::Object': ['AWS::S3::Bucket'],
 };
 
+/** The CloudFormation resource type each kind of generated identifier is the physical ID of. */
+const GENERATED_CFN_TYPES = {
+  'AWS::Lambda::Url': 'AWS::Lambda::Url',
+  'AWS::Lambda::Permission': 'AWS::Lambda::Permission',
+  'AWS::ApiGatewayV2::ApiId': 'AWS::ApiGatewayV2::Api',
+  'AWS::Cognito::UserPoolId': 'AWS::Cognito::UserPool',
+  'AWS::Cognito::UserPoolClientId': 'AWS::Cognito::UserPoolClient',
+  'AWS::SecretsManager::SecretArn': 'AWS::SecretsManager::Secret',
+};
+
 /**
  * Environment variables each sandbox function must set. The runtime code falls back to production
  * defaults when they are unset (runbook section 4). `kind` says what a valid sandbox value is.
@@ -138,6 +148,18 @@ export function checkTarget(lists, { type, id, parent }) {
 }
 
 const hasType = (lists, name, type) => Boolean(lists.names.get(name)?.has(type));
+const isGeneratedFor = (lists, id, cfnType) => lists.generated.some((g) => g.id === id && GENERATED_CFN_TYPES[g.type] === cfnType);
+
+/**
+ * Whether a change-set target is a sandbox resource of exactly this CloudFormation type: allowlisted
+ * under that type (by name, or by the name inside its ARN), or a recorded generated child of that type.
+ * A sandbox name presented under another type is refused, as in checkTarget().
+ */
+export function isSandboxTargetOfType(lists, cfnType, target) {
+  if (!cfnType || !target) return false;
+  const arnName = arnResourceName(target)?.name;
+  return [target, arnName].filter(Boolean).some((t) => hasType(lists, t, cfnType) || isGeneratedFor(lists, t, cfnType));
+}
 const isGeneratedId = (lists, value) => lists.generated.some((g) => g.id === value);
 const isAllowlistedName = (lists, value) => lists.names.has(value);
 
@@ -230,8 +252,7 @@ export function checkSandboxChangeSet(lists, { changeSet, template = null }) {
     const declared = NAME_PROPERTIES.map((p) => resources[rc.LogicalResourceId]?.Properties?.[p]).find((v) => typeof v === 'string');
     const target = rc.PhysicalResourceId || declared;
     if (!target) { failures.push({ rule: 'change-target-unknown', ...id }); continue; }
-    const known = isAllowlistedName(lists, target) || isGeneratedId(lists, target) || isAllowlistedName(lists, arnResourceName(target)?.name);
-    if (!known) failures.push({ rule: 'change-target-not-sandbox', ...id, target });
+    if (!isSandboxTargetOfType(lists, rc.ResourceType, target)) failures.push({ rule: 'change-target-not-sandbox', ...id, target });
     for (const d of deniedBy(lists, target)) failures.push({ rule: 'change-target-denylisted', ...id, target, ...d });
   }
   if (template) for (const f of checkDocument(lists, template)) failures.push({ ...f, in: 'template' });

@@ -152,6 +152,31 @@ describe('sandbox change sets', () => {
   it('passes an import of a sandbox resource into a sandbox stack', () => {
     expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', 'whichpart-recalls-sbx', 'AWS::DynamoDB::Table')] } })).toEqual([]);
   });
+  it('refuses a valid sandbox name presented under the wrong resource type', () => {
+    // whichpart-recalls-sbx is allowlisted, but only as AWS::DynamoDB::Table.
+    for (const action of ['Import', 'Modify', 'Remove']) {
+      const r = rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change(action, 'whichpart-recalls-sbx', 'AWS::S3::Bucket')] } }));
+      expect(r, action).toEqual(['change-target-not-sandbox']);
+    }
+    // A name that is allowlisted under two types is accepted under each, and under no third.
+    expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'spares4repairs-diag-orchestrator-sbx', 'AWS::ECR::Repository')] } })).toEqual([]);
+    expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'spares4repairs-diag-orchestrator-sbx', 'AWS::Lambda::Function')] } })).toEqual([]);
+    expect(rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'spares4repairs-diag-orchestrator-sbx', 'AWS::IAM::Role')] } }))).toEqual(['change-target-not-sandbox']);
+  });
+
+  it('accepts a generated child only under the resource type it was recorded for', () => {
+    const host = `${URLS.orchestrator}.lambda-url.eu-west-1.on.aws`;
+    expect(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'sbxapi0001', 'AWS::ApiGatewayV2::Api')] } })).toEqual([]);
+    expect(rules(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'sbxapi0001', 'AWS::Lambda::Function')] } }))).toEqual(['change-target-not-sandbox']);
+    expect(rules(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', host, 'AWS::Lambda::Permission')] } }))).toEqual(['change-target-not-sandbox']);
+  });
+
+  it('checks the name inside an ARN against the exact type', () => {
+    const arn = `arn:aws:secretsmanager:eu-west-1:${A}:secret:applianceclinic-sbx/openai-AbC123`;
+    expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', arn, 'AWS::SecretsManager::Secret')] } })).toEqual([]);
+    expect(rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', arn, 'AWS::SSM::Parameter')] } }))).toEqual(['change-target-not-sandbox']);
+  });
+
   it('fails a non-sandbox stack', () => {
     expect(rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack', Changes: [] } }))).toContain('stack-not-sandbox');
     expect(rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'SparesSite-dev', Changes: [] } }))).toContain('stack-not-sandbox');
