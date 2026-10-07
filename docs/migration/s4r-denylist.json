@@ -1,23 +1,622 @@
 {
   "$schema": "../../tools/migration/schema/s4r-denylist.schema.json",
   "schemaVersion": 1,
-  "generatedAt": null,
-  "generatedBy": null,
-  "accountId": null,
-  "regions": [],
-  "notes": "Placeholder. Regenerate with `npm run denylist --prefix tools/migration` (READ-ONLY) before every production step. Entries below are the S4R resources known without AWS access.",
+  "generatedAt": "2026-10-07T01:38:42.740Z",
+  "generatedBy": "tools/migration/bin/denylist.mjs",
+  "accountId": "800960611664",
+  "regions": [
+    "eu-west-1"
+  ],
+  "notes": "Generated from a READ-ONLY Phase 0 inventory. Regenerate before every production step.",
   "entries": [
     {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/business-config-PEw4gn",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/business-config is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/db-F6asfI",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/db is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/getaddress-4DiT2D",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/getaddress is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/google-maps-SRTR0N",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/google-maps is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/paypal-TjoQuN",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/paypal is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/royal-mail-muRtw1",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/royal-mail is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/stripe-LvGdUb",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/stripe is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "arn",
+      "value": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/twilio-OGgUXL",
+      "resourceType": "AWS::SecretsManager::Secret",
+      "reason": "Secret spares4repairs/dev/twilio is under the shared prefix and is not an Appliance Clinic candidate.",
+      "source": "secrets:shared-prefix"
+    },
+    {
+      "kind": "physicalId",
+      "value": "/cdk-bootstrap/hnb659fds/version",
+      "resourceType": "AWS::SSM::Parameter",
+      "region": "eu-west-1",
+      "reason": "Resource CdkBootstrapVersion of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "/spares4repairs/dev/app",
+      "resourceType": "AWS::Logs::LogGroup",
+      "region": "eu-west-1",
+      "reason": "Resource AppLogGroup7D8CD952 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "/spares4repairs/dev/db/host",
+      "resourceType": "AWS::SSM::Parameter",
+      "region": "eu-west-1",
+      "reason": "Resource DbHostParam97C3205D of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "/spares4repairs/dev/db/name",
+      "resourceType": "AWS::SSM::Parameter",
+      "region": "eu-west-1",
+      "reason": "Resource DbNameParamFAD81845 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "0a6119bd-7ccb-4746-8279-d9cbb789265e",
+      "resourceType": "Custom::S3AutoDeleteObjects",
+      "region": "eu-west-1",
+      "reason": "Resource ImagesBucketAutoDeleteObjectsCustomResource1A749259 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "133c1687-2279-45b6-9edc-58e33f163b33",
+      "resourceType": "Custom::S3AutoDeleteObjects",
+      "region": "eu-west-1",
+      "reason": "Resource CatalogueSnapshotBucketAutoDeleteObjectsCustomResourceA17EC06A of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "185.48.120.212",
+      "resourceType": "AWS::EC2::EIP",
+      "region": "eu-west-1",
+      "reason": "Resource NatGatewayEip of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "5ae181b0-847e-11f1-a8f4-060bd449d135",
+      "resourceType": "AWS::CDK::Metadata",
+      "region": "eu-west-1",
+      "reason": "Resource CDKMetadata of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "60phdcnl0eetdq4kcp327d0fkm",
+      "resourceType": "AWS::Cognito::UserPoolClient",
+      "reason": "S4R admin app client used by AC sign-in.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "60phdcnl0eetdq4kcp327d0fkm",
+      "resourceType": "AWS::Cognito::UserPoolClient",
+      "region": "eu-west-1",
+      "reason": "Resource AdminUserPoolAdminAppClient43C1FAD5 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "65vnizdmk4",
+      "resourceType": "AWS::ApiGatewayV2::Api",
+      "reason": "S4R HTTP API spares4repairs-dev (catalogue search; also routes POST /ai/chat to the diagnosis Lambda). Hand-created, not in any stack. AC calls it as a client only.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "93876d1a-d5cf-4248-8f9c-0c97c249bf0a",
+      "resourceType": "Custom::S3AutoDeleteObjects",
+      "region": "eu-west-1",
+      "reason": "Resource LogBucketAutoDeleteObjectsCustomResource7762F42C of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "arn:aws:cloudfront::800960611664:function/spares4repairs-url-rewrite-dev",
+      "resourceType": "AWS::CloudFront::Function",
+      "region": "eu-west-1",
+      "reason": "Resource UrlRewriteFunction9ABF1F87 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "be16dff7-2906-48e7-bf7e-286e7c7354ce",
+      "resourceType": "Custom::S3AutoDeleteObjects",
+      "region": "eu-west-1",
+      "reason": "Resource PublicationBucketAutoDeleteObjectsCustomResourceB1CB0605 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-assets-800960611664-eu-west-1",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource StagingBucket of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-cfn-exec-role-800960611664-eu-west-1",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource CloudFormationExecutionRole of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-container-assets-800960611664-eu-west-1",
+      "resourceType": "AWS::ECR::Repository",
+      "region": "eu-west-1",
+      "reason": "Resource ContainerAssetsRepository of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-deploy-role-800960611664-eu-west-1",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource DeploymentActionRole of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-file-publishing-role-800960611664-eu-west-1",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource FilePublishingRole of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-image-publishing-role-800960611664-eu-west-1",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource ImagePublishingRole of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "cdk-hnb659fds-lookup-role-800960611664-eu-west-1",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource LookupRole of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "CDKTo-FileP-iyBNwgGz4z4i",
+      "resourceType": "AWS::IAM::Policy",
+      "region": "eu-west-1",
+      "reason": "Resource FilePublishingRoleDefaultPolicy of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "CDKTo-Image-ywWdP52TLKLb",
+      "resourceType": "AWS::IAM::Policy",
+      "region": "eu-west-1",
+      "reason": "Resource ImagePublishingRoleDefaultPolicy of stack CDKToolkit.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "physicalId",
+      "value": "d1hrb3pgx61xww.cloudfront.net",
+      "reason": "S4R CloudFront domain (buy links).",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "E13YQUT012DDZZ",
+      "resourceType": "AWS::CloudFront::OriginAccessControl",
+      "region": "eu-west-1",
+      "reason": "Resource DistributionOrigin3S3OriginAccessControl9DA31435 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "E2I3MGU4AZR2ZW",
+      "resourceType": "AWS::CloudFront::Distribution",
+      "reason": "S4R CloudFront distribution.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "E2I3MGU4AZR2ZW",
+      "resourceType": "AWS::CloudFront::Distribution",
+      "region": "eu-west-1",
+      "reason": "Resource Distribution830FAC52 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "E2ZS9YRKRODCTO",
+      "resourceType": "AWS::CloudFront::OriginAccessControl",
+      "region": "eu-west-1",
+      "reason": "Resource DistributionOrigin1S3OriginAccessControlEB606076 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "eb303081-f34b-4517-896b-7df4267228d7",
+      "resourceType": "Custom::S3AutoDeleteObjects",
+      "region": "eu-west-1",
+      "reason": "Resource AssetsBucketAutoDeleteObjectsCustomResource51BA1286 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "ERK705S24FWKO",
+      "resourceType": "AWS::CloudFront::OriginAccessControl",
+      "region": "eu-west-1",
+      "reason": "Resource DistributionOrigin4S3OriginAccessControlD0879E02 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "eu-west-1_mUWucohuX",
+      "resourceType": "AWS::Cognito::UserPool",
+      "reason": "S4R Cognito user pool (infra/lib/stack.ts:341). AC signs in against it until Phase 7.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "eu-west-1_mUWucohuX",
+      "resourceType": "AWS::Cognito::UserPool",
+      "region": "eu-west-1",
+      "reason": "Resource AdminUserPoolD0AF18CF of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "igw-07ec4ae2d2fbf1a33",
+      "resourceType": "AWS::EC2::InternetGateway",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcIGW4473811C of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "IGW|vpc-0848509a30758a752",
+      "resourceType": "AWS::EC2::VPCGatewayAttachment",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcVPCGW68DE5DB7 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "nat-0d7a921fed8525724",
+      "resourceType": "AWS::EC2::NatGateway",
+      "region": "eu-west-1",
+      "reason": "Resource NatGateway of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0057bc198398b2455|0.0.0.0/0",
+      "resourceType": "AWS::EC2::Route",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet1DefaultRoute8878369B of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0057bc198398b2455",
+      "resourceType": "AWS::EC2::RouteTable",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet1RouteTable1A2D674B of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0457d5e54d3ef9191|0.0.0.0/0",
+      "resourceType": "AWS::EC2::Route",
+      "region": "eu-west-1",
+      "reason": "Resource NatRouteeuwest1a of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0457d5e54d3ef9191",
+      "resourceType": "AWS::EC2::RouteTable",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet1RouteTable5E15C875 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-063c58051b1b49257|0.0.0.0/0",
+      "resourceType": "AWS::EC2::Route",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet2DefaultRoute3E7F4506 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-063c58051b1b49257",
+      "resourceType": "AWS::EC2::RouteTable",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet2RouteTableFD258DE3 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0b8f2e7d24810ff35|0.0.0.0/0",
+      "resourceType": "AWS::EC2::Route",
+      "region": "eu-west-1",
+      "reason": "Resource NatRouteeuwest1b of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtb-0b8f2e7d24810ff35",
+      "resourceType": "AWS::EC2::RouteTable",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet2RouteTable17C4A65B of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtbassoc-018a32522ef95b34c",
+      "resourceType": "AWS::EC2::SubnetRouteTableAssociation",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet2RouteTableAssociation1BA7CA8D of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtbassoc-0cb259249d8392bdf",
+      "resourceType": "AWS::EC2::SubnetRouteTableAssociation",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet1RouteTableAssociationDCDB0E0F of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtbassoc-0e9cb7bf07d912f36",
+      "resourceType": "AWS::EC2::SubnetRouteTableAssociation",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet1RouteTableAssociationE7139158 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "rtbassoc-0f09e7cbbdfcfb014",
+      "resourceType": "AWS::EC2::SubnetRouteTableAssociation",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet2RouteTableAssociation9C80BDF8 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "sg-099cd35104c1322d1",
+      "resourceType": "AWS::EC2::SecurityGroup",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaSg30A6108C of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "Spare-Serve-7ES55ItHM2ay",
+      "resourceType": "AWS::IAM::Policy",
+      "region": "eu-west-1",
+      "reason": "Resource ServerFunctionRoleDefaultPolicy975E5328 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares-clone.chnzpcm60w1x.us-east-2.rds.amazonaws.com",
+      "reason": "S4R legacy database host.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-assets-dev",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource AssetsBucket5CB76180 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-audit-dev",
+      "resourceType": "AWS::DynamoDB::Table",
+      "region": "eu-west-1",
+      "reason": "Resource AuditTableB07F8EEB of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-baskets-dev",
+      "resourceType": "AWS::DynamoDB::Table",
+      "region": "eu-west-1",
+      "reason": "Resource BasketsTable038AEED1 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-catalogue-snapshots-dev",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource CatalogueSnapshotBucket393DB606 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-images-dev",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource ImagesBucket1E86AFB2 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-logs-dev",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource LogBucketCC3B17E8 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-orders-dev",
+      "resourceType": "AWS::DynamoDB::Table",
+      "region": "eu-west-1",
+      "reason": "Resource OrdersTable315BB997 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-publication-dev",
+      "resourceType": "AWS::S3::Bucket",
+      "region": "eu-west-1",
+      "reason": "Resource PublicationBucket5A8273E0 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "spares4repairs-server-dev",
+      "resourceType": "AWS::Lambda::Function",
+      "reason": "S4R server Lambda. Not in any stack (deployed by the S4R workflow with update-function-code). Shares the S4R server role with the diagnosis Lambda.",
+      "source": "manual"
+    },
+    {
+      "kind": "physicalId",
+      "value": "SparesSite-dev-CustomS3AutoDeleteObjectsCustomReso-cXfma7digfIQ",
+      "resourceType": "AWS::Lambda::Function",
+      "region": "eu-west-1",
+      "reason": "Resource CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "SparesSite-dev-CustomS3AutoDeleteObjectsCustomResou-vRdtkAJlKDb9",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2qUHib",
+      "resourceType": "AWS::IAM::Role",
+      "region": "eu-west-1",
+      "reason": "Resource ServerFunctionRoleC337EDB9 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "subnet-01205bbf7b87d980d",
+      "resourceType": "AWS::EC2::Subnet",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet2SubnetC01F2378 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "subnet-067b5ff17ac0f1619",
+      "resourceType": "AWS::EC2::Subnet",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcpublicSubnet1Subnet798095C5 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "subnet-0981630a4ff1b3e9f",
+      "resourceType": "AWS::EC2::Subnet",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet2Subnet9FC64064 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "subnet-0e1db9655bdd844d1",
+      "resourceType": "AWS::EC2::Subnet",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcprivateSubnet1SubnetAF59B852 of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
+      "kind": "physicalId",
+      "value": "vpc-0848509a30758a752",
+      "resourceType": "AWS::EC2::VPC",
+      "region": "eu-west-1",
+      "reason": "Resource LambdaVpcE3C9C1FC of stack SparesSite-dev.",
+      "source": "cloudformation:SparesSite-dev"
+    },
+    {
       "kind": "stack",
-      "value": "SparesSite-dev",
-      "reason": "Spares4Repairs production stack. Every resource in it is S4R.",
+      "value": "CDKToolkit",
+      "reason": "Default CDK bootstrap used by Spares4Repairs. Appliance Clinic uses its own toolkit.",
       "source": "manual"
     },
     {
       "kind": "stack",
       "value": "CDKToolkit",
-      "reason": "Default CDK bootstrap stack used by Spares4Repairs deployments. Appliance Clinic uses its own toolkit.",
+      "region": "eu-west-1",
+      "reason": "Existing CloudFormation stack not owned by Appliance Clinic.",
+      "source": "cloudformation:CDKToolkit"
+    },
+    {
+      "kind": "stack",
+      "value": "SparesSite-dev",
+      "reason": "Spares4Repairs production stack.",
       "source": "manual"
+    },
+    {
+      "kind": "stack",
+      "value": "SparesSite-dev",
+      "region": "eu-west-1",
+      "reason": "Existing CloudFormation stack not owned by Appliance Clinic.",
+      "source": "cloudformation:SparesSite-dev"
     }
   ]
 }
