@@ -54,7 +54,7 @@ stale. The diagnosis Lambda can be reached two ways, and neither requires authen
 | # | Ingress | Used by | Authentication |
 |---|---|---|---|
 | 1 | Its Function URL (`RESPONSE_STREAM`) | The S4R `/part-finder` page, from the shopper's browser | None |
-| 2 | API Gateway `65vnizdmk4`, HTTP API `spares4repairs-dev`, route **`POST /ai/chat`**, AWS_PROXY integration `nk77gue` (payload 2.0) | Unknown. No code in the `spares4repairs` repository or its history calls `/ai/chat` | None |
+| 2 | API Gateway `65vnizdmk4`, HTTP API `spares4repairs-dev`, route **`POST /ai/chat`**, AWS_PROXY integration `nk77gue` (payload 2.0) | No observed use (see *Measured use* below). No code in the `spares4repairs` repository or its history calls `/ai/chat` | None |
 
 About the API:
 - **It is S4R's.** It also serves the shop's catalogue search, so the diagnosis Lambda and the error-code
@@ -80,6 +80,27 @@ About the API:
   used. HTTP APIs publish per-route counts only when detailed metrics are on. If they are off, the check
   reports that the route's traffic cannot be separated from the API's total. Turning them on would
   change the S4R API, so it is not done here.
+
+**Measured use (2026-10-07, #17).**
+- **Metrics:** `route-metrics-unavailable`. Detailed metrics are off on `$default`, so the route cannot
+  be separated from the API total (113,026 requests in 30 days, including the S4R catalogue search).
+- **Logs:** the diagnosis Lambda logs one `evt: "part-finder"` line per chat request, with `requestId`
+  taken from `event.requestContext.requestId`. Function URL requests carry UUIDs; HTTP API requests
+  carry short IDs ending in `=`. The log group was created on 2026-08-20 and never expires, so it covers
+  the whole period since the API permission was added. Across that history, 90,671 chat requests all
+  had UUIDs. None had API Gateway-style IDs, and neither `ai/chat` nor `routeKey` appears in the logs.
+- **Ingress baseline:** a single test request to `/ai/chat` returned **HTTP 500** with an API
+  Gateway-style JSON body (`{"message": …}`), not the NDJSON stream the Function URL returns. The likely
+  cause, not verified, is that the HTTP API's buffered proxy integration cannot relay the function's
+  `RESPONSE_STREAM` response. The recorded baseline (kept locally in `.migration-output/`) is that 500, so the check detects any
+  change to it.
+
+**Conclusion.** No evidence of `/ai/chat` handling real chat traffic was found, and the route does not
+currently return a working response. This is strong evidence it is unused, but not absolute proof: 78
+invocations have no matching chat log line (health checks and rejected or failed requests are not
+logged that way), and API Gateway access logging is disabled. The route, the API and the permission
+therefore stay S4R-sensitive and live. Any removal, protection or permission change is a Phase 7
+decision that needs S4R sign-off.
 
 ### 3. The CloudFront distribution also serves `whichpart.co.uk`
 
@@ -143,8 +164,9 @@ From the rerun of 2026-10-07. Events were searched in eu-west-1 and us-east-1. O
 - **Shared write access.** Because the role is shared, the S4R server Lambda also holds the three AC
   permissions, including writing to the AC learning bucket.
 - **Unauthenticated `/ai/chat`.** The route invokes the diagnosis Lambda, and its LLM calls, with no
-  authentication and no known client. It is not changed in this work, but it is an open cost and
-  abuse surface. Any protection is a Phase 7 decision, classified POTENTIALLY IMPACTS S4R.
+  authentication and no known client. No real use was observed and it currently returns HTTP 500;
+  whether such a request still invokes the function was not checked. It is not changed in this work,
+  but it is an open cost and abuse surface. Any protection is a Phase 7 decision, classified POTENTIALLY IMPACTS S4R.
 
 ## Inventory tooling corrections
 
