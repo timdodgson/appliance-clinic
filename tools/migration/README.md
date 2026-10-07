@@ -29,7 +29,7 @@ Run from this directory after `npm ci`.
 | `npm run denylist -- --inventory <dir>` | None | READ-ONLY | Generate `docs/migration/s4r-denylist.json` |
 | `npm run compare:source -- --artifact <zip> --source <dir>` | None | READ-ONLY | Is production running this source? |
 | `npm run compare:build -- <a> <b> [--allow-diff p1,p2]` | None | READ-ONLY | File-for-file artefact equivalence |
-| `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories |
+| `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories. Lambda environment values appear only as SHA-256 digests and lengths, never in plaintext |
 | `npm run check:changeset -- --changeset <json> --mode import\|update --step <json>` | None | READ-ONLY | Gate before executing a change set |
 | `npm run baseline -- <s4r-health\|contract capture\|contract verify\|ingress capture\|ingress verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline, the S4R `/part-finder` contract, and the separate `/ai/chat` ingress check |
 | `npm run traffic -- [--api <id>] [--route "POST /ai/chat"] [--days 30]` | Reads | READ-ONLY | Whether an HTTP API route is actually used (CloudWatch) |
