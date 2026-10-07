@@ -94,18 +94,21 @@ export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds =
     }
   }
 
-  if (template) checkTemplate({ template, mode, secretDigests, fail, warn });
+  // Roles this change set creates own every policy they declare; the T2 and T7 rules protect existing roles.
+  const added = new Set(changes.filter((rc) => rc.Action === 'Add').map((rc) => rc.LogicalResourceId));
+  if (template) checkTemplate({ template, mode, secretDigests, fail, warn, added });
   if (template) referenceScan(template, 'denylisted-identifier-in-template');
 
   return { ok: failures.length === 0, mode, stack: changeSet.StackName || null, changes: changes.length, failures, warnings };
 }
 
-function checkTemplate({ template, mode, secretDigests, fail, warn }) {
+function checkTemplate({ template, mode, secretDigests, fail, warn, added = new Set() }) {
   const resources = template.Resources || {};
   // Rules from the Phase 4 IAM experiments (docs/migration/phase-4-results.md). Failures for Phase 5 and later
   // (import, update); warnings in the sandbox, where T2 and T7 exercise exactly these shapes.
   const iamRule = mode === 'sandbox' ? warn : fail;
   for (const [logicalId, r] of Object.entries(resources)) {
+    if (added.has(logicalId)) continue;
     if (r.Type === 'AWS::IAM::Role' && r.Properties?.Policies !== undefined) {
       iamRule('role-declares-policies', { logicalId, note: 'T2: never use Role.Policies; declare each inline policy as its own AWS::IAM::RolePolicy' });
     }

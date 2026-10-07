@@ -64,6 +64,8 @@ export function executionPolicy() {
     // Never GetSecretValue: imports read secret metadata only.
     { Sid: 'ReadAcSecretMetadata', Effect: 'Allow', Action: ['secretsmanager:DescribeSecret', 'secretsmanager:GetResourcePolicy', 'secretsmanager:ListSecretVersionIds'], Resource: secretArns },
     { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:DescribeRepositories', 'ecr:DescribeImages', 'ecr:GetLifecyclePolicy', 'ecr:GetRepositoryPolicy', 'ecr:ListTagsForResource', 'ecr:DescribeImageScanFindings'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
+    // Every CDK template's BootstrapVersion parameter resolves this toolkit parameter (Phase 5 finding).
+    { Sid: 'ReadToolkitVersion', Effect: 'Allow', Action: ['ssm:GetParameter', 'ssm:GetParameters'], Resource: `arn:aws:ssm:${R}:${A}:parameter/cdk-bootstrap/${QUALIFIER}/version` },
     { Sid: 'ReadAcRules', Effect: 'Allow', Action: ['events:DescribeRule', 'events:ListTargetsByRule', 'events:ListTagsForResource'], Resource: AC.rules.map((n) => `arn:aws:events:${R}:${A}:rule/${n}`) },
   ]);
 }

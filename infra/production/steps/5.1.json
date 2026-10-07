@@ -1,0 +1,13 @@
+{
+  "step": "5.1",
+  "description": "ECR canary: the error-code MCP repository (PLAN.md Phase 5, step 5.1). SAFE AC CHANGE.",
+  "stack": "AcDataStack",
+  "allowedPhysicalIds": ["spares4repairs-error-code-mcp"],
+  "acknowledgedReferences": [],
+  "import": [
+    { "ResourceType": "AWS::ECR::Repository", "LogicalResourceId": "spares4repairserrorcodemcp", "ResourceIdentifier": { "RepositoryName": "spares4repairs-error-code-mcp" } }
+  ],
+  "expectedChanges": [
+    { "action": "Import", "logicalId": "spares4repairserrorcodemcp", "type": "AWS::ECR::Repository", "physicalId": "spares4repairs-error-code-mcp" }
+  ]
+}
