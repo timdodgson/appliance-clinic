@@ -1,0 +1,1585 @@
+{
+ "description": "Phase 2 follow-up (#27): tests, test support and packaging inputs Phase 3 needs. Byte for byte spares4repairs@13b7a50. tools/migration tests re-check every hash.",
+ "deployScripts": "The four deploy.sh files are packaging references only. They also make AWS changes (services/part-finder/deploy.sh writes inline policies to the S4R server role). Never run them; Phase 3 reproduces the packaging steps.",
+ "offlineRun": "Sandbox: this repository plus these files, vitest 3.2.7 and @aws-sdk 3.1091.0 (the monorepo pins), Python requirements from the two images plus pytest, fake AWS credentials, no proxy. Tests that fail also fail identically on a full 13b7a50 checkout.",
+ "excludedTests": {
+  "services/part-finder/test/canonical-boundaries.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/part-finder/test/canonical-journey-registry.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/part-finder/test/error-codes-canonical.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/part-finder/test/media-build-roundtrip.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/part-finder/test/media-information.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/acq-stream.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/acq-transport.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/admin-live-test-continuity.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/batch-runner-fidelity.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/benchmark-contract.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/cts-logic.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/deploy-bundle.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/kn-logic.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/md-logic.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/media-video.test.cjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/tac-logic.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/tac-workbench.test.mjs": "depends on apps/whichpart (outside the AC service directories)",
+  "services/whichpart-api/test/term-match.test.mjs": "depends on apps/whichpart, rating-plates/ocr-cases.json (outside the AC service directories)",
+  "orchestration/tests/test_deployed_e2e.py": "live: calls the deployed orchestrator (ORCH_URL)",
+  "orchestration/tests/test_live_mcp.py": "live: calls the deployed error-code MCP (MCP_URL)",
+  "orchestration/tests/test_integrated_e2e.py": "live: needs MCP_URL for the deployed MCP",
+  "error-codes/enrichment/tests/test_enrichment.py": "needs error-codes/manufacturer-groups research data (not imported)",
+  "services/whichpart-api/test/batch-routing-override.test.mjs": "needs benchmark/acq-worker.mjs, which loads apps/whichpart/chat-session.js (frontend)",
+  "services/whichpart-api/test/cts-page-ux.test.mjs": "reads apps/whichpart/admin.html and admin.js (frontend)",
+  "services/whichpart-api/test/tac-page-ux.test.mjs": "reads apps/whichpart/admin.html, admin.js, styles.css (frontend)",
+  "services/whichpart-api/test/admin-runtime-label.test.mjs": "reads apps/whichpart/admin.js (frontend)",
+  "services/whichpart-api/test/admin-transcripts-fix.test.mjs": "reads apps/whichpart/admin.js (frontend)",
+  "services/whichpart-api/test/knowledge-inspect.test.mjs": "reads apps/whichpart/admin.html and admin.js (frontend)",
+  "services/whichpart-api/test/transcript-review-source.test.mjs": "reads apps/whichpart/admin.js (frontend)",
+  "services/whichpart-api/test/ai-config.test.mjs": "contains a real-looking personal work email address (PII blocker under the public-repository rule); needs an owner decision"
+ },
+ "files": [
+  {
+   "path": "error-codes/mcp/deploy/deploy.sh",
+   "sha256": "f59d218574e8708eeb402e56f6ce6fe627a71eb38d768cc85a1ef69a3adc00bb",
+   "bytes": 8362,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/deploy.sh",
+   "role": "packaging-reference"
+  },
+  {
+   "path": "error-codes/mcp/deploy/tests/test_auth.py",
+   "sha256": "39b66f10c0017d0696b08891f4a7f5665c6efdacaa25bf35fa8d95729cfccd7e",
+   "bytes": 4910,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/tests/test_auth.py",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "error-codes/mcp/tests/test_catalogue_effective.py",
+   "sha256": "582776eeaf82415f6c4284d5afc983370f5bbc7b52a7fdca5915186a4f3ce60e",
+   "bytes": 9300,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/tests/test_catalogue_effective.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "error-codes/mcp/tests/test_catalogue_workflow.py",
+   "sha256": "a22a3c9b730920b1e2b0194ad3b0fd599ce0bab7ea6e2a1a3f33f6569084810c",
+   "bytes": 20850,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/tests/test_catalogue_workflow.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "error-codes/mcp/tests/test_mcp.py",
+   "sha256": "612e676b1ac81d82f6a4ce8a70ef7ed3b939fcced0baadceece94068a6792139",
+   "bytes": 12222,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/tests/test_mcp.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "error-codes/mcp/tests/test_schema.py",
+   "sha256": "ae55ec239d87f477faafde6462eff714960d0b58bd4ce0d44ccd49cfa2822c89",
+   "bytes": 4589,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/tests/test_schema.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "error-codes/runtime-model/tests/test_runtime.py",
+   "sha256": "a695a2a04f65b73b88fd2bb4dfb37817e60b9e49f0788c03b8391f2b0bd34fa0",
+   "bytes": 11821,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/tests/test_runtime.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/deploy/deploy.sh",
+   "sha256": "30bfff1148c25411e28b7677138adae15f30a4df3dec1bf11d690d2357f4a03b",
+   "bytes": 5945,
+   "source": "spares4repairs@13b7a50:orchestration/deploy/deploy.sh",
+   "role": "packaging-reference"
+  },
+  {
+   "path": "orchestration/tests/__init__.py",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0,
+   "source": "spares4repairs@13b7a50:orchestration/tests/__init__.py",
+   "role": "test-support"
+  },
+  {
+   "path": "orchestration/tests/fixtures.py",
+   "sha256": "347198fc221290689d361f395b36f41ee8091b24d6dead16f71f5eea64b3dddc",
+   "bytes": 8350,
+   "source": "spares4repairs@13b7a50:orchestration/tests/fixtures.py",
+   "role": "test-support"
+  },
+  {
+   "path": "orchestration/tests/test_canonical_control.py",
+   "sha256": "77c00c8b02895ec9bba8fce297a6fa60183253152e6c8a539168baa8080830a9",
+   "bytes": 20299,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_canonical_control.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_canonical_passthrough.py",
+   "sha256": "2ebd04f32afb6d8909c030eab8f9af9287712df9d2898b4b5cf97a50163b9682",
+   "bytes": 9238,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_canonical_passthrough.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_clarification_intent.py",
+   "sha256": "21c25dbdc557dba379952b8827521cff66b608cf4e2a395e3cb04f36854616f2",
+   "bytes": 14648,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_clarification_intent.py",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "orchestration/tests/test_evidence_persistence.py",
+   "sha256": "50d7ce5452dcd32485ac32a7eb4369d34966f60deecba94f775746cda9167b6a",
+   "bytes": 13174,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_evidence_persistence.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_first_turn_family_decision.py",
+   "sha256": "5fb373873a38bc1e484a2905bab1d84cc4716d421e70eab98acc45f5d05938ec",
+   "bytes": 5552,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_first_turn_family_decision.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_identity_persistence.py",
+   "sha256": "6d9c517517382fb320c367845b9e24285e9ef0bfe608d3c1a624d79d12cfedbf",
+   "bytes": 8799,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_identity_persistence.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_jev_authoritative_routing.py",
+   "sha256": "9132e4b4fc5b6586c08be30a12229f7ba7d8f8a6dc14bb2ff80f9cdf71008687",
+   "bytes": 10359,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_jev_authoritative_routing.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_journey_policy_v2.py",
+   "sha256": "549f2d408aa5ed07f31331b91c0ee3791073c6b3f07481f12ed06bd61fd0eee7",
+   "bytes": 13027,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_journey_policy_v2.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_orchestration.py",
+   "sha256": "487be045a363fec578a7aff9479abc7861db8673b1e766d37e620d4090b31469",
+   "bytes": 34631,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_orchestration.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_progression_policy.py",
+   "sha256": "022a374d01a5f7b1a88d6088b0058eb4bddcaadc2e84e262d61bfbf754446141",
+   "bytes": 9189,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_progression_policy.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_rag_conversation.py",
+   "sha256": "7666996a8b7804d80c4cc40302faa01a649f17169506eeddc6e569ebe9cd9a39",
+   "bytes": 4850,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_rag_conversation.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "orchestration/tests/test_response_ownership.py",
+   "sha256": "5167d324978f19178d3716a14f0483349362c79a129d52e0211efd891b72071e",
+   "bytes": 12246,
+   "source": "spares4repairs@13b7a50:orchestration/tests/test_response_ownership.py",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/deploy.sh",
+   "sha256": "dc29fc1d60be5906d5505cee55a6cb93a07dad2c92a70da0259edc1e6adf915a",
+   "bytes": 4792,
+   "source": "spares4repairs@13b7a50:services/part-finder/deploy.sh",
+   "role": "packaging-reference"
+  },
+  {
+   "path": "services/part-finder/fit-evidence.js",
+   "sha256": "00741ab2cd21782c4195a34dca54a7e1b28ce4efe30d6b6765c2e5aea3fc7776",
+   "bytes": 8679,
+   "source": "spares4repairs@13b7a50:services/part-finder/fit-evidence.js",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/part-finder/knowledge/build-knowledge.mjs",
+   "sha256": "044b021ce37a98bbfcd7d9a02c5b488ae9026e885fcb7b9209d82ed04633469a",
+   "bytes": 21399,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/build-knowledge.mjs",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/part-finder/knowledge/overrides.json",
+   "sha256": "26184daae76e224b328015509d470d25e7199dcf2156fe61348cd45e256d813a",
+   "bytes": 591256,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/overrides.json",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/part-finder/test/_jev-sim.js",
+   "sha256": "29c57df1aadf1260a0487579583d0496afd21b3737f2dcf15c2528358a925877",
+   "bytes": 4026,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/_jev-sim.js",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/admin-config.test.mjs",
+   "sha256": "4aaa3fe9dac8ececc8fb4ab51b92943c8dc1bf05dcbf0ff140ccbd881f55c9c7",
+   "bytes": 11697,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/admin-config.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/answer-quality-contract.test.js",
+   "sha256": "ef69dfbb549f3e4cee7b7010e38e7f0412dcb8f9bf145b03a55284e6c7047237",
+   "bytes": 5553,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/answer-quality-contract.test.js",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/answered-discriminator.test.js",
+   "sha256": "9da79f3a13bacbb5af8d432e29d29d714fbee2df8b9c80286b81b6da962d57c1",
+   "bytes": 11732,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/answered-discriminator.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/architectural-integrity.test.js",
+   "sha256": "fdafa60b9ade1760fbb1b2f2ab79f4bfe7b5e995cb4730e8279fe02aa8179df7",
+   "bytes": 15590,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/architectural-integrity.test.js",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/cannot-answer-progression.test.js",
+   "sha256": "e95bac60a154fc8461ce430cb4128ed4f06ccac260163d3f2f4102fd2846fd77",
+   "bytes": 9641,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/cannot-answer-progression.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-b2-classification.test.mjs",
+   "sha256": "700706802d75edf10c7e759977e8a0fc760b2ee7ce6be7e19ad94fc123b06577",
+   "bytes": 3045,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-b2-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-candidates.test.mjs",
+   "sha256": "56b37992df841a5054c3cd12afe29f81d6f6bc16c48e3de09b7c2f8b076612ce",
+   "bytes": 7648,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-candidates.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw-classification.test.mjs",
+   "sha256": "aba74356ae0e686aef3b8978f420b9ba2caede30b6cb5045b269b40f8c4797fe",
+   "bytes": 2371,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw1-not-draining.test.mjs",
+   "sha256": "355b5a0f4bd8d43bf9c3175e91c47addd7b2987ab2407fcc3ccc10bfa1a3c399",
+   "bytes": 7305,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw1-not-draining.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw2-not-filling.test.mjs",
+   "sha256": "e439b0ebdf0ba94a3205137f45fef7769ea60c9ddc07baae9d21ee6aae5cdee1",
+   "bytes": 7063,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw2-not-filling.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw3-leaking.test.mjs",
+   "sha256": "afeeb67a0254e91cc87cee616b5135a029bd73d88fb7ddb9fa9027e744a86e07",
+   "bytes": 6869,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw3-leaking.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw4-not-cleaning.test.mjs",
+   "sha256": "d25d3cde99f6d61612fd794dbb78072fb30ebbe12de1fc8b0d120a566f1a4d70",
+   "bytes": 7091,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw4-not-cleaning.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw5-heating-drying.test.mjs",
+   "sha256": "ab94b318ce0cf37e49e0a027ed4aa3411de4587e52646a31bbcc0b8da017bf98",
+   "bytes": 6018,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw5-heating-drying.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-dw6-door-not-starting.test.mjs",
+   "sha256": "1e3065e38e0cf3e6e931edd027f1a550ef4b71db34842efbb94ca253a37499f5",
+   "bytes": 6605,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-dw6-door-not-starting.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff1-not-cooling.test.mjs",
+   "sha256": "6dff1108cbe5c74529fc9ee293a9efd9f50df761d3c3b56852693dfb0b548f15",
+   "bytes": 8294,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff1-not-cooling.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff2-too-cold.test.mjs",
+   "sha256": "5abc967e60f27ba112cb1157deacd1f725337cd1d892e2bf59bc9c10f9ad8882",
+   "bytes": 3498,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff2-too-cold.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff3-noisy.test.mjs",
+   "sha256": "c98d752d5d277b6e0a70e5ccca7ec626f907cb85a1e7de33052adcf3e484663b",
+   "bytes": 4604,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff3-noisy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff4-leaking.test.mjs",
+   "sha256": "a58e0888097a45e53d663e10d76ccd1ecfc668a3669a621d9b35bc4e164ff008",
+   "bytes": 5189,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff4-leaking.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff5-ice-frost.test.mjs",
+   "sha256": "f0586c5fa71c653cd4a4e755e5758e38938033e96fe68b5bf0fa930f2c5f5cf3",
+   "bytes": 5014,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff5-ice-frost.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff6-door-seal.test.mjs",
+   "sha256": "b67a94cd78586d27177ba4c0f610691e5792369e060413dc2fc9f6ce71b43037",
+   "bytes": 3684,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff6-door-seal.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ff7-not-running.test.mjs",
+   "sha256": "692299a7011692504382cf8a97f728d96bed60bc70203a795fe81b5f7c620524",
+   "bytes": 5024,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ff7-not-running.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-fftd-classification.test.mjs",
+   "sha256": "510df5c496b1dcbd58a837272b86cd95b12ec1d7899a09c2ddc8f795d5c9145a",
+   "bytes": 5671,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-fftd-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-final-classification.test.mjs",
+   "sha256": "4ddc7acb0b8c61bc7509b40d7ff7ffe08b886bd9a26d7b0e646fac33acb7b6f3",
+   "bytes": 3076,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-final-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-hob-mw-family.test.mjs",
+   "sha256": "f0415dd6c6b64911eac0d52da12c8bf54038489523bd3646cdb616e0b86407c7",
+   "bytes": 8109,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-hob-mw-family.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j1-control.test.mjs",
+   "sha256": "6e3cf67fb93e063767c7434de45b0ce6339b66893bc10768be087fa6ec5310e5",
+   "bytes": 13125,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j1-control.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j1-diagnostics.test.mjs",
+   "sha256": "519b04430ef3ba7f6fbb2e71895141b8785979bde19928f65e6ddcdcb61e8761",
+   "bytes": 16573,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j1-diagnostics.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j1-pipeline.test.mjs",
+   "sha256": "5a9571ed617627bd867b3eb9bb2228c80086d76352d3c224c30995c58ba86f31",
+   "bytes": 11645,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j1-pipeline.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j1-policy.test.mjs",
+   "sha256": "344e0839550bea2a76f9483b6ce0b937378d48da3a524170d383d144701735dc",
+   "bytes": 18544,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j1-policy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j2-classification.test.mjs",
+   "sha256": "5a4c1320c86a527fb886863bd963641e11731e8d7b55b53a3944bab8e9ef6839",
+   "bytes": 1884,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j2-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j2-control.test.mjs",
+   "sha256": "606d241a816d0b5d74cd4426fd32c5b3aa271bb0ddbb3feeaeb6d81f39338406",
+   "bytes": 11818,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j2-control.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j2-diagnostics.test.mjs",
+   "sha256": "aa1a842174bdb9174f6702fd65b5ebe818f1726a18ea3d9220e5893bccfe2151",
+   "bytes": 13028,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j2-diagnostics.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j2-policy.test.mjs",
+   "sha256": "62cba1c2378fa6524d47a22fbee11af2b9e405a0e5831478f5015525c6e27d4a",
+   "bytes": 16708,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j2-policy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j3-classification.test.mjs",
+   "sha256": "7828e23a5529cd39fecafdf8403fa53ad89b29ae1570980b98c3316f13ce275b",
+   "bytes": 1751,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j3-classification.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j3-control.test.mjs",
+   "sha256": "3e38cb7a648c7e4ddb1812cca153f39277487bfe36845e20f2d9a7c988e91dcb",
+   "bytes": 15420,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j3-control.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j3-diagnostics.test.mjs",
+   "sha256": "27fc0080e820df2a3ffd0b98fbaa21077680e44e6c4a63e022ef50ac115172a1",
+   "bytes": 8881,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j3-diagnostics.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j3-policy.test.mjs",
+   "sha256": "60932faa402abc87a099ec76c0cd0dbc823585715e7f4143901c8183f150afd5",
+   "bytes": 13489,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j3-policy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j4-not-filling.test.mjs",
+   "sha256": "80936346a2ebad369a66dc9e8736734ca76aca147ef8767f764850d218b03fa3",
+   "bytes": 10077,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j4-not-filling.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j5-overfilling.test.mjs",
+   "sha256": "a8e098b11b4776903c8a31c1077a81c74701b7839280f339170badcc15b7fe1c",
+   "bytes": 7950,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j5-overfilling.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j6-door.test.mjs",
+   "sha256": "c5212dcfe69c67e9e74864a6b789637b1fc742ee7a1b6ef316be203d70495fd0",
+   "bytes": 8103,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j6-door.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j7-vibration.test.mjs",
+   "sha256": "97e87df0eb8939012d35b14d777e9f67c54948774458bb95d17a5e9f6b694402",
+   "bytes": 8469,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j7-vibration.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j8-noisy.test.mjs",
+   "sha256": "5f919cb23c98fabd5053a4c6e369eb5cdf31a0f724109033726c029ed8896e05",
+   "bytes": 8011,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j8-noisy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-j9-not-heating.test.mjs",
+   "sha256": "91132fd458af386dcd60a8a5062739c19672d08d7dc57c142b7a696914d16189",
+   "bytes": 7270,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-j9-not-heating.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-mc1-stage-d.test.mjs",
+   "sha256": "d7504801e5060d4daa134ba237e2ed1f179b23955e6765e192cc4c9626683229",
+   "bytes": 12920,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-mc1-stage-d.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-merge.test.mjs",
+   "sha256": "2d2702e7cb0d9784a6232587d2c14f0e19e0349fdc5326f684723a640222b168",
+   "bytes": 27041,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-merge.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-ov-family.test.mjs",
+   "sha256": "68537d651efe1996917057303e00db306dde6b0a3c386729ca6d5770c4087f7a",
+   "bytes": 9525,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-ov-family.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-requests.test.mjs",
+   "sha256": "8405752d412c2cb32cf220b88601de6fddfaf18fa1a98029d2172a70d5703b2b",
+   "bytes": 7835,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-requests.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td1-not-heating.test.mjs",
+   "sha256": "142b3fa62ed73bf43083c9ce6f9a06b4849158989d76924475b818463f201bc5",
+   "bytes": 5810,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td1-not-heating.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td2-not-drying.test.mjs",
+   "sha256": "b27a6d7578967a0aac7df08fe49d828fb967661115669690119813c55ead2098",
+   "bytes": 3929,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td2-not-drying.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td3-drum-not-turning.test.mjs",
+   "sha256": "c9c2e9818c449d86c3ff050a354a33364aec505801bae5cb44fa520648de7c2e",
+   "bytes": 4461,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td3-drum-not-turning.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td4-noisy.test.mjs",
+   "sha256": "b4dcea18ca55809766dbb8553bcf011aa3675fd78c0c4a05471dbd587b382e2c",
+   "bytes": 3474,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td4-noisy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td5-stops-mid-cycle.test.mjs",
+   "sha256": "3c1f1a6608bd165b487e02603cbaa95725773689e1c06faff0e353a9a106460f",
+   "bytes": 3649,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td5-stops-mid-cycle.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td6-water-container.test.mjs",
+   "sha256": "97d1a4d49c62758be236524f18e717b7376b5a3607190c656b05d6c64db40ae4",
+   "bytes": 4581,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td6-water-container.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-td7-door-not-starting.test.mjs",
+   "sha256": "395f344ec0994681b7ebf5fc43b9891ed7847d3efff6fae1ddca89847a6643c0",
+   "bytes": 4376,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-td7-door-not-starting.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-transport.test.mjs",
+   "sha256": "8a9750040dbbce0487089e09cf24b7701b2703183987c41e8a24806f01a73286",
+   "bytes": 5328,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-transport.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-understand-wiring.test.mjs",
+   "sha256": "cebc7805cf43bf7d047483ea6fcfeb460f3e5a1b199e2745af147cb2b8f574e0",
+   "bytes": 8564,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-understand-wiring.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-vac-family.test.mjs",
+   "sha256": "113abad98233dc419875b76a416c40301cd343ed523a386041fdf710f3f18d9b",
+   "bytes": 10814,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-vac-family.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/canonical-wd-family.test.mjs",
+   "sha256": "59b2582b90466e1b014d1407e8b05515bf1ebbc25865ea54cf1cf2cf633e9647",
+   "bytes": 9124,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/canonical-wd-family.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/compose-evidence-fidelity.test.js",
+   "sha256": "6cb4180c839377c5dd14674d51336d25584fce105cd9396c96251e612c800562",
+   "bytes": 3167,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/compose-evidence-fidelity.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/conversation-progression.test.js",
+   "sha256": "4e62c709130c3a6b2fd97ee7721b096fbf69639310fcc5e9dc2132a6bfdf8707",
+   "bytes": 91340,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/conversation-progression.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/declined-discriminator-progress.test.js",
+   "sha256": "e92c1f808b6c55da9ae596ffe8a906a42e4eff1bea6f0978b83c4674b71c04b5",
+   "bytes": 9091,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/declined-discriminator-progress.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/diagnostic-evidence-reasoning.test.js",
+   "sha256": "14f1e525872d3a9bede643ec412d5fa12ef27efa33a037b7da9b297a4032b7f7",
+   "bytes": 25226,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/diagnostic-evidence-reasoning.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/diagnostic-milestone-contracts.test.js",
+   "sha256": "c628cd02df9ee4a1d0a1dfe62f07a29390fc83fb42d1d31b220c803f1b27ec78",
+   "bytes": 25481,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/diagnostic-milestone-contracts.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/diagnostic-presentation.test.js",
+   "sha256": "669851bc9d05da9db037cb51cb8c0b8a4e4bed30fa5403e219eebd84d9f644fc",
+   "bytes": 17079,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/diagnostic-presentation.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/dishwasher-engineer-challenge.test.mjs",
+   "sha256": "a13eafb95415225acd0aafd3ffbb811253b8fa98b573e963a6863482365e0a3f",
+   "bytes": 23756,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/dishwasher-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/drain-vs-spin-diagnostic-depth.test.js",
+   "sha256": "1edf87b4916efb98d13ce3a6b6a91ee216c55a986659432967d129283f05fbf8",
+   "bytes": 9167,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/drain-vs-spin-diagnostic-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/drying-diagnostic-depth.test.js",
+   "sha256": "7600475da6df2e1fa3f29ac31fce51d211da0a9c81a95863e4a09b85ef407600",
+   "bytes": 9002,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/drying-diagnostic-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/engineering-finding.test.mjs",
+   "sha256": "7462e13b28bd479490051e039bbe799adc5b3a36874cb43e037e6596590291e0",
+   "bytes": 7133,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/engineering-finding.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/error-code-component.test.js",
+   "sha256": "639f1e67c36bdcaa6ad295833128c67966401627216fa583f2b1d479ada813a2",
+   "bytes": 18611,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/error-code-component.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/evidence-works-strength.test.js",
+   "sha256": "dc3cb5a363710e07cf528fb6cdc7778ebf0b6a4fdc38bef5579121d99862181b",
+   "bytes": 5841,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/evidence-works-strength.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/faultid-capture.test.js",
+   "sha256": "510af701c343a63754d245e59e778135ddfe191cd7e3b10dac7d7bb55d879bf3",
+   "bytes": 2959,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/faultid-capture.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/fit-evidence.test.js",
+   "sha256": "bb43fbc081605437c12e843f6d36bd12417f4ffa55445bc071aad32617de5faa",
+   "bytes": 9299,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fit-evidence.test.js",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-b2-fixtures.cjs",
+   "sha256": "950d9f9551d3197d65a851ca3bc9461d72a84d2f75b6ce617defc1f612cc795b",
+   "bytes": 14649,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-b2-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-dw-fixtures.cjs",
+   "sha256": "664b8627eab90257c9bfcdb9c17cdd9b2c87467e6d972d4c29f1cdd0b7c24880",
+   "bytes": 12652,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-dw-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-fftd-fixtures.cjs",
+   "sha256": "1d349123af1805402decf25c3e135a8190f7b5d467bab567b7f8f66a1511bef9",
+   "bytes": 17235,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-fftd-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-final-fixtures.cjs",
+   "sha256": "4206c5f90b7c46be939b62bfe389c80b318d2a3c32727a3a4a444ee074730570",
+   "bytes": 14352,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-final-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-j2-fixtures.cjs",
+   "sha256": "93c4945f7fcdaade70bf1e5134225820de2dd92c713a154377b9b9cde09cca8c",
+   "bytes": 9674,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-j2-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-j3-fixtures.cjs",
+   "sha256": "c06e25a2b91c6e98926694c5b5ff00fefaf7e01cab484a9f3450169107cc018c",
+   "bytes": 9224,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-j3-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fixtures/mc1-stage-d-fixtures.cjs",
+   "sha256": "4ba6557d5b7e960a82669e3e8aacfb387c3ef9e32d9bafab100c3c3182cb0b8a",
+   "bytes": 25369,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fixtures/mc1-stage-d-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/fridge-freezer-engineer-challenge.test.mjs",
+   "sha256": "b8d7a96ec369bcd6551b383f8f126f00bbaba64db2aa5a44eaff4a8001ae90d3",
+   "bytes": 12566,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fridge-freezer-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/fridge-warm-fridge-cold-freezer-depth.test.js",
+   "sha256": "71af3bcdc7bb07aff9499a737eca11ab2a555e440ac730d65660939cc39fade2",
+   "bytes": 8654,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/fridge-warm-fridge-cold-freezer-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/hard-diagnostic-correctness.test.js",
+   "sha256": "416b54668245304d542797fdad90b3ebe989e273b37416d2993fb355c367c1d8",
+   "bytes": 13168,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/hard-diagnostic-correctness.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/hazard-provenance.test.js",
+   "sha256": "6f0029b9c32d2831d85da70d0b5de83c87d78b1bfda1de49d874218b7490622c",
+   "bytes": 8293,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/hazard-provenance.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/health.test.mjs",
+   "sha256": "d65394cb6ee99b25cedbf67f3b2f031cda2e3a118109a10a77d29c897b53949a",
+   "bytes": 14467,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/health.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/helpers/b2-journey.cjs",
+   "sha256": "6b3d3f9c830302fe3fb45d6574e476880c60aa2764c82ce56f6d03657ba6aec2",
+   "bytes": 5564,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/helpers/b2-journey.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/helpers/mc1-stage-d.cjs",
+   "sha256": "36ba9f7367a92a9072dd7dea9a4c128dc6ece1a14859b54687296d4511bcb0fa",
+   "bytes": 10851,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/helpers/mc1-stage-d.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/hob-single-zone-diagnostic-depth.test.js",
+   "sha256": "1881ed5b7ce8cc4b5e0be739bca45a663ce83f3106189c9c6f3826f514b26385",
+   "bytes": 8741,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/hob-single-zone-diagnostic-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/hobs-engineer-challenge.test.mjs",
+   "sha256": "cef7b8be2dc8ee54963a9f5f8e8850bb206a278536d274f17413d07313249086",
+   "bytes": 9616,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/hobs-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/identification-fit-confidence.test.js",
+   "sha256": "a8a18ef6b63bdbda96afb4989cdb90da9a52fe33ad8bf8526257ff4e65f5181a",
+   "bytes": 17633,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/identification-fit-confidence.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/identity-integrity.test.js",
+   "sha256": "d091b58b1058543367e7cb035a84f362a898a4ede9dff487919a26617a77329f",
+   "bytes": 45250,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/identity-integrity.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/identity-state-persistence.test.js",
+   "sha256": "cf241dab0f924c7c5b6b999327ba56b5bdc9ece0e6d26a1be23b24fa69dee0e5",
+   "bytes": 9657,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/identity-state-persistence.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/inference.test.mjs",
+   "sha256": "09a566619b5a8adbd225e4017a4430a4f74fce33197609143f0118c588fdcad2",
+   "bytes": 12093,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/inference.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/j1-state-fixture.cjs",
+   "sha256": "812f21cb3cba489caad39880036c26730b1ce3238d9ea859033938c1bbe7cbd6",
+   "bytes": 2649,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/j1-state-fixture.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/j2-state-fixture.cjs",
+   "sha256": "fadf6586e90af3e37ba11da80977f6ba3340f8dfe5ea909ebba2d5532b2e8695",
+   "bytes": 527,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/j2-state-fixture.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/part-finder/test/jev-client.test.mjs",
+   "sha256": "4538e2151154e83e02bb3f739574da715e90c9ecd415912cdaea1c120a093d84",
+   "bytes": 4635,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/jev-client.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/jev-completed-check-contract.test.mjs",
+   "sha256": "3872055a33356a8921f69310c33080e6f7387209c902cc825d0c44e36bfd4ff4",
+   "bytes": 4454,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/jev-completed-check-contract.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/jev-evidence-contract.test.mjs",
+   "sha256": "326da324f7980a41629a9b6e7192c5e2d50d85df1d9a6bd22e8b62352d4bf84b",
+   "bytes": 10671,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/jev-evidence-contract.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/jev-symptom-taxonomy.test.mjs",
+   "sha256": "3aa39206213763f0356c4f8cc297c65b3d815c69b1b95ba0afb4876c0237b2eb",
+   "bytes": 2246,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/jev-symptom-taxonomy.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/jev-understand.test.mjs",
+   "sha256": "f13afe613cd75e4950b17782549e621d1a0d3e16cdb50ac0b228370530f1a797",
+   "bytes": 16672,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/jev-understand.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/knowledge-overlay.test.mjs",
+   "sha256": "45a179ce8e5197770c6d44e6f38983e2715ff049ab8435de87893a715ac78f0f",
+   "bytes": 5147,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/knowledge-overlay.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/material-diagnostic-discrimination.test.js",
+   "sha256": "8004a332da4bea5f0ebb66471689567eea7e531a18aab116227264e7e9ded814",
+   "bytes": 8138,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/material-diagnostic-discrimination.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/media-concepts.test.js",
+   "sha256": "001939697d8f0cf7c11e7eedb20f71ded0fa1be910617c07cb204b13886b8e8e",
+   "bytes": 4562,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/media-concepts.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/media-effective.test.mjs",
+   "sha256": "cd4430f74718e12f6be1affdbfd9cc83bd0d84f7daaaf2f66765761381b80e9f",
+   "bytes": 14163,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/media-effective.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/media-matcher.test.mjs",
+   "sha256": "343965324a3df86dfc04d3427a76be8f3dadfb23aae60e90f49667ce257ad2d9",
+   "bytes": 17502,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/media-matcher.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/media-neutrality.test.mjs",
+   "sha256": "b631448590cc15698c91fa51146d6e9b330c9788f79b62985e83b4d7c495d6ac",
+   "bytes": 8349,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/media-neutrality.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/microwave-engineer-challenge.test.mjs",
+   "sha256": "53079c310f2cdefda365f709e59835562613c85f6dc28059b467ff4cb88673db",
+   "bytes": 12973,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/microwave-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/microwave-not-heating-depth.test.js",
+   "sha256": "6c62cba95589890de187e51367a5a342dfe943c535355029383d56f82625c81b",
+   "bytes": 9563,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/microwave-not-heating-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/mw003-arcing-identity-clamp.test.js",
+   "sha256": "aa45709ca607315fadf5279ff16b25ce05e3d68d74eb2c4e1c583dd65b322c08",
+   "bytes": 7855,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/mw003-arcing-identity-clamp.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/mw003-arcing-safety.test.js",
+   "sha256": "1d2769e9ddad6787727eec9d393aab17ed04da968ec3b225e7e6baa9440bcd7c",
+   "bytes": 8311,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/mw003-arcing-safety.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/normal-behaviour.test.js",
+   "sha256": "c02447ccb92e2c9d4536b654e04da7a62096ac0e38256217eef3ed3041495cfe",
+   "bytes": 18331,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/normal-behaviour.test.js",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/oven-cooker-engineer-challenge.test.mjs",
+   "sha256": "6f8678b0083e049c791872f5c966e37885cf0d7e6d2e0ab37dc368b72948515b",
+   "bytes": 12902,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/oven-cooker-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/oven-diagnostic-reasoning.test.js",
+   "sha256": "632b383200c9a320813caaf093c51ce423b95511e8a1c4c9dde87abe7af7d6b7",
+   "bytes": 15860,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/oven-diagnostic-reasoning.test.js",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/oven-first-use-burnoff.test.js",
+   "sha256": "e652004826515da8fac2e2fcbbba5c0dfc901f39b9fc88601fb9d5fb739cfb7e",
+   "bytes": 11561,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/oven-first-use-burnoff.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/premature-clarification.test.js",
+   "sha256": "776466c4b1138ad583d5b80162f4a31072a28cc11adf0621aa4422b482161200",
+   "bytes": 12991,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/premature-clarification.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/progression-mechanics.test.js",
+   "sha256": "29fe7f54c842039a5b6bb688cd4310bd28c210c7bdbb1f24fe4efe601f03e903",
+   "bytes": 6956,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/progression-mechanics.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/safety-detection.test.js",
+   "sha256": "1474b675a587e8ad72b2a5bc46561e30363896006ffa19b8443f3a29939d4839",
+   "bytes": 19351,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/safety-detection.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/safety-information.test.mjs",
+   "sha256": "684b866e39e06e89b3fd8051addedc12156636d3be057dd690b845b92ac74931",
+   "bytes": 10308,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/safety-information.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/scoped-evidence-quality.test.js",
+   "sha256": "b13abf25c2b340e85171a6ea1445309d50ddff40dc46d330df88b2dcdd8dc3cf",
+   "bytes": 14483,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/scoped-evidence-quality.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/security.test.js",
+   "sha256": "17c02afa3de11f29d43b8eb32c5a4e5a7ba02cb2098bc4d493c5d87b6d6f465b",
+   "bytes": 4247,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/security.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/tumble-dryer-engineer-challenge.test.mjs",
+   "sha256": "a6d780b17044f90320b9c40ad20c66a46f7dfaff336333d4351cd96f8d2fe0fc",
+   "bytes": 11763,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/tumble-dryer-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/vacuum-check-first-part.test.js",
+   "sha256": "81c3282ccfec11c866834e660777d3d3f9181b32393f1c69262d6c31069538af",
+   "bytes": 3929,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/vacuum-check-first-part.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/vacuum-engineer-challenge.test.mjs",
+   "sha256": "e8197054a18815468041632b7fde0f6eed88531e77b9bdd6dc686694c8c73347",
+   "bytes": 6883,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/vacuum-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/vacuum-observation-authority.test.js",
+   "sha256": "fb0dc718e93af9dac2ea4a44d25c29102505e06ac2c00e37f96bf4ccb6976e72",
+   "bytes": 8961,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/vacuum-observation-authority.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/part-finder/test/washer-dryer-engineer-challenge.test.mjs",
+   "sha256": "a243641ed76afb925605397f4879fb65ace0ce676b6ffa89eddf31c2f11e1ca0",
+   "bytes": 10608,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/washer-dryer-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/washing-machine-engineer-challenge.test.mjs",
+   "sha256": "73c460f02b14c47962bd8dc429e0651d275cffa08ccfa57a69ac33bed49b8c72",
+   "bytes": 13916,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/washing-machine-engineer-challenge.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/part-finder/test/washing-machine-leak-source-depth.test.js",
+   "sha256": "95966798d0f904a5e59e466d10ec5d54c60c392d1bcfdee377a5db7bf3abd517",
+   "bytes": 8200,
+   "source": "spares4repairs@13b7a50:services/part-finder/test/washing-machine-leak-source-depth.test.js",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/benchmark/gold-v2/judge.js",
+   "sha256": "87b45d0d502b6b2e85c06ca90a289116475ada6e523ae1f30af129fddc17720a",
+   "bytes": 12884,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/gold-v2/judge.js",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/whichpart-api/benchmark/gold-v2/runner.js",
+   "sha256": "be39ad9a65efc6ed3d5d816785e88a9883d053d51ca1c72a9f4d6f98e6c3fa1b",
+   "bytes": 7604,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/gold-v2/runner.js",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/whichpart-api/benchmark/gold-v2/scenarios.v2_0.json",
+   "sha256": "245ef5bd99f1ebf1a6f5f5a5f3c669fde88ab0b9dc0fff5caa310c30aba3b969",
+   "bytes": 50229,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/gold-v2/scenarios.v2_0.json",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/whichpart-api/benchmark/gold-v2/schema.js",
+   "sha256": "070f68f9d30a4cd9ca26b37b65e3ec7fce1060ef94247b3b0c0000fbc9fca8e7",
+   "bytes": 4518,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/gold-v2/schema.js",
+   "role": "test-dependency"
+  },
+  {
+   "path": "services/whichpart-api/deploy.sh",
+   "sha256": "89e88eb6d76bf0aea7148c4452c241a5a8b2ac0a4d2404eb8e17f6b20d7d13d4",
+   "bytes": 23509,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/deploy.sh",
+   "role": "packaging-reference"
+  },
+  {
+   "path": "services/whichpart-api/scripts/build-media-canonical-refs.cjs",
+   "sha256": "b3cfbf36a1e4f7eef80a87acc27d72808fb588d10d5f0ae7bf5b6fdab08cf93b",
+   "bytes": 2148,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/scripts/build-media-canonical-refs.cjs",
+   "role": "packaging-input"
+  },
+  {
+   "path": "services/whichpart-api/test/acq-core.test.mjs",
+   "sha256": "8d85c51be5d4813f9ede491e1996bf42bc898cbe453a9927cfebc17dfa333c81",
+   "bytes": 10757,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/acq-core.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/acq-library.test.mjs",
+   "sha256": "3f517a267437371d41280a6505e2d4a5fe38905470405d77c4c7b879bbabc5af",
+   "bytes": 29321,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/acq-library.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/acq-reviews.test.mjs",
+   "sha256": "436a3ef763b9bd1cca8ac2b0fc22bdd3d057c2db7b11191e09d5c377dd4751ce",
+   "bytes": 6393,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/acq-reviews.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/acq-short-word-scoring.test.mjs",
+   "sha256": "2cfb79ea524b30c9480f2ccd6ff969a08ddeca4976500b0483a9a9157b3e0b47",
+   "bytes": 7914,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/acq-short-word-scoring.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/acq-store-judge.test.mjs",
+   "sha256": "20f859b8d7772c4ec36b9e701046b0bc2c3f8a2f0f78b76d98771da8b2c41b70",
+   "bytes": 7442,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/acq-store-judge.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/admin-dashboard-state.test.mjs",
+   "sha256": "4b53bcca0d190c03b21253dceffb2e958fafa255c99b656f860d07165c0064fe",
+   "bytes": 4269,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/admin-dashboard-state.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/admin-diagnostics-test-auth.test.mjs",
+   "sha256": "105e4165d80a0242cc4c25fd913891fa18c4fe3ed823843d40d2821a6b261683",
+   "bytes": 18680,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/admin-diagnostics-test-auth.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/admin-transcript-detail-api.test.mjs",
+   "sha256": "f837bd59615d7aa68361300c35c0cf3cf307506410047fa4c5b9447bda1b01e3",
+   "bytes": 10483,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/admin-transcript-detail-api.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-audit-fixtures.cjs",
+   "sha256": "ec33809f6102a279eeff3549411c2345a4650ce937ba6cc98b5a3dec61083a15",
+   "bytes": 2922,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-audit-fixtures.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-audit.test.mjs",
+   "sha256": "fb29eefc3735673d5807ea7d9c283c8ee9c8d86b32be1f96b3fdb55f9d136c86",
+   "bytes": 16526,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-audit.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-bff-contract.test.mjs",
+   "sha256": "f514673c16e05889899314e02a39ce2cdb5267a161ab11d562d3d48b86895cbc",
+   "bytes": 12482,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-bff-contract.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-idempotency.test.mjs",
+   "sha256": "dfcebe539a98553bfab117a6cb4a9ad88ad90143f93734239a26fd984538530a",
+   "bytes": 10159,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-idempotency.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-shadow-view.test.mjs",
+   "sha256": "057326ac484f6809efe17c99872f6e79d7ca08be111e8344c02e9939d67fc4b4",
+   "bytes": 1673,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-shadow-view.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/canonical-test-helpers.cjs",
+   "sha256": "feed2e3d19c5e8afb6b7783ccc1968af4531067d819993d9c72b24c7cff8789e",
+   "bytes": 4300,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/canonical-test-helpers.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/whichpart-api/test/conversation-state.test.mjs",
+   "sha256": "497bd6082813974bfc04671acb1c22483d9979a989afa000718a92de0225ff8d",
+   "bytes": 20051,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/conversation-state.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/dashboard.test.cjs",
+   "sha256": "ae9dfc668632b26b0b0ef653bf3888d7448013845fafbb3641e0cef416e7fe27",
+   "bytes": 12009,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/dashboard.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/diagnosis-vs-part-fit.test.mjs",
+   "sha256": "1012800863fe402c0d20a6f07ce69c7ac8829a396683f513b9fcb7f1ce625952",
+   "bytes": 9013,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/diagnosis-vs-part-fit.test.mjs",
+   "role": "test",
+   "offlineResult": "fails-identically-on-13b7a50"
+  },
+  {
+   "path": "services/whichpart-api/test/diagnostic-trace.test.cjs",
+   "sha256": "57619ab029ca795973be6c0e6a93434d53e3223f3413d992ee76ff1ed987cb2b",
+   "bytes": 7547,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/diagnostic-trace.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/diagnostics-inspect.test.mjs",
+   "sha256": "49ebad2d2639c6ade5a059ef5489e023d0976b0bc6a94a7e13010a670d42acdd",
+   "bytes": 22209,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/diagnostics-inspect.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/error-codes-admin.test.mjs",
+   "sha256": "1f0ba95fca136e7b625af7766416ceea6111bee68242bdbafb5c80e4ea8c1b4e",
+   "bytes": 12806,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/error-codes-admin.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/fixtures/opss-content.js",
+   "sha256": "66d6226e53aed012da6cbaa22ab6b74c239328b6d285292817bc0bbf1ce6fe63",
+   "bytes": 9317,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/fixtures/opss-content.js",
+   "role": "test-support"
+  },
+  {
+   "path": "services/whichpart-api/test/fixtures/transcript-review-conversations.cjs",
+   "sha256": "4ee694baa585b30f57eb3f840cf0c042c9a785fd173c02f05c615eff2844851b",
+   "bytes": 6774,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/fixtures/transcript-review-conversations.cjs",
+   "role": "test-support"
+  },
+  {
+   "path": "services/whichpart-api/test/gold-v2.test.mjs",
+   "sha256": "23cab206b4075df26afafe5a03cd0083b1316444bb3f72eb80dc2d94c0c8a456",
+   "bytes": 12156,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/gold-v2.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/knowledge-admin.test.mjs",
+   "sha256": "88c20e1506275d6bdd93a4c72cf6dc74ee8aa9e1d9dc5949d4344c4448cb8fda",
+   "bytes": 26444,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/knowledge-admin.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/knowledge-effective-media.test.mjs",
+   "sha256": "d13ad3be9651f570e44b79994c9e7d2ff249ca44fa86703940e18c49f82564c8",
+   "bytes": 8720,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/knowledge-effective-media.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/media-admin-auth.test.mjs",
+   "sha256": "e1f8e92755fd5eb8b8f3577a5d513597d56f71f1a4041b2644913be95f23091f",
+   "bytes": 5685,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/media-admin-auth.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/media-admin.test.mjs",
+   "sha256": "d141cede7388edb3f147922a07d335a00d396b925c0a520cb1496023b4e227df",
+   "bytes": 38280,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/media-admin.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/media-inspect.test.mjs",
+   "sha256": "f8dc45fafbaa76c611a7a15f3b3287210da84e725fda7287e369de8096f8c4c5",
+   "bytes": 2496,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/media-inspect.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/recall-admin.test.mjs",
+   "sha256": "0baae6a1e48e96b211e8bc6f4484abcca50ca0cf86d097882b5523416282e7fe",
+   "bytes": 24971,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/recall-admin.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/recalls.test.cjs",
+   "sha256": "8dacb7bf89a211e21a0a359c5cf9fedff284b156e22c8acf1c1ce31c44a2ac64",
+   "bytes": 21438,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/recalls.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/safety-ingest.test.cjs",
+   "sha256": "48b2982186c9b8bd077145379338d2dbc7143aa6c8c4778e5e2b404fef470c69",
+   "bytes": 17872,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/safety-ingest.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/settings-admin-hardening.test.mjs",
+   "sha256": "396d5afc45297c671765fca4b61510b40b3b1e0fedf2dd7d00cd35b768a91f28",
+   "bytes": 21404,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/settings-admin-hardening.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/settings-admin.test.mjs",
+   "sha256": "7ad97e4bc9973184eb2c843bcc7763cfd9e2e745b56a63584e81527de9a6ccb3",
+   "bytes": 18926,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/settings-admin.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/settings-readback.test.mjs",
+   "sha256": "9a032f2edfebdcf20d861044b4d0ac422a33c2259741e9fa4d4b77bd89f0bed6",
+   "bytes": 11244,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/settings-readback.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/state-token.test.mjs",
+   "sha256": "9a8c869976ae62b05707b19d509ce3f392b96611d2d25cf357554fb99bd4430e",
+   "bytes": 6746,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/state-token.test.mjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/transcript-review-jev.test.cjs",
+   "sha256": "c7c35a3b48b3e7a23cbdbaae12751e873876ca5e4a88ea06b9405b9c1d69f98d",
+   "bytes": 15018,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/transcript-review-jev.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/transcript-review.test.cjs",
+   "sha256": "7d3195af2d12ef2371dffe90025b790ee3c8bc70683d39d6c3a89c890ae88917",
+   "bytes": 20012,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/transcript-review.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/transcripts.test.cjs",
+   "sha256": "f79690a29bc93a9dc75e163f1bc81ac94e0ce00632e52a06deef1e08fcfe56dd",
+   "bytes": 15592,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/transcripts.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  },
+  {
+   "path": "services/whichpart-api/test/view.test.cjs",
+   "sha256": "6a58827190f88466f8f57d9e3aeecaa4f2c94b0a50269492b38a93266c1b6ce9",
+   "bytes": 20368,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/test/view.test.cjs",
+   "role": "test",
+   "offlineResult": "pass"
+  }
+ ]
+}
