@@ -1,0 +1,31 @@
+name: Build artefacts
+
+# Phase 3 (#29): rebuilds the production artefacts from this repository and proves they match the
+# deployed ones (reference data in build/reference/). No AWS credentials; never deploys.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lambda-zips:
+    name: lambda-zips
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 build/scripts/package_zips.py --out-dir build/out
+      - run: python3 build/scripts/compare_zip.py build/reference/spares4repairs-part-finder.zip.json build/out/spares4repairs-part-finder.zip
+      - run: python3 build/scripts/compare_zip.py build/reference/whichpart-api.zip.json build/out/whichpart-api.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lambda-zips
+          path: build/out/*.zip
