@@ -54,4 +54,4 @@ in a pull request.
 | [Admin allowlist hotfix](phase-1-admin-hotfix.md) | 1 | SAFE AC CHANGE (`whichpart-api` only) |
 | [Runtime-identical extraction](phase-2-extraction.md) | 2 | Repository only (`spares4repairs` read with `git archive`) |
 | [Reproducible builds and tests](phase-3-reproducible-build.md) | 3 | Repository only |
-| [Sandbox rehearsal](phase-4-sandbox-rehearsal.md) | 4 | Sandbox account only; no production change |
+| [Sandbox rehearsal](phase-4-sandbox-rehearsal.md) | 4 | Sandbox-namespaced (`-sbx`) resources only; no production AC or S4R change |

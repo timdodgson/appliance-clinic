@@ -58,7 +58,7 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 | 1 | Hotfix | AC-side admin allowlist on the deployed artefact |
 | 2 | Extract | Runtime-identical import into this public repository, after a secret and PII scan |
 | 3 | Extract | Reproducible builds, CI, known-failure baseline, build equivalence |
-| 4 | Ownership | Rehearsal in a separate sandbox AWS account |
+| 4 | Ownership | Rehearsal on isolated `-sbx` resources in the same account |
 | 5 | Ownership | Production CDK import in small groups |
 | 6 | Ownership | Prove ownership with one harmless change |
 | 7 | Improve | Security hardening through CDK |
@@ -169,14 +169,28 @@ groups is treated as an AC admin.
 
 ### Phase 4: Sandbox rehearsal
 
-**Entry criteria**
-- A separate AWS account exists, bootstrapped with its own AC CDK toolkit (`--qualifier acclinic`).
+**Where (decision of 2026-10-07):** no separate AWS account is created. The rehearsal runs in account
+`800960611664` on isolated, sandbox-namespaced resources (`-sbx`), with their own CDK toolkit
+(`--qualifier acsbx`, stack `ApplianceClinicSandboxToolkit`). It is separate from the S4R `CDKToolkit` and
+from the Phase 5 production toolkit (`acclinic`). Isolation is enforced by:
+- the [sandbox allowlist](sandbox-allowlist.json): only listed names, and AWS-generated children of them, may be mutated
+- the [production AC denylist](ac-production-denylist.json) and the [S4R denylist](s4r-denylist.json): never mutated or referenced
+- IAM: a sandbox operator role and toolkit execution role with explicit denies on both denylists
 
-**Actions (all in the sandbox account)**
+Sandbox resources hold synthetic data and dummy secrets only, and call sandbox stand-ins only, never production AC or
+S4R endpoints. A stand-in S4R stack (`SparesSite-sbx`) plays the shared role. See the
+[runbook](runbooks/phase-4-sandbox-rehearsal.md).
+
+**Entry criteria**
+- The sandbox guard is merged: the allowlist and both denylists are enforced in tooling, with tests.
+- Written approval on the Phase 4 issue for the first sandbox mutation.
+
+**Actions (sandbox resources only)**
 - IAM: the inline-policy experiments T1 to T7 from the review (unmanaged policy survival, `Role.Policies` behaviour, `CfnRolePolicy` import, removal with RETAIN).
 - Lambda: Function URL import, permission import, removing a URL and importing it again (the URL host must not change), and importing a container Lambda by digest.
 - S3: import a bucket and its bucket policy.
 - Rollback with RETAIN, stack policy behaviour, the change-set checker, and the deny-S4R execution role.
+- Destroy and recreate the sandbox by allowlisted name only, with production AC resources shown unchanged.
 - Recovery, with sandbox test data: restore a DynamoDB on-demand backup and a PITR point into new tables, restore S3 objects
   from a backup-bucket copy, and record the steps and timings in a recovery runbook.
 
