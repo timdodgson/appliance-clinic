@@ -18,6 +18,19 @@ Each of these rules is enforced in code.
 - The [freeze](phase-0-freeze.md) is in place. The batch runner must not be used for the baseline:
   it rewrites production routing.
 - No AWS credentials are needed.
+- **Behind an HTTPS proxy:** Node's built-in `fetch` ignores `HTTPS_PROXY`. Run the commands with
+  `NODE_USE_ENV_PROXY=1` (Node 22.21 or later), or the requests fail. In the Claude cloud
+  environment they fail with `403 Host not in allowlist`.
+
+## Accepting the baseline
+
+A response that looks normal is not enough: a failed COMPOSE call can be replaced by a template
+reply (#21). Accept the contract and smoke results only when the diagnosis Lambda's metric lines for
+the run window show:
+- **Requests:** every one `ok: true`, with no `error`.
+- **Canonical journeys:** every one `canonicalControl.source: "compose"`, except the fixed-copy
+  outcomes `safety_stop` and declined unsafe requests.
+- **No failures:** no `compose_failed` violations.
 
 ## 1. S4R health (READ-ONLY)
 
