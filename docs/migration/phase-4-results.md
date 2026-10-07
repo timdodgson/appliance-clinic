@@ -39,6 +39,23 @@ Four inline policies were then added to the role by hand, outside the stack, as 
 | T6 | Remove an imported role with Retain | **PASS.** The role and both its inline policies stay |
 | T7 | Leave `ManagedPolicyArns` out of an imported role's template | Removing the property **detached** `AWSLambdaBasicExecutionRole`. Rule: always declare a role's managed policies exactly |
 
+## Data imports: `AcDataStack-sbx` (Phase 5 steps 5.1 to 5.4)
+
+Each resource was created outside CloudFormation with the production configuration and synthetic data only
+([`steps/40-data.sh`](../../infra/sandbox/steps/40-data.sh)). All were then imported with one change set,
+synthesized by the sandbox CDK app ([`cdk/lib/data-stack.js`](../../infra/sandbox/cdk/lib/data-stack.js), L1
+resources only, Retain everywhere, no `CDK::Metadata`).
+
+| Type | Resources | Result |
+|---|---|---|
+| ECR | `spares4repairs-diag-orchestrator-sbx`, `spares4repairs-error-code-mcp-sbx` (mutable tags, scan on push, AES256) | Imported. The repository policy is not declared: Lambda writes it when an image function is created |
+| Secrets | 7 under `applianceclinic-sbx/`, dummy values | Imported by ARN. No value in any template. No `spares4repairs/sbx/*` secret exists |
+| DynamoDB | `whichpart-transcripts-sbx` (GSI on `lastActivityAt`, TTL `expiresAt`) and `whichpart-recalls-sbx` (GSI on `gsiSk`, no TTL), both on-demand with PITR | Imported with key, GSI, TTL and PITR declared exactly. 100 synthetic items each |
+| S3 | web, learning and backup buckets (owner-enforced, public access blocked, AES256) and the web bucket's OAC-shaped policy (placeholder distribution) | Imported |
+
+**Result:** 15 Import actions and nothing else. An unchanged template is a no-op, and drift detection shows
+every resource `IN_SYNC`.
+
 ## Surprises, and what they became
 
 | # | Found | Became |
@@ -56,6 +73,8 @@ Four inline policies were then added to the role by hand, outside the stack, as 
 | 11 | `DescribeStackDriftDetectionStatus` has no resource-level authorisation, so the operator could not read drift results | Added to the account-level reads (policies v3); the drift helper fails fast |
 | 12 | A removed `AWS::IAM::RolePolicy` is identified as `policy\|role` | The checker normalises it to the allowlist's `role/policy` |
 | 13 | T2 and T7 | The checker fails a role that declares `Policies` or leaves out `ManagedPolicyArns` in import and update modes (warns in the sandbox) |
+| 14 | **An import cannot create a stack with a service role or tags** ("you cannot modify or add [RoleArn, Tags]"). The IAM import only worked because that stack already existed | **Phase 5 rule:** create each stack first as a shell holding only a `StackShell` wait-condition handle, with its execution role, tags and termination protection, then import into it. The CDK stacks declare the handle, and the checker accepts it (it creates nothing outside CloudFormation) |
+| 15 | Production's secrets policy grants a wildcard (`secret:…/applianceclinic-*`), which the guard refused as a non-sandbox ARN | The guard accepts a wildcard only when its literal prefix carries a sandbox marker and it matches no production AC or S4R identifier |
 
 ## Controls changed during Phase 4
 

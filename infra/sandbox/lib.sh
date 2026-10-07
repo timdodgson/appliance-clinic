@@ -66,6 +66,14 @@ changeset() {
   log "executed: $stack/$name -> $(aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].StackStatus' --output text)"
 }
 
+# create_shell STACK TEMPLATE: create a new stack holding only its StackShell handle, with the execution role and
+# tags, so resources can then be imported (an import cannot create a stack with a role or tags).
+create_shell() {
+  local shell=$SBX_OUT/$1.shell.json
+  jq '{AWSTemplateFormatVersion, Description, Parameters, Rules, Resources: {StackShell: .Resources.StackShell}} | with_entries(select(.value != null))' "$2" > "$shell"
+  changeset "$1" shell CREATE "$shell"
+}
+
 # expect_noop STACK TEMPLATE: an update with an unchanged template must produce no change set.
 expect_noop() {
   local stack=$1 template=$2 name role=() status

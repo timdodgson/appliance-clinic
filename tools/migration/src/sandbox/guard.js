@@ -180,6 +180,21 @@ export function arnServiceForType(cfnType) {
   return ns ? (ARN_SERVICE_OF_NAMESPACE[ns] || ns.toLowerCase()) : null;
 }
 const isGeneratedId = (lists, value) => lists.generated.some((g) => g.id === value);
+
+const SANDBOX_MARKER = /-sbx|acsbx|applianceclinic-sbx\//;
+const glob = (pattern) => new RegExp(`^${pattern.split('').map((c) => (c === '*' ? '.*' : c === '?' ? '.' : c.replace(/[.+^${}()|[\]\\]/g, '\\$&'))).join('')}$`);
+
+/**
+ * A wildcard resource name (for example applianceclinic-sbx/* in a sandbox secrets policy) is a sandbox name only
+ * when its literal prefix carries a sandbox marker and it matches no production AC or S4R identifier.
+ */
+export function isSandboxWildcard(lists, name) {
+  if (typeof name !== 'string' || !/[*?]/.test(name)) return false;
+  const prefix = name.split(/[*?]/)[0];
+  if (!SANDBOX_MARKER.test(prefix)) return false;
+  const re = glob(name);
+  return ![...lists.acDenylist, ...lists.s4rDenylist].some((e) => typeof e.value === 'string' && (re.test(e.value) || re.test(e.value.split('/').pop())));
+}
 const isAllowlistedName = (lists, value) => lists.names.has(value);
 
 /** The resource name an ARN refers to, for checking against the allowlist. */
@@ -220,7 +235,7 @@ export function checkDocument(lists, document) {
     const r = arnResourceName(arn);
     if (!r || r.awsManaged) continue;
     if (r.account && r.account !== SANDBOX_ACCOUNT) { failures.push({ rule: 'foreign-account-arn', arn }); continue; }
-    if (!(isAllowlistedName(lists, r.name) || isGeneratedId(lists, r.name))) failures.push({ rule: 'arn-not-sandbox', arn, name: r.name });
+    if (!(isAllowlistedName(lists, r.name) || isGeneratedId(lists, r.name) || isSandboxWildcard(lists, r.name))) failures.push({ rule: 'arn-not-sandbox', arn, name: r.name });
   }
   return failures;
 }
@@ -400,6 +415,8 @@ export function checkSandboxChangeSet(lists, { changeSet, template = null }) {
   for (const rc of changes) {
     const id = { logicalId: rc.LogicalResourceId, physicalId: rc.PhysicalResourceId || null, type: rc.ResourceType, action: rc.Action };
     const resource = resources[rc.LogicalResourceId];
+    // A stack's shell handle creates nothing outside CloudFormation (see infra/sandbox/cdk/lib/common.js).
+    if (rc.ResourceType === 'AWS::CloudFormation::WaitConditionHandle') continue;
     // A child resource (route, integration, stage, Lambda permission or URL) has no name of its own and an
     // AWS-generated physical ID: it is checked as its parent, declared in the same template.
     const parent = CHILD_PARENT[rc.ResourceType] && resource ? parentOf(resource, ctx) : null;

@@ -53,4 +53,10 @@ describe('the SparesSite-sbx stand-in', () => {
     expect(run(cs('iam-t5-policy-sbx|iam-t5-role-sbx'), { Resources: {} }).failures).toEqual([]);
     expect(run(cs('whichpart-cognito-auth|whichpart-api-role'), { Resources: {} }).failures.map((f) => f.rule)).toEqual(expect.arrayContaining(['change-target-not-sandbox', 'change-target-denylisted']));
   });
+  it('accepts a stack shell: a WaitConditionHandle creates nothing outside CloudFormation', () => {
+    const t = { Resources: { StackShell: { Type: 'AWS::CloudFormation::WaitConditionHandle' } } };
+    const cs = { StackName: 'AcDataStack-sbx', Changes: [{ Type: 'Resource', ResourceChange: { Action: 'Add', LogicalResourceId: 'StackShell', ResourceType: 'AWS::CloudFormation::WaitConditionHandle' } }] };
+    expect(run(cs, t).failures).toEqual([]);
+    expect(run({ ...cs, StackName: 'AcDataStack' }, t).failures.map((f) => f.rule)).toContain('stack-not-sandbox');
+  });
 });
