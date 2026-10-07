@@ -183,6 +183,14 @@ describe('sandbox change sets', () => {
     expect(rules(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', host, 'AWS::Lambda::Permission')] } }))).toEqual(['change-target-not-sandbox']);
   });
 
+  it('checks a removed Lambda URL as the function its physical ID names (5.8)', () => {
+    const cs = (id) => rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Remove', id, 'AWS::Lambda::Url')] } }));
+    expect(cs(`arn:aws:lambda:eu-west-1:${A}:function:spares4repairs-part-finder-sbx`)).toEqual([]);
+    expect(cs(`arn:aws:lambda:eu-west-1:${A}:function:spares4repairs-part-finder`)).toContain('change-target-not-sandbox');
+    expect(cs(`arn:aws:lambda:eu-west-1:${A}:function:whichpart-api`)).toContain('change-target-not-sandbox');
+    expect(cs('arn:aws:lambda:eu-west-1:111111111111:function:spares4repairs-part-finder-sbx')).toContain('change-target-not-sandbox');
+  });
+
   it('checks the name inside an ARN against the exact type', () => {
     const arn = `arn:aws:secretsmanager:eu-west-1:${A}:secret:applianceclinic-sbx/openai-AbC123`;
     expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', arn, 'AWS::SecretsManager::Secret')] } })).toEqual([]);
