@@ -55,3 +55,4 @@ in a pull request.
 | [Runtime-identical extraction](phase-2-extraction.md) | 2 | Repository only (`spares4repairs` read with `git archive`) |
 | [Reproducible builds and tests](phase-3-reproducible-build.md) | 3 | Repository only |
 | [Sandbox rehearsal](phase-4-sandbox-rehearsal.md) | 4 | Sandbox-namespaced (`-sbx`) resources only; no production AC or S4R change |
+| [Recovery](phase-4-recovery.md) | 4 (used from 5) | SAFE AC CHANGE (restore into new resources); POTENTIALLY IMPACTS S4R (switch-back) |

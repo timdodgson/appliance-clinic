@@ -1,0 +1,908 @@
+{
+  "Description": "AcRuntimeStack-sbx: Phase 4 runtime imports (#34). Sandbox only.",
+  "Resources": {
+    "StackShell": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/StackShell"
+      }
+    },
+    "whichpartapirolesbx": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "RoleName": "whichpart-api-role-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbx"
+      }
+    },
+    "errorcodemcprolesbx": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "RoleName": "error-code-mcp-role-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/errorcodemcprolesbx"
+      }
+    },
+    "diagorchestratorrolesbx": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "RoleName": "diag-orchestrator-role-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/diagorchestratorrolesbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartacqbenchmarks3sbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/acq/*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "acq/*"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "PolicyName": "whichpart-acq-benchmark-s3-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartacqbenchmarks3sbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartaiconfigsecretssbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:CreateSecret",
+                "secretsmanager:UpdateSecret"
+              ],
+              "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic-sbx/*"
+            }
+          ]
+        },
+        "PolicyName": "whichpart-ai-config-secrets-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartaiconfigsecretssbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartcognitoauthsbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cognito-idp:AdminInitiateAuth",
+                "cognito-idp:AdminGetUser"
+              ],
+              "Resource": "arn:aws:cognito-idp:eu-west-1:800960611664:userpool/eu-west-1_h0dTMOGFQ"
+            }
+          ]
+        },
+        "PolicyName": "whichpart-cognito-auth-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartcognitoauthsbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartknowledgeadmins3sbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/knowledge-admin/*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "knowledge-admin",
+                    "knowledge-admin/*"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "PolicyName": "whichpart-knowledge-admin-s3-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartknowledgeadmins3sbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartmediaadmins3sbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/media-admin/*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "media-admin/*"
+                  ]
+                }
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-web-sbx-800960611664/media/*"
+            }
+          ]
+        },
+        "PolicyName": "whichpart-media-admin-s3-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartmediaadmins3sbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartrecallsdynamodbsbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:Query"
+              ],
+              "Resource": [
+                "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-recalls-sbx",
+                "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-recalls-sbx/index/gsi_activity"
+              ]
+            }
+          ]
+        },
+        "PolicyName": "whichpart-recalls-dynamodb-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartrecallsdynamodbsbx"
+      }
+    },
+    "whichpartapirolesbxwhichpartrecallss3sbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Resource": [
+                "arn:aws:s3:::whichpart-web-sbx-800960611664/recalls/*",
+                "arn:aws:s3:::whichpart-web-sbx-800960611664/sitemap-recalls.xml"
+              ]
+            }
+          ]
+        },
+        "PolicyName": "whichpart-recalls-s3-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichpartrecallss3sbx"
+      }
+    },
+    "whichpartapirolesbxwhichparttranscriptsdynamodbsbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:Query"
+              ],
+              "Resource": [
+                "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-transcripts-sbx",
+                "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-transcripts-sbx/index/gsi_activity"
+              ]
+            }
+          ]
+        },
+        "PolicyName": "whichpart-transcripts-dynamodb-sbx",
+        "RoleName": "whichpart-api-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapirolesbxwhichparttranscriptsdynamodbsbx"
+      }
+    },
+    "errorcodemcprolesbxerrorcodeadminoverlays3sbx": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/error-code-admin/*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "error-code-admin",
+                    "error-code-admin/*"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "PolicyName": "error-code-admin-overlay-s3-sbx",
+        "RoleName": "error-code-mcp-role-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/errorcodemcprolesbxerrorcodeadminoverlays3sbx"
+      }
+    },
+    "whichpartapisbx": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Architectures": [
+          "x86_64"
+        ],
+        "Code": {
+          "S3Bucket": "cdk-acsbx-assets-800960611664-eu-west-1",
+          "S3Key": "phase3/whichpart-api-431beeff0d070fa2.zip"
+        },
+        "Environment": {
+          "Variables": {
+            "STAGE": "sbx",
+            "ORCHESTRATOR_URL": "https://dktf6l5f3kd4mm4m6iutqbbiaq0jhbzh.lambda-url.eu-west-1.on.aws/",
+            "ENGINE_URL": "https://2vbofzc6z2bmm2nmbrmuz3e5tu0frclp.lambda-url.eu-west-1.on.aws/",
+            "MCP_URL": "https://jsb2m42ulvrj4fp7n7u5di4vxu0mrppo.lambda-url.eu-west-1.on.aws/",
+            "MCP_HEALTH_URL": "https://jsb2m42ulvrj4fp7n7u5di4vxu0mrppo.lambda-url.eu-west-1.on.aws/",
+            "LEARNING_BUCKET": "whichpart-learning-sbx-800960611664",
+            "WHICHPART_WEB_BUCKET": "whichpart-web-sbx-800960611664",
+            "RECALL_TABLE": "whichpart-recalls-sbx",
+            "TRANSCRIPT_TABLE": "whichpart-transcripts-sbx",
+            "S4R_PRODUCT_BASE_URL": "https://example.invalid",
+            "COGNITO_USER_POOL_ID": "eu-west-1_h0dTMOGFQ",
+            "COGNITO_CLIENT_ID": "3o87ldqaurpam2jb5ld6v198vd",
+            "CANONICAL_TOKEN_SECRET_ID": "applianceclinic-sbx/canonical-state-token",
+            "BENCHMARK_SERVICE_SECRET_ID": "applianceclinic-sbx/benchmark-service",
+            "OPENAI_BASE_URL": "https://example.invalid",
+            "LM_STUDIO_URL": "https://example.invalid",
+            "CANONICAL_MODE": "off",
+            "TRANSCRIPT_REVIEW_ENABLED": "false",
+            "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic-sbx/error-code-mcp/bearer-token}}",
+            "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic-sbx/diag-orchestrator/bearer-token}}"
+          }
+        },
+        "EphemeralStorage": {
+          "Size": 512
+        },
+        "FunctionName": "whichpart-api-sbx",
+        "Handler": "index.handler",
+        "MemorySize": 512,
+        "PackageType": "Zip",
+        "Role": "arn:aws:iam::800960611664:role/whichpart-api-role-sbx",
+        "Runtime": "nodejs20.x",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Timeout": 900,
+        "TracingConfig": {
+          "Mode": "PassThrough"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbx"
+      }
+    },
+    "whichpartapisbxUrl": {
+      "Type": "AWS::Lambda::Url",
+      "Properties": {
+        "AuthType": "NONE",
+        "InvokeMode": "BUFFERED",
+        "TargetFunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbxUrl"
+      }
+    },
+    "whichpartapisbxFunctionURLAllowPublicAccess": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunctionUrl",
+        "FunctionName": "whichpart-api-sbx",
+        "FunctionUrlAuthType": "NONE",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbxFunctionURLAllowPublicAccess"
+      }
+    },
+    "whichpartapisbxPublicInvoke": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "whichpart-api-sbx",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbxPublicInvoke"
+      }
+    },
+    "spares4repairspartfindersbx": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Architectures": [
+          "x86_64"
+        ],
+        "Code": {
+          "S3Bucket": "cdk-acsbx-assets-800960611664-eu-west-1",
+          "S3Key": "phase3/spares4repairs-part-finder-dccce277279170e1.zip"
+        },
+        "Environment": {
+          "Variables": {
+            "STAGE": "sbx",
+            "SEARCH_API": "https://jhp05b28x8.execute-api.eu-west-1.amazonaws.com/api/search",
+            "PARTS_FOR_MODEL_API": "https://jhp05b28x8.execute-api.eu-west-1.amazonaws.com/api/parts-for-model",
+            "LEARNING_BUCKET": "whichpart-learning-sbx-800960611664",
+            "MCP_URL": "https://jsb2m42ulvrj4fp7n7u5di4vxu0mrppo.lambda-url.eu-west-1.on.aws/",
+            "LM_STUDIO_URL": "https://example.invalid",
+            "EMBED_URL": "https://example.invalid",
+            "OPENAI_BASE_URL": "https://example.invalid"
+          }
+        },
+        "EphemeralStorage": {
+          "Size": 512
+        },
+        "FunctionName": "spares4repairs-part-finder-sbx",
+        "Handler": "part-finder-lambda.handler",
+        "MemorySize": 256,
+        "PackageType": "Zip",
+        "Role": "arn:aws:iam::800960611664:role/SparesSite-sbx-ServerFunctionRole",
+        "Runtime": "nodejs20.x",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Timeout": 300,
+        "TracingConfig": {
+          "Mode": "PassThrough"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairspartfindersbx"
+      }
+    },
+    "spares4repairspartfindersbxUrl": {
+      "Type": "AWS::Lambda::Url",
+      "Properties": {
+        "AuthType": "NONE",
+        "Cors": {
+          "AllowHeaders": [
+            "content-type"
+          ],
+          "AllowMethods": [
+            "POST"
+          ],
+          "AllowOrigins": [
+            "*"
+          ],
+          "MaxAge": 86400
+        },
+        "InvokeMode": "RESPONSE_STREAM",
+        "TargetFunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairspartfindersbxUrl"
+      }
+    },
+    "spares4repairspartfindersbxFnUrlPublic": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunctionUrl",
+        "FunctionName": "spares4repairs-part-finder-sbx",
+        "FunctionUrlAuthType": "NONE",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairspartfindersbxFnUrlPublic"
+      }
+    },
+    "spares4repairspartfindersbxPublicInvoke": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "spares4repairs-part-finder-sbx",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairspartfindersbxPublicInvoke"
+      }
+    },
+    "spares4repairsdiagorchestratorsbx": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Architectures": [
+          "arm64"
+        ],
+        "Code": {
+          "ImageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator-sbx@sha256:d681e5556cd10867a53013e4b52c28887726b24c401071725df3ecbb45df8e07"
+        },
+        "Environment": {
+          "Variables": {
+            "STAGE": "sbx",
+            "MCP_URL": "https://jsb2m42ulvrj4fp7n7u5di4vxu0mrppo.lambda-url.eu-west-1.on.aws/",
+            "RAG_URL": "https://2vbofzc6z2bmm2nmbrmuz3e5tu0frclp.lambda-url.eu-west-1.on.aws/",
+            "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic-sbx/error-code-mcp/bearer-token}}",
+            "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic-sbx/diag-orchestrator/bearer-token}}"
+          }
+        },
+        "EphemeralStorage": {
+          "Size": 512
+        },
+        "FunctionName": "spares4repairs-diag-orchestrator-sbx",
+        "MemorySize": 512,
+        "PackageType": "Image",
+        "Role": "arn:aws:iam::800960611664:role/diag-orchestrator-role-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Timeout": 120,
+        "TracingConfig": {
+          "Mode": "PassThrough"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairsdiagorchestratorsbx"
+      }
+    },
+    "spares4repairsdiagorchestratorsbxUrl": {
+      "Type": "AWS::Lambda::Url",
+      "Properties": {
+        "AuthType": "NONE",
+        "Cors": {
+          "AllowHeaders": [
+            "content-type",
+            "authorization"
+          ],
+          "AllowMethods": [
+            "POST",
+            "GET"
+          ],
+          "AllowOrigins": [
+            "*"
+          ],
+          "MaxAge": 300
+        },
+        "InvokeMode": "BUFFERED",
+        "TargetFunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairsdiagorchestratorsbxUrl"
+      }
+    },
+    "spares4repairsdiagorchestratorsbxFunctionURLAllowPublicAccess": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunctionUrl",
+        "FunctionName": "spares4repairs-diag-orchestrator-sbx",
+        "FunctionUrlAuthType": "NONE",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairsdiagorchestratorsbxFunctionURLAllowPublicAccess"
+      }
+    },
+    "spares4repairsdiagorchestratorsbxPublicInvoke": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "spares4repairs-diag-orchestrator-sbx",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairsdiagorchestratorsbxPublicInvoke"
+      }
+    },
+    "spares4repairserrorcodemcpsbx": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Architectures": [
+          "arm64"
+        ],
+        "Code": {
+          "ImageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-error-code-mcp-sbx@sha256:dc715181fe9773f4cb97cbbb18897b2998b488ef6b76a66376ea6bb1750c8c2d"
+        },
+        "Environment": {
+          "Variables": {
+            "STAGE": "sbx",
+            "LEARNING_BUCKET": "whichpart-learning-sbx-800960611664",
+            "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic-sbx/error-code-mcp/bearer-token}}"
+          }
+        },
+        "EphemeralStorage": {
+          "Size": 512
+        },
+        "FunctionName": "spares4repairs-error-code-mcp-sbx",
+        "MemorySize": 512,
+        "PackageType": "Image",
+        "Role": "arn:aws:iam::800960611664:role/error-code-mcp-role-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Timeout": 30,
+        "TracingConfig": {
+          "Mode": "PassThrough"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairserrorcodemcpsbx"
+      }
+    },
+    "spares4repairserrorcodemcpsbxUrl": {
+      "Type": "AWS::Lambda::Url",
+      "Properties": {
+        "AuthType": "NONE",
+        "Cors": {
+          "AllowHeaders": [
+            "content-type",
+            "authorization",
+            "mcp-session-id",
+            "mcp-protocol-version",
+            "accept"
+          ],
+          "AllowMethods": [
+            "POST",
+            "GET"
+          ],
+          "AllowOrigins": [
+            "*"
+          ],
+          "MaxAge": 300
+        },
+        "InvokeMode": "BUFFERED",
+        "TargetFunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairserrorcodemcpsbxUrl"
+      }
+    },
+    "spares4repairserrorcodemcpsbxFunctionURLAllowPublicAccess": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunctionUrl",
+        "FunctionName": "spares4repairs-error-code-mcp-sbx",
+        "FunctionUrlAuthType": "NONE",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairserrorcodemcpsbxFunctionURLAllowPublicAccess"
+      }
+    },
+    "spares4repairserrorcodemcpsbxPublicInvoke": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "spares4repairs-error-code-mcp-sbx",
+        "Principal": "*"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/spares4repairserrorcodemcpsbxPublicInvoke"
+      }
+    },
+    "whichpartapisbxRecallIngestDaily": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "whichpart-api-sbx",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbxRecallIngestDaily"
+      }
+    },
+    "whichpartrecallingestdailysbx": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Name": "whichpart-recall-ingest-daily-sbx",
+        "ScheduleExpression": "cron(0 6 * * ? *)",
+        "State": "DISABLED",
+        "Targets": [
+          {
+            "Arn": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api-sbx",
+            "Id": "whichpart-api-sbx"
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartrecallingestdailysbx"
+      }
+    },
+    "whichpartapisbxTranscriptReviewPeriodic": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": "whichpart-api-sbx",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review-sbx"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichpartapisbxTranscriptReviewPeriodic"
+      }
+    },
+    "whichparttranscriptreviewsbx": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Name": "whichpart-transcript-review-sbx",
+        "ScheduleExpression": "rate(15 minutes)",
+        "State": "DISABLED",
+        "Targets": [
+          {
+            "Arn": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api-sbx",
+            "Id": "whichpart-api-review-sbx",
+            "Input": "{\"transcriptReview\": true}"
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "AcRuntimeStack-sbx/whichparttranscriptreviewsbx"
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/acsbx/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

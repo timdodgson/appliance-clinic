@@ -222,6 +222,30 @@
           "aws:ResourceTag/ac:sandbox": "phase-4"
         }
       }
+    },
+    {
+      "Sid": "DenyStandInS4RRole",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:PassRole",
+        "iam:Get*",
+        "iam:List*"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/SparesSite-sbx-*"
+      ]
+    },
+    {
+      "Sid": "DenyStandInS4RFunction",
+      "Effect": "Deny",
+      "NotAction": [
+        "lambda:Get*",
+        "lambda:List*"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-server-sbx",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-server-sbx:*"
+      ]
     }
   ]
 }

@@ -24,10 +24,21 @@ SBX_TAGS=(Key=ac:sandbox,Value=phase-4)
 EXECUTE=${EXECUTE:-0}
 mkdir -p "$SBX_OUT"
 
+# A step can outlive the operator's one-hour session. When the wrapper that assumed ac-operator-sbx names a cache
+# file and a refresher (SBX_OPERATOR_CREDS, SBX_OPERATOR_REFRESH), every aws call and guard check first renews a
+# session older than 40 minutes and re-exports it. Credential values are never printed.
+operator_session() {
+  [[ -n ${SBX_OPERATOR_REFRESH:-} && -n ${SBX_OPERATOR_CREDS:-} ]] || return 0
+  if (( $(date +%s) - $(stat -c %Y "$SBX_OPERATOR_CREDS") > 2400 )); then "$SBX_OPERATOR_REFRESH"; fi
+  read -r AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN < "$SBX_OPERATOR_CREDS"
+  export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+}
+aws() { operator_session; command aws "$@"; }
+
 log() { printf '%s %s\n' "$(date -u +%H:%M:%S)" "$*" >&2; }
 stop() { log "STOP: $*"; exit 1; }
 
-guard() { (cd "$SBX_TOOLS" && npm run -s sandbox:guard -- "$@") > "$SBX_OUT/guard.json" || { cat "$SBX_OUT/guard.json" >&2; stop "sandbox:guard $*"; }; }
+guard() { operator_session; (cd "$SBX_TOOLS" && npm run -s sandbox:guard -- "$@") > "$SBX_OUT/guard.json" || { cat "$SBX_OUT/guard.json" >&2; stop "sandbox:guard $*"; }; }
 require_operator() { guard caller; log "caller: ac-operator-sbx"; }
 guard_target() { guard target --type "$1" --id "$2" ${3:+--parent "$3"}; log "target ok: $1 $2"; }
 
@@ -56,7 +67,19 @@ changeset() {
   fi
   log "check:changeset PASS: $stack/$name ($(jq '.Changes | length' "$describe") changes)"
   if [[ $EXECUTE != 1 ]]; then log "EXECUTE!=1: not executing $stack/$name"; return 0; fi
+  local started; started=$(date -u +%Y-%m-%dT%H:%M:%S)
   aws cloudformation execute-change-set --stack-name "$stack" --change-set-name "$name"
+  if [[ ${EXPECT_FAIL:-0} == 1 ]]; then # a deliberate failure: the update must roll back, and its reasons are kept
+    aws cloudformation wait stack-update-complete --stack-name "$stack" 2>/dev/null && stop "$stack/$name was expected to fail, and succeeded"
+    aws cloudformation wait stack-rollback-complete --stack-name "$stack" 2>/dev/null || true
+    local status; status=$(aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].StackStatus' --output text)
+    [[ $status == UPDATE_ROLLBACK_COMPLETE ]] || stop "$stack/$name: expected UPDATE_ROLLBACK_COMPLETE, got $status"
+    aws cloudformation describe-stack-events --stack-name "$stack" --max-items 100 \
+      --query "StackEvents[?Timestamp >= '$started' && (contains(ResourceStatus, 'FAILED') || ResourceStatus == 'UPDATE_ROLLBACK_IN_PROGRESS')].[LogicalResourceId,ResourceStatus,ResourceStatusReason]" \
+      --output text > "$SBX_OUT/$stack.$name.failure.txt"
+    log "failed as expected: $stack/$name -> $status"
+    return 0
+  fi
   case $kind in
     CREATE) aws cloudformation wait stack-create-complete --stack-name "$stack" ;;
     IMPORT) aws cloudformation wait stack-import-complete --stack-name "$stack" ;;

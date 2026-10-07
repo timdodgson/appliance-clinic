@@ -215,6 +215,17 @@ describe('ac-operator-policy-sbx and ac-cfn-execution-sbx', () => {
     const others = policies.execution.Statement.filter((x) => x.Effect === 'Allow' && x !== attach && list(x.Action).some((a) => iamGlobMatch(a, 'iam:AttachRolePolicy')));
     expect(others).toEqual([]);
   });
+  it('denies the execution role any write to the stand-in S4R role and function, but lets it pass the role', () => {
+    const role = `arn:aws:iam::${A}:role/SparesSite-sbx-ServerFunctionRole`;
+    const fn = `arn:aws:lambda:eu-west-1:${A}:function:spares4repairs-server-sbx`;
+    for (const a of ['iam:PutRolePolicy', 'iam:DeleteRolePolicy', 'iam:AttachRolePolicy', 'iam:UpdateRole', 'iam:TagRole', 'iam:DeleteRole']) expect(denied(policies.execution, a, role), a).toBe(true);
+    for (const a of ['lambda:UpdateFunctionCode', 'lambda:AddPermission', 'lambda:DeleteFunction']) expect(denied(policies.execution, a, fn), a).toBe(true);
+    for (const a of ['iam:PassRole', 'iam:GetRole']) expect(denied(policies.execution, a, role), a).toBe(false);
+    // The operator, which deploys the stand-in, is not affected; nor is any AC sandbox role or function.
+    expect(denied(policies.operator, 'iam:PutRolePolicy', role)).toBe(false);
+    expect(denied(policies.execution, 'iam:PutRolePolicy', `arn:aws:iam::${A}:role/whichpart-api-role-sbx`)).toBe(false);
+    expect(denied(policies.execution, 'lambda:UpdateFunctionCode', `arn:aws:lambda:eu-west-1:${A}:function:spares4repairs-part-finder-sbx`)).toBe(false);
+  });
   it('lets the operator write toolkit roles only through CloudFormation', () => {
     const s = policies.operator.Statement.find((x) => x.Sid === 'ToolkitRolesViaCloudFormation');
     expect(s.Resource).toEqual([`arn:aws:iam::${A}:role/cdk-acsbx-*`]);
