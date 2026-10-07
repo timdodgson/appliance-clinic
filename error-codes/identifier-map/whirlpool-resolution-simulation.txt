@@ -1,0 +1,17 @@
+== identifier resolution ==
+B Hotpoint NSWM 846 BS UK                  -> MODEL_RESOLVED: 12NC 869991684430 / MERLONI -> WHIRL_WM_FNN [HIGH]
+B Indesit DSFE 1B10 S UK N                 -> MODEL_RESOLVED: 12NC 869991616200 / MERLONI -> WHIRL_WM_FNN [HIGH]
+C 12NC 851693838201                        -> IDENTIFIER_RESOLVED: 12NC 851693838201 / WHIRLPOOL_NATIVE -> WHIRL_WM_FNEN [MEDIUM]
+C 12NC 869991684430                        -> IDENTIFIER_RESOLVED: 12NC 869991684430 / MERLONI -> WHIRL_WM_FNN [MEDIUM]
+G Hotpoint WMBF (unmapped model)           -> MODEL_RESOLVED_IDENTIFIER_UNKNOWN (recover 12NC from official product)
+H Hotpoint 08402 (5-digit code)            -> INVALID_IDENTIFIER (5-digit spares/stock code, not a 12NC)
+I 12NC 999 (malformed)                     -> INVALID_IDENTIFIER (5-digit spares/stock code, not a 12NC)
+
+== A: unambiguous code needs no identifier ==
+A  Whirlpool WM F05 -> won't drain / pressure (HIGH) [no identifier needed]
+
+== F02 flagship (platform-dependent) ==
+D {"code": "F02", "status": "RESOLVED", "lineage": "MERLONI", "meaning": "motor / tacho: no motor-speed signal (Merloni FNN)", "confidence": "MEDIUM"}
+E {"code": "F02", "status": "RESOLVED", "lineage": "WHIRLPOOL_NATIVE", "meaning": "Whirlpool-native FnEn F02 (drain-time / platform-specific)", "confidence": "MEDIUM"}
+F {"code": "F02", "status": "AMBIGUOUS_needsPlatform", "note": "badge alone insufficient; need model/12NC"}
+J same badge two lineages: Hotpoint 8699->Merloni; a Whirlpool-badged 85x->native (routed independently)

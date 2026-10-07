@@ -1,0 +1,51 @@
+{
+  "name": "resolve-error-code",
+  "description": "Resolve a displayed appliance error code to its deterministic meaning using the banked Error-Code Dataset V1. Manufacturer-agnostic. Returns RESOLVED, NEEDS_CONTEXT, AMBIGUOUS, NOT_FOUND or INVALID_INPUT. No LLM, no RAG, no guessing.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["make", "appliance", "code"],
+    "properties": {
+      "make": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Appliance brand, for example Bosch, Siemens, Hotpoint or LG."
+      },
+      "appliance": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Canonical appliance type, for example washing-machine, dishwasher, fridge-freezer."
+      },
+      "code": {
+        "type": "string",
+        "minLength": 1,
+        "description": "The code exactly as displayed where possible, for example E15, F06, i20, F8E4 or E:61-03."
+      },
+      "observed": {
+        "type": "array",
+        "description": "Optional observed product/rating-plate identifiers used when code meaning depends on scheme, platform or generation.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["MODEL", "TECHNICAL_MODEL", "SERIAL", "PNC", "PNC_ELC", "12NC", "E_NR", "PRODUCT_NUMBER", "SERVICE_NUMBER", "COMMERCIAL_CODE", "TYPE"]
+            },
+            "value": { "type": "string", "minLength": 1 },
+            "revision": { "type": "string" }
+          }
+        }
+      },
+      "region": {
+        "type": "string",
+        "description": "Optional market/region, for example UK, EU or NA."
+      },
+      "includeEnrichment": {
+        "type": "boolean",
+        "default": true
+      }
+    }
+  }
+}

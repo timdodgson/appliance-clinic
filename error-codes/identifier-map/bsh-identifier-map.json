@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "note": "BSH (Bosch/Siemens/Neff) identifier layer expressed in the common model. Stress test: BSH uses E-Nr (base + /xx revision) -> document -> signature -> scheme. Reuses existing BSH data; no re-collection.",
+    "accessed": "2026-08-29"
+  },
+  "identifierStructure": {
+    "eNr": "E-Nr (Enumber): model/product family identifier, e.g. SMV4HVX32E/01. Base = SMV4HVX32E; /01 = revision (FD/index).",
+    "base": "E_NR_BASE identifies the model/product family and (via document/signature) the code scheme.",
+    "revision": "E_NR_REVISION (/xx): production index / service revision. Behaves like Electrolux ELC - metadata; NO evidence it changes error-code MEANING (scheme is set by the base/document). Treat as revision metadata, not scheme-affecting.",
+    "evidence": [{"sourceType": "MANUFACTURER", "publisher": "BSH service", "reference": "E-Nr + FD on rating plate; /xx index", "url": "prior bsh-model-scheme research"}]
+  },
+  "revisionHandling": {"type": "E_NR_REVISION", "affectsScheme": false, "affectsParts": "sometimes (like ELC)", "classification": "NON_SEMANTIC_SERVICE_REVISION for code meaning"},
+  "examples": [
+    {"manufacturerGroup": "BSH", "brand": "Bosch", "appliance": "dishwasher", "observedIdentifiers": [{"type": "E_NR", "value": "SMV4HVX32E/01"}], "canonicalIdentifiers": [{"type": "E_NR_BASE", "value": "SMV4HVX32E", "confidence": "HIGH"}, {"type": "E_NR_REVISION", "value": "01", "confidence": "HIGH"}], "resolvedAttributes": {"scheme": "BSH_DW_NEW (E:NN-NN)"}, "resolutionStatus": "RESOLVED"},
+    {"manufacturerGroup": "BSH", "brand": "Bosch", "appliance": "dishwasher", "observedIdentifiers": [{"type": "E_NR", "value": "SGS4472GB/12"}], "canonicalIdentifiers": [{"type": "E_NR_BASE", "value": "SGS4472GB"}], "resolvedAttributes": {"scheme": "BSH_DW_LEGACY (E:NN)"}, "resolutionStatus": "RESOLVED", "note": "legacy E:NN register"}
+  ],
+  "eNrToSchemeMechanism": "E-Nr base -> official service document -> normalized code table -> signature -> scheme cluster (BSH document->scheme work). This is the same identifier-layer flow (observed identifier -> canonical -> resolvedAttributes.scheme).",
+  "ambiguityResolved": {
+    "wm_F06": {
+      "problem": "WM F06 ambiguous by scheme",
+      "BSH_WM_EF (modern)": "NTC temperature sensor fault",
+      "BSH_WM_WFF (legacy)": "motor fault (brushes/tacho)",
+      "resolveVia": "E_NR -> document -> scheme",
+      "confidence": "MEDIUM"
+    },
+    "dw_registers": {
+      "problem": "DW legacy E:NN vs new E:NN-NN are different registers (e.g. filters-blocked = E:22 legacy vs E:92-40 new)",
+      "resolveVia": "E_NR -> document -> scheme",
+      "confidence": "MEDIUM"
+    }
+  }
+}

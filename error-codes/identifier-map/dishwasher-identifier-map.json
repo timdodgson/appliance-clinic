@@ -1,0 +1,30 @@
+{
+  "_meta": {
+    "note": "Reusable IDENTIFIER LAYER (dishwasher POC): observed catalogue identifier -> canonical technical model -> OEM platform. Kept SEPARATE from error-code definitions so the resolver can do identifier-resolution BEFORE scheme resolution. Data-only; not wired into production.",
+    "accessed": "2026-08-29",
+    "identifierClasses": {
+      "TECHNICAL_MODEL": "resolvable to OEM/platform directly (e.g. WQP12-9368, DW12SAE, BFSLNB9B)",
+      "RETAILER_SKU": "opaque 7-10 digit internal/retailer stock number (e.g. 5500064976) - NOT resolvable from public web in this POC",
+      "MARKETING_MODEL": "brand marketing name; may or may not encode platform",
+      "UNKNOWN_IDENTIFIER": "cannot classify",
+      "MALFORMED": "too short/numeric to be a model"
+    },
+    "keyFindings": [
+      "Retailer SKU -> technical model is NOT recoverable at scale from public sources: searching the exact 10-digit 5500xxxxx SKU returns only generic brand manuals, never the specific model.",
+      "Parts cross-check does NOT bridge SKU->model here: the SKU's parts (8-digit part numbers) share no PCB/controller with the WQP models (14-digit part numbers).",
+      "Where the catalogue already stores a TECHNICAL model, platform resolution works and reveals that ONE BADGE SPANS MULTIPLE OEM LINEAGES: Bush DW = WQP* (Midea-family) + DW*/DWFS* (a different family) + BFS* (another).",
+      "Therefore identifier resolution must key on the TECHNICAL MODEL; SKU rows require a retailer-provided SKU<->model feed (not public)."
+    ]
+  },
+  "mappings": [
+    {"brand": "Bush", "observedIdentifier": "WQP12-9368", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "WQP12-9368", "appliance": "dishwasher", "platformLineage": "WQP_DW_PLATFORM_001", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "manua.ls (Bush manual)", "reference": "Bush WQP12-9348/9368 user manual", "url": "https://www.manua.ls/bush/wqp12-9348/manual", "accessed": "2026-08-29"}, {"sourceType": "CATALOGUE", "reference": "Bush WQP12-9368 == Hygena WQP12-9368 (identical model, two badges)"}]},
+    {"brand": "Hygena", "observedIdentifier": "WQP12-9368", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "WQP12-9368", "appliance": "dishwasher", "platformLineage": "WQP_DW_PLATFORM_001", "confidence": "HIGH", "evidence": [{"sourceType": "CATALOGUE", "reference": "identical model to Bush WQP12-9368"}]},
+    {"brand": "Bush", "observedIdentifier": "WQP8-9347", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "WQP8-9347", "appliance": "dishwasher", "platformLineage": "WQP_DW_PLATFORM_001", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "manualslib", "reference": "Bush WQP8-9347 installation & user instructions", "url": "https://www.manualslib.com/manual/886053/Bush-Wqp8-9347.html", "accessed": "2026-08-29"}, {"sourceType": "PARTS", "reference": "shares hinge parts (…001783/…001785) with WQP12-9348 - intra-WQP platform"}]},
+    {"brand": "Bush", "observedIdentifier": "WQP12-9348 / WQP12-9235D / WQP12-9270S/W / WQP12-9280 / WQP12-9319 / WQP8-9269S/W", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "(as observed)", "appliance": "dishwasher", "platformLineage": "WQP_DW_PLATFORM_001", "confidence": "MEDIUM", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "manua.ls/manualslib", "reference": "Bush WQP-series manuals", "url": "https://www.manua.ls/bush/wqp12-9348/manual", "accessed": "2026-08-29"}]},
+    {"brand": "Bush", "observedIdentifier": "DW12SAE / DWFS124C / DWINT125W / DWSLEINT94W (DW*/DWFS* family)", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "(as observed)", "appliance": "dishwasher", "platformLineage": "NON_WQP_OEM_A (unconfirmed - different family)", "confidence": "LOW", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "manualslib", "reference": "Bush DW12SAE service manual (distinct family from WQP)", "url": "https://www.manualslib.com/manual/2618719/Bush-Dw12sae.html", "accessed": "2026-08-29"}], "note": "Proves Bush badge spans multiple OEM lineages; do NOT inherit WQP codes."},
+    {"brand": "Bush", "observedIdentifier": "BFSLNB9B / BFSLSAEB9B / BFSNB12B/W (BFS* family)", "identifierClass": "TECHNICAL_MODEL", "technicalModel": "(as observed)", "appliance": "dishwasher", "platformLineage": "NON_WQP_OEM_B (unconfirmed - different family)", "confidence": "LOW", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "manualslib", "reference": "Bush BFSLNB9B instruction manual", "url": "https://www.manualslib.com/manual/3899524/Bush-Bfslnb9w.html", "accessed": "2026-08-29"}], "note": "Third Bush DW lineage."},
+    {"brand": "Bush", "observedIdentifier": "5500062746 / 5500064976 / 5500066615 / 5500067458 / 5500068116 / 5500068613 / 5500068615 / 5500072132 / 5500082137 / 5500062747", "identifierClass": "RETAILER_SKU", "technicalModel": null, "appliance": "dishwasher", "platformLineage": "UNRESOLVED", "confidence": "NONE", "evidence": [{"sourceType": "NEGATIVE", "reference": "public web search of exact SKU returns only generic Bush DW manuals; parts share no PCB/controller with WQP models"}], "note": "Opaque internal SKU - needs a retailer SKU<->model feed."},
+    {"brand": "Kenwood", "observedIdentifier": "5500074358 / 5500075288-92 / 5500076377 / ... (92 SKUs)", "identifierClass": "RETAILER_SKU", "technicalModel": null, "appliance": "dishwasher", "platformLineage": "UNRESOLVED", "confidence": "NONE", "evidence": [{"sourceType": "NEGATIVE", "reference": "SKU search returns generic Kenwood KDW*/KID* manuals, no exact SKU->model link"}], "note": "Kenwood DW technical models are KDW*/KID* (own naming); the 92 SKU rows are unresolved."},
+    {"brand": "Russell Hobbs", "observedIdentifier": "5500074386 / 5500074387", "identifierClass": "RETAILER_SKU", "technicalModel": null, "appliance": "dishwasher", "platformLineage": "UNRESOLVED", "confidence": "NONE", "evidence": [{"sourceType": "NEGATIVE", "reference": "no public SKU->model link found"}]}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "_meta": {"note": "Codes whose MEANING requires generation resolution (join edge: code-meaning pipeline invokes identifier pipeline). DATA ONLY. Miele's generation join is MODEL RANGE + SERIAL YEAR, not a product number.", "accessed": "2026-08-29"},
+  "needsGeneration": [
+    {
+      "manufacturerGroup": "MIELE",
+      "appliance": "dishwasher",
+      "code": "F11",
+      "requires": "generation",
+      "schemes": ["MIELE_DW_F"],
+      "resolveVia": "model range (G7xxx=new, G1-6xxx=old) + SERIAL YEAR for G5xxx (>=2019 Discovery = new)",
+      "meanings": {
+        "DW_G1_G6_OLD (G 1xxx-G 6xxx)": "drain pump blocked / water flowing back",
+        "DW_G7_NEW (G 7xxx & G 5xxx Discovery 2019+)": "drain pump cover positioned incorrectly"
+      },
+      "confidence": "HIGH (model range) / MEDIUM (serial-year for G5xxx)",
+      "note": "SOLE confirmed generation-dependent Miele code. 3-digit legacy G### predates the split."
+    }
+  ],
+  "identifierTypeByManufacturer": {
+    "ELECTROLUX": "PNC + ELC (distinct product number) - identifier mostly for PARTS; modern meaning independent",
+    "WHIRLPOOL": "12NC (distinct commercial code); PREFIX encodes platformLineage -> resolves F02 code meaning",
+    "MIELE": "MODEL + SERIAL(year) - NO distinct consumer product-number; generation (F11) resolved by model-range + serial-year",
+    "conclusion": "The identifier LAYER generalises, but the identifier TYPE varies (PNC vs 12NC vs model+serial-date). canonicalIdentifiers[] with a 'type' field already supports all three."
+  }
+}

@@ -1,0 +1,15 @@
+A AEG LAV86760                       -> MODEL_RESOLVED: PNC 914002535 ELC['00'] [HIGH] (washing-machine)  -> ELX_WM_EXX
+B Zanussi model (not yet mapped):
+B Zanussi ZWF81443W                  -> MODEL_RESOLVED_PNC_UNKNOWN (known model shape but no trusted PNC in )
+C Electrolux DW model (not yet mapped):
+C Electrolux ESF5545LOX              -> MODEL_RESOLVED_PNC_UNKNOWN (known model shape but no trusted PNC in )  -> ELX_DW_IXX
+D AEG LWX9A9613C (multi-ELC)         -> PNC_MULTI_ELC: 914600341 ELC['00', '01']  (no auto-select)
+E PNC 914525332                      -> PNC_RESOLVED: 914525332 ELCNone -> appliance=washing-machine
+E PNC 911516002-01                   -> PNC_RESOLVED: 911516002 ELC01 -> appliance=dishwasher
+F AEG L86800                         -> MODEL_RESOLVED: PNC 914525332 ELC[] [HIGH] (washing-machine)
+G AEG LAVX999UNKNOWN                 -> MODEL_RESOLVED_PNC_UNKNOWN (known model shape but no trusted PNC in )
+H PNC 12345 (malformed)              -> INVALID_IDENTIFIER (not a 9-digit PNC)
+
+ARCHITECTURE: code-meaning pipeline (make+appliance+code -> ELX scheme) runs
+INDEPENDENTLY of the identifier pipeline (model -> PNC+ELC -> parts); they JOIN
+only when exact part/hardware identity or legacy-platform disambiguation is needed.
