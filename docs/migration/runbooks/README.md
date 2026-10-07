@@ -53,3 +53,4 @@ in a pull request.
 | [Behavioural baseline and S4R contract](phase-0-baseline.md) | 0 | SAFE AC CHANGE (customer-equivalent traffic) and READ-ONLY (S4R checks) |
 | [Admin allowlist hotfix](phase-1-admin-hotfix.md) | 1 | SAFE AC CHANGE (`whichpart-api` only) |
 | [Runtime-identical extraction](phase-2-extraction.md) | 2 | Repository only (`spares4repairs` read with `git archive`) |
+| [Reproducible builds and tests](phase-3-reproducible-build.md) | 3 | Repository only |
