@@ -32,7 +32,7 @@ enforced by naming, a strict allowlist, the production and S4R denylists, and IA
 
 ## 2. Sandbox resources
 
-The exact list is [`sandbox-allowlist.json`](../sandbox-allowlist.json), 87 names. In summary:
+The exact list is [`sandbox-allowlist.json`](../sandbox-allowlist.json), 90 names. In summary:
 
 | Type | Sandbox names | Rehearses |
 |---|---|---|
@@ -94,7 +94,7 @@ Every sandbox mutation must satisfy **both**:
 |---|---|
 | **Sandbox guard** (`tools/migration`, next PR) | Before any sandbox command, the guard checks: <ul><li>the account is `800960611664` and the region is `eu-west-1`</li><li>the caller is the `ac-operator-sbx` role or an `acsbx` toolkit role</li><li>every mutated identifier passes the allowlist and both denylists</li></ul> Tests prove that production and S4R identifiers are refused. Only named commands can run, as in the existing backup and hotfix tools |
 | **Change-set checker** (sandbox mode) | Every `PhysicalResourceId` and every ARN in the template must be allowlisted. The only exceptions are AWS-managed policy ARNs (`AWSLambdaBasicExecutionRole`) and service principals. Any non-sandbox resource with an `Add`, `Modify`, `Remove`, `Import` or replacement action fails |
-| **IAM** | `ac-deny-production-sbx` is an explicit `Deny` on every ARN from both denylists, and on `secretsmanager:*` for `secret:spares4repairs/*`. It is attached to `ac-operator-sbx` and to the `acsbx` CloudFormation execution role. Their allow policies (`ac-operator-policy-sbx`, `ac-cfn-execution-sbx`) name only sandbox ARN patterns. The toolkit is bootstrapped with `--cloudformation-execution-policies` set to those, never `AdministratorAccess` |
+| **IAM** | `ac-deny-production-sbx` is an explicit `Deny` on every ARN from both denylists, and on `secretsmanager:*` for `secret:spares4repairs/*`. It is attached to `ac-operator-sbx` and to the `acsbx` CloudFormation execution role. Their allow policies (`ac-operator-policy-sbx`, `ac-cfn-execution-sbx`) name only sandbox ARN patterns. `ac-cfn-execution-sbx` is also the permissions boundary every sandbox-created role must carry. The toolkit's execution policies are those two, never `AdministratorAccess`. The exact documents, the reviewed bootstrap template and the commands are in [`sandbox/approval-a/`](../sandbox/approval-a/README.md) |
 | **Lambda configuration** | Before a sandbox function is first invoked, its environment is checked: every override in section 4 is set to a sandbox value, and no value contains a production or S4R identifier |
 
 ## 4. What the runtime code forces
@@ -254,7 +254,7 @@ Stop, change nothing more, and report on #34 if any of these happens:
 
 | Point | Before | Approval |
 |---|---|---|
-| A | The first mutation: creating `ac-operator-sbx`, its three managed policies and `ac-budget-sbx`, then bootstrapping `ApplianceClinicSandboxToolkit` | Written on #34, after the guard PR is merged and its plan output is posted |
+| A | The first mutation: creating `ac-operator-sbx`, its three managed policies and `ac-budget-sbx`, then creating `ApplianceClinicSandboxToolkit` from the reviewed template as a checked change set (not `cdk bootstrap`, whose stock deploy role can change any stack in the account). Plan: [`sandbox/approval-a/`](../sandbox/approval-a/README.md) | Written on #34, after the guard PR is merged and its plan output is posted |
 | B | Each rehearsal batch: IAM, data, Lambda, controls, recovery, destroy | Not required by PLAN.md. Each batch's exact plan is posted on #34 before it runs, and its results after |
 
 ## 9. Delivery

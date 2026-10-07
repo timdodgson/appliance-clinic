@@ -1,0 +1,173 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyProductionAndS4R",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": [
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-part-finder",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-part-finder:*",
+        "arn:aws:lambda:*:800960611664:function:whichpart-api",
+        "arn:aws:lambda:*:800960611664:function:whichpart-api:*",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-diag-orchestrator",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-diag-orchestrator:*",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-error-code-mcp",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-error-code-mcp:*",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-server-dev",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-server-dev:*",
+        "arn:aws:lambda:*:800960611664:function:SparesSite-dev-*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-part-finder",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-part-finder:*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/whichpart-api",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/whichpart-api:*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator:*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp:*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-server-dev",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-server-dev:*",
+        "arn:aws:logs:*:800960611664:log-group:/spares4repairs/*",
+        "arn:aws:iam::800960611664:role/whichpart-api-role",
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/error-code-mcp-role",
+        "arn:aws:iam::800960611664:role/SparesSite-dev-*",
+        "arn:aws:iam::800960611664:role/spares4repairs-*",
+        "arn:aws:iam::800960611664:role/cdk-hnb659fds-*",
+        "arn:aws:iam::800960611664:role/cdk-acclinic-*",
+        "arn:aws:dynamodb:*:800960611664:table/whichpart-recalls",
+        "arn:aws:dynamodb:*:800960611664:table/whichpart-recalls/*",
+        "arn:aws:dynamodb:*:800960611664:table/whichpart-transcripts",
+        "arn:aws:dynamodb:*:800960611664:table/whichpart-transcripts/*",
+        "arn:aws:dynamodb:*:800960611664:table/spares4repairs-*",
+        "arn:aws:s3:::whichpart-web-800960611664",
+        "arn:aws:s3:::whichpart-web-800960611664/*",
+        "arn:aws:s3:::whichpart-learning-800960611664",
+        "arn:aws:s3:::whichpart-learning-800960611664/*",
+        "arn:aws:s3:::applianceclinic-migration-backup-800960611664",
+        "arn:aws:s3:::applianceclinic-migration-backup-800960611664/*",
+        "arn:aws:s3:::spares4repairs-*",
+        "arn:aws:s3:::cdk-hnb659fds-*",
+        "arn:aws:s3:::cdk-acclinic-*",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/*",
+        "arn:aws:ecr:*:800960611664:repository/spares4repairs-diag-orchestrator",
+        "arn:aws:ecr:*:800960611664:repository/spares4repairs-error-code-mcp",
+        "arn:aws:ecr:*:800960611664:repository/spares4repairs-generator",
+        "arn:aws:ecr:*:800960611664:repository/cdk-hnb659fds-*",
+        "arn:aws:ecr:*:800960611664:repository/cdk-acclinic-*",
+        "arn:aws:events:*:800960611664:rule/whichpart-recall-ingest-daily",
+        "arn:aws:events:*:800960611664:rule/whichpart-transcript-review",
+        "arn:aws:cloudformation:*:800960611664:stack/CDKToolkit/*",
+        "arn:aws:cloudformation:*:800960611664:stack/SparesSite-dev/*",
+        "arn:aws:cloudformation:*:800960611664:stack/ApplianceClinicToolkit/*",
+        "arn:aws:cloudformation:*:800960611664:stack/AcDataStack/*",
+        "arn:aws:cloudformation:*:800960611664:stack/AcRuntimeStack/*",
+        "arn:aws:cloudformation:*:800960611664:stack/AcAuthStack/*",
+        "arn:aws:ssm:*:800960611664:parameter/cdk-bootstrap/hnb659fds/*",
+        "arn:aws:ssm:*:800960611664:parameter/cdk-bootstrap/acclinic/*",
+        "arn:aws:ssm:*:800960611664:parameter/spares4repairs/*",
+        "arn:aws:cognito-idp:*:800960611664:userpool/eu-west-1_mUWucohuX",
+        "arn:aws:apigateway:*::/apis/65vnizdmk4",
+        "arn:aws:apigateway:*::/apis/65vnizdmk4/*"
+      ]
+    },
+    {
+      "Sid": "DenyUnusedServices",
+      "Effect": "Deny",
+      "Action": [
+        "cloudfront:*",
+        "acm:*",
+        "route53:*",
+        "route53domains:*",
+        "ec2:*",
+        "rds:*",
+        "ecs:*",
+        "ses:*",
+        "sns:*",
+        "organizations:*",
+        "account:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyKeyAdministration",
+      "Effect": "Deny",
+      "Action": [
+        "kms:CreateKey",
+        "kms:ScheduleKeyDeletion",
+        "kms:DisableKey",
+        "kms:PutKeyPolicy",
+        "kms:CreateAlias",
+        "kms:UpdateAlias",
+        "kms:DeleteAlias",
+        "kms:RetireGrant",
+        "kms:RevokeGrant"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyOtherRegions",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "sts:*",
+        "budgets:*",
+        "ce:*",
+        "tag:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": "eu-west-1"
+        }
+      }
+    },
+    {
+      "Sid": "ProtectControls",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:Get*",
+        "iam:List*",
+        "budgets:ViewBudget"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-operator-sbx",
+        "arn:aws:iam::800960611664:policy/ac-operator-policy-sbx",
+        "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "arn:aws:iam::800960611664:policy/ac-deny-production-sbx",
+        "arn:aws:budgets::800960611664:budget/ac-budget-sbx"
+      ]
+    },
+    {
+      "Sid": "DenyManagedPolicyWrites",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreatePolicy",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KeepBoundaries",
+      "Effect": "Deny",
+      "Action": "iam:DeleteRolePermissionsBoundary",
+      "Resource": "*"
+    },
+    {
+      "Sid": "NoUsersOrKeys",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateUser",
+        "iam:CreateAccessKey",
+        "iam:CreateLoginProfile",
+        "iam:AttachUserPolicy",
+        "iam:PutUserPolicy",
+        "iam:AddUserToGroup"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
