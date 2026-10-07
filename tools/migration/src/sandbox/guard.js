@@ -345,7 +345,10 @@ export function checkSandboxChangeSet(lists, { changeSet, template = null }) {
   if (!hasType(lists, changeSet.StackName, 'AWS::CloudFormation::Stack')) {
     failures.push({ rule: 'stack-not-sandbox', stack: changeSet.StackName || null });
   }
-  for (const f of checkDocument(lists, changeSet)) failures.push(f);
+  // A change set's own IDs name the operation, not a resource (its stack is checked by StackName above), and
+  // their ARNs (changeSet/<name>/<uuid>) carry no resource name. Every other ARN in it is still checked.
+  const { ChangeSetId, ParentChangeSetId, RootChangeSetId, ...scanned } = changeSet; // eslint-disable-line no-unused-vars
+  for (const f of checkDocument(lists, scanned)) failures.push(f);
   const changes = (changeSet.Changes || []).filter((c) => c.Type === 'Resource').map((c) => c.ResourceChange);
   const resources = template?.Resources || {};
   const ctx = templateContext(template, changeSet);

@@ -305,3 +305,27 @@ describe('trust and budget', () => {
     expect(budgetNotifications('x').map((n) => n.Notification.Threshold)).toEqual([80, 100]);
   });
 });
+
+describe('the real approval point A change set (describe-change-set output, 2026-10-07)', () => {
+  const real = JSON.parse(readFileSync(new URL('./fixtures/sandbox/approval-a-changeset.json', import.meta.url), 'utf8'));
+  const t = patchBootstrapTemplate(stock);
+  const run = (changeSet) => checkChangeSet({ changeSet, template: t, mode: 'sandbox', sandboxLists: lists, denylist: s4rDeny });
+  it('has exactly the eleven expected Adds', () => {
+    expect(real.Changes.map((c) => `${c.ResourceChange.Action} ${c.ResourceChange.LogicalResourceId}`).sort()).toEqual([
+      'Add CdkBootstrapVersion', 'Add CloudFormationExecutionRole', 'Add ContainerAssetsRepository', 'Add DeploymentActionRole',
+      'Add FilePublishingRole', 'Add FilePublishingRoleDefaultPolicy', 'Add ImagePublishingRole', 'Add ImagePublishingRoleDefaultPolicy',
+      'Add LookupRole', 'Add StagingBucket', 'Add StagingBucketPolicy',
+    ]);
+  });
+  it('passes the sandbox checker: its own changeSet ARN is not mistaken for a resource', () => {
+    expect(real.ChangeSetId).toMatch(/:changeSet\//);
+    const r = run(real);
+    expect(r.failures).toEqual([]);
+    expect(r.ok).toBe(true);
+  });
+  it('still fails if any other ARN in it names a non-sandbox resource', () => {
+    const bad = { ...real, NotificationARNs: [`arn:aws:sns:${R}:${A}:spares4repairs-alerts`] };
+    expect(run(bad).failures.map((f) => f.rule)).toContain('arn-not-sandbox');
+    expect(run({ ...real, StackName: 'SparesSite-dev' }).ok).toBe(false);
+  });
+});
