@@ -3,17 +3,20 @@
  * Check a CloudFormation change set before it is executed. No AWS calls.
  *
  *   aws cloudformation describe-change-set --stack-name <stack> --change-set-name <name> > changeset.json
- *   node bin/check-changeset.mjs --changeset changeset.json --mode import|update --step <step.json>
+ *   node bin/check-changeset.mjs --changeset changeset.json --mode import|update|sandbox --step <step.json>
  *        [--denylist ../../docs/migration/s4r-denylist.json] [--template cdk.out/<Stack>.template.json]
  *        [--inventory <dir>]
  *
  * step.json: { "step": "5.1", "allowedPhysicalIds": [...], "approvedRemovals": [...], "s4rConsumedPhysicalIds": [...],
  *              "acknowledgedReferences": [{ "value": "<S4R id>", "reason": "<why an AC resource refers to it>" }] }
  * --inventory supplies secret digests so literal secret values in the template are detected.
+ * --mode sandbox (Phase 4) also loads docs/migration/sandbox-allowlist.json and ac-production-denylist.json, and
+ * --generated <file> supplies the recorded AWS-generated sandbox identifiers ([{type, id, parent}]).
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkChangeSet } from '../src/changeset/check.js';
+import { buildLists, loadSandboxLists } from '../src/sandbox/guard.js';
 import { collectDigests } from '../src/redact.js';
 import { parseArgs, requireFlag } from '../src/util/args.js';
 import { readJson, REPO_ROOT } from '../src/util/files.js';
@@ -30,10 +33,17 @@ if (flags.inventory) {
   }
   secretDigests = [...digests];
 }
+const mode = String(requireFlag(flags, 'mode'));
+let sandboxLists = null;
+if (mode === 'sandbox') {
+  const base = loadSandboxLists();
+  sandboxLists = buildLists({ ...base, generated: flags.generated ? readJson(String(flags.generated)) : [] });
+}
 const result = checkChangeSet({
   changeSet: readJson(String(requireFlag(flags, 'changeset'))),
   denylist: readJson(denylistPath).entries,
-  mode: String(requireFlag(flags, 'mode')),
+  mode,
+  sandboxLists,
   allowedPhysicalIds: step.allowedPhysicalIds || [],
   approvedRemovals: step.approvedRemovals || [],
   s4rConsumedPhysicalIds: step.s4rConsumedPhysicalIds || [],
