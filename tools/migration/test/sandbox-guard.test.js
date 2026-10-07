@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  arnResourceName, buildLists, checkCaller, checkDocument, checkFunctionEnv, checkSandboxChangeSet, checkTarget, loadSandboxLists,
+  arnResourceName, arnServiceForType, buildLists, checkCaller, checkDocument, checkFunctionEnv, checkSandboxChangeSet, checkTarget, loadSandboxLists,
 } from '../src/sandbox/guard.js';
 
 // The real lists from docs/migration: the guard must hold against them, not only against fixtures.
@@ -177,6 +177,32 @@ describe('sandbox change sets', () => {
     const arn = `arn:aws:secretsmanager:eu-west-1:${A}:secret:applianceclinic-sbx/openai-AbC123`;
     expect(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', arn, 'AWS::SecretsManager::Secret')] } })).toEqual([]);
     expect(rules(checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcDataStack-sbx', Changes: [change('Import', arn, 'AWS::SSM::Parameter')] } }))).toEqual(['change-target-not-sandbox']);
+  });
+
+  it('checks an ARN target by service, account and region, not by its name alone', () => {
+    // spares4repairs-error-code-mcp-sbx is allowlisted as both a Lambda and an ECR repository.
+    const fnArn = `arn:aws:lambda:eu-west-1:${A}:function:spares4repairs-error-code-mcp-sbx`;
+    const repoArn = `arn:aws:ecr:eu-west-1:${A}:repository/spares4repairs-error-code-mcp-sbx`;
+    const cs = (target, type) => checkSandboxChangeSet(lists, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', target, type)] } });
+    expect(cs(fnArn, 'AWS::Lambda::Function')).toEqual([]);
+    expect(cs(repoArn, 'AWS::ECR::Repository')).toEqual([]);
+    expect(rules(cs(fnArn, 'AWS::ECR::Repository'))).toEqual(['change-target-not-sandbox']);
+    expect(rules(cs(repoArn, 'AWS::Lambda::Function'))).toEqual(['change-target-not-sandbox']);
+    // Same name, wrong region: never a sandbox target.
+    expect(rules(cs(`arn:aws:lambda:us-east-1:${A}:function:spares4repairs-error-code-mcp-sbx`, 'AWS::Lambda::Function'))).toContain('change-target-not-sandbox');
+    // Same name, another account: never a sandbox target (and flagged as a foreign ARN).
+    expect(rules(cs('arn:aws:lambda:eu-west-1:111111111111:function:spares4repairs-error-code-mcp-sbx', 'AWS::Lambda::Function'))).toEqual(expect.arrayContaining(['change-target-not-sandbox', 'foreign-account-arn']));
+    // Global and account-less ARNs still work for their own types.
+    expect(cs(`arn:aws:iam::${A}:role/whichpart-api-role-sbx`, 'AWS::IAM::Role')).toEqual([]);
+    expect(cs(`arn:aws:s3:::whichpart-learning-sbx-${A}`, 'AWS::S3::Bucket')).toEqual([]);
+  });
+
+  it('maps CloudFormation types to ARN services', () => {
+    expect(arnServiceForType('AWS::ECR::Repository')).toBe('ecr');
+    expect(arnServiceForType('AWS::ApiGatewayV2::Api')).toBe('apigateway');
+    expect(arnServiceForType('AWS::Cognito::UserPool')).toBe('cognito-idp');
+    expect(arnServiceForType('AWS::SecretsManager::Secret')).toBe('secretsmanager');
+    expect(arnServiceForType('nonsense')).toBeNull();
   });
 
   it('fails a non-sandbox stack', () => {

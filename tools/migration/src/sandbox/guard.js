@@ -157,8 +157,27 @@ const isGeneratedFor = (lists, id, cfnType) => lists.generated.some((g) => g.id 
  */
 export function isSandboxTargetOfType(lists, cfnType, target) {
   if (!cfnType || !target) return false;
-  const arnName = arnResourceName(target)?.name;
-  return [target, arnName].filter(Boolean).some((t) => hasType(lists, t, cfnType) || isGeneratedFor(lists, t, cfnType));
+  if (String(target).startsWith('arn:')) {
+    // An ARN must be of the type's own service, in the sandbox account and region, before the name
+    // inside it is checked. A name allowlisted under two types (a Lambda and an ECR repository) must
+    // not let a Lambda ARN pass as a repository.
+    const r = arnResourceName(target);
+    if (!r || r.awsManaged || !r.name) return false;
+    if (r.service !== arnServiceForType(cfnType)) return false;
+    if (r.account && r.account !== SANDBOX_ACCOUNT) return false;
+    if (r.region && r.region !== SANDBOX_REGION) return false;
+    return hasType(lists, r.name, cfnType) || isGeneratedFor(lists, r.name, cfnType);
+  }
+  return hasType(lists, target, cfnType) || isGeneratedFor(lists, target, cfnType);
+}
+
+// ARN service namespaces that are not simply the lower-cased CloudFormation namespace.
+const ARN_SERVICE_OF_NAMESPACE = { ApiGatewayV2: 'apigateway', Cognito: 'cognito-idp' };
+
+/** The ARN service of a CloudFormation resource type, e.g. AWS::ECR::Repository -> ecr. */
+export function arnServiceForType(cfnType) {
+  const ns = /^AWS::([A-Za-z0-9]+)::/.exec(cfnType || '')?.[1];
+  return ns ? (ARN_SERVICE_OF_NAMESPACE[ns] || ns.toLowerCase()) : null;
 }
 const isGeneratedId = (lists, value) => lists.generated.some((g) => g.id === value);
 const isAllowlistedName = (lists, value) => lists.names.has(value);
@@ -167,8 +186,8 @@ const isAllowlistedName = (lists, value) => lists.names.has(value);
 export function arnResourceName(arn) {
   const m = /^arn:aws:([a-z0-9-]+):([a-z0-9-]*):(\d{12}|aws|):(.*)$/.exec(arn);
   if (!m) return null;
-  const [, service, , account, resource] = m;
-  if (account === 'aws') return { service, account, name: null, awsManaged: true };
+  const [, service, region, account, resource] = m;
+  if (account === 'aws') return { service, region, account, name: null, awsManaged: true };
   let name;
   if (service === 's3') name = resource.split('/')[0];
   else if (service === 'logs') name = resource.replace(/^log-group:/, '').replace(/:.*$/, '');
@@ -179,7 +198,7 @@ export function arnResourceName(arn) {
   else if (service === 'execute-api') name = resource.split('/')[0];
   else if (service === 'cognito-idp') name = resource.replace(/^userpool\//, '');
   else name = resource.replace(/^[a-z-]+[/:]/, '').split('/')[0];
-  return { service, account, name, awsManaged: false };
+  return { service, region, account, name, awsManaged: false };
 }
 
 const ARN_RE = /arn:aws:[a-z0-9-]+:[a-z0-9-]*:(?:\d{12}|aws)?:[A-Za-z0-9_./:@+=,*-]+/g;
