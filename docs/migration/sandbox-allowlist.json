@@ -1,0 +1,142 @@
+{
+ "description": "Phase 4 sandbox allowlist (#34). Sandbox tooling may mutate only these physical names, and AWS-generated identifiers that belong to one of them (recorded at creation, see generatedChildren). A target must also not be on ac-production-denylist.json or s4r-denylist.json. Matching is exact.",
+ "accountId": "800960611664",
+ "region": "eu-west-1",
+ "tag": {
+  "key": "ac:sandbox",
+  "value": "phase-4"
+ },
+ "names": {
+  "AWS::Lambda::Function": [
+   "whichpart-api-sbx",
+   "spares4repairs-part-finder-sbx",
+   "spares4repairs-diag-orchestrator-sbx",
+   "spares4repairs-error-code-mcp-sbx",
+   "spares4repairs-server-sbx"
+  ],
+  "AWS::Logs::LogGroup": [
+   "/aws/lambda/whichpart-api-sbx",
+   "/aws/lambda/spares4repairs-part-finder-sbx",
+   "/aws/lambda/spares4repairs-diag-orchestrator-sbx",
+   "/aws/lambda/spares4repairs-error-code-mcp-sbx",
+   "/aws/lambda/spares4repairs-server-sbx"
+  ],
+  "AWS::IAM::Role": [
+   "whichpart-api-role-sbx",
+   "diag-orchestrator-role-sbx",
+   "error-code-mcp-role-sbx",
+   "SparesSite-sbx-ServerFunctionRole",
+   "iam-t2-role-sbx",
+   "iam-t3-role-sbx",
+   "iam-t4-role-sbx",
+   "iam-t5-role-sbx",
+   "iam-t6-role-sbx",
+   "iam-t7-role-sbx",
+   "ac-operator-sbx"
+  ],
+  "AWS::IAM::RolePolicy": [
+   "whichpart-api-role-sbx/whichpart-acq-benchmark-s3-sbx",
+   "whichpart-api-role-sbx/whichpart-ai-config-secrets-sbx",
+   "whichpart-api-role-sbx/whichpart-cognito-auth-sbx",
+   "whichpart-api-role-sbx/whichpart-knowledge-admin-s3-sbx",
+   "whichpart-api-role-sbx/whichpart-media-admin-s3-sbx",
+   "whichpart-api-role-sbx/whichpart-recalls-dynamodb-sbx",
+   "whichpart-api-role-sbx/whichpart-recalls-s3-sbx",
+   "whichpart-api-role-sbx/whichpart-transcripts-dynamodb-sbx",
+   "error-code-mcp-role-sbx/error-code-admin-overlay-s3-sbx",
+   "SparesSite-sbx-ServerFunctionRole/SparesSite-sbx-ServerPolicy",
+   "SparesSite-sbx-ServerFunctionRole/WhichpartLearningPut-sbx",
+   "SparesSite-sbx-ServerFunctionRole/whichpart-knowledge-overlay-s3-sbx",
+   "SparesSite-sbx-ServerFunctionRole/whichpart-media-overlay-s3-sbx",
+   "SparesSite-sbx-ServerFunctionRole/t1-unmanaged-sbx",
+   "iam-t2-role-sbx/iam-t2-policy-sbx",
+   "iam-t2-role-sbx/iam-t2-unmanaged-sbx",
+   "iam-t3-role-sbx/iam-t3-policy-sbx",
+   "iam-t3-role-sbx/iam-t3-unmanaged-sbx",
+   "iam-t4-role-sbx/iam-t4-policy-sbx",
+   "iam-t4-role-sbx/iam-t4-unmanaged-sbx",
+   "iam-t5-role-sbx/iam-t5-policy-sbx",
+   "iam-t5-role-sbx/iam-t5-unmanaged-sbx",
+   "iam-t6-role-sbx/iam-t6-policy-sbx",
+   "iam-t6-role-sbx/iam-t6-unmanaged-sbx",
+   "iam-t7-role-sbx/iam-t7-policy-sbx",
+   "iam-t7-role-sbx/iam-t7-unmanaged-sbx"
+  ],
+  "AWS::IAM::ManagedPolicy": [
+   "ac-operator-policy-sbx",
+   "ac-cfn-execution-sbx",
+   "ac-deny-production-sbx"
+  ],
+  "AWS::DynamoDB::Table": [
+   "whichpart-recalls-sbx",
+   "whichpart-transcripts-sbx",
+   "whichpart-recalls-sbx-restored-backup",
+   "whichpart-recalls-sbx-restored-pitr",
+   "whichpart-transcripts-sbx-restored-backup",
+   "whichpart-transcripts-sbx-restored-pitr"
+  ],
+  "AWS::S3::Bucket": [
+   "whichpart-web-sbx-800960611664",
+   "whichpart-learning-sbx-800960611664",
+   "applianceclinic-migration-backup-sbx-800960611664",
+   "cdk-acsbx-assets-800960611664-eu-west-1"
+  ],
+  "AWS::ECR::Repository": [
+   "spares4repairs-diag-orchestrator-sbx",
+   "spares4repairs-error-code-mcp-sbx",
+   "cdk-acsbx-container-assets-800960611664-eu-west-1"
+  ],
+  "AWS::SecretsManager::Secret": [
+   "applianceclinic-sbx/ai-config",
+   "applianceclinic-sbx/openai",
+   "applianceclinic-sbx/jev",
+   "applianceclinic-sbx/canonical-state-token",
+   "applianceclinic-sbx/benchmark-service",
+   "applianceclinic-sbx/diag-orchestrator/bearer-token",
+   "applianceclinic-sbx/error-code-mcp/bearer-token"
+  ],
+  "AWS::Events::Rule": [
+   "whichpart-recall-ingest-daily-sbx",
+   "whichpart-transcript-review-sbx"
+  ],
+  "AWS::ApiGatewayV2::Api": [
+   "spares4repairs-sbx"
+  ],
+  "AWS::Cognito::UserPool": [
+   "SparesSite-sbx-UserPool"
+  ],
+  "AWS::Cognito::UserPoolClient": [
+   "SparesSite-sbx-AdminClient"
+  ],
+  "AWS::CloudFormation::Stack": [
+   "ApplianceClinicSandboxToolkit",
+   "SparesSite-sbx",
+   "AcDataStack-sbx",
+   "AcRuntimeStack-sbx",
+   "AcIamExperiments-sbx"
+  ],
+  "AWS::IAM::Role(toolkit)": [
+   "cdk-acsbx-cfn-exec-role-800960611664-eu-west-1",
+   "cdk-acsbx-deploy-role-800960611664-eu-west-1",
+   "cdk-acsbx-file-publishing-role-800960611664-eu-west-1",
+   "cdk-acsbx-image-publishing-role-800960611664-eu-west-1",
+   "cdk-acsbx-lookup-role-800960611664-eu-west-1"
+  ],
+  "AWS::SSM::Parameter": [
+   "/cdk-bootstrap/acsbx/version"
+  ],
+  "AWS::Budgets::Budget": [
+   "ac-budget-sbx"
+  ]
+ },
+ "generatedChildren": {
+  "AWS::Lambda::Url": "The Function URL of an allowlisted function, recorded from the CreateFunctionUrlConfig response",
+  "AWS::Lambda::Permission": "A statement on an allowlisted function",
+  "AWS::ApiGatewayV2::Api": "The API ID of spares4repairs-sbx, its routes, integrations and stage",
+  "AWS::Cognito::UserPool": "The pool and client IDs of the allowlisted pool and client",
+  "AWS::SecretsManager::Secret": "The ARN (with its random suffix) of an allowlisted secret name",
+  "AWS::DynamoDB::Backup": "An on-demand backup of an allowlisted table",
+  "AWS::ECR::Image": "An image pushed to an allowlisted repository",
+  "AWS::S3::Object": "An object in an allowlisted bucket"
+ }
+}
