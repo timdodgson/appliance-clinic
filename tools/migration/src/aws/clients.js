@@ -15,10 +15,12 @@ import { guardReadOnly } from './readonly-client.js';
  * Build guarded, read-only clients. Credentials come from the standard AWS chain
  * (AWS_PROFILE etc.); nothing here stores or logs them.
  */
-export function createReadOnlyClients({ region, edgeRegion, stackRegions, allowSecretValues = false }) {
+export function createReadOnlyClients({ region, edgeRegion, stackRegions, cloudtrailRegions = [region], allowSecretValues = false }) {
   const ro = (client, opts) => guardReadOnly(client, opts);
   const cloudformation = {};
   for (const r of stackRegions) cloudformation[r] = ro(new CloudFormationClient({ region: r }));
+  const cloudtrail = {};
+  for (const r of cloudtrailRegions) cloudtrail[r] = ro(new CloudTrailClient({ region: r }));
   return {
     region,
     sts: ro(new STSClient({ region })),
@@ -29,7 +31,7 @@ export function createReadOnlyClients({ region, edgeRegion, stackRegions, allowS
     secrets: ro(new SecretsManagerClient({ region }), { allowSecretValues }),
     ecr: ro(new ECRClient({ region })),
     events: ro(new EventBridgeClient({ region })),
-    cloudtrail: ro(new CloudTrailClient({ region })),
+    cloudtrail,
     cloudfront: ro(new CloudFrontClient({ region: edgeRegion })),
     cloudformation,
   };
