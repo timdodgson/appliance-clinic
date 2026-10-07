@@ -100,3 +100,28 @@ fails if an imported file changes before Phase 3.
 - **Byte for byte:** every runtime file in the import matches its production-equivalent source.
 - **Secrets and PII:** the scan is clean, with every finding reviewed and classified. This is the
   condition for the import being public.
+
+## Follow-up: tests and build inputs (#27)
+
+The runtime import left out everything Phase 3 needs to test and rebuild the runtime. The follow-up
+imports exactly that, byte for byte from `13b7a50`, with `import-manifest-phase-2b.json` as its
+provenance record:
+
+- **Tests:** every test in the service, orchestrator and error-code test directories that runs from
+  Appliance Clinic material alone, with the fixtures, helpers and non-deployed source files it loads.
+- **Packaging:** the four `deploy.sh` scripts and `services/whichpart-api/scripts/build-media-canonical-refs.cjs`.
+  The scripts are references for the packaging steps only. They also change AWS, including inline
+  policies on the S4R server role. **Never run them.** Phase 3 reproduces the packaging.
+
+**A test is not imported if it:**
+- reads the `apps/whichpart` web frontend or S4R data
+- calls deployed endpoints
+- needs `error-codes` research data
+- contains personal data
+
+The manifest records each excluded test with its reason.
+
+**Selection is proved, not assumed.** The selected tests are run offline in a sandbox: this
+repository, the monorepo's pinned test packages, fake AWS credentials and no proxy. Every test either
+passes or fails identically on a full `13b7a50` checkout. Those failures form the Phase 3
+known-failure baseline.
