@@ -5,7 +5,8 @@
     "acApi": "https://applianceclinic.ai/api",
     "s4rOrigin": "https://spares4repairs.co.uk",
     "s4rPages": ["https://spares4repairs.co.uk/", "https://spares4repairs.co.uk/part-finder"],
-    "s4rCatalogueSearch": "https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/api/search?q=pump"
+    "s4rCatalogueSearch": "https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/api/search?q=pump",
+    "diagnosisAiChatRoute": "https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/ai/chat"
   },
   "partFinderContract": {
     "description": "What the S4R /part-finder page (apps/web/src/app/part-finder/page.tsx@13b7a50) sends and reads.",
@@ -13,6 +14,10 @@
     "doneEventFieldsReadByS4R": ["parts", "understood", "safetyStop", "remoteActionClass", "safetyInformation"],
     "partFieldsReadByS4R": ["title", "partNo", "partId", "price", "link"],
     "understoodFieldsReadByS4R": ["make", "appliance", "model", "fault", "code"]
+  },
+  "aiChatIngress": {
+    "description": "Second public ingress to the diagnosis Lambda: S4R HTTP API spares4repairs-dev, route POST /ai/chat, unauthenticated. Checked separately from the /part-finder contract. No known client in the monorepo.",
+    "request": { "messages": [{ "role": "user", "content": "My washing machine won't drain, it's a Bosch" }] }
   },
   "smokeScenarios": [
     { "id": "wm-not-draining", "messages": ["My washing machine won't drain"], "expect": { "safety": false } },

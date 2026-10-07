@@ -8,9 +8,15 @@
  *   node bin/baseline.mjs contract capture --live --out <file>
  *   node bin/baseline.mjs contract verify --live --recorded <file>
  *   node bin/baseline.mjs smoke --live --out <file> [--compare <baseline-file>]
+ *   node bin/baseline.mjs ingress capture --live --out <file>
+ *   node bin/baseline.mjs ingress verify --live --recorded <file>
+ *
+ * `ingress` checks the diagnosis Lambda's second public ingress (S4R HTTP API, POST /ai/chat),
+ * separately from the /part-finder contract.
  */
 import { join } from 'node:path';
 import { contractFrom, verifyContract } from '../src/baseline/contract.js';
+import { summariseIngress, verifyIngress } from '../src/baseline/ingress.js';
 import { createGuardedFetch, hostsOf } from '../src/baseline/http.js';
 import { s4rHealth } from '../src/baseline/s4r-health.js';
 import { checkExpectations, compareSmoke, summariseApiResponse } from '../src/baseline/smoke.js';
@@ -20,7 +26,7 @@ import { readJson, writeJson, TOOL_ROOT } from '../src/util/files.js';
 const { flags, positional } = parseArgs(process.argv.slice(2));
 const [command, sub] = positional;
 const cfg = readJson(join(TOOL_ROOT, 'config', 'baseline.json'));
-const usage = 'Usage: baseline.mjs <s4r-health | contract capture | contract verify | smoke> --live [options]';
+const usage = 'Usage: baseline.mjs <s4r-health | contract capture|verify | ingress capture|verify | smoke> --live [options]';
 
 if (!command) { console.error(usage); process.exit(2); }
 if (!flags.live) {
@@ -58,6 +64,15 @@ if (command === 's4r-health') {
   const c = cfg.partFinderContract;
   const result = verifyContract(recorded, current, { requiredDoneFields: c.doneEventFieldsReadByS4R, requiredPartFields: c.partFieldsReadByS4R, requiredUnderstoodFields: c.understoodFieldsReadByS4R });
   done({ ...result, contract: current }, result.ok);
+} else if (command === 'ingress' && (sub === 'capture' || sub === 'verify')) {
+  const current = summariseIngress(await guardedFetch(cfg.endpoints.diagnosisAiChatRoute, { method: 'POST', body: cfg.aiChatIngress.request }));
+  if (sub === 'capture') {
+    done({ ingress: current }, current.status === 200);
+  } else {
+    if (!flags.recorded) { console.error('ingress verify needs --recorded <file>'); process.exit(2); }
+    const result = verifyIngress(readJson(String(flags.recorded)).ingress, current);
+    done({ ...result, ingress: current }, result.ok);
+  }
 } else if (command === 'smoke') {
   const summaries = {};
   const expectationProblems = [];

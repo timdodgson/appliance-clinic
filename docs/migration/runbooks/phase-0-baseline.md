@@ -48,7 +48,25 @@ Verify against it before and after such a step:
 npm run baseline -- contract verify --live --recorded ../../.migration-output/baseline/part-finder-contract.json
 ```
 
-## 3. Smoke baseline
+## 3. Capture the `/ai/chat` ingress baseline
+
+The diagnosis Lambda has a second public ingress: route `POST /ai/chat` on the S4R HTTP API
+`spares4repairs-dev`. It is checked separately from the `/part-finder` contract, which stays exactly what
+the S4R page relies on.
+
+```bash
+npm run baseline -- ingress capture --live --out ../../.migration-output/baseline/ai-chat-ingress.json
+```
+
+It records status, content type, framing (JSON or NDJSON) and response fields, never prose. Before and
+after any step that touches the diagnosis Lambda, run both checks:
+
+```bash
+npm run baseline -- contract verify --live --recorded ../../.migration-output/baseline/part-finder-contract.json
+npm run baseline -- ingress verify --live --recorded ../../.migration-output/baseline/ai-chat-ingress.json
+```
+
+## 4. Smoke baseline
 
 ```bash
 npm run baseline -- smoke --live --out ../../.migration-output/baseline/smoke-<date>.json

@@ -7,7 +7,7 @@
  * each deployed stage (the deployed definition is read with GetExport).
  */
 import { GetExportCommand, GetResourcesCommand, GetRestApiCommand, GetStagesCommand } from '@aws-sdk/client-api-gateway';
-import { GetApiCommand, GetIntegrationsCommand, GetStagesCommand as GetStagesV2Command } from '@aws-sdk/client-apigatewayv2';
+import { GetApiCommand, GetIntegrationsCommand, GetRoutesCommand, GetStagesCommand as GetStagesV2Command } from '@aws-sdk/client-apigatewayv2';
 import { collectPages, optional } from '../util/aws-errors.js';
 import { stacksManaging } from './cloudformation.js';
 
@@ -77,10 +77,31 @@ async function investigateHttpApi(apigatewayv2, apiId, functionName) {
     (p) => p.Items,
     (p) => p.NextToken,
   );
+  const routes = await collectPages(
+    (NextToken) => apigatewayv2.send(new GetRoutesCommand({ ApiId: apiId, NextToken })),
+    (p) => p.Items,
+    (p) => p.NextToken,
+  );
   const needle = `:function:${functionName}`;
-  const current = integrations.filter((i) => String(i.IntegrationUri || '').includes(needle)).map((i) => ({ integrationId: i.IntegrationId }));
+  // HTTP API stages with auto-deploy serve the current routes; there is no separate deployed export.
+  const current = integrations
+    .filter((i) => String(i.IntegrationUri || '').includes(needle))
+    .map((i) => ({
+      integrationId: i.IntegrationId,
+      integrationType: i.IntegrationType || null,
+      routes: routes
+        .filter((r) => r.Target === `integrations/${i.IntegrationId}`)
+        .map((r) => ({ routeKey: r.RouteKey, authorizationType: r.AuthorizationType || 'NONE' })),
+    }));
   const stages = (await apigatewayv2.send(new GetStagesV2Command({ ApiId: apiId }))).Items || [];
-  return { type: api.ProtocolType || 'HTTP', name: api.Name, createdDate: api.CreatedDate, stages: stages.map((s) => s.StageName), current, deployed: null };
+  return {
+    type: api.ProtocolType || 'HTTP',
+    name: api.Name,
+    createdDate: api.CreatedDate,
+    stages: stages.map((s) => ({ name: s.StageName, autoDeploy: Boolean(s.AutoDeploy), detailedMetrics: Boolean(s.DefaultRouteSettings && s.DefaultRouteSettings.DetailedMetricsEnabled) })),
+    current,
+    deployed: null,
+  };
 }
 
 export async function investigateApiPermissions({ apigateway, apigatewayv2, functionName, policy, stacks }) {
@@ -97,7 +118,8 @@ export async function investigateApiPermissions({ apigateway, apigatewayv2, func
         results.push({ functionName, sid: statement.sid, apiId, managedBy, conclusion: 'api-not-found', note: 'The API no longer exists in this region; the permission is stale.' });
         continue;
       }
-      const deployedHits = found.deployed ? Object.values(found.deployed).flat().length : found.current.length;
+      const httpRouted = found.deployed === null && found.current.some((c) => !c.routes || c.routes.length > 0);
+      const deployedHits = found.deployed ? Object.values(found.deployed).flat().length : (httpRouted ? found.current.length : 0);
       const conclusion = deployedHits > 0 ? 'invokes' : found.current.length > 0 ? 'configured-not-deployed' : 'no-integration-found';
       results.push({ functionName, sid: statement.sid, apiId, managedBy, ...found, conclusion });
     }

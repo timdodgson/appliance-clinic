@@ -88,7 +88,25 @@ Record the conclusions in [`phase-0-findings.md`](../phase-0-findings.md).
 
 Commit the updated `ownership.md` in a pull request for review.
 
-## 6. Optional: CloudFormation IaC generator scan
+## 6. Measure `/ai/chat` traffic (READ-ONLY)
+
+Is the diagnosis Lambda's second ingress, `POST /ai/chat` on the S4R HTTP API, actually used?
+
+```bash
+AWS_PROFILE=ac-readonly npm run traffic -- --expect-account <account-id> --days 30 \
+  --out ../../.migration-output/traffic-ai-chat.json
+```
+
+The conclusion is one of:
+- `route-traffic-observed`
+- `no-route-traffic`
+- `route-metrics-unavailable`: detailed per-route metrics are off on the stage, so the route's
+  requests cannot be separated from the API's total. The check never enables detailed metrics,
+  because that changes the S4R API.
+
+Record the result in `phase-0-findings.md`. Until the route's use is known, it stays a live dependency.
+
+## 7. Optional: CloudFormation IaC generator scan
 
 The IaC generator (CloudFormation console, *IaC generator*) scans the account and can produce
 templates for existing resources. A scan creates a scan record in CloudFormation but changes no

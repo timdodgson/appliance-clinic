@@ -31,7 +31,8 @@ Run from this directory after `npm ci`.
 | `npm run compare:build -- <a> <b> [--allow-diff p1,p2]` | None | READ-ONLY | File-for-file artefact equivalence |
 | `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories |
 | `npm run check:changeset -- --changeset <json> --mode import\|update --step <json>` | None | READ-ONLY | Gate before executing a change set |
-| `npm run baseline -- <s4r-health\|contract capture\|contract verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline and the S4R `/part-finder` contract |
+| `npm run baseline -- <s4r-health\|contract capture\|contract verify\|ingress capture\|ingress verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline, the S4R `/part-finder` contract, and the separate `/ai/chat` ingress check |
+| `npm run traffic -- [--api <id>] [--route "POST /ai/chat"] [--days 30]` | Reads | READ-ONLY | Whether an HTTP API route is actually used (CloudWatch) |
 | `npm run backup -- --inventory <dir> --backup-bucket <name> [--enable-pitr] [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 0 backups |
 | `npm run token:sub` | None | READ-ONLY | Read your Cognito `sub` from your own access token |
 | `npm run hotfix:patch -- --in <deployed.zip> --out <patched.zip>` | None | READ-ONLY | Phase 1: patch the admin check in a copy of the deployed artefact |

@@ -80,6 +80,8 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 | Record external runtime dependencies | READ-ONLY |
 | Prove ownership of every resource and record the evidence in [`ownership.md`](ownership.md) | READ-ONLY |
 | Investigate every API Gateway invoke permission on AC functions: does the API's current or deployed configuration integrate the function, or is the permission stale? (`apigateway-permissions` in the inventory) | READ-ONLY (reads S4R API configuration only) |
+| Measure whether the diagnosis Lambda's second ingress, `POST /ai/chat` on the S4R HTTP API, is used (`npm run traffic`, CloudWatch metrics) | READ-ONLY |
+| Capture the `/ai/chat` ingress baseline, separately from the `/part-finder` contract (`npm run baseline -- ingress capture`) | SAFE AC CHANGE (one LLM call) |
 | Record the inventory findings and production baseline in [`phase-0-findings.md`](phase-0-findings.md) | Repository only |
 | DynamoDB on-demand backups, enable PITR on AC tables, copy AC buckets to a backup bucket ([runbook](runbooks/phase-0-backups.md)) | SAFE AC CHANGE |
 | Capture the `/part-finder` contract and record the behavioural baseline without `observability` ([runbook](runbooks/phase-0-baseline.md)) | SAFE AC CHANGE (LLM spend, possible canonical-state items) |
@@ -167,6 +169,10 @@ groups is treated as an AC admin.
 - S3: import a bucket and its bucket policy.
 - Rollback with RETAIN, stack policy behaviour, the change-set checker, and the deny-S4R execution role.
 
+T1 (an unmanaged inline policy surviving an unrelated stack update) stays mandatory. In production, the
+hand-added policies on the S4R server role have survived S4R deployments, which lowers the concern but
+does not replace the test.
+
 **Exit criteria**
 - Every resource type planned for Phase 5 has a recorded, passing rehearsal.
 - Every surprise has been turned into a rule, a checker test or a runbook step.
@@ -205,8 +211,10 @@ The Phase 0 inventory found that `spares4repairs-part-finder` runs under
 - The three AC permissions added by hand to that role (`WhichpartLearningPut`,
   `whichpart-knowledge-overlay-s3`, `whichpart-media-overlay-s3`) are recorded but not imported,
   changed or removed.
-- The `apigateway-invoke` permission for API `65vnizdmk4` is S4R-sensitive. It is not imported,
-  changed or removed until its use is established and S4R signs off.
+- The `apigateway-invoke` permission is **live**. It lets the S4R HTTP API `spares4repairs-dev` route
+  `POST /ai/chat` to the diagnosis Lambda, unauthenticated. That makes it a second public ingress
+  besides the Function URL. The route, the API and the permission are treated as live dependencies:
+  not imported, changed or removed, and S4R-sensitive.
 - Moving the diagnosis Lambda to a dedicated AC execution role is a separate Phase 7 change,
   classified POTENTIALLY IMPACTS S4R.
 
@@ -271,7 +279,7 @@ See [ADR 0004](../adr/0004-import-existing-resources-into-cdk.md).
 | Benchmarks routed to staging only; production tools default to staging; least-privilege IAM | SAFE AC CHANGE |
 | Any change to the diagnosis Lambda's AuthType, CORS, permissions, concurrency or request/response shape | POTENTIALLY IMPACTS S4R |
 | Move the diagnosis Lambda from the shared S4R server role to a dedicated AC execution role (needs the `/part-finder` contract test before and after, and explicit sign-off) | POTENTIALLY IMPACTS S4R |
-| Remove the `apigateway-invoke` permission from the diagnosis Lambda, only if the Phase 0 investigation shows it is stale and S4R signs off | POTENTIALLY IMPACTS S4R |
+| Protect or remove the unauthenticated `POST /ai/chat` route, or remove the `apigateway-invoke` permission. Only when the traffic check shows the route's actual use and S4R signs off; the route lives on the S4R API | POTENTIALLY IMPACTS S4R |
 | Remove the AC permissions from the S4R server role | DO NOT DO in this work: it changes an S4R resource. Proposed separately as an S4R change once the role move is proven |
 | Any change to the S4R Cognito pool, or narrowing the S4R server role's secret grant | DO NOT DO |
 
@@ -321,13 +329,18 @@ See [ADR 0004](../adr/0004-import-existing-resources-into-cdk.md).
 1. Live configuration compared with the Phase 0 baseline.
 2. Drift detection where supported.
 3. Smoke tests.
-4. S4R homepage, catalogue API and `/part-finder` contract checks.
+4. S4R homepage, catalogue API and `/part-finder` contract checks. When the diagnosis Lambda was
+   touched, also the `/ai/chat` ingress check.
 
 ### Before each CDK update after import
 1. The change-set checker (update mode) passes: no replacement, no removal unless approved and Retain-protected, no denylisted IDs, IAM changes listed and justified.
 2. Stack policies deny `Update:Replace` and `Update:Delete` on data resources, Function URLs, Lambda permissions and the diagnosis Lambda.
 3. Deployment uses the `acclinic` toolkit execution role.
-4. Anything touching the diagnosis Lambda is POTENTIALLY IMPACTS S4R: sign-off, the contract test before and after, out of shop hours, with a prepared rollback.
+4. Anything touching the diagnosis Lambda is POTENTIALLY IMPACTS S4R. It needs:
+   - sign-off
+   - the `/part-finder` contract test **and** the `/ai/chat` ingress check, before and after
+   - running out of shop hours
+   - a prepared rollback
 
 ### Behavioural validation
 - **Exact checks:** routing, safety decisions, the part gate, error-code lookup, API status codes, response shapes, admin authorisation, and the S4R contract.

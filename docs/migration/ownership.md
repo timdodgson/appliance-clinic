@@ -49,9 +49,9 @@ the resource is not managed by any CloudFormation stack in eu-west-1 or us-east-
 
 | Resource | Class | Evidence | Notes |
 |---|---|---|---|
-| Diagnosis Lambda URL | **AC (S4R-consumed)** | CloudTrail (2026-08-20, console) | Auth NONE, `RESPONSE_STREAM`, unqualified (`$LATEST`), CORS `*` / POST / `content-type` / max-age 86400. Host, auth and CORS must not change |
+| Diagnosis Lambda URL (ingress 1) | **AC (S4R-consumed)** | CloudTrail (2026-08-20, console) | Used by the S4R `/part-finder` page. Auth NONE, `RESPONSE_STREAM`, unqualified (`$LATEST`), CORS `*` / POST / `content-type` / max-age 86400. Host, auth and CORS must not change |
 | Diagnosis Lambda permissions `FnUrlPublic`, `PublicInvoke` | AC (S4R-consumed) | Created with the URL | Public invoke for the URL. Never modified |
-| Diagnosis Lambda permission `apigateway-invoke` (API `65vnizdmk4`) | **S4R-sensitive** | Not created by any AC script | Possible second S4R consumer. Not imported, changed or removed until its use is established ([findings](phase-0-findings.md#api-gateway-permission-on-the-diagnosis-lambda)) |
+| Diagnosis Lambda permission `apigateway-invoke` (API `65vnizdmk4`, ingress 2) | **S4R-sensitive** | CloudTrail: `AddPermission` by the account owner on 2026-08-20 (statement ID not recorded; inferred from timing) | **Live:** route `POST /ai/chat` on the S4R HTTP API `spares4repairs-dev` invokes the diagnosis Lambda, unauthenticated. No known client. Treated as a live dependency: not imported, changed or removed. POTENTIALLY IMPACTS S4R ([findings](phase-0-findings.md#2-the-diagnosis-lambda-has-two-public-ingress-paths)) |
 | `whichpart-api` URL and permissions `FunctionURLAllowPublicAccess`, `PublicInvoke`, `RecallIngestDaily`, `TranscriptReviewPeriodic` | AC | Script `services/whichpart-api/deploy.sh:155-306`; CloudTrail | Auth NONE, `BUFFERED`, unqualified, no CORS |
 | Orchestrator URL and permissions | AC | Script `orchestration/deploy/deploy.sh:82-86`; CloudTrail | Auth NONE, `BUFFERED`; bearer token checked in code |
 | Error-code MCP URL and permissions | AC | Script `error-codes/mcp/deploy/deploy.sh:126-132`; CloudTrail | Auth NONE, `BUFFERED` |
@@ -60,10 +60,10 @@ the resource is not managed by any CloudFormation stack in eu-west-1 or us-east-
 
 | Resource | Class | Evidence | Used by | Notes |
 |---|---|---|---|---|
-| `whichpart-api-role` | AC | Script `services/whichpart-api/deploy.sh:59`; no stack; used only by `whichpart-api` | `whichpart-api` | 8 inline policies (below) + `AWSLambdaBasicExecutionRole` |
-| `diag-orchestrator-role` | AC | Script `orchestration/deploy/deploy.sh:59`; no stack | Orchestrator | No inline policies + `AWSLambdaBasicExecutionRole` |
-| `error-code-mcp-role` | AC | Script `error-codes/mcp/deploy/deploy.sh:97`; no stack | Error-code MCP | `error-code-admin-overlay-s3` + `AWSLambdaBasicExecutionRole` |
-| `SparesSite-dev-ServerFunctionRole…` | **S4R** | Managed by the `SparesSite-dev` stack; also used by `spares4repairs-server-dev` | S4R server Lambda **and** the diagnosis Lambda | Never imported, modified or managed by AC ([ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)) |
+| `whichpart-api-role` | AC | Script `services/whichpart-api/deploy.sh:59`; CloudTrail `CreateRole` 2026-08-23 by the account owner; no stack; used only by `whichpart-api` | `whichpart-api` | 8 inline policies (below) + `AWSLambdaBasicExecutionRole` |
+| `diag-orchestrator-role` | AC | Script `orchestration/deploy/deploy.sh:59`; CloudTrail `CreateRole` 2026-08-30 by the account owner; no stack | Orchestrator | No inline policies + `AWSLambdaBasicExecutionRole` |
+| `error-code-mcp-role` | AC | Script `error-codes/mcp/deploy/deploy.sh:97`; CloudTrail `CreateRole` 2026-08-30 by the account owner; no stack | Error-code MCP | `error-code-admin-overlay-s3` + `AWSLambdaBasicExecutionRole` |
+| `SparesSite-dev-ServerFunctionRole…` | **S4R** | Managed by the `SparesSite-dev` stack (CloudTrail `CreateRole` by AWS CloudFormation, 2026-07-20); also used by `spares4repairs-server-dev`. Every inline policy on it, S4R and AC, was added by hand by the account owner | S4R server Lambda **and** the diagnosis Lambda | Never imported, modified or managed by AC ([ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)) |
 | Inline policies on `whichpart-api-role`: `whichpart-acq-benchmark-s3`, `whichpart-ai-config-secrets`, `whichpart-cognito-auth`, `whichpart-knowledge-admin-s3`, `whichpart-media-admin-s3`, `whichpart-recalls-dynamodb`, `whichpart-recalls-s3`, `whichpart-transcripts-dynamodb` | AC | Script `services/whichpart-api/deploy.sh:71-146` | `whichpart-api` | `whichpart-cognito-auth` targets the S4R pool: AC's policy, S4R's pool |
 | Inline policy `error-code-admin-overlay-s3` on `error-code-mcp-role` | AC | Script `error-codes/mcp/deploy/deploy.sh:103` | Error-code MCP | |
 | **AC permissions on the S4R role:** `WhichpartLearningPut`, `whichpart-knowledge-overlay-s3`, `whichpart-media-overlay-s3` | **S4R (location)** | Added by hand outside the S4R stack; the overlay policies by `services/part-finder/deploy.sh:52-57` | Diagnosis Lambda (and, by sharing, the S4R server Lambda) | Recorded only. Not imported, changed or removed by this work |
@@ -107,7 +107,7 @@ These are `S4R` by definition. AC may read from them or call them as a client, a
 | Resource | AC dependency |
 |---|---|
 | S4R Cognito user pool and app client (`SparesSite-dev`) | AC admin sign-in (`AdminInitiateAuth`, `GetUser`) until Phase 7 |
-| S4R catalogue API Gateway (`65vnizdmk4`) | Diagnosis Lambda and error-code tools call `/api/search` and `/api/parts-for-model`. It also holds an invoke permission on the diagnosis Lambda (S4R-sensitive) |
+| S4R HTTP API `spares4repairs-dev` (`65vnizdmk4`) | Diagnosis Lambda and error-code tools call `/api/search` and `/api/parts-for-model`. Its route `POST /ai/chat` invokes the diagnosis Lambda, unauthenticated (S4R-sensitive). Created by hand on 2026-07-20, not in any CloudFormation stack, so it is on the denylist through the manual entries in `tools/migration/config/s4r-known.json` |
 | `SparesSite-dev-ServerFunctionRole…` | Execution role of the diagnosis Lambda ([ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)) |
 | S4R CloudFront (shop domain) | Buy links point to it |
 | `SparesSite-dev` stack and everything in it | None beyond the above |
