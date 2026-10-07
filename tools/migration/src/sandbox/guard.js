@@ -214,7 +214,9 @@ export function checkDocument(lists, document) {
   const text = typeof document === 'string' ? document : JSON.stringify(document);
   for (const e of acProductionScan(lists.acDenylist, text)) failures.push({ rule: 'production-ac-identifier', value: e.value });
   for (const e of scanDocument(lists.s4rDenylist, text)) failures.push({ rule: 's4r-identifier', value: e.value });
-  for (const arn of new Set(text.match(ARN_RE) || [])) {
+  // Commas are valid inside IAM names, so a comma-separated list of ARNs matches as one string: split it.
+  const arns = new Set((text.match(ARN_RE) || []).flatMap((m) => m.split(/,(?=arn:)/)));
+  for (const arn of arns) {
     const r = arnResourceName(arn);
     if (!r || r.awsManaged) continue;
     if (r.account && r.account !== SANDBOX_ACCOUNT) { failures.push({ rule: 'foreign-account-arn', arn }); continue; }
@@ -253,6 +255,86 @@ export function checkFunctionEnv(lists, functionName, env = {}) {
 
 /** Physical names declared in template resource properties. */
 const NAME_PROPERTIES = ['FunctionName', 'RoleName', 'TableName', 'BucketName', 'RepositoryName', 'Name', 'PolicyName', 'ManagedPolicyName', 'LogGroupName', 'UserPoolName', 'ClientName'];
+/** Types whose physical ID is another resource's name (a bucket policy's ID is its bucket). */
+const TARGET_PROPERTY = { 'AWS::S3::BucketPolicy': 'Bucket' };
+
+/**
+ * Resolve a template value to a string, offline: literals, Ref (parameters, pseudo parameters, and other
+ * resources' declared names), Fn::Sub, Fn::Join and Fn::If with the template's conditions. Anything else, or
+ * any unresolved reference, gives null, and the change fails as change-target-unknown.
+ */
+export function resolveTemplateValue(value, ctx, depth = 0) {
+  if (depth > 20) return null;
+  const next = (v) => resolveTemplateValue(v, ctx, depth + 1);
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  if ('Ref' in value) return ref(value.Ref, ctx, depth);
+  if ('Fn::Sub' in value) {
+    const [text, vars = {}] = Array.isArray(value['Fn::Sub']) ? value['Fn::Sub'] : [value['Fn::Sub']];
+    if (typeof text !== 'string') return null;
+    let ok = true;
+    const out = text.replace(/\$\{([^}!]+)\}/g, (_, name) => {
+      const v = name in vars ? next(vars[name]) : ref(name, ctx, depth);
+      if (v === null) ok = false;
+      return v ?? '';
+    });
+    return ok ? out : null;
+  }
+  if ('Fn::Join' in value) {
+    const [sep, parts] = value['Fn::Join'];
+    const resolved = (parts || []).map(next);
+    return resolved.some((p) => p === null) ? null : resolved.join(sep);
+  }
+  if ('Fn::If' in value) {
+    const [cond, a, b] = value['Fn::If'];
+    const c = condition(cond, ctx, depth);
+    return c === null ? null : next(c ? a : b);
+  }
+  return null;
+}
+
+function ref(name, ctx, depth) {
+  const pseudo = { 'AWS::AccountId': SANDBOX_ACCOUNT, 'AWS::Region': SANDBOX_REGION, 'AWS::Partition': 'aws', 'AWS::URLSuffix': 'amazonaws.com', 'AWS::StackName': ctx.stackName };
+  if (name in pseudo) return pseudo[name] ?? null;
+  if (name in ctx.parameters) return ctx.parameters[name];
+  const r = ctx.resources[name];
+  return r ? declaredName(r, ctx, depth + 1) : null;
+}
+
+function condition(name, ctx, depth) {
+  const def = ctx.conditions[name];
+  return def === undefined ? null : evalCondition(def, ctx, depth + 1);
+}
+
+function evalCondition(c, ctx, depth) {
+  if (depth > 20 || !c || typeof c !== 'object') return null;
+  if ('Condition' in c) return condition(c.Condition, ctx, depth);
+  if ('Fn::Equals' in c) {
+    const [a, b] = c['Fn::Equals'].map((v) => resolveTemplateValue(v, ctx, depth + 1));
+    return a === null || b === null ? null : a === b;
+  }
+  if ('Fn::Not' in c) { const v = evalCondition(c['Fn::Not'][0], ctx, depth + 1); return v === null ? null : !v; }
+  if ('Fn::And' in c || 'Fn::Or' in c) {
+    const vals = (c['Fn::And'] || c['Fn::Or']).map((x) => evalCondition(x, ctx, depth + 1));
+    if (vals.some((v) => v === null)) return null;
+    return 'Fn::And' in c ? vals.every(Boolean) : vals.some(Boolean);
+  }
+  return null;
+}
+
+function declaredName(resource, ctx, depth = 0) {
+  const props = resource?.Properties || {};
+  const key = TARGET_PROPERTY[resource?.Type] || NAME_PROPERTIES.find((p) => props[p] !== undefined);
+  return key ? resolveTemplateValue(props[key], ctx, depth) : null;
+}
+
+/** Context for resolving a template's declared names: change-set parameters over template defaults. */
+export function templateContext(template, changeSet = {}) {
+  const parameters = {};
+  for (const [k, p] of Object.entries(template?.Parameters || {})) if (p.Default !== undefined) parameters[k] = String(p.Default);
+  for (const p of changeSet.Parameters || []) parameters[p.ParameterKey] = p.ParameterValue;
+  return { parameters, resources: template?.Resources || {}, conditions: template?.Conditions || {}, stackName: changeSet.StackName || null };
+}
 
 /**
  * Sandbox mode of the change-set checker. Every change, whatever its action, must target a sandbox
@@ -266,9 +348,10 @@ export function checkSandboxChangeSet(lists, { changeSet, template = null }) {
   for (const f of checkDocument(lists, changeSet)) failures.push(f);
   const changes = (changeSet.Changes || []).filter((c) => c.Type === 'Resource').map((c) => c.ResourceChange);
   const resources = template?.Resources || {};
+  const ctx = templateContext(template, changeSet);
   for (const rc of changes) {
     const id = { logicalId: rc.LogicalResourceId, physicalId: rc.PhysicalResourceId || null, type: rc.ResourceType, action: rc.Action };
-    const declared = NAME_PROPERTIES.map((p) => resources[rc.LogicalResourceId]?.Properties?.[p]).find((v) => typeof v === 'string');
+    const declared = resources[rc.LogicalResourceId] ? declaredName(resources[rc.LogicalResourceId], ctx) : null;
     const target = rc.PhysicalResourceId || declared;
     if (!target) { failures.push({ rule: 'change-target-unknown', ...id }); continue; }
     if (!isSandboxTargetOfType(lists, rc.ResourceType, target)) failures.push({ rule: 'change-target-not-sandbox', ...id, target });
