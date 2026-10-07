@@ -82,6 +82,12 @@ Every deployed file must have a staged source, except the generated `index-meta.
   credential.
 - **PII.** Search for email addresses and phone numbers. There must be none.
 
+This repository is public, so this scan is the gate before anything is pushed:
+- **Absolute blockers:** secrets, credentials, private keys, customer data and PII.
+- **Not blockers by themselves:** AWS account IDs, resource IDs, public Function URLs and other
+  non-secret infrastructure identifiers. They stay as they are in the runtime code; Phase 2 never
+  rewrites runtime files to hide them.
+
 ## 4. Import
 
 Copy `staging/` into the repository root. Commit the files with `import-manifest.json`, which records
@@ -92,5 +98,5 @@ fails if an imported file changes before Phase 3.
 ## Exit criteria
 
 - **Byte for byte:** every runtime file in the import matches its production-equivalent source.
-- **Secrets:** the scan is clean.
-- **Visibility:** the repository is still private.
+- **Secrets and PII:** the scan is clean, with every finding reviewed and classified. This is the
+  condition for the import being public.

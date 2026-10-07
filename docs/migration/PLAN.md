@@ -52,7 +52,7 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 |---|---|---|
 | 0 | Preparation | Freeze, inventory, ownership proof, backups, behavioural baseline |
 | 1 | Hotfix | AC-side admin allowlist on the deployed artefact |
-| 2 | Extract | Runtime-identical import into this private repository |
+| 2 | Extract | Runtime-identical import into this public repository, after a secret and PII scan |
 | 3 | Extract | Reproducible builds, CI, known-failure baseline, build equivalence |
 | 4 | Ownership | Rehearsal in a separate sandbox AWS account |
 | 5 | Ownership | Production CDK import in small groups |
@@ -129,7 +129,7 @@ groups is treated as an AC admin.
 - The customer `/api` is unchanged.
 - The S4R health checks and the `/part-finder` contract test pass.
 
-### Phase 2: Extract into this private repository
+### Phase 2: Extract into this repository
 
 **Entry criteria**
 - The Phase 0 deployed-vs-source comparison says which commit, or which downloaded artefacts, represent production.
@@ -138,12 +138,15 @@ groups is treated as an AC admin.
 - `git archive` the AC paths from the production-equivalent source into a staging directory. This reads `spares4repairs` without writing to it.
 - Keep the runtime layout exactly as it is: no reorganisation, image conversion, path changes, refactoring, identifier parameterisation or behaviour changes.
 - Exclude only shop and legacy code, unlicensed imagery, generated result dumps, coverage data, internal CONTINUE and handover notes, `.cursor/`, tools that read S4R internal data, and anything containing secrets or PII.
-- Run secret scanning before pushing.
+- Run secret and PII scanning before pushing, and review every finding by hand.
 
 **Exit criteria**
 - Every runtime file in the import matches the production-equivalent source byte for byte.
-- The secret scan is clean.
-- The repository is still private.
+- The secret and PII scan is clean.
+- Public-exposure gate. This repository is public, so the scan passes before anything is pushed:
+  - Absolute blockers: secrets, credentials, private keys, customer data and PII.
+  - Not blockers by themselves: AWS account IDs, resource IDs, public Function URLs and other
+    non-secret infrastructure identifiers. Runtime code is not changed to hide them.
 
 ### Phase 3: Reproducible and testable
 
