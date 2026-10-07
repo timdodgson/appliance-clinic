@@ -1,3 +1,5 @@
+import { APIGatewayClient } from '@aws-sdk/client-api-gateway';
+import { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2';
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
 import { CloudTrailClient } from '@aws-sdk/client-cloudtrail';
@@ -33,6 +35,8 @@ export function createReadOnlyClients({ region, edgeRegion, stackRegions, cloudt
     events: ro(new EventBridgeClient({ region })),
     cloudtrail,
     cloudfront: ro(new CloudFrontClient({ region: edgeRegion })),
+    apigateway: ro(new APIGatewayClient({ region })),
+    apigatewayv2: ro(new ApiGatewayV2Client({ region })),
     cloudformation,
   };
 }

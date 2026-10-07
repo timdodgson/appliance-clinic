@@ -13,6 +13,7 @@ import { join } from 'node:path';
 import { GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import { createReadOnlyClients } from '../src/aws/clients.js';
 import { loadResourceConfig, withAccount } from '../src/config.js';
+import { investigateApiPermissions } from '../src/inventory/apigateway.js';
 import { inventoryDistribution, inventoryCloudFrontFunction, listDistributions, distributionsUsingFunctions } from '../src/inventory/cloudfront.js';
 import { inventoryStacks } from '../src/inventory/cloudformation.js';
 import { creationEvents } from '../src/inventory/cloudtrail.js';
@@ -84,6 +85,16 @@ const functions = await area('lambda-functions', async () => {
     if (!exists) { list.push({ name: l.name, exists: false }); continue; }
     const rec = await inventoryFunction(c.lambda, l.name, { downloadCodeTo: flags['download-code'] ? join(out, 'artifacts') : null });
     list.push({ exists: true, s4rConsumed: Boolean(l.s4rConsumed), ...rec });
+  }
+  return list;
+});
+
+// Which APIs may invoke each function, and whether any of them actually does (read-only).
+await area('apigateway-permissions', async () => {
+  const list = [];
+  for (const f of functions || []) {
+    if (!f.exists || !f.resourcePolicy) continue;
+    list.push(...(await investigateApiPermissions({ apigateway: c.apigateway, apigatewayv2: c.apigatewayv2, functionName: f.name, policy: f.resourcePolicy, stacks: stacks || [] })));
   }
   return list;
 });
