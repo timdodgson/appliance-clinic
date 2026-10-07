@@ -388,6 +388,17 @@ function parentOf(resource, ctx) {
   return { name: literal.startsWith('arn:') ? arnResourceName(literal)?.name || null : literal, type: parentType };
 }
 
+/**
+ * A removed child is no longer in the template. A Lambda URL's physical ID is its function's ARN (seen when one
+ * is removed with Retain, Phase 5 step 5.8), so it is checked as that function. Other removed children stay unknown.
+ */
+const PHYSICAL_ID_IS_PARENT = { 'AWS::Lambda::Url': 'AWS::Lambda::Function' };
+function removedChildParent(rc) {
+  const parentType = PHYSICAL_ID_IS_PARENT[rc.ResourceType];
+  if (!parentType || !rc.PhysicalResourceId?.startsWith('arn:')) return null;
+  return { name: rc.PhysicalResourceId, type: parentType };
+}
+
 /** Context for resolving a template's declared names: change-set parameters over template defaults. */
 export function templateContext(template, changeSet = {}) {
   const parameters = {};
@@ -419,7 +430,8 @@ export function checkSandboxChangeSet(lists, { changeSet, template = null }) {
     if (rc.ResourceType === 'AWS::CloudFormation::WaitConditionHandle') continue;
     // A child resource (route, integration, stage, Lambda permission or URL) has no name of its own and an
     // AWS-generated physical ID: it is checked as its parent, declared in the same template.
-    const parent = CHILD_PARENT[rc.ResourceType] && resource ? parentOf(resource, ctx) : null;
+    const parent = CHILD_PARENT[rc.ResourceType] && resource ? parentOf(resource, ctx)
+      : removedChildParent(rc);
     if (parent) {
       // An existing child's physical ID must still not be a denylisted identifier (for example 65vnizdmk4's routes).
       for (const d of rc.PhysicalResourceId ? deniedBy(lists, rc.PhysicalResourceId) : []) failures.push({ rule: 'change-target-denylisted', ...id, target: rc.PhysicalResourceId, ...d });

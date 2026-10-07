@@ -354,10 +354,15 @@ is. Phase 9 does not create a second repository or squash history.
    every action is `Import`; there are no Add, Modify or Remove actions; every physical ID is on the step's
    allowlist; no S4R ID or ARN is present; Retain is set; no literal secrets appear in the template.
 3. Written sign-off is recorded on the step's issue.
+4. The stack already exists as a shell (only a `StackShell` wait-condition handle), with its execution role, tags
+   and termination protection: an import cannot set a service role or tags (Phase 4 finding 14).
+5. The template carries the live configuration exactly. An import accepts a template that differs from the live
+   resource and reports only Import actions (Phase 4 finding 16).
 
 ### After each production import
 1. Live configuration compared with the Phase 0 baseline.
-2. Drift detection where supported.
+2. Drift detection where supported. Anything other than `IN_SYNC` stops the step until the template is changed
+   to match live, never the reverse; intended changes follow as a separate, reviewed update.
 3. Smoke tests.
 4. S4R homepage, catalogue API and `/part-finder` contract checks. When the diagnosis Lambda was
    touched, also the `/ai/chat` ingress check.

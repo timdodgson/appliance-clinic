@@ -11,6 +11,15 @@
       "Type": "String",
       "Default": "1",
       "Description": "Bumped to update the role itself (T1b). The default leaves the role as first deployed."
+    },
+    "DiagnosisCopy": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "false",
+        "true"
+      ],
+      "Description": "true once spares4repairs-part-finder-sbx exists: routes POST /ai/chat to it, as the S4R API routes it to the diagnosis Lambda."
     }
   },
   "Conditions": {
@@ -20,6 +29,14 @@
           "Ref": "RoleRevision"
         },
         "1"
+      ]
+    },
+    "HasDiagnosisCopy": {
+      "Fn::Equals": [
+        {
+          "Ref": "DiagnosisCopy"
+        },
+        "true"
       ]
     }
   },
@@ -255,6 +272,35 @@
           "ALLOW_ADMIN_USER_PASSWORD_AUTH",
           "ALLOW_REFRESH_TOKEN_AUTH"
         ]
+      }
+    },
+    "AiChatIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Condition": "HasDiagnosisCopy",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder-sbx",
+        "PayloadFormatVersion": "2.0"
+      }
+    },
+    "AiChatRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Condition": "HasDiagnosisCopy",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "POST /ai/chat",
+        "Target": {
+          "Fn::Sub": "integrations/${AiChatIntegration}"
+        }
       }
     }
   },
