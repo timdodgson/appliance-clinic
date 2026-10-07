@@ -30,7 +30,8 @@ Run from this directory after `npm ci`.
 | `npm run compare:source -- --artifact <zip> --source <dir>` | None | READ-ONLY | Is production running this source? |
 | `npm run compare:build -- <a> <b> [--allow-diff p1,p2]` | None | READ-ONLY | File-for-file artefact equivalence |
 | `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories. Lambda environment values appear only as SHA-256 digests and lengths, never in plaintext |
-| `npm run check:changeset -- --changeset <json> --mode import\|update --step <json>` | None | READ-ONLY | Gate before executing a change set |
+| `npm run check:changeset -- --changeset <json> --mode import\|update\|sandbox --step <json> [--generated <json>]` | None | READ-ONLY | Gate before executing a change set. `sandbox` (Phase 4) requires every target to be on the sandbox allowlist and on no denylist |
+| `npm run sandbox:guard -- caller\|target\|document\|env ...` | `caller`: sts:GetCallerIdentity only | READ-ONLY | Phase 4 guard, run before every sandbox action: account, region, caller, allowlist, production AC and S4R denylists, Lambda environment overrides. Exit 1 means STOP |
 | `npm run baseline -- <s4r-health\|contract capture\|contract verify\|ingress capture\|ingress verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline, the S4R `/part-finder` contract, and the separate `/ai/chat` ingress check |
 | `npm run traffic -- [--api <id>] [--route "POST /ai/chat"] [--days 30]` | Reads | READ-ONLY | Whether an HTTP API route is actually used (CloudWatch) |
 | `npm run backup -- --inventory <dir> --backup-bucket <name> [--enable-pitr] [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 0 backups |
@@ -50,6 +51,9 @@ The tests run offline. AWS calls are short-circuited after the guard runs, and H
 
 ## Status
 
+- The sandbox guard (`src/sandbox/guard.js`) enforces the Phase 4 isolation rules of
+  [`phase-4-sandbox-rehearsal.md`](../../docs/migration/runbooks/phase-4-sandbox-rehearsal.md) against the real
+  `sandbox-allowlist.json`, `ac-production-denylist.json` and `s4r-denylist.json`. It runs no mutation itself.
 - The change-set checker is a skeleton. Its rules are tested against fixtures and are finalised
   against real change sets in the Phase 4 sandbox rehearsal.
 - The smoke scenarios and banding thresholds are first versions, to be refined after the first

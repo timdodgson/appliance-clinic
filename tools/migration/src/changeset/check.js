@@ -5,12 +5,15 @@
  * Modes:
  *   import  every change is an Import of an allowlisted physical ID (Phase 5)
  *   update  no replacement, no unapproved removal, IAM changes surfaced (Phase 6 onwards)
+ *   sandbox every change targets a Phase 4 sandbox resource: allowlisted, and on no denylist
+ *           (src/sandbox/guard.js). Template rules (Retain, no literal secrets) still apply
  *
  * Status: skeleton. Rules are exercised against fixtures here and finalised in the Phase 4
  * sandbox rehearsal against real change sets.
  */
 import { findExactHits, scanDocument } from '../denylist/match.js';
 import { sha256Hex } from '../redact.js';
+import { checkSandboxChangeSet } from '../sandbox/guard.js';
 
 const IAM_TYPES = /^AWS::IAM::/;
 const S4R_CONSUMED_TYPES = /^AWS::Lambda::/;
@@ -31,7 +34,8 @@ function stringsIn(value, into = []) {
  * @param {object} input
  * @param {object} input.changeSet           describe-change-set output
  * @param {Array}  input.denylist            entries from s4r-denylist.json
- * @param {'import'|'update'} input.mode
+ * @param {'import'|'update'|'sandbox'} input.mode
+ * @param {object} [input.sandboxLists]       sandbox mode: lists from loadSandboxLists()
  * @param {string[]} [input.allowedPhysicalIds] physical IDs this step may touch
  * @param {string[]} [input.approvedRemovals]  logical IDs whose removal is approved (update mode)
  * @param {string[]} [input.s4rConsumedPhysicalIds] e.g. the diagnosis Lambda: changes need sign-off
@@ -42,13 +46,15 @@ function stringsIn(value, into = []) {
  *        them (for example AC's sign-in policy naming the S4R pool ARN). They only waive the
  *        document scan; an S4R resource as the target of a change always fails.
  */
-export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds = [], approvedRemovals = [], s4rConsumedPhysicalIds = [], template = null, secretDigests = [], acknowledgedReferences = [] }) {
+export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds = [], approvedRemovals = [], s4rConsumedPhysicalIds = [], template = null, secretDigests = [], acknowledgedReferences = [], sandboxLists = null }) {
   const failures = [];
   const warnings = [];
   const fail = (rule, detail) => failures.push({ rule, ...detail });
   const warn = (rule, detail) => warnings.push({ rule, ...detail });
 
-  if (!['import', 'update'].includes(mode)) throw new Error(`Unknown mode "${mode}"`);
+  if (!['import', 'update', 'sandbox'].includes(mode)) throw new Error(`Unknown mode "${mode}"`);
+  if (mode === 'sandbox' && !sandboxLists) throw new Error('Sandbox mode needs sandboxLists');
+  if (mode === 'sandbox') for (const f of checkSandboxChangeSet(sandboxLists, { changeSet, template })) fail(f.rule, f);
 
   const stackHits = findExactHits(denylist, changeSet.StackName || '').concat(findExactHits(denylist, changeSet.StackId || ''));
   if (stackHits.length) fail('stack-denylisted', { stack: changeSet.StackName, entries: stackHits.map((e) => e.value) });
@@ -75,7 +81,7 @@ export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds =
     if (mode === 'import') {
       if (rc.Action !== 'Import') fail('non-import-action', id);
       else if (!allowedPhysicalIds.includes(rc.PhysicalResourceId)) fail('physical-id-not-allowlisted', id);
-    } else {
+    } else if (mode === 'update') {
       if (rc.Action === 'Remove' && !approvedRemovals.includes(rc.LogicalResourceId)) fail('unapproved-removal', id);
       if (rc.Replacement === 'True' || rc.Replacement === 'Conditional') fail('replacement', { ...id, replacement: rc.Replacement });
       if (rc.Action === 'Dynamic') fail('dynamic-change-needs-review', id);

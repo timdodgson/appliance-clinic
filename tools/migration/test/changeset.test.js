@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkChangeSet } from '../src/changeset/check.js';
 import { sha256Hex } from '../src/redact.js';
+import { loadSandboxLists } from '../src/sandbox/guard.js';
 
 const denylist = [
   { kind: 'stack', value: 'SparesSite-dev', reason: 'S4R', source: 'manual' },
@@ -116,5 +117,29 @@ describe('update mode', () => {
     const rules = r.warnings.map((w) => w.rule);
     expect(rules).toContain('iam-change');
     expect(rules).toContain('potentially-impacts-s4r');
+  });
+});
+
+describe('sandbox mode', () => {
+  const sandboxLists = loadSandboxLists();
+  const sbx = (changeSet, template) => checkChangeSet({ changeSet, template, denylist: sandboxLists.s4rDenylist, mode: 'sandbox', sandboxLists });
+
+  it('passes an import of a sandbox resource with Retain', () => {
+    const r = sbx({ StackName: 'AcDataStack-sbx', Changes: [importChange('whichpart-recalls-sbx', 'AWS::DynamoDB::Table')] }, { Resources: { Lwhichpartrecallssbx: retained('AWS::DynamoDB::Table') } });
+    expect(r.failures).toEqual([]);
+  });
+
+  it('fails a production resource in a sandbox change set', () => {
+    const r = sbx({ StackName: 'AcDataStack-sbx', Changes: [importChange('whichpart-recalls', 'AWS::DynamoDB::Table')] });
+    expect(r.failures.map((f) => f.rule)).toEqual(expect.arrayContaining(['change-target-not-sandbox', 'change-target-denylisted']));
+  });
+
+  it('keeps the template rules', () => {
+    const r = sbx({ StackName: 'AcDataStack-sbx', Changes: [] }, { Resources: { T: { Type: 'AWS::DynamoDB::Table', Properties: { TableName: 'whichpart-recalls-sbx' } } } });
+    expect(r.failures.map((f) => f.rule)).toContain('missing-retain-deletion-policy');
+  });
+
+  it('refuses sandbox mode without the sandbox lists', () => {
+    expect(() => checkChangeSet({ changeSet: { Changes: [] }, denylist: [], mode: 'sandbox' })).toThrow(/sandboxLists/);
   });
 });
