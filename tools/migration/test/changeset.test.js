@@ -158,4 +158,13 @@ describe('IAM rules from the Phase 4 experiments', () => {
     expect(run('update', {}).failures.map((f) => f.rule)).toContain('role-without-managed-policy-arns');
     expect(run('import', { ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'] }).failures).toEqual([]);
   });
+  it('applies T2 and T7 to existing roles only: a role the change set creates owns the policies it declares', () => {
+    // Phase 5 finding: the stock CDK bootstrap roles declare Policies and are created, never imported.
+    const created = (action) => checkChangeSet({
+      changeSet: { StackName: 'ApplianceClinicToolkit', Changes: [{ Type: 'Resource', ResourceChange: { Action: action, LogicalResourceId: 'DeploymentActionRole', ResourceType: 'AWS::IAM::Role', PhysicalResourceId: action === 'Add' ? undefined : 'cdk-acclinic-deploy-role' } }] },
+      denylist, mode: 'update', allowedPhysicalIds: ['cdk-acclinic-deploy-role'], template: { Resources: { DeploymentActionRole: role({ Policies: [{ PolicyName: 'default', PolicyDocument: {} }] }) } },
+    }).failures.map((f) => f.rule);
+    expect(created('Add')).toEqual([]);
+    expect(created('Modify')).toEqual(expect.arrayContaining(['role-declares-policies', 'role-without-managed-policy-arns']));
+  });
 });

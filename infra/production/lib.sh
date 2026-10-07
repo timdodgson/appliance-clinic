@@ -5,7 +5,7 @@
 #                                 create a change set, describe it, check it (import mode for IMPORT, update mode
 #                                 otherwise) against the step file, and execute it only when the check passes, the
 #                                 actions are exactly what the step file expects, and EXECUTE=1
-#   create_shell STACK            a new stack holding only its StackShell handle, with the acclinic execution role and
+#   create_shell STACK TEMPLATE   a new stack holding only its StackShell handle, with the acclinic execution role and
 #                                 termination protection (an import cannot set a role; Phase 4 finding 14). No tags:
 #                                 a stack tag could later be written to an imported resource
 #   drift STACK                   detect drift; prints the stack status and writes per-resource results
@@ -78,16 +78,17 @@ changeset() {
   log "executed: $stack/$name -> $(aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].StackStatus' --output text)"
 }
 
-stack_exists() { aws cloudformation describe-stacks --stack-name "$1" >/dev/null 2>&1; }
+# A stack in REVIEW_IN_PROGRESS is only the placeholder of a deleted CREATE change set (Phase 4 finding 10).
+stack_exists() { local s; s=$(aws cloudformation describe-stacks --stack-name "$1" --query 'Stacks[0].StackStatus' --output text 2>/dev/null) && [[ $s != REVIEW_IN_PROGRESS ]]; }
 
-create_shell() {
-  local stack=$1 t=$P5_OUT/$1.shell.json step=$P5_OUT/$1.shell.step.json
+create_shell() { # STACK TEMPLATE: the stack's CDK template synthesized for step "shell" (StackShell only)
+  local stack=$1 t=$2 step=$P5_OUT/$1.shell.step.json
   check_stack_name "$stack"
   stack_exists "$stack" && { log "shell exists: $stack"; return 0; }
-  jq -n --arg d "$stack: Appliance Clinic (Phase 5). Resources are imported; nothing is created." \
-    '{AWSTemplateFormatVersion: "2010-09-09", Description: $d, Resources: {StackShell: {Type: "AWS::CloudFormation::WaitConditionHandle"}}}' > "$t"
+  [[ $(jq -c '[.Resources | to_entries[] | .value.Type] | unique' "$t") == '["AWS::CloudFormation::WaitConditionHandle"]' ]] || stop "$t is not a shell"
   jq -n --arg s "$stack" '{step: ("shell " + $s), expectedChanges: [{action: "Add", logicalId: "StackShell", type: "AWS::CloudFormation::WaitConditionHandle"}]}' > "$step"
   changeset "$stack" shell CREATE "$t" "$step"
+  [[ $EXECUTE == 1 ]] || return 0
   aws cloudformation update-termination-protection --enable-termination-protection --stack-name "$stack" >/dev/null
   log "shell created: $stack (execution role $P5_EXEC_ROLE, termination protection on)"
 }
@@ -109,4 +110,22 @@ protect() {
   check_stack_name "$1"
   aws cloudformation set-stack-policy --stack-name "$1" --stack-policy-body '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"Update:*","Resource":"*"},{"Effect":"Deny","Principal":"*","Action":["Update:Replace","Update:Delete"],"Resource":"*"}]}'
   log "stack policy: Update:Replace and Update:Delete denied on every resource of $1"
+}
+
+# expect_noop STACK TEMPLATE: an update with the same template must contain no changes.
+expect_noop() {
+  local name=noop-$(date +%s) out
+  out=$(aws cloudformation create-change-set --stack-name "$1" --change-set-name "$name" --change-set-type UPDATE \
+    --template-body "file://$2" --capabilities CAPABILITY_NAMED_IAM --role-arn "$P5_EXEC_ROLE" --query Id --output text)
+  aws cloudformation wait change-set-create-complete --stack-name "$1" --change-set-name "$name" 2>/dev/null || true
+  local why; why=$(aws cloudformation describe-change-set --stack-name "$1" --change-set-name "$name" --query StatusReason --output text)
+  aws cloudformation delete-change-set --stack-name "$1" --change-set-name "$name"
+  [[ $why == *"didn't contain changes"* ]] || stop "$1: the same template is not a no-op ($why)"
+  log "no-op confirmed: $1"
+}
+
+# synth STEP: synthesize every stack for the step, offline and without credentials.
+synth() {
+  (cd "$P5_ROOT/infra/cdk" && env -u AWS_ACCESS_KEY_ID -u AWS_SECRET_ACCESS_KEY -u AWS_SESSION_TOKEN AWS_EC2_METADATA_DISABLED=true \
+    CDK_DISABLE_VERSION_CHECK=1 npx cdk synth --quiet --no-notices -c step="$1" >/dev/null 2>&1) || stop "cdk synth failed for step $1"
 }
