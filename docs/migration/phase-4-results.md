@@ -105,6 +105,24 @@ the [recovery runbook](runbooks/phase-4-recovery.md).
 | S3 copy into the backup bucket and restore | 2 to 4 s each way; after 3 overwrites and 3 deletes, count and SHA-256 of every object equal. `sync` would have missed a same-size overwrite, so the runbook uses `cp --recursive` |
 | Clean-up | Sources put back as seeded; restored tables and on-demand backups deleted |
 
+## Destroy and recreate
+
+| Step | Script | Result |
+|---|---|---|
+| 1. Destroy | [`80-destroy.sh`](../../infra/sandbox/steps/80-destroy.sh), as the operator | 4 stacks deleted (termination protection off first; every resource retained, so each was then deleted by allowlisted name after a guard check): 5 functions and log groups, 2 rules, 10 roles, 2 tables, 3 buckets, 2 repositories, 7 secrets, the stand-in API and user pool. [`90-absence.sh`](../../infra/sandbox/steps/90-absence.sh): 77 names absent, the 17 approval point A controls present |
+| 2. Production unchanged | `inventory`, `compare:config` against the approval point A inventory | 0 configuration differences. S4R health 3 × 200 |
+| 3. Recreate from the repository | Steps 10 to 70 from `main`, unattended, in about 70 minutes | Every step passed: T1 to T7 as in batch 1, the runtime import `IN_SYNC` straight after import (finding 16 holds), the controls and recovery as before. Restore times 207 to 267 s |
+| 4. Final destroy | `80-destroy.sh`, then [`85-teardown-controls.sh`](../../infra/sandbox/steps/85-teardown-controls.sh) as the IAM user (the toolkit, its bucket, repository, parameter and roles, the budget, the operator and its three policies) | `90-absence.sh`: **all 94 allowlisted names absent** |
+| Final production check | `inventory`, `compare:config` against the inventory taken **before** approval point A | **0 configuration differences.** `SparesSite-dev` and `CDKToolkit` last updated in July 2026, and they are the account's only stacks. S4R health 3 × 200 |
+
+## Exit criteria
+
+| PLAN.md exit criterion | Evidence |
+|---|---|
+| Every resource type planned for Phase 5 has a recorded, passing rehearsal | 5.1 ECR repositories, 5.2 secrets, 5.3 DynamoDB tables (both shapes, GSI, TTL, PITR), 5.4 S3 buckets and the bucket policy: *Data imports*. 5.5 roles, 5.6 inline policies (`AWS::IAM::RolePolicy`, T3 to T6), 5.7 zip and image functions, 5.8 URLs and permissions (with removal and re-import), 5.9 EventBridge rules, 5.10 the diagnosis Lambda under the S4R role: *Runtime imports*. Each passed twice, in the first run and in the recreate from the repository |
+| The recovery rehearsal has passed and its runbook is merged | *Recovery*, and [`phase-4-recovery.md`](runbooks/phase-4-recovery.md) |
+| Every surprise has been turned into a rule, a checker test or a runbook step | The 27 findings below, each with what it became |
+
 ## Surprises, and what they became
 
 | # | Found | Became |
@@ -133,6 +151,9 @@ the [recovery runbook](runbooks/phase-4-recovery.md).
 | 22 | The failure reasons of a deliberately failed update included events from earlier runs | Failure reasons are read only from events after the execution started |
 | 23 | A step outlived the operator's one-hour session (role chaining caps it at an hour): `ExpiredTokenException` mid-restore | The step library renews a session older than 40 minutes before every AWS call and guard check, from a refresher the operator's wrapper provides. Production runbooks: assume the role per step, never for a whole phase |
 | 24 | An interrupted recovery (a container restart, then the expiry above) left a source table half-changed and restores in progress | The recovery step resets its sources to the seed and lets any restore finish before deleting it, so it can simply be run again. The recovery runbook gains *If a recovery is interrupted* |
+| 25 | The first absence check read its allowlist from the wrong path and reported "0 absent" as success | The check fails unless it has checked every allowlisted name, and counts anything but a not-found answer (AccessDenied included) as a STOP |
+| 26 | The operator cannot read managed policies or toolkit roles, so it cannot prove they are gone | The absence check is read-only and runs as the IAM user |
+| 27 | The CDK asset bucket is versioned, so the approval point A cleanup's `s3 rb --force` would leave it behind | The teardown script deletes every version and delete marker first; the approval point A README points to it |
 
 ## Controls changed during Phase 4
 

@@ -176,7 +176,10 @@ Post the stack resources, the checker output and the `compare:config` result on 
 
 ## Cleanup and rollback
 
-Run as the IAM user, by allowlisted name only, each preceded by `sandbox:guard -- target`. Everything
+Run as the IAM user, by allowlisted name only, each preceded by `sandbox:guard -- target`. The script
+[`infra/sandbox/steps/85-teardown-controls.sh`](../../../../infra/sandbox/steps/85-teardown-controls.sh) does all
+of this, and also empties the asset bucket's object versions: the bucket is versioned, so `s3 rb --force` alone
+leaves it behind (Phase 4 finding 27). Everything
 created here is empty when Phase 4 starts, so the full cleanup takes about ten minutes.
 
 ```bash
