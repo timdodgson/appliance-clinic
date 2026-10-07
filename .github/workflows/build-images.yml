@@ -29,8 +29,8 @@ jobs:
       - name: Error-code MCP image
         run: |
           python3 build/scripts/assemble_base.py build/reference/spares4repairs-error-code-mcp.image.json \
-            --tag pinned/mcp-base --registry docker.io/library/python
+            --tag pinned/mcp-base:2026-10-01 --registry docker.io/library/python
           docker buildx build --platform linux/arm64 --load -t rebuild/error-code-mcp \
-            --build-arg BASE=pinned/mcp-base --build-context constraints=build/python \
+            --build-arg BASE=pinned/mcp-base:2026-10-01 --build-context constraints=build/python \
             -f build/images/error-code-mcp.Dockerfile error-codes
           python3 build/scripts/compare_image.py build/reference/spares4repairs-error-code-mcp.image.json rebuild/error-code-mcp

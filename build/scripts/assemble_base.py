@@ -55,6 +55,8 @@ def main():
     a = ap.parse_args()
     ref = json.load(open(a.reference))
     base = ref['base']
+    # docker load needs a name:tag in RepoTags; newer engines reject a bare name.
+    tag = a.tag if ':' in a.tag.rsplit('/', 1)[-1] else a.tag + ':latest'
     out = io.BytesIO()
     with tarfile.open(fileobj=out, mode='w') as tar:
         def add(name, data):
@@ -80,9 +82,9 @@ def main():
         cfg = json.dumps(config).encode()
         cfg_name = hashlib.sha256(cfg).hexdigest() + '.json'
         add(cfg_name, cfg)
-        add('manifest.json', json.dumps([{'Config': cfg_name, 'RepoTags': [a.tag], 'Layers': layer_names}]).encode())
+        add('manifest.json', json.dumps([{'Config': cfg_name, 'RepoTags': [tag], 'Layers': layer_names}]).encode())
     subprocess.run(['docker', 'load'], input=out.getvalue(), check=True)
-    print(f'{a.tag}: {len(layer_names)} layers verified and loaded')
+    print(f'{tag}: {len(layer_names)} layers verified and loaded')
 
 
 if __name__ == '__main__':
