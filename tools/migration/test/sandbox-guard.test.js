@@ -110,6 +110,10 @@ describe('documents', () => {
     expect(rules(checkDocument(lists, { r: 'arn:aws:iam::123456789012:role/x' }))).toContain('foreign-account-arn');
     expect(rules(checkDocument(lists, { r: `arn:aws:secretsmanager:eu-west-1:${A}:secret:spares4repairs/sbx/applianceclinic-openai-AbC123` }))).toContain('arn-not-sandbox');
   });
+  it('checks each ARN of a comma-separated list on its own', () => {
+    expect(checkDocument(lists, { p: `arn:aws:iam::${A}:policy/ac-cfn-execution-sbx,arn:aws:iam::${A}:policy/ac-deny-production-sbx` })).toEqual([]);
+    expect(rules(checkDocument(lists, { p: `arn:aws:iam::${A}:policy/ac-cfn-execution-sbx,arn:aws:iam::${A}:role/whichpart-api-role` }))).toContain('arn-not-sandbox');
+  });
   it('parses the resource name of common ARNs', () => {
     expect(arnResourceName(`arn:aws:lambda:eu-west-1:${A}:function:whichpart-api-sbx:$LATEST`).name).toBe('whichpart-api-sbx');
     expect(arnResourceName(`arn:aws:logs:eu-west-1:${A}:log-group:/aws/lambda/whichpart-api-sbx:*`).name).toBe('/aws/lambda/whichpart-api-sbx');
