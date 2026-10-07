@@ -1,0 +1,71 @@
+{
+  "description": "Known-failure baseline for the imported runtime tests (Phase 3, #29). Each test listed fails on the deployed code: identically on a full spares4repairs@13b7a50 checkout (#28), and here. None is fixed in Phase 3, because making it pass would change runtime behaviour or content. 'deployed-code-gap' means the deployed code or knowledge data does not contain or produce what the test asserts. Whether the test is stale or ahead of the code cannot be established from this repository, which has no pre-import history. That is decided when the behaviour is next worked on.",
+  "failures": {
+    "orchestration/tests/test_clarification_intent.py": {
+      "category": "deployed-code-gap",
+      "evidence": "AttributeError: module 'orchestration.routing' has no attribute 'PENDING_SLOTS'. The deployed routing.py does not define it; no runtime file does."
+    },
+    "services/part-finder/test/answer-quality-contract.test.js": {
+      "category": "deployed-code-gap",
+      "evidence": "2 of 10 fail: A6 'still calibrated + suppresses re-ask'; D1 'advice-only committed -> ANSWER SHAPE present + ADVICE FIRST retained'."
+    },
+    "services/part-finder/test/architectural-integrity.test.js": {
+      "category": "deployed-code-gap",
+      "evidence": "7 of 37 fail: E2, E4, E5, E6 (component/unit grain and proven-good facts), S2, S3 (competent-person classification for gas parts and microwave HV internals), P3 (unit grain reaching COMPOSE evidence)."
+    },
+    "services/part-finder/test/dishwasher-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "1 of 186 fails: knowledge node dishwasher:foreign-object has no engineer override with ordered suspects in knowledge/overrides.json."
+    },
+    "services/part-finder/test/engineering-finding.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "Asserts the COMPOSE prompt contains 'AFTER the primary finding'. No runtime file contains that text."
+    },
+    "services/part-finder/test/fit-evidence.test.js": {
+      "category": "deployed-code-gap",
+      "evidence": "Asserts the COMPOSE prompt contains 'CATALOGUE FIT IS NOT A DIAGNOSIS'. No runtime file contains that text."
+    },
+    "services/part-finder/test/fridge-freezer-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "1 of 108 fails: knowledge node fridge-airflow has no engineer override with suspects."
+    },
+    "services/part-finder/test/hobs-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "1 of 79 fails: knowledge node cookware-user has no engineer override with suspects."
+    },
+    "services/part-finder/test/media-neutrality.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "2 of 16 fail: source-shape checks that media is built behind '!safetyStop && !metric.tripwireBlocked && fault' and emitted in the done event. That guard text is not in part-finder-lambda.js."
+    },
+    "services/part-finder/test/normal-behaviour.test.js": {
+      "category": "deployed-code-gap",
+      "evidence": "1 of 75 fails: 'plastics wet after dishwasher = normal' is not classified as normal behaviour."
+    },
+    "services/part-finder/test/oven-diagnostic-reasoning.test.js": {
+      "category": "deployed-code-gap",
+      "evidence": "8 of 51 fail: B3, B4 (discriminator questions before a part), G1-G4 (tripping is competent-person, not a purchase; STOP_USE forces no part), G8, G9 (insulation testing out of scope; COMPOSE must not name a megger)."
+    },
+    "services/part-finder/test/vacuum-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "6 of 33 fail: for 'motor', the airflow and thermal checks are not ranked before the motor itself, and the related paired cases."
+    },
+    "services/part-finder/test/washer-dryer-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "1 of 96 fails: knowledge node drying-poor has no override with ordered suspects."
+    },
+    "services/part-finder/test/washing-machine-engineer-challenge.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "5 of 128 fail: expects exactly 30 washing-machine nodes but the deployed knowledge has 34. The four leak-* nodes (leak-door, leak-dispenser, leak-drain, leak-fill) have no engineer override."
+    },
+    "services/whichpart-api/test/diagnosis-vs-part-fit.test.mjs": {
+      "category": "deployed-code-gap",
+      "evidence": "1 source guard fails: the COMPOSE prompt does not say the model 'is NOT needed to give a useful DIAGNOSIS'."
+    }
+  },
+  "resolvedInPhase3": {
+    "error-codes/mcp/deploy/tests/test_auth.py": {
+      "category": "environment",
+      "evidence": "It runs the MCP server from error-codes/mcp/.venv, a path it hard-codes, which did not exist (FileNotFoundError). build/test/run-tests.mjs links that path to the MCP test environment. The test is unchanged and passes."
+    }
+  }
+}

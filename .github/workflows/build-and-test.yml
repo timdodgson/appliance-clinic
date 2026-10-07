@@ -1,0 +1,38 @@
+name: Build and test
+
+# Phase 3 (#29): runs the imported runtime tests against the known-failure baseline. Offline checks
+# only: this workflow has no AWS credentials and never deploys anything.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-tests:
+    name: runtime-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - name: Python test environments (production package versions)
+        run: |
+          python -m venv .venv-orchestrator
+          .venv-orchestrator/bin/pip install --disable-pip-version-check -q \
+            -r orchestration/deploy/requirements.txt -c build/python/orchestrator.constraints.txt \
+            -r build/python/requirements-test.txt
+          python -m venv .venv-error-code-mcp
+          .venv-error-code-mcp/bin/pip install --disable-pip-version-check -q \
+            -r error-codes/mcp/deploy/requirements.txt -c build/python/error-code-mcp.constraints.txt \
+            -r build/python/requirements-test.txt
+      - run: npm run test:runtime
