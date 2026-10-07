@@ -1,0 +1,36 @@
+name: Build images
+
+# Phase 3 (#29): rebuilds the orchestrator and error-code MCP images (arm64, under QEMU) from this
+# repository and proves them equivalent to the deployed images (reference data in build/reference/).
+# Base images and the Lambda Web Adapter are pulled by digest from public registries. No AWS
+# credentials; nothing is pushed or deployed.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  images:
+    name: images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - name: Orchestrator image
+        run: |
+          docker buildx build --platform linux/arm64 --load -t rebuild/orchestrator \
+            -f build/images/orchestrator.Dockerfile .
+          python3 build/scripts/compare_image.py build/reference/spares4repairs-diag-orchestrator.image.json rebuild/orchestrator
+      - name: Error-code MCP image
+        run: |
+          python3 build/scripts/assemble_base.py build/reference/spares4repairs-error-code-mcp.image.json \
+            --tag pinned/mcp-base:2026-10-01 --registry docker.io/library/python
+          docker buildx build --platform linux/arm64 --load -t rebuild/error-code-mcp \
+            --build-arg BASE=pinned/mcp-base:2026-10-01 --build-context constraints=build/python \
+            -f build/images/error-code-mcp.Dockerfile error-codes
+          python3 build/scripts/compare_image.py build/reference/spares4repairs-error-code-mcp.image.json rebuild/error-code-mcp
