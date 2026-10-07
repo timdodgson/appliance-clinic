@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "note": "Miele IDENTIFIER LAYER (WM+DW). IMPORTANT: Miele BREAKS the distinct-product-number pattern used by Electrolux (PNC) and Whirlpool (12NC). Miele's authoritative consumer/support identity = MODEL designation (Modellkennung) + SERIAL (Fabrikationsnummer), where the serial's leading digits encode the PRODUCTION YEAR. The internal Material number (M.-Nr.) exists but is NOT the systematically-exposed join key. Generation (the F11 discriminator) resolves from MODEL RANGE + SERIAL YEAR, not a product number. Data-only; not wired into production.",
+    "accessed": "2026-08-29"
+  },
+  "identifierStructure": {
+    "modelDesignation": "Modellkennung, e.g. G 5000, G 7100, W1, WWD020, PWM 507 (commercial). The catalogue stores this.",
+    "serial": "Fabrikationsnummer (Fabr.-Nr.): 8- or 9-digit number after the slash on the type plate (official miele.de). Leading digits encode PRODUCTION YEAR (e.g. serial starting '98' => 1998).",
+    "materialNumber": "M.-Nr. / Material number: internal material/order number; NOT the consumer/support join key and NOT systematically recoverable model->M.-Nr at scale.",
+    "type": "Type/product-type code present on plate; used with model for service docs.",
+    "authoritativeForConsumer": "MODEL + SERIAL (Miele plate-finder asks for model designation + Fabrikationsnummer).",
+    "evidence": [
+      {"sourceType": "MANUFACTURER", "publisher": "Miele DE", "reference": "Fabrikationsnummer = 8- or 9-digit number after the slash on the type plate", "url": "https://www.miele.de/forms2/de/sa/manuals-125.aspx", "accessed": "2026-08-29"},
+      {"sourceType": "MANUFACTURER", "publisher": "Miele plate-finder", "reference": "serial number + product type on the data tag", "url": "https://www.mieleusa.com/c/plate-finder.htm", "accessed": "2026-08-29"},
+      {"sourceType": "TIER3", "publisher": "forum-electromenager", "reference": "Miele WM serial leading digits encode year (starts '98' => 1998)", "url": "http://www.forum-electromenager.com/date-de-fabrication-des-lave-linges-miele.html", "accessed": "2026-08-29"}
+    ]
+  },
+  "generationResolution": {
+    "note": "Generation resolves from MODEL RANGE first; the SERIAL YEAR disambiguates the G5xxx case.",
+    "dishwasher": [
+      {"rule": "^G-?7\\d{3}", "generation": "DW_G7_NEW", "confidence": "HIGH", "note": "G7xxx 4-digit = current/new generation"},
+      {"rule": "^G-?[1-46]\\d{3}", "generation": "DW_G1_G6_OLD", "confidence": "HIGH", "note": "G1xxx-G6xxx 4-digit = old-to-mid generation (F11 old meaning)"},
+      {"rule": "^G-?5\\d{3}", "generation": "AMBIGUOUS_needsSerialYear", "confidence": "LOW", "note": "G5xxx 4-digit: Discovery from year-of-manufacture 2019+ = NEW; older G5xxx = OLD. Resolve by SERIAL YEAR."},
+      {"rule": "^G-?\\d{3}(?!\\d)", "generation": "LEGACY_3DIGIT", "confidence": "MEDIUM", "note": "3-digit G### (e.g. G577, G767) = pre-2000s legacy; predates the modern 4-digit F11 split. Dominates our catalogue."}
+    ],
+    "washing-machine": [
+      {"rule": "^W1\\b|^WW|^WS|^WC|^WE", "generation": "WM_W1_NEW", "confidence": "MEDIUM"},
+      {"rule": "^W[135]\\d{3}", "generation": "WM_CLASSIC", "confidence": "MEDIUM"}
+    ],
+    "serialYearRule": {"method": "leading 2 digits of Fabrikationsnummer ~ production year", "example": "serial 19xxxxxx => 2019 => Discovery/new; 05xxxxxx => 2005 => old", "confidence": "MEDIUM", "caveat": "heuristic; Miele serial schemes vary - use production date from a service record where available"}
+  },
+  "mappings": [
+    {"manufacturerGroup": "MIELE", "brand": "Miele", "appliance": "dishwasher", "observedIdentifier": "G7100", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "GENERATION", "value": "DW_G7_NEW", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Miele USA support", "reference": "F11 (G 7xxx ... 2019 onward) new meaning", "url": "https://www.mieleusa.com/support/customer-assistance/dishwashing-1316/all/fault_f11_g_7xxx_and_g_5xxx_discovery_from_year_of_manufacture_2019_onward-92912294795", "accessed": "2026-08-29"}]}], "note": "model range alone resolves generation; no serial needed."},
+    {"manufacturerGroup": "MIELE", "brand": "Miele", "appliance": "dishwasher", "observedIdentifier": "G4203", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "GENERATION", "value": "DW_G1_G6_OLD", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Miele USA support", "reference": "F11 (G 1xxx-G 6xxx) old meaning", "url": "https://www.mieleusa.com/support/customer-assistance/dishwashing-1316/all/fault_f11_g_1xxxg_6xxx-92911423883", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "MIELE", "brand": "Miele", "appliance": "dishwasher", "observedIdentifier": "G5000", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "GENERATION", "value": "AMBIGUOUS_needsSerialYear", "confidence": "LOW", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Miele USA support", "reference": "G 5xxx Discovery from 2019 onward = new; older G5xxx = old", "url": "https://www.mieleusa.com/support/customer-assistance/dishwashing-1316/all/fault_f11_g_7xxx_and_g_5xxx_discovery_from_year_of_manufacture_2019_onward-92912294795", "accessed": "2026-08-29"}]}], "note": "requires SERIAL YEAR to resolve."}
+  ],
+  "catalogueFinding": "Our Miele catalogue is model-names only (no M.-Nr), and dominated by LEGACY 3-digit G### DW models (G577/G767 etc.); the modern 4-digit G5000 Discovery / G7000 cohort that carries the F11 split is barely present (G7xxx=3, G5xxx-4digit few). So the flagship F11 conflict applies mostly to models under-represented in our catalogue."
+}

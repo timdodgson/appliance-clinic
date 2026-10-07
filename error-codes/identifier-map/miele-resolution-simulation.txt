@@ -1,0 +1,11 @@
+A DW F70 (waterproof) -> leak-flood [no identifier needed]  (identifier-independent)
+B F11 no model -> {"code": "F11", "status": "GENERATION_UNRESOLVED"}
+C G7100 + F11 -> {"code": "F11", "status": "RESOLVED", "generation": "DW_G7_NEW", "meaning": "drain pump COVER positioned incorrectly (new gen)", "confidence": "HIGH", "yearUsed": null}
+D G4203 + F11 -> {"code": "F11", "status": "RESOLVED", "generation": "DW_G1_G6_OLD", "meaning": "drain pump blocked / water flowing back (Merloni? no: Miele old gen)", "confidence": "HIGH", "yearUsed": null}
+E G5000 + no serial -> {"code": "F11", "status": "AMBIGUOUS_needsSerialYear", "note": "G5xxx: provide serial year (>=2019 => new)"}
+F G5000 + serial 19xxxxxx (2019) -> {"code": "F11", "status": "RESOLVED", "generation": "DW_G7_NEW", "meaning": "drain pump COVER positioned incorrectly (new gen)", "confidence": "MEDIUM", "yearUsed": 2019}
+F G5000 + serial 05xxxxxx (2005) -> {"code": "F11", "status": "RESOLVED", "generation": "DW_G1_G6_OLD", "meaning": "drain pump blocked / water flowing back (Merloni? no: Miele old gen)", "confidence": "MEDIUM", "yearUsed": 2005}
+G model G6260 -> {"status": "MODEL_RESOLVED", "class": "MODEL", "generation": "DW_G1_G6_OLD", "confidence": "HIGH"}
+I model WWD020 (WM, no gen rule) -> {"status": "MODEL_RESOLVED_IDENTIFIER_UNKNOWN", "class": "MODEL"}
+J malformed 123 -> {"status": "INVALID_IDENTIFIER", "class": "MALFORMED_NUMERIC"}
+K legacy G767 -> F11 -> {"code": "F11", "status": "LEGACY_PREDATES_SPLIT", "note": "3-digit legacy predates the modern F11 generation split"}

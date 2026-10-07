@@ -1,0 +1,476 @@
+{
+  "version": "1.0.0",
+  "description": "First-class NORMAL / EXPECTED appliance-behaviour knowledge. Each record describes a behaviour, feature, indicator or symbol that customers frequently mistake for a fault, so the pipeline can RECOGNISE and GROUND it (deterministically, by identity) and reassure with a calibrated, provenance-backed explanation instead of mis-diagnosing a fault or falling back to a generic clarification. This artifact is looked up by matchNormalBehaviour() and is deliberately NOT part of the retrieval vector index (mirrors safety-information.json / media-information.json). Calibration is data-driven: `notIf` lists the record-specific descriptions that would make the SAME behaviour a genuine fault (in addition to the global failure-symptom veto), so reassurance is never given over a real problem.",
+  "matcherContract": {
+    "family": "appliance family this applies to, or null for any",
+    "makes": "lower-case makes this feature is specific to, or null/omitted for any make",
+    "requireConcern": "when true, only matches if the customer is ASKING / expressing worry (reassurance framing). Use for generic operating-condition records to keep precision. Feature/indicator/symbol records with a distinctive cue set this false.",
+    "cues": "any-of substrings; a hit on any one cue satisfies the cue test",
+    "allOf": "array of any-of groups; EVERY group must have at least one hit (used for two-part conditions like duration+cycle-word)",
+    "notIf": "record-specific fault descriptions that DISQUALIFY the normal match (calibration; applied on top of the global failure-symptom veto)",
+    "reassurance": "plain-English explanation shown to the customer (as primaryFinding). Never rendered via the LLM verbatim as gospel; it seeds the reassurance.",
+    "faultLikeIf": "conditions under which the customer SHOULD investigate — surfaced so reassurance stays calibrated, not dismissive"
+  },
+  "records": [
+    {
+      "id": "dishwasher:infolight",
+      "concept": "InfoLight / TimeLight floor projection (running indicator)",
+      "family": "dishwasher",
+      "makes": ["bosch", "neff", "siemens"],
+      "requireConcern": false,
+      "cues": [
+        "light on the floor", "light shining on the floor", "light shining underneath",
+        "red light on the floor", "red light shining", "light on the ground",
+        "beam on the floor", "spot on the floor", "dot on the floor", "red dot on the floor",
+        "light projected", "projected onto the floor", "light under the door",
+        "infolight", "info light", "time light", "timelight"
+      ],
+      "notIf": [
+        "puddle", "pooling", "water on the floor", "water all over the floor", "leaking onto the floor",
+        "flashing", "blinking", "won't start", "wont start", "stopped mid", "stops mid", "keeps stopping"
+      ],
+      "reassurance": "On Bosch, Neff and Siemens dishwashers the red light shining onto the floor is the InfoLight (also called TimeLight) - because these machines run so quietly, it projects a light onto the floor to show a wash cycle is in progress, and it goes out when the cycle finishes. A steady light is normal and just means the dishwasher is running.",
+      "faultLikeIf": [
+        "there is actually water pooling or leaking on the floor (not just a light)",
+        "the light is flashing rather than steady, or the display shows an error code",
+        "the dishwasher also won't start or stops part-way through a cycle"
+      ],
+      "provenance": [
+        {
+          "sourceType": "manufacturer-support",
+          "publisher": "Bosch Home UK",
+          "title": "Dishwasher red light on the floor (InfoLight) explained",
+          "url": "https://www.bosch-home.co.uk/customer-service",
+          "retrieved": "2026-09-01"
+        },
+        {
+          "sourceType": "trade-parts-supplier",
+          "publisher": "PartSelect",
+          "title": "Bosch dishwasher red light on the floor (InfoLight) - normal running indicator",
+          "url": "https://www.partselect.com/blog/bosch-dishwasher-not-starting-and-red-light/",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "hobs:child-lock",
+      "concept": "Child lock / key lock active (padlock or key symbol, controls frozen)",
+      "family": "hobs",
+      "makes": null,
+      "requireConcern": false,
+      "cues": [
+        "padlock", "padlock symbol", "key lock", "key symbol", "lock symbol", "lock icon",
+        "child lock", "childlock", "control lock", "controls locked", "keys locked",
+        "can't change anything", "cant change anything", "won't let me change", "wont let me change",
+        "can't turn it on", "cant turn it on", "won't respond", "wont respond", "buttons won't work",
+        "l symbol", "little lock"
+      ],
+      "notIf": [
+        "cracked", "smashed", "shattered", "no power", "totally dead", "completely dead",
+        "won't heat at all", "wont heat at all"
+      ],
+      "reassurance": "A padlock or key symbol on a hob means the child lock / key lock is switched on, which freezes the controls so nothing responds - it is a normal safety feature, not a fault. On most hobs (Bosch included) you clear it by pressing and holding the key/lock button for a few seconds until it beeps and the symbol disappears; some brands use an L or P instead of a padlock. Check the control panel for the key/lock button and hold it to unlock.",
+      "faultLikeIf": [
+        "the symbol won't clear after holding the lock/key button and following the manual",
+        "the hob is cracked, has no power at all, or a zone still won't heat once unlocked",
+        "the display shows a genuine error code alongside the lock symbol"
+      ],
+      "provenance": [
+        {
+          "sourceType": "manufacturer-support",
+          "publisher": "Bosch Home UK",
+          "title": "How to activate and deactivate the child lock on a hob",
+          "url": "https://www.bosch-home.co.uk/customer-service/get-support/hobs/child-lock",
+          "retrieved": "2026-09-01"
+        },
+        {
+          "sourceType": "uk-retailer-guide",
+          "publisher": "Currys",
+          "title": "How to unlock your induction hob (padlock / key / P / L symbol)",
+          "url": "https://www.currys.co.uk/techtalk/kitchen-and-home/cooker-tips/how-to-unlock-induction-hob.html",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "fridge-freezer:back-wall-condensation",
+      "concept": "Water droplets / thin frost on the rear interior wall (auto-defrost)",
+      "family": "fridge-freezer",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["back wall", "rear wall", "back of the fridge", "back inside", "back panel", "inside back", "at the back"],
+        ["water droplet", "droplets", "beads of water", "condensation", "bit of ice", "little ice", "thin ice", "some ice", "frost", "wet", "water on"]
+      ],
+      "notIf": [
+        "loads of ice", "lots of ice", "thick ice", "building up", "builds up", "block of ice", "sheet of ice",
+        "too warm", "not cold", "not cooling", "warmer than", "won't get cold", "wont get cold",
+        "not getting cold", "freezing everything", "food is warm", "not freezing"
+      ],
+      "reassurance": "A few water droplets or a little frost on the back wall inside the fridge is normal. The rear wall is the coldest surface, so moisture from the air (and from opening the door or storing warm/uncovered food) condenses there, and the automatic defrost cycle clears it and drains it away down the small hole at the base. It is not a fault as long as the fridge is still keeping cold.",
+      "faultLikeIf": [
+        "ice is building up thickly rather than just a few droplets or a thin film",
+        "the fridge or freezer is warmer than it should be, or food isn't keeping cold",
+        "water is pooling inside the fridge (the defrost drain hole may be blocked)"
+      ],
+      "provenance": [
+        {
+          "sourceType": "manufacturer-support",
+          "publisher": "Which? / manufacturer guidance",
+          "title": "Condensation and light frost on a fridge back wall is normal auto-defrost behaviour",
+          "url": "https://www.which.co.uk/reviews/fridge-freezers",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "microwave:magnetron-operation-noise",
+      "concept": "Loud hum / drone while cooking, interior (or room) light dims",
+      "family": "microwave",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["hum", "humming", "drone", "droning", "buzz", "buzzing", "loud", "noise when"],
+        ["light dim", "lights dim", "dims", "dimming", "dim when", "light flicker", "lights flicker"]
+      ],
+      "notIf": [
+        "not heat", "doesn't heat", "does not heat", "won't heat", "wont heat", "not heating", "cold food",
+        "sparking", "arcing", "banging", "grinding"
+      ],
+      "reassurance": "A microwave normally makes a loud humming or droning noise when it is on, and the interior light (and sometimes your room lights) can dim slightly at the same time. This is because the magnetron draws a large current through the high-voltage transformer while it cooks - it is normal operation, not a sign the microwave is dying.",
+      "faultLikeIf": [
+        "the food no longer heats up",
+        "you see sparking or arcing inside, or smell burning",
+        "it trips your electrics, or the noise is a new grinding/banging (e.g. turntable or fan)"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Magnetron current draw causes normal operating hum and light dimming in microwaves",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "fridge-freezer:compressor-cycling",
+      "concept": "Compressor / motor hums on and off through the day (thermostat cycling)",
+      "family": "fridge-freezer",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["hum", "humming", "buzz", "buzzing", "motor", "compressor", "running", "runs"],
+        ["on and off", "on & off", "comes on", "cycles", "cycling", "through the day", "now and then", "every so often", "kicks in", "starts and stops"]
+      ],
+      "notIf": [
+        "constantly", "all the time", "never stops", "won't stop", "too warm", "not cold", "not cooling",
+        "not getting cold", "loud bang", "rattling badly"
+      ],
+      "reassurance": "A fridge or freezer whose motor (compressor) hums on and off through the day is behaving normally - the thermostat switches the compressor on to pull the temperature back down and off again once it's cold enough, so it runs in cycles rather than continuously. You'll hear it start and stop several times a day, which is expected.",
+      "faultLikeIf": [
+        "the compressor runs constantly and never switches off",
+        "the fridge or freezer isn't keeping cold despite the motor running",
+        "the noise becomes a loud banging or heavy rattling"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Thermostatic compressor cycling is normal fridge-freezer operation",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "dishwasher:auto-open-drying",
+      "concept": "Door pops open at the end and releases steam (auto-open drying)",
+      "family": "dishwasher",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["door", "pops open", "opens", "opened", "ajar"],
+        ["at the end", "when it finishes", "after the cycle", "steam", "steam comes out", "on its own", "by itself"]
+      ],
+      "notIf": [
+        "won't close", "wont close", "won't latch", "wont latch", "leaking", "won't start", "wont start", "mid cycle", "mid-cycle"
+      ],
+      "reassurance": "On many modern dishwashers (Bosch, Neff, Siemens and others) the door automatically pops open a little at the end of the cycle and lets steam out - this is the auto-open drying feature, which improves drying by venting moisture. A puff of steam and the door opening on its own at the end is normal and designed behaviour, not a fault.",
+      "faultLikeIf": [
+        "the door opens or won't stay shut during the cycle (not just at the end)",
+        "it won't latch or start, or leaks water"
+      ],
+      "provenance": [
+        {
+          "sourceType": "manufacturer-support",
+          "publisher": "Bosch Home UK",
+          "title": "AutoAir / auto-open drying vents steam at the end of the cycle",
+          "url": "https://www.bosch-home.co.uk/customer-service",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "vacuum:cordless-runtime",
+      "concept": "Short run time on maximum / boost power (expected battery runtime)",
+      "family": "vacuum",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["cordless", "battery", "cordless vacuum", "on max", "max power", "full power", "boost", "high power", "turbo"],
+        ["minutes", "run for", "runs for", "only lasts", "lasts about", "runtime", "run time", "dies after", "goes flat"]
+      ],
+      "notIf": [
+        "won't charge", "wont charge", "won't hold charge", "wont hold charge", "dead after seconds", "not charging", "won't turn on", "wont turn on"
+      ],
+      "reassurance": "A cordless vacuum only running for a handful of minutes on maximum or boost power is normal - the highest power setting drains the battery quickly, and manufacturers quote the long runtime figures for the lowest/eco setting. On the standard (non-boost) setting you'll get much longer, often 30-60 minutes depending on the model. It's expected, not a faulty battery.",
+      "faultLikeIf": [
+        "the runtime is short even on the low/standard setting",
+        "the battery won't charge or hold any charge at all",
+        "it cuts out after only a few seconds regardless of setting"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Cordless vacuum boost-mode runtime is much shorter than eco-mode by design",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "vacuum:handle-warmth",
+      "concept": "Handle / body gets warm after use (motor and battery heat)",
+      "family": "vacuum",
+      "makes": null,
+      "requireConcern": true,
+      "allOf": [
+        ["warm", "gets warm", "getting warm", "bit hot", "warm to touch"],
+        ["handle", "body", "grip", "battery", "after", "minutes", "use"]
+      ],
+      "notIf": [
+        "very hot", "too hot to touch", "burning smell", "smell of burning", "smoke", "melting", "cuts out"
+      ],
+      "reassurance": "A cordless vacuum getting gently warm on the handle or body after ten minutes or so is normal - the motor and the battery both give off heat while working, and that warmth passes to the casing. Mild warmth is expected and not dangerous.",
+      "faultLikeIf": [
+        "it becomes too hot to touch rather than just warm",
+        "there's a burning smell, smoke, or any melting",
+        "it repeatedly cuts out (which can be the thermal cut-out from a blockage)"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Mild motor/battery warmth on a cordless vacuum is normal",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "generic:long-eco-cycle",
+      "concept": "ECO / long programme takes several hours (energy-saving by design)",
+      "family": null,
+      "requireConcern": true,
+      "allOf": [
+        ["hour", "hours", "so long", "very long", "too long", "ages", "forever", "3 hours", "4 hours", "over 3", "over 4", "nearly 4", "almost 4", "combined"],
+        ["eco", "energy sav", "energy-sav", "auto", "programme", "program", "cycle", "wash", "setting", "mode", "wash and dry", "wash+dry"]
+      ],
+      "notIf": [
+        "stays cold", "not getting hot", "not heating", "won't heat", "wont heat", "lukewarm", "luke warm",
+        "stall", "stuck", "stops at", "same stage", "not draining", "won't drain", "wont drain",
+        "not filling", "won't fill", "wont fill", "water left", "error", "burning"
+      ],
+      "reassurance": "A long ECO or combined programme running for several hours is normal, not a fault. ECO cycles save energy by heating the water slowly and soaking for longer at a lower temperature, so it's usually the LONGEST programme on the machine. A combined wash-and-dry cycle also naturally takes a long time because it does two jobs back to back.",
+      "faultLikeIf": [
+        "the water stays cold / it isn't heating",
+        "it stalls or stops at the same stage, or won't drain or fill",
+        "there's an error code or a burning smell"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "ECO programmes are the longest cycle by design (slow low-temperature heating and soaking)",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "dishwasher:wet-plastics",
+      "concept": "Plastic items still wet at the end of the cycle (plastics don't flash-dry)",
+      "family": "dishwasher",
+      "requireConcern": false,
+      "wetPlastics": true,
+      "allOf": [
+        ["plastic", "plastics", "tupperware", "container", "containers", "beaker", "lid", "lids"],
+        ["wet", "damp", "not dry", "still wet", "won't dry", "wont dry", "not drying", "still dripping"]
+      ],
+      "notIf": [
+        "everything is wet", "glasses are wet", "nothing dries", "china wet", "plates wet", "not heating", "no hot water"
+      ],
+      "reassurance": "Plastic items coming out wet at the end of a dishwasher cycle is normal. Unlike glass and china, plastic doesn't hold heat, so at the end of the cycle it isn't warm enough to flash-dry the water off - the droplets just sit on it. Rinse aid and shaking items out helps, but wet plastics alone is expected, not a drying fault.",
+      "faultLikeIf": [
+        "the glasses, plates and china are also coming out wet (not just plastics)",
+        "nothing is drying and the dishes are cold at the end (possible heating fault)"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Plastics do not retain heat so they do not flash-dry in a dishwasher",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "dishwasher:residual-sump-water",
+      "concept": "A small amount of clean water left in the sump/bottom after a cycle (normal residual water)",
+      "family": "dishwasher",
+      "makes": null,
+      "requireConcern": true,
+      "residualWater": true,
+      "allOf": [
+        ["little water", "bit of water", "small amount of water", "some water", "water sitting", "water left", "water in the bottom", "water at the bottom", "water in the sump", "residual water", "water still in"],
+        ["bottom", "sump", "base", "filter", "after it finishes", "after the cycle", "when it finishes", "at the end", "after a wash", "after every", "always"]
+      ],
+      "notIf": [
+        "full of water", "flooded", "flooding", "won't drain", "wont drain", "not draining", "isn't draining", "isnt draining", "won't empty", "wont empty", "not emptying", "lots of water", "loads of water", "water all over", "half full", "right up", "leaking", "leaks", "overflow", "overflowing", "smell", "smells", "smelly", "dirty water", "error", "won't start", "wont start"
+      ],
+      "reassurance": "A small amount of clean water sitting in the bottom (the sump) of a dishwasher after a cycle is normal. Dishwashers are designed to keep a little water in the sump so the seals don't dry out and the pump stays primed - it usually sits just below or around the filter. As long as it's only a small amount of clean water and the dishes are washing and draining fine, it isn't a fault.",
+      "faultLikeIf": [
+        "the bottom is full of dirty water or clearly isn't draining (water standing right up over the filter)",
+        "there's a bad smell, the water is dirty, or dishes come out unwashed",
+        "it shows an error code or won't finish the cycle"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "A small amount of residual sump water after a dishwasher cycle is by design (keeps seals wet / pump primed)",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "fridge-freezer:refrigerant-noises",
+      "concept": "Gurgling / hissing / ticking / clicking noises (refrigerant and defrost)",
+      "family": "fridge-freezer",
+      "requireConcern": true,
+      "allOf": [
+        ["gurgl", "hiss", "bubbl", "tick", "ticking", "click", "clicking", "popping", "cracking", "trickling"],
+        ["fridge", "freezer", "refrigerat"]
+      ],
+      "notIf": [
+        "loud bang", "banging", "grinding", "screech", "not cold", "not cooling", "too warm", "not getting cold"
+      ],
+      "reassurance": "Gurgling, hissing, bubbling, ticking or the occasional click from a fridge or freezer is normal. Those sounds come from the refrigerant flowing around the sealed system and from the automatic defrost timer and expanding/contracting plastic as things warm and cool. They come and go and are not a fault.",
+      "faultLikeIf": [
+        "the noise is a loud banging, grinding or screeching (not a soft gurgle/hiss/click)",
+        "the fridge or freezer isn't keeping cold"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Refrigerant flow and defrost timer produce normal fridge-freezer gurgle/hiss/tick sounds",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "hobs:induction-power-management",
+      "concept": "Induction hob buzzes / hums at high power or shares power between zones",
+      "family": "hobs",
+      "requireConcern": true,
+      "allOf": [
+        ["induction"],
+        ["buzz", "buzzing", "hum", "humming", "whine", "whining", "noise", "drops power", "power drops", "shares power", "power share", "loses power"]
+      ],
+      "notIf": [
+        "cracked", "no power", "dead", "won't heat", "wont heat", "error", "not working at all"
+      ],
+      "reassurance": "An induction hob buzzing or humming at high power, or dropping/sharing power when you use two zones on the same side, is normal. The buzz comes from the induction coil driving the pan (it's louder with lighter or multi-ply pans), and the power sharing is the hob's power-management balancing the load between paired zones. Both are expected behaviour, not a fault.",
+      "faultLikeIf": [
+        "the hob is cracked, dead, or a zone won't heat at all",
+        "it shows an error code"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Induction coil noise and paired-zone power sharing are normal",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "tumble-dryer:heat-pump-behaviour",
+      "concept": "Heat-pump dryer runs longer and dries cooler than a vented/condenser dryer",
+      "family": "tumble-dryer",
+      "requireConcern": true,
+      "allOf": [
+        ["heat pump", "heat-pump", "heatpump"],
+        ["long", "longer", "slow", "slower", "cool", "cooler", "warm", "not hot", "takes", "ages"]
+      ],
+      "notIf": [
+        "not drying at all", "clothes soaking", "still soaking", "won't heat", "wont heat", "no heat at all", "error", "runs cold"
+      ],
+      "reassurance": "A heat-pump tumble dryer running longer and drying at a lower temperature than an old vented or condenser dryer is normal. Heat-pump dryers deliberately use gentler, cooler air to save energy and protect fabrics, so a cycle takes longer and the drum and clothes feel cooler - the clothes still come out dry. It's expected, not a fault.",
+      "faultLikeIf": [
+        "the clothes come out still soaking wet / it isn't drying at all",
+        "there's genuinely no heat, or it shows an error code"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "Heat-pump dryers run longer and cooler than vented/condenser dryers by design",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    },
+    {
+      "id": "oven-cooker:first-use-burnoff",
+      "concept": "New / first-use oven burn-off - protective-coating cure smell and light vapour",
+      "family": "oven-cooker",
+      "requireConcern": true,
+      "firstUse": true,
+      "allOf": [
+        ["new", "brand new", "brand-new", "first time", "first use", "first-use", "just installed", "just fitted", "just got", "just bought", "newly installed", "recently installed", "never used before", "when new", "just been installed", "straight out the box", "out of the box"],
+        ["smell", "smells", "smelling", "odour", "odor", "steam", "vapour", "vapor", "fumes", "haze", "puffs out", "puff of"]
+      ],
+      "notIf": [
+        "gas", "electrical", "acrid", "burning", "burnt", "smoke", "smoking", "spark", "sparking", "sparks",
+        "melting", "melted", "hot plastic", "burning plastic", "burning rubber", "flames", "on fire", "catches fire",
+        "shock", "trips", "tripping", "won't heat", "wont heat", "not heating", "error", "fault code",
+        "getting worse", "worse each time", "worse every time", "every time i use", "still smells after",
+        "won't go away", "wont go away", "doesn't go away", "does not go away", "months", "for weeks", "weeks now",
+        "had it for", "not new", "years old", "ages", "loads of times", "many times", "several months"
+      ],
+      "reassurance": "A brand-new oven giving off a faint smell, a little haze or steam the first few times it is used is normal. New ovens have protective coatings, oils and manufacturing residues on the element and interior that burn off (cure) during the first few heat-ups, producing a temporary new/chemical smell and sometimes light vapour that clears with use. Make sure any packaging, stickers or protective film have been removed first, follow the manufacturer's first-use guidance, and ventilate the kitchen well (open a window or use the extractor) - the smell should ease after the first few uses. It is expected curing, not a fault.",
+      "faultLikeIf": [
+        "it is a sharp electrical or burning-plastic smell, or there is smoke, sparking or any smell of gas - then stop using it and have it checked",
+        "the smell or vapour does not fade after the first few uses, or gets worse each time",
+        "it also trips the electrics, will not heat, or shows an error code"
+      ],
+      "provenance": [
+        {
+          "sourceType": "engineering-reference",
+          "publisher": "General appliance engineering",
+          "title": "New ovens burn off protective coatings/residue on first use (temporary smell/vapour)",
+          "url": "https://www.repairclinic.com/RepairHelp",
+          "retrieved": "2026-09-01"
+        }
+      ]
+    }
+  ]
+}

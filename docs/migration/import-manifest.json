@@ -1,0 +1,2161 @@
+{
+ "description": "Phase 2 runtime-identical import (#24). Each file is byte-for-byte the source of what production runs. Do not edit these files before Phase 3; tools/migration tests re-check every hash.",
+ "productionSourceRule": "spares4repairs@13b7a50 for every runtime file proven in Phase 0 (#4), except services/whichpart-api/index.js, which is the Phase 1 hotfixed file live in production (#10).",
+ "productionUnits": {
+  "spares4repairs-part-finder": "zip CodeSha256 Z6lIeG9rND+tecNh3/gCTMQ9mpDGeICYe6vxcGyvLXo=",
+  "whichpart-api": "zip CodeSha256 Vkox0eYVlkwProorZUjOQuwPqWkhb0TCAgNRI/n31dE= (Phase 1)",
+  "spares4repairs-diag-orchestrator": "image sha256:d681e5556cd10867a53013e4b52c28887726b24c401071725df3ecbb45df8e07",
+  "spares4repairs-error-code-mcp": "image sha256:dc715181fe9773f4cb97cbbb18897b2998b488ef6b76a66376ea6bb1750c8c2d"
+ },
+ "notImported": [
+  {
+   "unit": "whichpart-api",
+   "path": "knowledge-inspect/index-meta.json",
+   "reason": "Generated at package time by services/whichpart-api/deploy.sh from services/part-finder/knowledge/knowledge-index.json; regenerates byte for byte from 13b7a50 (#4)."
+  }
+ ],
+ "files": [
+  {
+   "path": "error-codes/enrichment/generated/coverage.json",
+   "sha256": "11935c6a0aa2bb240003310eaf64a8f071e023a89f18ae7673a438aa0fccfb1f",
+   "bytes": 852,
+   "source": "spares4repairs@13b7a50:error-codes/enrichment/generated/coverage.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/enrichment/generated/enrichment.json",
+   "sha256": "f11cccca3f578471fa8b15f70e6104e96d8ec9146c6bf9937b30ec27be0ff9fe",
+   "bytes": 957887,
+   "source": "spares4repairs@13b7a50:error-codes/enrichment/generated/enrichment.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/enrichment/generated/manifest.json",
+   "sha256": "e5fb94083281ebe9076938204bb7d1a2b36f5cb6721862c1e2a4fb5a74b0044c",
+   "bytes": 1321,
+   "source": "spares4repairs@13b7a50:error-codes/enrichment/generated/manifest.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/enrichment/generated/vocabularies.json",
+   "sha256": "ba96a2ce2ad3c4535df4520c7113f848cbf51ad1c60ceee8b09a0bb2359a4582",
+   "bytes": 1255,
+   "source": "spares4repairs@13b7a50:error-codes/enrichment/generated/vocabularies.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/bsh-enr-scheme-index.json",
+   "sha256": "25ccebf9c7eac186be261d63a2872fb86a3128c7dda602163c788fe1efddc56c",
+   "bytes": 38239,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/bsh-enr-scheme-index.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/bsh-identifier-map.json",
+   "sha256": "d2e33dece2f8f48310e7fa0bf8add9effe0fd029f596493b376cabea4e9a96fc",
+   "bytes": 2680,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/bsh-identifier-map.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/dishwasher-identifier-map.json",
+   "sha256": "8db345ffb5dc24c9f9c0113533dccf0e9fa78fc3fc8b6da0b1d49dea927990ab",
+   "bytes": 6018,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/dishwasher-identifier-map.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/electrolux-findings.md",
+   "sha256": "0f2b27cebe66324250b77191237092b8483cc60cc4f21cb7c613fb2af35197cf",
+   "bytes": 4052,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/electrolux-findings.md",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/electrolux-identifier-map.json",
+   "sha256": "fd4012e684517d04b3ceecc132fe52675be9fd24eee8eb2a202dbdaae12808df",
+   "bytes": 6598,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/electrolux-identifier-map.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/elx-resolution-simulation.txt",
+   "sha256": "51b142a7d70eb7fc8d46645822f70e8f67e89ca4c59c350a293ce12c5b42c8a2",
+   "bytes": 1255,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/elx-resolution-simulation.txt",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/generated/miele-identifier-map.contract-v1.json",
+   "sha256": "0b210779b25dc8c7b94e6bf0d14d6f968c67338fe257b18f0fcaeef0c22162ac",
+   "bytes": 2224,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/generated/miele-identifier-map.contract-v1.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/miele-identifier-map.json",
+   "sha256": "73e35c012e4419ce8e4328151221c60910e3c628564427505fd212c497e91563",
+   "bytes": 5666,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/miele-identifier-map.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/miele-resolution-simulation.txt",
+   "sha256": "94dc49c8bf5936dee896d4abade2f3a7a53d9055f42e32096e5cfb102dee4512",
+   "bytes": 1558,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/miele-resolution-simulation.txt",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/needs-generation.json",
+   "sha256": "80fbe7271f9e4ad0d36018ed12d756b8cec7ca4e728fc7e30aee57be1fdca29f",
+   "bytes": 1539,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/needs-generation.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/needs-platform.json",
+   "sha256": "f442a3c6aad09f91f137a878c59d72bacaaa2c494ad1324bf558864e338cd079",
+   "bytes": 1977,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/needs-platform.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/resolution-simulation.txt",
+   "sha256": "6f6f011c8d8ccedc0e1a32f96d3cedc82e4a86a00e67fe06a524962bf660db3e",
+   "bytes": 1254,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/resolution-simulation.txt",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/whirlpool-findings.md",
+   "sha256": "b8a8b1f08ffe439e2b52b42e0f3f12275b1c5743cd79d44d1ff6317fb76668f9",
+   "bytes": 3996,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/whirlpool-findings.md",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/whirlpool-identifier-map.json",
+   "sha256": "d5c622b88e5cd4f4e2de8071419d519696e0c75bcfedfc193daf4ed1f6d65457",
+   "bytes": 5782,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/whirlpool-identifier-map.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/identifier-map/whirlpool-resolution-simulation.txt",
+   "sha256": "9f5dbc3573136af022784f786ac7c59f5820d5b7f1787c80e4bee9083d839699",
+   "bytes": 1527,
+   "source": "spares4repairs@13b7a50:error-codes/identifier-map/whirlpool-resolution-simulation.txt",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/catalogue_api.py",
+   "sha256": "fd3f53a31e5aa6efd74dc8b8bb89b67a541a18f6ecf348dbaec3f88a35e1f231",
+   "bytes": 18361,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/catalogue_api.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/catalogue_effective.py",
+   "sha256": "da12d4656b7044335f30c19dcccf998afb2d29015bf66e42e6b808d4864016c0",
+   "bytes": 30066,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/catalogue_effective.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/catalogue_store.py",
+   "sha256": "979d6c8cf757a36ea15719370305fae081d39409848aeb42ddd746bfc9b331ea",
+   "bytes": 9605,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/catalogue_store.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/catalogue_workflow.py",
+   "sha256": "96e90da2acef686c3fc15459abb0d3fff795d4b816c9ec52336b3f607c809cac",
+   "bytes": 17072,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/catalogue_workflow.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/deploy/Dockerfile",
+   "sha256": "389fe049afadf707d431e4c8596642085e2c87c1f04543b4222f2f02af905047",
+   "bytes": 2203,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/Dockerfile",
+   "units": [
+    "build-definition:spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/deploy/asgi.py",
+   "sha256": "c71d6290a9e7e14dc508f8d99cc6fbf961277e2349def91f38de7cf6cef2985c",
+   "bytes": 6672,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/asgi.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/deploy/integrity.py",
+   "sha256": "6a3aa15ff892252383afd8dfba382435bed1678b4f88b0711002df8a6f53dfd0",
+   "bytes": 3283,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/integrity.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/deploy/requirements.txt",
+   "sha256": "024f4618e1afeb3aa32df91fc244a9d8ae70eac59abdbb38fb16c76f902fb57d",
+   "bytes": 763,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/deploy/requirements.txt",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/mcp_http_server.py",
+   "sha256": "a657f486214edac03e4a5943ca69b13c05385d3e596f075a8a08c060c2edabec",
+   "bytes": 5506,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/mcp_http_server.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/schemas/get-error-code-evidence.schema.json",
+   "sha256": "49576dc0938d5cf1c0a6caafb0052964c2fe296abbf3489c81f1c45a1696cd2f",
+   "bytes": 784,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/schemas/get-error-code-evidence.schema.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/schemas/resolve-appliance-context.schema.json",
+   "sha256": "3b689b10df19eb5402c269bb5ddfcf7b8242f7cc1db5fded29a3843446d95de8",
+   "bytes": 1226,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/schemas/resolve-appliance-context.schema.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/schemas/resolve-error-code.schema.json",
+   "sha256": "4b63bd0f3d69bc92202ace74a1eaed0c951d6b391391f9e3b129cc7d8685d964",
+   "bytes": 1903,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/schemas/resolve-error-code.schema.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/mcp/tools.py",
+   "sha256": "123035498eda9ba221a95a5d3e001536ec67842a1258ed10cc5b16efe05a5abc",
+   "bytes": 22134,
+   "source": "spares4repairs@13b7a50:error-codes/mcp/tools.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/compiler/resolve.py",
+   "sha256": "a56249afeee6159383f01a9dde6672147fa128d88c7724f8a934b9e421678bbd",
+   "bytes": 6761,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/compiler/resolve.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/faults.json",
+   "sha256": "54e4474878de105b4ddd9ad6c56f528ed348a7877e15a1f0de59d7274d63f845",
+   "bytes": 6588,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/faults.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/indexes/brand-appliance.json",
+   "sha256": "6293eeec4492e1f9e8b1da579128af520a073c1562a5a16f56c662842994a6ab",
+   "bytes": 113247,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/indexes/brand-appliance.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/indexes/code.json",
+   "sha256": "d17017a124069f6701f06cabd4fe041a117e9ad6a985b3e68e30c15057a13690",
+   "bytes": 33768,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/indexes/code.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/indexes/scheme-code.json",
+   "sha256": "43812bfea509a259d95209a8a90a4f13afb8b21c0f7f386671677a6237cedff9",
+   "bytes": 51392,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/indexes/scheme-code.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/manifest.json",
+   "sha256": "b8083a6c959d233ab153225279558e3fc5aa2ad269cbbd96e53aa46ec2914200",
+   "bytes": 700,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/manifest.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/mappings.json",
+   "sha256": "f6355aef183df161367125f9a36ddc87bc67682de5f790b59364f90175cb68c3",
+   "bytes": 850188,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/mappings.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/schemes.json",
+   "sha256": "ad1ec4677ac0801cc99f6ef46a3f31c835f6b953f3131e93636dd3c458db37cd",
+   "bytes": 58618,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/schemes.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/runtime-model/generated/runtime/sources.json",
+   "sha256": "d78a8b893f205fdb135ee9ba1d23e77f54617906b2494e2eac61c993d6e41b92",
+   "bytes": 156366,
+   "source": "spares4repairs@13b7a50:error-codes/runtime-model/generated/runtime/sources.json",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "error-codes/tools/resolve-identifier.py",
+   "sha256": "b3ca52a7664f235d38ab219442c015373ed1456bc6f78c6af8dff6f4f556b405",
+   "bytes": 12855,
+   "source": "spares4repairs@13b7a50:error-codes/tools/resolve-identifier.py",
+   "units": [
+    "spares4repairs-error-code-mcp"
+   ]
+  },
+  {
+   "path": "orchestration/__init__.py",
+   "sha256": "560558270afd806e32eedb0e2437553d6d679eec61260fe00f481249c72251d9",
+   "bytes": 79,
+   "source": "spares4repairs@13b7a50:orchestration/__init__.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/deploy/Dockerfile",
+   "sha256": "998580d669b8f9e1d6710446bb883460a229138515859644e150e16babbed762",
+   "bytes": 1543,
+   "source": "spares4repairs@13b7a50:orchestration/deploy/Dockerfile",
+   "units": [
+    "build-definition:spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/deploy/lambda_handler.py",
+   "sha256": "59e66610678e652cfe8135418b4c313d3b60d07d657003c9d43bfc4819b213d1",
+   "bytes": 9583,
+   "source": "spares4repairs@13b7a50:orchestration/deploy/lambda_handler.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/deploy/requirements.txt",
+   "sha256": "69d5f03c6d8d49f62c95a530f453fd3bcce5e74b888148519815018564f65c37",
+   "bytes": 764,
+   "source": "spares4repairs@13b7a50:orchestration/deploy/requirements.txt",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/model.py",
+   "sha256": "c31ac99c5669ee86cc9ecffc64641a2882979c8e74a7ff58f91f6987cd2ebcf6",
+   "bytes": 15855,
+   "source": "spares4repairs@13b7a50:orchestration/model.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/orchestrator.py",
+   "sha256": "e8dd50390ecfb267f842126740e0f54b09fe29b6983489137e1a631f810f9d27",
+   "bytes": 149179,
+   "source": "spares4repairs@13b7a50:orchestration/orchestrator.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/routing.py",
+   "sha256": "3aa3fff70321edbc8229e4a0b1ee8719cd9f220e2aa9871054700b9af8050c03",
+   "bytes": 14170,
+   "source": "spares4repairs@13b7a50:orchestration/routing.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "orchestration/services.py",
+   "sha256": "772a6f56d7fe809be7ec1a3ad720a5726130619f7bb022b22fd3de729a94c43d",
+   "bytes": 43882,
+   "source": "spares4repairs@13b7a50:orchestration/services.py",
+   "units": [
+    "spares4repairs-diag-orchestrator"
+   ]
+  },
+  {
+   "path": "services/part-finder/admin-config.js",
+   "sha256": "088f2a251125e78c5a7875dea55c9fb0be6e90507bfe346326af8f22793cb925",
+   "bytes": 4752,
+   "source": "spares4repairs@13b7a50:services/part-finder/admin-config.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical-runtime.js",
+   "sha256": "9074ef8c34dd6854a1f9e0b7afc8af6adb01791bbf6115d7fc575d1a5f0e9233",
+   "bytes": 20733,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical-runtime.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/candidates.js",
+   "sha256": "5ebad2a76a2a5e207054954bd568032c3e57fc4e3ad02416e0878ad54f820823",
+   "bytes": 12771,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/candidates.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/compose-kit.js",
+   "sha256": "659e83a7e28d8d5e3745a3f9b2328f44bfeb96b9a20513d527b35f307376af31",
+   "bytes": 31102,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/compose-kit.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/cs1.js",
+   "sha256": "d05a1b47a21123a4dc2baa8a39fced816d97fe72c9c062ffc9032438e6e6af64",
+   "bytes": 4849,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/cs1.js",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw-family.js",
+   "sha256": "aba4d6bf8d41298e77c50385a663d2c3051f50783fb36cfcd8c72bad687799ba",
+   "bytes": 1409,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw1-not-draining.js",
+   "sha256": "4dd42df4cd9da97fc9601dd51d6be500e684cac923acf5bcebe17c2feb206524",
+   "bytes": 12920,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw1-not-draining.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw2-not-filling.js",
+   "sha256": "0ad8b9be67bb5f5fc1f3e78dc63840f7ebe7b583d5c5e5e57812c60dde0bba8c",
+   "bytes": 12258,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw2-not-filling.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw3-leaking.js",
+   "sha256": "7b5d4268450bbbd1e15fc240b56f97bbbf99e3427e0f43c6f901d60433aa14a5",
+   "bytes": 14655,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw3-leaking.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw4-not-cleaning.js",
+   "sha256": "0d459da5cd28fd56168695b85c830aabc43568401a98296eff5935c5cc16462f",
+   "bytes": 12842,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw4-not-cleaning.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw5-heating-drying.js",
+   "sha256": "3dab97dbca67f7a214851b06a8bb71f4f6dfef4836acb9e1991a4020672f1404",
+   "bytes": 10870,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw5-heating-drying.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/dw6-door-not-starting.js",
+   "sha256": "7ab1d814f3865ec37cd5de2085d84f95f7aa6f569b5245a5944db186dd2fbd4e",
+   "bytes": 11855,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/dw6-door-not-starting.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/evidence-engine.js",
+   "sha256": "e1b3ad66335709135ff5c1a617d06cc3d59f8a1d5e508f5d717327ae08741a93",
+   "bytes": 10081,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/evidence-engine.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff-family.js",
+   "sha256": "ccd7b5935c2607a97e9701eb0933f539fe53e35476bd4b5842e768fbe69a9943",
+   "bytes": 3857,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff1-not-cooling.js",
+   "sha256": "63ec4c1293adf5e882107c1eb44e38119ace272386c172c49256a2c9549a1166",
+   "bytes": 15644,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff1-not-cooling.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff2-too-cold.js",
+   "sha256": "10393a05164f835ad518dda2b3f5c330b056250bcb3d391b732c50405b715201",
+   "bytes": 6590,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff2-too-cold.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff3-noisy.js",
+   "sha256": "bd14adba37f1d80f87a76116ec596af55688c84ae3211bafae6a4440381ce0ed",
+   "bytes": 12223,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff3-noisy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff4-leaking.js",
+   "sha256": "9f8aa5472de1aabc083f1ac0f7abc43aa9bfa0b78a7d6c57af04b6dd3ee6236a",
+   "bytes": 11334,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff4-leaking.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff5-ice-frost.js",
+   "sha256": "4b56ab4716aa0c412e1058a1d8ac9aa4cddac5c1f0bdda22e8c7f5c03f2559e3",
+   "bytes": 11759,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff5-ice-frost.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff6-door-seal.js",
+   "sha256": "986fe805ef00f2ed561ee76e0f47a0a2848cd33eb71ccaa6f12d0fcb313cd62f",
+   "bytes": 7288,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff6-door-seal.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ff7-not-running.js",
+   "sha256": "5a9ef54c1d7163b9529707de6fc1b477938e4c23de229fe913d4a711a13e9196",
+   "bytes": 9568,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ff7-not-running.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/gas-ignition.js",
+   "sha256": "c9bf9953941dce23b5e2adfc1a388b95d48cdc0b9243034fcf67f555e00b1df6",
+   "bytes": 7385,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/gas-ignition.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/hb1-zone-not-heating.js",
+   "sha256": "344b00db26d5c3bf0a0ac497d6d7e91a305c9f2b5cc84bf9ea36c84fb65b1d4e",
+   "bytes": 7487,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/hb1-zone-not-heating.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/hb2-no-power.js",
+   "sha256": "831c191ed784f833d9483c2f669d76aaee62332d5a345f308c7fdd1ee366be52",
+   "bytes": 5866,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/hb2-no-power.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/hb3-overheating-control.js",
+   "sha256": "4f123838e66285d32c775d26f82ef333f8655a975dbf081e8b2e0524a05044aa",
+   "bytes": 4694,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/hb3-overheating-control.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/hb4-ignition-gas.js",
+   "sha256": "0d108bd001bfd695e4adeab14a3e2571cf82b4cd67175daac1c08f3e5b78049a",
+   "bytes": 379,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/hb4-ignition-gas.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/hob-family.js",
+   "sha256": "b1d9a9f76d310643225ea77b0b7035ca9b57bcad0524cac9611a7373a6f63d6e",
+   "bytes": 2193,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/hob-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j1-compose.js",
+   "sha256": "1913fc79458d8befbf99e6972988cb255c83742057976f454e2a83dab6276d22",
+   "bytes": 9352,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j1-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j1-diagnostics.js",
+   "sha256": "2b0c7924c57cc5a879e4a384ba87870a39c40d25d85d9ef951717ffd9aeacce7",
+   "bytes": 17459,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j1-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j1-pipeline.js",
+   "sha256": "ded478ca487e81a69352d996a4afdaf5b0489f42cbfa4e29ac46a04f1d873bbc",
+   "bytes": 4605,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j1-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j1-policy.js",
+   "sha256": "0fe9414f5845c6adc73f3481faf595c312d4d3272f62bba21025057ea6ecf133",
+   "bytes": 14761,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j1-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j2-compose.js",
+   "sha256": "e4daa964d1626c50433c690d7cf25abd60219dbf20139964e826b0074fa3058d",
+   "bytes": 11968,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j2-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j2-diagnostics.js",
+   "sha256": "325b968e04ed54f164fc97a3d23a67d53ece7c59b2fcb41895495cf0fa581bdb",
+   "bytes": 17890,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j2-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j2-pipeline.js",
+   "sha256": "1cebfdbb63f2617e70e84236bd00c26811cc0dcf3bd139dc3758739908d8bbaf",
+   "bytes": 3364,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j2-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j2-policy.js",
+   "sha256": "0d84ed8fd65dc7e592c12a90a9e88aafb308c14eca479496509953829b180e58",
+   "bytes": 12849,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j2-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j3-compose.js",
+   "sha256": "a17d29bd935263d83180365ec519f196509b19fac02369eb636fb910beb719c5",
+   "bytes": 12538,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j3-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j3-diagnostics.js",
+   "sha256": "f3b5b06deb6e21f148d7b6222a569bd221ca09facef1220ab1bc6e0371f83e0a",
+   "bytes": 11756,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j3-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j3-pipeline.js",
+   "sha256": "b5808d175d8376d5618a1814145f08e1f32494407a76e27e3814cb5c11c09fad",
+   "bytes": 3460,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j3-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j3-policy.js",
+   "sha256": "a375e6288af0dc648d7bad9bbeea0fc68a76a3ac04cb7cc9e375ea3125495db6",
+   "bytes": 12772,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j3-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j4-compose.js",
+   "sha256": "a6a4e5e53cec5e81019ae5de9b3d677d65cc69dd14b8cf19d3b11e8e3da68de5",
+   "bytes": 5230,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j4-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j4-diagnostics.js",
+   "sha256": "6bac3958aae5a23df343d13f9302af2d4500e372c7b4ca270569008d3b455b80",
+   "bytes": 3964,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j4-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j4-pipeline.js",
+   "sha256": "0393ad2fbe40fd45ff04384cfadbf0ae18360a643a6ad5d41bffd175a7db58f7",
+   "bytes": 906,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j4-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j4-policy.js",
+   "sha256": "a976aab980114ad8ebab71127ac688ffaccd82817b9845644e707d52e0b0f90c",
+   "bytes": 2394,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j4-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j5-compose.js",
+   "sha256": "1ecfaa32a7ecb736975763d46d2464104d8ebda96473ebc2c21b448974042544",
+   "bytes": 5605,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j5-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j5-diagnostics.js",
+   "sha256": "5c834a0f12ac08a7a35205c927d620f4dcce7b37556a7fea39a092dca5f678fc",
+   "bytes": 3526,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j5-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j5-pipeline.js",
+   "sha256": "27a77599a7c6fa9560d2f808dd5a7b134ac2502b6449b1fd8828868a11615a30",
+   "bytes": 494,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j5-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j5-policy.js",
+   "sha256": "1b4ad13745f79ef3c6faf82419088b3a47b52048415807f075527bae8578e90c",
+   "bytes": 3483,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j5-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j6-compose.js",
+   "sha256": "e72714afd32a918e2259f539d957124b9b4626fb839a1e1a255ee9f155343398",
+   "bytes": 5033,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j6-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j6-diagnostics.js",
+   "sha256": "525cfb124cc954d4bef8af936f27666f47b07f506b6d173d48cb448fd867e089",
+   "bytes": 3962,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j6-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j6-pipeline.js",
+   "sha256": "e5d0f2c1db951c10ca9679a29aa931f2cbb8cdf3887a280fa9d633eed5abc971",
+   "bytes": 787,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j6-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j6-policy.js",
+   "sha256": "2d95061872d67688825596560653e9f70264902269d4b71a1b32ededd00fd9de",
+   "bytes": 2504,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j6-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j7-compose.js",
+   "sha256": "6f2c0ffbb469f1c0bacc4560dee742afd7a807996db675b501d32b5341253a96",
+   "bytes": 5731,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j7-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j7-diagnostics.js",
+   "sha256": "bd5080ef82971f915ea08eef9a87181b6c5cb04e4dd48c772ef9e268e220510f",
+   "bytes": 3558,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j7-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j7-pipeline.js",
+   "sha256": "71fda6ef1443e9ceeb35aa3d92c7f788a5c20760e75ed3f421648071b27a8080",
+   "bytes": 595,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j7-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j7-policy.js",
+   "sha256": "abb4847aa7976ccefb795eddf32a2558f8e725b88a46f31c61127efcb9a6df65",
+   "bytes": 2211,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j7-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j8-compose.js",
+   "sha256": "331a650849e1de0b3cffbb735819069f155677f81c45e87e94afec88bc04510b",
+   "bytes": 7405,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j8-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j8-diagnostics.js",
+   "sha256": "3ac3a385040144f2e4702a918b800338e6d6e20f3f8cca0fedbff62bbe36cf0d",
+   "bytes": 6430,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j8-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j8-pipeline.js",
+   "sha256": "9f975eea4f8be65cac9abcf7bbca79177fd98b6d2678237daf2a26269b5b270c",
+   "bytes": 787,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j8-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j8-policy.js",
+   "sha256": "e3e01293f02f6c72a3f17fada774543add7cf51cb8ee8600d267b348f4add6c9",
+   "bytes": 3939,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j8-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j9-compose.js",
+   "sha256": "726f3c346376d8d7b0939c834a9b462e028caf429f370aa96d4599e2ee239f20",
+   "bytes": 5082,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j9-compose.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j9-diagnostics.js",
+   "sha256": "98b7c8c2852edb687fb4e77828b2cc35b9577dba8337bffe6dd8f0b10fe653fe",
+   "bytes": 4267,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j9-diagnostics.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j9-pipeline.js",
+   "sha256": "1e519e6c622866092f2dbb003f9bc57b25503caeac136d251b7c061b2099d52c",
+   "bytes": 515,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j9-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/j9-policy.js",
+   "sha256": "4097a190a901f14e91ccc48e84c29978ed3fa8b9e39e77d49732556b9358f294",
+   "bytes": 1611,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/j9-policy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/journey-pipeline.js",
+   "sha256": "49c01158139a3484e6628d6ee264c258e06b66b61d25a0b49ef633240fb2b0f1",
+   "bytes": 5376,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/journey-pipeline.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/journey-registry.js",
+   "sha256": "5be953f55fc8e95925ce8bad6d1db8150fd7e86d5f883cb68e0461ca6a1595d8",
+   "bytes": 3295,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/journey-registry.js",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/journeys.json",
+   "sha256": "2e4523f66e0b8e68518d3bab11c4cc8c49a196e8a1fed8eaaa40526e50162586",
+   "bytes": 17332,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/journeys.json",
+   "units": [
+    "spares4repairs-diag-orchestrator",
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mc1-questions.js",
+   "sha256": "8764537294684274ecf0fbfe33047151724bd0635e6a8a819049137a875a559b",
+   "bytes": 130221,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mc1-questions.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mc1.js",
+   "sha256": "3f4a55cc5cdcd59d7aac8fed30aa0a332657efe6a57d90d037f0d315cc0077b5",
+   "bytes": 12148,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mc1.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/merge.js",
+   "sha256": "a36f99ca93411ce6e129c3fe77dc02184afaff3d43e08317c4a11a3de27f5275",
+   "bytes": 20728,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/merge.js",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw-family.js",
+   "sha256": "01c86f2ef8b0ca83601a5c1dca73c567c39da735583a2aa2e2121761a553f097",
+   "bytes": 3250,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw1-not-heating.js",
+   "sha256": "ecffcec8d53afe1b42f3ad4b4eb1f6d3188bb5793f0c0125dcea41726b347a91",
+   "bytes": 5425,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw1-not-heating.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw2-not-starting.js",
+   "sha256": "9aa13bf95727570beecf9f859f977a20cb6c597fabdff783d64055451d91c975",
+   "bytes": 7463,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw2-not-starting.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw3-door.js",
+   "sha256": "6baa466d105bdae1e87a8b715c00983165c063e13efe231a5519902be7e753a1",
+   "bytes": 6965,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw3-door.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw4-turntable.js",
+   "sha256": "1fd8d25d91e86271e57b764c6e929fdc1440384ba1da4c62d4d00c10a2cbb58b",
+   "bytes": 5018,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw4-turntable.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw5-noisy-sparking.js",
+   "sha256": "7d9c62968b05a07a2c70045321082d363f8d6e7c189cd49df4ad335f9e4cef30",
+   "bytes": 10732,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw5-noisy-sparking.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/mw6-starts-door-closes.js",
+   "sha256": "6972fb0288217244153d1b3a236a9033910523742b67ed42e2e170530b170836",
+   "bytes": 2893,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/mw6-starts-door-closes.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov-family.js",
+   "sha256": "a017f9d69b42339d4130ae79baccc3e867d77d9803d4e1beb693bab50d60d641",
+   "bytes": 4368,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov1-not-heating.js",
+   "sha256": "f487ded299badf1b287d4e36b207d230f02f9795d7d8539bf87ebbb72bca4862",
+   "bytes": 9346,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov1-not-heating.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov2-overheating.js",
+   "sha256": "f4eef714087058aa02202ff39c5f5bf74fe1740285ac201a58e94996737350e7",
+   "bytes": 6815,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov2-overheating.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov3-grill.js",
+   "sha256": "5e798a6ab336790a75e6834f0a3e866d9161f721c20609d656e99b0f0840babd",
+   "bytes": 7110,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov3-grill.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov4-fan.js",
+   "sha256": "323be990b5b93b1b08a7ffa9493e444209673e72c4822010b77580c6cdd23b69",
+   "bytes": 7324,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov4-fan.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov5-dead.js",
+   "sha256": "2325ce96bf3c143531c9c3a095db0d03d71227c88f352538c9cd7abe1968f995",
+   "bytes": 6991,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov5-dead.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov6-door.js",
+   "sha256": "e53bf4d3ccb429c0454260261b25ccca6d3f812d24875399691b1ede7fc9d6dd",
+   "bytes": 9215,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov6-door.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov7-tripping.js",
+   "sha256": "70924ec43afde9f3442375fd0f6273350be1b5921820d4a05e869c800171c577",
+   "bytes": 5102,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov7-tripping.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/ov8-ignition-gas.js",
+   "sha256": "2f1d44cbb151926eb2479a24f219d1e3f6bbfd92852c220225263a995cb15c75",
+   "bytes": 407,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/ov8-ignition-gas.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/policy-kit.js",
+   "sha256": "5bf74a02e1042667c813c38190457c947a5fc54255d2fbe93e142a21b92ed04c",
+   "bytes": 19479,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/policy-kit.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/requests.js",
+   "sha256": "86b296a04679c8b26f5a910a0befdddeb9466eb9b0550707ca1b2e871e81db6e",
+   "bytes": 8253,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/requests.js",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td-family.js",
+   "sha256": "0f5bae97047e20e9104f487f6edec226be630daa24115b641b0616bc15e3408c",
+   "bytes": 5647,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td1-not-heating.js",
+   "sha256": "bce4f7100c10369439969fff5c72cd14a37b765f86c2718745fd4b6929392468",
+   "bytes": 12764,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td1-not-heating.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td2-not-drying.js",
+   "sha256": "def48ef2fecca068034d094d45f9d61d8e4ab86ea88f2e6c440545e2531bc022",
+   "bytes": 12092,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td2-not-drying.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td3-drum-not-turning.js",
+   "sha256": "a1c827448ecedec958daa19ccd89a81df37c9014ffe8ebf23d80c55030cb8d12",
+   "bytes": 7998,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td3-drum-not-turning.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td4-noisy.js",
+   "sha256": "86dad52bacfe175902708aabd5403935b271a7608157067a3e4c2e011b06975d",
+   "bytes": 9371,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td4-noisy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td5-stops-mid-cycle.js",
+   "sha256": "85e77628ca6c6e8a6e74403a0baadc88d7bb8b89c81b9080c1509625cad210e6",
+   "bytes": 10770,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td5-stops-mid-cycle.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td6-water-container.js",
+   "sha256": "3ccece7e35d8f181d2e003e4320d866b0964f03526292ca624f19de5ace09913",
+   "bytes": 11131,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td6-water-container.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/td7-door-not-starting.js",
+   "sha256": "1b9e3594da9aa274b60df58f61bffab876f70de03979d4408b00c62642474122",
+   "bytes": 11761,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/td7-door-not-starting.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac-family.js",
+   "sha256": "10931d5e4e6aed12b35ea4ca5043b43ee2fdc6a945ed24df7ec722f314ffd321",
+   "bytes": 5583,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac1-low-suction.js",
+   "sha256": "88c8ef1eb9c793965fb5907e7dd731356ccde327758e1e23104de16c0a9a6232",
+   "bytes": 8210,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac1-low-suction.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac2-pulsing.js",
+   "sha256": "341e92bcc4080062c7d5b3b9bbdc8cdcf0954d1aff42c0700f3543df0cad0548",
+   "bytes": 10534,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac2-pulsing.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac3-not-running.js",
+   "sha256": "0282ce0396b16864b7db408e417f2a10f7fd64d1bc5eb007196e8fb7d2a35f40",
+   "bytes": 9066,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac3-not-running.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac4-brush.js",
+   "sha256": "55e7151649e7f7e99dd4d3bc57676277a9e4e1c9624b43b8343f18dde599ed0f",
+   "bytes": 6505,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac4-brush.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac5-battery.js",
+   "sha256": "e8bc6d52a54815dcf69aa2cfd0f04fbc6003abf6c8e3109829dfb7e75f27d827",
+   "bytes": 8637,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac5-battery.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/vac6-noisy.js",
+   "sha256": "e98b5eb17e9ecbfd869ad19bc8010d7fd9c32fa791cba0d69cefbf535184ac28",
+   "bytes": 8585,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/vac6-noisy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd-family.js",
+   "sha256": "df904a5f59b253e8cbe5b305035541585057d93720c74de7e17477fe8e05a340",
+   "bytes": 8651,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd-family.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd-not-drying.js",
+   "sha256": "ee480c5f61efbd2764bd7fde4da569932564a85267335ed09bf94675f30a5df8",
+   "bytes": 11538,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd-not-drying.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd1-not-draining.js",
+   "sha256": "807dd01894f62171342d76d5d1e3e1cb982dbe914bf1c83be96fdec7bc63007d",
+   "bytes": 363,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd1-not-draining.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd2-not-spinning.js",
+   "sha256": "2dbbd5152f3c13e8fe82c1b9eadda8126a2471be7fb9fcbee80f87c0be16808e",
+   "bytes": 338,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd2-not-spinning.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd3-leaking.js",
+   "sha256": "0cc70dce4d6024ebf9da643541f61f25958cb8b9cfd255cdbe7efacd695859ad",
+   "bytes": 323,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd3-leaking.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd4-not-filling.js",
+   "sha256": "8bf58ef6f4dbf8bcbd4416d734fb52eb0ee305fe4d3dd2a0b11efd2315cc07cd",
+   "bytes": 335,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd4-not-filling.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd5-overfilling.js",
+   "sha256": "6b14b18e3974bd10c68b76b9c1de795585ae6f1fb6af4cba70061ca6b7977540",
+   "bytes": 335,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd5-overfilling.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd6-door.js",
+   "sha256": "dc04b8484412ad65d5239f2bd08c1b02a16c9fe0eadaf9f000c43030ae3711a9",
+   "bytes": 322,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd6-door.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd7-excessive-vibration.js",
+   "sha256": "f1cad1a7a624f1953619ccd8f5911786ec419fc8d97fa6f3593432d7dfffd265",
+   "bytes": 359,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd7-excessive-vibration.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd8-noisy.js",
+   "sha256": "9995b44a7ab27bfcebc969b9c5adef49439b3a0aa4914b2aaffd94eca8e7289b",
+   "bytes": 317,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd8-noisy.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/canonical/wd9-not-heating-wash.js",
+   "sha256": "21fe4b0f90e478c8ca9594fff780fb01439557c9542ab5280a44f020b73bfaa5",
+   "bytes": 409,
+   "source": "spares4repairs@13b7a50:services/part-finder/canonical/wd9-not-heating-wash.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/faults-catalogue.json",
+   "sha256": "87c4b92c7856bb48e373ce59cb60b0efdabe2e269626a39cceec939a4d9b6186",
+   "bytes": 217736,
+   "source": "spares4repairs@13b7a50:services/part-finder/faults-catalogue.json",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/health.js",
+   "sha256": "afd5b7b815d1482946023f80eec1bc0dca6ed29a2800960ef030fce1162bb363",
+   "bytes": 9634,
+   "source": "spares4repairs@13b7a50:services/part-finder/health.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/identity.js",
+   "sha256": "21aa6653a1eb531e197e4bf10b906d2a57d9a8ae1280c78b6e9a543a282f76ee",
+   "bytes": 47184,
+   "source": "spares4repairs@13b7a50:services/part-finder/identity.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/inference.js",
+   "sha256": "ea9ad167c71f5e507c3b82899e5686ec06fba524bd9274419f0e017ac518cf42",
+   "bytes": 15973,
+   "source": "spares4repairs@13b7a50:services/part-finder/inference.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/jev-client.js",
+   "sha256": "9d4c8aea3f390200f9c45536e420fdd5d4d3b8658bc15e6952ffd17c67f4d03f",
+   "bytes": 6123,
+   "source": "spares4repairs@13b7a50:services/part-finder/jev-client.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/jev-mc1.js",
+   "sha256": "f76f9c3924f0b50586b324f878c8fd79f92802b81f44d71de0be17217b0c770e",
+   "bytes": 2676,
+   "source": "spares4repairs@13b7a50:services/part-finder/jev-mc1.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/jev-understand.js",
+   "sha256": "1c82badaab9b2d6ad5aa06e34b3dc13e277e77210faf5601ed171dedbba10582",
+   "bytes": 62141,
+   "source": "spares4repairs@13b7a50:services/part-finder/jev-understand.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/knowledge/knowledge-docs.json",
+   "sha256": "2e6543ddcfdddb9acdb73ad7b9ee9bc5eeeb6ed2ba4e8bba4c5b6f5e36f2d147",
+   "bytes": 1070106,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/knowledge-docs.json",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/knowledge/knowledge-index.json",
+   "sha256": "b38f9c34d193f7a6f54f2c3f4596187679d37a2ccaecf7e7d5ff85784e6d72d2",
+   "bytes": 2175661,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/knowledge-index.json",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/knowledge/media-information.json",
+   "sha256": "ee39c2b5824a4822ce62483b9906df4600c102849090bd295c8e7c38d05e651d",
+   "bytes": 33158,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/media-information.json",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/knowledge/normal-behaviour.json",
+   "sha256": "facfc0540a4432fdebdad10be7d66d09f0afc3ed4dd0d02a5824b392343f68da",
+   "bytes": 28272,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/normal-behaviour.json",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/knowledge/safety-information.json",
+   "sha256": "397af48f80951d0394376ffe9504cadbfdeaded3251a722707bb774b902b3128",
+   "bytes": 16977,
+   "source": "spares4repairs@13b7a50:services/part-finder/knowledge/safety-information.json",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/media-effective.js",
+   "sha256": "17cf996357f587dfc3c1cfb5cfef9f22379cd863ab5285920ff0d503b0ae12db",
+   "bytes": 5092,
+   "source": "spares4repairs@13b7a50:services/part-finder/media-effective.js",
+   "units": [
+    "spares4repairs-part-finder",
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/part-finder/part-finder-lambda.js",
+   "sha256": "999a1fdca2aee7c975819ebeca1b9845ae7e82b01f86da62159e5632dfd77561",
+   "bytes": 538531,
+   "source": "spares4repairs@13b7a50:services/part-finder/part-finder-lambda.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/retrieval.js",
+   "sha256": "efa3c60fd7590fed1c5bf08027f9b43b5a6869d13a59f623c5129f54c44da989",
+   "bytes": 32820,
+   "source": "spares4repairs@13b7a50:services/part-finder/retrieval.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/part-finder/security.js",
+   "sha256": "96e0db86e2c1471afd42e86b0064dc82185c0eaa5706893e07387eb22a05b2e0",
+   "bytes": 3013,
+   "source": "spares4repairs@13b7a50:services/part-finder/security.js",
+   "units": [
+    "spares4repairs-part-finder"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/ai-config.js",
+   "sha256": "f7050197530c74c41ffd616bb6e3424b0747c9b87605a529adabd87a4ed87d49",
+   "bytes": 27043,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/ai-config.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark-auth.js",
+   "sha256": "8496a9a16d7ce7aff4a59a4f810eafe71f3e38492ef5b50a87a9af8047715a07",
+   "bytes": 8158,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark-auth.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-100.v1.json",
+   "sha256": "d77542cac627930a0105e17a0638b708fd100ba432b7b03a5c570a143cbe3da9",
+   "bytes": 58003,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-100.v1.json",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-corpus.js",
+   "sha256": "562f832fb4143f2f94e44ce859aa30b67c7b433a1fad8fa14f92898f6eb65372",
+   "bytes": 2727,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-corpus.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-grade.js",
+   "sha256": "5fab34285a6e155cf8d2cf31a5e8466be453816961eee6d0f9cb2fb593eb821f",
+   "bytes": 7569,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-grade.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-judge.js",
+   "sha256": "46db5f08fc6d5d8ee226abbe3eb1d17246d079147c7f080b6309684df560fbc0",
+   "bytes": 6473,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-judge.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-library.js",
+   "sha256": "fa23707bdd98d53c770401e3355f6588dfeb7045bb3ea2ac241351889e73984f",
+   "bytes": 30272,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-library.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-reviews.js",
+   "sha256": "293fde93bc8de510f8121873221e92895e1cc37c76b213a98011a7087d652cc1",
+   "bytes": 4333,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-reviews.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-scoring.js",
+   "sha256": "e4a03cf39cba8a927d856cd926bc665f80f1b82ebb48f5e90c5570d77fb23297",
+   "bytes": 24028,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-scoring.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-simulator.js",
+   "sha256": "bfd39d02b57b5d4fb4e1ea5c7a92d53e90f8d7189c0a3dbd150a0b3ff9c4eda0",
+   "bytes": 9492,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-simulator.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/acq-store.js",
+   "sha256": "e12f00eead0daa6ec712d1dd26cfa57c786b135c96d075d0b2a04ee878d3c373",
+   "bytes": 11921,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/acq-store.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/gold-v2/version.js",
+   "sha256": "568c8591962f34e0cddf9d2df21c167eeceff33b85d3f090c971e50309e8a568",
+   "bytes": 2213,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/gold-v2/version.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/routing-override.js",
+   "sha256": "e316a611e8ace7fb939c83b757e825ddf5380cdb79b1497316e2cf63056af3c0",
+   "bytes": 25250,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/routing-override.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/benchmark/term-match.js",
+   "sha256": "654158921a254c2a127885f45984af0c7d7a5fed24871c64bf941947897dff4c",
+   "bytes": 5319,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/benchmark/term-match.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/canonical-audit.js",
+   "sha256": "b4652192b763fa4aa780b1d601d0a3090c9445a0d7ae1ad21ae49c028eb2a07f",
+   "bytes": 18772,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/canonical-audit.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/config-readback.js",
+   "sha256": "43f21a38dc074469039f1fe6488e3112c9e1533c45cb35db9d6b725822b540f8",
+   "bytes": 2826,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/config-readback.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/conversation-state.js",
+   "sha256": "b21148680cf120070565caf9c2fef0e0528a29f580b9ec7acc5c1382896491a4",
+   "bytes": 25971,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/conversation-state.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/ddb.js",
+   "sha256": "b5a729a6dadbdedd24f70e67de6a865c744753f40a5658a13f64ae55a119202c",
+   "bytes": 4716,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/ddb.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/diagnostics-inspect.js",
+   "sha256": "d7cecd5991320bd099a696eec1d0be01b671305dd9a2f01f9930cef0a8debd95",
+   "bytes": 37899,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/diagnostics-inspect.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/error-codes-admin.js",
+   "sha256": "a6dc01c046b4bd8602a42d98ffad0b05fba658424fb31dd7113c698d0314dbbf",
+   "bytes": 4561,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/error-codes-admin.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/fit-evidence.js",
+   "sha256": "7b27e6c4f2ef4a9a3c7f83786e5d46b5fa97e250601385520c639fcf034e9b73",
+   "bytes": 8808,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/fit-evidence.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/index.js",
+   "sha256": "231a56af63c6367fa2d38291d8e69d4e336a8d0f70f0d72ee2fecb2fdc437335",
+   "bytes": 161027,
+   "source": "phase-1-hotfix:whichpart-api.patched.zip:index.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/knowledge-admin.js",
+   "sha256": "126bf3b45e306e719a7263329c7ecd0dfec1ef9f121032dc6db6cec65014d2ac",
+   "bytes": 49011,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/knowledge-admin.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/knowledge-inspect.js",
+   "sha256": "d94d676debf06adac8bf7d401bf67cee31d2423d0660645a32a92f775a1c81dd",
+   "bytes": 15849,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/knowledge-inspect.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/live-test.js",
+   "sha256": "b37c8ec5cf164975c9970bb8b365ef9261249d776cb6834f83c9455d21f94762",
+   "bytes": 6746,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/live-test.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/media-admin.js",
+   "sha256": "4a1cceb2e52be071e67a5d9aca3695b4d73e71a6b1c50d68d8fd200552c235fb",
+   "bytes": 52250,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/media-admin.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/media-canonical-refs.json",
+   "sha256": "fca9feecc725d48dc574441ac4f793faedef13e86cb1f89638b9ed482953fb31",
+   "bytes": 11216,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/media-canonical-refs.json",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/media-catalogue.json",
+   "sha256": "619e1250e84e353252a97423075e354609043fdb08b63e044efc044852dd6b85",
+   "bytes": 31197,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/media-catalogue.json",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/media-inspect.js",
+   "sha256": "93f07aa0ef5834d94967d2cfc696c19034c64b4f44d6d10acfae3cc08a460ab8",
+   "bytes": 26901,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/media-inspect.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/package.json",
+   "sha256": "4ea7e19e5c070d011d8113a995d0208f5dc53129720bdeacd9d4af2f5a80df29",
+   "bytes": 296,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/package.json",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/admin.js",
+   "sha256": "4b3b0eb0eddf7abfc2a0e1c0e8e9ef989272f17324abb6e7f9d7219b1fb41aae",
+   "bytes": 18778,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/admin.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/classify.js",
+   "sha256": "5227287e395c0e695029fac17cd30bc393f66c0472f50ebae330e6fff01c7701",
+   "bytes": 5500,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/classify.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/families.js",
+   "sha256": "7dd791a6bf165acc12acc0883749d4142f15b1ce0fd8666cbd57d55445fab5c0",
+   "bytes": 1320,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/families.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/govuk.js",
+   "sha256": "2ecdf12636c03a60c39571572621e19fb01bc9ba6d949a02e2a3e1882f77df3c",
+   "bytes": 4444,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/govuk.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/html.js",
+   "sha256": "1e3a2721efb3f829b9558ecca22ff6c3cc2a59e05ded1322134a93c446781173",
+   "bytes": 26316,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/html.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/http.js",
+   "sha256": "09e9adaf0b827af916670dd4ba7157b383950db0feb68949d08e1b97a4c10252",
+   "bytes": 5025,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/http.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/ingest.js",
+   "sha256": "22ab08ed4971bc9b1154e8d17f82d4b820de6cc69cae49924c9f30b8ae2caf3a",
+   "bytes": 17240,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/ingest.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/lifecycle.js",
+   "sha256": "ae9a891861138ac02ca2b6f566a0d051beaff1ca0662aa6d8297720314352bf8",
+   "bytes": 6192,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/lifecycle.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/match.js",
+   "sha256": "26f8dc927a1b6a949e08ecc9f334925ca27a7f5faef0f4a4934e4134a444a49a",
+   "bytes": 2378,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/match.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/observe.js",
+   "sha256": "ff07a407ad876b3ccfbe8a28ba232e7e6c5f5e5ce7a90d7e8dfa1ecc4b28d5af",
+   "bytes": 11928,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/observe.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/parse.js",
+   "sha256": "55136c09019638211bfbdc487a49ea519caf055618a05ece0999edc6e164aa09",
+   "bytes": 8513,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/parse.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/s3.js",
+   "sha256": "ae706e06a805b21160f30a1b90ac781db2e2e2a08a050032a6f08f37c608c41d",
+   "bytes": 3620,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/s3.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/store.js",
+   "sha256": "d1bbc4169ea8a986b31c9afb2e008b29ea85ac3a50357afe9ac8e8fb82778b1c",
+   "bytes": 14701,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/store.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/recalls/write-static.cjs",
+   "sha256": "fa6125e46aa9bf1b8dd300f2d5b4679130a928898a4269eaf8a241c006199fbd",
+   "bytes": 629,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/recalls/write-static.cjs",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/settings-admin.js",
+   "sha256": "3ab6c629f18a63571a6a4f50c0473b91763ddb24683899e6d64a155cfc9e0d0b",
+   "bytes": 47840,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/settings-admin.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/state-token.js",
+   "sha256": "60e6c17ab47dd17106f6db05f69d2cb6bea43b1f442d6cc8eeb2019eda6596a1",
+   "bytes": 5823,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/state-token.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/aggregates.js",
+   "sha256": "90da7b1a3c42e6ca60fe3590e6e686fb934aeeb98633fdc0bbe7d1ecb3f208f2",
+   "bytes": 2029,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/aggregates.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/config.js",
+   "sha256": "7c2c55a3ce0e065e9a46df21748be31a0a1b0da74ecae024111f2c0a748d99a9",
+   "bytes": 1279,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/config.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/dashboard.js",
+   "sha256": "fa64e69772c45310d7ea88296e980535f9c53ab9fdadbe595b0674a8f5ad2963",
+   "bytes": 6954,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/dashboard.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/eligibility.js",
+   "sha256": "9bb488f16c86cecedf56fa6c0b5708803ae40b7d391546cfac5ba9cf51f4664e",
+   "bytes": 2620,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/eligibility.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/index.js",
+   "sha256": "337ff181b95326ea3fd0644cf3ec970c9dc4af40b7449b293cb03815c7026242",
+   "bytes": 1589,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/index.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/jev-review.js",
+   "sha256": "521b51fdff2120bbf7751e3b5b26cebb67ca8bc70792ce94dc5e70306a29c86d",
+   "bytes": 23903,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/jev-review.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/judge.js",
+   "sha256": "fc83dce97c27efdb8bec1ca59b1c141db633ea571521b470e1a11ef899b341e6",
+   "bytes": 4152,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/judge.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/prompt.js",
+   "sha256": "8c01611c9a7faafce675147725d3fad37de2aabe0b8291779db720cee73e8fdb",
+   "bytes": 6195,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/prompt.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/run.js",
+   "sha256": "529f6f273968b5ffa51b3fbdea65389814e1b413cfdc33c6eb4284118f17ee09",
+   "bytes": 6415,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/run.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/schema.js",
+   "sha256": "30a1a7995bae93315106a7c2b629b36516bacabfcdbd2e3ddbec8348fe9d4329",
+   "bytes": 8584,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/schema.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcript-review/state-evidence.js",
+   "sha256": "637040a4070c2f5123ba87b3b70ae587313e773a5e3e31136452f143b122ae8a",
+   "bytes": 6216,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcript-review/state-evidence.js",
+   "units": [
+    "whichpart-api"
+   ]
+  },
+  {
+   "path": "services/whichpart-api/transcripts.js",
+   "sha256": "ad36d1c6e96cc3354faf8d7d906c48ba92ac7b1ea7763aaa088ce95359e0bb56",
+   "bytes": 47328,
+   "source": "spares4repairs@13b7a50:services/whichpart-api/transcripts.js",
+   "units": [
+    "whichpart-api"
+   ]
+  }
+ ]
+}

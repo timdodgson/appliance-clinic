@@ -1,0 +1,30 @@
+{
+  "name": "resolve-appliance-context",
+  "description": "Resolve observed product/rating-plate identifiers (MODEL, SERIAL, PNC, E_NR, 12NC, ...) into generic ProductContext (scheme, platform lineage, generation, architecture). The caller never needs to understand E-Nr / 12NC / PNC / serial logic; that stays behind manufacturer identifier adapters. No LLM, no network.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["make", "appliance", "observed"],
+    "properties": {
+      "make": { "type": "string", "minLength": 1 },
+      "appliance": { "type": "string", "minLength": 1 },
+      "observed": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["MODEL", "TECHNICAL_MODEL", "SERIAL", "PNC", "PNC_ELC", "12NC", "E_NR", "PRODUCT_NUMBER", "SERVICE_NUMBER", "COMMERCIAL_CODE", "TYPE"]
+            },
+            "value": { "type": "string", "minLength": 1 },
+            "revision": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "note": "Electrolux-group IDENTIFIER LAYER (WM+DW): observed model <-> PNC(+ELC) <-> product/platform. Positive counterpart to the retailer-SKU POC: PNC is a STRONG, officially-recoverable join key. Data-only; not wired into production.",
+    "accessed": "2026-08-29",
+    "pncStructure": {
+      "definition": "PNC (Product Number Code / Prod.No.) begins with 9, 9 digits, uniquely identifies the product; on the rating plate it is followed by a 2-digit ELC (revision/version) -> together ~11 digits (official AEG: 'the 11-digit number next to Prod.No.').",
+      "elc": "ELC = 2-digit revision/version. The catalogue's '-NN' suffix on PNC rows IS the ELC (e.g. 914528104-01 = PNC 914528104 + ELC 01).",
+      "prefixAppliance": {"914": "washing machine", "911": "dishwasher", "605": "AEG WM legacy family (LAV era)"},
+      "sameBrandSystem": "AEG / Electrolux / Zanussi share the PNC/ELC system (all Electrolux-group).",
+      "oneModelManyPnc": "A marketed model can map to >1 PNC (market/spec variants) and typically >=1 ELC revisions; do NOT flatten."
+    },
+    "catalogueCoverage": {
+      "pncRowsInCatalogue": 936,
+      "byCombo": {"aeg-wm": 573, "aeg-dw": 76, "electrolux-wm": 107, "electrolux-dw": 9, "zanussi-wm": 114, "zanussi-dw": 57},
+      "basePncWithMultipleRevisions": 44,
+      "note": "Catalogue stores PNC rows AND model rows as SEPARATE entries (no internal join); model<->PNC join comes from official Electrolux service PDFs / AEG shop."
+    },
+    "recoverySources": [
+      {"name": "Electrolux service exploded-view PDFs", "carries": "PNC + ELC + ProdDate + Brand + Model matrix", "confidence": "HIGH", "scalable": true},
+      {"name": "AEG/Electrolux official spare-parts shop (model page -> PNC)", "confidence": "HIGH", "scalable": true},
+      {"name": "parts-for-model API resolves a PNC+ELC directly to a parts list", "confidence": "HIGH"}
+    ]
+  },
+  "mappings": [
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LWX9A9613C", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914600341", "elc": ["00", "01"], "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (exploded view WM1145/WM1146)", "reference": "PNC 914600341 ELC 00 (20210920) & ELC 01 (20220302), AEG LWX9A9613C", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/WM1146.pdf", "accessed": "2026-08-29"}]}], "note": "Same model, one PNC, TWO ELC revisions across production dates."},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LAV86760", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914002535", "elc": ["00"], "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (599516056)", "reference": "PNC 914002535 ELC 00 (20030127) LAV86760", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/599516056.pdf", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LAV84760", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914002495", "elc": ["00"], "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (599516056)", "reference": "PNC 914002495 ELC 00 (20030216) LAV84760", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/599516056.pdf", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LAVW1455", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914002594", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (w1450-00a)", "reference": "shared exploded view: LAVW1455=914002594 / LAVW1450=914002596 / LAVW1441=914002606", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/w1450-00a.pdf", "accessed": "2026-08-29"}]}], "note": "One exploded view (shared platform) covers 3 models with 3 distinct PNCs."},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LAVW1450", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914002596", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (w1450-00a)", "reference": "LAVW1450=914002596", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/w1450-00a.pdf", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "LAVW1441", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914002606", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (w1450-00a)", "reference": "LAVW1441=914002606", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/w1450-00a.pdf", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "L86800", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914525332", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (aeg599388885)", "reference": "L86800=914525332", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/aeg599388885.pdf", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "ELECTROLUX", "brand": "AEG", "appliance": "washing-machine", "observedIdentifier": "L50600", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "PNC", "value": "914524032", "elc": ["01"], "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Electrolux service (aeg599387258)", "reference": "L50600=914524032 ELC 01", "url": "https://cdn.shopify.com/s/files/1/0009/8074/6306/files/aeg599387258.pdf", "accessed": "2026-08-29"}]}]}
+  ],
+  "pncRevisionFamiliesFromCatalogue": [
+    {"basePnc": "914528104", "appliance": "washing-machine", "brand": "AEG", "elcRevisions": ["00", "01", "02", "03"], "source": "catalogue PNC rows"},
+    {"basePnc": "911516002", "appliance": "dishwasher", "brand": "Zanussi", "elcRevisions": ["(base)", "01", "02"], "source": "catalogue PNC rows"},
+    {"basePnc": "911519043", "appliance": "dishwasher", "brand": "Electrolux", "elcRevisions": ["00", "01", "02"], "source": "catalogue PNC rows"}
+  ]
+}

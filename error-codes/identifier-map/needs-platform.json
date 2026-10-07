@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "note": "Deterministic index of error codes whose MEANING requires platform-lineage resolution (the join edge that makes the code-meaning pipeline call the identifier pipeline). DATA ONLY - not wired into RAG/production. Derived from comparing WHIRL_WM_FNN (Merloni) vs WHIRL_WM_FNEN (Whirlpool-native).",
+    "accessed": "2026-08-29"
+  },
+  "needsPlatform": [
+    {
+      "manufacturerGroup": "WHIRLPOOL",
+      "appliance": "washing-machine",
+      "code": "F02",
+      "requires": "platformLineage",
+      "schemes": ["WHIRL_WM_FNN", "WHIRL_WM_FNEN"],
+      "meanings": {
+        "WHIRL_WM_FNN (Merloni; 12NC 8699x / Hotpoint/Indesit)": "Motor jammed / tacho: no motor-speed signal",
+        "WHIRL_WM_FNEN (Whirlpool-native; 12NC 85x/481x)": "Drain time too long (won't drain) [also F21]"
+      },
+      "resolveVia": "12NC prefix -> platformLineage",
+      "confidence": "MEDIUM",
+      "note": "SOLE confirmed platform-dependent code between the two WM schemes."
+    }
+  ],
+  "fnn_vs_fnen_comparison": {
+    "overlappingCodes": ["F02"],
+    "classification": {
+      "F02": "DIFFERENT_MEANING (Merloni motor/tacho vs Whirlpool-native drain)",
+      "F21": "DIFFERENT_REGISTER (FnEn-only; not present in FNN)",
+      "F3E2": "DIFFERENT_REGISTER (FnEn two-part; not in FNN)",
+      "F6E1": "DIFFERENT_REGISTER (FnEn two-part; not in FNN)",
+      "F6E3": "DIFFERENT_REGISTER (FnEn two-part; not in FNN)",
+      "F01/F03/F05/F06/F07/F08/F09/F10/F11/F12/F13/F18": "NOT_PRESENT in FnEn (FNN single-F register only)"
+    },
+    "conclusion": "The two WM platforms use largely DIFFERENT REGISTERS (FNN single F01-F18 vs FnEn two-part FnEn + F02/F21), colliding only at F02. So exactly ONE code is genuinely platform-dependent. The platform-dependent-code join edge is justified but narrow.",
+    "dwNote": "Whirlpool DW evidence remains weak; no DW code found to be identifier-dependent - DW scheme selection is not changed by 12NC in current evidence."
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "note": "Whirlpool-group IDENTIFIER LAYER (WM+DW): observed model/12NC -> platform lineage -> scheme. Second positive validation of the reusable identifier architecture (after Electrolux PNC). The 12NC PREFIX encodes platform lineage, which is the deterministic F02 disambiguator. Data-only; not wired into production.",
+    "accessed": "2026-08-29",
+    "identifierStructure": {
+      "whirlpoolNative12NC": "12-digit commercial code / 12NC, prefixes 85x (851/853/857/859...) and legacy 481x. Present in OUR catalogue (Whirlpool WM 828, DW 1833). Whirlpool.nl: search by 'typenummer of de 12NC code'.",
+      "hotpointIndesit12NC": "12-digit commercial code starting 8699xxxxxxxx, exposed in official hotpoint.co.uk / indesit.co.uk product URLs & data sheets. NOT in our catalogue (we hold model names + 5-digit spares codes).",
+      "partVsAppliance": "Appliance 12NC (85x/481x/8699x) differs from PART 12NC (48xx xxx xxxxx) and Merloni part codes (C00xxxxxx). Do not conflate.",
+      "merloniRefs": "Hotpoint/Indesit also use J00xxxxxx model/commercial refs and C00xxxxxx spare-part numbers (Merloni/Indesit Company lineage).",
+      "versionTail": "Whirlpool-native 12NC embeds a version tail (e.g. 851000529010/011/012 = base 8510005290 + version)."
+    },
+    "prefixToLineage": {
+      "85x / 481x": {"lineage": "WHIRLPOOL_NATIVE", "scheme": "WHIRL_WM_FNEN / WHIRL_DW", "confidence": "MEDIUM-HIGH"},
+      "8699x": {"lineage": "MERLONI (Hotpoint/Indesit, Indesit Company)", "scheme": "WHIRL_WM_FNN (Merloni F-codes)", "confidence": "MEDIUM"},
+      "caveat": "Prefix->lineage is a STRONG SIGNAL, not proof for every unit; the 12NC is the JOIN KEY to a service doc that states the platform definitively. Post-acquisition exceptions possible."
+    },
+    "ownershipVsLineage": "PRESERVED: Hotpoint/Indesit are now corporately under Beko Europe/Arcelik, but their historical code platform is MERLONI (FNN) - do NOT reclassify as ARCELIK_WM_E/H. 12NC/lineage is technical, not corporate."
+  },
+  "catalogueCoverage": {
+    "whirlpool-wm": {"rows": 2307, "twelveNC": 828, "model": 1445},
+    "whirlpool-dw": {"rows": 4352, "twelveNC": 1833, "model": 2493},
+    "hotpoint-wm": {"rows": 3392, "twelveNC": 0, "model": 2715, "shortNumeric": 388},
+    "hotpoint-dw": {"rows": 1065, "twelveNC": 0, "model": 897},
+    "indesit-wm": {"rows": 1376, "twelveNC": 0, "model": 1230},
+    "indesit-dw": {"rows": 344, "twelveNC": 0, "model": 294},
+    "note": "Whirlpool-native 12NCs already in catalogue (self-identifying); Hotpoint/Indesit lack 12NC in catalogue - recover from official product URLs."
+  },
+  "mappings": [
+    {"manufacturerGroup": "WHIRLPOOL", "brand": "Hotpoint", "appliance": "washing-machine", "observedIdentifier": "NSWM 846 BS UK", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "12NC", "value": "869991684430", "platformLineage": "MERLONI", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Hotpoint UK", "reference": "official product URL embeds 12NC 869991684430", "url": "https://www.hotpoint.co.uk/hotpoint-antistain-washing-machine-black-8kg-1400rpm-a-rated-nswm-846-bs-uk-869991684430/p", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "WHIRLPOOL", "brand": "Hotpoint", "appliance": "washing-machine", "observedIdentifier": "NSWM 946 W UK", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "12NC", "value": "869991690820", "platformLineage": "MERLONI", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Hotpoint UK", "reference": "official product URL embeds 12NC 869991690820", "url": "https://www.hotpoint.co.uk/hotpoint-antistain-washing-machine-white-9kg-1400rpm-a-rated-nswm-946-w-uk-869991690820/p", "accessed": "2026-08-29"}]}]},
+    {"manufacturerGroup": "WHIRLPOOL", "brand": "Indesit", "appliance": "dishwasher", "observedIdentifier": "DSFE 1B10 S UK N", "identifierClass": "MODEL", "canonicalIdentifiers": [{"type": "12NC", "value": "869991616200", "platformLineage": "MERLONI", "confidence": "HIGH", "evidence": [{"sourceType": "MANUFACTURER", "publisher": "Indesit (data sheet)", "reference": "12NC 869991616200, GTIN 8050147616208", "url": "https://manualzz.com/doc/58826772/indesit-dsfe-1b10-s-uk-n-dishwasher-nel-data-sheet", "accessed": "2026-08-29"}]}],
+     "note": "Merloni DW: 12NC 8699 prefix confirms Indesit-Company lineage, not Whirlpool-native."},
+    {"manufacturerGroup": "WHIRLPOOL", "brand": "Whirlpool", "appliance": "washing-machine", "observedIdentifier": "851693838201", "identifierClass": "12NC", "canonicalIdentifiers": [{"type": "12NC", "value": "851693838201", "platformLineage": "WHIRLPOOL_NATIVE", "confidence": "HIGH", "evidence": [{"sourceType": "CATALOGUE", "reference": "catalogue-native Whirlpool 12NC; parts API -> Door Switch 481928048008"}]}], "note": "Whirlpool-native 12NC self-identifying; resolves to parts in our catalogue."}
+  ],
+  "f02Resolution": {
+    "code": "F02",
+    "problem": "F02 meaning is platform-dependent (existing whirlpool-group conflict): Merloni FNN vs Whirlpool-native FnEn.",
+    "resolutionVia12NC": [
+      {"lineageSignal": "12NC prefix 8699 (Hotpoint/Indesit Merloni)", "platform": "WHIRL_WM_FNN", "f02Meaning": "motor / tacho: no motor-speed signal (Merloni)", "confidence": "MEDIUM"},
+      {"lineageSignal": "12NC prefix 85x/481x (Whirlpool-native)", "platform": "WHIRL_WM_FNEN", "f02Meaning": "per Whirlpool-native FnEn scheme (drain-time / different)", "confidence": "MEDIUM"}
+    ],
+    "rule": "Resolve F02 by 12NC-prefix lineage, NOT by badge. If only badge is known, return needsPlatform/needsModel.",
+    "honesty": "The 12NC prefix is a strong lineage signal; for a definitive per-unit answer the 12NC joins to a service doc stating the platform."
+  }
+}

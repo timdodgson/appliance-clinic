@@ -1,0 +1,19 @@
+{
+  "name": "get-error-code-evidence",
+  "description": "INTERNAL/DEBUG. Given a stable mapping or enrichment reference (enrichmentKey, or mappingId + provenance), return source identity, source type, confidence rationale, scheme/applicability and provenance. Source text is concise; full manuals/pages are never returned. Not a customer-facing tool.",
+  "internal": true,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enrichmentKey": { "type": "string", "minLength": 1 },
+      "mappingId": { "type": "string", "minLength": 1 },
+      "sourceFile": { "type": "string" },
+      "canonicalCode": { "type": "string" }
+    },
+    "anyOf": [
+      { "required": ["enrichmentKey"] },
+      { "required": ["mappingId"] }
+    ]
+  }
+}
