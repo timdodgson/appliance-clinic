@@ -10,7 +10,7 @@ import {
   ListFunctionsCommand,
   ListVersionsByFunctionCommand,
 } from '@aws-sdk/client-lambda';
-import { redactEnvironment, redactDeep } from '../redact.js';
+import { redactEnvironment } from '../redact.js';
 import { collectPages, optional } from '../util/aws-errors.js';
 import { ensureDir } from '../util/files.js';
 
@@ -26,6 +26,16 @@ export async function listAllFunctions(lambda) {
     (p) => p.NextMarker,
   );
   return fns.map((f) => ({ name: f.FunctionName, role: f.Role, packageType: f.PackageType, runtime: f.Runtime || null }));
+}
+
+/**
+ * Function URL configuration holds no secrets (URL, auth type, CORS, invoke mode), and the
+ * import must reproduce it exactly, so it is recorded as returned.
+ */
+export function functionUrlRecord(url) {
+  if (!url) return null;
+  const { $metadata, ...rest } = url; // eslint-disable-line no-unused-vars
+  return rest;
 }
 
 function sanitiseConfiguration(cfg) {
@@ -67,7 +77,7 @@ export async function inventoryFunction(lambda, name, { downloadCodeTo } = {}) {
       codeSha256: cfg.CodeSha256,
       downloaded: null,
     },
-    functionUrl: url ? redactDeep({ ...url, $metadata: undefined }) : null,
+    functionUrl: functionUrlRecord(url),
     resourcePolicy: policy && policy.Policy ? JSON.parse(policy.Policy) : null,
     reservedConcurrency: concurrency ? concurrency.ReservedConcurrentExecutions ?? null : null,
     versions: versions.map((v) => ({ version: v.Version, codeSha256: v.CodeSha256, lastModified: v.LastModified })),

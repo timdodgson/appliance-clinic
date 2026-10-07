@@ -6,7 +6,7 @@
  */
 import { createHash } from 'node:crypto';
 
-const SECRET_NAME = /(TOKEN|SECRET|PASSWORD|PASSWD|PRIVATE|BEARER|CREDENTIAL|API_?KEY|ACCESS_?KEY|SIGNING|HMAC|AUTH(?!OR))/i;
+const SECRET_NAME = /(TOKEN|SECRET|PASSWORD|PASSWD|PRIVATE|BEARER|CREDENTIAL|API_?KEY|ACCESS_?KEY|SIGNING|HMAC|AUTH_?TOKEN|AUTHORIZATION)/i;
 // Names that hold an identifier or a location, not a value.
 const IDENTIFIER_NAME = /(_ID|_ARN|_NAME|_URL|_URI|_REGION|_TABLE|_BUCKET)$/i;
 // Long unbroken token-like strings are treated as secrets whatever their name: hex, or

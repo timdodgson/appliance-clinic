@@ -1,3 +1,4 @@
+import { apiGatewayStatements } from './apigateway.js';
 import { stacksManaging } from './cloudformation.js';
 
 /**
@@ -14,6 +15,10 @@ export function ownershipChecks({ stacks, functions, roleUsage, candidateFunctio
   for (const f of functions) {
     if (!f.exists) { flags.push({ severity: 'info', kind: 'lambda', id: f.name, reason: 'Candidate function does not exist.' }); continue; }
     managed('lambda', f.name);
+    for (const st of apiGatewayStatements(f.resourcePolicy)) {
+      const apis = st.apiIds.length ? st.apiIds.join(', ') : 'any API';
+      flags.push({ severity: 'stop', kind: 'lambda-permission', id: `${f.name}:${st.sid}`, reason: `API Gateway (${apis}) may invoke this function: a possible S4R consumer. S4R-sensitive until apigateway-permissions shows otherwise.` });
+    }
   }
   for (const r of roles) {
     if (!r.exists) { flags.push({ severity: 'info', kind: 'iam-role', id: r.roleName, reason: 'Candidate role does not exist.' }); continue; }

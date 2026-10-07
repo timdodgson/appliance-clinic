@@ -79,12 +79,21 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 | Capture routing override and AI config state (secret values hashed, never written) | READ-ONLY |
 | Record external runtime dependencies | READ-ONLY |
 | Prove ownership of every resource and record the evidence in [`ownership.md`](ownership.md) | READ-ONLY |
+| Investigate every API Gateway invoke permission on AC functions: does the API's current or deployed configuration integrate the function, or is the permission stale? (`apigateway-permissions` in the inventory) | READ-ONLY (reads S4R API configuration only) |
+| Record the inventory findings and production baseline in [`phase-0-findings.md`](phase-0-findings.md) | Repository only |
 | DynamoDB on-demand backups, enable PITR on AC tables, copy AC buckets to a backup bucket ([runbook](runbooks/phase-0-backups.md)) | SAFE AC CHANGE |
 | Capture the `/part-finder` contract and record the behavioural baseline without `observability` ([runbook](runbooks/phase-0-baseline.md)) | SAFE AC CHANGE (LLM spend, possible canonical-state items) |
 | Run the batch benchmark runner for the baseline (it rewrites production routing) | DO NOT DO |
 
 **Exit criteria**
 - Every AC resource is listed in `ownership.md` with evidence, and every unproven resource is marked S4R.
+- The shared execution role boundary is documented: the diagnosis Lambda runs under the S4R-owned
+  `SparesSite-dev` server role ([ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)).
+- Every API Gateway invoke permission on an AC function is explained, or explicitly left unresolved
+  and classified S4R-sensitive.
+- The inventory tooling fixes are merged and green.
+
+Step #4 (deployed-vs-source comparison) does not start until the three criteria above are met.
 - `s4r-denylist.json` has been generated and reviewed.
 - The deployed-vs-source comparison is recorded, and every unmatched file is explained.
 - Backups are complete and restorable.
@@ -181,8 +190,25 @@ groups is treated as an AC admin.
 | 5.7 | Lambda functions, least critical first: error-code MCP, orchestrator, `whichpart-api` | SAFE AC CHANGE |
 | 5.8 | Their Function URLs and permissions, only where the sandbox proved it | SAFE AC CHANGE |
 | 5.9 | EventBridge rules | SAFE AC CHANGE |
-| 5.10 | Diagnosis Lambda role, inline policies, function, URL and permissions, **last**, with explicit sign-off | POTENTIALLY IMPACTS S4R |
+| 5.10 | Diagnosis Lambda function, URL and its AC-created permissions, **last**, with explicit sign-off. Its execution role is **not** imported (see below) | POTENTIALLY IMPACTS S4R |
 | — | CloudFront distribution and function: left unmanaged for now | Not imported |
+
+**The diagnosis Lambda and the shared S4R role (step 5.10)**
+
+The Phase 0 inventory found that `spares4repairs-part-finder` runs under
+`SparesSite-dev-ServerFunctionRole…`, the execution role of the S4R server Lambda, managed by the
+`SparesSite-dev` stack ([findings](phase-0-findings.md), [ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)).
+
+- The role is S4R-owned. It is never imported into, modified by or managed by AC CDK.
+- The imported function references the existing role ARN unchanged, as an acknowledged S4R reference
+  in the change-set checker's step file.
+- The three AC permissions added by hand to that role (`WhichpartLearningPut`,
+  `whichpart-knowledge-overlay-s3`, `whichpart-media-overlay-s3`) are recorded but not imported,
+  changed or removed.
+- The `apigateway-invoke` permission for API `65vnizdmk4` is S4R-sensitive. It is not imported,
+  changed or removed until its use is established and S4R signs off.
+- Moving the diagnosis Lambda to a dedicated AC execution role is a separate Phase 7 change,
+  classified POTENTIALLY IMPACTS S4R.
 
 **CDK rules for imported resources**
 - Use L1 `Cfn*` resources. Avoid L2 constructs that silently create IAM policies, Lambda permissions, bucket policies, log retention resources, lifecycle rules, generated secrets or Function URL permissions.
@@ -244,6 +270,9 @@ See [ADR 0004](../adr/0004-import-existing-resources-into-cdk.md).
 | Reserved concurrency where safe, tighter CORS, CSP | SAFE AC CHANGE |
 | Benchmarks routed to staging only; production tools default to staging; least-privilege IAM | SAFE AC CHANGE |
 | Any change to the diagnosis Lambda's AuthType, CORS, permissions, concurrency or request/response shape | POTENTIALLY IMPACTS S4R |
+| Move the diagnosis Lambda from the shared S4R server role to a dedicated AC execution role (needs the `/part-finder` contract test before and after, and explicit sign-off) | POTENTIALLY IMPACTS S4R |
+| Remove the `apigateway-invoke` permission from the diagnosis Lambda, only if the Phase 0 investigation shows it is stale and S4R signs off | POTENTIALLY IMPACTS S4R |
+| Remove the AC permissions from the S4R server role | DO NOT DO in this work: it changes an S4R resource. Proposed separately as an S4R change once the role move is proven |
 | Any change to the S4R Cognito pool, or narrowing the S4R server role's secret grant | DO NOT DO |
 
 **Exit criteria**

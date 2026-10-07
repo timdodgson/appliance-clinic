@@ -76,6 +76,14 @@ inventory:
   any non-AC function is `S4R`.
 - `cloudformation-stacks.json`: a resource managed by any existing stack is `S4R`.
 - `cloudtrail-creation-events.json`: creation evidence for resources created in the last 90 days.
+  Events are looked up in eu-west-1 and us-east-1 (IAM and CloudFront record events there). Check
+  `coverage` for any event name marked `truncated`.
+- `apigateway-permissions.json`: for every API Gateway invoke permission on an AC function, whether
+  the API actually integrates the function (`invokes`, `configured-not-deployed`,
+  `no-integration-found` or `api-not-found`). Until a permission has been reviewed, it stays an
+  ownership STOP flag and is treated as S4R-sensitive.
+
+Record the conclusions in [`phase-0-findings.md`](../phase-0-findings.md).
 - `external-dependencies.json`: record the outbound hosts in the dependency section.
 
 Commit the updated `ownership.md` in a pull request for review.

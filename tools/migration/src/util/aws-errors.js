@@ -15,6 +15,7 @@ const ABSENT = new Set([
   'RepositoryPolicyNotFoundException',
   'NoSuchKey',
   'NotFound',
+  'NotFoundException',
 ]);
 
 export async function optional(promise) {
