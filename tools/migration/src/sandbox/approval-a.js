@@ -48,6 +48,12 @@ const S = {
   budget: `arn:aws:budgets::${A}:budget/${BUDGET_NAME}`,
 };
 
+/** The stand-in S4R's role and function (infra/sandbox/stand-in/sparessite-sbx.json). */
+const STAND_IN = {
+  roles: [`arn:aws:iam::${A}:role/SparesSite-sbx-*`],
+  functions: [`arn:aws:lambda:${R}:${A}:function:spares4repairs-server-sbx`, `arn:aws:lambda:${R}:${A}:function:spares4repairs-server-sbx:*`],
+};
+
 const tagged = { StringEquals: { [`aws:ResourceTag/${TAG.Key}`]: TAG.Value } };
 const requestTagged = { StringEquals: { [`aws:RequestTag/${TAG.Key}`]: TAG.Value } };
 
@@ -127,7 +133,13 @@ export function operatorPolicy() {
 
 /** ac-cfn-execution-sbx: the acsbx execution role's allow policy, and the boundary of every sandbox role. */
 export function executionPolicy() {
-  return doc(sandboxResourceStatements());
+  return doc([
+    ...sandboxResourceStatements(),
+    // The stand-in S4R stands for resources the AC toolkit must never change (runbook, deny-S4R execution role).
+    // The operator deploys it directly; the execution role may only read it and pass its role to the diagnosis copy.
+    { Sid: 'DenyStandInS4RRole', Effect: 'Deny', NotAction: ['iam:PassRole', 'iam:Get*', 'iam:List*'], Resource: STAND_IN.roles },
+    { Sid: 'DenyStandInS4RFunction', Effect: 'Deny', NotAction: ['lambda:Get*', 'lambda:List*'], Resource: STAND_IN.functions },
+  ]);
 }
 
 /** Production and S4R ARNs denied outright. Patterns never end in a bare wildcard after a production name. */

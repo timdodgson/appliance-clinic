@@ -76,6 +76,35 @@ change set, synthesized by [`cdk/lib/runtime-stack.js`](../../infra/sandbox/cdk/
 | Endpoints | Invoked with Function URL events. No LLM call, no production data | `whichpart-api-sbx` answers `/api/auth/me` with 200 and `/api/admin/settings` with 401 (no token). Both MCP and orchestrator `/health` return 200. The stand-in `/ai/chat` returns 500, as production's does (Phase 0 baseline): the streaming handler's response is not an API Gateway proxy response |
 | Secrets | Function logs searched for `spares4repairs/` | No function tried to read an S4R secret |
 
+## Controls
+
+[`steps/60-controls.sh`](../../infra/sandbox/steps/60-controls.sh). Each deliberate failure was a checked change set,
+executed and expected to roll back (`EXPECT_FAIL=1`). Its failure reasons are kept.
+
+| Control | Rehearsal | Result |
+|---|---|---|
+| No `CDK::Metadata` | Both AC stacks' deployed templates | None. Every import change set held Import actions only |
+| Termination protection | On for `AcDataStack-sbx`, `AcRuntimeStack-sbx` and the toolkit. `delete-stack AcRuntimeStack-sbx` | Refused: "TerminationProtection is enabled" |
+| Stack policy | Deny `Update:Replace` and `Update:Delete` on tables, buckets, the bucket policy, secrets and repositories (data), and on URLs, permissions and the diagnosis copy (runtime) | Removing the diagnosis copy's URL, and renaming `whichpart-recalls-sbx` (a replacement), both failed with "Action denied by stack policy" and rolled back. No replacement table was created |
+| Rollback with Retain | One update that changes `whichpart-api-sbx`'s memory and gives a rule an invalid schedule | EventBridge refused the schedule. The stack rolled back: memory back to 512, the rule unchanged and still DISABLED, no resource deleted or replaced |
+| Deny-S4R execution role | An `AcRuntimeStack-sbx` change set that adds `deny-probe-sbx` to `SparesSite-sbx-ServerFunctionRole` | Failed: the execution role "is not authorized to perform: iam:PutRolePolicy on resource: role SparesSite-sbx-ServerFunctionRole". The role's policies were unchanged (compared by name and SHA-256). The IAM simulator agrees: an explicit deny on the stand-in and production roles, and `iam:PassRole` allowed only on the stand-in role |
+| Change-set checker | Real change sets from this rehearsal, kept as fixtures ([test](../../tools/migration/test/sandbox-real-changesets.test.js)), and copies doctored with a production physical ID, a non-Import action, a production ARN or the S4R API in the template, a missing Retain and a production stack name | The real ones pass, and each doctored copy fails |
+
+Afterwards an unchanged template is a no-op, and drift is `IN_SYNC` on both stacks.
+
+## Recovery
+
+[`steps/70-recovery.sh`](../../infra/sandbox/steps/70-recovery.sh), synthetic data only. Timings and procedures are in
+the [recovery runbook](runbooks/phase-4-recovery.md).
+
+| Rehearsal | Result |
+|---|---|
+| DynamoDB on-demand backup and restore, both table shapes | Backups `AVAILABLE` in 3 to 4 s; restores `ACTIVE` with GSI in 188 and 228 s; every item identical |
+| DynamoDB point-in-time restore, both table shapes | `ACTIVE` in 267 s each; the restored tables match the chosen point exactly |
+| What a restore carries | GSIs, yes. **TTL and PITR, no** (both `DISABLED`), and no tags: the runbook re-enables them before a switch-back |
+| S3 copy into the backup bucket and restore | 2 to 4 s each way; after 3 overwrites and 3 deletes, count and SHA-256 of every object equal. `sync` would have missed a same-size overwrite, so the runbook uses `cp --recursive` |
+| Clean-up | Sources put back as seeded; restored tables and on-demand backups deleted |
+
 ## Surprises, and what they became
 
 | # | Found | Became |
@@ -99,6 +128,11 @@ change set, synthesized by [`cdk/lib/runtime-stack.js`](../../infra/sandbox/cdk/
 | 17 | A Lambda URL removed from a stack is identified by its function's ARN, and is no longer in the template, so the checker could not find its parent | The checker checks a removed `AWS::Lambda::Url` as the function its ARN names; tested, including a production ARN |
 | 18 | Redacting every key containing `TOKEN` also redacted `CANONICAL_TOKEN_SECRET_ID`, which the guard then refused | Only keys ending in `TOKEN` hold values; the step redacts those alone |
 | 19 | This environment's network policy refuses `*.lambda-url.on.aws` | The endpoint checks invoke each function through the Lambda API with a Function URL event |
+| 20 | Before v4, the execution role could write to the stand-in S4R role: the runbook's deny-S4R control did not hold | `ac-cfn-execution-sbx` v4 explicitly denies every write except `iam:PassRole` (and reads) on `SparesSite-sbx-*` roles and the stand-in function. Tested, and demonstrated with a real change set |
+| 21 | A rollback rewrote an EventBridge rule's physical ID from its ARN to its name. The rule was not replaced | Comparisons of stack resources match an ARN by the name inside it. The guard and checker already accept both forms |
+| 22 | The failure reasons of a deliberately failed update included events from earlier runs | Failure reasons are read only from events after the execution started |
+| 23 | A step outlived the operator's one-hour session (role chaining caps it at an hour): `ExpiredTokenException` mid-restore | The step library renews a session older than 40 minutes before every AWS call and guard check, from a refresher the operator's wrapper provides. Production runbooks: assume the role per step, never for a whole phase |
+| 24 | An interrupted recovery (a container restart, then the expiry above) left a source table half-changed and restores in progress | The recovery step resets its sources to the seed and lets any restore finish before deleting it, so it can simply be run again. The recovery runbook gains *If a recovery is interrupted* |
 
 ## Controls changed during Phase 4
 
@@ -110,3 +144,4 @@ version applied is the committed document:
 | v1 | Approval point A as approved |
 | v2 | API Gateway tagging allowed only on resources already tagged for the sandbox; the S4R API's `/tags` form explicitly denied |
 | v3 | `cloudformation:DescribeStackDriftDetectionStatus` added to the account-level reads |
+| v4 (execution policy only) | Explicit denies on the stand-in S4R role (all but `iam:PassRole` and reads) and function (all but reads) |
