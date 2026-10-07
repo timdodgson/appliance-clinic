@@ -1,0 +1,87 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyS4R",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": [
+        "arn:aws:cloudformation:*:800960611664:stack/SparesSite-*/*",
+        "arn:aws:cloudformation:*:800960611664:stack/CDKToolkit/*",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-server-dev",
+        "arn:aws:lambda:*:800960611664:function:spares4repairs-server-dev:*",
+        "arn:aws:lambda:*:800960611664:function:SparesSite-*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/spares4repairs-server-dev*",
+        "arn:aws:logs:*:800960611664:log-group:/aws/lambda/SparesSite-*",
+        "arn:aws:iam::800960611664:role/SparesSite-*",
+        "arn:aws:iam::800960611664:role/cdk-hnb659fds-*",
+        "arn:aws:s3:::spares4repairs-*-dev",
+        "arn:aws:s3:::spares4repairs-*-dev/*",
+        "arn:aws:s3:::cdk-hnb659fds-*",
+        "arn:aws:ecr:*:800960611664:repository/cdk-hnb659fds-*",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/business-config-PEw4gn",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/db-F6asfI",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/getaddress-4DiT2D",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/google-maps-SRTR0N",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/paypal-TjoQuN",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/royal-mail-muRtw1",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/stripe-LvGdUb",
+        "arn:aws:secretsmanager:*:800960611664:secret:spares4repairs/dev/twilio-OGgUXL",
+        "arn:aws:ssm:*:800960611664:parameter/spares4repairs/*",
+        "arn:aws:ssm:*:800960611664:parameter/cdk-bootstrap/hnb659fds/*",
+        "arn:aws:cognito-idp:*:800960611664:userpool/eu-west-1_mUWucohuX",
+        "arn:aws:apigateway:*::/apis/65vnizdmk4",
+        "arn:aws:apigateway:*::/apis/65vnizdmk4/*",
+        "arn:aws:apigateway:*::/tags/*65vnizdmk4*"
+      ]
+    },
+    {
+      "Sid": "DenyUnusedServices",
+      "Effect": "Deny",
+      "Action": [
+        "cloudfront:*",
+        "acm:*",
+        "route53:*",
+        "route53domains:*",
+        "ec2:*",
+        "rds:*",
+        "ecs:*",
+        "ses:*",
+        "sns:*",
+        "organizations:*",
+        "account:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyOtherRegions",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "sts:*",
+        "tag:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": "eu-west-1"
+        }
+      }
+    },
+    {
+      "Sid": "DenyUsersAndKeys",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateUser",
+        "iam:CreateAccessKey",
+        "iam:CreateLoginProfile",
+        "iam:AttachUserPolicy",
+        "iam:PutUserPolicy",
+        "iam:AddUserToGroup",
+        "iam:CreatePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
