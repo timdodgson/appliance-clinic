@@ -214,7 +214,7 @@ The output is the recovery runbook, `phase-4-recovery.md`, merged before Phase 4
 ### Destroy and recreate
 
 1. Every sandbox stack and resource is destroyed, by allowlisted name only. Retained resources are deleted explicitly. A deletion or replacement outside the allowlist is a STOP.
-2. A READ-ONLY inventory of the production AC resources, compared with `compare:config` against the Phase 0 baseline, shows them unchanged.
+2. A READ-ONLY inventory of the production AC resources, compared with `compare:config` against the current approved baseline (the Phase 0 inventory plus the approved backup and admin-hotfix changes, see [approved changes](../phase-0-findings.md#approved-changes-since-the-baseline)), shows them unchanged.
 3. The rehearsal is recreated from the repository and passes again.
 4. Finally, the sandbox is destroyed, and the absence of every allowlisted name is confirmed.
 

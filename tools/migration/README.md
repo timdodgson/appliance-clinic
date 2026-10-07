@@ -29,7 +29,7 @@ Run from this directory after `npm ci`.
 | `npm run denylist -- --inventory <dir>` | None | READ-ONLY | Generate `docs/migration/s4r-denylist.json` |
 | `npm run compare:source -- --artifact <zip> --source <dir>` | None | READ-ONLY | Is production running this source? |
 | `npm run compare:build -- <a> <b> [--allow-diff p1,p2]` | None | READ-ONLY | File-for-file artefact equivalence |
-| `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories |
+| `npm run compare:config -- <baseline-dir> <current-dir>` | None | READ-ONLY | Configuration drift between two inventories. Lambda environment values appear only as SHA-256 digests and lengths, never in plaintext |
 | `npm run check:changeset -- --changeset <json> --mode import\|update\|sandbox --step <json> [--generated <json>]` | None | READ-ONLY | Gate before executing a change set. `sandbox` (Phase 4) requires every target to be on the sandbox allowlist and on no denylist |
 | `npm run sandbox:guard -- caller\|target\|document\|env ...` | `caller`: sts:GetCallerIdentity only | READ-ONLY | Phase 4 guard, run before every sandbox action: account, region, caller, allowlist, production AC and S4R denylists, Lambda environment overrides. Exit 1 means STOP |
 | `npm run baseline -- <s4r-health\|contract capture\|contract verify\|ingress capture\|ingress verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline, the S4R `/part-finder` contract, and the separate `/ai/chat` ingress check |

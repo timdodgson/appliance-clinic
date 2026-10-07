@@ -4,6 +4,10 @@ What the read-only Phase 0 inventory (#3) found in production, and how it change
 inventory stays local in `.migration-output/` and is never committed. This page records the
 conclusions.
 
+The *Production baseline* below is the **original** state, before any migration change. Two approved
+changes were made afterwards, and the current state is recorded separately in
+[Approved changes since the baseline](#approved-changes-since-the-baseline). Read both together.
+
 - **Inventory run:** 2026-10-07, account `800960611664`, eu-west-1 (CloudFormation also checked in
   us-east-1). No area errors.
 - **Verification:**
@@ -15,10 +19,10 @@ conclusions.
 
 | Area | Baseline |
 |---|---|
-| Lambda functions | Four: `spares4repairs-part-finder` (diagnosis), `whichpart-api`, `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp`. All serve `$LATEST`, with no aliases, no published versions, no VPC and no reserved concurrency |
-| Function URLs | All auth `NONE`, unqualified. The diagnosis URL uses `RESPONSE_STREAM` (CORS `*`, POST, `content-type`, max-age 86400); the others use `BUFFERED` |
+| Lambda functions | Four: `spares4repairs-part-finder` (diagnosis), `whichpart-api`, `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp`. All serve `$LATEST`, with no aliases, no published versions, no VPC and no reserved concurrency. `whichpart-api` has since gained version `1` (see [approved changes](#approved-changes-since-the-baseline)) |
+| Function URLs | All auth `NONE`, unqualified. `AuthType` was redacted by the first run's tooling; the rerun recorded the actual values and confirmed `NONE` for all four. The diagnosis URL uses `RESPONSE_STREAM` (CORS `*`, POST, `content-type`, max-age 86400). The others use `BUFFERED`: `whichpart-api` has no CORS; the orchestrator allows `*`, POST and GET, `content-type` and `authorization`, max-age 300; the error-code MCP allows `*`, POST and GET, `content-type`, `authorization`, `mcp-session-id`, `mcp-protocol-version` and `accept`, max-age 300. CORS is preserved exactly |
 | Canonical engine | Live in **control** mode on `whichpart-api` (`CANONICAL_MODE=control`), with **64 journeys** in `CANONICAL_CONTROL_JOURNEYS` across washing machines, dishwashers, fridge-freezers, tumble dryers, ovens, cookers, hobs, microwaves, vacuums and washer-dryers |
-| DynamoDB | `whichpart-transcripts` about 29,500 items (TTL on); `whichpart-recalls` about 1,050 items. **PITR off on both**, no on-demand backups, on-demand billing |
+| DynamoDB | `whichpart-transcripts` about 29,500 items (TTL on); `whichpart-recalls` about 1,050 items. At the original inventory: **PITR off on both**, no on-demand backups, on-demand billing. PITR and an on-demand backup were added afterwards by the approved Phase 0 backup step (see [approved changes](#approved-changes-since-the-baseline)) |
 | S3 | Web bucket: 172 objects, OAC-only policy. Learning bucket: about 36,200 objects, no policy. Neither has versioning or lifecycle rules |
 | Routing override | **Inactive**: lease `released`, last restore verified 2026-10-05 |
 | WebMCP token | **Captured** from the deployed `index.html` (for `https://applianceclinic.ai:443`, subdomains, expires 2027-03-30) |
@@ -54,7 +58,7 @@ stale. The diagnosis Lambda can be reached two ways, and neither requires authen
 | # | Ingress | Used by | Authentication |
 |---|---|---|---|
 | 1 | Its Function URL (`RESPONSE_STREAM`) | The S4R `/part-finder` page, from the shopper's browser | None |
-| 2 | API Gateway `65vnizdmk4`, HTTP API `spares4repairs-dev`, route **`POST /ai/chat`**, AWS_PROXY integration `nk77gue` (payload 2.0) | No observed use (see *Measured use* below). No code in the `spares4repairs` repository or its history calls `/ai/chat` | None |
+| 2 | API Gateway `65vnizdmk4`, HTTP API `spares4repairs-dev`, route **`POST /ai/chat`** (route `ncdglq1`), AWS_PROXY integration `nk77gue` (payload 2.0, timeout 30 s) | No observed use (see *Measured use* below). No code in the `spares4repairs` repository or its history calls `/ai/chat` | None |
 
 About the API:
 - **It is S4R's.** It also serves the shop's catalogue search, so the diagnosis Lambda and the error-code
@@ -62,8 +66,17 @@ About the API:
 - **It was created by hand on 2026-07-20 and is not in any CloudFormation stack.** The stack-based
   denylist rule therefore does not cover it. It is on the S4R denylist through the manual entries in
   `tools/migration/config/s4r-known.json`.
-- **The route is live.** The `$default` stage auto-deploys and was last updated on 2026-08-20. Its
-  `$default` route goes to a different integration.
+- **The route is live: confirmed ingress.** A read-only check of the API configuration (`GetRoutes`,
+  `GetIntegration`, `GetStage`, repeated on 2026-10-07 for the reconciliation) shows:
+  - Route `ncdglq1`, key `POST /ai/chat`, target `integrations/nk77gue`, authorisation `NONE`, no API key.
+  - Integration `nk77gue`: `AWS_PROXY`, `POST`, URI `spares4repairs-part-finder`, payload format 2.0.
+  - Stage `$default`: auto-deploy **on**, deployment `gbo1y0` deployed successfully, last updated
+    2026-08-20. Detailed metrics and access logging are off. The execute-api endpoint is enabled.
+  - The only other route, `$default` (`hpiku2m`), targets a different integration (`a6vdcjc`).
+
+  So the route currently resolves to the diagnosis Lambda and is served by the deployed stage. The
+  inventory now records exactly these fields, and concludes `invokes` only when a route targets the
+  integration and a stage auto-deploys.
 - **Origin of the permission.** CloudTrail shows four `AddPermission` calls on the diagnosis Lambda by
   the account owner on 2026-08-20, around the creation of the Function URL and an update to the API
   stage. The events do not record statement IDs, so which call added `apigateway-invoke` is inferred
@@ -125,7 +138,8 @@ not changed. The replacement site deployment uploads to the bucket only, so it d
 - **Lambdas:** no VPC, no aliases, everything on `$LATEST`.
 - **Function URLs:** all auth `NONE`, as the scripts create them.
 - **Tables and buckets:**
-  - PITR is off on both tables. Phase 0 backups enable it, and CDK must then declare it.
+  - PITR was off on both tables at the original inventory. The approved Phase 0 backup step has since
+    enabled it, so CDK must declare it enabled.
   - Neither bucket has lifecycle rules or versioning.
   - The web bucket policy is OAC-only.
 - **Rules and functions:** the EventBridge targets match the scripts, and the CloudFront function is
@@ -166,16 +180,38 @@ From the rerun of 2026-10-07. Events were searched in eu-west-1 and us-east-1. O
 | `error-code-mcp-role` | 2026-08-30 | Account owner (by hand) |
 | `diag-orchestrator-role` | 2026-08-30 | Account owner (by hand) |
 | `SparesSite-dev-ServerFunctionRole…` (current) | 2026-07-20 | AWS CloudFormation (the `SparesSite-dev` stack) |
-| CloudFront distribution and function (inferred from timing; the events carry no resource names) | 2026-08-23 | Account owner (by hand) |
+| CloudFront distribution and function | 2026-08-23 | Account owner (by hand). **Circumstantial only:** a `CreateDistribution` and a `CreateFunction` event exist on that day, but they carry no resource names. The link to `E1QD02IAJZPJLM` and `whichpart-www-redirect` rests on timing (the web bucket was created minutes earlier) and the distribution's `CallerReference` `whichpart-v0-1-20260823`. This is not proof of creation |
 
 **Inline policies.**
-- **On the S4R server role:** every inline policy was added by hand by the account owner. CloudFormation
-  added none. That covers the S4R policies from July onwards and the three AC policies:
+- **On the S4R server role:** the stack manages one policy, `ServerFunctionRoleDefaultPolicy975E5328`
+  (CloudFormation resource `AWS::IAM::Policy`). Every other inline policy visible in the captured window
+  (2026-07-23 onwards) was put by hand by the account owner, not by the stack. Policies put before
+  2026-07-23 (for example `CloudFrontManage`, `CognitoAdminAuth`, `SecretsManagerWrite`) fall outside the
+  window, so how they were added is not shown. The three AC policies are inside the window, so they are
+  **out-of-band drift on an S4R-owned role**:
   - `WhichpartLearningPut`, first put 2026-08-26
   - `whichpart-media-overlay-s3`, from 2026-09-19 to 2026-10-05
   - `whichpart-knowledge-overlay-s3`, 2026-10-05
 - **On the AC roles:** inline policies were put by the account owner from 2026-08-30 onwards, matching
-  the AC deploy scripts.
+  the AC deploy scripts, which re-put each policy on every deploy (`whichpart-api-role`: 8 policies, the
+  last on 2026-10-05; `error-code-mcp-role`: `error-code-admin-overlay-s3`, 2026-09-20 to 2026-10-05).
+- **Coverage.** us-east-1 `PutRolePolicy` reached the 1,000-event limit, but the captured window
+  (2026-07-23 to 2026-10-05) includes all AC role and AC policy activity, which starts on 2026-08-23. No
+  other lookup in either region was truncated.
+
+## Approved changes since the baseline
+
+Two approved changes altered production after the original inventory. Both were expected, and
+neither is unexplained drift. The read-only rerun of 2026-10-07 (15:33 UTC) and `compare:config`
+against the original inventory show exactly these differences and nothing else apart from normal
+runtime writes (recall pages refreshed by the daily ingest, new learning records):
+
+| Change | Approved as | Current state |
+|---|---|---|
+| DynamoDB backups ([runbook](runbooks/phase-0-backups.md)) | Phase 0 backups | **PITR enabled on both** `whichpart-transcripts` and `whichpart-recalls`: 35-day window, earliest restore point 2026-10-07T01:42:02Z. On-demand backups `ac-migration-whichpart-transcripts-20261007T0142` and `ac-migration-whichpart-recalls-20261007T0142` are `AVAILABLE` |
+| Admin hotfix ([runbook](runbooks/phase-1-admin-hotfix.md)) | Phase 1 | `whichpart-api` code SHA-256 `Vkox0eYVlkwProorZUjOQuwPqWkhb0TCAgNRI/n31dE=` (500,069 bytes, updated 2026-10-07T08:52:29Z). New environment variable `AC_ADMIN_SUBS` (value not recorded here). Published version `1` holds the previous artefact, `GomgP4UShFbEw30fiW4FbXLuqVM+MQvaeuKKkzgu8h8=`, for rollback. No alias; the Function URL still serves `$LATEST` and is unchanged |
+
+Phase 4 and Phase 5 compare production against this current state, not the original baseline.
 
 ## Known risks recorded
 
@@ -202,7 +238,16 @@ The first run surfaced three reporting issues. All are resolved and confirmed by
 - **Stack status appeared as `null`.** This was a misread of the output, not a tooling fault, and a test
   now pins it. The rerun shows `SparesSite-dev` UPDATE_COMPLETE and `CDKToolkit` CREATE_COMPLETE.
 
+**`compare:config` printed environment values.** Found when comparing the two inventories: a
+difference in a Lambda environment variable was printed with its plaintext value. Fixed: every value
+under `Environment` is replaced by its SHA-256 digest and length before the report is printed or
+written. Names, and whether a variable was added, removed or changed, stay visible. Tests run the
+command end to end and assert that no value reaches stdout or the report file.
+
 **Added after the rerun:**
-- HTTP API investigations record the routes and authorisation types that reach the function.
+- HTTP API investigations record the routes (ID, key, target, authorisation) that reach the function,
+  the integration's type, payload format and timeout, and each stage's auto-deploy, deployment and
+  logging settings. `invokes` now requires both a route to the integration and an auto-deploy stage;
+  otherwise the result is `integration-without-route` or `routed-deployment-unverified`.
 - A read-only route traffic check.
 - A separate `/ai/chat` ingress check.

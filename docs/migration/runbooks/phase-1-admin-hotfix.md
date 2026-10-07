@@ -105,7 +105,8 @@ Add `--execute --confirm-account <account-id>` to the command in step 4. It runs
 - [ ] `npm run baseline -- smoke --live --compare <baseline>` passes: customer behaviour is unchanged.
 - [ ] `npm run baseline -- s4r-health --live` passes.
 - [ ] Re-run the inventory, then `npm run compare:config -- <before> <after>`. The only differences
-      should be `whichpart-api`'s code, its `AC_ADMIN_SUBS` variable and the new version.
+      should be `whichpart-api`'s code, its `AC_ADMIN_SUBS` variable and the new version. The
+      variable's value is shown only as a digest.
 
 The new inventory becomes the baseline for later phases.
 
