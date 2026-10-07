@@ -98,7 +98,7 @@ npm test                                                      # includes the app
 npm run inventory -- --expect-account $A --out "$O/inventory-before"
 npm run denylist -- --inventory "$O/inventory-before"         # S4R denylist regenerated today
 git diff --exit-code ../../docs/migration/s4r-denylist.json   # STOP if S4R has changed
-npm run baseline -- s4r-health --live                         # STOP if S4R is unhealthy
+NODE_USE_ENV_PROXY=1 npm run baseline -- s4r-health --live                         # STOP if S4R is unhealthy
 npm run sandbox:guard -- caller --bootstrap                   # account and region
 for t in "AWS::IAM::ManagedPolicy ac-deny-production-sbx" "AWS::IAM::ManagedPolicy ac-cfn-execution-sbx" \
          "AWS::IAM::ManagedPolicy ac-operator-policy-sbx" "AWS::IAM::Role ac-operator-sbx" \
@@ -169,7 +169,7 @@ npm run inventory -- --expect-account $A --out "$O/inventory-after"
 npm run compare:config -- "$O/inventory-before" "$O/inventory-after"
 # Expect no configuration difference. Only S3 manifest entries from normal runtime writes (learning
 # records, recall pages) may differ. Anything else is a STOP.
-npm run baseline -- s4r-health --live
+NODE_USE_ENV_PROXY=1 npm run baseline -- s4r-health --live   # behind the HTTPS proxy (phase-0-baseline.md)
 ```
 
 Post the stack resources, the checker output and the `compare:config` result on #34.
