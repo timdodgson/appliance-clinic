@@ -56,3 +56,4 @@ in a pull request.
 | [Reproducible builds and tests](phase-3-reproducible-build.md) | 3 | Repository only |
 | [Sandbox rehearsal](phase-4-sandbox-rehearsal.md) | 4 | Sandbox-namespaced (`-sbx`) resources only; no production AC or S4R change |
 | [Recovery](phase-4-recovery.md) | 4 (used from 5) | SAFE AC CHANGE (restore into new resources); POTENTIALLY IMPACTS S4R (switch-back) |
+| [Production CDK import](phase-5-import.md) | 5 | SAFE AC CHANGE (5.1 to 5.9); POTENTIALLY IMPACTS S4R (5.10) |

@@ -1,0 +1,133 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AccountReads",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:ListFunctions",
+        "lambda:GetAccountSettings",
+        "dynamodb:ListTables",
+        "s3:ListAllMyBuckets",
+        "secretsmanager:ListSecrets",
+        "ecr:DescribeRegistry",
+        "events:ListRules",
+        "iam:ListRoles",
+        "tag:GetResources"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadAcFunctions",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:Get*",
+        "lambda:List*"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api:*",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator:*",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp:*",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder:*"
+      ]
+    },
+    {
+      "Sid": "ReadAcRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:Get*",
+        "iam:List*"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role",
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    },
+    {
+      "Sid": "ReadAcTables",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Describe*",
+        "dynamodb:List*",
+        "dynamodb:GetResourcePolicy"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-transcripts",
+        "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-transcripts/*",
+        "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-recalls",
+        "arn:aws:dynamodb:eu-west-1:800960611664:table/whichpart-recalls/*"
+      ]
+    },
+    {
+      "Sid": "ReadAcBuckets",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucket*",
+        "s3:GetEncryptionConfiguration",
+        "s3:GetLifecycleConfiguration",
+        "s3:GetReplicationConfiguration",
+        "s3:GetAccelerateConfiguration",
+        "s3:GetAnalyticsConfiguration",
+        "s3:GetIntelligentTieringConfiguration",
+        "s3:GetInventoryConfiguration",
+        "s3:GetMetricsConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:s3:::whichpart-web-800960611664",
+        "arn:aws:s3:::whichpart-learning-800960611664"
+      ]
+    },
+    {
+      "Sid": "ReadAcSecretMetadata",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:ListSecretVersionIds"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/diag-orchestrator/bearer-token-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/error-code-mcp/bearer-token-??????"
+      ]
+    },
+    {
+      "Sid": "ReadAcRepositories",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:DescribeImages",
+        "ecr:GetLifecyclePolicy",
+        "ecr:GetRepositoryPolicy",
+        "ecr:ListTagsForResource",
+        "ecr:DescribeImageScanFindings"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator",
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-error-code-mcp"
+      ]
+    },
+    {
+      "Sid": "ReadAcRules",
+      "Effect": "Allow",
+      "Action": [
+        "events:DescribeRule",
+        "events:ListTargetsByRule",
+        "events:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily",
+        "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review"
+      ]
+    }
+  ]
+}
