@@ -166,7 +166,9 @@ aws cloudformation describe-stack-resources --stack-name $S \
   --query 'StackResources[].[LogicalResourceId,ResourceType,PhysicalResourceId,ResourceStatus]' --output table
 # Back as the IAM user (unset AWS_SESSION_TOKEN and the operator keys):
 npm run inventory -- --expect-account $A --out "$O/inventory-after"
-npm run compare:config -- "$O/inventory-before" "$O/inventory-after"   # expect 0 production differences
+npm run compare:config -- "$O/inventory-before" "$O/inventory-after"
+# Expect no configuration difference. Only S3 manifest entries from normal runtime writes (learning
+# records, recall pages) may differ. Anything else is a STOP.
 npm run baseline -- s4r-health --live
 ```
 
