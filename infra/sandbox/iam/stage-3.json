@@ -1,0 +1,233 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AcIamExperiments-sbx: Phase 4 IAM experiments T2 to T7 (#34). Sandbox only.",
+  "Resources": {
+    "T2Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t2-role-sbx",
+        "Description": "Phase 4 IAM experiment T2",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "iam-t2-policy-sbx",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/iam-experiments/t2/v2/*"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T3Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t3-role-sbx",
+        "Description": "Phase 4 IAM experiment T3",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T4Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t4-role-sbx",
+        "Description": "Phase 4 IAM experiment T4",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T4Policy": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "RoleName": "iam-t4-role-sbx",
+        "PolicyName": "iam-t4-policy-sbx",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/iam-experiments/t4/v1/*"
+            }
+          ]
+        }
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T5Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t5-role-sbx",
+        "Description": "Phase 4 IAM experiment T5",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T5Policy": {
+      "Type": "AWS::IAM::RolePolicy",
+      "Properties": {
+        "RoleName": "iam-t5-role-sbx",
+        "PolicyName": "iam-t5-policy-sbx",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/iam-experiments/t5/v1/*"
+            }
+          ]
+        }
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T6Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t6-role-sbx",
+        "Description": "Phase 4 IAM experiment T6",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "T7Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t7-role-sbx",
+        "Description": "Phase 4 IAM experiment T7",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    }
+  }
+}

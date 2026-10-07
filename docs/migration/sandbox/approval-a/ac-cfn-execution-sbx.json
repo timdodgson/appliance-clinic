@@ -9,6 +9,7 @@
         "ecr:GetAuthorizationToken",
         "cloudformation:ValidateTemplate",
         "cloudformation:ListStacks",
+        "cloudformation:DescribeStackDriftDetectionStatus",
         "cloudformation:DescribeStacks",
         "cloudformation:GetTemplateSummary",
         "lambda:ListFunctions",
@@ -176,6 +177,21 @@
       "Effect": "Allow",
       "Action": "apigateway:*",
       "Resource": "arn:aws:apigateway:eu-west-1::/apis/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/ac:sandbox": "phase-4"
+        }
+      }
+    },
+    {
+      "Sid": "StandInApiTags",
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:POST",
+        "apigateway:GET",
+        "apigateway:DELETE"
+      ],
+      "Resource": "arn:aws:apigateway:eu-west-1::/tags/*",
       "Condition": {
         "StringEquals": {
           "aws:ResourceTag/ac:sandbox": "phase-4"

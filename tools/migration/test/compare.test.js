@@ -93,4 +93,22 @@ describe('config diff', () => {
     expect(drift).toHaveLength(0);
     expect(cloudformationTags).toHaveLength(1);
   });
+
+  it('does not hide a difference that merely mentions a stack ARN', () => {
+    const stack = { stackName: 'ApplianceClinicSandboxToolkit', stackId: 'arn:aws:cloudformation:eu-west-1:0:stack/ApplianceClinicSandboxToolkit/x' };
+    const { drift, cloudformationTags } = splitCloudFormationTags(diffValues([{ stackName: 'CDKToolkit' }], [{ stackName: 'CDKToolkit' }, stack]));
+    expect(drift.map((d) => d.path)).toEqual(['[stackName=ApplianceClinicSandboxToolkit]']);
+    expect(cloudformationTags).toEqual([]);
+  });
+
+  it('matches records by identity, so one added record does not shift the rest', () => {
+    const before = [{ stackName: 'B', status: 'OK' }, { stackName: 'C', status: 'OK' }];
+    const after = [{ stackName: 'A', status: 'NEW' }, { stackName: 'B', status: 'OK' }, { stackName: 'C', status: 'CHANGED' }];
+    expect(diffValues(before, after).map((d) => d.path).sort()).toEqual(['[stackName=A]', '[stackName=C].status']);
+  });
+
+  it('treats the PITR restore window as volatile', () => {
+    const t = (x) => ({ pointInTimeRecovery: { PointInTimeRecoveryDescription: { PointInTimeRecoveryStatus: 'ENABLED', LatestRestorableDateTime: x } } });
+    expect(diffValues(t('a'), t('b'))).toEqual([]);
+  });
 });

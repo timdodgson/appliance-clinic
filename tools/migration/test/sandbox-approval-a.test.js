@@ -85,6 +85,7 @@ function productionTargets() {
 function sandboxTargets() {
   const out = [];
   for (const [rawType, names] of Object.entries(lists.allowlist.names)) {
+    if (rawType.endsWith('(placeholder)')) continue; // referenced by documents only, never mutated
     const type = rawType.replace(/\(.*\)$/, '');
     for (const n of names) { const t = target(type, n); if (t) out.push([n, type, ...t]); }
   }
@@ -141,6 +142,20 @@ describe('ac-deny-production-sbx', () => {
     expect(denied(policies.deny, 'budgets:ModifyBudget', `arn:aws:budgets::${A}:budget/${BUDGET_NAME}`)).toBe(true);
     expect(denied(policies.deny, 'iam:DeleteRolePermissionsBoundary', `arn:aws:iam::${A}:role/whichpart-api-role-sbx`)).toBe(true);
   });
+  it('denies tagging the S4R API in its /tags resource form, which the tag-conditioned allows could otherwise reach', () => {
+    const tagArn = `arn:aws:apigateway:${R}::/tags/arn%3Aaws%3Aapigateway%3A${R}%3A%3A%2Fapis%2F65vnizdmk4`;
+    expect(denied(policies.deny, 'apigateway:POST', tagArn)).toBe(true);
+    expect(denied(policies.deny, 'apigateway:POST', `arn:aws:apigateway:${R}::/tags/arn%3Aaws%3Aapigateway%3A${R}%3A%3A%2Fapis%2Fsbxapi0001`)).toBe(false);
+    for (const p of [policies.operator, policies.execution]) {
+      const s = p.Statement.find((x) => x.Sid === 'StandInApiTags');
+      expect(s.Condition).toEqual({ StringEquals: { 'aws:ResourceTag/ac:sandbox': 'phase-4' } });
+    }
+  });
+  it('denies any write to the placeholder distribution, which the sandbox only references', () => {
+    for (const id of lists.allowlist.names['AWS::CloudFront::Distribution(placeholder)']) {
+      expect(denied(policies.deny, 'cloudfront:CreateDistribution', `arn:aws:cloudfront::${A}:distribution/${id}`)).toBe(true);
+    }
+  });
   it('never denies KMS use, which Lambda and S3 need for AWS-managed keys', () => {
     expect(denied(policies.deny, 'kms:GenerateDataKey', '*')).toBe(false);
     expect(denied(policies.deny, 'kms:Decrypt', '*')).toBe(false);
@@ -176,7 +191,7 @@ describe('ac-operator-policy-sbx and ac-cfn-execution-sbx', () => {
           if (r === '*') {
             const reads = list(s.Action).every((a) => /^[a-z0-9-]+:(Get|List|Describe|Validate)/.test(a) || a === 'sts:GetCallerIdentity');
             expect(reads || Boolean(s.Condition), `${s.Sid}: "*" needs read-only actions or a condition`).toBe(true);
-          } else if (!/budget\/ac-budget-sbx$|::\/apis(\/\*)?$|userpool\/\*$/.test(r)) {
+          } else if (!/budget\/ac-budget-sbx$|::\/apis(\/\*)?$|::\/tags\/\*$|userpool\/\*$/.test(r)) {
             expect(r, s.Sid).toMatch(/-sbx|acsbx|applianceclinic-sbx\/|ApplianceClinicSandboxToolkit/);
           }
         }

@@ -1,0 +1,49 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AcIamExperiments-sbx: Phase 4 IAM experiments T2 to T7 (#34). Sandbox only.",
+  "Resources": {
+    "T2Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "iam-t2-role-sbx",
+        "Description": "Phase 4 IAM experiment T2",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "PermissionsBoundary": "arn:aws:iam::800960611664:policy/ac-cfn-execution-sbx",
+        "Tags": [
+          {
+            "Key": "ac:sandbox",
+            "Value": "phase-4"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "iam-t2-policy-sbx",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::whichpart-learning-sbx-800960611664/iam-experiments/t2/v2/*"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain"
+    }
+  }
+}

@@ -9,7 +9,23 @@ export const VOLATILE_KEYS = new Set([
   'LastUpdateStatusReasonCode', 'State', 'StateReason', 'StateReasonCode', 'roleLastUsed', 'itemCount',
   'tableSizeBytes', 'lastChangedDate', 'LastAccessedDate', 'lastAccessedDate', 'etag', 'ETag', 'savedAs',
   'onDemandBackups', 'pushedAt', 'callerArn', 'options', 'LastModifiedTime', 'downloaded',
+  // PITR's restore window moves on its own every few minutes.
+  'LatestRestorableDateTime', 'EarliestRestorableDateTime',
 ]);
+
+// Arrays of records are matched by identity, not position, so adding one record (a new stack, function or
+// role) does not show every later record as changed. The first of these keys a record carries names it.
+const IDENTITY_KEYS = ['stackName', 'functionName', 'FunctionName', 'roleName', 'tableName', 'bucket', 'repositoryName', 'name', 'Name', 'logicalId', 'id', 'Id', 'Sid', 'key'];
+const identityOf = (v) => {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+  const k = IDENTITY_KEYS.find((key) => typeof v[key] === 'string');
+  return k ? `${k}=${v[k]}` : null;
+};
+function keyedRecords(list) {
+  const ids = list.map(identityOf);
+  if (ids.some((x) => x === null) || new Set(ids).size !== ids.length) return null;
+  return new Map(ids.map((x, i) => [x, list[i]]));
+}
 
 const isObject = (v) => v && typeof v === 'object' && !Array.isArray(v);
 
@@ -22,6 +38,12 @@ export function diffValues(before, after, path = '', out = [], volatile = VOLATI
     return out;
   }
   if (Array.isArray(before) && Array.isArray(after)) {
+    const b = keyedRecords(before);
+    const a = keyedRecords(after);
+    if (b && a) {
+      for (const k of new Set([...b.keys(), ...a.keys()])) diffValues(b.get(k), a.get(k), `${path}[${k}]`, out, volatile);
+      return out;
+    }
     const len = Math.max(before.length, after.length);
     for (let i = 0; i < len; i += 1) diffValues(before[i], after[i], `${path}[${i}]`, out, volatile);
     return out;
@@ -36,7 +58,9 @@ export function splitCloudFormationTags(differences) {
   const rest = [];
   for (const d of differences) {
     const text = JSON.stringify([d.before, d.after]);
-    if (/aws:cloudformation:/.test(text)) cfn.push(d);
+    // Only the tag keys CloudFormation adds. A stack ARN (arn:aws:cloudformation:...) is not a tag and must not
+    // hide a difference.
+    if (/"aws:cloudformation:(stack-name|stack-id|logical-id)"/.test(text)) cfn.push(d);
     else rest.push(d);
   }
   return { drift: rest, cloudformationTags: cfn };

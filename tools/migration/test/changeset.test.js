@@ -143,3 +143,19 @@ describe('sandbox mode', () => {
     expect(() => checkChangeSet({ changeSet: { Changes: [] }, denylist: [], mode: 'sandbox' })).toThrow(/sandboxLists/);
   });
 });
+
+describe('IAM rules from the Phase 4 experiments', () => {
+  const role = (props) => ({ Type: 'AWS::IAM::Role', DeletionPolicy: 'Retain', UpdateReplacePolicy: 'Retain', Properties: { RoleName: 'whichpart-api-role', ...props } });
+  const run = (mode, props) => checkChangeSet({
+    changeSet: { StackName: 'AcRuntimeStack', Changes: [importChange('whichpart-api-role', 'AWS::IAM::Role')] },
+    denylist, mode, allowedPhysicalIds: ['whichpart-api-role'], template: { Resources: { Lwhichpartapirole: role(props) } },
+  });
+  it('T2: fails a role that declares Policies in Phase 5 modes', () => {
+    const r = run('import', { ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'], Policies: [] });
+    expect(r.failures.map((f) => f.rule)).toContain('role-declares-policies');
+  });
+  it('T7: fails a role that leaves out ManagedPolicyArns in Phase 5 modes', () => {
+    expect(run('update', {}).failures.map((f) => f.rule)).toContain('role-without-managed-policy-arns');
+    expect(run('import', { ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'] }).failures).toEqual([]);
+  });
+});
