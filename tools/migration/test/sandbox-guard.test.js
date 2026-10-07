@@ -168,6 +168,8 @@ describe('sandbox change sets', () => {
     const host = `${URLS.orchestrator}.lambda-url.eu-west-1.on.aws`;
     expect(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'sbxapi0001', 'AWS::ApiGatewayV2::Api')] } })).toEqual([]);
     expect(rules(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', 'sbxapi0001', 'AWS::Lambda::Function')] } }))).toEqual(['change-target-not-sandbox']);
+    // The recorded Function URL host passes as the type it was recorded for, and fails as another.
+    expect(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', host, 'AWS::Lambda::Url')] } })).toEqual([]);
     expect(rules(checkSandboxChangeSet(withGenerated, { changeSet: { StackName: 'AcRuntimeStack-sbx', Changes: [change('Import', host, 'AWS::Lambda::Permission')] } }))).toEqual(['change-target-not-sandbox']);
   });
 
