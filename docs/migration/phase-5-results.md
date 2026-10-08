@@ -119,55 +119,97 @@ After every step the default `ac-cfn-execution` version was v3, the read-only ba
 | Smoke | 4 scenarios 200; safety decisions and state tokens as before Phase 5 |
 | `SparesSite-dev`, `CDKToolkit` | Last updated 2026-07-21 and 2026-07-20 (unchanged) |
 
-## Step 5.10: not executed (awaiting sign-off)
+## Step 5.10: diagnosis Lambda (2026-10-08, signed off on #46)
 
-The diagnosis Lambda `spares4repairs-part-finder` runs under the S4R role. It is imported with its Function URL and its
-AC-created permissions `FnUrlPublic` and `PublicInvoke`, never its role or `apigateway-invoke`.
-[`import.sh`](../../infra/production/steps/import.sh) refuses this step.
+**Scope.** `spares4repairs-part-finder`, its Function URL and the AC-created permissions `FnUrlPublic` and `PublicInvoke`
+were imported into `AcRuntimeStack`. Not imported, and not changed:
+- the S4R role `SparesSite-dev-ServerFunctionRole…` and its policies
+- `apigateway-invoke`
+- API `65vnizdmk4`
 
-**Writes, from the sandbox (5.10 row of [phase-5-import-semantics.md](phase-5-import-semantics.md)).** Only
-`lambda:TagResource` on the function, which bumps `LastModified` and `RevisionId`. The URL and both permissions get none.
-In the sandbox:
-- the stand-in S4R role's policies were unchanged
-- the stand-in API's routes were unchanged
-- `apigateway-invoke` was untouched and outside the stack
+The function still runs under the S4R role.
 
-**Proposed execution policy for the step.** It is the read-only base plus one statement
-(`import-writes.mjs step-policy --step infra/production/steps/5.10.json`):
+[`import.sh`](../../infra/production/steps/import.sh) runs 5.10 only with `APPROVE_5_10=spares4repairs-part-finder`, and
+only when the step policy's writes equal the approved statement exactly:
 
 ```json
 {"Sid": "Step510Writes1", "Effect": "Allow", "Action": ["lambda:TagResource"],
  "Resource": ["arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"]}
 ```
 
-With `ac-deny-s4r`, the IAM simulator (region context eu-west-1) gives:
-- **allowed:** `lambda:TagResource` on the function
-- **implicitly denied** on the function: `UntagResource`, `UpdateFunctionConfiguration`, `UpdateFunctionCode`,
-  `UpdateFunctionUrlConfig`, `DeleteFunctionUrlConfig`, `AddPermission`, `RemovePermission`, `DeleteFunction`,
-  `PutFunctionConcurrency`
-- **implicitly denied:** `lambda:TagResource` on `whichpart-api`
-- **explicitly denied:**
-  - `lambda:TagResource` on `spares4repairs-server-dev`
-  - every IAM write and `PassRole` on the S4R role
-  - API `65vnizdmk4` writes
-  - `UpdateUserPool` on the S4R pool
-  - CloudFront, Route 53 and ACM writes
+### Gate before execution (all passed)
 
-**Proposed template against live (synthesised offline from the capture after 5.9).**
-- Role: the S4R role ARN, unchanged.
-- Function configuration: runtime, handler, memory, timeout and architecture equal live. The environment equals live
-  (keys `LEARNING_BUCKET`, `LM_MAX_TOKENS`, `LM_STUDIO_URL`).
-- Code: the deployed artefact in the AC assets bucket. Its SHA-256 equals the live CodeSha256
-  `Z6lIeG9rND+tecNh3/gCTMQ9mpDGeICYe6vxcGyvLXo=`.
-- URL: `AuthType` `NONE`, `InvokeMode` `RESPONSE_STREAM`, and CORS (origins `*`, methods `POST`, headers `content-type`,
-  max age 86400) equal live. The URL host is derived from the function and does not change on import.
-- Permissions: `FnUrlPublic` and `PublicInvoke` as live. No resource for `apigateway-invoke`, which stays live and unmanaged.
+| Check | Result |
+|---|---|
+| Template against a fresh capture | Runtime `nodejs20.x`, handler, `x86_64`, 256 MB, 300 s, environment (3 keys), role, layers (none), tracing `PassThrough`, ephemeral storage 512 MB, reserved concurrency (none): all equal live |
+| Code | Staged artefact SHA-256 equals live CodeSha256 `Z6lIeG9rND+tecNh3/gCTMQ9mpDGeICYe6vxcGyvLXo=` |
+| Function URL | Host `3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws`; `AuthType` `NONE`; `InvokeMode` `RESPONSE_STREAM`; CORS (origins `*`, `POST`, `content-type`, 86400) equal live |
+| `apigateway-invoke` | Present live; not in the template |
+| API `65vnizdmk4` | `POST /ai/chat` → integration `nk77gue` (`AWS_PROXY`) → `spares4repairs-part-finder` |
+| S4R role | Trust, 20 inline policies (names and documents) and 2 AWS-managed policies equal to the pre-Phase-5 inventory |
+| Template references | S4R role ARN and name acknowledged. `SparesSite-dev` (the S4R stack name, a prefix of the role name) is acknowledged only there: `import.sh` stops 5.10 if it occurs anywhere else in the template |
+| Step policy | Read-only base plus exactly the approved statement |
+| IAM simulator (with `ac-deny-s4r`, region eu-west-1) | Allowed: `lambda:TagResource` on the function. Implicitly denied: every other function write (`UntagResource`, `Update*`, `*FunctionUrlConfig`, `Add`/`RemovePermission`, `DeleteFunction`, `PutFunctionConcurrency`, `PublishVersion`) and `TagResource` on `whichpart-api`. Explicitly denied: `spares4repairs-server-dev`, every IAM write and `PassRole` on the S4R role, API `65vnizdmk4`, the S4R pool and client, `SparesSite-dev`, CloudFront, Route 53, ACM |
+| S4R health, `/part-finder` contract, `/ai/chat` ingress | 3 × 200; ok; ok |
 
-**Failure behaviour.** The step policy grants the type's complete write set, so the update handler cannot be stopped
-part-way by a refusal. If the import fails anyway:
-- CloudFormation rolls back the import: the resources leave the stack and are not deleted (`DeletionPolicy: Retain`).
-- The execution role returns to v3 (the trap in `import.sh`).
-- The only write that can have happened is the tag, and an `aws:cloudformation:*` tag is not behaviour.
-- CloudTrail and the before/after snapshot show what happened.
+The first dry run's change-set check refused the template on the `SparesSite-dev` substring in the role ARN. That is
+the narrow acknowledgement and guard above; nothing was executed.
 
-A stack policy denying `Update:Replace` and `Update:Delete` is set straight after.
+### Import
+
+| Item | Result |
+|---|---|
+| Change set | 4 Import actions (function, URL, `FnUrlPublic`, `PublicInvoke`), no replacement; import-mode check passed; equal to the step file |
+| Execution policy | v11 (read-only + the approved statement) during the import; back to v3 straight after |
+| Stack | `IMPORT_COMPLETE`; drift `IN_SYNC` for all four; the same template is a no-op; stack policy set |
+| CloudTrail | Exactly one write: `lambda:TagResource` on `spares4repairs-part-finder` (09:04:06Z), no error. `check-writes` ok |
+| Before/after (whole runtime capture) | Identical apart from `aws:cloudformation:*` tags. `LastModified` and `RevisionId` moved with the tagging and are not compared |
+| Function | CodeSha256, role ARN, configuration and environment unchanged |
+| Function URL | Host, `NONE`, `RESPONSE_STREAM` and CORS unchanged |
+| Permissions | All three statements unchanged, `apigateway-invoke` included. It stays outside the stack |
+| S4R boundary ([`s4r-boundary.sh`](../../infra/production/s4r-boundary.sh)) | S4R role (trust, inline and managed policy documents) and API `65vnizdmk4` (API, routes, integrations, stages) identical before and after; `POST /ai/chat` still → `nk77gue` → part-finder |
+| After | S4R health 3 × 200; contract ok; ingress ok; smoke equal to the pre-Phase-5 baseline; `ac-cfn-execution` default v3, equal to the committed base |
+
+## Sandbox probe cleanup (2026-10-08)
+
+The import-semantics sandbox (#49) was removed with the guarded scripts, allowlisted `-sbx` names only:
+- [`80-destroy.sh`](../../infra/sandbox/steps/80-destroy.sh) as `ac-operator-sbx` removed:
+  - the stacks `AcDataStack-sbx`, `AcRuntimeStack-sbx` and `SparesSite-sbx`
+  - 5 functions, 2 rules, 5 roles (including `ac-import-probe-sbx`)
+  - 2 tables, 2 buckets, 2 repositories, 7 dummy secrets
+  - the stand-in API and user pool
+- [`85-teardown-controls.sh`](../../infra/sandbox/steps/85-teardown-controls.sh) as the IAM user removed `ac-operator-sbx`
+  and the policies `ac-operator-policy-sbx`, `ac-cfn-execution-sbx` and `ac-deny-production-sbx`.
+
+Afterwards:
+- [`90-absence.sh`](../../infra/sandbox/steps/90-absence.sh): all 96 allowlisted names absent.
+- A sweep of stacks, functions, roles, policies, log groups, buckets, repositories, secrets, tables and rules found no
+  `sbx` or probe name.
+- The production inventory before and after the cleanup differs only by the `-sbx` stacks and functions.
+
+## Final verification (2026-10-08)
+
+| Check | Result |
+|---|---|
+| `AcDataStack` | `IMPORT_COMPLETE`, termination protection, stack policy; drift `IN_SYNC`, 0 not in sync |
+| `AcRuntimeStack` | The same; drift `IN_SYNC`, 0 not in sync |
+| Ownership | 46 imported resources across the two stacks plus 2 `StackShell` handles. Exactly the union of the step files' expected imports. No S4R-type resource (API Gateway, Cognito, CloudFront, Route 53, ACM). No physical ID on the S4R denylist (79 entries). Neither the S4R role nor `apigateway-invoke` is in a stack |
+| Unmanaged as intended | CloudFront `E1QD02IAJZPJLM`, its function, ACM and DNS (Unproven) are in no stack |
+| Final inventory vs pre-Phase-5 (`compare:config`) | 59 differences, all expected: the stacks `AcDataStack`, `AcRuntimeStack`, `ApplianceClinicToolkit` (3); `aws:cloudformation:*` tags on the four functions (12); the inventory's ownership flags now naming the AC stacks (31); `whichpart-learning` objects written by live traffic (13). No configuration difference |
+| `ac-cfn-execution` | Default v3, equal to the committed read-only base. The execution role carries exactly `ac-cfn-execution` and `ac-deny-s4r` |
+| `SparesSite-dev`, `CDKToolkit` | Last updated 2026-07-21 and 2026-07-20: unchanged |
+| S4R health | 3 × 200 |
+| `/part-finder` contract | ok |
+| `/ai/chat` ingress | ok |
+| Smoke | 4 scenarios equal to the pre-Phase-5 baseline (status, safety, parts, state token) |
+
+Production CloudTrail records for every step are test fixtures
+([`fixtures/production/import-writes.cloudtrail.json`](../../tools/migration/test/fixtures/production/import-writes.cloudtrail.json)).
+Each passes `check-writes` for its types.
+
+## Phase 5 sign-off
+
+Every exit criterion of PLAN.md Phase 5 is met. Every group passed its import gate and its post-import checks: 5.1 to
+5.10, Import actions only, no replacement, drift `IN_SYNC`, zero effective configuration change, and the execution
+role's writes exactly the sandbox-proven manifest. The freeze (#2) stays in place until Phase 6 exit
+([phase-0-freeze.md](runbooks/phase-0-freeze.md#lifting-the-freeze)). Phase 6 has not started.

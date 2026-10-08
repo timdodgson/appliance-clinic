@@ -89,7 +89,11 @@ A write made before a later denial is **not** rolled back, so a step is granted 
     - The evidence on the step's issue and in phase-5-results.md.
     - The PR.
 
-Step 5.10 is refused by the script. It needs its own sign-off.
+Step 5.10 (the diagnosis Lambda) runs only with its sign-off, `APPROVE_5_10=spares4repairs-part-finder`:
+- **Step policy.** Its writes must equal the approved statement exactly (`lambda:TagResource` on the function).
+- **Template references.** `SparesSite-dev` may occur only inside the S4R role ARN of the function's `Role`.
+- **S4R boundary.** The S4R role (trust, inline and managed policies) and API `65vnizdmk4` (routes, integrations, stages)
+  are snapshotted before and after ([`s4r-boundary.sh`](../../../infra/production/s4r-boundary.sh)). Any difference stops the step.
 
 ## Stop conditions
 

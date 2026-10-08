@@ -66,5 +66,6 @@ const D = 'spares4repairs-part-finder';
 write('5.10', 'Diagnosis Lambda, its URL and its AC-created permissions FnUrlPublic and PublicInvoke (PLAN.md step 5.10). POTENTIALLY IMPACTS S4R. Not its role; not apigateway-invoke.',
   [['AWS::Lambda::Function', logical(D), { FunctionName: D }, D], ...urlAndPermissions(D)],
   [{ value: 'SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2qUHib', reason: 'The diagnosis Lambda runs under the S4R server role (ADR 0011). The function references the role ARN unchanged; the role is never imported or modified.' },
-   { value: S4R_ROLE, reason: 'The same role, by ARN, as the function\'s Role property.' }]);
+   { value: S4R_ROLE, reason: 'The same role, by ARN, as the function\'s Role property.' },
+   { value: 'SparesSite-dev', reason: 'Only inside the S4R role name above (the role name starts with the S4R stack name). import.sh stops 5.10 if it occurs anywhere else in the template.' }]);
 console.log('wrote 5.5, 5.6, 5.7a, 5.7b, 5.7c, 5.8, 5.9, 5.10');

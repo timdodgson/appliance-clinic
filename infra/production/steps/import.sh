@@ -13,11 +13,14 @@
 #   5. drift straight after: every resource IN_SYNC; the same template is a no-op; the stack policy is set
 #   6. the after snapshot may differ from the before snapshot only by aws:cloudformation:* tags
 #   7. CloudTrail (after delivery): every write by the execution role is one the manifest expects (check-cloudtrail.sh)
-# Step 5.10 is refused here: it needs its own sign-off.
+# Step 5.10 (the diagnosis Lambda, POTENTIALLY IMPACTS S4R) runs only with its sign-off, APPROVE_5_10=spares4repairs-part-finder:
+# its step policy must add exactly the approved statement, and the S4R role and API 65vnizdmk4 (s4r-boundary.sh) must be
+# exactly the same after the import as before.
 source "$(dirname "$0")/../lib.sh"
 require_caller
 STEP=${1:?step}
-[[ $STEP == 5.10 ]] && stop "5.10 (diagnosis Lambda) needs its own explicit sign-off; it is not run by this script"
+APPROVED_5_10='[{"Sid":"Step510Writes1","Effect":"Allow","Action":["lambda:TagResource"],"Resource":["arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"]}]'
+[[ $STEP == 5.10 && ${APPROVE_5_10:-} != spares4repairs-part-finder ]] && stop "5.10 (diagnosis Lambda) runs only with its sign-off: APPROVE_5_10=spares4repairs-part-finder"
 SF=$P5_ROOT/infra/production/steps/$STEP.json
 [[ -s $SF ]] || stop "no step file $SF"
 STACK=$(jq -r .stack "$SF")
@@ -77,14 +80,25 @@ fi
 
 T=$W/template.json
 synth_step "$STEP" "$T"
+if [[ $STEP == 5.10 ]]; then
+  # The S4R stack name is acknowledged only as part of the S4R role name: exactly one occurrence, the function's Role.
+  [[ $(jq -c '[paths(type == "string" and contains("SparesSite-dev")) as $p | {p: $p, v: getpath($p)}]' "$T") == \
+     '[{"p":["Resources","spares4repairspartfinder","Properties","Role"],"v":"arn:aws:iam::'$P5_ACCOUNT':role/SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2qUHib"}]' ]] \
+    || stop "5.10: SparesSite-dev occurs in the template other than as the function's S4R role"
+fi
 params_for "$T"
 jq '.import' "$SF" > "$W/import.json"
 bash "$P5_ROOT/infra/production/snapshot.sh" "$SF" > "$W/before.json"
+[[ $STEP == 5.10 ]] && bash "$P5_ROOT/infra/production/s4r-boundary.sh" > "$W/boundary-before.json"
 
 # --- The step's writes, and nothing else --------------------------------------------------------------------------
 POL=arn:aws:iam::$P5_ACCOUNT:policy/ac-cfn-execution
 (cd "$P5_TOOLS" && npm run -s production:toolkit -- --check >/dev/null) || stop "toolkit documents are stale"
 (cd "$P5_TOOLS" && node bin/import-writes.mjs step-policy --step "$SF") > "$W/step-policy.json"
+if [[ $STEP == 5.10 ]]; then
+  cmp -s <(jq -S '[.Statement[] | select(.Sid | startswith("Step"))]' "$W/step-policy.json") <(jq -S . <<<"$APPROVED_5_10") \
+    || stop "5.10: the step policy's writes are not exactly the approved statement"
+fi
 BASE_DOC=$P5_ROOT/docs/migration/phase-5/toolkit/ac-cfn-execution.json
 version_of() { # DOCUMENT: the version ID holding exactly this document, if any
   for v in $(aws iam list-policy-versions --policy-arn "$POL" --query 'Versions[].VersionId' --output text); do
@@ -134,5 +148,14 @@ if bash "$P5_ROOT/infra/production/compare.sh" "$W/before.json" "$W/after.json";
   result "$STEP before/after: identical apart from aws:cloudformation:* tags"
 else
   stop "$STEP: the resources changed beyond CloudFormation's tags"
+fi
+if [[ $STEP == 5.10 ]]; then
+  bash "$P5_ROOT/infra/production/s4r-boundary.sh" > "$W/boundary-after.json"
+  if cmp -s <(jq -S . "$W/boundary-before.json") <(jq -S . "$W/boundary-after.json"); then
+    result "$STEP S4R boundary: the S4R role (trust, inline and managed policies) and API 65vnizdmk4 (routes, integrations, stages) identical"
+  else
+    diff <(jq -S . "$W/boundary-before.json") <(jq -S . "$W/boundary-after.json") >&2 || true
+    stop "$STEP: the S4R role or API 65vnizdmk4 changed"
+  fi
 fi
 result "$STEP CloudTrail: check after delivery with infra/production/check-cloudtrail.sh $STEP"
