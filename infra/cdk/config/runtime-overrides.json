@@ -96,6 +96,57 @@
           "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo"
         }
       ]
+    },
+    "whichpart-api-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/whichpart-api",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/whichpart-api:*"
+          ]
+        }
+      ]
+    },
+    "diag-orchestrator-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator:*"
+          ]
+        }
+      ]
+    },
+    "error-code-mcp-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp:*"
+          ]
+        }
+      ]
     }
   }
 }

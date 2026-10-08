@@ -47,10 +47,18 @@ describe('runtime overrides', () => {
     expect(importedSid('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34', 'AcRuntimeStack', 'whichpartapi')).toBe('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34');
     expect(importedSid('OtherStack-whichpartapiPublicInvoke-Ab12', 'AcRuntimeStack', 'whichpartapi')).toBe('OtherStack-whichpartapiPublicInvoke-Ab12');
   });
+  it('replaces the managed policy list of a role exactly, and refuses unknown roles', () => {
+    const l = live(); l.roles.r.managed = ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'];
+    expect(applyOverrides(l, { roleManagedPolicies: { r: [] } }).roles.r.managed).toEqual([]);
+    expect(l.roles.r.managed).toHaveLength(1);
+    expect(() => applyOverrides(l, { roleManagedPolicies: { nope: [] } })).toThrow(/unknown role/);
+    expect(() => applyOverrides(l, { roleManagedPolicies: { r: 'x' } })).toThrow(/must be a list/);
+  });
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
     const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
+    for (const k of Object.keys(o.roleManagedPolicies || {})) expect(['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'], k).toContain(k);
     for (const k of Object.keys(o.rolePolicies)) expect(['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'], k).toContain(k.split('/')[0]);
   });
 });
