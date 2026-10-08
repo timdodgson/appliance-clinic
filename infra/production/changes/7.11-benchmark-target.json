@@ -1,0 +1,63 @@
+{
+  "id": "7.11-benchmark-target",
+  "description": "Batch runs default to staging (none is configured, so a run without an explicit target is refused); production needs confirmProduction, and confirmProductionRouting when the run would change live AI routing; the intent is recorded on the run and routing-override begin() refuses to rewrite live routing without it. whichpart-api code only.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase7/whichpart-api-DAnfjAPL6g_3b-wP7xPFngGrjqmwPzIYFQpZfyoo2YY.zip"
+      ]
+    }
+  ],
+  "grantNotes": "Code only, as 7.5b and 7.5c: UpdateFunctionCode on whichpart-api and read of the one staged artefact.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
