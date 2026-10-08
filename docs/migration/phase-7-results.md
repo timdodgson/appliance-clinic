@@ -431,6 +431,14 @@ From runtime evidence: the code, CloudTrail for 90 days, and IAM simulation of t
 - `verify-ac-auth.sh` passes 13 checks. New: the admin reads Settings, which needs the AI-config, OpenAI and Jev reads.
 - canonical sessions continue, and the smoke, S4R health, contract and ingress are unchanged
 
+**CloudTrail for 7.10 and 7.13:**
+- 7.10b1, 7.13a and 7.13c: `iam:PutRolePolicy` on the AC roles only
+- 7.10b2: `lambda:UpdateFunctionConfiguration` and `UpdateFunctionCode` on `whichpart-api` only
+- 7.10c: `lambda:UpdateFunctionConfiguration` on the three AC functions only
+- 7.13b: the managed-policy detach on the three AC roles only
+
+None wrote outside its spec's resources.
+
 **Not changed, on purpose:**
 - **The S3 and DynamoDB inline policies** are already scoped to exact prefixes and tables, with the actions the code uses.
 - **`diag-orchestrator-role`** now has only its log policy.
