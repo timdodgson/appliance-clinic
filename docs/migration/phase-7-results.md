@@ -278,6 +278,82 @@ headers. Now the public statement admits only invocations made through the Funct
 function can reserve any. A Service Quotas increase (owner) comes first; then reserve, for example, 2 for `whichpart-api`
 and 1 each for the orchestrator and MCP, leaving the rest unreserved for the S4R server.
 
+## 7.11: batch runs default to staging, and production needs explicit intent
+
+**The risk.** A batch run sends its turns to an AC API. When its COMPOSE differs from live, it also rewrites the live
+AI-config secret for the run's duration (`routing-override.js`). That secret is `spares4repairs/dev/applianceclinic-ai-config`,
+and the **diagnosis Lambda reads it too**, so a batch run could silently change S4R `/part-finder` routing:
+- No run named a target environment.
+- No run recorded any intent.
+- The owner ran batches as recently as 2026-10-05; the last routing lease was released that day.
+
+**The change** ([`benchmark/target.js`](../../services/whichpart-api/benchmark/target.js), 13 tests):
+- **Default target: staging.** No staging environment is configured (`BENCHMARK_STAGING_URL` is unset), so a run
+  without a target is refused with `409 STAGING_NOT_CONFIGURED`, and the message says how to declare production intent.
+- **`target: "production"`** needs `confirmProduction: true`. A run whose COMPOSE would change live routing also needs
+  `confirmProductionRouting: true`. The response lists the fields it would change.
+- **Recorded intent.** The intent (who, when, routing or not) is recorded on the run. `routing-override.js` `begin()`
+  refuses to rewrite live routing for any run that does not carry recorded routing intent, and writes nothing.
+- **Scope.** All three enqueue routes (`build-run`, `rerun`, and the legacy ACQ-100 `run`) go through the gate. A source
+  guard test enforces that.
+- **Retired suites.** No retired or legacy suite is re-enabled. ACQ-100 stays labelled legacy and non-authoritative, and
+  it is not used for any evaluation here.
+
+**Limits:**
+- **The batch worker is not in this repository.** It runs on the owner's machine, and CloudTrail shows it writing the
+  AI-config secret with the owner's IAM user (38 writes in 90 days). The API gate stops runs from being queued without
+  intent. The `begin()` guard binds the worker only if it runs this repository's `routing-override.js`. The owner should
+  update the worker to this code, or give it a role that cannot write the live secret.
+- **A real staging environment** (a second AC stack, with its own AI-config secret not read by the diagnosis Lambda) is
+  new infrastructure. It is outside Phase 7. Until it exists, every batch run is an explicit production run.
+
+**Deployment.**
+
+| Item | Result |
+|---|---|
+| Change set | 1 Modify `whichpartapi`, `Properties.Code` only |
+| Artefact | Against 7.6: `index.js`, `benchmark/acq-store.js` and `benchmark/routing-override.js` differ; `benchmark/target.js` is added |
+| Live check (`verify-ac-auth.sh`, temporary admin) | Enqueue without a target: 409 `STAGING_NOT_CONFIGURED`. Production without confirmation: 400. The run count stayed 46 and the routing lease was untouched |
+| Stack | Drift `IN_SYNC`, no-op confirmed |
+
+## 7.12: CORS allowlist and security headers on `whichpart-api`
+
+**Before.** Every response carried `access-control-allow-origin: *` and no security headers.
+
+**After** ([`http-headers.js`](../../services/whichpart-api/http-headers.js), 7 tests):
+- **CORS.** It is sent only to the four AC origins, echoed with `vary: origin`: `https://applianceclinic.ai`,
+  `https://www.applianceclinic.ai`, `https://whichpart.co.uk` and `https://www.whichpart.co.uk`. Any other origin gets no
+  CORS headers.
+- **Security headers on every HTTP response:**
+  - HSTS (1 year, including subdomains)
+  - `x-content-type-options: nosniff`
+  - `x-frame-options: DENY`
+  - `referrer-policy: strict-origin-when-cross-origin`
+  - a CSP that allows nothing to load (`default-src 'none'; frame-ancestors 'none'; base-uri 'none'`), since every
+    response is JSON
+- **Scheduled events are untouched.**
+
+**Why this is safe.**
+- The site calls `/api` same-origin through the AC CloudFront distribution.
+- That behaviour forwards all viewer headers (managed policy `AllViewerExceptHostHeader`) and does not cache
+  (`CachingDisabled`).
+- The site's page CSP needs the site deploy path (ADR 0008). The front-end source is not in this repository.
+
+**Live, before and after:**
+
+| Request to `https://applianceclinic.ai/api/auth/me` | Before | After |
+|---|---|---|
+| Same-origin (no `Origin`) | `*` | No CORS; security headers |
+| `Origin: https://applianceclinic.ai` | `*` | `https://applianceclinic.ai`; security headers |
+| `Origin: https://evil.example` | `*` | No CORS; security headers |
+| `OPTIONS`, `Origin: https://whichpart.co.uk` | 204, `*` | 204, `https://whichpart.co.uk` |
+
+**Further checks:**
+- **Real browser (Chromium)**, on the live site: the page loads, `/api/auth/me` returns 200, a chat turn `POST /api`
+  returns 200, and there are no console errors.
+- `verify-ac-auth.sh` passes all 12 checks. S4R health is 3 × 200. The contract, ingress and smoke are unchanged.
+- The deployed CodeSha256 (`tzzTt…`) equals `build/reference/whichpart-api.zip.json`.
+
 ## Jev outage during 7.6 (external, 17:13 to 17:21Z)
 
 The after-checks of 7.6 found the `/part-finder` contract and the `/ai/chat` ingress returning 503.
