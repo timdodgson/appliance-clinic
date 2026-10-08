@@ -51,3 +51,123 @@ exercised a post-import write against a property the template does not declare.
 with the execution role's permissions. With write access, an import would reset or delete any live property the template does
 not declare, for every resource type, including the diagnosis Lambda in 5.10. The read-only execution role turns that into a
 safe rollback, but then no import whose update handler writes can complete.
+
+**Resolved.** The sandbox rehearsal ([phase-5-import-semantics.md](phase-5-import-semantics.md), #49) established every
+type's post-import writes. 5.1 was then run again with the repository policy declared and the step's writes granted (below).
+
+## Steps 5.1 to 5.9 (2026-10-08)
+
+Each step ran [`import.sh`](../../infra/production/steps/import.sh) `<step>` as in the [runbook](runbooks/phase-5-import.md):
+- a fresh live capture
+- a snapshot
+- a step version of `ac-cfn-execution` (the read-only base plus exactly the manifest's writes on exactly the step's
+  resources), back to the read-only version straight after the import
+- an Import-only change set, checked in import mode and equal to the step file's expected changes
+- drift, a no-op change set and the stack policy
+- the before/after compare, and CloudTrail after delivery
+
+Backups were refreshed before 5.3a: on-demand backups of both tables and fresh copies of both buckets
+(`whichpart-learning`: 36,179 objects, the same count and bytes as the source).
+
+| Step | Imported | Execution-policy version (writes added) | CloudTrail writes by the execution role | Drift | Before/after |
+|---|---|---|---|---|---|
+| 5.1 | ECR `spares4repairs-error-code-mcp` (policy declared) | v4: `ecr:SetRepositoryPolicy`, `PutImageTagMutability`, `PutImageScanningConfiguration`, `TagResource` | Exactly those four, on the repository | `IN_SYNC` | Identical; policy text unchanged |
+| 5.2 | ECR `spares4repairs-diag-orchestrator`; 7 secrets | v5: ECR as 5.1; `secretsmanager:UpdateSecret`, `TagResource` | ECR as 5.1; per secret `TagResource` and `UpdateSecret` (description only, no value or KMS key) | `IN_SYNC` | Identical; secret versions unchanged |
+| 5.3a | Table `whichpart-recalls` | v3 (none) | None | `IN_SYNC` | Identical |
+| 5.3b | Table `whichpart-transcripts` | v3 (none) | None | `IN_SYNC` | Identical |
+| 5.4 | Buckets `whichpart-web-…`, `whichpart-learning-…`; `whichpart-web` bucket policy | v9: `s3:PutBucketTagging` | `s3:TagResource` on each bucket (authorised by `s3:PutBucketTagging`); none for the bucket policy | `IN_SYNC` (no drift result is reported for the bucket policy; its text is identical in the snapshots) | Identical |
+| 5.5 | Roles `diag-orchestrator-role`, `error-code-mcp-role`, `whichpart-api-role` | v3 (none) | None | `IN_SYNC` | Identical |
+| 5.6 | 9 inline policies | v3 (none) | None | `IN_SYNC` | Identical |
+| 5.7a | Function `spares4repairs-error-code-mcp` | v6: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; image digest unchanged |
+| 5.7b | Function `spares4repairs-diag-orchestrator` | v7: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; image digest unchanged |
+| 5.7c | Function `whichpart-api` (token parameters NoEcho) | v8: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; CodeSha256 and environment unchanged |
+| 5.8 | 3 Function URLs, 8 permissions | v3 (none) | None | `IN_SYNC` | Identical; URL hosts, auth type, invoke mode and CORS unchanged |
+| 5.9 | Rules `whichpart-recall-ingest-daily`, `whichpart-transcript-review` | v10: `events:TagResource` | `events:TagResource` on each rule | `IN_SYNC` | Identical; schedule, state and targets unchanged |
+
+"Identical" means the full snapshots are equal apart from the `aws:cloudformation:*` tags. For runtime steps the snapshot
+is the whole runtime capture (all roles, functions and rules), so a change anywhere would show. Every CloudTrail check
+passed `import-writes.mjs check-writes`:
+- no unexpected write
+- no forbidden parameter
+- no refused call
+
+After every step the default `ac-cfn-execution` version was v3, the read-only base.
+
+**Checker fixes found on the way. Each stopped a step safely; none changed a resource.**
+- **Compare: untagged resources.** The secrets (5.2) and buckets (5.4) had no tags before the import: `Tags` absent, or
+  S3's `NoSuchTagSet`. Afterwards they hold only CloudFormation's tags. The first comparison read that as a change.
+  [`compare.sh`](../../infra/production/compare.sh) now treats "no tags" and "only `aws:cloudformation:*` tags" as equal.
+  Negative tests confirm that any other tag or property change still fails, and all ten comparisons were re-run.
+- **Change-set check: carried-forward S4R references.** The runtime template is cumulative, so from 5.7a on it still
+  holds the 5.6 `whichpart-cognito-auth` policy and its S4R pool ARN. 5.7c added whichpart-api's environment
+  references to the S4R app client (`COGNITO_CLIENT_ID`) and the S4R shop CloudFront (`S4R_PRODUCT_BASE_URL`). Both are
+  documented in ownership.md. The check refused each before execution and deleted the change set. Step files now carry
+  every earlier step's acknowledged references, each with its reason
+  ([`make-runtime-steps.mjs`](../../infra/production/make-runtime-steps.mjs)).
+
+### After 5.9
+
+| Check | Result |
+|---|---|
+| `AcDataStack` | `IMPORT_COMPLETE`, termination protection on, no stack tags, stack policy denies `Update:Replace` and `Update:Delete`. Drift `IN_SYNC`: 13 resources plus `StackShell` and the bucket policy, neither of which reports drift |
+| `AcRuntimeStack` | The same; drift `IN_SYNC`, 28 resources plus `StackShell` |
+| `ac-cfn-execution` | Default v3, byte-for-byte the committed read-only base |
+| Inventory vs pre-Phase-5 (`compare:config`) | 52 differences, all expected: the AC and sandbox stacks (the sandbox probe postdates the pre-Phase-5 inventory), the sandbox functions, `aws:cloudformation:*` tags on the three AC functions, the inventory's ownership flags now naming the AC stacks, and 3 new `whichpart-learning` objects from normal traffic. No configuration difference |
+| S4R health | 3 × 200 after every step |
+| `/part-finder` contract | `contract verify`: ok |
+| `/ai/chat` ingress | `ingress verify`: ok (as recorded) |
+| Smoke | 4 scenarios 200; safety decisions and state tokens as before Phase 5 |
+| `SparesSite-dev`, `CDKToolkit` | Last updated 2026-07-21 and 2026-07-20 (unchanged) |
+
+## Step 5.10: not executed (awaiting sign-off)
+
+The diagnosis Lambda `spares4repairs-part-finder` runs under the S4R role. It is imported with its Function URL and its
+AC-created permissions `FnUrlPublic` and `PublicInvoke`, never its role or `apigateway-invoke`.
+[`import.sh`](../../infra/production/steps/import.sh) refuses this step.
+
+**Writes, from the sandbox (5.10 row of [phase-5-import-semantics.md](phase-5-import-semantics.md)).** Only
+`lambda:TagResource` on the function, which bumps `LastModified` and `RevisionId`. The URL and both permissions get none.
+In the sandbox:
+- the stand-in S4R role's policies were unchanged
+- the stand-in API's routes were unchanged
+- `apigateway-invoke` was untouched and outside the stack
+
+**Proposed execution policy for the step.** It is the read-only base plus one statement
+(`import-writes.mjs step-policy --step infra/production/steps/5.10.json`):
+
+```json
+{"Sid": "Step510Writes1", "Effect": "Allow", "Action": ["lambda:TagResource"],
+ "Resource": ["arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"]}
+```
+
+With `ac-deny-s4r`, the IAM simulator (region context eu-west-1) gives:
+- **allowed:** `lambda:TagResource` on the function
+- **implicitly denied** on the function: `UntagResource`, `UpdateFunctionConfiguration`, `UpdateFunctionCode`,
+  `UpdateFunctionUrlConfig`, `DeleteFunctionUrlConfig`, `AddPermission`, `RemovePermission`, `DeleteFunction`,
+  `PutFunctionConcurrency`
+- **implicitly denied:** `lambda:TagResource` on `whichpart-api`
+- **explicitly denied:**
+  - `lambda:TagResource` on `spares4repairs-server-dev`
+  - every IAM write and `PassRole` on the S4R role
+  - API `65vnizdmk4` writes
+  - `UpdateUserPool` on the S4R pool
+  - CloudFront, Route 53 and ACM writes
+
+**Proposed template against live (synthesised offline from the capture after 5.9).**
+- Role: the S4R role ARN, unchanged.
+- Function configuration: runtime, handler, memory, timeout and architecture equal live. The environment equals live
+  (keys `LEARNING_BUCKET`, `LM_MAX_TOKENS`, `LM_STUDIO_URL`).
+- Code: the deployed artefact in the AC assets bucket. Its SHA-256 equals the live CodeSha256
+  `Z6lIeG9rND+tecNh3/gCTMQ9mpDGeICYe6vxcGyvLXo=`.
+- URL: `AuthType` `NONE`, `InvokeMode` `RESPONSE_STREAM`, and CORS (origins `*`, methods `POST`, headers `content-type`,
+  max age 86400) equal live. The URL host is derived from the function and does not change on import.
+- Permissions: `FnUrlPublic` and `PublicInvoke` as live. No resource for `apigateway-invoke`, which stays live and unmanaged.
+
+**Failure behaviour.** The step policy grants the type's complete write set, so the update handler cannot be stopped
+part-way by a refusal. If the import fails anyway:
+- CloudFormation rolls back the import: the resources leave the stack and are not deleted (`DeletionPolicy: Retain`).
+- The execution role returns to v3 (the trap in `import.sh`).
+- The only write that can have happened is the tag, and an `aws:cloudformation:*` tag is not behaviour.
+- CloudTrail and the before/after snapshot show what happened.
+
+A stack policy denying `Update:Replace` and `Update:Delete` is set straight after.

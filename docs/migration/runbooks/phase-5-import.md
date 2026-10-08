@@ -65,7 +65,9 @@ A write made before a later denial is **not** rolled back, so a step is granted 
    - Bearer tokens become NoEcho parameters filled from the live value. They are never in a template, `cdk.out` or git.
    - Zip functions use the deployed artefact, checked against its CodeSha256.
 2. **Prove ownership.** Every resource is `AC` or `AC (S4R-consumed)` in ownership.md, on no S4R denylist entry, and in
-   no stack. S4R identifiers a resource refers to are acknowledged in the step file, each with its reason.
+   no stack. S4R identifiers a resource refers to are acknowledged in the step file, each with its reason. A stack's
+   template is cumulative, so a step file also carries the acknowledgements of every earlier step into the same stack
+   ([`make-runtime-steps.mjs`](../../../infra/production/make-runtime-steps.mjs)).
 3. **Shell.** If the stack does not exist, create it holding only `StackShell`, with the execution role and termination
    protection, and no stack tags.
 4. **Snapshot** the step's resources ([`snapshot.sh`](../../../infra/production/snapshot.sh)).
@@ -76,7 +78,9 @@ A write made before a later denial is **not** rolled back, so a step is granted 
    exactly. Executed only if both pass.
 7. **Drift** straight after: every resource `IN_SYNC`. **No-op:** the same template reports no changes. **Stack
    policy:** deny `Update:Replace` and `Update:Delete`.
-8. **Compare.** The after snapshot may differ from the before snapshot only by `aws:cloudformation:*` tags.
+8. **Compare.** The after snapshot may differ from the before snapshot only by `aws:cloudformation:*` tags
+   ([`compare.sh`](../../../infra/production/compare.sh)). An untagged resource (no `Tags`, or S3's `NoSuchTagSet`) that
+   gains only those tags is unchanged.
 9. **CloudTrail.** After delivery, every write by the execution role must be one the manifest expects for the step's
    types, with no forbidden parameter and no refused call
    ([`check-cloudtrail.sh`](../../../infra/production/check-cloudtrail.sh)).
