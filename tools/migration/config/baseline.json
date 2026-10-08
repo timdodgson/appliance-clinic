@@ -16,7 +16,8 @@
     "understoodFieldsReadByS4R": ["make", "appliance", "model", "fault", "code"]
   },
   "aiChatIngress": {
-    "description": "Second public ingress to the diagnosis Lambda: S4R HTTP API spares4repairs-dev, route POST /ai/chat, unauthenticated. Checked separately from the /part-finder contract. No known client in the monorepo.",
+    "description": "RETIRED by Phase 7 C1 (2026-10-08): POST /ai/chat on the S4R HTTP API 65vnizdmk4 (route ncdglq1, integration nk77gue) no longer invokes the diagnosis Lambda; its permission apigateway-invoke was removed. The route is unchanged and still answers the recorded 500 / JSON / message, so `ingress verify` compares only that caller-visible shape: it is not a healthy ingress. infra/production/verify-ai-chat-ingress.sh <dir> retired proves the Lambda is not reached. Removing the route is S4R cleanup C2 (not done).",
+    "status": "retired",
     "request": { "messages": [{ "role": "user", "content": "My washing machine won't drain, it's a Bosch" }] }
   },
   "smokeScenarios": [
