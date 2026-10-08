@@ -1,0 +1,58 @@
+{
+  "id": "7.9b-public-invoke-api",
+  "description": "Limit whichpart-api's public lambda:InvokeFunction statement (PublicInvoke) to invocations through its Function URL (InvokedViaFunctionUrl), as 7.9a did for the orchestrator and MCP. The site reaches the function only through the URL (CloudFront origin). The EventBridge permissions (RecallIngestDaily, TranscriptReviewPeriodic) are separate statements and unchanged.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapiPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke",
+      "replacement": "True",
+      "details": [
+        "Properties.InvokedViaFunctionUrl",
+        "Metadata.",
+        "UpdateReplacePolicy."
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:RemovePermission"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    }
+  ],
+  "grantNotes": "AddPermission and RemovePermission on whichpart-api only.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Permission"
+    ],
+    "expected": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionUrlConfig",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ]
+  }
+}
