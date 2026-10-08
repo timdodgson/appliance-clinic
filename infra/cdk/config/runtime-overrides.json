@@ -10,7 +10,9 @@
           "RATE_LIMIT_MODE": "enforce",
           "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
           "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
-          "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token"
+          "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
+          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
         },
         "unset": [
           "AC_ADMIN_SUBS"
@@ -34,6 +36,12 @@
         "PublicInvoke": {
           "invokedViaFunctionUrl": true
         }
+      },
+      "env": {
+        "set": {
+          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
+        }
       }
     },
     "spares4repairs-error-code-mcp": {
@@ -43,6 +51,11 @@
       "permissions": {
         "PublicInvoke": {
           "invokedViaFunctionUrl": true
+        }
+      },
+      "env": {
+        "set": {
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
         }
       }
     }

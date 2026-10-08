@@ -46,6 +46,7 @@ export const AC = {
 
 const fnArns = AC.functions.flatMap((n) => [`arn:aws:lambda:${R}:${A}:function:${n}`, `arn:aws:lambda:${R}:${A}:function:${n}:*`]);
 const tableArns = AC.tables.flatMap((n) => [`arn:aws:dynamodb:${R}:${A}:table/${n}`, `arn:aws:dynamodb:${R}:${A}:table/${n}/*`]);
+const AC_BEARER_SECRETS = ['applianceclinic/production/orchestrator-bearer', 'applianceclinic/production/mcp-bearer'];
 // A secret's ARN ends in "-" and six random characters.
 const secretArns = AC.secrets.map((n) => `arn:aws:secretsmanager:${R}:${A}:secret:${n}-??????`);
 
@@ -72,8 +73,12 @@ export function executionPolicy(stepWrites = []) {
     { Sid: 'ReadAcTables', Effect: 'Allow', Action: ['dynamodb:Describe*', 'dynamodb:List*', 'dynamodb:GetResourcePolicy'], Resource: tableArns },
     // Bucket ARNs only: object reads (customer data) are not granted.
     { Sid: 'ReadAcBuckets', Effect: 'Allow', Action: ['s3:GetBucket*', 's3:GetEncryptionConfiguration', 's3:GetLifecycleConfiguration', 's3:GetReplicationConfiguration', 's3:GetAccelerateConfiguration', 's3:GetAnalyticsConfiguration', 's3:GetIntelligentTieringConfiguration', 's3:GetInventoryConfiguration', 's3:GetMetricsConfiguration'], Resource: AC.buckets.map((n) => `arn:aws:s3:::${n}`) },
-    // Never GetSecretValue: imports read secret metadata only.
+    // Never GetSecretValue on a secret that is not resolved into a template: imports read secret metadata only.
     { Sid: 'ReadAcSecretMetadata', Effect: 'Allow', Action: ['secretsmanager:DescribeSecret', 'secretsmanager:GetResourcePolicy', 'secretsmanager:ListSecretVersionIds'], Resource: secretArns },
+    // Phase 7 (7.10c): the service bearer tokens reach the Lambda environments through {{resolve:secretsmanager:...}}
+    // dynamic references, which CloudFormation resolves with this role. The same values are already readable by this
+    // role in the functions' configuration (lambda:Get* above), so this adds no exposure. These two secrets only.
+    { Sid: 'ResolveAcBearerReferences', Effect: 'Allow', Action: ['secretsmanager:GetSecretValue'], Resource: AC_BEARER_SECRETS.map((n) => `arn:aws:secretsmanager:${R}:${A}:secret:${n}-??????`) },
     { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:DescribeRepositories', 'ecr:DescribeImages', 'ecr:GetLifecyclePolicy', 'ecr:GetRepositoryPolicy', 'ecr:ListTagsForResource', 'ecr:DescribeImageScanFindings', 'ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
     // Every CDK template's BootstrapVersion parameter resolves this toolkit parameter (Phase 5 finding).
     { Sid: 'ReadToolkitVersion', Effect: 'Allow', Action: ['ssm:GetParameter', 'ssm:GetParameters'], Resource: `arn:aws:ssm:${R}:${A}:parameter/cdk-bootstrap/${QUALIFIER}/version` },

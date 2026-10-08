@@ -107,6 +107,17 @@
       ]
     },
     {
+      "Sid": "ResolveAcBearerReferences",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-??????",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-??????"
+      ]
+    },
+    {
       "Sid": "ReadAcRepositories",
       "Effect": "Allow",
       "Action": [
