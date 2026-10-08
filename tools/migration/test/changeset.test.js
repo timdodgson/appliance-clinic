@@ -104,6 +104,26 @@ describe('update mode', () => {
     expect(r.failures.map((f) => f.rule)).toContain('replacement');
   });
 
+  it('passes a replacement only when the reviewed change names it (Phase 7)', () => {
+    const cs = { StackName: 'AcRuntimeStack', Changes: [modify({ Replacement: 'True', LogicalResourceId: 'FnPublicInvoke' })] };
+    expect(checkChangeSet({ changeSet: cs, denylist, mode: 'update' }).failures.map((f) => f.rule)).toContain('replacement');
+    expect(checkChangeSet({ changeSet: cs, denylist, mode: 'update', approvedReplacements: ['Other'] }).failures.map((f) => f.rule)).toContain('replacement');
+    const ok = checkChangeSet({ changeSet: cs, denylist, mode: 'update', approvedReplacements: ['FnPublicInvoke'] });
+    expect(ok.ok).toBe(true);
+    expect(ok.warnings.map((w) => w.rule)).toContain('approved-replacement');
+  });
+
+  it('allows UpdateReplacePolicy Delete only on a deletion-retained Lambda permission with a recorded reason', () => {
+    const cs = { StackName: 'AcRuntimeStack', Changes: [modify()] };
+    const perm = (extra) => ({ Resources: { P: { Type: 'AWS::Lambda::Permission', DeletionPolicy: 'Retain', UpdateReplacePolicy: 'Delete', Metadata: { 'ac:updateReplacePolicyReason': 'why' }, Properties: {}, ...extra } } });
+    const rules = (t) => checkChangeSet({ changeSet: cs, denylist, mode: 'update', template: t }).failures.map((f) => f.rule);
+    expect(rules(perm())).not.toContain('missing-retain-update-replace-policy');
+    expect(rules(perm({ Metadata: {} }))).toContain('missing-retain-update-replace-policy');
+    expect(rules(perm({ DeletionPolicy: 'Delete' }))).toContain('missing-retain-update-replace-policy');
+    expect(rules(perm({ Type: 'AWS::Lambda::Function' }))).toContain('missing-retain-update-replace-policy');
+    expect(rules(perm({ UpdateReplacePolicy: 'Snapshot' }))).toContain('missing-retain-update-replace-policy');
+  });
+
   it('fails an unapproved removal and passes an approved one', () => {
     const remove = { Type: 'Resource', ResourceChange: { Action: 'Remove', LogicalResourceId: 'Old', PhysicalResourceId: 'old', ResourceType: 'AWS::SSM::Parameter' } };
     expect(checkChangeSet({ changeSet: { StackName: 'AcDataStack', Changes: [remove] }, denylist, mode: 'update' }).failures.map((f) => f.rule)).toContain('unapproved-removal');

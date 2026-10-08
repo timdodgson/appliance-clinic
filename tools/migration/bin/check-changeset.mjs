@@ -7,7 +7,7 @@
  *        [--denylist ../../docs/migration/s4r-denylist.json] [--template cdk.out/<Stack>.template.json]
  *        [--inventory <dir>]
  *
- * step.json: { "step": "5.1", "allowedPhysicalIds": [...], "approvedRemovals": [...], "s4rConsumedPhysicalIds": [...],
+ * step.json: { "step": "5.1", "allowedPhysicalIds": [...], "approvedRemovals": [...], "approvedReplacements": [...], "s4rConsumedPhysicalIds": [...],
  *              "acknowledgedReferences": [{ "value": "<S4R id>", "reason": "<why an AC resource refers to it>" }] }
  * --inventory supplies secret digests so literal secret values in the template are detected.
  * --mode sandbox (Phase 4) also loads docs/migration/sandbox-allowlist.json and ac-production-denylist.json, and
@@ -46,6 +46,7 @@ const result = checkChangeSet({
   sandboxLists,
   allowedPhysicalIds: step.allowedPhysicalIds || [],
   approvedRemovals: step.approvedRemovals || [],
+  approvedReplacements: step.approvedReplacements || [],
   s4rConsumedPhysicalIds: step.s4rConsumedPhysicalIds || [],
   acknowledgedReferences: step.acknowledgedReferences || [],
   template: flags.template ? readJson(String(flags.template)) : null,

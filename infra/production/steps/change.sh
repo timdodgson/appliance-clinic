@@ -84,6 +84,7 @@ SF=$W/step.json
 ACK=$(jq -c '.acknowledgedReferences // empty' "$SPEC")
 [[ -z $ACK && $STACK == AcRuntimeStack ]] && ACK=$(jq -c .acknowledgedReferences "$P5_ROOT/infra/production/steps/5.10.json")
 jq --argjson ack "${ACK:-[]}" '{step: .id, stack, allowedPhysicalIds: [.expectedChanges[] | .physicalId | select(. != null)], acknowledgedReferences: $ack,
+     approvedReplacements: [.expectedChanges[] | select(.replacement == "True") | .logicalId],
      expectedChanges: [.expectedChanges[] | {action, logicalId, type, physicalId, replacement}]}' "$SPEC" > "$SF"
 CS=change-${ID//./-}
 EXECUTE=0 changeset "$STACK" "$CS" "$KIND" "$T" "$SF"
@@ -125,11 +126,14 @@ trap 'restore; : > "$W/params.json"' EXIT
 set_default "$CHANGE_V"
 result "change $ID execution policy: $CHANGE_V = read-only + $(jq -c '.grant' "$SPEC")"
 if [[ $KIND == UPDATE && $REPLACE != '[]' ]]; then
-  # Update:Replace is allowed only on the named logical IDs, for this execution only; Delete stays denied.
+  # Update:Replace is allowed only on the named logical IDs, for this execution only. A replaced resource whose
+  # UpdateReplacePolicy is Delete (a Lambda permission, Phase 7) also needs Update:Delete for its old physical resource,
+  # so Update:Delete is allowed on the same named IDs. Anything a stack policy does not allow is denied, so Replace and
+  # Delete stay denied everywhere else. The change set was already checked to
+  # hold only Modify actions on them, so no named resource can be removed from the stack.
   aws cloudformation set-stack-policy --stack-name "$STACK" --stack-policy-body "$(jq -nc --argjson r "$REPLACE" '{Statement: [
-    {Effect: "Allow", Principal: "*", Action: "Update:*", Resource: "*"},
-    {Effect: "Deny", Principal: "*", Action: ["Update:Replace", "Update:Delete"], NotResource: [$r[] | "LogicalResourceId/\(.)"]},
-    {Effect: "Deny", Principal: "*", Action: "Update:Delete", Resource: "*"}]}')"
+    {Effect: "Allow", Principal: "*", Action: "Update:Modify", Resource: "*"},
+    {Effect: "Allow", Principal: "*", Action: ["Update:Replace", "Update:Delete"], Resource: [$r[] | "LogicalResourceId/\(.)"]}]}')"
   result "change $ID stack policy: Update:Replace allowed for this execution on $REPLACE only"
 fi
 

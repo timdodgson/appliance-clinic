@@ -11,6 +11,7 @@
 #   2. a cookie claiming the S4R pool, with an "admin" group: /auth/me is signed out, an admin route is 401
 #   3. the temporary admin signs in (isAdmin true) and reaches /admin/health (200)
 #   4. the temporary non-admin signs in (isAdmin false) and gets 401 on /admin/health
+#   5. the admin lists error codes: a read through the error-code MCP's Function URL (Phase 7: proves the URL path)
 set -euo pipefail
 source "$(dirname "$0")/lib.sh"
 require_caller
@@ -65,6 +66,8 @@ check('AC admin signs in', r.status === 200 && r.json && r.json.user && r.json.u
 const adminCookie = session(r.setCookies);
 r = await call('/admin/health', { cookie: adminCookie });
 check('AC admin reaches /admin/health', r.status === 200, `status ${r.status}`);
+r = await call('/admin/error-codes', { cookie: adminCookie });
+check('AC admin lists error codes (whichpart-api -> MCP Function URL, bearer)', r.status === 200, `status ${r.status}`);
 r = await call('/auth/logout', { method: 'POST', cookie: adminCookie });
 check('AC admin signs out', r.status === 200, `status ${r.status}`);
 

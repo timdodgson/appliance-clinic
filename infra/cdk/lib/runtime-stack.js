@@ -142,7 +142,10 @@ class RuntimeStack extends cdk.Stack {
             ...(invokedViaFunctionUrl ? { invokedViaFunctionUrl: true } : {}),
           }));
           // A Permission is replaced to change it. The statement it replaces must go, so it is not retained on update.
-          if (overridden[sid]) perm.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.DELETE;
+          if (overridden[sid]) {
+            perm.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.DELETE;
+            perm.addMetadata('ac:updateReplacePolicyReason', 'Changing a permission replaces its statement; the replaced statement must not remain (Phase 7)');
+          }
         }
         for (const sid of Object.keys(overridden)) if (!seen.has(sid)) throw new Error(`permission override for unknown statement ${name} ${sid}`);
       }

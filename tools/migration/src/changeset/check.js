@@ -38,6 +38,7 @@ function stringsIn(value, into = []) {
  * @param {object} [input.sandboxLists]       sandbox mode: lists from loadSandboxLists()
  * @param {string[]} [input.allowedPhysicalIds] physical IDs this step may touch
  * @param {string[]} [input.approvedRemovals]  logical IDs whose removal is approved (update mode)
+ * @param {string[]} [input.approvedReplacements] logical IDs whose replacement the reviewed change names (update mode)
  * @param {string[]} [input.s4rConsumedPhysicalIds] e.g. the diagnosis Lambda: changes need sign-off
  * @param {object} [input.template]           synthesized template JSON
  * @param {string[]} [input.secretDigests]    SHA-256 digests of known secret values (from inventory)
@@ -46,7 +47,7 @@ function stringsIn(value, into = []) {
  *        them (for example AC's sign-in policy naming the S4R pool ARN). They only waive the
  *        document scan; an S4R resource as the target of a change always fails.
  */
-export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds = [], approvedRemovals = [], s4rConsumedPhysicalIds = [], template = null, secretDigests = [], acknowledgedReferences = [], sandboxLists = null }) {
+export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds = [], approvedRemovals = [], approvedReplacements = [], s4rConsumedPhysicalIds = [], template = null, secretDigests = [], acknowledgedReferences = [], sandboxLists = null }) {
   const failures = [];
   const warnings = [];
   const fail = (rule, detail) => failures.push({ rule, ...detail });
@@ -83,7 +84,10 @@ export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds =
       else if (!allowedPhysicalIds.includes(rc.PhysicalResourceId)) fail('physical-id-not-allowlisted', id);
     } else if (mode === 'update') {
       if (rc.Action === 'Remove' && !approvedRemovals.includes(rc.LogicalResourceId)) fail('unapproved-removal', id);
-      if (rc.Replacement === 'True' || rc.Replacement === 'Conditional') fail('replacement', { ...id, replacement: rc.Replacement });
+      if (rc.Replacement === 'True' || rc.Replacement === 'Conditional') {
+        if (approvedReplacements.includes(rc.LogicalResourceId)) warn('approved-replacement', { ...id, replacement: rc.Replacement });
+        else fail('replacement', { ...id, replacement: rc.Replacement });
+      }
       if (rc.Action === 'Dynamic') fail('dynamic-change-needs-review', id);
       if (rc.Action === 'Import') fail('import-in-update', id);
       if (rc.PhysicalResourceId && allowedPhysicalIds.length && !allowedPhysicalIds.includes(rc.PhysicalResourceId) && rc.Action !== 'Add') fail('physical-id-not-allowlisted', id);
@@ -120,7 +124,14 @@ function checkTemplate({ template, mode, secretDigests, fail, warn, added = new 
     if (mode === 'import' && r.Type === 'AWS::CDK::Metadata') fail('cdk-metadata-in-import', { logicalId });
     if (r.Type === 'AWS::CloudFormation::WaitConditionHandle' || r.Type === 'AWS::CDK::Metadata') continue;
     if (r.DeletionPolicy !== 'Retain') fail('missing-retain-deletion-policy', { logicalId, type: r.Type });
-    if (r.UpdateReplacePolicy !== 'Retain') fail('missing-retain-update-replace-policy', { logicalId, type: r.Type });
+    if (r.UpdateReplacePolicy !== 'Retain') {
+      // A Lambda permission statement is changed by replacement, and the statement it replaces must go (Phase 7). Allowed
+      // only with a recorded reason, and only on deletion-retained permissions.
+      const reason = r.Metadata && r.Metadata['ac:updateReplacePolicyReason'];
+      if (r.Type === 'AWS::Lambda::Permission' && r.UpdateReplacePolicy === 'Delete' && r.DeletionPolicy === 'Retain' && reason) {
+        warn('permission-replaced-statement-deleted', { logicalId, reason });
+      } else fail('missing-retain-update-replace-policy', { logicalId, type: r.Type });
+    }
   }
   const digests = new Set(secretDigests);
   for (const s of stringsIn(template)) {
