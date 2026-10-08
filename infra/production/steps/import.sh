@@ -130,12 +130,9 @@ protect "$STACK"
 result "$STEP stack policy: Update:Replace and Update:Delete denied on every resource of $STACK"
 
 bash "$P5_ROOT/infra/production/snapshot.sh" "$SF" > "$W/after.json"
-strip() { jq -S 'walk(if type == "object" then with_entries(select((.key | tostring | startswith("aws:cloudformation:")) | not)) else . end)
-  | walk(if type == "array" then map(select((type == "object" and (.Key // "" | startswith("aws:cloudformation:"))) | not)) else . end)' "$1"; }
-if cmp -s <(strip "$W/before.json") <(strip "$W/after.json"); then
+if bash "$P5_ROOT/infra/production/compare.sh" "$W/before.json" "$W/after.json"; then
   result "$STEP before/after: identical apart from aws:cloudformation:* tags"
 else
-  diff <(strip "$W/before.json") <(strip "$W/after.json") >&2 || true
   stop "$STEP: the resources changed beyond CloudFormation's tags"
 fi
 result "$STEP CloudTrail: check after delivery with infra/production/check-cloudtrail.sh $STEP"
