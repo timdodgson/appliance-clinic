@@ -314,6 +314,7 @@ and the **diagnosis Lambda reads it too**, so a batch run could silently change 
 | Change set | 1 Modify `whichpartapi`, `Properties.Code` only |
 | Artefact | Against 7.6: `index.js`, `benchmark/acq-store.js` and `benchmark/routing-override.js` differ; `benchmark/target.js` is added |
 | Live check (`verify-ac-auth.sh`, temporary admin) | Enqueue without a target: 409 `STAGING_NOT_CONFIGURED`. Production without confirmation: 400. The run count stayed 46 and the routing lease was untouched |
+| CloudTrail | `lambda:UpdateFunctionCode` on `whichpart-api` only |
 | Stack | Drift `IN_SYNC`, no-op confirmed |
 
 ## 7.12: CORS allowlist and security headers on `whichpart-api`
@@ -353,6 +354,7 @@ and the **diagnosis Lambda reads it too**, so a batch run could silently change 
   returns 200, and there are no console errors.
 - `verify-ac-auth.sh` passes all 12 checks. S4R health is 3 × 200. The contract, ingress and smoke are unchanged.
 - The deployed CodeSha256 (`tzzTt…`) equals `build/reference/whichpart-api.zip.json`.
+- CloudTrail: `lambda:UpdateFunctionCode` on `whichpart-api` only.
 
 ## Jev outage during 7.6 (external, 17:13 to 17:21Z)
 
