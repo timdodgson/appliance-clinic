@@ -1,0 +1,67 @@
+{
+  "id": "7.8-endpoint-cors",
+  "description": "Remove the Function URL CORS configuration (AllowOrigins *) from the AC-only orchestrator and error-code MCP. Both are called server to server only (whichpart-api, the orchestrator, error-codes admin), with bearer tokens no browser holds, so no browser caller needs CORS. Authentication, auth type and the diagnosis Lambda are unchanged.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestratorUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Cors"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairserrorcodemcpUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+      "replacement": "False",
+      "details": [
+        "Properties.Cors"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionUrlConfig"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp"
+      ]
+    }
+  ],
+  "grantNotes": "UpdateFunctionUrlConfig on the two AC functions only.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Url"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionUrlConfig"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:CreateFunctionUrlConfig",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api"
+    ]
+  }
+}

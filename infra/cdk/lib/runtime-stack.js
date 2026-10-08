@@ -28,6 +28,15 @@ const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [
 /** Permissions owned by AC. `apigateway-invoke` on the diagnosis Lambda is S4R-sensitive and never imported. */
 const NEVER_MANAGED_SIDS = new Set(['apigateway-invoke']);
 const isToken = (key) => /TOKEN$/.test(key);
+/**
+ * The imported statement id of a captured statement. A statement CloudFormation created (after a replacement) is named
+ * <stack>-<logicalId>-<suffix>; its logical ID is the function's prefix plus the imported id, which keeps logical IDs
+ * stable across a replacement.
+ */
+function importedSid(sid, stackName, fid) {
+  const m = new RegExp(`^${stackName}-${fid}([A-Za-z0-9]+)-[A-Za-z0-9]+$`).exec(sid);
+  return m ? m[1] : sid;
+}
 /** CloudFormation's own aws:cloudformation:* tags appear on a resource once it is imported; they are never declared. */
 const userTags = (tags) => (tags || []).filter((t) => !t.Key.startsWith('aws:'));
 
@@ -112,19 +121,30 @@ class RuntimeStack extends cdk.Stack {
         }));
       }
       if (has(URL_STEP[p])) {
+        const overridden = f.permissionOverrides || {};
+        const seen = new Set();
         for (const s of f.statements) {
           if (NEVER_MANAGED_SIDS.has(s.Sid)) continue;
+          const sid = importedSid(s.Sid, this.stackName, fid);
+          seen.add(sid);
           const principal = s.Principal === '*' ? '*' : s.Principal.Service;
           const authType = s.Condition?.StringEquals?.['lambda:FunctionUrlAuthType'];
           const sourceArn = s.Condition?.ArnLike?.['AWS:SourceArn'];
-          const known = new Set(['StringEquals', 'ArnLike']);
+          const viaUrl = s.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'];
+          const known = new Set(['StringEquals', 'ArnLike', 'Bool']);
           for (const k of Object.keys(s.Condition || {})) if (!known.has(k)) throw new Error(`${name} ${s.Sid}: condition ${k} not representable`);
-          retain(new lambda.CfnPermission(this, `${fid}${logical(s.Sid)}`, {
+          const o = overridden[sid] || {};
+          const invokedViaFunctionUrl = o.invokedViaFunctionUrl === true || viaUrl === 'true' || viaUrl === true;
+          const perm = retain(new lambda.CfnPermission(this, `${fid}${logical(sid)}`, {
             functionName: name, action: s.Action, principal,
             ...(authType ? { functionUrlAuthType: authType } : {}),
             ...(sourceArn ? { sourceArn } : {}),
+            ...(invokedViaFunctionUrl ? { invokedViaFunctionUrl: true } : {}),
           }));
+          // A Permission is replaced to change it. The statement it replaces must go, so it is not retained on update.
+          if (overridden[sid]) perm.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.DELETE;
         }
+        for (const sid of Object.keys(overridden)) if (!seen.has(sid)) throw new Error(`permission override for unknown statement ${name} ${sid}`);
       }
     }
 
@@ -145,4 +165,4 @@ class RuntimeStack extends cdk.Stack {
   }
 }
 
-module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS, applyOverrides };
+module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS, applyOverrides, importedSid };
