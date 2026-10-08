@@ -143,7 +143,7 @@ and never refuse. The enforced keys are the ones a client cannot choose: email, 
 | 7.5 | Code, observe mode, `RATE_LIMIT_MODE`, `RATE_LIMIT_TABLE`, inline policy `whichpart-rate-limits-dynamodb` (`UpdateItem` on the table only) | Modify `whichpartapi` (code, environment), Add one `AWS::IAM::RolePolicy` | `PutRolePolicy`, `UpdateFunctionConfiguration`, `UpdateFunctionCode`, AC resources only |
 | 7.5b | Client address: right-most `X-Forwarded-For` entry | Code only | `UpdateFunctionCode` only |
 | 7.5c | Enforced keys moved off the client address (above) | Code only | `UpdateFunctionCode` only |
-| 7.7 | `RATE_LIMIT_MODE=enforce` | Environment only | Checked with `change:7.7-rate-limit-enforce` |
+| 7.7 | `RATE_LIMIT_MODE=enforce` | Environment only | `UpdateFunctionConfiguration` on `whichpart-api` only |
 
 Every change: drift `IN_SYNC`, no-op confirmed, S4R health 3 × 200, smoke equal to the baseline, `/part-finder` contract
 and `/ai/chat` ingress ok.
