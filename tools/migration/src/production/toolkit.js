@@ -52,8 +52,12 @@ const ACCOUNT_READS = [
 
 const doc = (Statement) => ({ Version: '2012-10-17', Statement });
 
-/** ac-cfn-execution: read-only on the AC production resources. */
-export function executionPolicy() {
+/**
+ * ac-cfn-execution: read-only on the AC production resources, plus `stepWrites` (stepWriteStatements in
+ * import-writes.js): the writes CloudFormation makes after importing the current step's resources, on exactly those
+ * resources. Between steps the default version is the read-only one.
+ */
+export function executionPolicy(stepWrites = []) {
   return doc([
     { Sid: 'AccountReads', Effect: 'Allow', Action: ACCOUNT_READS, Resource: '*' },
     { Sid: 'ReadAcFunctions', Effect: 'Allow', Action: ['lambda:Get*', 'lambda:List*'], Resource: fnArns },
@@ -63,10 +67,11 @@ export function executionPolicy() {
     { Sid: 'ReadAcBuckets', Effect: 'Allow', Action: ['s3:GetBucket*', 's3:GetEncryptionConfiguration', 's3:GetLifecycleConfiguration', 's3:GetReplicationConfiguration', 's3:GetAccelerateConfiguration', 's3:GetAnalyticsConfiguration', 's3:GetIntelligentTieringConfiguration', 's3:GetInventoryConfiguration', 's3:GetMetricsConfiguration'], Resource: AC.buckets.map((n) => `arn:aws:s3:::${n}`) },
     // Never GetSecretValue: imports read secret metadata only.
     { Sid: 'ReadAcSecretMetadata', Effect: 'Allow', Action: ['secretsmanager:DescribeSecret', 'secretsmanager:GetResourcePolicy', 'secretsmanager:ListSecretVersionIds'], Resource: secretArns },
-    { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:DescribeRepositories', 'ecr:DescribeImages', 'ecr:GetLifecyclePolicy', 'ecr:GetRepositoryPolicy', 'ecr:ListTagsForResource', 'ecr:DescribeImageScanFindings'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
+    { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:DescribeRepositories', 'ecr:DescribeImages', 'ecr:GetLifecyclePolicy', 'ecr:GetRepositoryPolicy', 'ecr:ListTagsForResource', 'ecr:DescribeImageScanFindings', 'ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
     // Every CDK template's BootstrapVersion parameter resolves this toolkit parameter (Phase 5 finding).
     { Sid: 'ReadToolkitVersion', Effect: 'Allow', Action: ['ssm:GetParameter', 'ssm:GetParameters'], Resource: `arn:aws:ssm:${R}:${A}:parameter/cdk-bootstrap/${QUALIFIER}/version` },
     { Sid: 'ReadAcRules', Effect: 'Allow', Action: ['events:DescribeRule', 'events:ListTargetsByRule', 'events:ListTagsForResource'], Resource: AC.rules.map((n) => `arn:aws:events:${R}:${A}:rule/${n}`) },
+    ...stepWrites,
   ]);
 }
 

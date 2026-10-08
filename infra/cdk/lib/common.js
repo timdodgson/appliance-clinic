@@ -30,4 +30,20 @@ function shellHandle(stack) {
 
 const logical = (name) => name.replace(/[^A-Za-z0-9]/g, '');
 
-module.exports = { A, R, STEPS, upTo, retain, shellHandle, logical };
+/**
+ * Naming profiles. `production` is the AC production account as it is. `sandbox` maps every production name to its
+ * Phase 4 sandbox copy, so the import-semantics probe (infra/sandbox/probe) imports exactly the template shapes that
+ * production will use. Logical IDs are always derived from the production name, so both profiles share them.
+ */
+const SANDBOX_NAMES = require('./sandbox-names.json');
+
+function namer(profile) {
+  if (profile === 'production') return (n) => n;
+  if (profile !== 'sandbox') throw new Error(`unknown profile ${profile}`);
+  return (n) => {
+    if (!(n in SANDBOX_NAMES)) throw new Error(`no sandbox name for ${n}`);
+    return SANDBOX_NAMES[n];
+  };
+}
+
+module.exports = { A, R, STEPS, upTo, retain, shellHandle, logical, namer, SANDBOX_NAMES };

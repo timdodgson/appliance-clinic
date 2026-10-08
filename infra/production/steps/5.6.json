@@ -1,0 +1,152 @@
+{
+  "step": "5.6",
+  "description": "The 9 AC inline policies as AWS::IAM::RolePolicy (PLAN.md step 5.6). SAFE AC CHANGE.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "whichpart-acq-benchmark-s3|whichpart-api-role",
+    "whichpart-ai-config-secrets|whichpart-api-role",
+    "whichpart-cognito-auth|whichpart-api-role",
+    "whichpart-knowledge-admin-s3|whichpart-api-role",
+    "whichpart-media-admin-s3|whichpart-api-role",
+    "whichpart-recalls-dynamodb|whichpart-api-role",
+    "whichpart-recalls-s3|whichpart-api-role",
+    "whichpart-transcripts-dynamodb|whichpart-api-role",
+    "error-code-admin-overlay-s3|error-code-mcp-role"
+  ],
+  "acknowledgedReferences": [
+    {
+      "value": "eu-west-1_mUWucohuX",
+      "reason": "whichpart-cognito-auth (AC policy) allows AdminInitiateAuth on the S4R pool AC admin sign-in uses until Phase 7 (ownership.md). The policy is imported unchanged; the pool is S4R and never managed."
+    }
+  ],
+  "import": [
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartacqbenchmarks3",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-acq-benchmark-s3",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartaiconfigsecrets",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-ai-config-secrets",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartcognitoauth",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-cognito-auth",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartknowledgeadmins3",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-knowledge-admin-s3",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartmediaadmins3",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-media-admin-s3",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartrecallsdynamodb",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-recalls-dynamodb",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichpartrecallss3",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-recalls-s3",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "whichpartapirolewhichparttranscriptsdynamodb",
+      "ResourceIdentifier": {
+        "PolicyName": "whichpart-transcripts-dynamodb",
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::RolePolicy",
+      "LogicalResourceId": "errorcodemcproleerrorcodeadminoverlays3",
+      "ResourceIdentifier": {
+        "PolicyName": "error-code-admin-overlay-s3",
+        "RoleName": "error-code-mcp-role"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartacqbenchmarks3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-acq-benchmark-s3|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartaiconfigsecrets",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-ai-config-secrets|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartcognitoauth",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-cognito-auth|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartknowledgeadmins3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-knowledge-admin-s3|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartmediaadmins3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-media-admin-s3|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartrecallsdynamodb",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-recalls-dynamodb|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichpartrecallss3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-recalls-s3|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirolewhichparttranscriptsdynamodb",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-transcripts-dynamodb|whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "errorcodemcproleerrorcodeadminoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "error-code-admin-overlay-s3|error-code-mcp-role"
+    }
+  ]
+}

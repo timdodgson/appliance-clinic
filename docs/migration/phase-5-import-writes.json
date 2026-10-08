@@ -1,0 +1,66 @@
+{
+  "description": "Phase 5 import semantics (#46): the writes CloudFormation makes after importing each resource type, as observed in the sandbox probe (docs/migration/phase-5-import-semantics.md), when the template carries the live configuration exactly. After IMPORT_COMPLETE, CloudFormation runs each imported resource's update handler ('Apply stack-level tags to imported resource if applicable') with the execution role's permissions. The production execution role is granted exactly expectedWrites for the current step's resources, and CloudTrail is checked against this file after every import: any other write, any forbiddenWrites action, or any forbiddenParams parameter is a STOP.",
+  "observedOn": "2026-10-07/08",
+  "types": {
+    "AWS::ECR::Repository": {
+      "expectedWrites": ["ecr:SetRepositoryPolicy", "ecr:PutImageTagMutability", "ecr:PutImageScanningConfiguration", "ecr:TagResource"],
+      "forbiddenWrites": ["ecr:DeleteRepositoryPolicy", "ecr:DeleteLifecyclePolicy", "ecr:PutLifecyclePolicy", "ecr:UntagResource", "ecr:DeleteRepository"],
+      "mustDeclare": ["RepositoryPolicyText (the Lambda-written policy, exactly): left undeclared, the update handler deletes it"],
+      "notes": "SetRepositoryPolicy, PutImageTagMutability and PutImageScanningConfiguration rewrite the declared values unchanged; TagResource adds the aws:cloudformation:* tags. Writes made before a later denial are not rolled back: grant the complete set or none."
+    },
+    "AWS::SecretsManager::Secret": {
+      "expectedWrites": ["secretsmanager:UpdateSecret", "secretsmanager:TagResource"],
+      "forbiddenWrites": ["secretsmanager:PutSecretValue", "secretsmanager:RotateSecret", "secretsmanager:PutResourcePolicy", "secretsmanager:DeleteResourcePolicy", "secretsmanager:UntagResource", "secretsmanager:ReplicateSecretToRegions"],
+      "forbiddenParams": { "secretsmanager:UpdateSecret": ["secretString", "secretBinary", "kmsKeyId"] },
+      "mustDeclare": ["Description, where set live"],
+      "notes": "UpdateSecret carries only secretId, clientRequestToken and the description: no value, so no new version (version count unchanged)."
+    },
+    "AWS::DynamoDB::Table": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["dynamodb:UpdateTable", "dynamodb:UpdateTimeToLive", "dynamodb:UpdateContinuousBackups", "dynamodb:TagResource", "dynamodb:DeleteTable"],
+      "mustNotDeclare": ["TableClass when live has none: drift reports REMOVE"],
+      "notes": "No write at all; the table gets no aws:cloudformation:* tags."
+    },
+    "AWS::S3::Bucket": {
+      "expectedWrites": ["s3:PutBucketTagging"],
+      "forbiddenWrites": ["s3:PutBucketPolicy", "s3:DeleteBucketPolicy", "s3:PutEncryptionConfiguration", "s3:PutBucketPublicAccessBlock", "s3:PutBucketOwnershipControls", "s3:PutBucketVersioning", "s3:PutLifecycleConfiguration", "s3:PutBucketCORS"],
+      "cloudTrailActions": { "s3:TagResource": "s3:PutBucketTagging" },
+      "notes": "CloudFormation calls the S3 TagResource API (CloudTrail eventName TagResource), authorised by s3:PutBucketTagging. Only the aws:cloudformation:* tags are added."
+    },
+    "AWS::S3::BucketPolicy": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["s3:PutBucketPolicy", "s3:DeleteBucketPolicy"],
+      "notes": "No write."
+    },
+    "AWS::IAM::Role": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["iam:UpdateAssumeRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:TagRole", "iam:UntagRole", "iam:UpdateRole", "iam:PutRolePermissionsBoundary", "iam:DeleteRole"],
+      "notes": "No write; no tags added."
+    },
+    "AWS::IAM::RolePolicy": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["iam:PutRolePolicy", "iam:DeleteRolePolicy"],
+      "notes": "No write. Physical ID: policy|role."
+    },
+    "AWS::Lambda::Function": {
+      "expectedWrites": ["lambda:TagResource"],
+      "forbiddenWrites": ["lambda:UpdateFunctionConfiguration", "lambda:UpdateFunctionCode", "lambda:PublishVersion", "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency", "lambda:UntagResource", "lambda:PutRuntimeManagementConfig", "lambda:PutFunctionRecursionConfig", "lambda:DeleteFunction", "iam:PassRole"],
+      "notes": "Only TagResource (aws:cloudformation:* tags). It changes the function's LastModified and RevisionId, not its configuration, code (CodeSha256 unchanged) or state. Zip and image alike."
+    },
+    "AWS::Lambda::Url": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["lambda:UpdateFunctionUrlConfig", "lambda:CreateFunctionUrlConfig", "lambda:DeleteFunctionUrlConfig"],
+      "notes": "No write; host, auth type, invoke mode and CORS unchanged."
+    },
+    "AWS::Lambda::Permission": {
+      "expectedWrites": [],
+      "forbiddenWrites": ["lambda:AddPermission", "lambda:RemovePermission"],
+      "notes": "No write. Physical ID: the statement ID."
+    },
+    "AWS::Events::Rule": {
+      "expectedWrites": ["events:TagResource"],
+      "forbiddenWrites": ["events:PutRule", "events:PutTargets", "events:RemoveTargets", "events:EnableRule", "events:DisableRule", "events:UntagResource", "events:DeleteRule"],
+      "notes": "Only TagResource (aws:cloudformation:* tags); schedule, state, targets and input unchanged."
+    }
+  }
+}

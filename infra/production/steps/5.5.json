@@ -1,0 +1,54 @@
+{
+  "step": "5.5",
+  "description": "The three AC IAM roles, without their inline policies (PLAN.md step 5.5). SAFE AC CHANGE.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "whichpart-api-role",
+    "diag-orchestrator-role",
+    "error-code-mcp-role"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::IAM::Role",
+      "LogicalResourceId": "whichpartapirole",
+      "ResourceIdentifier": {
+        "RoleName": "whichpart-api-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::Role",
+      "LogicalResourceId": "diagorchestratorrole",
+      "ResourceIdentifier": {
+        "RoleName": "diag-orchestrator-role"
+      }
+    },
+    {
+      "ResourceType": "AWS::IAM::Role",
+      "LogicalResourceId": "errorcodemcprole",
+      "ResourceIdentifier": {
+        "RoleName": "error-code-mcp-role"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartapirole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "whichpart-api-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "diagorchestratorrole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "diag-orchestrator-role"
+    },
+    {
+      "action": "Import",
+      "logicalId": "errorcodemcprole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "error-code-mcp-role"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ Ownership: [ownership.md](../ownership.md). Results: [phase-5-results.md](../pha
 
 | Document | What it is |
 |---|---|
-| `ac-cfn-execution.json` | The execution role's only allow. **Read-only**, on the AC production resources of the import set. Imports and drift detection only read, so no CloudFormation operation in Phase 5 can change a production resource: one that tried would be refused and roll back. No `GetSecretValue`, and no S3 object reads. Write access is a separate, reviewed change before Phase 6 |
+| `ac-cfn-execution.json` | The execution role's read-only base, on the AC production resources of the import set. No `GetSecretValue`, and no S3 object reads. During a step only, a version adds exactly that step's expected writes (*Import semantics* below); between steps the default version is this read-only one |
 | `ac-deny-s4r.json` | Explicit denies: every S4R identifier on the generated denylist (exact names, never a prefix an AC resource shares: AC secrets and functions also start with `spares4repairs`), the `SparesSite-*` stacks, `CDKToolkit`, API `65vnizdmk4`, the S4R pool and role, services AC never uses, other regions. Attached to the execution role and every toolkit role |
 | `bootstrap-acclinic.json` | The stock CDK v32 bootstrap template, patched as in Phase 4: qualifier fixed, the two policies as the execution policies, the deploy role's CloudFormation rights limited to `AcDataStack`, `AcRuntimeStack` and the toolkit, Retain everywhere. Not `cdk bootstrap`, whose stock deploy role may change any stack |
 
@@ -34,29 +34,58 @@ The script checks the documents are current, creates the policies (or confirms t
 a change set of Add actions only, turns on termination protection, and asks the IAM simulator that the execution role is
 denied S4R writes and AC writes and allowed AC reads.
 
+## Import semantics
+
+An import is **not** read-only. After `IMPORT_COMPLETE`, CloudFormation runs each imported resource's update handler
+("Apply stack-level tags to imported resource if applicable") with the execution role. Production 5.1 stopped on this
+(#47). The sandbox probe then established, for every Phase 5 type, which writes that update makes when the template
+carries the live configuration exactly ([evidence](../phase-5-import-semantics.md); machine form
+[`phase-5-import-writes.json`](../phase-5-import-writes.json)):
+
+| Type | Writes after import |
+|---|---|
+| ECR repository | `SetRepositoryPolicy`, `PutImageTagMutability`, `PutImageScanningConfiguration` (the declared values, unchanged), `TagResource`. **The repository policy must be declared**: left out, it is deleted |
+| Secret | `UpdateSecret` (description only, never a value), `TagResource` |
+| DynamoDB table, IAM role, inline policy, Function URL, permission, bucket policy | None |
+| S3 bucket | Tagging only (`s3:PutBucketTagging`) |
+| Lambda function | `TagResource` only (`LastModified` and `RevisionId` change; configuration, code and state do not) |
+| EventBridge rule | `TagResource` only |
+
+A write made before a later denial is **not** rolled back, so a step is granted its type's complete write set or none.
+
 ## Each import step
 
-[`infra/production/lib.sh`](../../../infra/production/lib.sh); one script and one step file per step under
+[`infra/production/lib.sh`](../../../infra/production/lib.sh) and
+[`infra/production/steps/import.sh`](../../../infra/production/steps/import.sh) `<step>`; one step file per step under
 [`infra/production/steps/`](../../../infra/production/steps/).
 
-1. **Read live.** Describe every resource of the step. The template is written from the live configuration, field by
-   field, never from documentation (Phase 4 finding 16).
-2. **Prove ownership.** Every resource is `AC` or `AC (S4R-consumed)` in ownership.md, on no S4R denylist entry, and
-   in no CloudFormation stack.
-3. **Shell.** If the stack does not exist, create it holding only its `StackShell` handle, with the execution role
-   and termination protection, and no stack tags (Phase 4 finding 14).
-4. **Change set.** An IMPORT change set with the template and the resources to import.
-5. **Check.** `check:changeset --mode import` with the step file: every action `Import`, every physical ID on the
-   step's list, no S4R identifier except the step's acknowledged references (each with its reason), Retain everywhere,
-   no literal secret. Then the actions are compared with the step file's `expectedChanges` exactly.
-6. **Execute** only when both pass, and wait for `IMPORT_COMPLETE`.
-7. **Drift.** Immediately. Every imported resource must be `IN_SYNC`. Anything else stops the step until the template
-   is changed to match live; nothing live is changed to match the template.
-8. **No-op.** An update with the same template must report no changes.
-9. **Stack policy.** Deny `Update:Replace` and `Update:Delete` on every resource.
-10. **Compare.** A fresh inventory against the pre-Phase-5 inventory: only CloudFormation ownership metadata may
-    differ. Smoke tests, S4R health, and for the diagnosis Lambda the `/part-finder` contract and `/ai/chat` ingress.
-11. **Record** the evidence on the step's issue and in phase-5-results.md; open the PR.
+1. **Read live.**
+   - Data templates carry the live values (`infra/cdk/lib/data-stack.js`).
+   - Runtime templates are generated from a fresh capture of live (`capture-runtime.sh`).
+   - Bearer tokens become NoEcho parameters filled from the live value. They are never in a template, `cdk.out` or git.
+   - Zip functions use the deployed artefact, checked against its CodeSha256.
+2. **Prove ownership.** Every resource is `AC` or `AC (S4R-consumed)` in ownership.md, on no S4R denylist entry, and in
+   no stack. S4R identifiers a resource refers to are acknowledged in the step file, each with its reason.
+3. **Shell.** If the stack does not exist, create it holding only `StackShell`, with the execution role and termination
+   protection, and no stack tags.
+4. **Snapshot** the step's resources ([`snapshot.sh`](../../../infra/production/snapshot.sh)).
+5. **The step's writes.** `ac-cfn-execution` gets a version holding the read-only base plus exactly the manifest's
+   writes on exactly this step's resources (`import-writes.mjs step-policy`). It goes back to the read-only version
+   straight after the import, whatever happens.
+6. **Change set.** An IMPORT change set, checked in import mode, then compared with the step file's `expectedChanges`
+   exactly. Executed only if both pass.
+7. **Drift** straight after: every resource `IN_SYNC`. **No-op:** the same template reports no changes. **Stack
+   policy:** deny `Update:Replace` and `Update:Delete`.
+8. **Compare.** The after snapshot may differ from the before snapshot only by `aws:cloudformation:*` tags.
+9. **CloudTrail.** After delivery, every write by the execution role must be one the manifest expects for the step's
+   types, with no forbidden parameter and no refused call
+   ([`check-cloudtrail.sh`](../../../infra/production/check-cloudtrail.sh)).
+10. **Health and record.**
+    - S4R health and the smoke tests.
+    - The evidence on the step's issue and in phase-5-results.md.
+    - The PR.
+
+Step 5.10 is refused by the script. It needs its own sign-off.
 
 ## Stop conditions
 
@@ -67,3 +96,6 @@ Stop the step, change nothing more, and report on its issue if:
 - a Function URL host, a CodeSha256 or image digest, the diagnosis role or its policies, or API `65vnizdmk4` would change
 - production or S4R health changes
 - a secret value would have to be read or exposed
+- CloudTrail shows a write the manifest does not expect for the step, a forbidden parameter, or a refused call
+- the after snapshot differs from the before snapshot beyond `aws:cloudformation:*` tags
+- a step needs a write the sandbox probe did not establish

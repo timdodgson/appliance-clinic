@@ -1,0 +1,40 @@
+{
+  "step": "5.9",
+  "description": "EventBridge rules, state as live (PLAN.md step 5.9). SAFE AC CHANGE.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily",
+    "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::Events::Rule",
+      "LogicalResourceId": "whichpartrecallingestdaily",
+      "ResourceIdentifier": {
+        "Arn": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily"
+      }
+    },
+    {
+      "ResourceType": "AWS::Events::Rule",
+      "LogicalResourceId": "whichparttranscriptreview",
+      "ResourceIdentifier": {
+        "Arn": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartrecallingestdaily",
+      "type": "AWS::Events::Rule",
+      "physicalId": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichparttranscriptreview",
+      "type": "AWS::Events::Rule",
+      "physicalId": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "step": "5.8",
+  "description": "Function URLs and permissions of the three AC functions (PLAN.md step 5.8). SAFE AC CHANGE.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+    "FunctionURLAllowPublicAccess",
+    "PublicInvoke",
+    "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+    "FunctionURLAllowPublicAccess",
+    "PublicInvoke",
+    "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+    "FunctionURLAllowPublicAccess",
+    "PublicInvoke",
+    "RecallIngestDaily",
+    "TranscriptReviewPeriodic"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::Lambda::Url",
+      "LogicalResourceId": "spares4repairserrorcodemcpUrl",
+      "ResourceIdentifier": {
+        "FunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairserrorcodemcpFunctionURLAllowPublicAccess",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+        "Id": "FunctionURLAllowPublicAccess"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairserrorcodemcpPublicInvoke",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+        "Id": "PublicInvoke"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Url",
+      "LogicalResourceId": "spares4repairsdiagorchestratorUrl",
+      "ResourceIdentifier": {
+        "FunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairsdiagorchestratorFunctionURLAllowPublicAccess",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "Id": "FunctionURLAllowPublicAccess"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairsdiagorchestratorPublicInvoke",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "Id": "PublicInvoke"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Url",
+      "LogicalResourceId": "whichpartapiUrl",
+      "ResourceIdentifier": {
+        "FunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "whichpartapiFunctionURLAllowPublicAccess",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "Id": "FunctionURLAllowPublicAccess"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "whichpartapiPublicInvoke",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "Id": "PublicInvoke"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "whichpartapiRecallIngestDaily",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "Id": "RecallIngestDaily"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "whichpartapiTranscriptReviewPeriodic",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "Id": "TranscriptReviewPeriodic"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "spares4repairserrorcodemcpUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairserrorcodemcpFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FunctionURLAllowPublicAccess"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairserrorcodemcpPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdiagorchestratorUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdiagorchestratorFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FunctionURLAllowPublicAccess"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdiagorchestratorPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapiUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapiFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FunctionURLAllowPublicAccess"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapiPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapiRecallIngestDaily",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "RecallIngestDaily"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartapiTranscriptReviewPeriodic",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "TranscriptReviewPeriodic"
+    }
+  ]
+}

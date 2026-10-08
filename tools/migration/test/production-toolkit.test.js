@@ -51,7 +51,7 @@ describe('ac-cfn-execution', () => {
   it('allows reads only: no action that could change a resource, and never a secret value', () => {
     for (const s of exec.Statement) {
       expect(s.Effect).toBe('Allow');
-      for (const a of list(s.Action)) expect(a, s.Sid).toMatch(/^[a-z0-9-]+:(Get|List|Describe)/);
+      for (const a of list(s.Action)) expect(a, s.Sid).toMatch(/^[a-z0-9-]+:(Get|List|Describe|BatchGet)/);
       expect(list(s.Action)).not.toContain('secretsmanager:GetSecretValue');
     }
     for (const a of ['lambda:UpdateFunctionConfiguration', 'lambda:UpdateFunctionCode', 'lambda:AddPermission', 'lambda:TagResource', 'iam:PutRolePolicy',

@@ -190,8 +190,9 @@ const glob = (pattern) => new RegExp(`^${pattern.split('').map((c) => (c === '*'
  */
 export function isSandboxWildcard(lists, name) {
   if (typeof name !== 'string' || !/[*?]/.test(name)) return false;
-  const prefix = name.split(/[*?]/)[0];
-  if (!SANDBOX_MARKER.test(prefix)) return false;
+  // Every literal segment of a glob appears in every name it matches, so a marker in any segment (not only the
+  // prefix: `function:*-sbx` is as safe as `applianceclinic-sbx/*`) proves each match is a sandbox name.
+  if (!name.split(/[*?]/).some((segment) => SANDBOX_MARKER.test(segment))) return false;
   const re = glob(name);
   return ![...lists.acDenylist, ...lists.s4rDenylist].some((e) => typeof e.value === 'string' && (re.test(e.value) || re.test(e.value.split('/').pop())));
 }

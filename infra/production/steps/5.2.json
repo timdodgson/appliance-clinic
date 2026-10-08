@@ -1,0 +1,124 @@
+{
+  "step": "5.2",
+  "description": "Remaining ECR repository and the 7 AC secrets (PLAN.md step 5.2). SAFE AC CHANGE. Secret values are never read.",
+  "stack": "AcDataStack",
+  "allowedPhysicalIds": [
+    "spares4repairs-diag-orchestrator",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-QEtfiF",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-OAWAo9",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/diag-orchestrator/bearer-token-v1PtZH",
+    "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/error-code-mcp/bearer-token-SbIdsl"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::ECR::Repository",
+      "LogicalResourceId": "spares4repairsdiagorchestrator",
+      "ResourceIdentifier": {
+        "RepositoryName": "spares4repairs-diag-orchestrator"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdevapplianceclinicaiconfig",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdevapplianceclinicopenai",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdevapplianceclinicjev",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdevappliancecliniccanonicalstatetoken",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-QEtfiF"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdevapplianceclinicbenchmarkservice",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-OAWAo9"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairsdiagorchestratorbearertoken",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/diag-orchestrator/bearer-token-v1PtZH"
+      }
+    },
+    {
+      "ResourceType": "AWS::SecretsManager::Secret",
+      "LogicalResourceId": "spares4repairserrorcodemcpbearertoken",
+      "ResourceIdentifier": {
+        "Id": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/error-code-mcp/bearer-token-SbIdsl"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::ECR::Repository",
+      "physicalId": "spares4repairs-diag-orchestrator"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdevapplianceclinicaiconfig",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdevapplianceclinicopenai",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdevapplianceclinicjev",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdevappliancecliniccanonicalstatetoken",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-QEtfiF"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdevapplianceclinicbenchmarkservice",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-OAWAo9"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairsdiagorchestratorbearertoken",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/diag-orchestrator/bearer-token-v1PtZH"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairserrorcodemcpbearertoken",
+      "type": "AWS::SecretsManager::Secret",
+      "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/error-code-mcp/bearer-token-SbIdsl"
+    }
+  ]
+}

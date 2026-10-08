@@ -120,6 +120,15 @@ describe('documents', () => {
     expect(rules(checkDocument(lists, { r: `arn:aws:lambda:eu-west-1:${A}:function:*` }))).toContain('arn-not-sandbox');
     expect(rules(checkDocument(lists, { r: `arn:aws:dynamodb:eu-west-1:${A}:table/*` }))).toContain('arn-not-sandbox');
   });
+  it('accepts a wildcard whose marker is in any literal segment, never one that could match a production name', () => {
+    for (const r of [`arn:aws:lambda:eu-west-1:${A}:function:*-sbx`, `arn:aws:iam::${A}:role/*-sbx`, 'arn:aws:s3:::*-sbx-800960611664',
+      `arn:aws:dynamodb:eu-west-1:${A}:table/whichpart-*-sbx/*`, `arn:aws:ecr:eu-west-1:${A}:repository/*-sbx`]) {
+      expect(checkDocument(lists, { r }), r).toEqual([]);
+    }
+    for (const r of [`arn:aws:lambda:eu-west-1:${A}:function:*sbx`, `arn:aws:lambda:eu-west-1:${A}:function:whichpart-*`, `arn:aws:iam::${A}:role/*`]) {
+      expect(rules(checkDocument(lists, { r })), r).toContain('arn-not-sandbox');
+    }
+  });
   it('parses the resource name of common ARNs', () => {
     expect(arnResourceName(`arn:aws:lambda:eu-west-1:${A}:function:whichpart-api-sbx:$LATEST`).name).toBe('whichpart-api-sbx');
     expect(arnResourceName(`arn:aws:logs:eu-west-1:${A}:log-group:/aws/lambda/whichpart-api-sbx:*`).name).toBe('/aws/lambda/whichpart-api-sbx');
