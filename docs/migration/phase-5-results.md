@@ -81,8 +81,8 @@ Backups were refreshed before 5.3a: on-demand backups of both tables and fresh c
 | 5.7a | Function `spares4repairs-error-code-mcp` | v6: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; image digest unchanged |
 | 5.7b | Function `spares4repairs-diag-orchestrator` | v7: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; image digest unchanged |
 | 5.7c | Function `whichpart-api` (token parameters NoEcho) | v8: `lambda:TagResource` | `lambda:TagResource` on the function | `IN_SYNC` | Identical; CodeSha256 and environment unchanged |
-| 5.8 | 3 Function URLs, 8 permissions | v3 (none) | CT_58 | `IN_SYNC` | Identical; URL hosts, auth type, invoke mode and CORS unchanged |
-| 5.9 | Rules `whichpart-recall-ingest-daily`, `whichpart-transcript-review` | v10: `events:TagResource` | CT_59 | `IN_SYNC` | Identical; schedule, state and targets unchanged |
+| 5.8 | 3 Function URLs, 8 permissions | v3 (none) | None | `IN_SYNC` | Identical; URL hosts, auth type, invoke mode and CORS unchanged |
+| 5.9 | Rules `whichpart-recall-ingest-daily`, `whichpart-transcript-review` | v10: `events:TagResource` | `events:TagResource` on each rule | `IN_SYNC` | Identical; schedule, state and targets unchanged |
 
 "Identical" means the full snapshots are equal apart from the `aws:cloudformation:*` tags. For runtime steps the snapshot
 is the whole runtime capture (all roles, functions and rules), so a change anywhere would show. Every CloudTrail check
