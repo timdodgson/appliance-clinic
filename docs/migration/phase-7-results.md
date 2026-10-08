@@ -92,7 +92,7 @@ whichpart-api suite.
 |---|---|
 | Change set | 1 Modify `whichpartapirolewhichpartcognitoauth` (`AWS::IAM::RolePolicy`), Replacement False, `PolicyDocument` only. Flagged as an IAM change, as intended |
 | Policy | Before: `AdminInitiateAuth` and `AdminGetUser` on the S4R pool. After: `AdminInitiateAuth` on the AC pool only. `AdminGetUser` is never called |
-| CloudTrail | CT_73 |
+| CloudTrail | `iam:PutRolePolicy` on `whichpart-api-role` only (read from us-east-1, see below) |
 | Stack | `UPDATE_COMPLETE`, drift `IN_SYNC`, no-op confirmed. The S4R pool ID no longer appears anywhere in `AcRuntimeStack` |
 
 Between 7.2 and 7.3, sign-in against the AC pool returned 500 (`AccessDeniedException`), because the role could still
@@ -111,6 +111,15 @@ After 7.2 and 7.3:
 - customer `/api` smoke equal to the pre-Phase-5 baseline
 - the `/part-finder` contract and `/ai/chat` ingress pass
 - CloudTrail shows **no** write event on the S4R pool since Phase 7 started
+
+## CloudTrail reads global services in us-east-1 too
+
+The first 7.3 check found no write, yet the policy had changed. IAM is a global service, and CloudTrail records its events
+in us-east-1, while the checks read only eu-west-1. [`cloudtrail.sh`](../../infra/sandbox/probe/cloudtrail.sh) now
+reads both regions.
+
+Every earlier check was run again with the fix: Phase 5 steps 5.1 to 5.10, the two Phase 6 updates, and 7.1 and 7.2.
+Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (inline policies) made no IAM write.
 
 ## For the owner
 
