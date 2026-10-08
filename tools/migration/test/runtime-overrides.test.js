@@ -56,7 +56,8 @@ describe('runtime overrides', () => {
   });
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
-    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'];
+    // The diagnosis Lambda only for the owner-approved S4R-sensitive items of Phase 7 (A1, B, D).
+    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
     for (const k of Object.keys(o.roleManagedPolicies || {})) expect(['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'], k).toContain(k);
     for (const k of Object.keys(o.rolePolicies)) expect(['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'], k).toContain(k.split('/')[0]);
