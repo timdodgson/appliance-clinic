@@ -96,6 +96,8 @@ async function authLogin(event) {
   const email = (body.email || '').trim();
   const password = body.password || '';
   if (!email || !password) return respond(400, { error: 'Email and password are required' });
+  const limitedLogin = await rateLimited('login', event, { email });
+  if (limitedLogin) return limitedLogin;
   try {
     const { AdminInitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider');
     const res = await cognito().send(new AdminInitiateAuthCommand({
@@ -226,6 +228,28 @@ const transcripts = require('./transcripts');
 const conversationState = require('./conversation-state');
 const liveTest = require('./live-test.js');
 const benchmarkAuth = require('./benchmark-auth.js');
+// ---- rate limiting (Phase 7; rate-limit.js). RATE_LIMIT_MODE off|observe|enforce, counters in RATE_LIMIT_TABLE.
+const rateLimit = require('./rate-limit.js');
+let _rateStore = null;
+function rateStore() {
+  if (!_rateStore) _rateStore = rateLimit.dynamoStore(require('./ddb.js').dynamodb, process.env.RATE_LIMIT_TABLE || 'applianceclinic-rate-limits');
+  return _rateStore;
+}
+function setRateLimitStoreForTests(store) { _rateStore = store; }
+/** Count one request; returns a 429 response to send, or null to carry on. Logs counts and hashes only. */
+async function rateLimited(kind, event, extra) {
+  if (rateLimit.mode() === 'off') return null;
+  const net = rateLimit.clientIp(event);
+  const r = await rateLimit.check(kind, { ip: net.ip, source: net.source, ...(extra || {}) }, { store: rateStore() });
+  // Observe mode logs every counted request (counts and header shape only); enforce mode only what is over or failing.
+  if (r.mode === 'observe' || r.overLimit || r.error) {
+    log({ evt: 'rate-limit', kind, mode: r.mode, limited: r.limited, overLimit: Boolean(r.overLimit), xffDepth: net.xffDepth,
+      lastIsSource: net.lastIsSource, counts: r.counts, ...(r.error ? { error: r.error } : {}) });
+  }
+  if (!r.limited) return null;
+  return { statusCode: 429, headers: { ...CORS, 'retry-after': String(r.retryAfter || 60), 'cache-control': 'no-store' },
+    body: JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.', code: 'rate_limited' }) };
+}
 let _benchmarkSecretsLoader = () => benchmarkAuth.loadSecrets();
 function setBenchmarkDepsForTests({ secretsLoader } = {}) { _benchmarkSecretsLoader = secretsLoader || (() => benchmarkAuth.loadSecrets()); }
 const canonicalAudit = require('./canonical-audit');
@@ -2593,6 +2617,12 @@ async function handleEvent(event) {
   if (!messages.length) {
     return respond(400, { error: 'messages array required' });
   }
+  // Customer turns are counted (rate-limit.js); an admin Live Test and a verified benchmark turn are authenticated
+  // and not counted.
+  if (!live && !bench) {
+    const limitedTurn = await rateLimited('diagnose', event, { session: obs && obs.sessionId });
+    if (limitedTurn) return limitedTurn;
+  }
 
   // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. In `off` nothing
   // happens. In `shadow` / `control` the signed token is verified, state is loaded and sent to the
@@ -3012,6 +3042,7 @@ module.exports.setTranscriptStore = setTranscriptStore;
 module.exports.setCanonicalDepsForTests = setCanonicalDepsForTests;
 module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
 module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
+module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setKnowledgeAdminStore = setKnowledgeAdminStore;
 module.exports.knowledgeAdmin = knowledgeAdmin;
