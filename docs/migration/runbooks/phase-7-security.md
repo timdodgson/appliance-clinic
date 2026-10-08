@@ -109,3 +109,12 @@ Stop, change nothing more, and report on the Phase 7 issue if:
   2. Re-deploy every consumer in one change. The reference does not change, so pin the reference to the new
      `VersionId`, or make another change to the environment, to force the update.
   3. Expect a mismatch window of seconds.
+
+## Roles the stack creates (finding from 7.15a)
+
+An inline policy names its role by a literal `RoleName`, so CloudFormation sees no ordering between a new role and its
+policies. It created them in parallel, the policies failed ("role cannot be found"), and the change rolled back with
+nothing created. The generator therefore gives every policy of a role declared in `runtime-overrides.json` `roles` an
+explicit `DependsOn` on that role (`stackCreated`, `infra/cdk/lib/overrides.js` and `runtime-stack.js`). Imported roles
+already exist and keep their template unchanged. `tools/migration/test/runtime-overrides.test.js` covers the flag.
+Check the dry-run template for `DependsOn` on each new role's policies before executing.
