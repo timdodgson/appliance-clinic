@@ -65,8 +65,6 @@ class DataStack extends cdk.Stack {
         imageScanningConfiguration: { scanOnPush: true },
         encryptionConfiguration: { encryptionType: 'AES256' },
         ...(declare.ecrRepositoryPolicy ? { repositoryPolicyText: lambdaEcrPolicy(props.profile === 'sandbox' ? '*-sbx' : '*') } : {}),
-        // Phase 6 ownership proof (docs/migration/phase-6-proof-writes.json): one inert tag, removed again by the next update.
-        ...(name === 'spares4repairs-error-code-mcp' && props.profile !== 'sandbox' ? { tags: [{ key: 'ac:ownership-proof', value: 'phase-6' }] } : {}),
       }));
     }
 
