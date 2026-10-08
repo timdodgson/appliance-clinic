@@ -238,6 +238,14 @@ answers any method on `/health`, which is harmless; fixing it needs an image reb
 | 7.9a | `PublicInvoke` (`lambda:InvokeFunction` for `*`) on the orchestrator and MCP gains `lambda:InvokedViaFunctionUrl = true` | 2 Modify `AWS::Lambda::Permission`, Replacement True, `InvokedViaFunctionUrl` (and the replace policy, below) | One public `InvokeFunction` statement each, URL-only. The old statements are gone |
 | 7.9b | The same for `whichpart-api`. Its EventBridge statements are separate and unchanged | 1 Modify `AWS::Lambda::Permission`, Replacement True | URL-only |
 
+**CloudTrail:**
+- 7.8: `UpdateFunctionUrlConfig` on the orchestrator and MCP only
+- 7.9a: `AddPermission` and `RemovePermission` on the orchestrator and MCP only
+- 7.9b: `AddPermission` and `RemovePermission` on `whichpart-api` only
+
+None of the three wrote outside its spec's resources. After 7.9b, the 15-minute EventBridge schedule still invokes
+`whichpart-api` (18:40Z run logged).
+
 **Before 7.9,** any AWS principal could invoke these functions directly, with any event, bypassing the URL and its
 headers. Now the public statement admits only invocations made through the Function URL.
 
