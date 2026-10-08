@@ -158,3 +158,19 @@ describe('Phase 6 ownership proof writes (docs/migration/phase-6-proof-writes.js
     expect(checkWrites([ev('ecr:UntagResource', 'AccessDenied')], proof.variants.remove, ECR).map((f) => f.rule)).toEqual(['write-refused']);
   });
 });
+
+describe('real CloudTrail writes from the Phase 6 ownership proof', () => {
+  const proof = readJson(join(REPO_ROOT, 'docs', 'migration', 'phase-6-proof-writes.json'));
+  const runs = readJson(join(REPO_ROOT, 'tools', 'migration', 'test', 'fixtures', 'production', 'phase-6-proof.cloudtrail.json'));
+  it('each update wrote only its variant\'s actions, on the one proof repository, with no refused call', () => {
+    for (const variant of ['add', 'remove']) {
+      expect(checkWrites(runs[variant].events, proof.variants[variant], runs[variant].types), variant).toEqual([]);
+      for (const e of runs[variant].events) expect(e.resource.endsWith(proof.resource.physicalId), `${variant} ${e.action}`).toBe(true);
+    }
+  });
+  it('the add tagged and the remove untagged, each exactly once', () => {
+    const tagCalls = (v) => runs[v].events.map((e) => e.action).filter((a) => /(Tag|Untag)Resource$/.test(a));
+    expect(tagCalls('add')).toEqual(['ecr:TagResource']);
+    expect(tagCalls('remove')).toEqual(['ecr:UntagResource']);
+  });
+});
