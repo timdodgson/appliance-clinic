@@ -163,3 +163,9 @@ export function stepWriteStatements(stepDoc, manifest) {
     Sid: `Step${stepDoc.step.replace(/[^A-Za-z0-9]/g, '')}Writes${i + 1}`, Effect: 'Allow', Action: actions.sort(), Resource: arns.split(' '),
   }));
 }
+
+/** The Phase 6 proof's write statement: the manifest's grant, on exactly its one resource. */
+export function proofWriteStatements(proof) {
+  if (!proof?.resource?.arn || !Array.isArray(proof.grant) || !proof.grant.length) throw new Error('proof manifest needs resource.arn and grant');
+  return [{ Sid: 'Phase6ProofWrites', Effect: 'Allow', Action: [...proof.grant].sort(), Resource: [proof.resource.arn] }];
+}
