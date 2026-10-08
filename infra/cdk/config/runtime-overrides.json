@@ -8,7 +8,11 @@
           "COGNITO_CLIENT_ID": "2hgmm8m02n78agi46kae4p2eja",
           "AC_ADMIN_GROUP": "admin",
           "RATE_LIMIT_MODE": "enforce",
-          "RATE_LIMIT_TABLE": "applianceclinic-rate-limits"
+          "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
+          "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
+          "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
+          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
         },
         "unset": [
           "AC_ADMIN_SUBS"
@@ -16,7 +20,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase7/whichpart-api-tzzTt_r9R7ZsPuncuyytjLQpQsm1pVb6IrgdyXCeOmw.zip"
+        "s3Key": "phase7/whichpart-api-5m3zfrU9JljmXycWepjKk08HYrW2uVF4hXKsNbR47cY.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -32,6 +36,12 @@
         "PublicInvoke": {
           "invokedViaFunctionUrl": true
         }
+      },
+      "env": {
+        "set": {
+          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
+        }
       }
     },
     "spares4repairs-error-code-mcp": {
@@ -41,6 +51,11 @@
       "permissions": {
         "PublicInvoke": {
           "invokedViaFunctionUrl": true
+        }
+      },
+      "env": {
+        "set": {
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
         }
       }
     }
@@ -69,6 +84,103 @@
           "Resource": "arn:aws:dynamodb:eu-west-1:800960611664:table/applianceclinic-rate-limits"
         }
       ]
+    },
+    "whichpart-api-role/whichpart-ac-secrets": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "secretsmanager:GetSecretValue"
+          ],
+          "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo"
+        }
+      ]
+    },
+    "whichpart-api-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/whichpart-api",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/whichpart-api:*"
+          ]
+        }
+      ]
+    },
+    "diag-orchestrator-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator:*"
+          ]
+        }
+      ]
+    },
+    "error-code-mcp-role/ac-function-logs": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": [
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp:*"
+          ]
+        }
+      ]
+    },
+    "whichpart-api-role/whichpart-ai-config-secrets": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "secretsmanager:GetSecretValue"
+          ],
+          "Resource": [
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-QEtfiF",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-OAWAo9"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "secretsmanager:PutSecretValue"
+          ],
+          "Resource": [
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF"
+          ]
+        }
+      ]
     }
+  },
+  "roleManagedPolicies": {
+    "whichpart-api-role": [],
+    "diag-orchestrator-role": [],
+    "error-code-mcp-role": []
   }
 }

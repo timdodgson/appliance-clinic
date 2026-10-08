@@ -68,7 +68,10 @@ NAMED=$(jq -c '[.expectedChanges[].logicalId]' "$SPEC")
 if [[ $KIND == UPDATE ]]; then
   stack_exists "$STACK" || stop "$STACK does not exist"
   aws cloudformation get-template --stack-name "$STACK" --template-stage Original --query TemplateBody --output json > "$W/deployed.json"
-  rest() { jq -S --argjson n "$NAMED" '.Resources |= with_entries(select(.key as $k | $n | index($k) | not))' "$1"; }
+  # The NoEcho token parameters (runtime-stack.js: Env<function><VAR>TOKEN) carry live values in, and are no resources:
+  # a change that moves a token to a dynamic reference removes its parameter (7.10c).
+  rest() { jq -S --argjson n "$NAMED" '.Resources |= with_entries(select(.key as $k | $n | index($k) | not))
+    | .Parameters |= ((. // {}) | with_entries(select((.key | test("^Env[A-Za-z0-9]+TOKEN$")) | not)))' "$1"; }
   cmp -s <(rest "$W/deployed.json") <(rest "$T") || { diff <(rest "$W/deployed.json") <(rest "$T") >&2 || true; stop "the template changes resources the spec does not name"; }
   result "change $ID template: equal to the deployed $STACK template for every resource but $(jq -r 'join(", ")' <<<"$NAMED")"
 else

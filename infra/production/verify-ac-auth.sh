@@ -68,6 +68,8 @@ check('AC admin signs in', r.status === 200 && r.json && r.json.user && r.json.u
 const adminCookie = session(r.setCookies);
 r = await call('/admin/health', { cookie: adminCookie });
 check('AC admin reaches /admin/health', r.status === 200, `status ${r.status}`);
+r = await call('/admin/ai-config', { cookie: adminCookie });
+check('AC admin reads Settings (ai-config, OpenAI and Jev secrets readable by whichpart-api)', r.status === 200, `status ${r.status}`);
 r = await call('/admin/error-codes', { cookie: adminCookie });
 check('AC admin lists error codes (whichpart-api -> MCP Function URL, bearer)', r.status === 200, `status ${r.status}`);
 if (process.env.CHECK_BENCHMARK_TARGET === '1') {

@@ -1,0 +1,67 @@
+{
+  "id": "7.13a-function-log-policies",
+  "description": "Least privilege, step 1 of 2: each AC role gets an inline policy ac-function-logs granting logs:CreateLogGroup, CreateLogStream and PutLogEvents on its own function's log group only. Step 2 (7.13b) detaches AWSLambdaBasicExecutionRole, which grants the same actions on every log group in the account. Adding first means logging never lacks a grant.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "whichpartapiroleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "diagorchestratorroleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "errorcodemcproleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role",
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    }
+  ],
+  "grantNotes": "PutRolePolicy on the three AC roles.",
+  "writes": {
+    "types": [
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "iam:PutRolePolicy"
+    ],
+    "forbidden": [
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api-role",
+      "diag-orchestrator-role",
+      "error-code-mcp-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

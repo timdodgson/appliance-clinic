@@ -9,6 +9,7 @@
  *                                          invocations through the function's URL. <sid> is the imported statement id
  *                                          (CloudFormation renames the statement when it replaces it)
  *   rolePolicies["<role>/<policy>"]        the inline policy document
+ *   roleManagedPolicies["<role>"]          the role's managed policy ARNs, exactly (T7: always declared in full)
  */
 function applyOverrides(live, overrides) {
   const out = JSON.parse(JSON.stringify(live));
@@ -31,6 +32,11 @@ function applyOverrides(live, overrides) {
     const [role, policy] = key.split('/');
     if (!out.roles[role]) throw new Error(`override for unknown role ${role}`);
     out.roles[role].inline[policy] = doc;
+  }
+  for (const [role, arns] of Object.entries(overrides.roleManagedPolicies || {})) {
+    if (!out.roles[role]) throw new Error(`override for unknown role ${role}`);
+    if (!Array.isArray(arns)) throw new Error(`managed policies of ${role} must be a list`);
+    out.roles[role].managed = arns.slice();
   }
   return out;
 }

@@ -92,3 +92,20 @@ Stop, change nothing more, and report on the Phase 7 issue if:
   Function URL invocations (`InvokedViaFunctionUrl`).
 - **Checks.** `bash infra/production/verify-ac-endpoints.sh <out-dir>`, and `verify-ac-auth.sh` (includes a read through
   the MCP URL).
+
+## Secrets
+
+- **The AC namespace** is `applianceclinic/production/` (`AcDataStack`). New secrets are created with
+  `GenerateSecretString`, so no value is ever handled by an operator.
+- **Canonical session tokens** are signed with `applianceclinic/production/canonical-state-token`. Moving the signing
+  secret again:
+  1. Create the new secret.
+  2. Grant `GetSecretValue` on it.
+  3. Set `CANONICAL_TOKEN_SECRET_ID` to the new secret and `CANONICAL_TOKEN_PREVIOUS_SECRET_ID` to the old one.
+  4. Keep the old secret readable for 30 days, the token lifetime.
+- **Service bearers** are read through `{{resolve:secretsmanager:applianceclinic/production/<name>:SecretString:token}}`.
+  To rotate one:
+  1. Put a new value (`aws secretsmanager put-secret-value` with a generated value, never typed or printed).
+  2. Re-deploy every consumer in one change. The reference does not change, so pin the reference to the new
+     `VersionId`, or make another change to the environment, to force the update.
+  3. Expect a mismatch window of seconds.
