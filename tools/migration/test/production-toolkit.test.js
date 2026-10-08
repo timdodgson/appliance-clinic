@@ -48,17 +48,26 @@ describe('the production toolkit documents', () => {
 });
 
 describe('ac-cfn-execution', () => {
-  it('allows reads only: no action that could change a resource, and never a secret value', () => {
+  it('allows reads only: no action that could change a resource, and no secret value but the two resolved bearers', () => {
     for (const s of exec.Statement) {
       expect(s.Effect).toBe('Allow');
       for (const a of list(s.Action)) expect(a, s.Sid).toMatch(/^[a-z0-9-]+:(Get|List|Describe|BatchGet)/);
-      expect(list(s.Action)).not.toContain('secretsmanager:GetSecretValue');
+      // Phase 7 (7.10c): CloudFormation resolves the service bearers' dynamic references with this role. That one
+      // statement may read exactly those two secrets, and nothing else may read any secret value.
+      if (s.Sid === 'ResolveAcBearerReferences') {
+        expect(list(s.Action)).toEqual(['secretsmanager:GetSecretValue']);
+        expect(list(s.Resource).sort()).toEqual([
+          'arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-??????',
+          'arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-??????',
+        ]);
+      } else expect(list(s.Action)).not.toContain('secretsmanager:GetSecretValue');
     }
     for (const a of ['lambda:UpdateFunctionConfiguration', 'lambda:UpdateFunctionCode', 'lambda:AddPermission', 'lambda:TagResource', 'iam:PutRolePolicy',
-      'iam:TagRole', 'dynamodb:UpdateTable', 'dynamodb:TagResource', 's3:PutBucketPolicy', 's3:PutBucketTagging', 'secretsmanager:GetSecretValue',
+      'iam:TagRole', 'dynamodb:UpdateTable', 'dynamodb:TagResource', 's3:PutBucketPolicy', 's3:PutBucketTagging',
       'secretsmanager:TagResource', 'ecr:PutLifecyclePolicy', 'events:PutRule', 'events:PutTargets']) {
       expect(exec.Statement.some((s) => actionMatches(s, a)), a).toBe(false);
     }
+    expect(exec.Statement.filter((s) => s.Sid !== 'ResolveAcBearerReferences').some((s) => actionMatches(s, 'secretsmanager:GetSecretValue'))).toBe(false);
   });
   it('reads every AC production resource of the import set', () => {
     const reads = {
