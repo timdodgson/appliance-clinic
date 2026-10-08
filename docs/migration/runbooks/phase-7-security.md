@@ -35,8 +35,11 @@ Every change is a reviewed CDK change set, applied by
    (`tools/migration`: `npm run baseline -- …`, with `NODE_USE_ENV_PROXY=1` behind a proxy).
 5. **Execute.** `EXECUTE=1 bash infra/production/steps/change.sh <spec>`.
    - `ac-cfn-execution` holds the read-only base plus the spec's grant during the execution only.
-   - A spec that names a replacement gets a temporary stack policy allowing `Update:Replace` on those logical IDs
-     only.
+   - A spec that names a replacement (`"replacement": "True"`) gets a temporary stack policy for the execution only:
+     `Update:Modify` everywhere, `Update:Replace` and `Update:Delete` on those logical IDs only. The checker accepts
+     only replacements the spec names.
+   - Lambda permissions changed this way carry `UpdateReplacePolicy: Delete` with a recorded reason, so the replaced
+     statement is removed. Their logical IDs stay stable across the replacement.
    - Afterwards the script requires drift `IN_SYNC` and the same template to be a no-op, and sets termination
      protection and the stack policy.
 6. **CloudTrail.** `bash infra/production/check-cloudtrail.sh change:<id>` waits for delivery, then requires:
@@ -80,3 +83,12 @@ Stop, change nothing more, and report on the Phase 7 issue if:
 - **Removing an admin.** `admin-remove-user-from-group`, then `admin-user-global-sign-out`.
 - **Verification.** `bash infra/production/verify-ac-auth.sh` uses two temporary users with random passwords held in
   memory, and deletes them at exit.
+
+## AC-only endpoints
+
+- **Authentication.** The orchestrator and the error-code MCP require their bearer on everything except `GET /health`.
+  `/health` is deliberately open and returns no secret.
+- **Exposure.** Function URLs have no CORS (server-to-server only). The public `InvokeFunction` statement is limited to
+  Function URL invocations (`InvokedViaFunctionUrl`).
+- **Checks.** `bash infra/production/verify-ac-endpoints.sh <out-dir>`, and `verify-ac-auth.sh` (includes a read through
+  the MCP URL).
