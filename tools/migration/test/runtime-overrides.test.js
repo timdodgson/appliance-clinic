@@ -41,7 +41,7 @@ describe('runtime overrides', () => {
     expect(applyOverrides(l, { functions: { f: { permissions: { PublicInvoke: { invokedViaFunctionUrl: true } } } } }).functions.f.permissionOverrides).toEqual({ PublicInvoke: { invokedViaFunctionUrl: true } });
   });
   it('maps a statement CloudFormation created back to its imported id, so logical IDs stay stable', () => {
-    const { importedSid } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'runtime-stack.js'));
+    const { importedSid } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'overrides.js'));
     expect(importedSid('PublicInvoke', 'AcRuntimeStack', 'whichpartapi')).toBe('PublicInvoke');
     expect(importedSid('AcRuntimeStack-whichpartapiPublicInvoke-Ab12Cd34', 'AcRuntimeStack', 'whichpartapi')).toBe('PublicInvoke');
     expect(importedSid('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34', 'AcRuntimeStack', 'whichpartapi')).toBe('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34');

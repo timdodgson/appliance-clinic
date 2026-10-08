@@ -35,4 +35,14 @@ function applyOverrides(live, overrides) {
   return out;
 }
 
-module.exports = { applyOverrides };
+/**
+ * The imported statement id of a captured statement. A statement CloudFormation created (after a replacement) is named
+ * <stack>-<logicalId>-<suffix>; its logical ID is the function's prefix plus the imported id, which keeps logical IDs
+ * stable across a replacement.
+ */
+function importedSid(sid, stackName, fid) {
+  const m = new RegExp(`^${stackName}-${fid}([A-Za-z0-9]+)-[A-Za-z0-9]+$`).exec(sid);
+  return m ? m[1] : sid;
+}
+
+module.exports = { applyOverrides, importedSid };

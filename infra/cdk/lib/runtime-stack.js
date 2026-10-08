@@ -18,7 +18,7 @@ const fs = require('node:fs');
 const cdk = require('aws-cdk-lib');
 const { aws_iam: iam, aws_lambda: lambda, aws_events: events } = cdk;
 const { upTo, retain, shellHandle, logical, SANDBOX_NAMES } = require('./common');
-const { applyOverrides } = require('./overrides');
+const { applyOverrides, importedSid } = require('./overrides');
 
 /** Import groups by production name. */
 const FUNCTION_STEP = {
@@ -28,15 +28,6 @@ const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [
 /** Permissions owned by AC. `apigateway-invoke` on the diagnosis Lambda is S4R-sensitive and never imported. */
 const NEVER_MANAGED_SIDS = new Set(['apigateway-invoke']);
 const isToken = (key) => /TOKEN$/.test(key);
-/**
- * The imported statement id of a captured statement. A statement CloudFormation created (after a replacement) is named
- * <stack>-<logicalId>-<suffix>; its logical ID is the function's prefix plus the imported id, which keeps logical IDs
- * stable across a replacement.
- */
-function importedSid(sid, stackName, fid) {
-  const m = new RegExp(`^${stackName}-${fid}([A-Za-z0-9]+)-[A-Za-z0-9]+$`).exec(sid);
-  return m ? m[1] : sid;
-}
 /** CloudFormation's own aws:cloudformation:* tags appear on a resource once it is imported; they are never declared. */
 const userTags = (tags) => (tags || []).filter((t) => !t.Key.startsWith('aws:'));
 
