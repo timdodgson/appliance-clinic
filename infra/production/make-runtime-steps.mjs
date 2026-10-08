@@ -17,8 +17,12 @@ const S4R_ROLE = `arn:aws:iam::${A}:role/SparesSite-dev-ServerFunctionRoleC337ED
 const fnArn = (f) => `arn:aws:lambda:eu-west-1:${A}:function:${f}`;
 const NEVER = new Set(['apigateway-invoke']);
 
+// The runtime template is cumulative: a later step's template still holds every resource already imported, so it
+// carries the acknowledged S4R references of every earlier step as well as its own.
+const carried = [];
 function write(step, description, items, acknowledgedReferences = []) {
-  const doc = { step, description, stack: 'AcRuntimeStack', allowedPhysicalIds: [], acknowledgedReferences, import: [], expectedChanges: [] };
+  carried.push(...acknowledgedReferences);
+  const doc = { step, description, stack: 'AcRuntimeStack', allowedPhysicalIds: [], acknowledgedReferences: [...carried], import: [], expectedChanges: [] };
   for (const [type, logicalId, identifier, physicalId] of items) {
     doc.allowedPhysicalIds.push(physicalId);
     doc.import.push({ ResourceType: type, LogicalResourceId: logicalId, ResourceIdentifier: identifier });
