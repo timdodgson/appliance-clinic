@@ -35,6 +35,8 @@ export const AC = {
     'spares4repairs/dev/applianceclinic-ai-config', 'spares4repairs/dev/applianceclinic-openai', 'spares4repairs/dev/applianceclinic-jev',
     'spares4repairs/dev/applianceclinic-canonical-state-token', 'spares4repairs/dev/applianceclinic-benchmark-service',
     'spares4repairs/diag-orchestrator/bearer-token', 'spares4repairs/error-code-mcp/bearer-token',
+    // Phase 7: the AC secret namespace, created by AcDataStack (change 7.10a-ac-secrets).
+    'applianceclinic/production/canonical-state-token', 'applianceclinic/production/orchestrator-bearer', 'applianceclinic/production/mcp-bearer',
   ],
   repositories: ['spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'],
   rules: ['whichpart-recall-ingest-daily', 'whichpart-transcript-review'],
