@@ -463,6 +463,19 @@ reads both regions.
 Every earlier check was run again with the fix: Phase 5 steps 5.1 to 5.10, the two Phase 6 updates, and 7.1 and 7.2.
 Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (inline policies) made no IAM write.
 
+## Changes that need the owner's approval
+
+**Not executed.** Every item is POTENTIALLY IMPACTS S4R or needs the owner's own credentials.
+
+| # | Change | Why it needs approval | Prepared in |
+|---|---|---|---|
+| A1 | Diagnosis Lambda `PublicInvoke`: add `lambda:InvokedViaFunctionUrl` (as 7.9 did for the AC functions) | Its resource policy serves `/part-finder` | 7.9 tooling (one override line); run with the `/part-finder` contract before and after |
+| A2 | Reserved concurrency for the diagnosis Lambda and the AC functions | Needs the account quota raised first. Reserving on the diagnosis Lambda changes S4R behaviour under load | *Reserved concurrency* above |
+| B | Move the diagnosis Lambda off the S4R role onto `ac-diagnosis-role`. **7.Da** creates the role and is safe on its own. **7.Db** switches the function's `Role` | Changes the S4R-facing Lambda's permissions. Rollback must be the owner's own `update-function-configuration`, because `ac-deny-s4r` stops CloudFormation passing the S4R role | [Diagnosis-role package](phase-7-package-diagnosis-role.md) |
+| C1 | Remove the diagnosis Lambda's `apigateway-invoke` permission, which closes unauthenticated `POST /ai/chat` | S4R API path. In its whole history it has had no real use, only this migration's probes | [`/ai/chat` package](phase-7-package-ai-chat.md) |
+| C2 | Delete the route `POST /ai/chat` and its integration on API `65vnizdmk4` | Edits the S4R API | Same package (proposal for the S4R owner) |
+| D | Move the OpenAI, Jev and AI-config secrets to `applianceclinic/production/`, and rotate the provider credentials | The diagnosis Lambda reads them (after B, from the AC role). New provider keys come from the owner | 7.10, *Packaged, not done* |
+
 ## For the owner
 
 - **Set your admin password.** Use the temporary password Cognito emailed you, on
@@ -473,5 +486,13 @@ Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (i
   - Then compare it with your last GOLD v2 run.
   - The runner and judge are in `services/whichpart-api/benchmark/gold-v2/`. The live transport `run-baseline.mjs`
     lives outside this repository.
+- **Batch worker.**
+  - Update the external batch worker to this repository's `routing-override.js`.
+  - Send `target`, `confirmProduction` and `confirmProductionRouting` when you mean production.
+  - Better still, give the worker its own role, without write access to the live AI-config secret. Today it uses your
+    IAM user.
+- **Retire the unused AC secrets** when convenient: `spares4repairs/diag-orchestrator/bearer-token` and
+  `spares4repairs/error-code-mcp/bearer-token`. The old canonical secret can follow after 2026-11-08, when the last
+  token it signed has expired.
 - **Lambda concurrency quota.** Request a Service Quotas increase of "Concurrent executions" (currently 10). Reserved
   concurrency for AC functions, and isolation from S4R, depend on it.
