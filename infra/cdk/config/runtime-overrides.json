@@ -69,6 +69,18 @@
           "Resource": "arn:aws:dynamodb:eu-west-1:800960611664:table/applianceclinic-rate-limits"
         }
       ]
+    },
+    "whichpart-api-role/whichpart-ac-secrets": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "secretsmanager:GetSecretValue"
+          ],
+          "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo"
+        }
+      ]
     }
   }
 }
