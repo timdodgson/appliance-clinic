@@ -463,6 +463,27 @@ reads both regions.
 Every earlier check was run again with the fix: Phase 5 steps 5.1 to 5.10, the two Phase 6 updates, and 7.1 and 7.2.
 Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (inline policies) made no IAM write.
 
+## Final verification (2026-10-08, 20:05Z)
+
+| Check | Result |
+|---|---|
+| **AC auth** (`verify-ac-auth.sh`) | 13/13 PASS, including: no cookie → 401; S4R-pool cookie with an `admin` group → signed out and 401; AC admin → 200; AC non-admin → 401; wrong password → 401; Settings read; read through the MCP Function URL; batch-run refusals |
+| **AC-only endpoints** (`verify-ac-endpoints.sh`) | 8/8 PASS: `/health` open with no secret in it; no bearer or a wrong one → 401 on the orchestrator and the MCP. URLs: auth `NONE`, CORS only on `whichpart-api` (in code, AC origins). `PublicInvoke` limited to Function URL invocations on all three AC functions |
+| **Customer `/api`** | Smoke equal to the pre-Phase-5 baseline (4 × 200). Real Chromium on the live site: page loads, `/api/auth/me` 200, chat `POST /api` 200, no console errors. Header matrix as in 7.12 |
+| **Rate limiting** | Enforced. Since then the only refusals are this verification's own (2, sign-in). No customer was refused |
+| **#21** | No `composeFailed` turn since 7.6. The transcript-review judge (Jev) has rated the post-7.6 session it has reviewed so far `good` |
+| **Canonical sessions** | Tokens signed with the old and the new secret both continue (live probe after 7.10b2 and 7.13c) |
+| **Logs after the managed-policy detach** | Each AC function created a new log stream after 7.13b and wrote to it |
+| **Drift** | `AcDataStack`, `AcRuntimeStack` and `AcAuthStack`: `IN_SYNC` |
+| **Code** | `whichpart-api` live CodeSha256 equals `build/reference/whichpart-api.zip.json` |
+| **S4R role and API `65vnizdmk4`** | Identical to the Phase 5 final state (`s4r-boundary.sh`) |
+| **Diagnosis Lambda** | Configuration, code, URL, resource policy and role identical to the Phase 5 final state |
+| **S4R Cognito pool and client** | Last modified 2026-07-20 / 2026-07-21: unchanged |
+| **`SparesSite-dev`, `CDKToolkit`** | Last updated 2026-07-21 / created 2026-07-20: unchanged |
+| **S4R health, `/part-finder`, `/ai/chat`** | 3 × 200, contract ok, ingress ok (after every change, and at the end) |
+| **Secret and PII scan** | gitleaks over all 40 Phase 7 commits: no leaks. The only emails are `example.test`/`example.invalid` placeholders; the only addresses are RFC 5737 documentation ranges and test fixtures |
+| **Owner** | The AC admin is still `FORCE_CHANGE_PASSWORD`: set your password (below) |
+
 ## Changes that need the owner's approval
 
 **Not executed.** Every item is POTENTIALLY IMPACTS S4R or needs the owner's own credentials.
