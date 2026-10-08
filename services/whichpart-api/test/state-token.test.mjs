@@ -123,3 +123,47 @@ describe('secret loading', () => {
     }
   });
 });
+
+describe('moving the signing secret to a new secret (Phase 7)', () => {
+  beforeEach(() => tok._resetCacheForTest());
+  const NEW = 'new-secret-0123456789abcdef0123456789abcdef#';
+  const OLDER = 'older-secret-0123456789abcdef0123456789abcd';
+  const NOW = 1_800_000_000;
+  const store = (m) => async (id) => (id in m ? m[id] : null);
+  const env = { CANONICAL_TOKEN_SECRET_ID: 'applianceclinic/production/canonical-state-token', CANONICAL_TOKEN_PREVIOUS_SECRET_ID: 'spares4repairs/dev/applianceclinic-canonical-state-token' };
+  const fetchSecret = store({
+    'applianceclinic/production/canonical-state-token': JSON.stringify({ current: NEW }),
+    'spares4repairs/dev/applianceclinic-canonical-state-token': JSON.stringify({ current: OLD, previous: OLDER }),
+  });
+
+  it('signs with the new secret; tokens from both old values still verify', async () => {
+    const s = await tok.loadSecrets({ env, fetchSecret, nowMs: 0 });
+    expect(s.current).toBe(NEW);
+    const csid = tok.newCanonicalSessionId();
+    const fresh = tok.issueToken(csid, s, { nowSec: NOW });
+    expect(tok.verifyToken(fresh, { current: NEW }, { nowSec: NOW })).toMatchObject({ ok: true, rotated: false });
+    for (const old of [OLD, OLDER]) {
+      const t = tok.issueToken(csid, { current: old }, { nowSec: NOW });
+      expect(tok.verifyToken(t, s, { nowSec: NOW })).toMatchObject({ ok: true, csid, rotated: true });
+    }
+  });
+  it('a token signed with any other secret is still refused', async () => {
+    const s = await tok.loadSecrets({ env, fetchSecret, nowMs: 0 });
+    const t = tok.issueToken(tok.newCanonicalSessionId(), { current: 'x'.repeat(40) }, { nowSec: NOW });
+    expect(tok.verifyToken(t, s, { nowSec: NOW })).toEqual({ ok: false, reason: 'bad_signature' });
+  });
+  it('the old secret is optional: unreadable, it changes nothing for new tokens', async () => {
+    const s = await tok.loadSecrets({ env, fetchSecret: async (id) => { if (id === env.CANONICAL_TOKEN_PREVIOUS_SECRET_ID) throw new Error('denied'); return JSON.stringify({ current: NEW }); }, nowMs: 0 });
+    expect(s).toEqual({ current: NEW, previous: null, source: 'secretsmanager' });
+  });
+  it('the new secret previous wins; the old values follow it', async () => {
+    const s = await tok.loadSecrets({ env, fetchSecret: store({ [env.CANONICAL_TOKEN_SECRET_ID]: JSON.stringify({ current: NEW, previous: 'p'.repeat(40) }), [env.CANONICAL_TOKEN_PREVIOUS_SECRET_ID]: JSON.stringify({ current: OLD }) }), nowMs: 0 });
+    expect(s.previous).toBe('p'.repeat(40));
+    expect(s.older).toEqual([OLD]);
+  });
+  it('never signs with an old value', async () => {
+    const s = await tok.loadSecrets({ env, fetchSecret, nowMs: 0 });
+    const t = tok.issueToken(tok.newCanonicalSessionId(), s, { nowSec: NOW });
+    expect(tok.verifyToken(t, { current: OLD, previous: OLDER }, { nowSec: NOW })).toEqual({ ok: false, reason: 'bad_signature' });
+  });
+});

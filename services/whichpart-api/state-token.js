@@ -15,6 +15,7 @@
  * Secrets: env CANONICAL_TOKEN_SECRET (+ optional CANONICAL_TOKEN_SECRET_PREVIOUS), else the Secrets
  * Manager secret CANONICAL_TOKEN_SECRET_ID (default spares4repairs/<STAGE>/applianceclinic-canonical-state-token,
  * JSON {"current": "...", "previous": "..."}), covered by the BFF's existing applianceclinic-* policy.
+ * Optional CANONICAL_TOKEN_PREVIOUS_SECRET_ID: a secret the signing secret moved from; its values verify, never sign.
  * No secret available → canonical shadow is disabled (never an unsigned fallback).
  */
 
@@ -52,7 +53,7 @@ function issueToken(csid, secrets, { nowSec = Math.floor(Date.now() / 1000), ttl
 function verifyToken(token, secrets, { nowSec = Math.floor(Date.now() / 1000) } = {}) {
   if (token == null || token === '') return { ok: false, reason: 'missing' };
   if (typeof token !== 'string' || token.length > 200 || !TOKEN_RE.test(token)) return { ok: false, reason: 'malformed' };
-  const candidates = [secrets && secrets.current, secrets && secrets.previous]
+  const candidates = [secrets && secrets.current, secrets && secrets.previous, ...((secrets && Array.isArray(secrets.older)) ? secrets.older : [])]
     .filter((s) => typeof s === 'string' && s.length >= MIN_SECRET_LENGTH);
   if (!candidates.length) return { ok: false, reason: 'no_secret' };
   const [prefix, csid, expStr, sig] = token.split('.');
@@ -97,6 +98,16 @@ async function loadSecrets({ env = process.env, fetchSecret = defaultFetchSecret
       return null;
     }
     _cache = { current: parsed.current, previous: typeof parsed.previous === 'string' ? parsed.previous : null, source: 'secretsmanager' };
+    // Phase 7 (moving the signing secret to a new secret): tokens signed with the old secret stay valid until they
+    // expire. CANONICAL_TOKEN_PREVIOUS_SECRET_ID names the old secret; its values are accepted for verification only.
+    if (env.CANONICAL_TOKEN_PREVIOUS_SECRET_ID && env.CANONICAL_TOKEN_PREVIOUS_SECRET_ID !== id) {
+      try {
+        const old = JSON.parse((await fetchSecret(env.CANONICAL_TOKEN_PREVIOUS_SECRET_ID)) || 'null');
+        const olds = old ? [old.current, old.previous].filter((v) => typeof v === 'string' && v.length >= MIN_SECRET_LENGTH && v !== parsed.current) : [];
+        if (!_cache.previous && olds.length) _cache.previous = olds.shift();
+        if (olds.length) _cache.older = olds.filter((v) => v !== _cache.previous);
+      } catch { /* the old secret is optional: new tokens still verify */ }
+    }
     _cacheAt = nowMs;
     return _cache;
   } catch {
