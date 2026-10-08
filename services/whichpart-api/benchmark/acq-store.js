@@ -84,6 +84,9 @@ function createStore(deps) {
         understand: snapshot.understand,        // { provider, model }
         compose: snapshot.compose,              // { provider, model }
       },
+      // Phase 7: where the run goes and the recorded production intent (benchmark/target.js).
+      target: snapshot.target || null,
+      productionIntent: snapshot.productionIntent || null,
       label: meta.label || labelFor(snapshot),
       concurrency: 1,                           // ACQ-100 V1: always 1
       journeyCount: (snapshot.manifest && snapshot.manifest.journeyCount) || snapshot.journeyCount || null,

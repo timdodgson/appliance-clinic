@@ -409,7 +409,8 @@ const acqStore = createAcqStore({ s3: acqS3 });
 // Batch routing override (benchmark/routing-override.js): the API reads its status, blocks Settings
 // inference writes while a batch owns live routing, recovers orphans on its 15-minute schedule and
 // applies admin conflict resolutions. The worker on the Private AI machine is the normal owner.
-const { createRoutingOverride } = require('./benchmark/routing-override.js');
+const { createRoutingOverride, planOverride } = require('./benchmark/routing-override.js');
+const benchmarkTarget = require('./benchmark/target.js');
 const routingOverride = createRoutingOverride({
   lockStore: { get: (k) => acqS3.getWithEtag(k), put: (k, body, opts) => acqS3.putConditional(k, body, opts) },
   loadDoc: () => aiConfig.loadConfigDocument(),
@@ -758,6 +759,22 @@ function libraryWriteError(e) {
   return respond(400, { error: e.message, problems: (e && e.problems) || null });
 }
 
+/**
+ * Phase 7: where a batch run goes, and the production intent it needs (benchmark/target.js). The default is staging;
+ * production needs confirmProduction, and confirmProductionRouting when the run would change live AI routing.
+ * Returns {snapshotFields} to merge into the run snapshot, or {response} to return.
+ */
+async function batchTarget(b, understand, compose, s) {
+  let plan = null;
+  try {
+    const cur = await aiConfig.loadConfigDocument();
+    if (cur && cur.status === 'ok' && cur.doc) plan = planOverride(cur.doc, { understand, compose });
+  } catch { plan = null; }
+  const d = benchmarkTarget.decideTarget(b, { plan, by: s.email || s.username || 'admin' });
+  if (!d.ok) return { response: respond(d.status, d.body) };
+  log({ evt: 'benchmark-target', target: d.target, routing: Boolean(d.productionIntent && d.productionIntent.routing) });
+  return { snapshotFields: { target: d.target, productionIntent: d.productionIntent } };
+}
 /** While a routing-override CONFLICT is unresolved no new batch may be queued (they would wait forever). */
 async function routingConflictResponse() {
   const ro = await routingOverrideStatusSafe();
@@ -889,6 +906,8 @@ async function benchmarkBuildRun(event) {
     judge: { provider: 'openai', model: ACQ_JUDGE_MODEL, promptHash: acqJudge.judgePromptHash(raw.journeys[0]), mode: judgeMode },
     understand, compose, manifest, experiment: b.experiment || null, judgeMode, journeyCount: manifest.journeyCount,
   };
+  const tgt = await batchTarget(b, understand, compose, s); if (tgt.response) return tgt.response;
+  Object.assign(snapshot, tgt.snapshotFields);
   const blockedBy = await routingConflictResponse(); if (blockedBy) return blockedBy;
   const rec = await acqStore.enqueueRun(snapshot, { email: s.email || s.username, label: b.label });
   return respond(200, { runId: rec.runId, status: rec.status, label: rec.label, runMode: rec.runMode, journeyCount: manifest.journeyCount, seed });
@@ -916,6 +935,8 @@ async function benchmarkRerun(event) {
     judge: { provider: 'openai', model: ACQ_JUDGE_MODEL, promptHash: acqJudge.judgePromptHash(raw.journeys[0]), mode: judgeMode },
     understand, compose, manifest, experiment: b.experiment || null, judgeMode, journeyCount: manifest.journeyCount,
   };
+  const tgt = await batchTarget(b, understand, compose, s); if (tgt.response) return tgt.response;
+  Object.assign(snapshot, tgt.snapshotFields);
   const blockedBy = await routingConflictResponse(); if (blockedBy) return blockedBy;
   const rec = await acqStore.enqueueRun(snapshot, { email: s.email || s.username, label: b.label || (src.label + ' (rerun)') });
   return respond(200, { runId: rec.runId, status: rec.status, label: rec.label, journeyCount: manifest.journeyCount, sameQuestionsAs: src.runId });
@@ -1030,6 +1051,8 @@ async function acqBenchmarkRun(event) {
     compose: candidate.compose,
     journeyCount: raw.journeys.length,
   };
+  const tgt = await batchTarget(body, candidate.understand, candidate.compose, session); if (tgt.response) return tgt.response;
+  Object.assign(snapshot, tgt.snapshotFields);
   const blockedBy = await routingConflictResponse(); if (blockedBy) return blockedBy;
   const rec = await acqStore.enqueueRun(snapshot, { email: session.email || session.username, label: body.label });
   return respond(200, { runId: rec.runId, status: rec.status, label: rec.label });
