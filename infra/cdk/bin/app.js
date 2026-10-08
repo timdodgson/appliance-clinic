@@ -24,6 +24,12 @@ if (!STEPS.includes(step)) throw new Error(`unknown step ${step}`);
 const dataStep = STEPS.indexOf(step) > STEPS.indexOf('5.4') ? '5.4' : step;
 new DataStack(app, `AcDataStack${suffix}`, { env, synthesizer: synthesizer(), terminationProtection: true, step: dataStep, profile, declare });
 
+// Phase 7 (ADR 0006): AC's own Cognito pool. Created new, never imported; production only.
+if (profile === 'production') {
+  const { AuthStack } = require('../lib/auth-stack');
+  new AuthStack(app, 'AcAuthStack', { env, synthesizer: synthesizer(), terminationProtection: true });
+}
+
 // The runtime stack needs the captured live configuration (infra/production/capture-runtime.sh): context `live` is
 // its path, and `code` the path of {function: {s3Bucket, s3Key}} for the zip functions' deployed artefacts.
 const live = app.node.tryGetContext('live');
@@ -35,5 +41,7 @@ if (live) {
   new RuntimeStack(app, `AcRuntimeStack${suffix}`, {
     env, synthesizer: synthesizer(), terminationProtection: true, step: runtimeStep, profile, live,
     codeLocations: code ? JSON.parse(fs.readFileSync(code, 'utf8')) : {},
+    // Phase 7 onwards: reviewed changes to the runtime (production only).
+    overrides: profile === 'production' ? JSON.parse(fs.readFileSync(require('node:path').join(__dirname, '..', 'config', 'runtime-overrides.json'), 'utf8')) : {},
   });
 }

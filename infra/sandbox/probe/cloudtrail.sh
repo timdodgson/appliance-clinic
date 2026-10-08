@@ -23,7 +23,7 @@ done
 jq --arg role "$ROLE" '[.[] | select(.userIdentity.sessionContext.sessionIssuer.userName == $role)
     | {time: .eventTime,
        action: ((.eventSource | split(".")[0]) + ":" + (.eventName | sub("[0-9]{8}(v[0-9]+)?$"; ""))),
-       resource: ((.requestParameters // {}) | (.resourceARN // .repositoryName // .functionName // .tableName // .bucketName // .secretId // .roleName // .name // .resourceArn // .resource // .FunctionName // .TableName // .ResourceArn // null)),
+       resource: ((.requestParameters // {}) | (.resourceARN // .repositoryName // .functionName // .tableName // .bucketName // .secretId // .roleName // .name // .resourceArn // .resource // .FunctionName // .TableName // .ResourceArn // .userPoolId // .poolName // null)),
        errorCode: (.errorCode // null),
        request: (.requestParameters // {} | del(.policyText?, .policyDocument?, .policy?, .environment?, .Environment?) | keys)}]
   | unique_by([.time, .action, .resource]) | sort_by(.time)' <<<"$events"

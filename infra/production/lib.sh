@@ -35,8 +35,8 @@ require_caller() {
   log "caller: $(cut -f2 <<<"$id" | sed 's|.*/||') in $P5_ACCOUNT/$P5_REGION"
 }
 
-# Every stack Phase 5 touches: never SparesSite-*, CDKToolkit or a sandbox name.
-check_stack_name() { [[ $1 =~ ^(AcDataStack|AcRuntimeStack|ApplianceClinicToolkit)$ ]] || stop "stack $1 is not a Phase 5 stack"; }
+# Every stack this work touches (AcAuthStack from Phase 7): never SparesSite-*, CDKToolkit or a sandbox name.
+check_stack_name() { [[ $1 =~ ^(AcDataStack|AcRuntimeStack|AcAuthStack|ApplianceClinicToolkit)$ ]] || stop "stack $1 is not an AC stack"; }
 
 # changeset STACK NAME KIND TEMPLATE STEP [IMPORT_FILE]
 changeset() {

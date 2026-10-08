@@ -28,7 +28,9 @@ const flag = (name) => { const i = args.indexOf(name); return i === -1 ? null : 
 const manifest = JSON.parse(readFileSync(join(ROOT, 'docs/migration/import-manifest-phase-2b.json'), 'utf8'));
 const baseline = JSON.parse(readFileSync(join(ROOT, 'build/test/known-failures.json'), 'utf8')).failures;
 const only = flag('--only');
-const tests = manifest.files.filter((f) => f.role === 'test').map((f) => f.path).filter((p) => !only || p.includes(only));
+// Phase 7 onwards: tests added with deliberate runtime changes (docs/migration/runtime-changes.json) run too.
+const added = JSON.parse(readFileSync(join(ROOT, 'docs/migration/runtime-changes.json'), 'utf8')).added;
+const tests = [...manifest.files, ...added].filter((f) => f.role === 'test').map((f) => f.path).filter((p) => !only || p.includes(only));
 
 const python = (path) => (path.startsWith('orchestration/')
   ? process.env.PYTHON_ORCHESTRATOR || join(ROOT, '.venv-orchestrator/bin/python')
