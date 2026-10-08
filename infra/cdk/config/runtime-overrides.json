@@ -189,5 +189,130 @@
     "whichpart-api-role": [],
     "diag-orchestrator-role": [],
     "error-code-mcp-role": []
+  },
+  "roles": {
+    "ac-diagnosis-role": {
+      "description": "Appliance Clinic: execution role of the diagnosis Lambda spares4repairs-part-finder (Phase 7, replaces the shared S4R server role).",
+      "trust": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+              "StringEquals": {
+                "aws:SourceAccount": "800960611664"
+              }
+            }
+          }
+        ]
+      },
+      "managed": [],
+      "inline": {
+        "ac-diagnosis-logs": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "DiagnosisLogs",
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-part-finder:*"
+            }
+          ]
+        },
+        "ac-diagnosis-secrets": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "DiagnosisSecrets",
+              "Effect": "Allow",
+              "Action": "secretsmanager:GetSecretValue",
+              "Resource": [
+                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-s40OwY",
+                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-ZuCaaY",
+                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-xC5VuF"
+              ]
+            }
+          ]
+        },
+        "WhichpartLearningPut": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/learning/*"
+            }
+          ]
+        },
+        "whichpart-media-overlay-s3": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/media-admin/*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "media-admin",
+                    "media-admin/*"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "whichpart-knowledge-overlay-s3": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/knowledge-admin/published.json"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664",
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "knowledge-admin",
+                    "knowledge-admin/*"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "tags": [
+        {
+          "Key": "ac:owner",
+          "Value": "applianceclinic"
+        }
+      ]
+    }
   }
 }

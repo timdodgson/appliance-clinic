@@ -10,6 +10,9 @@
  *                                          (CloudFormation renames the statement when it replaces it)
  *   rolePolicies["<role>/<policy>"]        the inline policy document
  *   roleManagedPolicies["<role>"]          the role's managed policy ARNs, exactly (T7: always declared in full)
+ *   roles["<role>"]                        a role this stack creates (absent from the capture until it exists):
+ *                                          {trust, managed, inline: {name: document}, description}; the desired state
+ *   functions.<name>.role                  the function's execution role ARN
  */
 function applyOverrides(live, overrides) {
   const out = JSON.parse(JSON.stringify(live));
@@ -27,6 +30,12 @@ function applyOverrides(live, overrides) {
       f.url.Cors = o.url.cors;
     }
     if (o.permissions) f.permissionOverrides = o.permissions;
+    if (o.role) f.configuration.Role = o.role;
+  }
+  // Roles this stack creates come first, so rolePolicies and roleManagedPolicies may refer to them.
+  for (const [role, r] of Object.entries(overrides.roles || {})) {
+    if (!r.trust || !Array.isArray(r.managed) || !r.inline) throw new Error(`role ${role} needs trust, managed and inline`);
+    out.roles[role] = { trust: r.trust, path: '/', maxSessionDuration: 3600, description: r.description || null, boundary: null, tags: r.tags || [], managed: r.managed.slice(), inline: JSON.parse(JSON.stringify(r.inline)), stackCreated: true };
   }
   for (const [key, doc] of Object.entries(overrides.rolePolicies || {})) {
     const [role, policy] = key.split('/');
