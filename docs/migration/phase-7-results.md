@@ -196,6 +196,23 @@ with the real handler and a mocked orchestrator:
 | CloudTrail | `lambda:UpdateFunctionCode` on `whichpart-api` only |
 | Stack | Drift `IN_SYNC`, no-op confirmed |
 
+**Evaluation.**
+- **Normal turns are unchanged.**
+  - The smoke equals the pre-Phase-5 baseline (4 × 200, same safety, parts and state-token shape).
+  - The `/part-finder` contract and the `/ai/chat` ingress pass.
+  - The semantic tests prove that only the structured provider failure changes the response.
+- **LLM-as-judge.**
+  - **In production:** the transcript-review judge (Jev, every 15 minutes, over ended customer sessions) has 264
+    reviews in the 10 days before 7.6: 187 good, 29 mixed, 1 poor, 47 insufficient evidence. That is the baseline to
+    compare against as post-7.6 sessions are reviewed.
+  - **GOLD v2** (the active scenario suite, judged by Jev) cannot be run from this repository:
+    - its live transport `benchmark/gold-v2/run-baseline.mjs` was never imported, because it does not exist in the
+      production source
+    - its judge needs the owner's Jev credentials, which this work does not take out of Secrets Manager
+  - It is packaged for the owner (*For the owner*).
+  - A GOLD v2 run on a healthy system would not take the changed path in any case. The change only acts when the COMPOSE
+    provider fails.
+
 ## Jev outage during 7.6 (external, 17:13 to 17:21Z)
 
 The after-checks of 7.6 found the `/part-finder` contract and the `/ai/chat` ingress returning 503.
@@ -228,5 +245,10 @@ Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (i
 - **Set your admin password.** Use the temporary password Cognito emailed you, on
   `https://applianceclinic-admin.auth.eu-west-1.amazoncognito.com/login?client_id=2hgmm8m02n78agi46kae4p2eja&response_type=code&scope=openid+email&redirect_uri=https%3A%2F%2Fapplianceclinic.ai%2F`.
   Then sign in on the AC site as before.
+- **GOLD v2 evaluation of #21.**
+  - Run the GOLD v2 suite with your judge credentials, from the worker machine that holds them, against the AC site.
+  - Then compare it with your last GOLD v2 run.
+  - The runner and judge are in `services/whichpart-api/benchmark/gold-v2/`. The live transport `run-baseline.mjs`
+    lives outside this repository.
 - **Lambda concurrency quota.** Request a Service Quotas increase of "Concurrent executions" (currently 10). Reserved
   concurrency for AC functions, and isolation from S4R, depend on it.
