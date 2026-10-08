@@ -1,0 +1,79 @@
+{
+  "id": "7.13b-detach-basic-execution",
+  "description": "Least privilege, step 2 of 2: detach the AWS managed policy AWSLambdaBasicExecutionRole (logs:CreateLogGroup, CreateLogStream, PutLogEvents on every log group in the account) from the three AC roles. 7.13a already grants the same actions on each function's own log group. Nothing else on the roles changes.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapirole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "whichpart-api-role",
+      "replacement": "False",
+      "details": [
+        "Properties.ManagedPolicyArns"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "diagorchestratorrole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "diag-orchestrator-role",
+      "replacement": "False",
+      "details": [
+        "Properties.ManagedPolicyArns"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "errorcodemcprole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "error-code-mcp-role",
+      "replacement": "False",
+      "details": [
+        "Properties.ManagedPolicyArns"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "iam:DetachRolePolicy",
+        "iam:GetRole",
+        "iam:ListAttachedRolePolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role",
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    }
+  ],
+  "grantNotes": "DetachRolePolicy on the three AC roles only (the IAM condition iam:PolicyARN is not used: the change set is checked to touch ManagedPolicyArns only).",
+  "writes": {
+    "types": [
+      "AWS::IAM::Role"
+    ],
+    "expected": [
+      "iam:DetachRolePolicy"
+    ],
+    "forbidden": [
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:DeleteRole"
+    ],
+    "resources": [
+      "whichpart-api-role",
+      "diag-orchestrator-role",
+      "error-code-mcp-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
