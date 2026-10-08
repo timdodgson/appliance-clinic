@@ -103,7 +103,7 @@ result "change $ID change set: $(jq -c '[.Changes[].ResourceChange | {Action, Lo
 POL=arn:aws:iam::$P5_ACCOUNT:policy/ac-cfn-execution
 BASE_DOC=$P5_ROOT/docs/migration/phase-5/toolkit/ac-cfn-execution.json
 (cd "$P5_TOOLS" && npm run -s production:toolkit -- --check >/dev/null) || stop "toolkit documents are stale"
-jq --slurpfile s "$SPEC" '.Statement += [$s[0].grant | to_entries[] | {Sid: "Change\(.key)", Effect: "Allow", Action: .value.Action, Resource: .value.Resource}]' "$BASE_DOC" > "$W/change-policy.json"
+jq --slurpfile s "$SPEC" '.Statement += [$s[0].grant | to_entries[] | {Sid: "Change\(.key)", Effect: "Allow", Action: .value.Action, Resource: .value.Resource} + (if .value.Condition then {Condition: .value.Condition} else {} end)]' "$BASE_DOC" > "$W/change-policy.json"
 version_of() {
   for v in $(aws iam list-policy-versions --policy-arn "$POL" --query 'Versions[].VersionId' --output text); do
     cmp -s <(aws iam get-policy-version --policy-arn "$POL" --version-id "$v" --query PolicyVersion.Document --output json | jq -S .) <(jq -S . "$1") && { echo "$v"; return; }

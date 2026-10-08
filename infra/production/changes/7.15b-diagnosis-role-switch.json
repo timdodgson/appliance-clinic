@@ -1,0 +1,73 @@
+{
+  "id": "7.15b-diagnosis-role-switch",
+  "description": "B.2 (owner-approved, POTENTIALLY IMPACTS S4R): switch the diagnosis Lambda spares4repairs-part-finder from the shared S4R server role to ac-diagnosis-role (created by 7.15a). Role only: Replacement False; code, environment, URL, permissions and concurrency unchanged. Rollback is the owner's direct update-function-configuration --role <S4R role ARN> (ac-deny-s4r stops CloudFormation passing the S4R role). Off-hours window 02:00 to 05:00 UTC.",
+  "classification": "POTENTIALLY IMPACTS S4R (approved)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Role"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "lambda.amazonaws.com"
+        }
+      }
+    }
+  ],
+  "grantNotes": "Configuration update of the diagnosis Lambda only, and PassRole on ac-diagnosis-role to Lambda only. ac-deny-s4r continues to deny every action on the S4R role.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "lambda:UpdateFunctionCode",
+      "lambda:DeleteFunction",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api"
+    ]
+  }
+}
