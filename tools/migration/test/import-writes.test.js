@@ -110,3 +110,29 @@ describe('real CloudTrail writes from the sandbox import-semantics probe', () =>
     }
   });
 });
+
+describe('real CloudTrail writes from the production imports 5.1 to 5.10', () => {
+  const runs = readJson(join(REPO_ROOT, 'tools', 'migration', 'test', 'fixtures', 'production', 'import-writes.cloudtrail.json'));
+  const manifest = loadManifest();
+  it('every step wrote only what the manifest expects for its types, with no refused call', () => {
+    expect(Object.keys(runs)).toEqual(['5.1', '5.2', '5.3a', '5.3b', '5.4', '5.5', '5.6', '5.7a', '5.7b', '5.7c', '5.8', '5.9', '5.10']);
+    for (const [step, run] of Object.entries(runs)) {
+      expect(checkWrites(run.events, manifest, run.types), step).toEqual([]);
+      expect(run.events.filter((e) => e.errorCode), step).toEqual([]);
+    }
+  });
+  it('the read-only types wrote nothing', () => {
+    for (const step of ['5.3a', '5.3b', '5.5', '5.6', '5.8']) expect(runs[step].events, step).toEqual([]);
+  });
+  it('5.10 made exactly the approved write: lambda:TagResource on the diagnosis function', () => {
+    expect(runs['5.10'].events.map((e) => `${e.action} ${e.resource}`))
+      .toEqual(['lambda:TagResource arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder']);
+  });
+  it('no secret value was written', () => {
+    for (const e of runs['5.2'].events.filter((x) => x.action === 'secretsmanager:UpdateSecret')) {
+      expect(e.request).not.toContain('secretString');
+      expect(e.request).not.toContain('secretBinary');
+      expect(e.request).not.toContain('kmsKeyId');
+    }
+  });
+});

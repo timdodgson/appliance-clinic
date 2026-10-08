@@ -104,5 +104,5 @@ test fixtures ([`import-writes.cloudtrail.json`](../../tools/migration/test/fixt
 - After each import, CloudTrail must show only the manifest's writes. Any other action, a forbidden request parameter,
   or a refused call is a STOP. The before and after snapshots may differ only by the `aws:cloudformation:*` tags (and,
   for Lambda, `LastModified` and `RevisionId`).
-- **5.10 (diagnosis Lambda):** the only write is `lambda:TagResource` on the function. It is not granted until the
-  separate sign-off.
+- **5.10 (diagnosis Lambda):** the only write is `lambda:TagResource` on the function. Granted only with the step's
+  sign-off; production 5.10 made exactly that write ([phase-5-results.md](phase-5-results.md#step-510-diagnosis-lambda-2026-10-08-signed-off-on-46)).
