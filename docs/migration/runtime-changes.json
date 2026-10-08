@@ -1,0 +1,36 @@
+{
+  "description": "Phase 7 onwards: deliberate changes to the runtime imported in Phase 2. Each modified imported file records its current SHA-256 and the change that made it; files added after the import are listed with their role. tools/migration/test/import-manifest.test.js checks both; build/test/run-tests.mjs also runs the tests added here. Refresh the hashes with: node tools/migration/bin/runtime-changes.mjs --write",
+  "modified": [
+    {
+      "path": "services/whichpart-api/index.js",
+      "sha256": "ecd73bca763fb31ae767ed3735b781bf476c7b1ead6aaf6553d754bd370d1e6e",
+      "changes": [
+        "7.2-ac-auth"
+      ]
+    }
+  ],
+  "added": [
+    {
+      "path": "services/whichpart-api/ac-auth.js",
+      "sha256": "9fa4d47ec44a5f153cecb63ac167239dff319b5f6cb72c93414336c026979a74",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "7.2-ac-auth"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/ac-auth.test.mjs",
+      "sha256": "201b142c07cc88edd74f69892796fec66a4f7034e863edfd7ecc16d8667e4613",
+      "role": "test",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "7.2-ac-auth"
+      ]
+    }
+  ]
+}

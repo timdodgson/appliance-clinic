@@ -1,0 +1,22 @@
+{
+  "id": "7.3-ac-auth-policy",
+  "description": "Point AC's sign-in policy whichpart-cognito-auth at AC's own pool (ADR 0006, last step): AdminInitiateAuth on the AC pool only. AdminGetUser is dropped (never called). This ends AC's permissions on the S4R pool; the S4R pool itself is untouched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    { "action": "Modify", "logicalId": "whichpartapirolewhichpartcognitoauth", "type": "AWS::IAM::RolePolicy", "physicalId": "whichpart-cognito-auth|whichpart-api-role", "replacement": "False",
+      "details": ["Properties.PolicyDocument"] }
+  ],
+  "grant": [
+    { "Action": ["iam:PutRolePolicy"], "Resource": ["arn:aws:iam::800960611664:role/whichpart-api-role"] }
+  ],
+  "grantNotes": "The RolePolicy update handler writes the document with PutRolePolicy on the one AC role. ac-deny-s4r still denies every IAM write on the S4R role.",
+  "writes": {
+    "types": ["AWS::IAM::RolePolicy"],
+    "expected": ["iam:PutRolePolicy"],
+    "forbidden": ["iam:DeleteRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:DeleteRole", "iam:UpdateAssumeRolePolicy", "iam:PassRole"],
+    "resources": ["whichpart-api-role"],
+    "forbiddenResources": ["SparesSite-dev", "eu-west-1_mUWucohuX"]
+  }
+}

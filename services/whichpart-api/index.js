@@ -30,14 +30,17 @@ const CLIENT_ID = 'whichpart';
 const ORCH_TIMEOUT_MS = Number(process.env.ORCH_TIMEOUT_MS) || 120000;
 const MAX_MESSAGES = 12;
 
-// ---- Cognito auth (reuses the existing Spares4Repairs user pool) --------------
-// The customer UI header + admin console sign in against the SAME Cognito pool the S4R admin uses
-// (server-side ADMIN_USER_PASSWORD_AUTH — no client secret, matching packages/admin). The ID/access
-// token is set as an httpOnly cookie and NEVER exposed to browser JS. This is the customer-boundary
-// BFF, not a diagnostic backend: diagnosis behaviour below is untouched.
+// ---- Cognito auth (Appliance Clinic's own user pool, AcAuthStack; ADR 0006) ---
+// The customer UI header + admin console sign in against AC's Cognito pool (server-side
+// ADMIN_USER_PASSWORD_AUTH, no client secret). The access token is set as an httpOnly cookie and
+// NEVER exposed to browser JS. Only tokens issued by the AC pool for the AC client count as a
+// session (ac-auth.js); admin authority is membership of the pool's admin group. This is the
+// customer-boundary BFF, not a diagnostic backend: diagnosis behaviour below is untouched.
 const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || '';
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || '';
 const AUTH_REGION = process.env.AWS_REGION || 'eu-west-1';
+const acAuth = require('./ac-auth');
+const AC_AUTH = { region: AUTH_REGION, poolId: COGNITO_USER_POOL_ID, clientId: COGNITO_CLIENT_ID, adminGroup: process.env.AC_ADMIN_GROUP || 'admin' };
 const SESSION_COOKIE = 'wp_session';       // httpOnly — holds the Cognito access token
 const LOGGED_IN_COOKIE = 'wp_logged_in';   // non-httpOnly indicator (never a token)
 const MCP_HEALTH_URL = process.env.MCP_HEALTH_URL || '';
@@ -56,15 +59,11 @@ function b64urlJson(seg) {
     return JSON.parse(Buffer.from(s, 'base64').toString('utf8'));
   } catch { return {}; }
 }
-// Admin authorization: default-deny. Admin requires the token's Cognito `sub` to be on the
-// Appliance Clinic allowlist (AC_ADMIN_SUBS, comma-separated). Callers only pass tokens issued by
-// AdminInitiateAuth or verified by Cognito GetUser. No allowlist means no admins.
+// Admin authorization: default-deny. Admin requires an access token issued by the AC pool for the
+// AC client, carrying the AC admin group (ac-auth.js). Callers only pass tokens issued by
+// AdminInitiateAuth or verified by Cognito GetUser. Tokens from any other pool never grant admin.
 function isAdminFromAccessToken(accessToken) {
-  const parts = String(accessToken || '').split('.');
-  if (parts.length < 2) return false;
-  const sub = b64urlJson(parts[1]).sub;
-  const allow = String(process.env.AC_ADMIN_SUBS || '').split(',').map((s) => s.trim()).filter(Boolean);
-  return typeof sub === 'string' && sub.length > 0 && allow.indexOf(sub) !== -1;
+  return acAuth.isAcAdmin(accessToken, AC_AUTH);
 }
 function parseCookies(event) {
   const out = {};
@@ -104,7 +103,11 @@ async function authLogin(event) {
       AuthFlow: 'ADMIN_USER_PASSWORD_AUTH', AuthParameters: { USERNAME: email, PASSWORD: password },
     }));
     const auth = res.AuthenticationResult;
-    if (!auth || !auth.AccessToken) return respond(401, { error: 'Invalid email or password' });
+    // An invited user signs in for the first time on the AC sign-in page, where they set their own password.
+    if (!auth && res.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
+      return respond(403, { error: 'Set your password on the Appliance Clinic sign-in page first', code: 'password_change_required' });
+    }
+    if (!auth || !auth.AccessToken || !acAuth.isAcAccessToken(auth.AccessToken, AC_AUTH)) return respond(401, { error: 'Invalid email or password' });
     const idClaims = auth.IdToken ? b64urlJson(String(auth.IdToken).split('.')[1] || '') : {};
     const user = { name: idClaims.name || idClaims.email || email, email: idClaims.email || email,
       isAdmin: isAdminFromAccessToken(auth.AccessToken) };
@@ -127,6 +130,13 @@ async function authLogin(event) {
 async function authMe(event) {
   const token = parseCookies(event)[SESSION_COOKIE];
   if (!token) return respond(200, { authenticated: false });
+  // A cookie from before the AC pool (or from any other pool) is not a session: sign it out.
+  if (!acAuth.isAcAccessToken(token, AC_AUTH)) {
+    return respondCookies(200, { authenticated: false }, [
+      setCookie(SESSION_COOKIE, '', { httpOnly: true, maxAge: 0 }),
+      setCookie(LOGGED_IN_COOKIE, '', { httpOnly: false, maxAge: 0 }),
+    ]);
+  }
   try {
     const { GetUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
     const u = await cognito().send(new GetUserCommand({ AccessToken: token }));
@@ -173,7 +183,7 @@ async function requireSession(event) {
 }
 async function resolveSession(event) {
   const token = parseCookies(event)[SESSION_COOKIE];
-  if (!token) return null;
+  if (!token || !acAuth.isAcAccessToken(token, AC_AUTH)) return null;
   try {
     const { GetUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
     const u = await cognito().send(new GetUserCommand({ AccessToken: token }));

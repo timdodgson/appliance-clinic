@@ -1,0 +1,27 @@
+{
+  "id": "7.2-ac-auth",
+  "description": "Cut whichpart-api sign-in over to AC's own Cognito pool (AcAuthStack): new code (ac-auth.js: AC-pool tokens only; admin = the AC admin group) and environment (AC pool and client; AC_ADMIN_SUBS removed). The S4R pool and client are no longer referenced by the function.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    { "action": "Modify", "logicalId": "whichpartapi", "type": "AWS::Lambda::Function", "physicalId": "whichpart-api", "replacement": "False",
+      "details": ["Properties.Code", "Properties.Environment"] }
+  ],
+  "grant": [
+    { "Action": ["lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration", "lambda:TagResource", "lambda:UntagResource",
+                 "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency", "lambda:PutRuntimeManagementConfig", "lambda:PutFunctionRecursionConfig"],
+      "Resource": ["arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"] },
+    { "Action": ["s3:GetObject", "s3:GetObjectVersion"], "Resource": ["arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase7/whichpart-api-piTEBGd8hUIng6SpYTqXVWRj8qhR0q-xaaLDI66BAW0.zip"] },
+    { "Action": ["iam:PassRole"], "Resource": ["arn:aws:iam::800960611664:role/whichpart-api-role"] }
+  ],
+  "grantNotes": "The Lambda update handler's write set on this one function (complete, so no write is refused part-way), read of the one staged zip, and PassRole for the function's own role. No delete, no permission or URL write.",
+  "writes": {
+    "types": ["AWS::Lambda::Function"],
+    "expected": ["lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration", "lambda:TagResource", "lambda:UntagResource", "lambda:PutFunctionConcurrency",
+                 "lambda:DeleteFunctionConcurrency", "lambda:PutRuntimeManagementConfig", "lambda:PutFunctionRecursionConfig"],
+    "forbidden": ["lambda:DeleteFunction", "lambda:AddPermission", "lambda:RemovePermission", "lambda:UpdateFunctionUrlConfig", "lambda:DeleteFunctionUrlConfig", "lambda:CreateFunctionUrlConfig"],
+    "resources": ["whichpart-api"],
+    "forbiddenResources": ["spares4repairs-part-finder", "SparesSite-dev", "eu-west-1_mUWucohuX"]
+  }
+}
