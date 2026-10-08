@@ -356,6 +356,86 @@ and the **diagnosis Lambda reads it too**, so a batch run could silently change 
 - The deployed CodeSha256 (`tzzTt…`) equals `build/reference/whichpart-api.zip.json`.
 - CloudTrail: `lambda:UpdateFunctionCode` on `whichpart-api` only.
 
+## 7.10: AC secret namespace and rotations
+
+**The namespace (7.10a, `AcDataStack`).** Three new secrets under `applianceclinic/production/`:
+- `canonical-state-token` (`{current}`)
+- `orchestrator-bearer` (`{token}`)
+- `mcp-bearer` (`{token}`)
+
+Secrets Manager generated every value at creation (`GenerateSecretString`). No value was ever in a template, git, a log
+or this operator's session. They carry Retain and the `ac:owner` tag. CloudTrail: `CreateSecret` on the three names only.
+
+**HMAC signing secret: rotated with no session lost (7.10b).**
+- **Code.** [`state-token.js`](../../services/whichpart-api/state-token.js) gains
+  `CANONICAL_TOKEN_PREVIOUS_SECRET_ID`. That names the secret the signing secret moved from: its values verify and never
+  sign. 5 new tests.
+- **7.10b1** first gave `whichpart-api-role` `GetSecretValue` on the new secret only (`whichpart-ac-secrets`). The new
+  code therefore never ran without its permission: a denied read would have disabled canonical control for a minute.
+- **7.10b2** switched the code and environment:
+  - `CANONICAL_TOKEN_SECRET_ID` is the new secret
+  - `CANONICAL_TOKEN_PREVIOUS_SECRET_ID` is `spares4repairs/dev/applianceclinic-canonical-state-token`
+- **Live:** a conversation started before 7.10b2 continued after it in the same canonical session (`csid` unchanged).
+  New conversations start and continue. Canonical mode is `control`, with state written and nothing degraded.
+- **Rollback:** swap the two variables. The code accepts either as previous, so no session breaks either way.
+
+**Bearer tokens: rotated onto the namespace (7.10c).**
+- Every consumer now reads them through `{{resolve:secretsmanager:applianceclinic/production/<name>:SecretString:token}}`:
+  - from `orchestrator-bearer`: the orchestrator's `ORCH_BEARER_TOKEN` and `whichpart-api`'s `ORCHESTRATOR_TOKEN`
+  - from `mcp-bearer`: `MCP_BEARER_TOKEN` on the MCP, the orchestrator and `whichpart-api`
+- The values are new, so the old ones stop working. The NoEcho token parameters are gone from the template.
+- **The execution role** now resolves exactly these two secrets (`ResolveAcBearerReferences`, read-only base v33). It
+  could already read the same values in the functions' configuration (`lambda:Get*`), so nothing new is exposed.
+- **Cut-over:** CloudFormation updated the three functions within the same minute (19:28:43Z), at low traffic. Then:
+  - whichpart-api → orchestrator: the smoke turns were processed
+  - whichpart-api → MCP: the admin catalogue read returns 200
+  - orchestrator → MCP: an error-code turn returned `ERROR_CODE`, `mcpStatus: RESOLVED`, and `POST /mcp` 200
+  - the only 401s afterwards were this script's own no-bearer and wrong-bearer probes
+- **Callers.** No caller outside AWS holds the old bearers. The MCP's access log for the last 14 days shows only AWS
+  (Lambda) sources, plus scanners refused at 401. Orchestrator calls match `whichpart-api` turns within 0.5%.
+- **Rollback.** It restores consistency, not the old values (they were never read). Point every consumer at one pair:
+  revert the overrides, and the generator carries the current live values as before.
+- Drift `IN_SYNC` with the dynamic references, and the no-op is confirmed.
+
+**Old secrets.** No S4R-owned secret was altered or deleted. These AC-owned ones remain in place, no longer read, and
+can be retired by the owner later:
+- `spares4repairs/diag-orchestrator/bearer-token`
+- `spares4repairs/error-code-mcp/bearer-token`
+- the old canonical secret, still read as the previous one until the last 30-day token expires
+
+**Packaged, not done: the OpenAI key, the Jev token and the AI-config document.**
+- Their secrets (`spares4repairs/dev/applianceclinic-*`) are also read by the **diagnosis Lambda** through the S4R role's
+  `spares4repairs/dev/*` grant. Moving them changes what that Lambda reads, which is POTENTIALLY IMPACTS S4R.
+- **Rotating** the OpenAI key and Jev token needs new credentials from the providers, issued by the owner. No value is
+  invented here.
+- **Sequence after owner sign-off:**
+  1. Do the diagnosis-role move ([package](phase-7-package-diagnosis-role.md)).
+  2. Create `applianceclinic/production/{openai,jev,ai-config}`.
+  3. The owner sets the new provider values in Settings.
+  4. Point both consumers at the new names, with the old names as fallback for one release.
+  5. Revoke the old provider credentials.
+- **`applianceclinic-benchmark-service`:** the external batch worker signs with it, so rotating it needs the owner's
+  worker updated at the same time. Same sequence.
+
+## 7.13: least-privilege IAM for the AC roles
+
+From runtime evidence: the code, CloudTrail for 90 days, and IAM simulation of the proposed and the real policies.
+
+| Change | Before | After | Evidence |
+|---|---|---|---|
+| 7.13a + 7.13b, logs | `AWSLambdaBasicExecutionRole` on all three roles: `CreateLogGroup`, `CreateLogStream` and `PutLogEvents` on every log group in the account | Inline `ac-function-logs`: the same three actions on the function's own log group only. The managed policy is detached (`ManagedPolicyArns: []`) | Each role is used by one function, and each function logs to `/aws/lambda/<function>`. The real roles allow their own group and deny the diagnosis Lambda's group, look-alike names and other regions. The policy was added before the detach, so logging never lacked a grant |
+| 7.13c, secrets | `whichpart-ai-config-secrets`: `GetSecretValue`, `PutSecretValue`, `CreateSecret` and `UpdateSecret` on `spares4repairs/dev/applianceclinic-*` | `GetSecretValue` on the five secrets the code reads (exact ARNs); `PutSecretValue` on the three Settings writes (ai-config, openai, jev) | `CreateSecret` ran only when the secrets were first created; they are now imported with Retain. `UpdateSecret` was never used. Simulation: the needed reads and writes are allowed; `CreateSecret`, `UpdateSecret`, writes to the HMAC secret and every S4R secret are denied |
+
+**Every change:**
+- drift `IN_SYNC` and no-op confirmed
+- `verify-ac-auth.sh` passes 13 checks. New: the admin reads Settings, which needs the AI-config, OpenAI and Jev reads.
+- canonical sessions continue, and the smoke, S4R health, contract and ingress are unchanged
+
+**Not changed, on purpose:**
+- **The S3 and DynamoDB inline policies** are already scoped to exact prefixes and tables, with the actions the code uses.
+- **`diag-orchestrator-role`** now has only its log policy.
+- **The S4R role, and the three AC policies on it,** are untouched. Their scope belongs to the diagnosis-role package.
+
 ## Jev outage during 7.6 (external, 17:13 to 17:21Z)
 
 The after-checks of 7.6 found the `/part-finder` contract and the `/ai/chat` ingress returning 503.
