@@ -18,6 +18,7 @@ const fs = require('node:fs');
 const cdk = require('aws-cdk-lib');
 const { aws_iam: iam, aws_lambda: lambda, aws_events: events } = cdk;
 const { upTo, retain, shellHandle, logical, SANDBOX_NAMES } = require('./common');
+const { applyOverrides } = require('./overrides');
 
 /** Import groups by production name. */
 const FUNCTION_STEP = {
@@ -34,7 +35,7 @@ class RuntimeStack extends cdk.Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
     const has = upTo(props.step);
-    const live = JSON.parse(fs.readFileSync(props.live, 'utf8'));
+    const live = applyOverrides(JSON.parse(fs.readFileSync(props.live, 'utf8')), props.overrides || {});
     const reverse = Object.fromEntries(Object.entries(SANDBOX_NAMES).map(([p, s]) => [s, p]));
     // Logical IDs always come from the production name, so both profiles share them.
     const prod = (n) => (props.profile === 'sandbox' ? (reverse[n] || n.replace(/-sbx$/, '')) : n);
@@ -67,14 +68,14 @@ class RuntimeStack extends cdk.Stack {
       if (has(FUNCTION_STEP[p])) {
         const variables = {};
         for (const [k, v] of Object.entries(c.Environment?.Variables || {})) {
-          if (!isToken(k)) { variables[k] = v; continue; }
+          if (!isToken(k) || String(v).startsWith('{{resolve:')) { variables[k] = v; continue; }
           const param = new cdk.CfnParameter(this, `Env${fid}${k.replace(/_/g, '')}`, {
             type: 'String', noEcho: true, description: `${name} ${k}: the live value, carried over at change-set time`,
           });
           variables[k] = param.valueAsString;
         }
         const zip = c.PackageType === 'Zip';
-        const code = zip ? props.codeLocations?.[name] : { imageUri: f.code.imageUri };
+        const code = zip ? (f.codeOverride || props.codeLocations?.[name]) : { imageUri: f.code.imageUri };
         if (!code) throw new Error(`no code location for ${name}`);
         retain(new lambda.CfnFunction(this, fid, {
           functionName: name,
@@ -144,4 +145,4 @@ class RuntimeStack extends cdk.Stack {
   }
 }
 
-module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS };
+module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS, applyOverrides };

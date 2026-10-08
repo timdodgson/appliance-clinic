@@ -1,0 +1,35 @@
+{
+  "description": "Phase 7 onwards: the reviewed changes to AcRuntimeStack. The template is generated from a capture of live (infra/production/capture-runtime.sh) with these overrides applied, so each production change is a reviewed edit of this file. Empty: the template equals live.",
+  "functions": {
+    "whichpart-api": {
+      "env": {
+        "set": {
+          "COGNITO_USER_POOL_ID": "eu-west-1_r4fXXEdxC",
+          "COGNITO_CLIENT_ID": "2hgmm8m02n78agi46kae4p2eja",
+          "AC_ADMIN_GROUP": "admin"
+        },
+        "unset": [
+          "AC_ADMIN_SUBS"
+        ]
+      },
+      "code": {
+        "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
+        "s3Key": "phase7/whichpart-api-piTEBGd8hUIng6SpYTqXVWRj8qhR0q-xaaLDI66BAW0.zip"
+      }
+    }
+  },
+  "rolePolicies": {
+    "whichpart-api-role/whichpart-cognito-auth": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "cognito-idp:AdminInitiateAuth"
+          ],
+          "Resource": "arn:aws:cognito-idp:eu-west-1:800960611664:userpool/eu-west-1_r4fXXEdxC"
+        }
+      ]
+    }
+  }
+}

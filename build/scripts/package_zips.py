@@ -67,6 +67,9 @@ def whichpart_api_entries(generated):
              'benchmark/acq-grade.js', 'benchmark/acq-judge.js', 'benchmark/acq-store.js', 'benchmark/acq-library.js',
              'benchmark/acq-reviews.js', 'benchmark/routing-override.js', 'benchmark/acq-100.v1.json',
              'benchmark/gold-v2/version.js']
+    # Phase 7 onwards: runtime files added after the import (docs/migration/runtime-changes.json).
+    files += sorted(os.path.relpath(f['path'], 'services/whichpart-api') for f in json.load(open(os.path.join(ROOT, 'docs', 'migration', 'runtime-changes.json')))['added']
+                    if f['role'] == 'runtime' and 'whichpart-api' in f['units'])
     entries = {name: os.path.join(WP, name) for name in files}
     for d in ('transcript-review', 'recalls'):  # zipped as whole directories
         for path in sorted(glob.glob(os.path.join(WP, d, '**', '*'), recursive=True)):

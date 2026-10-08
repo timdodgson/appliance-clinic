@@ -1,0 +1,31 @@
+{
+  "id": "7.1-auth-stack",
+  "description": "Create AcAuthStack: AC's own Cognito user pool, app client, admin group and Cognito prefix domain (ADR 0006). Nothing existing changes; the S4R pool is untouched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcAuthStack",
+  "kind": "CREATE",
+  "expectedChanges": [
+    { "action": "Add", "logicalId": "UserPool", "type": "AWS::Cognito::UserPool", "physicalId": null, "replacement": null },
+    { "action": "Add", "logicalId": "WebClient", "type": "AWS::Cognito::UserPoolClient", "physicalId": null, "replacement": null },
+    { "action": "Add", "logicalId": "AdminGroup", "type": "AWS::Cognito::UserPoolGroup", "physicalId": null, "replacement": null },
+    { "action": "Add", "logicalId": "Domain", "type": "AWS::Cognito::UserPoolDomain", "physicalId": null, "replacement": null }
+  ],
+  "grant": [
+    { "Action": ["cognito-idp:CreateUserPool"], "Resource": ["*"] },
+    { "Action": ["cognito-idp:DescribeUserPool", "cognito-idp:GetUserPoolMfaConfig", "cognito-idp:SetUserPoolMfaConfig", "cognito-idp:UpdateUserPool",
+                 "cognito-idp:TagResource", "cognito-idp:ListTagsForResource",
+                 "cognito-idp:CreateUserPoolClient", "cognito-idp:DescribeUserPoolClient",
+                 "cognito-idp:CreateGroup", "cognito-idp:GetGroup",
+                 "cognito-idp:CreateUserPoolDomain", "cognito-idp:DescribeUserPoolDomain"],
+      "Resource": ["arn:aws:cognito-idp:eu-west-1:800960611664:userpool/*"] }
+  ],
+  "grantNotes": "CreateUserPool takes no resource. Everything else is on user pools in this account; ac-deny-s4r explicitly denies every action on the S4R pool, which wins over this allow. No delete, no user or credential action.",
+  "writes": {
+    "types": ["AWS::Cognito::UserPool"],
+    "expected": ["cognito-idp:CreateUserPool", "cognito-idp:SetUserPoolMfaConfig", "cognito-idp:UpdateUserPool", "cognito-idp:TagResource",
+                 "cognito-idp:CreateUserPoolClient", "cognito-idp:CreateGroup", "cognito-idp:CreateUserPoolDomain"],
+    "forbidden": ["cognito-idp:DeleteUserPool", "cognito-idp:AdminCreateUser", "cognito-idp:AdminSetUserPassword", "cognito-idp:AdminAddUserToGroup"],
+    "resources": ["applianceclinic", "eu-west-1_"],
+    "forbiddenResources": ["eu-west-1_mUWucohuX", "60phdcnl0eetdq4kcp327d0fkm"]
+  }
+}

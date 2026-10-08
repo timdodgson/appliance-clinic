@@ -37,6 +37,8 @@ export const AC = {
   ],
   repositories: ['spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'],
   rules: ['whichpart-recall-ingest-daily', 'whichpart-transcript-review'],
+  // Phase 7 (ADR 0006): AC's own user pool, created by AcAuthStack (change 7.1-auth-stack).
+  userPools: ['eu-west-1_r4fXXEdxC'],
 };
 
 const fnArns = AC.functions.flatMap((n) => [`arn:aws:lambda:${R}:${A}:function:${n}`, `arn:aws:lambda:${R}:${A}:function:${n}:*`]);
@@ -48,6 +50,8 @@ const secretArns = AC.secrets.map((n) => `arn:aws:secretsmanager:${R}:${A}:secre
 const ACCOUNT_READS = [
   'lambda:ListFunctions', 'lambda:GetAccountSettings', 'dynamodb:ListTables', 's3:ListAllMyBuckets', 'secretsmanager:ListSecrets',
   'ecr:DescribeRegistry', 'events:ListRules', 'iam:ListRoles', 'tag:GetResources',
+  // Takes a domain name, not a pool ARN.
+  'cognito-idp:DescribeUserPoolDomain',
 ];
 
 const doc = (Statement) => ({ Version: '2012-10-17', Statement });
@@ -71,6 +75,8 @@ export function executionPolicy(stepWrites = []) {
     // Every CDK template's BootstrapVersion parameter resolves this toolkit parameter (Phase 5 finding).
     { Sid: 'ReadToolkitVersion', Effect: 'Allow', Action: ['ssm:GetParameter', 'ssm:GetParameters'], Resource: `arn:aws:ssm:${R}:${A}:parameter/cdk-bootstrap/${QUALIFIER}/version` },
     { Sid: 'ReadAcRules', Effect: 'Allow', Action: ['events:DescribeRule', 'events:ListTargetsByRule', 'events:ListTagsForResource'], Resource: AC.rules.map((n) => `arn:aws:events:${R}:${A}:rule/${n}`) },
+    // The configuration reads drift detection makes; never users or their attributes.
+    { Sid: 'ReadAcUserPools', Effect: 'Allow', Action: ['cognito-idp:DescribeUserPool', 'cognito-idp:GetUserPoolMfaConfig', 'cognito-idp:DescribeUserPoolClient', 'cognito-idp:GetGroup', 'cognito-idp:ListTagsForResource'], Resource: AC.userPools.map((id) => `arn:aws:cognito-idp:${R}:${A}:userpool/${id}`) },
     ...stepWrites,
   ]);
 }

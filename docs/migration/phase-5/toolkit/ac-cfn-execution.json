@@ -13,7 +13,8 @@
         "ecr:DescribeRegistry",
         "events:ListRules",
         "iam:ListRoles",
-        "tag:GetResources"
+        "tag:GetResources",
+        "cognito-idp:DescribeUserPoolDomain"
       ],
       "Resource": "*"
     },
@@ -138,6 +139,20 @@
       "Resource": [
         "arn:aws:events:eu-west-1:800960611664:rule/whichpart-recall-ingest-daily",
         "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review"
+      ]
+    },
+    {
+      "Sid": "ReadAcUserPools",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:DescribeUserPool",
+        "cognito-idp:GetUserPoolMfaConfig",
+        "cognito-idp:DescribeUserPoolClient",
+        "cognito-idp:GetGroup",
+        "cognito-idp:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:cognito-idp:eu-west-1:800960611664:userpool/eu-west-1_r4fXXEdxC"
       ]
     }
   ]
