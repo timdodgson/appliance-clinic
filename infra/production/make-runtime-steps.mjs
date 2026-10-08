@@ -41,8 +41,15 @@ write('5.6', 'The 9 AC inline policies as AWS::IAM::RolePolicy (PLAN.md step 5.6
   [{ value: POOL, reason: 'whichpart-cognito-auth (AC policy) allows AdminInitiateAuth on the S4R pool AC admin sign-in uses until Phase 7 (ownership.md). The policy is imported unchanged; the pool is S4R and never managed.' }]);
 
 const FN = { '5.7a': 'spares4repairs-error-code-mcp', '5.7b': 'spares4repairs-diag-orchestrator', '5.7c': 'whichpart-api' };
+// whichpart-api's environment names two S4R identifiers (ownership.md, Known S4R resources AC depends on).
+const FN_REFERENCES = {
+  'whichpart-api': [
+    { value: '60phdcnl0eetdq4kcp327d0fkm', reason: 'COGNITO_CLIENT_ID: the S4R app client AC admin sign-in uses until Phase 7 (ownership.md, ADR 0006). An environment value of the AC function, imported unchanged; the client is S4R and never managed.' },
+    { value: 'd1hrb3pgx61xww.cloudfront.net', reason: 'S4R_PRODUCT_BASE_URL: buy links point to the S4R shop CloudFront (ownership.md). An environment value of the AC function, imported unchanged; the distribution is S4R and never managed.' },
+  ],
+};
 for (const [step, f] of Object.entries(FN)) {
-  write(step, `Lambda function ${f} (PLAN.md step 5.7, least critical first). SAFE AC CHANGE.`, [['AWS::Lambda::Function', logical(f), { FunctionName: f }, f]]);
+  write(step, `Lambda function ${f} (PLAN.md step 5.7, least critical first). SAFE AC CHANGE.`, [['AWS::Lambda::Function', logical(f), { FunctionName: f }, f]], FN_REFERENCES[f]);
 }
 
 const urlAndPermissions = (f) => [
