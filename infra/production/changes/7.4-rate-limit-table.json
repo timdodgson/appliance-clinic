@@ -1,0 +1,23 @@
+{
+  "id": "7.4-rate-limit-table",
+  "description": "Create the whichpart-api rate-limit counter table applianceclinic-rate-limits in AcDataStack (on-demand, TTL on expiresAt, deletion protection, Retain). Nothing existing changes.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcDataStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    { "action": "Add", "logicalId": "RateLimitTable", "type": "AWS::DynamoDB::Table", "physicalId": null, "replacement": null }
+  ],
+  "grant": [
+    { "Action": ["dynamodb:CreateTable", "dynamodb:DescribeTable", "dynamodb:UpdateTimeToLive", "dynamodb:DescribeTimeToLive", "dynamodb:TagResource",
+                 "dynamodb:ListTagsOfResource", "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeContributorInsights", "dynamodb:DescribeKinesisStreamingDestination", "dynamodb:GetResourcePolicy"],
+      "Resource": ["arn:aws:dynamodb:eu-west-1:800960611664:table/applianceclinic-rate-limits"] }
+  ],
+  "grantNotes": "Creation of the one new table and the reads CloudFormation makes on it. No delete, and nothing on any other table.",
+  "writes": {
+    "types": ["AWS::DynamoDB::Table"],
+    "expected": ["dynamodb:CreateTable", "dynamodb:UpdateTimeToLive", "dynamodb:TagResource"],
+    "forbidden": ["dynamodb:DeleteTable", "dynamodb:UpdateTable"],
+    "resources": ["applianceclinic-rate-limits"],
+    "forbiddenResources": ["whichpart-transcripts", "whichpart-recalls"]
+  }
+}
