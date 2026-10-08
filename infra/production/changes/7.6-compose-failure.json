@@ -1,0 +1,63 @@
+{
+  "id": "7.6-compose-failure",
+  "description": "#21: a required canonical COMPOSE whose provider failed (structured violation compose_failed) is returned as the documented explicit failure ('AI service unavailable. Please try again in a moment.', error:true, errorCode ai_unavailable) instead of a normal-looking template; the canonical state is not advanced. whichpart-api only (AC site); the diagnosis Lambda and /part-finder are untouched. Code only.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase7/whichpart-api-qaCMUgHWI9yTyKfHWnROY7qKe5KoRlkQvTB59JPQgnQ.zip"
+      ]
+    }
+  ],
+  "grantNotes": "Code only, as 7.5b and 7.5c: UpdateFunctionCode on whichpart-api and read of the one staged artefact.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

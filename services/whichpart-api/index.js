@@ -2664,6 +2664,24 @@ async function handleEvent(event) {
     return respond(200, fallback);
   }
 
+  // #21: a REQUIRED canonical COMPOSE whose provider failed (structured violation `compose_failed` in the
+  // canonical-control stage; never inferred from text) used to reach the customer as the deterministic template,
+  // looking like a healthy turn. It is now an explicit failure: the documented "AI service unavailable" reply with
+  // error:true, exactly the orchestrator-unavailable path, so the canonical state is NOT advanced (the customer never
+  // saw this turn's question) and the turn is logged as failed. Output-contract fallbacks (tripwire, checkReply) and
+  // the fixed safety-stop copy keep their deterministic template by design.
+  if (composeProviderFailed(orch._diagnosticTrace)) {
+    log({ evt: 'whichpart-api', rid, ok: false, composeFailed: true, route: orch.route, ms: Date.now() - t0,
+      canonical: canonCtx.mode === 'off' ? undefined : { mode: canonCtx.mode, version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid) } });
+    const failed = aiUnavailableView(rid);
+    if (canonCtx.token) failed.stateToken = canonCtx.token;
+    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
+    if (bench) failed.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
+    await persistTranscriptTurn(obs, messages, failed, null, rid,
+      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: canonCtx.degraded }, orch._diagnosticTrace, 'compose_failed'));
+    return respond(200, failed);
+  }
+
   const canonResult = await canonicalFinish(canonCtx, orch._canonical, rid);
   let canonSummary = null;
   try { canonSummary = conversationState.summarise(canonCtx, orch._canonical, canonResult); } catch { canonSummary = null; }
@@ -3016,6 +3034,16 @@ function firstSentence(text) {
   const m = text.match(/^.*?[.!?](\s|$)/);
   return (m ? m[0] : text).trim();
 }
+/** #21: true when the canonical-control stage reports a COMPOSE provider failure (structured, not text). */
+function composeProviderFailed(trace) {
+  const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
+  const c = st && st.detail && st.detail.compose;
+  return Boolean(c && Array.isArray(c.violations) && c.violations.indexOf('compose_failed') !== -1);
+}
+/** The documented public failure reply (the diagnosis service's "AI service unavailable"), as an error view. */
+function aiUnavailableView(rid) {
+  return { ...fallbackView(rid), reply: 'AI service unavailable. Please try again in a moment.', errorCode: 'ai_unavailable' };
+}
 function fallbackView(rid) {
   return {
     requestId: rid,
@@ -3043,6 +3071,7 @@ module.exports.setCanonicalDepsForTests = setCanonicalDepsForTests;
 module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
 module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
 module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
+module.exports.composeProviderFailed = composeProviderFailed;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setKnowledgeAdminStore = setKnowledgeAdminStore;
 module.exports.knowledgeAdmin = knowledgeAdmin;
