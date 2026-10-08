@@ -104,13 +104,19 @@ No rotation is configured, and all use the default KMS key. A runtime-created
 | CloudFront function `whichpart-www-redirect` | **Unproven** (AC by inference; left unmanaged) | Attached only to `E1QD02IAJZPJLM`. A CloudFront `CreateFunction` event by the account owner on 2026-08-23 carries no resource name; the link is by timing only | `cloudfront-js-2.0`; development and live code identical |
 | ACM certificate and DNS for the distribution's aliases | Unproven | Not inventoried | Referenced only, never imported or changed |
 
+## Created in Phase 7
+
+| Resource | Class | Evidence | Notes |
+|---|---|---|---|
+| Stack `AcAuthStack`: Cognito user pool `applianceclinic` (`eu-west-1_r4fXXEdxC`), app client `applianceclinic-web`, group `admin`, prefix domain `applianceclinic-admin` | AC | Created by change `7.1-auth-stack` (phase-7-results.md); Retain, termination protection, stack policy | AC sign-in and admin authority (ADR 0006). `whichpart-api` uses it since change `7.2-ac-auth`; `whichpart-cognito-auth` grants `AdminInitiateAuth` on it only, since change `7.3-ac-auth-policy` |
+
 ## Known S4R resources AC depends on
 
 These are `S4R` by definition. AC may read from them or call them as a client, and nothing else.
 
 | Resource | AC dependency |
 |---|---|
-| S4R Cognito user pool and app client (`SparesSite-dev`) | AC admin sign-in (`AdminInitiateAuth`, `GetUser`) until Phase 7 |
+| S4R Cognito user pool and app client (`SparesSite-dev`) | None since Phase 7 (2026-10-08): AC signs in against its own pool (`AcAuthStack`), and `whichpart-cognito-auth` grants nothing on the S4R pool. Before that, AC admin sign-in (`AdminInitiateAuth`, `GetUser`) |
 | S4R HTTP API `spares4repairs-dev` (`65vnizdmk4`) | Diagnosis Lambda and error-code tools call `/api/search` and `/api/parts-for-model`. Its route `POST /ai/chat` (integration `nk77gue`, auto-deploy `$default` stage) invokes the diagnosis Lambda, unauthenticated (S4R-sensitive, confirmed live ingress). Created by hand on 2026-07-20, not in any CloudFormation stack, so it is on the denylist through the manual entries in `tools/migration/config/s4r-known.json` |
 | `SparesSite-dev-ServerFunctionRole…` | Execution role of the diagnosis Lambda ([ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md)) |
 | S4R CloudFront (shop domain) | Buy links point to it |

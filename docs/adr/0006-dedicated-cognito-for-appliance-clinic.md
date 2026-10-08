@@ -1,6 +1,6 @@
 # 0006. Dedicated Cognito for Appliance Clinic
 
-- **Status:** Accepted
+- **Status:** Accepted; implemented in Phase 7 on 2026-10-08 (phase-7-results.md)
 - **Date:** 2026-10-07
 
 ## Context
@@ -37,3 +37,16 @@ add groups, clients, triggers or settings to it.
 - **Add an `admin` group to the S4R pool.** Rejected: it modifies S4R.
 - **A user-migration trigger.** Rejected: it would authenticate against the S4R pool, and may need
   auth flows enabled on the S4R client.
+
+## Implementation (Phase 7, 2026-10-08)
+
+- `AcAuthStack` holds the pool `applianceclinic`, the app client `applianceclinic-web`, the `admin` group and a Cognito
+  prefix domain for the managed sign-in pages. There is no self sign-up, the password policy is strong, and deletion
+  protection is on.
+- `whichpart-api` accepts only access tokens issued by the AC pool for the AC client. It checks issuer, `token_use` and
+  `client_id`, because Cognito `GetUser` accepts a valid token from any pool. Admin authority is the `admin` group;
+  `AC_ADMIN_SUBS` is gone.
+- `whichpart-cognito-auth` grants `AdminInitiateAuth` on the AC pool only, so AC has no permission on the S4R pool.
+- The AC admin was recreated by invitation: Cognito emails a temporary password, and the admin sets their own on the
+  managed sign-in page. No password passed through an operator.
+
