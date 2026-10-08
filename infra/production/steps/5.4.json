@@ -1,0 +1,54 @@
+{
+  "step": "5.4",
+  "description": "S3 buckets and their existing bucket policy (PLAN.md step 5.4). SAFE AC CHANGE.",
+  "stack": "AcDataStack",
+  "allowedPhysicalIds": [
+    "whichpart-web-800960611664",
+    "whichpart-learning-800960611664",
+    "whichpart-web-800960611664"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::S3::Bucket",
+      "LogicalResourceId": "whichpartweb800960611664",
+      "ResourceIdentifier": {
+        "BucketName": "whichpart-web-800960611664"
+      }
+    },
+    {
+      "ResourceType": "AWS::S3::Bucket",
+      "LogicalResourceId": "whichpartlearning800960611664",
+      "ResourceIdentifier": {
+        "BucketName": "whichpart-learning-800960611664"
+      }
+    },
+    {
+      "ResourceType": "AWS::S3::BucketPolicy",
+      "LogicalResourceId": "WebBucketPolicy",
+      "ResourceIdentifier": {
+        "Bucket": "whichpart-web-800960611664"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartweb800960611664",
+      "type": "AWS::S3::Bucket",
+      "physicalId": "whichpart-web-800960611664"
+    },
+    {
+      "action": "Import",
+      "logicalId": "whichpartlearning800960611664",
+      "type": "AWS::S3::Bucket",
+      "physicalId": "whichpart-learning-800960611664"
+    },
+    {
+      "action": "Import",
+      "logicalId": "WebBucketPolicy",
+      "type": "AWS::S3::BucketPolicy",
+      "physicalId": "whichpart-web-800960611664"
+    }
+  ]
+}

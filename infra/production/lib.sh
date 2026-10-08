@@ -116,7 +116,7 @@ protect() {
 expect_noop() {
   local name=noop-$(date +%s) out
   out=$(aws cloudformation create-change-set --stack-name "$1" --change-set-name "$name" --change-set-type UPDATE \
-    --template-body "file://$2" --capabilities CAPABILITY_NAMED_IAM --role-arn "$P5_EXEC_ROLE" --query Id --output text)
+    --template-body "file://$2" --capabilities CAPABILITY_NAMED_IAM --role-arn "$P5_EXEC_ROLE" ${P5_PARAMS:+--parameters $P5_PARAMS} --query Id --output text)
   aws cloudformation wait change-set-create-complete --stack-name "$1" --change-set-name "$name" 2>/dev/null || true
   local why; why=$(aws cloudformation describe-change-set --stack-name "$1" --change-set-name "$name" --query StatusReason --output text)
   aws cloudformation delete-change-set --stack-name "$1" --change-set-name "$name"

@@ -8,7 +8,7 @@
  */
 const cdk = require('aws-cdk-lib');
 const { aws_ecr: ecr, aws_secretsmanager: sm, aws_dynamodb: ddb, aws_s3: s3 } = cdk;
-const { A, upTo, retain, shellHandle, logical } = require('./common');
+const { A, upTo, retain, shellHandle, logical, namer } = require('./common');
 
 const REPOSITORIES = { 'spares4repairs-error-code-mcp': '5.1', 'spares4repairs-diag-orchestrator': '5.2' };
 
@@ -31,32 +31,55 @@ const TABLES = {
 
 const BUCKETS = [`whichpart-web-${A}`, `whichpart-learning-${A}`];
 
+/**
+ * The repository policy Lambda writes when an image function is created: identical on both live repositories. The
+ * sandbox profile narrows the condition to sandbox functions (the probe's guard refuses an account-wide pattern); the
+ * statement's shape, principal and actions are the same.
+ */
+const lambdaEcrPolicy = (functions) => ({
+  Version: '2008-10-17',
+  Statement: [{
+    Sid: 'LambdaECRImageRetrievalPolicy',
+    Effect: 'Allow',
+    Principal: { Service: 'lambda.amazonaws.com' },
+    Action: ['ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer', 'ecr:SetRepositoryPolicy', 'ecr:DeleteRepositoryPolicy', 'ecr:GetRepositoryPolicy'],
+    Condition: { StringLike: { 'aws:sourceArn': `arn:aws:lambda:eu-west-1:${A}:function:${functions}` } },
+  }],
+});
+const LAMBDA_ECR_POLICY = lambdaEcrPolicy('*');
+
 class DataStack extends cdk.Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
     const has = upTo(props.step);
+    const N = namer(props.profile || 'production');
+    // Choices that the import-semantics probe settles (docs/migration/phase-5-import-writes.json).
+    const declare = props.declare || {};
     shellHandle(this);
 
     for (const [name, step] of Object.entries(REPOSITORIES)) {
       if (!has(step)) continue;
       retain(new ecr.CfnRepository(this, logical(name), {
-        repositoryName: name,
+        repositoryName: N(name),
         imageTagMutability: 'MUTABLE',
         imageScanningConfiguration: { scanOnPush: true },
         encryptionConfiguration: { encryptionType: 'AES256' },
+        ...(declare.ecrRepositoryPolicy ? { repositoryPolicyText: lambdaEcrPolicy(props.profile === 'sandbox' ? '*-sbx' : '*') } : {}),
       }));
     }
 
     if (has('5.2')) {
       for (const [name, description] of Object.entries(SECRETS)) {
-        retain(new sm.CfnSecret(this, logical(name), { name, ...(description ? { description } : {}) }));
+        // A description names production resources; the sandbox profile maps them like every other name.
+        const text = description && props.profile === 'sandbox' ? description.replace(/\bwhichpart-api\b(?!-)/g, N('whichpart-api')) : description;
+        retain(new sm.CfnSecret(this, logical(name), { name: N(name), ...(text ? { description: text } : {}) }));
       }
     }
 
     for (const [name, t] of Object.entries(TABLES)) {
       if (!has(t.step)) continue;
       retain(new ddb.CfnTable(this, logical(name), {
-        tableName: name,
+        tableName: N(name),
         billingMode: 'PAY_PER_REQUEST',
         keySchema: [{ attributeName: 'pk', keyType: 'HASH' }],
         attributeDefinitions: [
@@ -71,7 +94,6 @@ class DataStack extends cdk.Stack {
         }],
         ...(t.ttl ? { timeToLiveSpecification: t.ttl } : {}),
         pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
-        tableClass: 'STANDARD',
         deletionProtectionEnabled: false,
       }));
     }
@@ -79,7 +101,7 @@ class DataStack extends cdk.Stack {
     if (has('5.4')) {
       for (const name of BUCKETS) {
         retain(new s3.CfnBucket(this, logical(name), {
-          bucketName: name,
+          bucketName: N(name),
           ownershipControls: { rules: [{ objectOwnership: 'BucketOwnerEnforced' }] },
           publicAccessBlockConfiguration: { blockPublicAcls: true, ignorePublicAcls: true, blockPublicPolicy: true, restrictPublicBuckets: true },
           bucketEncryption: { serverSideEncryptionConfiguration: [{ serverSideEncryptionByDefault: { sseAlgorithm: 'AES256' }, bucketKeyEnabled: false }] },
@@ -87,7 +109,7 @@ class DataStack extends cdk.Stack {
       }
       // The web bucket's only statement, exactly as live. The learning bucket has no policy.
       retain(new s3.CfnBucketPolicy(this, 'WebBucketPolicy', {
-        bucket: BUCKETS[0],
+        bucket: N(BUCKETS[0]),
         policyDocument: {
           Version: '2012-10-17',
           Statement: [{
@@ -95,14 +117,14 @@ class DataStack extends cdk.Stack {
             Effect: 'Allow',
             Principal: { Service: 'cloudfront.amazonaws.com' },
             Action: 's3:GetObject',
-            Resource: `arn:aws:s3:::${BUCKETS[0]}/*`,
-            Condition: { StringEquals: { 'AWS:SourceArn': `arn:aws:cloudfront::${A}:distribution/E1QD02IAJZPJLM` } },
+            Resource: `arn:aws:s3:::${N(BUCKETS[0])}/*`,
+            Condition: { StringEquals: { 'AWS:SourceArn': `arn:aws:cloudfront::${A}:distribution/${N('E1QD02IAJZPJLM')}` } },
           }],
         },
       }));
     }
-    this.templateOptions.description = 'AcDataStack: Appliance Clinic data resources, imported (Phase 5). Retain on every resource.';
+    this.templateOptions.description = `${id}: Appliance Clinic data resources, imported (Phase 5). Retain on every resource.`;
   }
 }
 
-module.exports = { DataStack, REPOSITORIES, SECRETS, TABLES, BUCKETS };
+module.exports = { DataStack, REPOSITORIES, SECRETS, TABLES, BUCKETS, LAMBDA_ECR_POLICY };

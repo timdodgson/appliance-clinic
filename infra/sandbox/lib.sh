@@ -19,8 +19,9 @@ export AWS_REGION=$SBX_REGION AWS_DEFAULT_REGION=$SBX_REGION
 SBX_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SBX_TOOLS=$SBX_ROOT/tools/migration
 SBX_OUT=${SBX_OUT:-$SBX_ROOT/.migration-output/sandbox}
-SBX_EXEC_ROLE=arn:aws:iam::$SBX_ACCOUNT:role/cdk-acsbx-cfn-exec-role-$SBX_ACCOUNT-$SBX_REGION
-SBX_TAGS=(Key=ac:sandbox,Value=phase-4)
+# The import-semantics probe (probe/) uses its own execution role and, like production, no stack tags.
+SBX_EXEC_ROLE=${SBX_EXEC_ROLE:-arn:aws:iam::$SBX_ACCOUNT:role/cdk-acsbx-cfn-exec-role-$SBX_ACCOUNT-$SBX_REGION}
+if [[ ${SBX_NO_STACK_TAGS:-0} == 1 ]]; then SBX_TAGS=(); else SBX_TAGS=(Key=ac:sandbox,Value=phase-4); fi
 EXECUTE=${EXECUTE:-0}
 mkdir -p "$SBX_OUT"
 
@@ -50,7 +51,7 @@ changeset() {
   # A dry run (EXECUTE=0) leaves its change set behind: replace it.
   aws cloudformation delete-change-set --stack-name "$stack" --change-set-name "$name" 2>/dev/null && sleep 3 || true
   aws cloudformation create-change-set --stack-name "$stack" --change-set-name "$name" --change-set-type "$kind" \
-    --template-body "file://$template" --capabilities CAPABILITY_NAMED_IAM --tags "${SBX_TAGS[@]}" "${role[@]}" \
+    --template-body "file://$template" --capabilities CAPABILITY_NAMED_IAM ${SBX_TAGS[@]:+--tags "${SBX_TAGS[@]}"} "${role[@]}" \
     ${SBX_PARAMS:+--parameters $SBX_PARAMS} ${import:+--resources-to-import "file://$import"} --query Id --output text >/dev/null
   if ! aws cloudformation wait change-set-create-complete --stack-name "$stack" --change-set-name "$name" 2>/dev/null; then
     aws cloudformation describe-change-set --stack-name "$stack" --change-set-name "$name" --query '[Status,StatusReason]' --output text >&2
@@ -103,7 +104,7 @@ expect_noop() {
   name=noop-$(date -u +%H%M%S)
   [[ $stack == SparesSite-sbx ]] || role=(--role-arn "$SBX_EXEC_ROLE")
   aws cloudformation create-change-set --stack-name "$stack" --change-set-name "$name" --change-set-type UPDATE \
-    --template-body "file://$template" --capabilities CAPABILITY_NAMED_IAM --tags "${SBX_TAGS[@]}" "${role[@]}" \
+    --template-body "file://$template" --capabilities CAPABILITY_NAMED_IAM ${SBX_TAGS[@]:+--tags "${SBX_TAGS[@]}"} "${role[@]}" \
     ${SBX_PARAMS:+--parameters $SBX_PARAMS} >/dev/null
   aws cloudformation wait change-set-create-complete --stack-name "$stack" --change-set-name "$name" 2>/dev/null || true
   status=$(aws cloudformation describe-change-set --stack-name "$stack" --change-set-name "$name" --query '[Status,StatusReason]' --output text)

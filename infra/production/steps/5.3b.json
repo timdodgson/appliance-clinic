@@ -1,0 +1,26 @@
+{
+  "step": "5.3b",
+  "description": "DynamoDB whichpart-transcripts (PLAN.md step 5.3, second table). SAFE AC CHANGE. Holds customer conversations: metadata only.",
+  "stack": "AcDataStack",
+  "allowedPhysicalIds": [
+    "whichpart-transcripts"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::DynamoDB::Table",
+      "LogicalResourceId": "whichparttranscripts",
+      "ResourceIdentifier": {
+        "TableName": "whichpart-transcripts"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichparttranscripts",
+      "type": "AWS::DynamoDB::Table",
+      "physicalId": "whichpart-transcripts"
+    }
+  ]
+}

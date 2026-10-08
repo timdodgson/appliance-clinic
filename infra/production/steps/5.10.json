@@ -1,0 +1,79 @@
+{
+  "step": "5.10",
+  "description": "Diagnosis Lambda, its URL and its AC-created permissions FnUrlPublic and PublicInvoke (PLAN.md step 5.10). POTENTIALLY IMPACTS S4R. Not its role; not apigateway-invoke.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "spares4repairs-part-finder",
+    "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+    "FnUrlPublic",
+    "PublicInvoke"
+  ],
+  "acknowledgedReferences": [
+    {
+      "value": "SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2qUHib",
+      "reason": "The diagnosis Lambda runs under the S4R server role (ADR 0011). The function references the role ARN unchanged; the role is never imported or modified."
+    },
+    {
+      "value": "arn:aws:iam::800960611664:role/SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2qUHib",
+      "reason": "The same role, by ARN, as the function's Role property."
+    }
+  ],
+  "import": [
+    {
+      "ResourceType": "AWS::Lambda::Function",
+      "LogicalResourceId": "spares4repairspartfinder",
+      "ResourceIdentifier": {
+        "FunctionName": "spares4repairs-part-finder"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Url",
+      "LogicalResourceId": "spares4repairspartfinderUrl",
+      "ResourceIdentifier": {
+        "FunctionArn": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairspartfinderFnUrlPublic",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+        "Id": "FnUrlPublic"
+      }
+    },
+    {
+      "ResourceType": "AWS::Lambda::Permission",
+      "LogicalResourceId": "spares4repairspartfinderPublicInvoke",
+      "ResourceIdentifier": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+        "Id": "PublicInvoke"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairspartfinderUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairspartfinderFnUrlPublic",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FnUrlPublic"
+    },
+    {
+      "action": "Import",
+      "logicalId": "spares4repairspartfinderPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke"
+    }
+  ]
+}

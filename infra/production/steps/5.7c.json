@@ -1,0 +1,26 @@
+{
+  "step": "5.7c",
+  "description": "Lambda function whichpart-api (PLAN.md step 5.7, least critical first). SAFE AC CHANGE.",
+  "stack": "AcRuntimeStack",
+  "allowedPhysicalIds": [
+    "whichpart-api"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::Lambda::Function",
+      "LogicalResourceId": "whichpartapi",
+      "ResourceIdentifier": {
+        "FunctionName": "whichpart-api"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api"
+    }
+  ]
+}

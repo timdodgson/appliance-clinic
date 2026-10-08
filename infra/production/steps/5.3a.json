@@ -1,0 +1,26 @@
+{
+  "step": "5.3a",
+  "description": "DynamoDB whichpart-recalls (PLAN.md step 5.3, first table). SAFE AC CHANGE.",
+  "stack": "AcDataStack",
+  "allowedPhysicalIds": [
+    "whichpart-recalls"
+  ],
+  "acknowledgedReferences": [],
+  "import": [
+    {
+      "ResourceType": "AWS::DynamoDB::Table",
+      "LogicalResourceId": "whichpartrecalls",
+      "ResourceIdentifier": {
+        "TableName": "whichpart-recalls"
+      }
+    }
+  ],
+  "expectedChanges": [
+    {
+      "action": "Import",
+      "logicalId": "whichpartrecalls",
+      "type": "AWS::DynamoDB::Table",
+      "physicalId": "whichpart-recalls"
+    }
+  ]
+}
