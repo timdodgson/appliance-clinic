@@ -14,9 +14,11 @@ A=800960611664 R=eu-west-1
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
 if [[ $(jq -r .stack "$SF") == AcRuntimeStack ]]; then
-  t=$(mktemp); bash "$ROOT/infra/production/capture-runtime.sh" production "$t" 2>/dev/null
+  t=$ROOT/.migration-output/phase5/live/snapshot-capture.json   # mode 0600, overwritten each time
+  mkdir -p "$(dirname "$t")"
+  bash "$ROOT/infra/production/capture-runtime.sh" production "$t" 2>/dev/null
   jq 'del(.capturedAt) | .functions |= map_values(.configuration.Environment.Variables |= (if . then with_entries(if (.key | test("TOKEN$")) then .value = "redacted" else . end) else . end))' "$t"
-  rm -f "$t"; exit 0
+  exit 0
 fi
 
 jq -c '.import[]' "$SF" | while read -r e; do

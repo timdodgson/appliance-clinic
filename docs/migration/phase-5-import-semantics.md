@@ -47,7 +47,17 @@ read from CloudTrail. "Unchanged" means the full before and after snapshots are 
 | 5.2 | ECR repository, 7 secrets | — | ECR as 5.1; per secret: `UpdateSecret` (`secretId`, `clientRequestToken`, `description`; never a value) and `TagResource` | Yes | Yes; secret version counts unchanged | `IN_SYNC` |
 | 5.3a, 5.3b | DynamoDB tables (both shapes) | Imports, but drift `MODIFIED`: `TableClass` declared, none live | **None** | Yes, read-only | Yes; no tags added | `IN_SYNC` once `TableClass` is omitted |
 | 5.4 | S3 buckets, bucket policy | — | `s3:TagResource` per bucket (authorised by `s3:PutBucketTagging`); none for the bucket policy | Yes | Yes | `IN_SYNC` |
-<!-- RUNTIME-ROWS -->
+| 5.5 | IAM roles (3) | — | **None** (no tags either) | Yes, read-only | Yes | `IN_SYNC` |
+| 5.6 | Inline policies (9, `AWS::IAM::RolePolicy`) | — | **None** | Yes, read-only | Yes | `IN_SYNC` |
+| 5.7a, 5.7b | Image functions | — | `lambda:TagResource` | Yes | Yes; image digest, `ImageUri` and configuration unchanged | `IN_SYNC` |
+| 5.7c | Zip function (with NoEcho token parameters) | — | `lambda:TagResource` | Yes | Yes; CodeSha256, environment and configuration unchanged | `IN_SYNC` |
+| 5.8 | Function URLs (3), permissions (8) | — | **None** | Yes, read-only | Yes; URL hosts, auth type, invoke mode and CORS unchanged | `IN_SYNC` |
+| 5.9 | Rules (2) | — | `events:TagResource` per rule | Yes | Yes; schedule, state, targets and input unchanged | `IN_SYNC` |
+| 5.10 | Diagnosis copy under the stand-in S4R role: function, RESPONSE_STREAM URL, `FnUrlPublic`, `PublicInvoke` | — | `lambda:TagResource` on the function only | Yes | Yes; role, URL host, auth, RESPONSE_STREAM, CORS and CodeSha256 unchanged. `apigateway-invoke` untouched and outside the stack. The stand-in role's policies and the stand-in API's routes unchanged | `IN_SYNC` |
+| 5.4 again | Into a stack that already has the stack policy (deny `Update:Replace` and `Update:Delete`) | — | `s3:TagResource` | Yes | Yes | `IN_SYNC` |
+
+Every confirmation run's CloudTrail writes pass `import-writes.mjs check-writes` against the manifest. Real events are kept as
+test fixtures ([`import-writes.cloudtrail.json`](../../tools/migration/test/fixtures/sandbox/import-writes.cloudtrail.json)).
 
 
 ## Findings
@@ -76,7 +86,12 @@ read from CloudTrail. "Unchanged" means the full before and after snapshots are 
    - `AWS::Lambda::Url`: the function ARN
    - `AWS::Events::Rule`: the rule ARN
 9. **S3 tagging uses the S3 `TagResource` API**, authorised by `s3:PutBucketTagging`.
-10. **Bearer tokens** in Lambda environments become NoEcho template parameters, filled from the live value at change-set
+10. **A stack policy does not block a later import.** With deny `Update:Replace` and `Update:Delete` in place, the 5.4 import
+    still completed. So production can set the stack policy after each step, before the next step's import.
+11. **Probe runs must never overlap.** A first confirmation run kept going after a failure and overlapped a second run. Both
+    overwrote the shared probe role policy and the token parameters. Their results were discarded and the confirmation was
+    run again. The probe now takes a lock, and the confirmation stops at the first failure.
+12. **Bearer tokens** in Lambda environments become NoEcho template parameters, filled from the live value at change-set
     time. A Secrets Manager reference could resolve to a different value, and proving otherwise would mean comparing
     secret values.
 

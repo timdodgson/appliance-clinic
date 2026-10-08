@@ -269,6 +269,12 @@ if needs_create "$STACK"; then
   synth_sbx shell "$P/$STACK.shell.json"
   EXECUTE=1 changeset "$STACK" shell CREATE "$P/$STACK.shell.json"
 fi
+# PROBE_STACK_POLICY=1: the production stack policy is in place before the import, as it is from the second
+# production step onwards (deny Update:Replace and Update:Delete on every resource).
+if [[ ${PROBE_STACK_POLICY:-0} == 1 ]]; then
+  aws cloudformation set-stack-policy --stack-name "$STACK" --stack-policy-body '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"Update:*","Resource":"*"},{"Effect":"Deny","Principal":"*","Action":["Update:Replace","Update:Delete"],"Resource":"*"}]}'
+  log "stack policy set on $STACK before the import"
+fi
 T=$OUT.template.json
 synth_sbx "$STEP" "$T"
 params_for "$T"

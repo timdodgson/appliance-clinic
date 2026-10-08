@@ -47,7 +47,7 @@ if [[ $RUNTIME == 1 ]]; then
       curl -sSf -o "$W/$f.zip" "$url"
       [[ $(openssl dgst -sha256 -binary "$W/$f.zip" | base64) == "$sha" ]] || stop "$f: downloaded artefact does not match CodeSha256"
       [[ $EXECUTE == 1 ]] && aws s3 cp --quiet "$W/$f.zip" "s3://$B/$key"
-      rm -f "$W/$f.zip"
+      : > "$W/$f.zip"
     fi
     jq --arg f "$f" --arg b "$B" --arg k "$key" '. + {($f): {s3Bucket: $b, s3Key: $k}}' "$CODE.tmp" > "$CODE.tmp2" && mv "$CODE.tmp2" "$CODE.tmp"
   done
@@ -66,7 +66,8 @@ params_for() { # TEMPLATE: NoEcho token parameters from the live capture (mode 0
   node "$P5_ROOT/infra/production/token-params.mjs" "$1" "$CAP" production "$W/params.json"
   P5_PARAMS=file://$W/params.json
 }
-trap 'rm -f "$W/params.json"' EXIT
+# The parameters file holds bearer tokens: it is emptied (not left behind) whatever happens.
+trap ': > "$W/params.json"' EXIT
 
 if ! stack_exists "$STACK"; then
   synth_step shell "$W/shell.template.json"
@@ -106,7 +107,7 @@ if [[ $EXECUTE == 1 ]]; then
   if ! cmp -s <(jq -S . "$BASE_DOC") <(jq -S . "$W/step-policy.json"); then STEP_V=$(make_version "$W/step-policy.json"); fi
   set_default "$STEP_V"
   # Whatever happens next, the execution role goes back to read-only.
-  trap 'rm -f "$W/params.json"; aws iam set-default-policy-version --policy-arn "$POL" --version-id "$BASE_V"' EXIT
+  trap ': > "$W/params.json"; aws iam set-default-policy-version --policy-arn "$POL" --version-id "$BASE_V"' EXIT
   result "$STEP execution policy: $STEP_V = read-only + $(jq -c '[.Statement[] | select(.Sid | startswith("Step")) | .Action[]]' "$W/step-policy.json") on this step's resources"
 fi
 
