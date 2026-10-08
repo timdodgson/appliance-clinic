@@ -11,7 +11,9 @@
 #   2. a cookie claiming the S4R pool, with an "admin" group: /auth/me is signed out, an admin route is 401
 #   3. the temporary admin signs in (isAdmin true) and reaches /admin/health (200)
 #   4. the temporary non-admin signs in (isAdmin false) and gets 401 on /admin/health
-#   5. the admin lists error codes: a read through the error-code MCP's Function URL (Phase 7: proves the URL path)
+#   5. the admin's batch-run enqueue without a target, or for production without confirmation, is refused (nothing
+#      is queued; CHECK_BENCHMARK_TARGET=0 skips it)
+#   6. the admin lists error codes: a read through the error-code MCP's Function URL (Phase 7: proves the URL path)
 set -euo pipefail
 source "$(dirname "$0")/lib.sh"
 require_caller
@@ -39,7 +41,7 @@ make_user "$ADMIN_USER" "$ADMIN_PW" admin
 make_user "$PLAIN_USER" "$PLAIN_PW"
 log "temporary users created in $AC_POOL"
 
-API=$API ADMIN_USER=$ADMIN_USER PLAIN_USER=$PLAIN_USER NODE_USE_ENV_PROXY=1 node --input-type=module <<'EOF'
+API=$API ADMIN_USER=$ADMIN_USER PLAIN_USER=$PLAIN_USER CHECK_BENCHMARK_TARGET=${CHECK_BENCHMARK_TARGET:-1} NODE_USE_ENV_PROXY=1 node --input-type=module <<'EOF'
 const api = process.env.API;
 const results = [];
 const check = (name, ok, detail) => { results.push({ name, ok }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` (${detail})` : ''}`); };
@@ -68,6 +70,12 @@ r = await call('/admin/health', { cookie: adminCookie });
 check('AC admin reaches /admin/health', r.status === 200, `status ${r.status}`);
 r = await call('/admin/error-codes', { cookie: adminCookie });
 check('AC admin lists error codes (whichpart-api -> MCP Function URL, bearer)', r.status === 200, `status ${r.status}`);
+if (process.env.CHECK_BENCHMARK_TARGET === '1') {
+  r = await call('/admin/benchmark/run', { method: 'POST', cookie: adminCookie, body: {} });
+  check('batch run without a target is refused (staging default, none configured)', r.status === 409 && r.json && r.json.error === 'STAGING_NOT_CONFIGURED', `status ${r.status}`);
+  r = await call('/admin/benchmark/run', { method: 'POST', cookie: adminCookie, body: { target: 'production' } });
+  check('production batch run without confirmProduction is refused', r.status === 400 && r.json && r.json.error === 'PRODUCTION_CONFIRMATION_REQUIRED', `status ${r.status}`);
+}
 r = await call('/auth/logout', { method: 'POST', cookie: adminCookie });
 check('AC admin signs out', r.status === 200, `status ${r.status}`);
 

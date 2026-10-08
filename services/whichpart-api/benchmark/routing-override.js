@@ -26,6 +26,7 @@
  */
 
 const { readBackAfterWrite } = require('../config-readback.js');
+const { routingAllowed } = require('./target.js');
 
 const LOCK_KEY = 'acq/routing/override.json';
 const SCHEMA = 'acq-routing-override/1';
@@ -212,6 +213,9 @@ function createRoutingOverride(deps) {
 
     const plan = planOverride(cur.doc, run.config);
     if (!plan.required) return { ok: true, required: false, notes: plan.notes };
+    // Phase 7: live routing is production configuration (the diagnosis service reads it too). Only a run queued with
+    // recorded production routing intent (target.js) may change it. Nothing is written when refused.
+    if (!routingAllowed(run)) return { ok: false, code: 'production_routing_not_confirmed', changes: plan.changes };
     if (validate) {
       const errors = await validate(plan.fields);
       if (errors && errors.length) return { ok: false, code: 'invalid_override', errors };
