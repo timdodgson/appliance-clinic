@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { join } from 'node:path';
-import { checkWrites, loadManifest, probePolicy, SANDBOX_NAMES, stepWriteStatements, toSandbox } from '../src/production/import-writes.js';
+import { checkWrites, loadManifest, probePolicy, proofWriteStatements, SANDBOX_NAMES, stepWriteStatements, toSandbox } from '../src/production/import-writes.js';
 import { executionPolicy } from '../src/production/toolkit.js';
 import { readJson, REPO_ROOT } from '../src/util/files.js';
 import { iamGlobMatch } from '../src/sandbox/approval-a.js';
@@ -134,5 +134,27 @@ describe('real CloudTrail writes from the production imports 5.1 to 5.10', () =>
       expect(e.request).not.toContain('secretBinary');
       expect(e.request).not.toContain('kmsKeyId');
     }
+  });
+});
+
+describe('Phase 6 ownership proof writes (docs/migration/phase-6-proof-writes.json)', () => {
+  const proof = readJson(join(REPO_ROOT, 'docs', 'migration', 'phase-6-proof-writes.json'));
+  const ECR = ['AWS::ECR::Repository'];
+  const ev = (action, errorCode = null) => ({ action, resource: proof.resource.arn, errorCode, request: [] });
+  it('grants the ECR update writes on exactly the one proof repository', () => {
+    expect(proofWriteStatements(proof)).toEqual([{ Sid: 'Phase6ProofWrites', Effect: 'Allow', Resource: ['arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-error-code-mcp'],
+      Action: ['ecr:PutImageScanningConfiguration', 'ecr:PutImageTagMutability', 'ecr:SetRepositoryPolicy', 'ecr:TagResource', 'ecr:UntagResource'] }]);
+    expect(proof.grant).not.toEqual(expect.arrayContaining(['ecr:DeleteRepository']));
+    expect(() => proofWriteStatements({ resource: {}, grant: [] })).toThrow();
+  });
+  it('the add update may tag but never untag', () => {
+    expect(checkWrites([ev('ecr:TagResource'), ev('ecr:SetRepositoryPolicy')], proof.variants.add, ECR)).toEqual([]);
+    expect(checkWrites([ev('ecr:UntagResource')], proof.variants.add, ECR).map((f) => f.rule)).toEqual(['forbidden-write']);
+  });
+  it('the remove update may untag; deletions and lifecycle writes stay forbidden', () => {
+    expect(checkWrites([ev('ecr:UntagResource')], proof.variants.remove, ECR)).toEqual([]);
+    expect(checkWrites([ev('ecr:DeleteRepositoryPolicy'), ev('ecr:PutLifecyclePolicy')], proof.variants.remove, ECR).map((f) => f.rule)).toEqual(['forbidden-write', 'forbidden-write']);
+    expect(checkWrites([ev('lambda:TagResource')], proof.variants.remove, ECR).map((f) => f.rule)).toEqual(['unexpected-write']);
+    expect(checkWrites([ev('ecr:UntagResource', 'AccessDenied')], proof.variants.remove, ECR).map((f) => f.rule)).toEqual(['write-refused']);
   });
 });

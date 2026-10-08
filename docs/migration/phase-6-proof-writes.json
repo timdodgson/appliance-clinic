@@ -1,0 +1,37 @@
+{
+  "description": "Phase 6 ownership proof (PLAN.md Phase 6): one inert tag on one AC-only imported resource, added by one reviewed CDK update and removed by a second. The execution role gets exactly these writes on exactly this resource for each update, then goes back to the read-only base. Each update's CloudTrail writes are checked against its variant.",
+  "resource": {
+    "type": "AWS::ECR::Repository",
+    "stack": "AcDataStack",
+    "logicalId": "spares4repairserrorcodemcp",
+    "physicalId": "spares4repairs-error-code-mcp",
+    "arn": "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-error-code-mcp"
+  },
+  "tag": { "Key": "ac:ownership-proof", "Value": "phase-6" },
+  "grant": [
+    "ecr:TagResource",
+    "ecr:UntagResource",
+    "ecr:SetRepositoryPolicy",
+    "ecr:PutImageTagMutability",
+    "ecr:PutImageScanningConfiguration"
+  ],
+  "grantNotes": "The ECR update handler's write set: the tag calls, and the three calls that rewrite declared values unchanged (phase-5-import-writes.json, finding 3). A write made before a later denial is not rolled back, so both updates get the complete set. Lifecycle, encryption and deletion are never granted.",
+  "variants": {
+    "add": {
+      "types": {
+        "AWS::ECR::Repository": {
+          "expectedWrites": ["ecr:TagResource", "ecr:SetRepositoryPolicy", "ecr:PutImageTagMutability", "ecr:PutImageScanningConfiguration"],
+          "forbiddenWrites": ["ecr:UntagResource", "ecr:DeleteRepositoryPolicy", "ecr:DeleteLifecyclePolicy", "ecr:PutLifecyclePolicy", "ecr:DeleteRepository"]
+        }
+      }
+    },
+    "remove": {
+      "types": {
+        "AWS::ECR::Repository": {
+          "expectedWrites": ["ecr:UntagResource", "ecr:TagResource", "ecr:SetRepositoryPolicy", "ecr:PutImageTagMutability", "ecr:PutImageScanningConfiguration"],
+          "forbiddenWrites": ["ecr:DeleteRepositoryPolicy", "ecr:DeleteLifecyclePolicy", "ecr:PutLifecyclePolicy", "ecr:DeleteRepository"]
+        }
+      }
+    }
+  }
+}
