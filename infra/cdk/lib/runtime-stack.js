@@ -18,7 +18,7 @@ const fs = require('node:fs');
 const cdk = require('aws-cdk-lib');
 const { aws_iam: iam, aws_lambda: lambda, aws_events: events } = cdk;
 const { upTo, retain, shellHandle, logical, SANDBOX_NAMES } = require('./common');
-const { applyOverrides } = require('./overrides');
+const { applyOverrides, importedSid } = require('./overrides');
 
 /** Import groups by production name. */
 const FUNCTION_STEP = {
@@ -112,19 +112,33 @@ class RuntimeStack extends cdk.Stack {
         }));
       }
       if (has(URL_STEP[p])) {
+        const overridden = f.permissionOverrides || {};
+        const seen = new Set();
         for (const s of f.statements) {
           if (NEVER_MANAGED_SIDS.has(s.Sid)) continue;
+          const sid = importedSid(s.Sid, this.stackName, fid);
+          seen.add(sid);
           const principal = s.Principal === '*' ? '*' : s.Principal.Service;
           const authType = s.Condition?.StringEquals?.['lambda:FunctionUrlAuthType'];
           const sourceArn = s.Condition?.ArnLike?.['AWS:SourceArn'];
-          const known = new Set(['StringEquals', 'ArnLike']);
+          const viaUrl = s.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'];
+          const known = new Set(['StringEquals', 'ArnLike', 'Bool']);
           for (const k of Object.keys(s.Condition || {})) if (!known.has(k)) throw new Error(`${name} ${s.Sid}: condition ${k} not representable`);
-          retain(new lambda.CfnPermission(this, `${fid}${logical(s.Sid)}`, {
+          const o = overridden[sid] || {};
+          const invokedViaFunctionUrl = o.invokedViaFunctionUrl === true || viaUrl === 'true' || viaUrl === true;
+          const perm = retain(new lambda.CfnPermission(this, `${fid}${logical(sid)}`, {
             functionName: name, action: s.Action, principal,
             ...(authType ? { functionUrlAuthType: authType } : {}),
             ...(sourceArn ? { sourceArn } : {}),
+            ...(invokedViaFunctionUrl ? { invokedViaFunctionUrl: true } : {}),
           }));
+          // A Permission is replaced to change it. The statement it replaces must go, so it is not retained on update.
+          if (overridden[sid]) {
+            perm.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.DELETE;
+            perm.addMetadata('ac:updateReplacePolicyReason', 'Changing a permission replaces its statement; the replaced statement must not remain (Phase 7)');
+          }
         }
+        for (const sid of Object.keys(overridden)) if (!seen.has(sid)) throw new Error(`permission override for unknown statement ${name} ${sid}`);
       }
     }
 
@@ -145,4 +159,4 @@ class RuntimeStack extends cdk.Stack {
   }
 }
 
-module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS, applyOverrides };
+module.exports = { RuntimeStack, FUNCTION_STEP, NEVER_MANAGED_SIDS, applyOverrides, importedSid };

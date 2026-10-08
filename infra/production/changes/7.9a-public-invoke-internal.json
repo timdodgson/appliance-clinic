@@ -1,0 +1,71 @@
+{
+  "id": "7.9a-public-invoke-internal",
+  "description": "Limit the public lambda:InvokeFunction statement (PublicInvoke) of the AC-only orchestrator and error-code MCP to invocations through their Function URL (InvokedViaFunctionUrl). Without it any AWS principal can invoke the function directly with an arbitrary event, bypassing the URL. A Permission is replaced to change it: the new statement is created before the old one is removed (UpdateReplacePolicy Delete for these two only). The diagnosis Lambda is untouched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestratorPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke",
+      "replacement": "True",
+      "details": [
+        "Properties.InvokedViaFunctionUrl",
+        "Metadata.",
+        "UpdateReplacePolicy."
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairserrorcodemcpPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke",
+      "replacement": "True",
+      "details": [
+        "Properties.InvokedViaFunctionUrl",
+        "Metadata.",
+        "UpdateReplacePolicy."
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:RemovePermission"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp"
+      ]
+    }
+  ],
+  "grantNotes": "AddPermission and RemovePermission on the two AC functions only.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Permission"
+    ],
+    "expected": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionUrlConfig",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api"
+    ]
+  }
+}

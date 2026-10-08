@@ -4,6 +4,10 @@
  * production names are overridden; the sandbox profile has no overrides.
  *   functions.<name>.env.set / env.unset   environment variables (a value may be a {{resolve:secretsmanager:...}} reference)
  *   functions.<name>.code                  {s3Bucket, s3Key} of a zip built from this repository
+ *   functions.<name>.url.cors              the Function URL CORS: null removes it, an object replaces it (live shape)
+ *   functions.<name>.permissions.<sid>     {invokedViaFunctionUrl: true}: a resource-policy statement is limited to
+ *                                          invocations through the function's URL. <sid> is the imported statement id
+ *                                          (CloudFormation renames the statement when it replaces it)
  *   rolePolicies["<role>/<policy>"]        the inline policy document
  */
 function applyOverrides(live, overrides) {
@@ -17,6 +21,11 @@ function applyOverrides(live, overrides) {
     Object.assign(vars, o.env?.set || {});
     f.configuration.Environment = { Variables: vars };
     if (o.code) f.codeOverride = o.code;
+    if (o.url && Object.prototype.hasOwnProperty.call(o.url, 'cors')) {
+      if (!f.url) throw new Error(`url override for ${name}, which has no Function URL`);
+      f.url.Cors = o.url.cors;
+    }
+    if (o.permissions) f.permissionOverrides = o.permissions;
   }
   for (const [key, doc] of Object.entries(overrides.rolePolicies || {})) {
     const [role, policy] = key.split('/');
@@ -26,4 +35,14 @@ function applyOverrides(live, overrides) {
   return out;
 }
 
-module.exports = { applyOverrides };
+/**
+ * The imported statement id of a captured statement. A statement CloudFormation created (after a replacement) is named
+ * <stack>-<logicalId>-<suffix>; its logical ID is the function's prefix plus the imported id, which keeps logical IDs
+ * stable across a replacement.
+ */
+function importedSid(sid, stackName, fid) {
+  const m = new RegExp(`^${stackName}-${fid}([A-Za-z0-9]+)-[A-Za-z0-9]+$`).exec(sid);
+  return m ? m[1] : sid;
+}
+
+module.exports = { applyOverrides, importedSid };

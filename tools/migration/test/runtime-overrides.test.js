@@ -32,6 +32,21 @@ describe('runtime overrides', () => {
     expect(() => applyOverrides(live(), { functions: { nope: {} } })).toThrow(/unknown function/);
     expect(() => applyOverrides(live(), { rolePolicies: { 'nope/p': {} } })).toThrow(/unknown role/);
   });
+  it('removes or replaces a Function URL CORS, and records permission overrides (Phase 7)', () => {
+    const l = live(); l.functions.f.url = { AuthType: 'NONE', Cors: { AllowOrigins: ['*'] } };
+    expect(applyOverrides(l, { functions: { f: { url: { cors: null } } } }).functions.f.url.Cors).toBeNull();
+    expect(applyOverrides(l, { functions: { f: { url: { cors: { AllowOrigins: ['https://a.example'] } } } } }).functions.f.url.Cors).toEqual({ AllowOrigins: ['https://a.example'] });
+    expect(applyOverrides(l, { functions: { f: {} } }).functions.f.url.Cors).toEqual({ AllowOrigins: ['*'] });
+    expect(() => applyOverrides(live(), { functions: { f: { url: { cors: null } } } })).toThrow(/no Function URL/);
+    expect(applyOverrides(l, { functions: { f: { permissions: { PublicInvoke: { invokedViaFunctionUrl: true } } } } }).functions.f.permissionOverrides).toEqual({ PublicInvoke: { invokedViaFunctionUrl: true } });
+  });
+  it('maps a statement CloudFormation created back to its imported id, so logical IDs stay stable', () => {
+    const { importedSid } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'overrides.js'));
+    expect(importedSid('PublicInvoke', 'AcRuntimeStack', 'whichpartapi')).toBe('PublicInvoke');
+    expect(importedSid('AcRuntimeStack-whichpartapiPublicInvoke-Ab12Cd34', 'AcRuntimeStack', 'whichpartapi')).toBe('PublicInvoke');
+    expect(importedSid('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34', 'AcRuntimeStack', 'whichpartapi')).toBe('AcRuntimeStack-otherfnPublicInvoke-Ab12Cd34');
+    expect(importedSid('OtherStack-whichpartapiPublicInvoke-Ab12', 'AcRuntimeStack', 'whichpartapi')).toBe('OtherStack-whichpartapiPublicInvoke-Ab12');
+  });
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
     const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'];

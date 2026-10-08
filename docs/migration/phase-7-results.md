@@ -213,6 +213,71 @@ with the real handler and a mocked orchestrator:
   - A GOLD v2 run on a healthy system would not take the changed path in any case. The change only acts when the COMPOSE
     provider fails.
 
+## 7.8 and 7.9: AC-only endpoints
+
+**Authentication was already in place.** Both AC-only endpoints refuse anything without their bearer before doing any
+work, and the bearer is compared in constant time. `verify-ac-endpoints.sh` proves this before and after every change:
+- the orchestrator `POST /diagnose` without a bearer, or with a wrong one, is 401
+- the MCP `POST /mcp` without a bearer, or with a wrong one, is 401
+
+The only callers are server side: `whichpart-api` calls the orchestrator and the MCP, and the orchestrator calls the
+MCP.
+
+**`/health` stays unauthenticated, deliberately.** Status checks use it, and it returns only:
+- the orchestrator: status, version, and whether its downstreams are configured
+- the MCP: status, version, dataset counts and 12-character hash prefixes
+
+Neither returns a token, secret, path or customer data, and the check script asserts that. The orchestrator also
+answers any method on `/health`, which is harmless; fixing it needs an image rebuild, so it is left as is.
+
+**What changed** (`AcRuntimeStack`, Function URL settings and resource policies of the three AC functions only):
+
+| Change | What | Change set | Result |
+|---|---|---|---|
+| 7.8 | Function URL CORS removed from the orchestrator and MCP (it was `AllowOrigins *`). No browser can hold their bearer, so no browser caller exists | 2 Modify `AWS::Lambda::Url`, `Properties.Cors` only | Both URLs: auth `NONE` (unchanged), CORS none |
+| 7.9a | `PublicInvoke` (`lambda:InvokeFunction` for `*`) on the orchestrator and MCP gains `lambda:InvokedViaFunctionUrl = true` | 2 Modify `AWS::Lambda::Permission`, Replacement True, `InvokedViaFunctionUrl` (and the replace policy, below) | One public `InvokeFunction` statement each, URL-only. The old statements are gone |
+| 7.9b | The same for `whichpart-api`. Its EventBridge statements are separate and unchanged | 1 Modify `AWS::Lambda::Permission`, Replacement True | URL-only |
+
+**CloudTrail:**
+- 7.8: `UpdateFunctionUrlConfig` on the orchestrator and MCP only
+- 7.9a: `AddPermission` and `RemovePermission` on the orchestrator and MCP only
+- 7.9b: `AddPermission` and `RemovePermission` on `whichpart-api` only
+
+None of the three wrote outside its spec's resources. After 7.9b, the 15-minute EventBridge schedule still invokes
+`whichpart-api` (18:40Z run logged).
+
+**Before 7.9,** any AWS principal could invoke these functions directly, with any event, bypassing the URL and its
+headers. Now the public statement admits only invocations made through the Function URL.
+
+**How a permission is replaced safely** (tooling, this PR):
+- **Logical IDs stay stable.** A permission is changed by replacement. CloudFormation creates the new statement under a
+  generated id (`<stack>-<logicalId>-<suffix>`) before it removes the old one. The generator maps that id back to the
+  imported one, so logical IDs do not move after the change.
+- **Replace policy.** These permissions carry `UpdateReplacePolicy: Delete`, so the replaced statement does not remain.
+  The change-set checker accepts that only on a deletion-retained Lambda permission with a recorded reason
+  (`ac:updateReplacePolicyReason`).
+- **Replacement must be named.** The checker accepts a replacement only when the spec names it (`approvedReplacements`).
+- **Temporary stack policy.** During the execution it allows `Update:Modify` everywhere and `Update:Replace` and
+  `Update:Delete` on the named logical IDs only.
+  - The first two attempts at 7.9a used a `Deny` with `NotResource`. CloudFormation refused the update and rolled it
+    back, with nothing changed. The policy is now allow-only.
+  - After each attempt, the base stack policy and execution policy v17 were restored, and every check was rerun unchanged.
+
+**Verification after each change:**
+- `verify-ac-endpoints.sh` passes
+- `verify-ac-auth.sh` passes, including a new check: the admin lists error codes, a read through the MCP Function URL
+  with its bearer
+- the customer smoke (`whichpart-api` → orchestrator URL) is equal to the baseline
+- S4R health is 3 × 200, and the `/part-finder` contract and `/ai/chat` ingress pass
+- drift is `IN_SYNC` and the no-op is confirmed
+
+**The diagnosis Lambda's `PublicInvoke`** has the same exposure. It is POTENTIALLY IMPACTS S4R, so it is listed under
+*Changes that need the owner's approval*, not made.
+
+**Reserved concurrency: not possible.** The account's concurrency limit is 10. AWS keeps at least 10 unreserved, so no
+function can reserve any. A Service Quotas increase (owner) comes first; then reserve, for example, 2 for `whichpart-api`
+and 1 each for the orchestrator and MCP, leaving the rest unreserved for the S4R server.
+
 ## Jev outage during 7.6 (external, 17:13 to 17:21Z)
 
 The after-checks of 7.6 found the `/part-finder` contract and the `/ai/chat` ingress returning 503.
