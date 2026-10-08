@@ -2101,6 +2101,7 @@ function authPath(event) {
     event.path || '/';
 }
 
+const httpHeaders = require('./http-headers.js');
 const CORS = {
   'access-control-allow-origin': '*',
   'access-control-allow-headers': 'content-type',
@@ -2253,7 +2254,8 @@ function adminRequestLog(event, res, t0) {
 }
 exports.handler = async (event) => {
   const t0 = Date.now();
-  const res = await handleEvent(event);
+  // Phase 7: CORS only for the AC origins, and security headers, on every HTTP response (http-headers.js).
+  const res = httpHeaders.finalizeResponse(event, await handleEvent(event));
   if (event && typeof event === 'object' && !event.transcriptReview && !event.recallIngest && event.source !== 'aws.events') adminRequestLog(event, res, t0);
   return res;
 };
