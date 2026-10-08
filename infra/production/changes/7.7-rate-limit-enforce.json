@@ -1,0 +1,62 @@
+{
+  "id": "7.7-rate-limit-enforce",
+  "description": "Turn whichpart-api rate limiting from observe to enforce (RATE_LIMIT_MODE=enforce). Observe data since 7.5: no request over any limit; the busiest 10 minutes in the last 10 days (434 turns, a batch run on 2026-10-04) is under every enforced limit. Enforced: sign-in 5 per email and 60 overall per 15 minutes; customer turns 40 per conversation, 600 per network source and 1200 overall per 10 minutes. Per-IP counts stay advisory (X-Forwarded-For is viewer-controlled). Environment only; rollback is the same change with observe.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    }
+  ],
+  "grantNotes": "Environment only: UpdateFunctionConfiguration on whichpart-api, and PassRole on its own role (CloudFormation passes the role with the configuration).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

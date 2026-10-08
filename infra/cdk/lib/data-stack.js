@@ -47,6 +47,7 @@ const lambdaEcrPolicy = (functions) => ({
   }],
 });
 const LAMBDA_ECR_POLICY = lambdaEcrPolicy('*');
+const RATE_LIMIT_TABLE = 'applianceclinic-rate-limits';
 
 class DataStack extends cdk.Stack {
   constructor(scope, id, props) {
@@ -123,8 +124,20 @@ class DataStack extends cdk.Stack {
         },
       }));
     }
+    // Phase 7: whichpart-api's rate-limit counters (services/whichpart-api/rate-limit.js). Created new, not imported.
+    // Short-lived counters keyed by hashed identifiers only; the TTL removes them after their window.
+    if (props.profile !== 'sandbox' && has('5.4')) {
+      retain(new ddb.CfnTable(this, 'RateLimitTable', {
+        tableName: RATE_LIMIT_TABLE,
+        billingMode: 'PAY_PER_REQUEST',
+        keySchema: [{ attributeName: 'pk', keyType: 'HASH' }],
+        attributeDefinitions: [{ attributeName: 'pk', attributeType: 'S' }],
+        timeToLiveSpecification: { attributeName: 'expiresAt', enabled: true },
+        deletionProtectionEnabled: true,
+      }));
+    }
     this.templateOptions.description = `${id}: Appliance Clinic data resources, imported (Phase 5). Retain on every resource.`;
   }
 }
 
-module.exports = { DataStack, REPOSITORIES, SECRETS, TABLES, BUCKETS, LAMBDA_ECR_POLICY };
+module.exports = { DataStack, REPOSITORIES, SECRETS, TABLES, BUCKETS, LAMBDA_ECR_POLICY, RATE_LIMIT_TABLE };

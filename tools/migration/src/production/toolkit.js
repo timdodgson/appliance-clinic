@@ -28,7 +28,8 @@ export const policyArn = (name) => `arn:aws:iam::${A}:policy/${name}`;
 export const AC = {
   functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder'],
   roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'],
-  tables: ['whichpart-transcripts', 'whichpart-recalls'],
+  // applianceclinic-rate-limits: Phase 7, created by change 7.4-rate-limit-table.
+  tables: ['whichpart-transcripts', 'whichpart-recalls', 'applianceclinic-rate-limits'],
   buckets: [`whichpart-web-${A}`, `whichpart-learning-${A}`],
   secrets: [
     'spares4repairs/dev/applianceclinic-ai-config', 'spares4repairs/dev/applianceclinic-openai', 'spares4repairs/dev/applianceclinic-jev',

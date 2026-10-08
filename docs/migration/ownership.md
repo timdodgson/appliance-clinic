@@ -109,6 +109,8 @@ No rotation is configured, and all use the default KMS key. A runtime-created
 | Resource | Class | Evidence | Notes |
 |---|---|---|---|
 | Stack `AcAuthStack`: Cognito user pool `applianceclinic` (`eu-west-1_r4fXXEdxC`), app client `applianceclinic-web`, group `admin`, prefix domain `applianceclinic-admin` | AC | Created by change `7.1-auth-stack` (phase-7-results.md); Retain, termination protection, stack policy | AC sign-in and admin authority (ADR 0006). `whichpart-api` uses it since change `7.2-ac-auth`; `whichpart-cognito-auth` grants `AdminInitiateAuth` on it only, since change `7.3-ac-auth-policy` |
+| DynamoDB table `applianceclinic-rate-limits` (`AcDataStack`, `RateLimitTable`) | AC | Created by change `7.4-rate-limit-table`; Retain, deletion protection | `whichpart-api` rate-limit counters: hashed keys, TTL `expiresAt` |
+| Inline policy `whichpart-rate-limits-dynamodb` on `whichpart-api-role` (`AcRuntimeStack`) | AC | Created by change `7.5-rate-limit` | `dynamodb:UpdateItem` on `applianceclinic-rate-limits` only |
 
 ## Known S4R resources AC depends on
 

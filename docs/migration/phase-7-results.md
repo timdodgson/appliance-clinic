@@ -112,6 +112,125 @@ After 7.2 and 7.3:
 - the `/part-finder` contract and `/ai/chat` ingress pass
 - CloudTrail shows **no** write event on the S4R pool since Phase 7 started
 
+## 7.4 to 7.7: rate limiting on `whichpart-api`
+
+**Design** ([`rate-limit.js`](../../services/whichpart-api/rate-limit.js), 19 tests in
+[`rate-limit.test.mjs`](../../services/whichpart-api/test/rate-limit.test.mjs)):
+- Fixed windows counted in the AC table `applianceclinic-rate-limits`: one atomic `UpdateItem` per dimension, and a TTL
+  on `expiresAt`. Keys are SHA-256 hashes: no address or email is stored.
+- **Fails open.** If the table cannot be reached, the request proceeds and the error is logged. The limiter never takes
+  the site down.
+- **Sign-in** (`/auth/login`, counted after input validation):
+  - 5 per email and 60 overall per 15 minutes are enforced
+  - 10 per IP is advisory
+- **Customer turns** (`POST /`, counted after message validation):
+  - 40 per conversation, 600 per network source and 1200 overall per 10 minutes are enforced
+  - 60 per IP is advisory
+  - Benchmark and live-test turns are not counted: they have their own authentication.
+- **Refusal:** `429 {error: "Too many requests. Please wait a moment and try again.", code: "rate_limited"}`, with
+  `Retry-After` set to the end of the window.
+- **Admin routes** sit behind AC sign-in. Their only brute-force surface is sign-in itself, which is limited per email.
+- **Behaviour is never inferred from text.** Only counts are used.
+
+**Per-IP limits are advisory, from a probe (7.5b).** The function receives the viewer's own `X-Forwarded-For` unchanged
+through the AC CloudFront distribution. With no header from the viewer, it receives one CloudFront-set entry. Any address
+in that header can be forged, so a per-IP limit there could lock out a stranger or be dodged. Per-IP counts are logged
+and never refuse. The enforced keys are the ones a client cannot choose: email, conversation, network source and overall.
+
+| Change | What | Change set | CloudTrail |
+|---|---|---|---|
+| 7.4 | `RateLimitTable` in `AcDataStack`: on-demand, TTL, deletion protection, Retain | 1 Add | `CreateTable` and `UpdateTimeToLive` on the new table only |
+| 7.5 | Code, observe mode, `RATE_LIMIT_MODE`, `RATE_LIMIT_TABLE`, inline policy `whichpart-rate-limits-dynamodb` (`UpdateItem` on the table only) | Modify `whichpartapi` (code, environment), Add one `AWS::IAM::RolePolicy` | `PutRolePolicy`, `UpdateFunctionConfiguration`, `UpdateFunctionCode`, AC resources only |
+| 7.5b | Client address: right-most `X-Forwarded-For` entry | Code only | `UpdateFunctionCode` only |
+| 7.5c | Enforced keys moved off the client address (above) | Code only | `UpdateFunctionCode` only |
+| 7.7 | `RATE_LIMIT_MODE=enforce` | Environment only | `UpdateFunctionConfiguration` on `whichpart-api` only |
+
+Every change: drift `IN_SYNC`, no-op confirmed, S4R health 3 × 200, smoke equal to the baseline, `/part-finder` contract
+and `/ai/chat` ingress ok.
+
+**Before enforcing:**
+- In observe mode, no request exceeded any limit.
+- Customer traffic is about 23 to 37 turns a day, at most 6 in any 10 minutes this week.
+- The busiest 10 minutes of the last 10 days were 434 turns, a batch run on 2026-10-04. That is under every enforced limit.
+
+**After 7.7, live:**
+- Six failed sign-ins for one made-up address return 401 five times, then `429 rate_limited`.
+- `verify-ac-auth.sh` passes, and the smoke is unchanged.
+
+**Rollback:** the same change with `RATE_LIMIT_MODE=observe` (environment only).
+
+## 7.6: a failed COMPOSE is an explicit failure (#21)
+
+**Before.** When the provider of a required canonical COMPOSE failed, the canonical runtime replied with the
+deterministic template and recorded the structured violation `compose_failed`. `whichpart-api` returned that reply as a
+normal turn and advanced the canonical state. The customer saw a healthy-looking answer, and the state moved past a
+question the model never worded.
+
+**After** (`whichpart-api` only, [`index.js`](../../services/whichpart-api/index.js) `composeProviderFailed`). When the
+`canonical-control` stage reports `compose_failed`:
+- The response is the documented public failure: `"AI service unavailable. Please try again in a moment."`, `error: true`,
+  `errorCode: "ai_unavailable"`, HTTP 200, the same shape as the existing orchestrator-unavailable path.
+- The canonical state is not advanced. The customer's retry runs against the same state.
+- The turn is logged as `ok: false, composeFailed: true` and audited in the transcript as `compose_failed`.
+- Output-contract fallbacks (tripwire, reply check) and the fixed safety-stop copy keep their template replies by
+  design: they are not provider failures.
+- Detection reads the structured field only. The same words in a reply never trigger it.
+
+**Scope.**
+- The diagnosis Lambda, `/part-finder` and `/ai/chat` are untouched, so the S4R-facing contract is unchanged.
+- An S4R-side compose failure still returns the template, as before. Changing that would be POTENTIALLY IMPACTS S4R.
+
+**Tests.** 4 semantic tests ([`compose-failure.test.mjs`](../../services/whichpart-api/test/compose-failure.test.mjs)),
+with the real handler and a mocked orchestrator:
+- detection
+- the failure view, with state version 1 kept and the retry reaching 2
+- fallbacks unchanged
+- no inference from text
+
+**Deployment.**
+
+| Item | Result |
+|---|---|
+| Change set | 1 Modify `whichpartapi`, `Properties.Code` only |
+| Artefact | 70 files; only `index.js` differs from 7.5c. Live CodeSha256 `qaCMUgHW…` equals the staged zip |
+| CloudTrail | `lambda:UpdateFunctionCode` on `whichpart-api` only |
+| Stack | Drift `IN_SYNC`, no-op confirmed |
+
+**Evaluation.**
+- **Normal turns are unchanged.**
+  - The smoke equals the pre-Phase-5 baseline (4 × 200, same safety, parts and state-token shape).
+  - The `/part-finder` contract and the `/ai/chat` ingress pass.
+  - The semantic tests prove that only the structured provider failure changes the response.
+- **LLM-as-judge.**
+  - **In production:** the transcript-review judge (Jev, every 15 minutes, over ended customer sessions) has 264
+    reviews in the 10 days before 7.6: 187 good, 29 mixed, 1 poor, 47 insufficient evidence. That is the baseline to
+    compare against as post-7.6 sessions are reviewed.
+  - **GOLD v2** (the active scenario suite, judged by Jev) cannot be run from this repository:
+    - its live transport `benchmark/gold-v2/run-baseline.mjs` was never imported, because it does not exist in the
+      production source
+    - its judge needs the owner's Jev credentials, which this work does not take out of Secrets Manager
+  - It is packaged for the owner (*For the owner*).
+  - A GOLD v2 run on a healthy system would not take the changed path in any case. The change only acts when the COMPOSE
+    provider fails.
+
+## Jev outage during 7.6 (external, 17:13 to 17:21Z)
+
+The after-checks of 7.6 found the `/part-finder` contract and the `/ai/chat` ingress returning 503.
+
+**Cause:** an external outage.
+- The diagnosis Lambda's logs show Jev, its semantic model, answering HTTP 503 from 17:13:14 to 17:21:01Z. Jev is
+  reached through an external tunnel (`LM_STUDIO_URL`), outside AWS.
+- No Lambda was throttled.
+- 7.6 changed only `whichpart-api` code, at 17:11:59, and touched nothing on that path.
+
+**During the outage:**
+- Customer turns on the AC site returned 200, degraded and slow (about 38 s).
+- S4R pages returned 200.
+
+**After Jev recovered,** the contract and ingress checks passed again, unchanged, before and after 7.7.
+
+**For the owner:** Jev is a single external dependency of both products.
+
 ## CloudTrail reads global services in us-east-1 too
 
 The first 7.3 check found no write, yet the policy had changed. IAM is a global service, and CloudTrail records its events
@@ -126,5 +245,10 @@ Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (i
 - **Set your admin password.** Use the temporary password Cognito emailed you, on
   `https://applianceclinic-admin.auth.eu-west-1.amazoncognito.com/login?client_id=2hgmm8m02n78agi46kae4p2eja&response_type=code&scope=openid+email&redirect_uri=https%3A%2F%2Fapplianceclinic.ai%2F`.
   Then sign in on the AC site as before.
+- **GOLD v2 evaluation of #21.**
+  - Run the GOLD v2 suite with your judge credentials, from the worker machine that holds them, against the AC site.
+  - Then compare it with your last GOLD v2 run.
+  - The runner and judge are in `services/whichpart-api/benchmark/gold-v2/`. The live transport `run-baseline.mjs`
+    lives outside this repository.
 - **Lambda concurrency quota.** Request a Service Quotas increase of "Concurrent executions" (currently 10). Reserved
   concurrency for AC functions, and isolation from S4R, depend on it.

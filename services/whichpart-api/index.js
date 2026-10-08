@@ -96,6 +96,8 @@ async function authLogin(event) {
   const email = (body.email || '').trim();
   const password = body.password || '';
   if (!email || !password) return respond(400, { error: 'Email and password are required' });
+  const limitedLogin = await rateLimited('login', event, { email });
+  if (limitedLogin) return limitedLogin;
   try {
     const { AdminInitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider');
     const res = await cognito().send(new AdminInitiateAuthCommand({
@@ -226,6 +228,28 @@ const transcripts = require('./transcripts');
 const conversationState = require('./conversation-state');
 const liveTest = require('./live-test.js');
 const benchmarkAuth = require('./benchmark-auth.js');
+// ---- rate limiting (Phase 7; rate-limit.js). RATE_LIMIT_MODE off|observe|enforce, counters in RATE_LIMIT_TABLE.
+const rateLimit = require('./rate-limit.js');
+let _rateStore = null;
+function rateStore() {
+  if (!_rateStore) _rateStore = rateLimit.dynamoStore(require('./ddb.js').dynamodb, process.env.RATE_LIMIT_TABLE || 'applianceclinic-rate-limits');
+  return _rateStore;
+}
+function setRateLimitStoreForTests(store) { _rateStore = store; }
+/** Count one request; returns a 429 response to send, or null to carry on. Logs counts and hashes only. */
+async function rateLimited(kind, event, extra) {
+  if (rateLimit.mode() === 'off') return null;
+  const net = rateLimit.clientIp(event);
+  const r = await rateLimit.check(kind, { ip: net.ip, source: net.source, ...(extra || {}) }, { store: rateStore() });
+  // Observe mode logs every counted request (counts and header shape only); enforce mode only what is over or failing.
+  if (r.mode === 'observe' || r.overLimit || r.error) {
+    log({ evt: 'rate-limit', kind, mode: r.mode, limited: r.limited, overLimit: Boolean(r.overLimit), xffDepth: net.xffDepth,
+      lastIsSource: net.lastIsSource, counts: r.counts, ...(r.error ? { error: r.error } : {}) });
+  }
+  if (!r.limited) return null;
+  return { statusCode: 429, headers: { ...CORS, 'retry-after': String(r.retryAfter || 60), 'cache-control': 'no-store' },
+    body: JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.', code: 'rate_limited' }) };
+}
 let _benchmarkSecretsLoader = () => benchmarkAuth.loadSecrets();
 function setBenchmarkDepsForTests({ secretsLoader } = {}) { _benchmarkSecretsLoader = secretsLoader || (() => benchmarkAuth.loadSecrets()); }
 const canonicalAudit = require('./canonical-audit');
@@ -2593,6 +2617,12 @@ async function handleEvent(event) {
   if (!messages.length) {
     return respond(400, { error: 'messages array required' });
   }
+  // Customer turns are counted (rate-limit.js); an admin Live Test and a verified benchmark turn are authenticated
+  // and not counted.
+  if (!live && !bench) {
+    const limitedTurn = await rateLimited('diagnose', event, { session: obs && obs.sessionId });
+    if (limitedTurn) return limitedTurn;
+  }
 
   // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. In `off` nothing
   // happens. In `shadow` / `control` the signed token is verified, state is loaded and sent to the
@@ -2632,6 +2662,24 @@ async function handleEvent(event) {
     await persistTranscriptTurn(obs, messages, fallback, null, rid,
       canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: canonCtx.degraded }, null, 'orchestrator_unavailable'));
     return respond(200, fallback);
+  }
+
+  // #21: a REQUIRED canonical COMPOSE whose provider failed (structured violation `compose_failed` in the
+  // canonical-control stage; never inferred from text) used to reach the customer as the deterministic template,
+  // looking like a healthy turn. It is now an explicit failure: the documented "AI service unavailable" reply with
+  // error:true, exactly the orchestrator-unavailable path, so the canonical state is NOT advanced (the customer never
+  // saw this turn's question) and the turn is logged as failed. Output-contract fallbacks (tripwire, checkReply) and
+  // the fixed safety-stop copy keep their deterministic template by design.
+  if (composeProviderFailed(orch._diagnosticTrace)) {
+    log({ evt: 'whichpart-api', rid, ok: false, composeFailed: true, route: orch.route, ms: Date.now() - t0,
+      canonical: canonCtx.mode === 'off' ? undefined : { mode: canonCtx.mode, version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid) } });
+    const failed = aiUnavailableView(rid);
+    if (canonCtx.token) failed.stateToken = canonCtx.token;
+    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
+    if (bench) failed.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
+    await persistTranscriptTurn(obs, messages, failed, null, rid,
+      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: canonCtx.degraded }, orch._diagnosticTrace, 'compose_failed'));
+    return respond(200, failed);
   }
 
   const canonResult = await canonicalFinish(canonCtx, orch._canonical, rid);
@@ -2986,6 +3034,16 @@ function firstSentence(text) {
   const m = text.match(/^.*?[.!?](\s|$)/);
   return (m ? m[0] : text).trim();
 }
+/** #21: true when the canonical-control stage reports a COMPOSE provider failure (structured, not text). */
+function composeProviderFailed(trace) {
+  const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
+  const c = st && st.detail && st.detail.compose;
+  return Boolean(c && Array.isArray(c.violations) && c.violations.indexOf('compose_failed') !== -1);
+}
+/** The documented public failure reply (the diagnosis service's "AI service unavailable"), as an error view. */
+function aiUnavailableView(rid) {
+  return { ...fallbackView(rid), reply: 'AI service unavailable. Please try again in a moment.', errorCode: 'ai_unavailable' };
+}
 function fallbackView(rid) {
   return {
     requestId: rid,
@@ -3012,6 +3070,8 @@ module.exports.setTranscriptStore = setTranscriptStore;
 module.exports.setCanonicalDepsForTests = setCanonicalDepsForTests;
 module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
 module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
+module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
+module.exports.composeProviderFailed = composeProviderFailed;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setKnowledgeAdminStore = setKnowledgeAdminStore;
 module.exports.knowledgeAdmin = knowledgeAdmin;

@@ -1,0 +1,63 @@
+{
+  "id": "7.5b-rate-limit-ip",
+  "description": "Fix the rate limiter client-IP derivation found by the 7.5 probe (a viewer-supplied X-Forwarded-For entry was chosen): use the right-most entry; log the header shape (never an address) for every counted request in observe mode. Code only.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase7/whichpart-api-CYEdlnbW2ENaNavP6lbDnIIoJkLlEQhW_v6-zZ9N-V0.zip"
+      ]
+    }
+  ],
+  "grantNotes": "Narrowed from 7.2 by its CloudTrail evidence: a Lambda code and environment update writes UpdateFunctionCode and UpdateFunctionConfiguration only. PutRolePolicy for the one new inline policy on the one AC role.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

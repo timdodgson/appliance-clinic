@@ -1,0 +1,25 @@
+{
+  "id": "7.5-rate-limit",
+  "description": "whichpart-api rate limiting in observe mode: new code (rate-limit.js; login per IP and per email, customer turns per IP, per conversation and per network source; counts and logs, never refuses), RATE_LIMIT_MODE=observe, RATE_LIMIT_TABLE, and a new inline policy granting UpdateItem on the counter table only.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    { "action": "Modify", "logicalId": "whichpartapi", "type": "AWS::Lambda::Function", "physicalId": "whichpart-api", "replacement": "False",
+      "details": ["Properties.Code", "Properties.Environment"] },
+    { "action": "Add", "logicalId": "whichpartapirolewhichpartratelimitsdynamodb", "type": "AWS::IAM::RolePolicy", "physicalId": null, "replacement": null }
+  ],
+  "grant": [
+    { "Action": ["lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration"], "Resource": ["arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"] },
+    { "Action": ["s3:GetObject", "s3:GetObjectVersion"], "Resource": ["arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase7/whichpart-api-jKOIclBiu-Ua5zaTWOMKmFL72GYPjar2gdN_uJFchDc.zip"] },
+    { "Action": ["iam:PassRole", "iam:PutRolePolicy"], "Resource": ["arn:aws:iam::800960611664:role/whichpart-api-role"] }
+  ],
+  "grantNotes": "Narrowed from 7.2 by its CloudTrail evidence: a Lambda code and environment update writes UpdateFunctionCode and UpdateFunctionConfiguration only. PutRolePolicy for the one new inline policy on the one AC role.",
+  "writes": {
+    "types": ["AWS::Lambda::Function", "AWS::IAM::RolePolicy"],
+    "expected": ["lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration", "iam:PutRolePolicy"],
+    "forbidden": ["lambda:DeleteFunction", "lambda:AddPermission", "lambda:RemovePermission", "lambda:UpdateFunctionUrlConfig", "iam:DeleteRolePolicy", "iam:AttachRolePolicy"],
+    "resources": ["whichpart-api"],
+    "forbiddenResources": ["spares4repairs-part-finder", "SparesSite-dev", "eu-west-1_mUWucohuX"]
+  }
+}
