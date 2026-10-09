@@ -13,6 +13,18 @@ Phase 8 review that produced this page is [phase-8-findings.md](phase-8-findings
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |
 | **Diagnosis engine** (`part-finder`) | `services/part-finder` | Lambda zip `spares4repairs-part-finder`, public Function URL (response streaming) | UNDERSTAND (Jev), retrieval, decisions, COMPOSE, the NDJSON stream. **Also the S4R `/part-finder` backend** |
 
+**Inside the two JavaScript runtimes (since Phase 8).** Both are split into modules that form an acyclic graph. The
+entry file keeps the handler.
+
+- **Diagnosis engine.** `part-finder-lambda.js` holds the streaming handler and the canonical-runtime wiring.
+  `engine/` holds `config`, `conversation`, `catalogue`, `intent-vocabulary`, `error-codes`, `evidence`, `safety`,
+  `presentation`, `progression`, `media-concepts`, `parts-client`, `learning-log`, `understand` and `compose`.
+  `canonical/` is the canonical engine.
+- **whichpart-api.** `index.js` holds the handler, the router and the customer diagnosis path. It has:
+  - base modules: `config`, `log`, `http-io`, `rate-limiting`, `session`, `s3`, `benchmark-state`, `transcript-store`
+  - admin areas under `admin/`: `content` (knowledge and media), `recalls`, `transcripts`, `health`, `error-codes`,
+    `diagnostics`, `test-area`, `settings`
+
 Data: DynamoDB `whichpart-transcripts`, `whichpart-recalls`, `applianceclinic-rate-limits`; S3
 `whichpart-learning-<account>` (learning traces, knowledge and media overlays, test-area data).
 
@@ -75,6 +87,32 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
   - Changing a value is a CDK change, not a console edit.
 - **Admin-editable AI settings** (models, prompts toggles) are stored in the `ai-config` secret and written by the
   Settings page.
+- **Every environment variable** each runtime reads is listed in [configuration.md](configuration.md): required or
+  optional, its default, and whether production sets it. The defaults that still point at production or S4R are listed
+  there too. A test fails on an undocumented variable.
+
+## Prompts and contracts
+
+- **Prompts.** Every prompt is registered in [`prompts/registry.json`](../../prompts/registry.json) with a stable id,
+  version, purpose, contract and changelog ([ADR 0013](../adr/0013-prompt-registry-and-contract-types.md);
+  [`prompts/README.md`](../../prompts/README.md) explains how to change one). The diagnosis prompts used by S4R are
+  S4R-facing.
+- **Contract types.** [`types/`](../../types/) declares the `/part-finder` frames, cs/1, the engine configuration and the
+  prompt registry. `npm run typecheck` (CI job `typecheck`) checks the runtime against them under strict TypeScript.
+- **Errors.** Each boundary's error contract is described in [error-handling.md](error-handling.md).
+
+## Evaluation
+
+| Check | What it covers | When |
+|---|---|---|
+| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites, against the known-failure baseline (`build/test/known-failures.json`). Retired suites stay retired | Every pull request |
+| `/part-finder` contract (`baseline contract verify`) | Status, CORS, NDJSON framing and the fields S4R reads | Before and after every engine release |
+| Smoke (`baseline smoke`) | Four journeys against the pre-migration baseline | Before and after every runtime release |
+| Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
+| GOLD v2 | Semantic whole-conversation benchmark with Jev as the fixed judge (`benchmark.gold-v2.judge`) | Owner-run from the admin test area; needs the live transport and Jev credentials |
+
+Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
+[ADR 0009](../adr/0009-evaluation-strategy.md) has the strategy.
 
 ## Infrastructure ownership (CDK)
 
@@ -109,6 +147,7 @@ Every production change goes through `infra/production/steps/change.sh`:
   - build the zip with `build/scripts/package_zips.py`
   - deploy through a `change.sh` spec that sets `functions.<name>.code`
   - update `build/reference/*.zip.json` in the same pull request (CI requires the built zip to equal it)
+  - register added, changed or removed runtime files in `docs/migration/runtime-changes.json`
 - **Rollback:** revert the pull request and run the same change with the previous artefact. Each release spec records
   the previous code SHA-256. The published Lambda version `1` of `whichpart-api` is a further fallback.
 - Phase runbooks: [`docs/migration/runbooks/`](../migration/runbooks/README.md).

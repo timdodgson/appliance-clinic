@@ -4,12 +4,15 @@
   "description": "Appliance Clinic runtime build and test tooling. The runtime itself is deployed from services/, orchestration/ and error-codes/; this file only pins what the tests and builds need.",
   "engines": { "node": ">=20 <23" },
   "scripts": {
-    "test:runtime": "node build/test/run-tests.mjs"
+    "test:runtime": "node build/test/run-tests.mjs",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.1091.0",
     "@aws-sdk/client-s3": "3.1091.0",
     "@aws-sdk/client-secrets-manager": "3.1091.0",
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
     "vitest": "3.2.7"
   }
 }

@@ -1,0 +1,319 @@
+{
+  "description": "Every language-model and Jev prompt in the runtime: a stable id, a version, its purpose, input and output contract, and a changelog. A prompt is the exact source of the declarations listed. Its fingerprint (prompts/fingerprint.mjs) must equal the latest changelog entry, so any change to a prompt needs a new version and changelog entry. runtimeVersion names the constant the runtime records with its output, where one exists.",
+  "prompts": [
+    {
+      "id": "diagnosis.compose.system",
+      "version": 1,
+      "purpose": "System prompt of the legacy COMPOSE pass: how to word the reply to the customer from the decision already made (diagnosis, catalogue data, safety, presentation grain).",
+      "owner": "diagnosis engine",
+      "consumers": [
+        "S4R /part-finder (every request)",
+        "AC turns not under canonical control"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/engine/compose.js",
+          "declarations": [
+            "buildComposeSystem"
+          ]
+        }
+      ],
+      "input": "Parts, model info, the normalised intent, the resolved fault, knowledge documents, safety stop, unsafe intent, normal behaviour, diagnose stop, committed diagnosis, presentation grain, conversation progress.",
+      "output": "A system message (string). The model streams free text; the engine post-processes it (tripwire, identity and replacement-language constraints, safety copy).",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "e0caf02c292ba4aa639c2f98dee772e0ddeda792712cb2ed2c91b0c2260cbbaf",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.compose.intent-hints",
+      "version": 1,
+      "purpose": "Per-intent nudges appended to the COMPOSE turn instruction, keyed by the validated userIntent enum.",
+      "owner": "diagnosis engine",
+      "consumers": [
+        "S4R /part-finder (every request)",
+        "AC turns not under canonical control"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/engine/compose.js",
+          "declarations": [
+            "COMPOSE_INTENT_HINTS"
+          ]
+        }
+      ],
+      "input": "userIntent (USER_INTENTS).",
+      "output": "One sentence of guidance, or none.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "7efa736f7199976f6a1010cae10112f893a8ce95812d0874294da2d50e7266ca",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.compose.turn",
+      "version": 1,
+      "purpose": "The COMPOSE conversation and final user-turn instruction: the customer conversation as the model sees it, and what to reply about now.",
+      "owner": "diagnosis engine",
+      "consumers": [
+        "S4R /part-finder (every request)",
+        "AC turns not under canonical control"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/engine/compose.js",
+          "declarations": [
+            "buildComposeContext"
+          ]
+        }
+      ],
+      "input": "Intent, fault, safety stop, unsafe intent, normal behaviour, the conversation messages, presentation.",
+      "output": "An array of chat messages that follows the system prompt.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "6201b881b7db5a7ed2300c4b60b9c8ff1a6ccfab0f77e73b8f729faf9188a4d2",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.canonical.compose",
+      "version": 1,
+      "purpose": "Canonical COMPOSE: words one already-chosen NextAction from a typed brief. The output is checked; failures fall back to fixed templates.",
+      "owner": "diagnosis engine (canonical)",
+      "consumers": [
+        "AC turns under canonical control (allow-listed journeys)"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/canonical/compose-kit.js",
+          "declarations": [
+            "createCompose"
+          ]
+        }
+      ],
+      "input": "A journey pack (task copy, conclusion copy, observation and check-result copy) and, per turn, cs/1 state, the NextAction and diagnostics.",
+      "output": "System and user messages; the reply is validated by the pack (question count, no invented parts or model requests, required safety copy).",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "fa76d98ebbabc081d88aec18db933d062064d2d7f9a8584e2a87eb43d4b471c8",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.jev.understand",
+      "version": 1,
+      "purpose": "The Jev UNDERSTAND question set: typed classification of the conversation (intent, family, identity, safety, symptom, customer evidence).",
+      "owner": "diagnosis engine",
+      "consumers": [
+        "S4R /part-finder (every request)",
+        "AC orchestrated turns (mode: understand)"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/jev-understand.js",
+          "declarations": [
+            "CUSTOMER_EVIDENCE_SPEC",
+            "buildCustomerEvidenceQuestions",
+            "buildQuestions"
+          ]
+        }
+      ],
+      "input": "The conversation and conversation progress, sent as Jev state.",
+      "output": "Typed Jev answers (choice / noul with confidence), adapted to the engine intent.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "6f9eb1be5d01b07afb4f798410419b7593cd06c21ea96453869c63f26ec75fd9",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.jev.mc1",
+      "version": 1,
+      "purpose": "The canonical mc/1 question set: what the latest customer message alone says, resolved against the prior assistant message, the pending request and a cs/1 summary.",
+      "owner": "diagnosis engine (canonical)",
+      "consumers": [
+        "AC turns under canonical control"
+      ],
+      "source": [
+        {
+          "file": "services/part-finder/canonical/mc1-questions.js",
+          "declarations": [
+            "LATEST",
+            "ONLY",
+            "CORE",
+            "OBS",
+            "OBS_KEY_DESC",
+            "PENDING_LABELS",
+            "CHECK_DESC",
+            "CHECK_OPTIONS",
+            "buildMc1Request"
+          ]
+        }
+      ],
+      "input": "latestMessage, priorAssistantMessage, cs/1 state, candidates.",
+      "output": "Typed Jev answers, adapted to a validated mc/1 classification.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "718e84f9283c998eac2d37fd4cea5d3aea884bb0abd23cb6d9e757a5e9f67f89",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "review.transcript.llm",
+      "version": 1,
+      "purpose": "Transcript review judge (language-model path): product-quality review of an anonymised production conversation.",
+      "owner": "whichpart-api",
+      "consumers": [
+        "Scheduled transcript review",
+        "Admin re-review"
+      ],
+      "source": [
+        {
+          "file": "services/whichpart-api/transcript-review/prompt.js",
+          "declarations": [
+            "buildJudgeContext",
+            "systemPrompt",
+            "buildJudgePrompt"
+          ]
+        }
+      ],
+      "runtimeVersion": {
+        "file": "services/whichpart-api/transcript-review/schema.js",
+        "constant": "REVIEW_PROMPT_VERSION",
+        "value": "s10-v1"
+      },
+      "input": "A transcript record (bounded conversation, typed state evidence) and the review time.",
+      "output": "JSON review: overall, outcome, understanding, diagnostic, conversation and flags (schema.js).",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "2e0aecb221c0754fd85cdd34e9b654d9a93ff73991e5bf81cd40dddd6dd5c956",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "review.transcript.jev",
+      "version": 1,
+      "purpose": "Transcript review judge (Jev path): the same review as typed Jev questions.",
+      "owner": "whichpart-api",
+      "consumers": [
+        "Scheduled transcript review",
+        "Admin re-review"
+      ],
+      "source": [
+        {
+          "file": "services/whichpart-api/transcript-review/jev-review.js",
+          "declarations": [
+            "DIMENSION_QUESTIONS",
+            "FLAG_QUESTIONS",
+            "buildReviewQuestions",
+            "buildReviewState"
+          ]
+        }
+      ],
+      "runtimeVersion": {
+        "file": "services/whichpart-api/transcript-review/schema.js",
+        "constant": "REVIEW_PROMPT_VERSION",
+        "value": "s10-v1"
+      },
+      "input": "The judge context of review.transcript.llm and a reviewer role.",
+      "output": "Typed Jev answers, assessed into the review schema.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "075fa7890f10e557254a9e4654f565178081cbffe8f664c836fe9e1c07619d07",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "benchmark.acq.judge",
+      "version": 1,
+      "purpose": "ACQ-100 subjective quality judge (legacy, non-authoritative): scores reasoning, question quality and answer quality of an anonymised journey.",
+      "owner": "whichpart-api (test area)",
+      "consumers": [
+        "Admin test area ACQ runs"
+      ],
+      "source": [
+        {
+          "file": "services/whichpart-api/benchmark/acq-judge.js",
+          "declarations": [
+            "buildJudgePrompt"
+          ]
+        }
+      ],
+      "runtimeVersion": {
+        "file": "services/whichpart-api/benchmark/acq-judge.js",
+        "constant": "JUDGE_RUBRIC_VERSION",
+        "value": "acq-judge-rubric-v1"
+      },
+      "input": "A journey (structured gold) and an anonymised transcript.",
+      "output": "JSON with three 0-100 scores and reasons.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "825209306edc2d24377a856246c73f8c6a163ac91f537ce94038d11e759e4435",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    },
+    {
+      "id": "benchmark.gold-v2.judge",
+      "version": 1,
+      "purpose": "GOLD v2 semantic judge: scores a whole conversation on ten 0-4 dimensions with a critical-failure override, via Jev.",
+      "owner": "whichpart-api (test area)",
+      "consumers": [
+        "GOLD v2 benchmark runs"
+      ],
+      "source": [
+        {
+          "file": "services/whichpart-api/benchmark/gold-v2/judge.js",
+          "declarations": [
+            "DIMENSIONS",
+            "SCORE_OPTIONS",
+            "buildQuestions",
+            "buildState"
+          ]
+        }
+      ],
+      "runtimeVersion": {
+        "file": "services/whichpart-api/benchmark/gold-v2/version.js",
+        "constant": "JUDGE_PROMPT_VERSION",
+        "value": "gold-v2-rubric-v1"
+      },
+      "input": "A scenario (expectations, critical failures) and an anonymised transcript.",
+      "output": "Typed Jev answers, parsed into dimension scores and a verdict.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-09",
+          "fingerprint": "6957af4685e30b45f6285f452baa7bdfcb0489d22498b1c1fdf7db97b575e77b",
+          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        }
+      ]
+    }
+  ]
+}
