@@ -12,8 +12,8 @@
  * so every run, report and admin label is provenance-stamped.
  */
 
-const BENCHMARK = 'GOLD-v2.0';
-const JUDGE_PROMPT_VERSION = 'gold-v2-rubric-v1';
+const BENCHMARK = 'GOLD-v2.1';
+const JUDGE_PROMPT_VERSION = 'gold-v2-rubric-v2';
 const JUDGE_MODEL = 'jev'; // typesafe/jev via the Cloudflare gateway (see jev-client.js)
 
 // Scoring policy. Dimensions are 0–4. The overall verdict is NOT a simple

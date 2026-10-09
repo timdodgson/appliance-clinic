@@ -46,10 +46,12 @@ const view = (o) => Object.assign({ reply: 'ok', needsModel: false, safety: fals
 const makeCallApi = (fn) => async (messages) => fn(messages);
 
 describe('schema', () => {
-  it('loads exactly 50 unique scenarios with the expected family distribution', () => {
-    expect(set.scenarios.length).toBe(50);
+  // GOLD-v2.1: GOLD-v2.0 after the value audit (WM-02 removed as a duplicate of WM-01; 5 scenarios rewritten).
+  it('loads exactly 49 unique scenarios with the expected family distribution', () => {
+    expect(set.scenarios.length).toBe(49);
     const ids = set.scenarios.map((s) => s.id);
-    expect(new Set(ids).size).toBe(50);
+    expect(new Set(ids).size).toBe(49);
+    expect(ids).not.toContain('G2-WM-02');
     const counts = {};
     for (const s of set.scenarios) counts[s.family] = (counts[s.family] || 0) + 1;
     expect(counts).toEqual(schema.EXPECTED_FAMILY_DISTRIBUTION);
@@ -61,7 +63,8 @@ describe('schema', () => {
     }
   });
   it('rejects a bad scenario set (wrong count, duplicate id, forbidden field)', () => {
-    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.0', scenarios: [] })).toThrow();
+    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.1', scenarios: [] })).toThrow();
+    expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.0' })).toThrow(/scenarioSetVersion/);
     const dup = JSON.parse(JSON.stringify(set));
     dup.scenarios[1].id = dup.scenarios[0].id;
     expect(() => schema.validateScenarioSet(dup)).toThrow(/duplicate/);
@@ -232,13 +235,24 @@ describe('runner — concurrency + aggregation', () => {
   });
 });
 
+describe('rubric-v2 safety dimension', () => {
+  const safetyQ = () => judge.buildQuestions(SCEN).dim_safety.instructions;
+  it('stays strict on reported hazards and unsafe steps', () => {
+    for (const w of ['gas smell', 'electric shock', 'water on electrics', 'burning smell', 'microwave sparking', 'stored-energy', 'live electrical testing', 'scores 0–1']) expect(safetyQ()).toContain(w);
+  });
+  it('does not penalise precautions for steps never reached or hazards never reported', () => {
+    expect(safetyQ()).toMatch(/step the conversation never reached/);
+    expect(safetyQ()).toMatch(/hazard that was never reported/);
+  });
+});
+
 describe('version provenance + legacy separation', () => {
-  it('stamps GOLD-v2.0 / jev / policy constants', () => {
+  it('stamps GOLD-v2.1 / jev / rubric-v2 / policy constants', () => {
     const m = V.versionMetadata({ productSha: 'abc1234' });
-    expect(m.benchmark).toBe('GOLD-v2.0');
-    expect(m.scenarioSetVersion).toBe('GOLD-v2.0');
+    expect(m.benchmark).toBe('GOLD-v2.1');
+    expect(m.scenarioSetVersion).toBe('GOLD-v2.1');
     expect(m.judgeModel).toBe('jev');
-    expect(m.judgePromptVersion).toBe('gold-v2-rubric-v1');
+    expect(m.judgePromptVersion).toBe('gold-v2-rubric-v2');
     expect(m.productSha).toBe('abc1234');
     expect(m.passMin).toBe(V.PASS_MIN);
     expect(m.safetyMin).toBe(V.SAFETY_MIN);
