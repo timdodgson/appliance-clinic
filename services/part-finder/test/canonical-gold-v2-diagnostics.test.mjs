@@ -148,4 +148,11 @@ describe('live GOLD follow-ups (after 8.6)', () => {
     const J7 = require('../canonical/j7-compose.js');
     expect(J7.OBS_COPY.excessiveVibration[0]).not.toMatch(/spin/);
   });
+  it('a washer-dryer drying-only leak with the water container reported full: empty it first (no part), drain path next', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), ob(O('tankWarning'))]);
+    expect(r.last).toMatchObject({ kind: 'conclude', rule: 'WY5', target: 'water-container-full' });
+    expect(text('wd-not-drying', r)).toMatch(/container is full/);
+    // a container that fills normally is not "full"
+    expect(H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), ob(O('tankStaysEmpty', false))]).last.target).not.toBe('water-container-full');
+  });
 });
