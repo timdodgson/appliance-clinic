@@ -67,7 +67,8 @@ describe('policy', () => {
     expect(run('knockNew').rules).toEqual(['N15:recentInstallation', 'N16:transit-bolts', 'N6:retest', 'N7:load-or-installation']);
   });
   it('hum only while filling → normal operating noise, no part', () => { expect(run('fillHum').last).toMatchObject({ kind: 'conclude', target: 'normal-operating-noise', conclusion: { noPart: true } }); });
-  it('vague → WHEN → TYPE → unconfirmed engineer conclusion (no loop)', () => { expect(run('vague').rules).toEqual(['N10:noiseTiming', 'N11:noiseType', 'N22:fault-source-unconfirmed']); });
+  // GOLD v2 remediation: "not sure" twice ends with the usual causes, most likely first (engineer), not a bare "unconfirmed"
+  it('vague → WHEN → TYPE → usual causes, engineer (no loop)', () => { expect(run('vague').rules).toEqual(['N10:noiseTiming', 'N11:noiseType', 'N22:likely-causes']); expect(run('vague').last.conclusion.handoff).toBe('engineer'); });
   it('drain noise with water left in the drum → Journey 1 owns it', () => {
     expect(run('drainWater').prep.entry).toMatchObject({ applies: false, drainOwned: true });
     expect(H.play(J1, SEQ.drainWater).last.rule).toMatch(/^R/);

@@ -14,8 +14,8 @@ const { SS, S, A, SA } = engine;
 const FAMILY = { FB: 'filter-or-sump-blockage', PO: 'pump-obstruction', DH: 'drain-hose-restriction', WS: 'household-waste-or-spigot', DP: 'drain-pump', CT: 'level-or-control' };
 const SIGNALS = {
   FB: { filterBlocked: SS, restoredAfterFilterFix: SS, failsAfterFilterFix: SA, standing: S, filterClear: SA },
-  PO: { impellerCleared: SS, restoredAfterImpellerFix: SS, failsAfterImpellerFix: SA, standing: S, pumpHum: S, filterClear: S, impellerOk: SA, filterBlocked: A, impellerDamaged: SA },
-  DH: { hoseFixed: SS, restoredAfterHoseFix: SS, failsAfterHoseFix: SA, standing: S, recentInstall: S, hoseOk: SA, filterBlocked: A },
+  PO: { impellerCleared: SS, restoredAfterImpellerFix: SS, failsAfterImpellerFix: SA, standing: S, pumpHum: S, filterClear: S, failsAfterFilterFix: S, impellerOk: SA, filterBlocked: A, impellerDamaged: SA },
+  DH: { hoseFixed: SS, restoredAfterHoseFix: SS, failsAfterHoseFix: SA, standing: S, failsAfterFilterFix: S, recentInstall: S, hoseOk: SA, filterBlocked: A },
   WS: { backflow: SS, spigotFixed: SS, restoredAfterSpigotFix: SS, failsAfterSpigotFix: SA, recentInstall: S, standing: S, spigotOk: SA, filterBlocked: A },
   DP: { impellerDamaged: SS, pumpPathFail: SS, pumpHum: S, filterClear: S, impellerOk: S, hoseOk: S, spigotOk: S, cmdFail: S, codeDrain: S,
     filterBlocked: A, hoseFixed: A, backflow: SA, cmdEmpties: SA, pumpSilent: A },
@@ -51,6 +51,9 @@ function diagnose(state, ctx = {}) {
   return engine.diagnoseSpec(SPEC, state, { ...ctx, codeFault });
 }
 
+// The filter is ruled out once it was clean, or was cleaned and the water still sits there: the next owner-safe checks
+// (pump cover, drain hose, sink waste) follow either way before any engineer handoff.
+const filterRuledOut = (h) => h.has('filterClear') || h.has('failsAfterFilterFix');
 const P = kit.makeStepPolicy({
   JOURNEY: 'dw-not-draining', P: 'A', appliance: 'dishwasher', journeys: ['not-draining'], codeFaults: ['not-draining', 'drain-pump'],
   ownedElsewhere: (h) => F.flood(h),
@@ -71,10 +74,10 @@ const P = kit.makeStepPolicy({
   steps: [
     { n: 10, target: 'waterRemaining', reason: 'standing-water-confirms', when: (h) => !h.has('standing') && !h.has('cmdFail') },
     { n: 11, target: 'dishwasher-filter', reason: 'filter-sump-first', when: () => true },
-    { n: 12, target: 'pump-impeller', reason: 'pump-cover-after-filter', when: (h) => h.has('filterClear') },
-    { n: 13, target: 'drain-hose', reason: 'hose-before-pump', when: (h) => h.has('filterClear') && !h.has('impellerDamaged') },
-    { n: 14, target: 'waste-spigot', reason: 'sink-waste-spigot', when: (h) => h.has('filterClear') && !h.has('impellerDamaged') && (h.has('hoseOk') || h.has('recentInstall')) },
-    { n: 15, target: 'drain-command', reason: 'commanded-drain-after-checks', when: (h) => h.has('filterClear') && !h.has('impellerDamaged') && !h.has('cmdFail') && !h.has('cmdEmpties') },
+    { n: 12, target: 'pump-impeller', reason: 'pump-cover-after-filter', when: (h) => filterRuledOut(h) },
+    { n: 13, target: 'drain-hose', reason: 'hose-before-pump', when: (h) => filterRuledOut(h) && !h.has('impellerDamaged') },
+    { n: 14, target: 'waste-spigot', reason: 'sink-waste-spigot', when: (h) => filterRuledOut(h) && !h.has('impellerDamaged') && (h.has('hoseOk') || h.has('recentInstall')) },
+    { n: 15, target: 'drain-command', reason: 'commanded-drain-after-checks', when: (h) => filterRuledOut(h) && !h.has('impellerDamaged') && !h.has('cmdFail') && !h.has('cmdEmpties') },
     { n: 16, target: 'pumpHumming', reason: 'hum-vs-silent', when: (h) => h.has('cmdFail') },
   ],
   PART_FAMILIES: new Set(['DP']),

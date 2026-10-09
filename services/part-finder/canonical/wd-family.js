@@ -9,7 +9,8 @@
  * drying side is NOT the tumble-dryer architecture: wd-not-drying is a native module (wd-not-drying.js).
  *
  * Ownership (first match wins; a handoff happens once):
- *   1. drying side : a not-drying report, or "doesn't heat" stated to be during DRYING (wdDrySide / dry_only)  → wd-not-drying
+ *   1. drying side : a not-drying report, or "doesn't heat" / a leak stated to be during DRYING only (wdDrySide / dry_only)
+ *                    → wd-not-drying (a drying-only leak is the condensed-water path, not a wash-side leak)
  *   2. wash side   : the WM entries evaluated under the view in WM routing order (J1 retained water first, then
  *                    not-spinning, leaking, not-filling, overfilling, door, vibration, noisy, not-heating). A "doesn't
  *                    heat" with the side unknown → wd-not-heating-wash, which asks the side FIRST (if drying →
@@ -46,11 +47,11 @@ function viewOf(state) {
   return v;
 }
 const activeProblem = (s) => (s.problems || []).find((p) => p.status === 'active') || null;
-/** The drying side owns it: a not-drying report, or no heat stated to be during drying. */
+/** The drying side owns it: a not-drying report, or no heat / a leak stated to be during drying. */
 function drySide(state) {
   const p = activeProblem(state); const j = p && p.journey ? p.journey.value : null;
   if (j === 'not-drying') return true;
-  if (j === 'no-heat') return engine.obsVal(state, 'wdDrySide') === true || Boolean(p.scope && p.scope.value === 'dry_only');
+  if (j === 'no-heat' || j === 'leaking') return engine.obsVal(state, 'wdDrySide') === true || Boolean(p.scope && p.scope.value === 'dry_only');
   return false;
 }
 function wdOwner(state, { errorCodes = null } = {}) {

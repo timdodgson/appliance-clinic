@@ -66,7 +66,13 @@ const CONCLUSION = {
   'OT7:setting-or-function': 'That was the setting, so no part is needed.',
   'circulation-fan': 'With the fan not turning, the heat isn\'t being spread round, so parts of the oven run very hot. That needs an appliance engineer — I\'m not recommending a part from this.',
   'cooling-fan-or-overheat-cut-out': 'Cutting out when it gets hot usually means the cooling fan or the overheat cut-out is acting. Let it cool and don\'t keep restarting it; an appliance engineer should check it — I\'m not recommending a part from this.',
-  'thermostat-sensor-or-control': 'With the settings right and the fan working but the oven still far too hot, the thermostat, temperature sensor or control is the likely cause. Please don\'t try to test it while it\'s on — an appliance engineer is the next step, and I\'m not recommending a part from this.',
+  // wording follows the evidence: only what the customer confirmed is stated as confirmed
+  'thermostat-sensor-or-control': (state) => {
+    const setOk = engine.checkResult(state, 'programme-setting') === 'clear';
+    const fanOk = engine.obsVal(state, 'ovenFanTurns') === true;
+    const lead = setOk && fanOk ? 'With the settings right and the fan turning' : fanOk ? 'With the fan turning' : setOk ? 'With the settings right' : 'From what we have';
+    return `${lead}, food burning or cooking unevenly points to the thermostat, temperature sensor or control — and when one side burns, an element or a door seal letting heat out unevenly can also do it. Please don't try to test anything while it's on — an appliance engineer is the next step, and I'm not recommending a part from this.`;
+  },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it cooking at a normal temperature now?',

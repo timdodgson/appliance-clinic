@@ -498,7 +498,8 @@ const CHECK_OPTIONS = {
 const CHECK_STATUS = {
   done_clear: ['done', 'clear'], done_found_and_cleared: ['done', 'found_and_cleared'],
   done_found_not_cleared: ['done', 'found_not_cleared'], done_fault_seen: ['done', 'fault_seen'],
-  done_found_unspecified: ['done', null], done_no_result: ['done', null],
+  // found dirt / a blockage but did not say it is dealt with: the owner fix is still to do (the check is not finished)
+  done_found_unspecified: ['not_done', null], done_no_result: ['done', null],
   not_done: ['not_done', null], declined: ['declined', null], unable: ['unable', null],
   // `unsure` deliberately has no mapping: a mention without a report records no check.
 };
@@ -745,7 +746,7 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
       type: 'choice',
       // Each question is evaluated on its own: this one names the check by its position in the message, never by
       // another question's answer.
-      instructions: `Find the ${slot === 'A' ? 'FIRST' : 'SECOND (different)'} owner check ${LATEST} refers to (a part they looked at, cleaned, cleared or tried: a filter, hose, vent, coils, seal, setting, socket...). What does the message report about THAT check? Terse reports count: "the filter's clean", "vent's clear", "hose is fine" = done_clear; "cleaned it", "cleaned the coils", "cleared it out", "sorted it" = done_found_and_cleared (they found something to clean and cleaned it); "did it, no change" / "still the same" = they did it (whether it helped is recorded separately). Choose none only if the message refers to no ${slot === 'A' ? '' : 'second '}check.`,
+      instructions: `Find the ${slot === 'A' ? 'FIRST' : 'SECOND (different)'} owner check ${LATEST} refers to (a part they looked at, cleaned, cleared or tried: a filter, hose, vent, coils, seal, setting, socket...). What does the message report about THAT check? Terse reports count: "the filter's clean", "vent's clear", "hose is fine" = done_clear; "cleaned it", "cleaned the coils", "cleared it out", "sorted it" = done_found_and_cleared (they found something to clean and cleaned it); "did it, no change" / "still the same" = they did it (whether it helped is recorded separately). A hedged report still reports the result: "I think it's fine", "there was a light earlier" = done_clear; unsure only when they mention the check but say nothing about what they found. Choose none only if the message refers to no ${slot === 'A' ? '' : 'second '}check.`,
       criteria: resultCriteria,
     };
     plan.checks.push([`mcCheck${slot}`, `mcCheck${slot}Result`]);
@@ -758,7 +759,7 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
   if (pending && pending.slot === 'CHECK' && mc1.CHECK_KEYS.includes(pending.target)) {
     questions.mcPendingCheck = {
       type: 'choice',
-      instructions: `pendingRequest: we asked the customer to do this check: ${CHECK_DESC[pending.target]}. What does ${LATEST} report about THAT check? Short replies count ("it's clear" = done_clear, "done it" = done_no_result, "not yet" = not_done, "can't open it" = unable, "no I won't" = declined). A reply that gives the RESULT of running it again ("it starts now", "it works now", "fine now", "heating again", "it ran right through", "still the same") means they DID it = done_no_result — the result itself is recorded by the outcome question. Choose none if the message does not report on it (e.g. it fixed itself, or they ask something else).`,
+      instructions: `pendingRequest: we asked the customer to do this check: ${CHECK_DESC[pending.target]}. What does ${LATEST} report about THAT check? Short replies count ("it's clear" = done_clear, "done it" = done_no_result, "not yet" = not_done, "can't open it" = unable, "no I won't" = declined). A hedged report still reports the result: "I think it's fine", "there was a light earlier" = done_clear. A reply that gives the RESULT of running it again ("it starts now", "it works now", "fine now", "heating again", "it ran right through", "still the same") means they DID it = done_no_result — the result itself is recorded by the outcome question. Choose none if the message does not report on it (e.g. it fixed itself, or they ask something else).`,
       criteria: resultCriteria,
     };
     plan.pendingCheck = ['mcPendingCheck', pending.target];
@@ -832,25 +833,6 @@ const FAMILY_OBS = {
   stuckOnHigh: COOK, startsWhenDoorCloses: MWO, turntableTurns: MWO, metalInside: MWO, waveguideCoverDamaged: MWO, cavityBurnt: MWO,
   vacuumCordless: VAC, vacuumCorded: VAC, vacuumRobot: VAC, shortRuntime: VAC, wontCharge: VAC, whistleNoise: VAC, wdDrySide: ['washer-dryer'],
 };
-/**
- * A reported check whose target was identified but whose result question gave no confident choice: when most of the
- * result's probability mass says the customer DID the check ("cleaned the fluff filter, no change"), it is recorded as
- * done with the most likely done result. Otherwise nothing is recorded (an unsure mention stays a non-report).
- */
-const REPORTED_DONE_MIN = 0.25;
-function reportedDoneResult(ans) {
-  const p = ans && ans.type === 'choice' && ans.probabilities;
-  if (!p || typeof p !== 'object') return null;
-  let done = 0; let best = null;
-  for (const [k, v] of Object.entries(p)) {
-    if (!k.startsWith('done_') || typeof v !== 'number') continue;
-    done += v;
-    if (!best || v > p[best]) best = k;
-  }
-  const notDone = ['not_done', 'declined', 'unable', 'unsure'].reduce((sum, k) => sum + (typeof p[k] === 'number' ? p[k] : 0), 0);
-  return done >= REPORTED_DONE_MIN && done > notDone ? best : null;
-}
-
 function adaptMc1Answers(answers, plan, { messageId = null } = {}) {
   const a = answers || {};
   const meta = { source: SOURCE, degraded: false, recallGap: null, uncertain: [], chunked: [], questionCount: (plan && plan.questionKeys || []).length };
@@ -943,12 +925,13 @@ function adaptMc1Answers(answers, plan, { messageId = null } = {}) {
     const [status, result] = CHECK_STATUS[ch];
     c.checks.push({ check: key, status, result: STATUS_ONLY_CHECKS.has(key) ? null : result });
   };
-  if (plan && plan.pendingCheck) addCheck(plan.pendingCheck[1], pick(plan.pendingCheck[0]));
+  const reported = (rk) => pick(rk);
+  if (plan && plan.pendingCheck) addCheck(plan.pendingCheck[1], reported(plan.pendingCheck[0]));
   if (noulTrue(a.mcReportBelt)) addCheck('drive-belt', 'done_fault_seen');
   if (noulTrue(a.mcReportDamper)) addCheck('shock-absorbers', 'done_fault_seen');
   for (const [tk, rk] of (plan && plan.checks) || []) {
     const key = pick(tk);
-    if (key && mc1.CHECK_KEYS.includes(key)) addCheck(key, pick(rk) || reportedDoneResult(a[rk]));
+    if (key && mc1.CHECK_KEYS.includes(key)) addCheck(key, reported(rk));
   }
 
   // Reply.

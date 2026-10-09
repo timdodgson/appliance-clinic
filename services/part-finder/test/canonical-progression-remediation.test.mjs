@@ -35,11 +35,31 @@ describe('progression: new facts, ignored requests, owner checks, repeated concl
     expect(r.state.requests[0]).toMatchObject({ target: 'dishwasher-filter', outcome: 'superseded' });
   });
   it('an ignored owner check is not re-asked; the conclusion carries it once, with its safety requirements', () => {
-    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } })]);
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ intent: 'price_or_availability' })]);
+    expect(r.state.requests[0].outcome).toBe('ignored');
     expect(r.rules).toEqual(['MS11:power-supply', 'MS22:supply-or-plug-fuse']);
     expect(r.last.conclusion.ownerCheck).toBe('power-supply');
     expect(r.last.requires).toEqual(['no_live_electrical_checks']);
     expect(text('mw-not-starting', r)).toMatch(/try another appliance in that socket/);
+  });
+  it('a check the customer said they cannot tell about is not repeated in the conclusion', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(r.last.conclusion.ownerCheck).toBeUndefined();
+  });
+  it('"not sure" twice → no further question of the same kind: the usual causes, most likely first, plus the next open check', () => {
+    const turns = [H.tdOpener('cuts-out', null, [O('cutsOut'), O('dryerHeatPump')]), C({ reply: { toPending: 'cannot_answer' } }), C({ reply: { toPending: 'cannot_answer' } })];
+    const r = H.play(J('td-stops-mid-cycle'), turns);
+    expect(r.last.conclusion).toMatchObject({ cause: 'likely-causes', ownerCheck: 'condenser' });
+    expect(r.last.conclusion.alternatives.length).toBeGreaterThan(1);
+    expect(r.last.requires.length).toBeGreaterThan(0);
+    expect(text('td-stops-mid-cycle', r)).toMatch(/usual causes, most likely first/);
+    // and it stays concluded while nothing new arrives
+    const r2 = H.play(J('td-stops-mid-cycle'), [...turns, C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(r2.last.kind).toBe('conclude');
+  });
+  it('a check the customer brought up but has not finished (dirt seen, not cleaned) comes before the other steps', () => {
+    const r = H.play(J('ff-not-cooling'), [H.ffOpener('not-cooling', null, [O('bothCompartmentsWarm'), O('doorLeftOpen', false)]), C({ checks: [K('condenser-coil-clear', 'not_done')] })]);
+    expect(r.rules.slice(-1)).toEqual(['FC16:condenser-coil-clear']);
   });
   it('the same conclusion with nothing new since is a short follow-up, not a repeat', () => {
     const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } }), C({})]);
@@ -69,12 +89,21 @@ describe('classifier: dryer type narrows the check choices; check result is self
     expect(q.mcCheckAResult.instructions).not.toMatch(/mcCheck/);
     expect(q.mcCheckBResult.instructions).not.toMatch(/mcCheck/);
   });
-  it('a check whose target is clear but whose result answer is "none" counts as done when "done" outweighs "not done"', () => {
+
+  it('the check result is Jev\'s own top answer: an unsure / none result records no check (no probability override)', () => {
     const plan = { checks: [['mcCheckA', 'mcCheckAResult']], questionKeys: [], candidates: { identifiers: [], brands: [], components: [] }, roles: {} };
     const out = Q.adaptMc1Answers({
       mcCheckA: { type: 'choice', choice: 'lint-filter', probabilities: { 'lint-filter': 0.98, none: 0.02 }, confidence: 0.98 },
-      mcCheckAResult: { type: 'choice', choice: 'none', probabilities: { done_found_and_cleared: 0.3, done_no_result: 0.1, not_done: 0.05, none: 0.55 }, confidence: 0.55 },
+      mcCheckAResult: { type: 'choice', choice: 'unsure', probabilities: { done_clear: 0.3, unsure: 0.6, none: 0.1 }, confidence: 0.6 },
     }, plan, {});
-    expect(out.classification.checks).toEqual([expect.objectContaining({ check: 'lint-filter', status: 'done', result: 'found_and_cleared' })]);
+    expect(out.classification.checks).toEqual([]);
   });
+  it('hedged reports are covered by the question wording, not by code', () => {
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcCheckAResult.instructions).toMatch(/hedged report/);
+  });
+  it('"found dirt but did not say it is dealt with" leaves the owner fix to do', () => {
+    expect(Q.CHECK_STATUS.done_found_unspecified).toEqual(['not_done', null]);
+  });
+
 });
