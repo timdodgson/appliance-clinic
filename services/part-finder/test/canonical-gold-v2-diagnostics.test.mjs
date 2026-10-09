@@ -155,4 +155,13 @@ describe('live GOLD follow-ups (after 8.6)', () => {
     // a container that fills normally is not "full"
     expect(H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), ob(O('tankStaysEmpty', false))]).last.target).not.toBe('water-container-full');
   });
+  it('a component conclusion is the leading candidate, never a certain cause', () => {
+    const ck = require('../canonical/compose-kit.js');
+    const copy = ck.makeConclusionCopy({ FAMILY_LABEL: {}, COMPONENT_LABEL: { 'fan-element': 'fan oven element' } });
+    const s = emptyState('cs_x');
+    const t = copy(s, { kind: 'conclude', rule: 'X22', conclusion: { cause: 'fan-oven-element', level: 'component', component: 'fan-element', confidence: 'likely', handoff: 'engineer' } });
+    expect(t).toMatch(/most likely cause/);
+    expect(t).toMatch(/testing to be certain/);
+    expect(t).not.toMatch(/looks like the cause|is the cause\b/);
+  });
 });
