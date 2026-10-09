@@ -2,7 +2,7 @@
 /**
  * Shared COMPOSE kit (wording only) for canonical journeys. PURE. Extracted from Journey 1.
  *   createCompose(pack) -> {brief, prompt, template, checkReply}
- * pack = {TASK, retestKey(nextAction)->key|null, conclusionCopy(state, a), OBS_COPY, CHECK_RESULT_COPY, statusChecks[], extraFacts(state, a)}
+ * pack = {TASK, retestKey(nextAction, state)->key|null, conclusionCopy(state, a), OBS_COPY, CHECK_RESULT_COPY, statusChecks[], extraFacts(state, a)}
  * Every word a customer reads is either fixed copy keyed by typed keys, or an LLM rewording of it that
  * checkReply verifies (question count, no invented part / purchase / model ask, required safety present).
  */
@@ -130,6 +130,7 @@ function makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks) {
     for (const [k, [t, f]] of Object.entries(OBS_COPY)) {
       const o = obs[k]; const v = o && o.value;
       if (!o || !isNow(Math.max(o.turn || 0, o.lastTurn || 0))) continue;
+      if (o.basis === 'derived') continue; // what the customer reported, never what we inferred from it
       if (v === true && t) out.push(t); else if (v === false && f) out.push(f);
     }
     const checks = (state.evidence && state.evidence.checks) || {};
@@ -170,7 +171,7 @@ function createCompose(pack) {
     return task && task.say ? `${text} If you haven't had a chance yet, this check comes first: ${task.say}` : text;
   }
   function brief(state, a, diag, { partLookup = null, media = [] } = {}) {
-    const key = retestKey(a) || `${a.kind}:${a.target}`;
+    const key = retestKey(a, state) || `${a.kind}:${a.target}`;
     const task = TASK[key] || null;
     const isAsk = /^ask_/.test(a.kind);
     return {
@@ -228,7 +229,7 @@ function createCompose(pack) {
     } else if (b.conclusion) lines.push(b.conclusion);
     if (b.safety.length) lines.push('', 'SAFETY (all required):', ...b.safety.map((s) => `- ${s.copy}`));
     else lines.push('', 'SAFETY: none for this step — do not add any safety or physical instructions.');
-    if (b.media.length) lines.push('', `A ${b.media.map((m) => (m.type === 'VIDEO' ? 'video' : 'picture')).join(' and ')} is shown below the reply; you may mention it once.`);
+    if (b.media.length) lines.push('', `MEDIA (instruction, not content): the app shows a ${b.media.map((m) => (m.type === 'VIDEO' ? 'video' : 'picture')).join(' and ')} under your reply. You may point the customer to it once in your own words; never copy this line.`);
     if (b.part) lines.push('', 'Do not quote a price or a part number.');
     const q = b.task ? b.task.ask : b.confirm;
     if (q) lines.push('', `End with this one question: ${q}`);
@@ -237,6 +238,8 @@ function createCompose(pack) {
   }
   
   const MODEL_ASK_RE = /\bmodel (number|no\.?)\b/i;
+  // Prompt scaffolding copied into the reply (instruction text, section labels) is a contract breach.
+  const PROMPT_ECHO_RE = /you may (mention|point the customer to) (it|them) once|shown below the reply|never copy this line|\b(CONTENT to convey|SAFETY \(all required\)|FACTS \(trusted\)|MEDIA \(instruction)/i;
   const ASK_COMPONENT_WORDS = /\b(pcb|control board|motor|bearings?|heater|heating element|element|thermostat|thermistor|sensor|magnetron|capacitor|diode|transformer|inlet valve|drain pump|drive belt|compressor|relay|igniter|thermocouple|gas valve|regulator|interlock|battery|charger|fan motor|power board|induction (module|board|coil))\b/gi;
   
   /** Verify COMPOSE kept to the NextAction. Missing safety -> fixed copy prepended; contract breach -> fallback. */
@@ -260,6 +263,7 @@ function createCompose(pack) {
     const asksModel = (text.match(/[^.!?]*\?/g) || []).some((q) => MODEL_ASK_RE.test(q));
     if (!(a.kind === 'ask_identity' && a.target === 'model') && asksModel) violations.push('model-ask-not-decided');
     if (text.split(/\s+/).length > 190) violations.push('too-long');
+    if (PROMPT_ECHO_RE.test(text)) violations.push('prompt-echo');
     if (violations.length) return { ok: false, reply: template(b), violations };
     const plain = text.replace(/[\u2018\u2019]/g, "'"); // typographic apostrophes ("don’t") match the markers too
     const missing = b.safety.filter((s) => !REQUIREMENT[s.token].marker.test(plain));

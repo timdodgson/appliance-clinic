@@ -205,6 +205,12 @@ function policy(s, diag, ctx = {}) {
   if (askable(s, 'drain-filter') && !filterOpen(s)) {
     return askCheck(s, 'drain-filter', 'first-safe-high-value-check', 'R7');
   }
+  // R7b a noise while it tries to drain points at the pump / filter area: the filter stays the next step (not the
+  // downstream hose) while it is not done or declined, offered at most three times.
+  if (obs(s, 'noiseOnDrain') === true && !filterOpen(s) && !done(s, 'drain-filter') && !blocked(s, 'drain-filter')
+    && counted(s, 'drain-filter').length < 3) {
+    return askCheck(s, 'drain-filter', 'drain-noise-points-to-pump-area', 'R7b');
+  }
   // R8 drain command (ask / reoffer / retest), always after the filter is settled
   if (settled(s, 'drain-filter') && !d.likelyResolved) {
     if (retestDue(s) && !blocked(s, 'drain-command')) return askCheck(s, 'drain-command', 'retest-after-clearance', 'R8', true);

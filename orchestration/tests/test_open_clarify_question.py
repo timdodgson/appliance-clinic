@@ -1,8 +1,8 @@
 """GOLD v2: the open 'describe the problem' request is ONE question.
 
-When the appliance is known but there is no code and no usable symptom yet, the orchestrator asks the customer to
-pick the closest symptom. It does not ask for a display code in the same breath (a compound question scored as a
-generic form). The no-appliance variant is unchanged.
+When the appliance is known but there is no code and no usable symptom yet, the orchestrator asks one open question
+(the same one part-finder asks). It does not ask for a display code in the same breath or offer a menu of faults
+(both scored as a generic form). The no-appliance variant is unchanged.
 """
 import sys
 from orchestration.model import ConversationState
@@ -24,7 +24,7 @@ r = o._flow_clarify(st, {})
 msg = r.message or ""
 check("appliance known -> exactly one question", msg.count("?") == 1, msg)
 check("appliance known -> no display / code demand in the same question", "display" not in msg.lower() and "code" not in msg.lower(), msg)
-check("appliance known -> offers the common symptoms as choices", "not draining" in msg and "leaking" in msg, msg)
+check("appliance known -> one open question, no menu of faults", msg == "What is the main thing the dishwasher is doing wrong?", msg)
 check("appliance known -> still an open SYMPTOM_DESCRIPTION request", (r.clarification or {}).get("intent") == "SYMPTOM_DESCRIPTION", r.clarification)
 
 st2 = ConversationState(sessionId="open-unknown")

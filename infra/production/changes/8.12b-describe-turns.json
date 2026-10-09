@@ -1,0 +1,66 @@
+{
+  "id": "8.12b-describe-turns",
+  "description": "GOLD v2 remediation, follow-up from final run 1 (DW-05): orchestrator image built from this repository, pinned by its arm64 manifest digest sha256:3888429768723527308fa23b0a802722a1fc5aade54cc5eefdf6a60b603cebe3 (ECR tag phase8-describe-0856deb). A describe-the-problem question (part-finder's vague-opener clarification, or the open SYMPTOM_DESCRIPTION request) carries no owner-safety note; a customer turn Jev types as a symptom report is not a completed check, so it does not move the journey to the model ask; the open clarify is one open question (no menu of faults). Only orchestration/orchestrator.py and services.py differ from the 8.9b image (sha256:08c5372a\u2026c851). Code only.",
+  "classification": "SAFE AC CHANGE (AC-only function; S4R health and the /part-finder contract checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      ]
+    },
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the orchestrator only, by image digest; read of that image in its ECR repository (the repository policy already lets Lambda pull). No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-part-finder"
+    ]
+  }
+}

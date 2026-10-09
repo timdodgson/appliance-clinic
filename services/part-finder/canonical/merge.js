@@ -368,6 +368,8 @@ function applyDerived(next, turn, hit) {
     for (const k of group) if (k !== on) setDerived(k, false, 'D2');
     hit('M18');
   }
+  // D4: a noise the customer hears while it tries to drain means the drain pump is running (not silent).
+  if (obs.noiseOnDrain && obs.noiseOnDrain.value === true) setDerived('pumpHumming', true, 'D4');
   // D3: active supply trip and no other active (non-derived) journey -> derived trips-electrics problem.
   const tripActive = next.safety.hazards.some((h) => h.hazard === 'supply_trip' && h.status === 'active');
   const statedJourney = next.problems.some((p) => p.status === 'active' && p.journey && p.journey.value

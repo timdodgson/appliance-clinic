@@ -621,6 +621,8 @@ class RealDiagnosticService:
             "componentMention": done.get("componentMention") or u.get("componentMention") or None,
             "purchaseAppropriate": bool(done.get("purchaseAppropriate") if done.get("purchaseAppropriate") is not None else u.get("purchaseAppropriate")),
             "clarifyingQuestion": u.get("clarifyingQuestion"),
+            # the reply is part-finder's single vague-opener clarification (describe the problem; no physical step)
+            "exclusiveClarify": bool(done.get("exclusiveClarify")),
             "safety": {"class": safety_cls, "stopUse": safety_cls in ("STOP_USE", "EMERGENCY_ACTION")},
             "safetyReason": reason,                 # 'gas'|'shock'|'burning'|None — cause-specific guidance
             "unsafeIntent": bool(done.get("unsafeIntent")),  # customer asked to DO something dangerous

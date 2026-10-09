@@ -982,7 +982,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
     // VAGUE OPENER → ONE PRIMARY CLARIFICATION. When the customer has not established WHAT is wrong
     // (no grounded fault, no candidate, no symptom, no concrete next action) ask exactly one open
     // question instead of letting COMPOSE enumerate a menu of possibilities + the model in one turn.
-    preferSingleVagueClarify(intent, fault, { safetyStop, normalBehaviour, diagnoseStop });
+    preferSingleVagueClarify(intent, fault, { safetyStop, normalBehaviour, diagnoseStop, progress });
     if (!safetyStop && !diagnoseStopIsProfessionalHv(diagnoseStop)
         && latestTurnSaysChecksNotDone(progress) && (intent.nextBestCheck || intent.nextCheckCustomerSafe)) {
       // The customer has not done the recommended check yet. Keeping the accessible check as the
@@ -1628,6 +1628,8 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       componentMention: metric.tripwireBlocked ? COMPONENT_MENTION.NONE : presentation.mention,
       purchaseAppropriate: metric.tripwireBlocked ? false : presentation.purchaseAppropriate,
       remoteActionClass: metric.tripwireBlocked ? null : remoteAction,
+      // the reply is the single vague-opener clarification (describe the problem): no physical step this turn
+      exclusiveClarify: Boolean(intent && intent._exclusiveClarify && intent.clarifyingQuestion),
       diagnosticTrace,
     }) + '\n');
     out.end();

@@ -713,9 +713,31 @@ function diagnoseStopIsProfessionalHv(diagnoseStop) {
 // canonical open clarification and mark it exclusive, so COMPOSE asks exactly that one thing rather
 // than bundling a menu of possibilities (+ the model) into one turn. Structured, family-general; no
 // scenario-specific phrasing. Does nothing once any real symptom/fault/next-action exists.
+// Second vague turn: the open question was already put and the customer is still vague, so the ONE question now asks
+// about the last time it was used, which is concrete and easy to answer (never the same open question again, and
+// never a menu of possible faults).
+const VAGUE_FOLLOW_UP = {
+  'washing-machine': 'Thinking about the last time you used it, did it run right through the programme to the end, or did it stop or do something odd part-way through?',
+  'washer-dryer': 'Thinking about the last time you used it, did it run right through the programme to the end, or did it stop or do something odd part-way through?',
+  dishwasher: 'Thinking about the last time you used it, did it run right through the programme to the end, or did it stop or do something odd part-way through?',
+  'tumble-dryer': 'Thinking about the last time you used it, did it run right through the programme to the end, or did it stop or do something odd part-way through?',
+  'fridge-freezer': 'Is it still keeping your food properly cold?',
+  'oven-cooker': 'The last time you used it, did it heat up and cook as normal?',
+  hobs: 'The last time you used it, did every zone heat up as normal?',
+  microwave: 'The last time you used it, did it run and heat the food as normal?',
+  vacuum: 'Does it still run and pick up as well as it used to?',
+};
+const VAGUE_FOLLOW_UP_DEFAULT = 'The last time you used it, did it work right through as normal?';
+function vagueClarifyQuestion(fam, alreadyAsked) {
+  const famWord = fam ? fam.replace(/-/g, ' ') : 'appliance';
+  const open = `What is the main thing the ${famWord} is doing wrong?`;
+  if (!alreadyAsked(open)) return open;
+  return VAGUE_FOLLOW_UP[fam] || VAGUE_FOLLOW_UP_DEFAULT;
+}
+
 function preferSingleVagueClarify(intent, fault, extras) {
   if (!intent) return intent;
-  const { safetyStop, normalBehaviour, diagnoseStop } = extras || {};
+  const { safetyStop, normalBehaviour, diagnoseStop, progress } = extras || {};
   if (safetyStop || normalBehaviour || diagnoseStop) return intent;
   if (intent.needMoreInfo !== true) return intent;
   // AUTHORITATIVE vague signal: Jev typed the symptom family as 'uncertain' ("not working",
@@ -733,9 +755,7 @@ function preferSingleVagueClarify(intent, fault, extras) {
     || ['check', 'discriminator', 'safety_stop', 'advice', 'advice_then_identity', 'part_request', 'replacement_evidence']
       .includes(intent._nextAction);
   if (concrete) return intent;
-  const fam = applianceKey(intent.applianceType);
-  const famWord = fam ? fam.replace(/-/g, ' ') : 'appliance';
-  intent.clarifyingQuestion = `What is the main thing the ${famWord} is doing wrong?`;
+  intent.clarifyingQuestion = vagueClarifyQuestion(applianceKey(intent.applianceType), (q) => discriminatorAlreadyAsked(progress, q));
   intent.nextBestCheck = null;
   intent.candidateComponents = [];
   intent._exclusiveClarify = true;

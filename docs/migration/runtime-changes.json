@@ -86,9 +86,11 @@
     },
     {
       "path": "services/part-finder/part-finder-lambda.js",
-      "sha256": "2e7ba154b64c70ab1180d12af1d9c568ee13c2439a3526ac9fd5526e08042af6",
+      "sha256": "6c5bb4f19f5bf5afb80fa83a5565ad1077e341d093e599b49e907d32beb5dcc4",
       "changes": [
-        "8.1-engine-split"
+        "8.1-engine-split",
+        "8.11-gold-final",
+        "8.12a-describe-turns"
       ]
     },
     {
@@ -320,9 +322,10 @@
     },
     {
       "path": "services/part-finder/canonical/merge.js",
-      "sha256": "301679fbac50268090845d16fd7b99ba62954954d8d9e0602ac2b856a1302e56",
+      "sha256": "a2a3bf2578f5473f8143c9f442e1cf58599959b911484446f96c52de3781f2f4",
       "changes": [
-        "8.5-progression"
+        "8.5-progression",
+        "8.11-gold-final"
       ]
     },
     {
@@ -335,11 +338,13 @@
     },
     {
       "path": "services/part-finder/canonical/compose-kit.js",
-      "sha256": "a599ddb4711e2d0afdc0baed82a75d2102aa8e32159cfbca0632e534362db7b1",
+      "sha256": "9ea12ec0e0c2c994f710cc87ddf3b840b904a63b0ae535de6492f90aaa14ee59",
       "changes": [
         "8.5-progression",
         "8.6-diagnostics",
-        "8.9-orchestrator-clarify"
+        "8.9-orchestrator-clarify",
+        "8.11-gold-final",
+        "8.12c-reported-evidence"
       ]
     },
     {
@@ -471,9 +476,39 @@
     },
     {
       "path": "orchestration/orchestrator.py",
-      "sha256": "8830a1b4ba87526cd31740bc5cb3971313165682a7fef6269ace6ffb8ca9ee28",
+      "sha256": "76cb02dc0fb3ac6a6df767151732b561c5e9a8a6b1f7ccee792a80f719274dd9",
       "changes": [
-        "8.9-orchestrator-clarify"
+        "8.9-orchestrator-clarify",
+        "8.12b-describe-turns"
+      ]
+    },
+    {
+      "path": "services/part-finder/canonical/j1-compose.js",
+      "sha256": "422cb5ce1f2a574872ded991e56c7d4cc2ef8d327dda837230ae69f1b1108950",
+      "changes": [
+        "8.11-gold-final"
+      ]
+    },
+    {
+      "path": "services/part-finder/canonical/j1-policy.js",
+      "sha256": "7b498e701085bc0f7c8e837250edf98a7f6e59faf512deb0e21afcc36f396524",
+      "changes": [
+        "8.11-gold-final"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/scoped-evidence-quality.test.js",
+      "sha256": "2df016c90c384d8f69dadc6d6e09b9d54fac19097bee311a34ffb8911e6d9d97",
+      "changes": [
+        "8.11-gold-final",
+        "8.12a-describe-turns"
+      ]
+    },
+    {
+      "path": "orchestration/services.py",
+      "sha256": "a2c940296f44d6b89eaf1154f0f19beb5aa398dd1d97c0f77cee2ba10110acf8",
+      "changes": [
+        "8.12b-describe-turns"
       ]
     }
   ],
@@ -723,13 +758,15 @@
     },
     {
       "path": "services/part-finder/engine/progression.js",
-      "sha256": "d7db49075106449041d2b4ebab47273abe81012658d1d7626e90249b97fe393b",
+      "sha256": "8b8c71ee9f1ef3b71c03ccbad62e7598dc1d660a0e6151e491f9938ca6cabaf4",
       "role": "runtime",
       "units": [
         "spares4repairs-part-finder"
       ],
       "changes": [
-        "8.1-engine-split"
+        "8.1-engine-split",
+        "8.11-gold-final",
+        "8.12a-describe-turns"
       ]
     },
     {
@@ -1091,13 +1128,37 @@
     },
     {
       "path": "orchestration/tests/test_open_clarify_question.py",
-      "sha256": "3f293508d452d8c96ae86b18c2533e289b5467ff3bf53fa57d0fd480a56de128",
+      "sha256": "cbb208b6e2da05fd5721f2ea51d471d8734344711a3d39b5607061ea6cfd4617",
       "role": "test",
       "units": [
         "spares4repairs-diag-orchestrator"
       ],
       "changes": [
-        "8.9-orchestrator-clarify"
+        "8.9-orchestrator-clarify",
+        "8.12b-describe-turns"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/canonical-j1-drain-noise.test.mjs",
+      "sha256": "7e67d5aaf0253609a67c49524d99ad1e906092a698d98fefbc1531812d829e88",
+      "role": "test",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.11-gold-final",
+        "8.12c-reported-evidence"
+      ]
+    },
+    {
+      "path": "orchestration/tests/test_describe_turns.py",
+      "sha256": "de1e59984b9c5e5a931024489917668fe863739c7ffe3a8bc278bb22402e1d29",
+      "role": "test",
+      "units": [
+        "spares4repairs-diag-orchestrator"
+      ],
+      "changes": [
+        "8.12b-describe-turns"
       ]
     }
   ],
