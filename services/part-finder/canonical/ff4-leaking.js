@@ -53,7 +53,7 @@ const P = kit.makeStepPolicy({
   CHECKS: ['defrost-drain', 'drip-tray', 'inlet-connection'],
   OBS_TARGETS: { ffLeakLocation: ['waterInsideFridge', 'leakUnderneath', 'leakFromSupplyLine'], doorLeftOpen: ['doorLeftOpen'] },
   REQUIRES: {
-    ffLeakLocation: ['keep_clear_of_socket_if_water_near'], doorLeftOpen: [], 'defrost-drain': ['no_sharp_tools_on_ice'],
+    ffLeakLocation: ['keep_clear_of_socket_if_water_near'], doorLeftOpen: [], 'defrost-drain': ['unplug_fridge', 'no_sharp_tools_on_ice'],
     'drip-tray': ['unplug_fridge', 'ff_hot_compressor', 'no_refrigerant_work'], 'inlet-connection': ['water_off_at_tap', 'hand_tight_only'], retest: ['stop_if_water_near_socket'],
   },
   FIX_CHECKS: ['defrost-drain', 'drip-tray', 'inlet-connection'],

@@ -55,7 +55,14 @@ function makeKit({ checks = [], observations = [], outcomeObs = {}, resetAfter =
     }
     return all.filter((r) => r.kind === 'ask' || r.kind === 'reoffer');
   }
-  function lastOf(s, t) { const rs = counted(s, t); return rs.length ? rs[rs.length - 1].outcome : null; }
+  // The latest outcome for a target. A check the customer reports as not done yet AFTER its request was closed (they
+  // moved on, then said "haven't checked the filter yet") counts as not_done, so it is re-offered once.
+  function lastOf(s, t) {
+    const rs = counted(s, t); if (!rs.length) return null;
+    const last = rs[rs.length - 1]; const k = chk(s, t);
+    if (k && k.status === 'not_done' && last.outcome !== 'pending' && k.turn > (last.resolvedTurn == null ? last.askedTurn : last.resolvedTurn)) return 'not_done';
+    return last.outcome;
+  }
   function blocked(s, t) {
     if ((s.declined || []).some((d) => d.target === t && d.resolvedTurn == null)) return true;
     const k = chk(s, t);
@@ -147,7 +154,7 @@ function makeStepPolicy(cfg) {
     if (t === 'model') return K.modelAskable(s);
     if (done(s, t) || K.blocked(s, t)) return false;
     const n = K.counted(s, t).length;
-    return n === 0 || (n === 1 && REOFFERABLE.has(rq.lastOutcome(s, t)));
+    return n === 0 || (n === 1 && REOFFERABLE.has(K.lastOf(s, t)));
   }
   function retestDue(s) {
     const f = fixTurn(s); const t = obsTurn(s, 'faultPersists');

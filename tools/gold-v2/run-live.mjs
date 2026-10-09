@@ -16,7 +16,7 @@ process.env.JEV_SECRET_ID = 'applianceclinic/production/jev';
 const runner = require('./benchmark/gold-v2/runner.js');
 const judge = require('./benchmark/gold-v2/judge.js');
 const V = require('./benchmark/gold-v2/version.js');
-const SET = require('./benchmark/gold-v2/scenarios.v2_1.json');
+const SET = require('./benchmark/gold-v2/scenarios.v2_2.json');
 const benchmarkAuth = require('./benchmark-auth.js');
 const aiConfig = require('./ai-config.js');
 

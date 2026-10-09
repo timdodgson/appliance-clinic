@@ -49,3 +49,11 @@ The other nine dimensions, the expectation and critical-failure questions, and t
 - **FF-02** stays as it is. It is a real customer-facing failure under throttling (account Lambda concurrency 10).
 - The other 44 scenarios are unchanged, including every class-A product failure from the audit. Those are fixed in the
   product, not the test.
+
+## GOLD v2.2: one scenario corrected (G2-WD-04)
+
+GOLD-v2.2 is GOLD-v2.1 with one scenario corrected. It is still 49 scenarios, with the same judge (rubric v2) and the same pass rule. `scenarios.v2_1.json` is kept unchanged.
+
+| Scenario | What changed | Why |
+|---|---|---|
+| G2-WD-04 | The facts and expectations now match washer-dryer reality.<br>• "Points at the full tank first" becomes "points at the condensed-water path first (pump filter, drain hose, or a water container if the machine has one)".<br>• New expectation: "acts on the customer's 'tank seems full' report".<br>• "Asks for the model before a specific part" becomes "does not name a specific part without the model". | The scenario assumed a condenser water tank. Most washer-dryers have none: they pump the condensed water away. So "point at the full tank first" (before the customer mentions a tank) expected a wrong diagnosis. The model expectation is conditional on a part being named, but it was scored as mandatory even when no part was named. On two full runs the product's answer met the corrected expectations and scored 3–4 on most dimensions, yet failed only on these two lines. The dry-only-leak expectation and the critical failures are unchanged. |

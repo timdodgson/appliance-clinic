@@ -88,3 +88,71 @@ describe('washer-dryer: a leak only while drying is the condensed-water path', (
     expect(await H.ownerOf(L, [WD('leaking', [O('leakAtDoor'), O('wdDrySide', false)])], KEYS)).toBe('wd-leaking');
   });
 });
+
+describe('live GOLD follow-ups (after 8.6)', () => {
+  const Q = require('../canonical/mc1-questions.js');
+  const { emptyState } = require('../canonical/cs1.js');
+  it('clearing the defrost drain is done with the fridge unplugged', () => {
+    const r = H.play(J('ff-not-cooling'), [open('fridge-freezer', 'not-cooling', [O('bothCompartmentsWarm'), O('waterInsideFridge'), O('doorLeftOpen', false)])]);
+    expect(r.last).toMatchObject({ target: 'defrost-drain' });
+    expect(r.last.requires).toEqual(expect.arrayContaining(['unplug_fridge', 'no_sharp_tools_on_ice']));
+  });
+  it('a washer-dryer fluff (lint) filter reported clean counts as the drying airflow filter', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'not-drying', [O('heatPresent')]), ck('lint-filter')]);
+    expect(r.prep.diag.facts).toContain('filterOk');
+  });
+  it('an owner-fixable cause that is only "possible" makes no "no part is needed" claim', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), C({ observations: [O('leaksOnDrain')] })]);
+    expect(r.last.conclusion).toMatchObject({ handoff: 'none', confidence: 'possible' });
+    expect(text('wd-not-drying', r)).not.toMatch(/No part is needed/);
+  });
+  it('a washing machine / washer-dryer is never offered tumble-dryer parts as checks', () => {
+    const s = emptyState('cs_x'); s.identity.appliance = { value: 'washer-dryer', basis: 'stated', turn: 1 };
+    const crit = Object.keys(Q.buildMc1Request({ latestMessage: 'x', state: s, candidates: { identifiers: [], brands: [], components: [] } }).questions.mcCheckA.criteria);
+    expect(crit).toEqual(expect.arrayContaining(['drain-filter', 'lint-filter']));
+    for (const k of ['condenser', 'water-container', 'vent-duct']) expect(crit).not.toContain(k);
+  });
+  it('"still there straight after the fix" counts as the fault persisting; a leak during drying is still leaking', () => {
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcObsFaultPersists.instructions).toMatch(/straight after the fix/);
+    expect(q.mcJourney.instructions).toMatch(/water escaping during the drying part is still leaking/);
+  });
+  it('narrowing when the same problem happens is not a correction of it', () => {
+    const s = emptyState('cs_x'); s.identity.appliance = { value: 'washer-dryer', basis: 'stated', turn: 1 };
+    s.problems.push({ id: 'p1', status: 'active', origin: 'stated', journey: { value: 'leaking', basis: 'stated', turn: 1 }, faultDomain: { value: null }, scope: { value: null }, openedTurn: 1, resolvedTurn: null, recurrences: [], archive: [] });
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: s, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcCorrect__problem_journey.instructions).toMatch(/narrowing WHEN or WHERE the same problem happens/);
+  });
+  it('a washer-dryer fluff filter report is acknowledged in the reply evidence', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'not-drying', [O('heatPresent')]), ck('lint-filter')]);
+    const JC = compose('wd-not-drying');
+    expect(JC.brief(r.state, r.last, null, {}).latest).toContain('fluff filter clean');
+  });
+  it('a washer-dryer drying-only leak says why it is the drying side, and makes no part claim', () => {
+    const JC = compose('wd-not-drying');
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')])]);
+    expect(JC.template(JC.brief(r.state, r.last, null, {}))).toMatch(/only leaks while drying/);
+    const r2 = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), C({ observations: [O('leaksOnDrain')] })]);
+    const t = JC.template(JC.brief(r2.state, r2.last, null, {}));
+    expect(t).toMatch(/condensed-water path/);
+    expect(t).not.toMatch(/No part is needed/);
+  });
+  it('conclusions state only what the customer reported (no red AquaStop window unless they saw one)', () => {
+    const DW2 = require('../canonical/dw2-not-filling.js');
+    const s = emptyState('cs_x');
+    expect(DW2.CONCLUSION['tap-hose-or-aquastop'](s)).not.toMatch(/^A red AquaStop window means/);
+    s.evidence.checks['inlet-hose-tap'] = { status: 'done', result: 'fault_seen', turn: 2, history: [] };
+    expect(DW2.CONCLUSION['tap-hose-or-aquastop'](s)).toMatch(/^A red AquaStop window means/);
+  });
+  it('a washing machine banging is not described as happening on spin unless the customer said so', () => {
+    const J7 = require('../canonical/j7-compose.js');
+    expect(J7.OBS_COPY.excessiveVibration[0]).not.toMatch(/spin/);
+  });
+  it('a washer-dryer drying-only leak with the water container reported full: empty it first (no part), drain path next', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), ob(O('tankWarning'))]);
+    expect(r.last).toMatchObject({ kind: 'conclude', rule: 'WY5', target: 'water-container-full' });
+    expect(text('wd-not-drying', r)).toMatch(/container is full/);
+    // a container that fills normally is not "full"
+    expect(H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), ob(O('tankStaysEmpty', false))]).last.target).not.toBe('water-container-full');
+  });
+});

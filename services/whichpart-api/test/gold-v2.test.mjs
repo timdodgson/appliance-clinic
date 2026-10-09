@@ -46,7 +46,7 @@ const view = (o) => Object.assign({ reply: 'ok', needsModel: false, safety: fals
 const makeCallApi = (fn) => async (messages) => fn(messages);
 
 describe('schema', () => {
-  // GOLD-v2.1: GOLD-v2.0 after the value audit (WM-02 removed as a duplicate of WM-01; 5 scenarios rewritten).
+  // GOLD-v2.2: GOLD-v2.0 after the value audit (WM-02 removed as a duplicate of WM-01; 5 scenarios rewritten; WD-04 corrected).
   it('loads exactly 49 unique scenarios with the expected family distribution', () => {
     expect(set.scenarios.length).toBe(49);
     const ids = set.scenarios.map((s) => s.id);
@@ -63,8 +63,8 @@ describe('schema', () => {
     }
   });
   it('rejects a bad scenario set (wrong count, duplicate id, forbidden field)', () => {
-    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.1', scenarios: [] })).toThrow();
-    expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.0' })).toThrow(/scenarioSetVersion/);
+    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.2', scenarios: [] })).toThrow();
+    expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.1' })).toThrow(/scenarioSetVersion/);
     const dup = JSON.parse(JSON.stringify(set));
     dup.scenarios[1].id = dup.scenarios[0].id;
     expect(() => schema.validateScenarioSet(dup)).toThrow(/duplicate/);
@@ -247,10 +247,10 @@ describe('rubric-v2 safety dimension', () => {
 });
 
 describe('version provenance + legacy separation', () => {
-  it('stamps GOLD-v2.1 / jev / rubric-v2 / policy constants', () => {
+  it('stamps GOLD-v2.2 / jev / rubric-v2 / policy constants', () => {
     const m = V.versionMetadata({ productSha: 'abc1234' });
-    expect(m.benchmark).toBe('GOLD-v2.1');
-    expect(m.scenarioSetVersion).toBe('GOLD-v2.1');
+    expect(m.benchmark).toBe('GOLD-v2.2');
+    expect(m.scenarioSetVersion).toBe('GOLD-v2.2');
     expect(m.judgeModel).toBe('jev');
     expect(m.judgePromptVersion).toBe('gold-v2-rubric-v2');
     expect(m.productSha).toBe('abc1234');

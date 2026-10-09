@@ -71,7 +71,7 @@ const P = kit.makeStepPolicy({
   OBS_TARGETS: { ffCompartment: ['bothCompartmentsWarm'], doorLeftOpen: ['doorLeftOpen'], inColdOrHotLocation: ['inColdOrHotLocation'], fanAudible: ['fanAudible'],
     ffCompressorState: ['compressorRuns', 'clicksNoStart'] },
   REQUIRES: {
-    ffCompartment: ['ff_food_safety'], doorLeftOpen: [], 'defrost-drain': ['no_sharp_tools_on_ice'], 'temp-setting': [], 'vents-clear': [], 'door-seal': ['look_and_feel_only'],
+    ffCompartment: ['ff_food_safety'], doorLeftOpen: [], 'defrost-drain': ['unplug_fridge', 'no_sharp_tools_on_ice'], 'temp-setting': [], 'vents-clear': [], 'door-seal': ['look_and_feel_only'],
     'condenser-coil-clear': ['unplug_fridge', 'no_refrigerant_work'], inColdOrHotLocation: [], fanAudible: ['ff_listen_only'], ffCompressorState: ['ff_listen_only'], retest: [],
   },
   FIX_CHECKS: ['defrost-drain', 'temp-setting', 'vents-clear', 'condenser-coil-clear', 'door-seal'],

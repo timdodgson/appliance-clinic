@@ -46,7 +46,9 @@ const SPEC = {
   schema: 'wdy-diag/1', FAMILY, PRIOR: ['CAP', 'PG', 'WT', 'LF', 'DR', 'DH', 'SN', 'AF', 'CL'], SIGNALS, FACT_LABEL,
   obs: {},
   checks: { 'wd-dry-capacity': { clear: 'capOk', found: 'capFixed' }, 'programme-setting': { clear: 'progOk', found: 'progFixed' },
-    'inlet-hose-tap': { clear: 'tapOk', found: 'tapFixed' }, 'drain-filter': { clear: 'filterOk', found: 'filterFixed' }, 'drain-hose': { clear: 'hoseOk', found: 'hoseFixed' } },
+    'inlet-hose-tap': { clear: 'tapOk', found: 'tapFixed' }, 'drain-filter': { clear: 'filterOk', found: 'filterFixed' }, 'drain-hose': { clear: 'hoseOk', found: 'hoseFixed' },
+    // washer-dryers that have a separate fluff (lint) filter: the same airflow / fluff evidence as the pump filter
+    'lint-filter': { clear: 'filterOk', found: 'filterFixed' } },
   FIX_CHECK: { CAP: ['wd-dry-capacity', 'Cap'], PG: ['programme-setting', 'Prog'], WT: ['inlet-hose-tap', 'Tap'], LF: ['drain-filter', 'Filter'], DR: ['drain-hose', 'Hose'] },
   DECISIVE_PART: { DH: { codeDryHeater: 'drying-heater' } },
   extra(s, ctx, on) {
@@ -87,6 +89,11 @@ const P = kit.makeStepPolicy({
   REQUIRES: { heatState: [], 'wd-dry-capacity': [], 'programme-setting': [], 'inlet-hose-tap': ['tap_hose_from_outside'], 'drain-filter': ['isolate_mains', 'contain_water', 'open_slowly'],
     'drain-hose': ['isolate_mains', 'contain_water'], retest: [] },
   FIX_CHECKS: ['wd-dry-capacity', 'programme-setting', 'inlet-hose-tap', 'drain-filter', 'drain-hose'],
+  // a drying-only leak with the water container reported full (or its warning on): emptying it is the first fix
+  early(h) {
+    const full = h.obs('tankWarning') === true;
+    return h.has('leakDry') && full && !h.done('drain-filter') ? { target: 'water-container-full', reason: 'container-full-overflows-when-drying', rule: 'WY5', handoff: 'none' } : null;
+  },
   steps: [
     // drying-only leak: the condensed water must drain through the pump filter and drain hose
     { n: 15, target: 'drain-filter', reason: 'condensed-water-backs-up-at-pump-filter', when: (h) => h.has('leakDry') },
@@ -110,7 +117,7 @@ const pipeline = JP.makeModelPartPipeline({
 const FAMILY_LABEL = { 'drying-load-over-capacity': 'a drying load bigger than the dry capacity', 'drying-programme-not-set': 'the drying programme or dryness setting',
   'condenser-water-supply': 'the cold water supply the condenser needs', 'pump-filter-fluff': 'fluff in the pump filter', 'drying-heater-or-thermostat': 'the drying heater or its thermostat',
   'drying-sensor': 'the drying sensor', 'drying-fan-or-air-duct': 'the drying fan or air duct', 'drain-hose-or-standpipe': 'the drain hose or standpipe',
-  'condenser-water-path': 'the condenser\'s water path inside the machine' };
+  'condenser-water-path': 'the condenser\'s water path inside the machine', 'water-container-full': 'a full water container' };
 const COMPONENT_LABEL = { 'drying-heater': 'drying heater' };
 const TASK = {
   'ask_observation:heatState': { say: 'First, just what you can feel — whether the drying side is getting warm at all.', ask: 'Partway through drying, are the laundry and the door glass warm, or completely cold?' },
@@ -118,6 +125,8 @@ const TASK = {
   'ask_check:programme-setting': { say: 'Check a drying programme is actually selected after the wash (or a wash-and-dry option), and that it isn\'t a short timed dry or a low dryness level.', ask: 'Was drying not selected or set too short (and have you changed it), or was a full drying programme set?' },
   'ask_check:inlet-hose-tap': { say: 'Most washer-dryers use a trickle of cold water to condense the moisture while drying, so the cold tap must stay on and the hose mustn\'t be kinked.', ask: 'Was the tap off or the hose kinked (and is it sorted), or is the water supply on and fine?' },
   'ask_check:drain-hose': { say: 'The condensed water from drying leaves through the drain hose. Check the hose behind the machine isn\'t kinked or squashed, and that the standpipe or sink waste it goes into isn\'t blocked.', ask: 'Was the hose kinked or the waste blocked (and is it sorted), or was it all clear?' },
+  // a leak only while drying: the same pump-filter check, said for the condensed-water path
+  'ask_check:drain-filter:leak': { say: 'As it only leaks while drying, the water is coming from the drying side, not the wash: a washer-dryer condenses the moisture with a trickle of cold water and pumps it away through the pump filter and drain hose (most washer-dryers have no water container to empty). Fluff from drying collects in the pump filter at the bottom front and can make that water back up and leak. Unplug the machine first, put towels down with a shallow tray ready, and unscrew the filter slowly.', ask: 'Was the filter full of fluff or debris (and is it clean now), or was it already clean?' },
   'ask_check:drain-filter': { say: 'Drying sends fluff and the condensed water out through the pump, so a clogged pump filter (bottom front) stops it drying and can make the condensed water back up and leak. Unplug it first and have towels and a shallow tray ready, then unscrew the filter slowly.', ask: 'Was the filter full of fluff or debris (and is it clean now), or was it already clean?' },
   'ask_check:retest': { say: 'Run a drying programme with a load within the dry capacity, and keep an eye on it.', ask: 'Is it working properly now, or is the problem still there?' },
   'ask_identity:model': W.WD_MODEL_ASK, 'ask_identity:appliance': { say: '', ask: 'Is it a washer-dryer, or a separate tumble dryer?' },
@@ -127,7 +136,12 @@ const CONCLUSION = {
   'WY7:drying-programme-not-set': 'That was the programme, so no part is needed.',
   'WY7:condenser-water-supply': 'That was the water supply the condenser needs, so no part is needed.',
   'WY7:pump-filter-fluff': 'Cleaning the pump filter very likely fixed it, so no part is needed. Clean it every month or so if you dry often.',
+  // leak only while drying, nothing confirmed yet: say why it is the drying side and what comes next (no part claim)
+  'pump-filter-fluff': (state) => (dryLeak(state)
+    ? 'As it only leaks while drying, the water is coming from the drying side\'s condensed-water path, not the wash side. The most likely place is the pump filter (fluff from drying collects there and the condensed water backs up), then the drain hose, then the condenser\'s water path inside. Most washer-dryers have no water container — the water is pumped away — but if yours has one, empty it and refit it firmly. If the filter and hose are clear and it still leaks when drying, stop using the drying programmes and an appliance engineer is the next step; I\'m not recommending a part until the cause is confirmed.'
+    : 'From the checks so far, the most likely cause is fluff in the pump filter. The check for it is simple; if it doesn\'t sort it, let me know what you find.'),
   'drying-heater-or-thermostat': 'With the washing side fine but no heat at all on a drying programme, the drying heater or its thermostat / cut-out is the likely cause — it\'s a separate heater from the wash one. That needs an appliance engineer to test safely; I\'m not recommending a part from this.',
+  'water-container-full': 'You mentioned the water container is full. If your washer-dryer has one, a full container can\'t take any more condensed water, so it overflows while drying. Empty it, check its lid and float are clean, and push it fully home, then run a drying programme and keep an eye on it. If it fills right up again in one cycle or it still leaks, the drain path is next: the pump filter at the bottom front and the drain hose. No part is needed for this step.',
   'WY7:drain-hose-or-standpipe': 'That was the drain hose or waste, so no part is needed.',
   'condenser-water-path': 'With the pump filter and drain hose clear and it leaking only while drying, the water is most likely escaping from the condenser\'s water path inside the machine (the cold-water trickle or a condenser hose / seal). Please don\'t run drying programmes until it\'s checked and keep water away from the plug and socket; that needs an appliance engineer. I\'m not recommending a part from this.',
   'drying-sensor': 'The code points to the drying sensor or its wiring. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
@@ -135,10 +149,13 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it drying properly now?',
-  OBS_COPY: { noHeat: ['no heat when drying', 'warm when drying'], heatPresent: ['warm when drying', null], wdDrySide: ['problem during drying', 'problem during washing'], faultPersists: ['still damp', 'dry now'] },
+  retestKey: (a) => (a.kind === 'ask_check' && a.target === 'drain-filter' && a.reason === 'condensed-water-backs-up-at-pump-filter' ? 'ask_check:drain-filter:leak' : null),
+  OBS_COPY: { noHeat: ['no heat when drying', 'warm when drying'], heatPresent: ['warm when drying', null], wdDrySide: ['problem during drying', 'problem during washing'], faultPersists: ['still damp', 'dry now'],
+    tankStaysEmpty: ['water container stays empty', 'water container fills normally'], tankWarning: ['water container full / warning on', null] },
   CHECK_RESULT_COPY: { 'wd-dry-capacity': { clear: 'within dry capacity', found_and_cleared: 'load reduced' }, 'programme-setting': { clear: 'full drying programme', found_and_cleared: 'programme changed' },
     'inlet-hose-tap': { clear: 'water supply fine', found_and_cleared: 'tap / hose sorted' }, 'drain-filter': { clear: 'pump filter clean', found_and_cleared: 'pump filter cleaned' },
-    'drain-hose': { clear: 'drain hose and waste clear', found_and_cleared: 'drain hose / waste sorted' } },
+    'drain-hose': { clear: 'drain hose and waste clear', found_and_cleared: 'drain hose / waste sorted' },
+    'lint-filter': { clear: 'fluff filter clean', found_and_cleared: 'fluff filter cleaned' } },
   statusChecks: [['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'Unplug the machine before fitting it — the heater sits inside, so if you\'d rather not, an appliance engineer can fit and test it.' }),
   PURCHASE_RE: /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(heater|heating element|element|thermostat|sensor|fan|motor|pcb|control board)\b/i,

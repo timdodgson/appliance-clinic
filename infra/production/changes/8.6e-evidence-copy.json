@@ -1,0 +1,64 @@
+{
+  "id": "8.6e-evidence-copy",
+  "description": "GOLD v2 remediation, follow-up from the full GOLD v2.1 gate: conclusions and evidence copy state only what the customer reported (dishwasher AquaStop conclusion, washing-machine vibration evidence wording, washer-dryer water-container evidence). The diagnosis Lambda zip differs in canonical/{dw2-not-filling,j7-compose,wd-not-drying}.js. Code only; no configuration, permission or URL change. S4R /part-finder runs the legacy pipeline. Previous code: TJNSwCr4uma5/f1dhxc/G1PClw5xGev6NxlKWm1RW3A= (phase8/ key in the AC assets bucket).",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change. The read-only base already allows lambda:Get* on AC functions.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

@@ -29,7 +29,7 @@ const CONCLUSION = {
   'drum-support-or-bearings': 'A loose or rumbling drum points to the drum support or bearings. Please stop using it on fast spins and have an appliance engineer check it — I\'m not recommending a part from this.',
 };
 const OBS_COPY = {
-  excessiveVibration: ['shakes / bangs on spin', null], recentInstallation: ['recently installed / moved', 'not recently moved'], loadDependent: ['only with certain loads', null],
+  excessiveVibration: ['shakes / bangs violently', null], recentInstallation: ['recently installed / moved', 'not recently moved'], loadDependent: ['only with certain loads', null],
   shakesWhenEmpty: ['still shakes with the drum empty', 'smooth with the drum empty'], drumPlay: ['drum feels loose', 'drum feels firm'],
   grindingNoise: ['grinding / rumbling noise', null], knockingNoise: ['knocking / banging', null], faultPersists: ['still shakes after the fix', 'smooth after the fix'],
 };
@@ -45,4 +45,4 @@ const compose = ck.createCompose({
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION }),
   PURCHASE_RE: /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(shock absorbers?|dampers?|springs?|suspension|bearings?|drum|spider|counterweight|motor)\b/i,
 });
-module.exports = { FAMILY_LABEL, COMPONENT_LABEL, TASK, REQUIREMENT: ck.REQUIREMENT, SAFETY_COPY: ck.SAFETY_COPY, ...compose };
+module.exports = { FAMILY_LABEL, COMPONENT_LABEL, TASK, OBS_COPY, REQUIREMENT: ck.REQUIREMENT, SAFETY_COPY: ck.SAFETY_COPY, ...compose };
