@@ -72,8 +72,6 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
   - Bearers are resolved through CloudFormation dynamic references.
   - The old `spares4repairs/dev/applianceclinic-*` secrets remain unread. They are not deleted.
 - **Configuration** is environment variables on each Lambda, owned by `AcRuntimeStack` (`infra/cdk/config/runtime-overrides.json`).
-  - Each JavaScript runtime reads its environment in one module (`config.js`), which lists required and optional
-    variables and their defaults.
   - Changing a value is a CDK change, not a console edit.
 - **Admin-editable AI settings** (models, prompts toggles) are stored in the `ai-config` secret and written by the
   Settings page.
