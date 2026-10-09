@@ -102,7 +102,8 @@ const REOFFER = 'No problem if you haven\'t had a chance yet.';
 function reofferFrame(state, target) {
   const rs = ((state && state.requests) || []).filter((r) => r.target === target);
   const last = rs.length ? rs[rs.length - 1].outcome : null;
-  return last === 'not_done' ? REOFFER : '';
+  const k = state && state.evidence && state.evidence.checks && state.evidence.checks[target];
+  return last === 'not_done' || (k && k.status === 'not_done') ? REOFFER : '';
 }
 
 const factLine = (state) => {

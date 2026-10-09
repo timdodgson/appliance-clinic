@@ -106,4 +106,22 @@ describe('classifier: dryer type narrows the check choices; check result is self
     expect(Q.CHECK_STATUS.done_found_unspecified).toEqual(['not_done', null]);
   });
 
+  it('a check reported "not done yet" after its request was closed is re-offered once, with the not-yet frame', () => {
+    const P = require('../canonical/policy-kit.js');
+    const K = P.makeKit({ checks: ['drain-filter'] });
+    const s = emptyState('cs_x'); s.version = 3;
+    s.requests.push({ id: 'q1', slot: 'CHECK', target: 'drain-filter', purpose: 'DIAGNOSIS', kind: 'ask', askedTurn: 1, journey: null, rule: null, outcome: 'superseded', resolvedTurn: 2 });
+    expect(K.askable(s, 'drain-filter')).toBe(false);
+    s.evidence.checks['drain-filter'] = { status: 'not_done', result: null, turn: 3, history: [] };
+    expect(K.lastOf(s, 'drain-filter')).toBe('not_done');
+    expect(K.askable(s, 'drain-filter')).toBe(true);
+    expect(require('../canonical/compose-kit.js').reofferFrame(s, 'drain-filter')).toMatch(/haven't had a chance/);
+  });
+  it('the pending-check question is told that a message about a different check is not about this one', () => {
+    const s = emptyState('cs_x');
+    const r = rq.issueRequest(s, { slot: 'CHECK', target: 'drain-command', purpose: 'DIAGNOSIS' }, 1).state;
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: r, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    const pend = Object.values(q).find((x) => /pendingRequest: we asked the customer to do this check/.test(x.instructions || ''));
+    expect(pend.instructions).toMatch(/DIFFERENT check/);
+  });
 });
