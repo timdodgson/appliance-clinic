@@ -793,7 +793,7 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
     const k = pathKey(path);
     questions[k] = {
       type: 'noul',
-      instructions: `currentState records: ${label}. Does ${LATEST} EXPLICITLY CORRECT THIS PARTICULAR earlier statement (e.g. "actually it's…", "sorry I meant…", "no, it was…")? Only TRUE for the field the message itself contradicts — correcting one field does not correct the others. Adding a new detail or answering a question is not a correction.`,
+      instructions: `currentState records: ${label}. Does ${LATEST} EXPLICITLY CORRECT THIS PARTICULAR earlier statement (e.g. "actually it's…", "sorry I meant…", "no, it was…")? Only TRUE for the field the message itself contradicts — correcting one field does not correct the others. Adding a new detail or answering a question is not a correction, and neither is narrowing WHEN or WHERE the same problem happens ("it doesn't leak on the wash, only when drying", "only on the hot wash", "just the top rack") — that confirms the problem.`,
       criteria: { true: 'It explicitly corrects this earlier statement', false: 'It does not correct it' },
     };
     plan.correctable.push([k, path]);

@@ -117,4 +117,15 @@ describe('live GOLD follow-ups (after 8.6)', () => {
     expect(q.mcObsFaultPersists.instructions).toMatch(/straight after the fix/);
     expect(q.mcJourney.instructions).toMatch(/water escaping during the drying part is still leaking/);
   });
+  it('narrowing when the same problem happens is not a correction of it', () => {
+    const s = emptyState('cs_x'); s.identity.appliance = { value: 'washer-dryer', basis: 'stated', turn: 1 };
+    s.problems.push({ id: 'p1', status: 'active', origin: 'stated', journey: { value: 'leaking', basis: 'stated', turn: 1 }, faultDomain: { value: null }, scope: { value: null }, openedTurn: 1, resolvedTurn: null, recurrences: [], archive: [] });
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: s, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcCorrect__problem_journey.instructions).toMatch(/narrowing WHEN or WHERE the same problem happens/);
+  });
+  it('a washer-dryer fluff filter report is acknowledged in the reply evidence', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'not-drying', [O('heatPresent')]), ck('lint-filter')]);
+    const JC = compose('wd-not-drying');
+    expect(JC.brief(r.state, r.last, null, {}).latest).toContain('fluff filter clean');
+  });
 });
