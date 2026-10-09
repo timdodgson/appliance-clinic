@@ -5,3 +5,4 @@ Each release is code only, through `AcRuntimeStack` with the reviewed change pro
 | Change | Function(s) | CodeSha256 after | Checks after | CloudTrail |
 |---|---|---|---|---|
 | 8.4-gold-v2-1 | whichpart-api | `Ankxkep7EnwjJ8QAyk2nIDaB2p+Jhv6ko6kd7iJiikQ=` | S4R health 3×200, `/part-finder` contract, ingress, smoke, AC endpoints 8, AC auth 13 equal to before; drift IN_SYNC; no-op | ok, no failures |
+| 8.5-progression | spares4repairs-part-finder, whichpart-api | `DJcWEwQyaUQQ+MiPHgRoLL9OJzzIUMoFAPurLHMIq0M=`, `j5Th3HTJ+9jMOiksexkSwiYp8a8mq3pTz64hrFZAg2c=` | S4R health 3×200, contract, ingress, smoke, AC endpoints 8, AC auth 13, diagnosis role 9; drift IN_SYNC; no-op | ok, no failures |
