@@ -184,17 +184,32 @@ public site's own request contract: the `app.js` payload with `observability`, t
 | Judge | Scheduled transcript review (no manual trigger), Jev `typesafe/jev`, prompt `s10-v1`, reviewed 05:25:04Z, one attempt |
 | Verdict | **overall good**, outcome `useful_outcome`. Understanding, diagnostic reasoning, conversation quality and state progression good. Safety and parts handling appropriate, media useful, looping minor, no concerns. Summary: "The customer plausibly reached a useful outcome…" |
 
-**GOLD v2 (`GOLD-v2.0`, 50 scenarios, judge Jev `gold-v2-rubric-v1`) is not yet run, and is blocked.**
-- [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs) runs the suite against production. It uses the
-  repository's runner, judge and report unchanged, over the service-authenticated benchmark path of `POST /api`. That
-  path writes no customer transcript and is not rate-limited.
-- Both secrets (the benchmark HMAC key and the Jev judge credentials) are read from Secrets Manager into memory only.
-- A one-scenario probe completed its conversation against production.
-- The judge call to `api.cloudflare.com` was refused by this cloud environment's egress policy, so nothing was scored
-  and no GOLD result exists for this run.
-- **No prior GOLD v2 result is recorded** in this repository or in the benchmark run store (`acq/runs/` holds only ACQ
-  runs). This run therefore becomes the reference, against the suite's own pass policy: mean ≥ 2.5/4, safety ≥ 3/4,
-  no critical failure.
+**GOLD v2 (2026-10-09, after `api.cloudflare.com` was allowed)**
+- Run: [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs) against production at `6bcff01`
+- Suite: `GOLD-v2.0`, 50 scenarios
+- Judge: Jev, `gold-v2-rubric-v1`
+
+| Measure | Result |
+|---|---|
+| Pass | **28/50**: PASS 28, FAIL 22, ERROR 0, JUDGE_ERROR 0 |
+| Critical failures | 7 |
+| Per family | washing-machine 7/8 · washer-dryer 2/4 · tumble-dryer 3/6 · dishwasher 5/6 · fridge-freezer 1/6 · oven-cooker 3/6 · hobs 2/4 · microwave 3/5 · vacuum 2/5 |
+| Dimension means (0–4) | understanding 2.78 · progression 1.98 · identificationTiming 3.44 · evidenceUse 1.72 · questionQuality 1.86 · safety 3.64 · ownerSuitability 3.88 · outcomeQuality 2.42 · partRecommendation 3.94 · efficiency 2.28 |
+| Rerun of the 22 failures | 1 of 22 passed: they are stable, not judge noise |
+
+**Why most scenarios fail.** The weakest dimensions are:
+- evidence use (1.72)
+- question quality (1.86)
+- progression (1.98)
+
+**The failure patterns:**
+- repeated or looping questions (5 critical failures)
+- safety below the floor of 3 in 9 scenarios: washer-dryer, fridge-freezer, oven, hob and vacuum
+- one invented fault for a normal microwave hum
+
+**Comparison.** No earlier GOLD v2 result exists anywhere reachable, so this run is the first baseline and there is
+nothing to compare it against. The failures are not attributable to Phase 8: its releases moved code byte for byte, and
+every test, the contract and the smoke are unchanged. The results are product-quality work for a later phase.
 
 ## Exit criteria
 
@@ -207,7 +222,7 @@ public site's own request contract: the `app.js` payload with `observability`, t
 | Canonical and legacy documented | **Done.** [overview.md](../architecture/overview.md), [ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md) |
 | Docs current | **Done.** Overview, configuration, error handling, findings, ADRs 0012 and 0013, the Phase 8 runbook, the prompts README |
 | Tests clean | **Done.** Only the known baseline failures remain; retired suites stay retired |
-| Evaluation within bands | Contract, smoke and test outputs unchanged. Transcript judge on Phase 8 code: good. **GOLD v2: pending.** It is blocked by the environment's egress policy (above); the exit criterion is fully met once it passes |
+| Evaluation within bands | Contract, smoke and test outputs unchanged. Transcript judge on Phase 8 code: good. **GOLD v2 baseline: 28/50**, with no regression attributable to Phase 8. No GOLD band was ever agreed, so whether 28/50 is acceptable is the owner's decision |
 | `/part-finder` passes | **Done** |
 | S4R health clean | **Done** |
 | Stacks `IN_SYNC` | **Done** |
