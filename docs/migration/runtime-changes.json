@@ -3,14 +3,15 @@
   "modified": [
     {
       "path": "services/whichpart-api/index.js",
-      "sha256": "093677a18a4ef55bebd2b5d866d21d8a3fc25a885ad2327439bd75ef75254460",
+      "sha256": "27cc2f73f4818236dcd958e6a5bc16dc0bc06e328f88ae184ec8a81038cf1ad6",
       "changes": [
         "7.2-ac-auth",
         "7.5-rate-limit",
         "7.6-compose-failure",
         "7.11-benchmark-target",
         "7.12-http-headers",
-        "8.2-api-split"
+        "8.2-api-split",
+        "8.7-throttle-retry"
       ]
     },
     {
@@ -1013,6 +1014,28 @@
       ],
       "changes": [
         "8.6-diagnostics"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/orchestrator-retry.js",
+      "sha256": "9c5945bbe534cbb4661a559d968db35616f48f75ce6c1de92140b23d6833bcea",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.7-throttle-retry"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/orchestrator-retry.test.mjs",
+      "sha256": "7946b5c6a81214b89848ad870db9ae4c78beaf1a244b9ec52616888885659275",
+      "role": "test",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.7-throttle-retry"
       ]
     }
   ],

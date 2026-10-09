@@ -35,6 +35,7 @@ const {
   MAX_MESSAGES,
 } = require('./config.js');
 const { log } = require('./log.js');
+const { fetchWithThrottleRetry } = require('./orchestrator-retry.js');
 const { queryParam, authPath, CORS, respond } = require('./http-io.js');
 const { setRateLimitStoreForTests, rateLimited } = require('./rate-limiting.js');
 const { authLogin, authMe, authLogout, setSessionForTests, requireAdmin } = require('./session.js');
@@ -843,9 +844,11 @@ async function callOrchestrator(messages, clientSessionId, canonicalBlock) {
   try {
     const headers = { 'content-type': 'application/json' };
     if (ORCHESTRATOR_TOKEN) headers.authorization = 'Bearer ' + ORCHESTRATOR_TOKEN;
-    const res = await fetch(ORCHESTRATOR_URL.replace(/\/$/, '') + '/diagnose', {
+    // A throttled (429) call never ran, so it is retried a bounded number of times inside the same overall timeout; a
+    // throttle that persists is still reported as a failure below.
+    const res = await fetchWithThrottleRetry(fetch, ORCHESTRATOR_URL.replace(/\/$/, '') + '/diagnose', {
       method: 'POST', headers, body: JSON.stringify(payload), signal: controller.signal,
-    });
+    }, { onRetry: ({ attempt, delayMs }) => log({ evt: 'orchestrator-throttled', attempt, delayMs }) });
     if (!res.ok) throw new Error('orchestrator http ' + res.status);
     const out = await res.json();
     out._photoOnly = ctx.photoOnly;
