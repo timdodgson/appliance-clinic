@@ -86,6 +86,13 @@ describe('COMPOSE: the filter step reconciles both symptoms', () => {
     expect(r.violations).toContain('prompt-echo');
     expect(r.reply).not.toMatch(/you may mention it once/);
   });
+  it('a check found blocked but not yet cleared is re-offered as "clear it", not "no problem if you haven\'t had a chance"', () => {
+    const s = F.request(F.check(F.base(), 'drain-filter', 'not_done', 'found_unspecified', 2), 'drain-filter', 'ask', 'not_done', 1);
+    const a = decide(s);
+    const b = J1C.brief(s, a, null, {});
+    expect(b.task.reoffer).toMatch(/^You've found it blocked, so clearing it is the next step/);
+    expect(b.evidence).toContain('drain filter: found blocked or dirty, not cleared yet');
+  });
   it('the prompt marks the media line as an instruction', () => {
     const s = noisy();
     const b = J1C.brief(s, decide(s), null, { media: [{ type: 'VIDEO', title: 'y' }] });

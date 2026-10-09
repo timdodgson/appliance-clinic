@@ -106,7 +106,8 @@ const CHECK_KEYS = ['drain-filter', 'drain-hose', 'pump-impeller', 'inlet-hose-t
   'oven-clock-mode', 'oven-door-fit', 'burner-parts-clean', 'mw-door-check', 'turntable-parts', 'mw-cavity-check',
   'vacuum-charger-check', 'wd-dry-capacity'];
 const CHECK_STATUSES = ['done', 'not_done', 'declined', 'unable'];
-const CHECK_RESULTS = ['clear', 'found_and_cleared', 'found_not_cleared', 'fault_seen'];
+// found_unspecified rides on a not_done check: they looked and found something, but have not cleared it yet
+const CHECK_RESULTS = ['clear', 'found_and_cleared', 'found_not_cleared', 'fault_seen', 'found_unspecified'];
 const TO_PENDING = ['answered', 'partial', 'cannot_answer', 'declined', 'ignored'];
 const OUTCOMES = ['resolved', 'temporary', 'unresolved'];
 

@@ -42,6 +42,8 @@ check("SYMPTOM_DISCRIMINATOR clarify -> note still carried", o._owner_safety_not
 # journey stage
 check("answer to a describe question typed as a symptom -> still diagnosing, no model ask",
       o._journey_stage(state(establishes="symptom", answered="yes"), {}) == "DIAGNOSING")
+check("answer that only gives the appliance type (identity) -> still diagnosing, no model ask",
+      o._journey_stage(state(establishes="identity", answered="yes"), {}) == "DIAGNOSING")
 check("answer typed as a check result -> model required after check",
       o._journey_stage(state(establishes="check_result", answered="yes"), {}) == "MODEL_REQUIRED_AFTER_CHECK")
 check("pending check answered (not a symptom) -> model required after check",

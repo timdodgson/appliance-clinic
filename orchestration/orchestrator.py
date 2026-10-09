@@ -1728,9 +1728,11 @@ class Orchestrator:
         # A safe generic check has been COMPLETED this journey when Jev typed the latest turn as a
         # check result, OR classified it as answering the pending check (yes/partial), OR an earlier
         # completed check is already in the established set. "cannot_answer" / "no" are NOT completions.
-        # A turn Jev typed as a symptom report answers a describe-the-problem question; it is not a check result.
+        # A turn Jev typed as a symptom, identity, correction or hazard report answers a question about the problem or
+        # the appliance; it is not a check result.
         check_completed = (establishes == "check_result"
-                           or (answered in ("yes", "partial") and establishes != "symptom")
+                           or (answered in ("yes", "partial")
+                               and establishes not in ("symptom", "identity", "correction", "hazard"))
                            or bool(st.customer.checksReported))
         # The fault still remains unless Jev typed a recovery / normal-behaviour outcome.
         fault_remains = (not rag.get("normalBehaviour")) and establishes != "recovery"

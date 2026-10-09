@@ -35,6 +35,10 @@ describe('policy / diagnostics', () => {
     expect(Object.values(J.FAMILY)).not.toContain('heater');
     expect(r.actions.some((a) => a.action.kind === 'recommend_part')).toBe(false);
   });
+  it('damp, heat not yet known → the fluff filter first, then the dryer type, then whether it heats', () => {
+    expect(H.play(J, [damp([])]).rules).toEqual(['DD12:lint-filter']);
+    expect(H.play(J, [damp([]), ok('lint-filter')]).rules).toEqual(['DD12:lint-filter', 'DD11:dryerType']);
+  });
   it('torn lint filter (owner seen) + model → filter part', () => { expect(run('torn').rules).toEqual(['DD12:lint-filter', 'DD20:model', 'DD21:lint-filter']); });
 });
 describe('COMPOSE contract', () => {

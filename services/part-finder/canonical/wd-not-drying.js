@@ -98,11 +98,12 @@ const P = kit.makeStepPolicy({
     // drying-only leak: the condensed water must drain through the pump filter and drain hose
     { n: 15, target: 'drain-filter', reason: 'condensed-water-backs-up-at-pump-filter', when: (h) => h.has('leakDry') },
     { n: 16, target: 'drain-hose', reason: 'condensed-water-drain-hose-standpipe', when: (h) => h.has('leakDry') && (h.has('filterOk') || h.has('failsAfterFilterFix')) },
-    { n: 10, target: 'heatState', reason: 'drying-air-heat-or-not', when: (h) => !h.has('leakDry') && heatState(h.s) == null },
+    // the safe fluff check first: drying fluff collects in the pump filter (free, safe, whatever the heat state)
+    { n: 14, target: 'drain-filter', reason: 'fluff-in-pump-filter', when: (h) => !h.has('leakDry') },
     { n: 11, target: 'wd-dry-capacity', reason: 'dry-capacity-half-wash-load', when: (h) => !h.has('leakDry') && !h.has('cold') },
+    { n: 10, target: 'heatState', reason: 'drying-air-heat-or-not', when: (h) => !h.has('leakDry') && heatState(h.s) == null },
     { n: 12, target: 'programme-setting', reason: 'drying-programme-selected', when: (h) => !h.has('leakDry') },
     { n: 13, target: 'inlet-hose-tap', reason: 'water-cooled-condenser', when: (h) => !h.has('leakDry') && h.has('warm') },
-    { n: 14, target: 'drain-filter', reason: 'fluff-in-pump-filter', when: (h) => !h.has('leakDry') && h.has('warm') },
   ],
   PART_FAMILIES: new Set(['DH']),
   HANDOFF: { CAP: 'none', PG: 'none', WT: 'none', LF: 'none', DH: 'engineer', SN: 'engineer', AF: 'engineer', DR: 'plumbing', CL: 'engineer' },

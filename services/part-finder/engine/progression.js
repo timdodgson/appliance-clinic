@@ -728,8 +728,9 @@ const VAGUE_FOLLOW_UP = {
   vacuum: 'Does it still run and pick up as well as it used to?',
 };
 const VAGUE_FOLLOW_UP_DEFAULT = 'The last time you used it, did it work right through as normal?';
+const FAMILY_WORD = { hobs: 'hob', 'oven-cooker': 'oven', 'fridge-freezer': 'fridge freezer', 'washer-dryer': 'washer dryer' };
 function vagueClarifyQuestion(fam, alreadyAsked) {
-  const famWord = fam ? fam.replace(/-/g, ' ') : 'appliance';
+  const famWord = fam ? (FAMILY_WORD[fam] || fam.replace(/-/g, ' ')) : 'appliance';
   const open = `What is the main thing the ${famWord} is doing wrong?`;
   if (!alreadyAsked(open)) return open;
   return VAGUE_FOLLOW_UP[fam] || VAGUE_FOLLOW_UP_DEFAULT;
