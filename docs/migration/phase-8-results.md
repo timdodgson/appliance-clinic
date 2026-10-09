@@ -128,3 +128,85 @@ The behavioural cases pass against the original `index.js` too.
 | Build reference | `build/reference/whichpart-api.zip.json` updated; 85 files |
 
 **Rollback.** Set `functions.whichpart-api.code.s3Key` back to the `phase7/` key and run the same change. Published version `1` remains a further fallback.
+
+## 8.3: prompts, contract types, configuration and errors (no runtime change)
+
+- **Prompt registry.** [`prompts/registry.json`](../../prompts/registry.json) registers the ten prompts at v1,
+  unchanged. Their fingerprints are checked in CI. The COMPOSE prompts fingerprint identically in the pre-split file.
+- **Contract types.**
+  - [`types/`](../../types/) declares the `/part-finder` frames, cs/1, the engine configuration and the prompt registry,
+    and `tsc` checks the runtime against them under `strict`.
+  - CI job `typecheck`.
+  - [ADR 0013](../adr/0013-prompt-registry-and-contract-types.md).
+- **Configuration.** [configuration.md](../architecture/configuration.md) documents every environment variable the four
+  runtimes read, and a test keeps the page complete. Each JavaScript runtime's request-path settings are in one module
+  (`engine/config.js`, `whichpart-api/config.js`). No production value changed.
+- **Errors.** [error-handling.md](../architecture/error-handling.md) records each boundary's contract. The admin
+  shapes differ by area and are pinned by tests rather than unified, because the admin UI depends on them.
+
+## Final verification (2026-10-09, 02:05Z)
+
+| Check | Result |
+|---|---|
+| Drift | `AcRuntimeStack`, `AcDataStack`, `AcAuthStack`, `ApplianceClinicToolkit`: `IN_SYNC` |
+| S4R boundary (S4R role, API `65vnizdmk4` with routes, integrations and stages) | Identical to the Phase 7 final capture |
+| CloudTrail, Phase 8 window | **eu-west-1 writes:** two `UpdateFunctionCode` (8.1, 8.2), change sets, stack policies and drift detection on AC stacks, and test users on the AC pool `eu-west-1_r4fXXEdxC` (created and deleted by `verify-ac-auth.sh`). **us-east-1:** `ac-cfn-execution` grant and restore only. Nothing on S4R, CloudFront, Route 53, ACM, `SparesSite-dev` or `CDKToolkit` |
+| S4R health (×3) | page 200, page 200, catalogue-search 200 |
+| `/part-finder` contract | ok |
+| `/ai/chat` ingress | ok (retired shape) |
+| Smoke | equal to the baseline; 4 × 200 |
+| AC endpoints, AC auth | 8 PASS, 13 PASS |
+| Diagnosis role check | all PASS: no AccessDenied, no `ok:false`, learning trace written |
+| Live code | engine `KAmytwKg…`, whichpart-api `rraoIvZQ…`, both equal to `build/reference/` |
+| After the releases (01:08Z to 02:05Z) | Invocations: engine 38, API 72, orchestrator 49. No runtime error, no `ok:false` turn. Cold starts on the new code ran clean |
+
+## Evaluation
+
+| Measure | Before | After |
+|---|---|---|
+| Runtime tests (JavaScript) | part-finder 102/115, 13 known failures; whichpart-api 40/41, 1 known | Identical output for every pre-existing test; new tests all pass (engine structure, routes, error contracts, prompts, types, configuration) |
+| `tools/migration` tests | 719 | 756 (new manifest and removal checks) |
+| `/part-finder` contract | ok | ok, before and after each release |
+| Smoke (4 journeys) | equal to the baseline | equal, before and after each release |
+| Transcript review judge, last 14 days | good 190, mixed 29, insufficient evidence 47, poor 1 | Unchanged |
+
+**The judge's after-sample is pending.** It runs every 15 minutes, but only on conversations that have been inactive for
+two hours. None had become eligible by sign-off, so the judge has scored nothing produced by the new code yet.
+
+The releases preserve behaviour: moved code is byte-identical and the test output is identical. That makes the
+contract, the smoke baseline and the test outputs the deciding evidence. The judge distribution is a monitor, not a
+gate, for this phase.
+
+**GOLD v2 was not run.** It needs the owner's live transport and Jev credentials.
+
+## Exit criteria
+
+| Criterion | Status |
+|---|---|
+| Monoliths decomposed | **Done.** The engine went from 8,037 to 1,722 lines, plus 14 modules; whichpart-api from 3,117 to 1,080, plus 16 modules. Both graphs are acyclic. The orchestrator split is documented, not done (below) |
+| Prompt versioning | **Done.** 10 prompts registered and versioned, with a CI guard |
+| TypeScript introduced | **Done.** Strict contract declarations and conformance checks, with a CI job |
+| Dead code removed | **Done.** Engine: the generative UNDERSTAND prompt and its settings, plus 4 helpers. API: 2 files, 1 test-only file no longer shipped, 1 duplicate function |
+| Canonical and legacy documented | **Done.** [overview.md](../architecture/overview.md), [ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md) |
+| Docs current | **Done.** Overview, configuration, error handling, findings, ADRs 0012 and 0013, the Phase 8 runbook, the prompts README |
+| Tests clean | **Done.** Only the known baseline failures remain; retired suites stay retired |
+| Evaluation within bands | **Done.** Contract, smoke and test outputs unchanged. The judge's after-sample is pending (above) |
+| `/part-finder` passes | **Done** |
+| S4R health clean | **Done** |
+| Stacks `IN_SYNC` | **Done** |
+| No S4R resource changed | **Done** (boundary identical, CloudTrail) |
+
+## Deferred, with reasons
+
+| Item | Why it is not done here |
+|---|---|
+| Authenticate the orchestrator-only fields (`understand`, `canonical`, `seed`) on the public engine URL | Security finding. It needs an orchestrator image release and a decision on the S4R caller (findings §5) |
+| Retire the legacy diagnosis pipeline | Every S4R request uses it. The conditions are in ADR 0012 |
+| Split `orchestrator.py` and move the fake services out of `services.py` | The image release path (arm64 builds, ECR, reference digests) makes an internal refactor a heavier release. The split points are in findings §4 |
+| Split the engine handler function (about 1,570 lines) and the API router chain | Both stay verbatim so request handling and route order cannot change. Splitting them is a behaviour-level refactor for a later phase |
+| Remove defaults that point at production or S4R, and move the benchmark secret to the AC namespace | Runtime releases, partly tied to deleting the old S4R-named secrets, an owner decision ([configuration.md](../architecture/configuration.md)) |
+| Unify admin error shapes | Needs a coordinated admin UI change; the UI source is not in this repository |
+| Type more modules | Gradual, smallest first, when each is next changed (ADR 0013) |
+| Phase 7 holds | A2 (concurrency quota) and C2 (the S4R route) remain on hold. Removing AC's inline policies from the S4R role is S4R clean-up |
+
+Phase 9 has not been started.
