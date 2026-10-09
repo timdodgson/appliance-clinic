@@ -110,7 +110,7 @@ check('F2 no facts + contradictable leader -> surfaces the pan discriminator',
 // ============================================================================
 // G. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('G1 no journey/benchmark id in code', !/hb-001|hb-007|hb-009/i.test(codeOnly));
 check('G2 no "one zone -> module" or "pan -> module" fault rule',

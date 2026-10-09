@@ -104,7 +104,7 @@ check('E bare code with NO make does not resolve via errorCode', (() => { const 
 //        orchestrator (buildComposeSystem is not exported; assert the wired behaviour in source).
 // ---------------------------------------------------------------------------
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const src = require('./engine-source.cjs')();
   check('H COMPOSE states the authoritative meaning of the code', /THIS IS THE AUTHORITATIVE MEANING of the code/.test(src));
   check('H handler applies authoritativeCodeComponents for via==errorCode', /fault\.via === 'errorCode'[\s\S]{0,220}authoritativeCodeComponents\(fault, intent\.candidateComponents\)/.test(src));
   check('H handler drops the model primaryFinding for an authoritative code', /errorCodeAuthoritative/.test(src) && /intent\.primaryFinding = null;/.test(src));
@@ -127,7 +127,7 @@ check('K unknown appliance family for a code does not resolve', (() => { const f
 //    resolution must not bypass the deterministic safety-stop / normal-behaviour precedence.
 // ---------------------------------------------------------------------------
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const src = require('./engine-source.cjs')();
   check('L safetyStop is evaluated and wins the outcome regardless of fault', /outcome = safetyStop \? 'SAFETY_STOP'/.test(src));
   check('L a RESOLVED error code still blocks the normal-behaviour override (prev-work guard)', /normalByKnowledge = Boolean\(nbMatch\) && !safetyStop && !resolvedErrorCode/.test(src));
 }
@@ -171,7 +171,7 @@ check('MUT-v without a via:errorCode fault, model list is unchanged (resolver re
   JSON.stringify(authoritativeCodeComponents(null, ['main pcb', 'display'])) === JSON.stringify(['main pcb', 'display']));
 // (vi) convert likely component to confirmed failure -> calibration test fails (source guard on the calibration language).
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const src = require('./engine-source.cjs')();
   check('MUT-vi calibration language present (indicates area, not proven failure)', /INDICATES a likely area or component, it does NOT prove/.test(src));
 }
 

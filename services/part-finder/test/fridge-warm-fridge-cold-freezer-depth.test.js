@@ -90,7 +90,7 @@ check('G3 defrost-system does not fabricate a single sub-component (heater/therm
 // ============================================================================
 // I. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('I1 no FF journey/benchmark id in code', !/ff-009|ff-010|ff-014/i.test(codeOnly));
 check('I2 no "warm fridge -> fan" hard-code', !/fridgeOnlyWarm[\s\S]{0,40}(faultId|return)\s*[:=]\s*['"]?(evaporator|fan)/i.test(codeOnly));

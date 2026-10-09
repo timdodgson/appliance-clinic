@@ -277,7 +277,7 @@ check('D9 mention discuss does not backfill a shopping list', presentableCandida
 // ---------------------------------------------------------------------------
 // I. Source guards — no journey ids or opener phrases
 // ---------------------------------------------------------------------------
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('I1 no RJ / WD-F / DW-G journey ids in product code', !/\bRJ-|WD-F-003|DW-G-002|FF-F-001|OV-F-002|OV-P-001/i.test(codeOnly));
 check('I2 no Hoover / Nextra opener literals', !/nextra|hnwl7146|coat hanger/i.test(codeOnly));

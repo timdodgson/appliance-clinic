@@ -11,7 +11,7 @@
  *
  * Reads cs/1 ONLY (observations, checks, displayedCodes via codeArea, resolution). Never reads prose,
  * the transcript, requests[] (policy's) or safety (D18: diagnostics is safety-independent).
- * scoreNodeEvidence / factConflict semantics are identical to part-finder-lambda.js (equivalence-tested).
+ * scoreNodeEvidence / factConflict semantics are identical to engine/evidence.js (equivalence-tested).
  */
 
 const COMMIT_MIN = 2;
@@ -84,7 +84,7 @@ const FACT_LABEL = {
   drainPathClearPumpSilent: 'path clear, pump silent', codeDrainArea: 'drain-timeout error code', codePumpCircuit: 'pump-circuit error code',
 };
 
-// ---- scoring engine: shared (evidence-engine.js), identical semantics to part-finder-lambda.js ----------
+// ---- scoring engine: shared (evidence-engine.js), identical semantics to engine/evidence.js ----------
 const engine = require('./evidence-engine.js');
 const scoreNodeEvidence = engine.scoreNodeEvidence;
 const factConflict = (node, facts) => engine.factConflict(node, facts, FACT_LABEL);

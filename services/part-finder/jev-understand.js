@@ -137,7 +137,7 @@ const HAZARD_MASS = 0.35;
 //
 // Story 1 ESTABLISHED this contract; Story 2 makes it AUTHORITATIVE: the adapted
 // evidence on intent._jevEvidence is now consumed into intent.facts at the engine's
-// fact-assembly boundary (part-finder-lambda.js), and the equivalent customer-prose
+// fact-assembly boundary (the part-finder-lambda.js handler), and the equivalent customer-prose
 // regex/keyword extractors have been removed — customer language → Jev typed evidence
 // → facts → deterministic diagnostic consequences. Retention/correction is inherited:
 // buildJevState sends prior + latest customer turns, so Jev re-evaluates the whole

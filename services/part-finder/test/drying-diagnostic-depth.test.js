@@ -114,7 +114,7 @@ check('G4 not-draining (empty facts) -> no spurious drying question',
 // ============================================================================
 // H. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('H1 no journey/benchmark id in code', !/dw-011|wd-001|dw-015/i.test(codeOnly));
 check('H2 no "not drying -> heater" / "cold -> heater" / "warm -> rinse aid" string rule',

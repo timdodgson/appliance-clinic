@@ -89,7 +89,7 @@ check('G3 leak-dispenser is advice-first (clean/less detergent leads)', /clean|r
 // ============================================================================
 // I. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('I1 no WM journey/benchmark id in code', !/wm-0\d\d/i.test(codeOnly));
 check('I2 no "underneath -> pump" location->part hard-code', !/leakUnderneath[\s\S]{0,40}(faultId|return)\s*[:=]\s*['"]?(leak-drain|drain-pump|pump)/i.test(codeOnly));

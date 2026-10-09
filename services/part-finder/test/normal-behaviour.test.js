@@ -194,7 +194,7 @@ check('B knowledge file is loadable and non-empty (retrieval dependency)', Array
 // knowledge match overrides a fuzzy symptom fault. If this wiring is weakened, this goes RED.
 // ---------------------------------------------------------------------------
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const src = require('./engine-source.cjs')();
   check('C normalByKnowledge gated on !safetyStop && !resolvedErrorCode',
     /normalByKnowledge\s*=\s*Boolean\(nbMatch\)\s*&&\s*!safetyStop\s*&&\s*!resolvedErrorCode/.test(src));
   check('C resolvedErrorCode derived from a resolved brand code (fault.via === errorCode)',

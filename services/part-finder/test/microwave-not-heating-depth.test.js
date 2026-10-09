@@ -98,7 +98,7 @@ check('G5 plain runs-but-cold is NOT a safety stop', ss('microwave runs but does
 // ============================================================================
 // I. SOURCE GUARDS / MUTATION — no hard-coded shortcuts, no journey IDs
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 check('I1 no "no heat -> magnetron" hard-code in source', !/no ?heat[^\n]{0,40}magnetron/i.test(SRC));
 check('I2 no "runs -> diode" hard-code in source', !/runs[^\n]{0,30}(hv )?diode/i.test(SRC));
 check('I3 no MW journey IDs in production source', !/\bMW-0\d\d\b/.test(SRC));

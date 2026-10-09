@@ -33,6 +33,9 @@ def part_finder_entries():
            'canonical-runtime.js', 'jev-mc1.js']
     knowledge = ['knowledge-index.json', 'safety-information.json', 'media-information.json', 'normal-behaviour.json']
     canonical = sorted(os.path.basename(p) for p in glob.glob(os.path.join(PF, 'canonical', '*.js'))) + ['journeys.json']
+    # Phase 7 onwards: runtime files added after the import (docs/migration/runtime-changes.json), e.g. engine/.
+    top += sorted(os.path.relpath(f['path'], 'services/part-finder') for f in json.load(open(os.path.join(ROOT, 'docs', 'migration', 'runtime-changes.json')))['added']
+                  if f['role'] == 'runtime' and 'spares4repairs-part-finder' in f['units'])
     entries = {name: os.path.join(PF, name) for name in top}
     entries.update({f'knowledge/{n}': os.path.join(PF, 'knowledge', n) for n in knowledge})
     entries.update({f'canonical/{n}': os.path.join(PF, 'canonical', n) for n in canonical})

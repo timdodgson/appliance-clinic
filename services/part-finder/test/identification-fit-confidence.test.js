@@ -27,7 +27,7 @@ function check(name, cond, detail) {
   else { fail++; console.log('  FAIL:', name, detail !== undefined ? `:: ${JSON.stringify(detail)}` : ''); }
 }
 
-const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const src = require('./engine-source.cjs')();
 const banned = ['WMB' + 'F', 'Journey #' + '15', 'washing ' + 'trapped'];
 check('source has no frozen journey identifiers', banned.every((s) => !src.includes(s)));
 

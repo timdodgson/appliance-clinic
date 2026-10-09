@@ -26,7 +26,7 @@ globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, Ht
 const { normaliseIntent } = require('../part-finder-lambda.js')._internal;
 // Source/docs paths are override-able (EF_SRC / EF_DOCS) so the mutation harness can point the SAME
 // suite at a mutated copy without touching the real files. Default to canonical source.
-const SRC = readFileSync(process.env.EF_SRC || join(HERE, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = (process.env.EF_SRC ? readFileSync(process.env.EF_SRC, 'utf8') : require('./engine-source.cjs')());
 const DOCS = JSON.parse(readFileSync(process.env.EF_DOCS || join(K, 'knowledge-docs.json'), 'utf8')).docs;
 const byId = Object.fromEntries(DOCS.map((d) => [d.knowledgeId, d]));
 const text = (id) => (byId[id]?.text || '').toLowerCase();

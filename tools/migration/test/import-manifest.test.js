@@ -40,7 +40,7 @@ describe('Phase 7 runtime changes (runtime-changes.json)', () => {
     const paths = [...changes.modified, ...changes.added].map((f) => f.path);
     expect(new Set(paths).size).toBe(paths.length);
     for (const f of [...changes.modified, ...changes.added]) expect(f.changes.length, f.path).toBeGreaterThan(0);
-    for (const f of changes.added) expect(['runtime', 'test'], f.path).toContain(f.role);
+    for (const f of changes.added) expect(['runtime', 'test', 'test-helper'], f.path).toContain(f.role);
   });
   it.each(changes.added.map((f) => [f.path, f]))('%s matches its recorded SHA-256', (path, f) => {
     expect(sha256(join(REPO_ROOT, path))).toBe(f.sha256);

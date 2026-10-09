@@ -125,7 +125,7 @@ check('I3 HB-011 hob child-lock still recognised',
 // ============================================================================
 // J. SOURCE GUARDS — no journey ids, no string rules, no brand special-case
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('J1 no OV journey/benchmark id in code', !/ov-003|ov-004/i.test(codeOnly));
 check('J2 no "new oven -> normal/burnoff" string rule', !/new ?oven[\s\S]{0,40}(faultId|return|normal|burnoff|burn-off)/i.test(codeOnly));
