@@ -331,14 +331,14 @@ describe('matching + customer boundary (unchanged semantics)', () => {
     expect(Object.keys(v)).not.toContain('recall');
     expect(Object.keys(v)).not.toContain('recalls');
     expect(v.safety).toBe(true);
-    const src = fs.readFileSync(path.join(here, '..', 'index.js'), 'utf8');
+    const src = require('./api-source.cjs')();
     const view = src.slice(src.indexOf('function toWhichPartView'), src.indexOf('function isTrustedVideoEmbed'));
     expect(view).not.toMatch(/recall/i);
   });
 });
 
 describe('HTTP: every Safety / Recall admin route requires admin (derived from the router)', () => {
-  const src = fs.readFileSync(path.join(here, '..', 'index.js'), 'utf8');
+  const src = require('./api-source.cjs')();
   const ROUTES = Array.from(new Set(Array.from(src.matchAll(/path\.endsWith\('(\/admin\/(?:recalls|safety-ingest)[a-z/_-]*)'\)/g)).map((m) => m[1]))).sort();
   const METHODS = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
   let store; let writes;

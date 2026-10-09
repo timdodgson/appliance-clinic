@@ -325,7 +325,7 @@ console.log('REASONS / DATASET / HISTORY HELPERS');
   });
   const wrapped = await handlers.adminIngest({ body: JSON.stringify({ mode: 'backfill', trigger: 'manual' }) });
   ok('admin ingest returns view model', wrapped.view && wrapped.view.published && wrapped.runId === 'si-test');
-  const runSlice = fs.readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8').split("/admin/safety-ingest/run")[1].slice(0, 500);
+  const runSlice = require('./api-source.cjs')().split("/admin/safety-ingest/run")[1].slice(0, 500);
   ok('POST /admin/safety-ingest/run forces daily', /mode: 'daily'/.test(runSlice));
   const schedStore = storeMod.createMemoryStore(live);
   const schedRun = await ingest.run({

@@ -15,7 +15,7 @@ const reviewConfig = require('./transcript-review/config');
 const { readBackAfterWrite } = require('./config-readback');
 
 // Part Finder caches the admin config secret for 60 s (admin-config.js CACHE_TTL_MS) and, separately,
-// the resolved COMPOSE provider for 60 s (part-finder-lambda.js PROVIDERS_TTL_MS). Because UNDERSTAND
+// the resolved COMPOSE provider for 60 s (part-finder engine/config.js PROVIDERS_TTL_MS). Because UNDERSTAND
 // refreshes the shared secret cache on its own schedule, a COMPOSE change can take up to ~2 minutes
 // to reach a warm Part Finder instance; Jev UNDERSTAND credentials up to ~1 minute. Cold instances
 // read on their first request.

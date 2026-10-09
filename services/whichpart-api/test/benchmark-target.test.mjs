@@ -121,7 +121,7 @@ describe('the run record carries the target and intent', () => {
 
 describe('source guard: every enqueue goes through the target gate', () => {
   it('each acqStore.enqueueRun call in index.js is preceded by batchTarget in the same handler', () => {
-    const src = fs.readFileSync(path.join(here, '..', 'index.js'), 'utf8');
+    const src = require('./api-source.cjs')();
     const calls = [...src.matchAll(/acqStore\.enqueueRun\(/g)].map((m) => m.index);
     expect(calls.length).toBe(3);
     for (const i of calls) {
