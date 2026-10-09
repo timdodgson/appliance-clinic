@@ -1,0 +1,65 @@
+{
+  "id": "8.7-throttle-retry",
+  "description": "whichpart-api retries a throttled (HTTP 429) orchestrator call at most twice (exponential backoff with jitter, inside the existing overall timeout); a 429 means the invocation never ran, so the retry cannot double a turn. A persistent throttle is still reported as a failure. The zip adds orchestrator-retry.js and changes index.js. Code only; no configuration, permission, concurrency or URL change. Previous code: j5Th3HTJ+9jMOiksexkSwiYp8a8mq3pTz64hrFZAg2c= (phase8/ key in the AC assets bucket).",
+  "classification": "SAFE AC CHANGE (AC-only function; S4R health and the /part-finder contract checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of whichpart-api only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-part-finder"
+    ]
+  }
+}
