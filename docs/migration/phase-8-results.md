@@ -73,3 +73,57 @@ The three environment variables are not set on the function.
 
 **Rollback.** Set `functions.spares4repairs-part-finder.code.s3Key` in `runtime-overrides.json` back to the `phase7/`
 key, then run the same change.
+
+## 8.2: the whichpart-api split (2026-10-09, 01:44Z)
+
+**Code.** `index.js` went from 3,117 lines to 1,080. It keeps the Lambda handler, the router and the customer diagnosis
+path. The rest moved, statement for statement, into modules that form an acyclic graph:
+
+| Layer | Modules |
+|---|---|
+| Base | `config` (the environment read at cold start), `log`, `http-io` (responses, CORS, path, body and query parsing, the health probe) |
+| Access | `rate-limiting`, `session` (AC sign-in, sessions, the admin check) |
+| Stores | `s3`, `benchmark-state` (benchmark runs, routing override), `transcript-store` |
+| Admin areas (`admin/`) | `content` (knowledge and media, which share the overlay cache), `recalls`, `transcripts`, `health`, `error-codes`, `diagnostics`, `test-area`, `settings` |
+
+Two rules shaped the split:
+- **Module-level state.** Every function that reads or writes a module-level `let` (stores, caches, test overrides)
+  lives in the same module as it. Another module therefore never holds a stale copy.
+- **No cycles.** Shared helpers moved to the lowest module that needs them.
+
+Two other changes went in with the split:
+- **Duplicate reader.** `acqBody` was identical to `readJson` and now uses it.
+- **Dead files.**
+  - Removed: `fit-evidence.js` (never required by the API; the engine has its own copy) and `recalls/write-static.cjs`
+    (no reference). Both are recorded in `runtime-changes.json` under `removed`, with the reason.
+  - No longer shipped: `benchmark/acq-simulator.js`. It is used only by a test, so the file stays.
+
+**Equivalence.**
+- Each of the 264 moved statements appears byte-for-byte in exactly one module. Relative `require` paths are resolved
+  before comparing.
+- The 30 module exports are unchanged.
+- The API tests produce the same output before and after. The only differences are timings and the settings revision
+  hash, which includes `updatedAt` and so differs on every run.
+- Tests that check the API's source text read the whole API (`test/api-source.cjs`).
+
+**New tests.** `test/admin-routes.test.mjs` (257 cases):
+- pins the router's 91 routes, in order
+- checks that every admin route refuses an anonymous caller (GET and POST) and a signed-in non-admin
+- covers `/auth/logout`: both cookies cleared, no Cognito call without a session cookie
+- covers `/admin/transcripts/stats`: stats with the policy; 503 when the store fails
+- covers `/admin/transcripts/policy`
+
+The behavioural cases pass against the original `index.js` too.
+
+**Release.**
+
+| Item | Result |
+|---|---|
+| Artefact | `rraoIvZQiggi29idg8bNEvv954Hu/XdWuaF6fkfhcPM=`, staged at `phase8/`. Previous: `5XbUXy5x7Mvz7lNRxZhwXlSc23uYgUiPTu7cC7PPB14=` |
+| Change set | 1 Modify, `whichpartapi`, `Properties.Code` only. Update-mode check passed |
+| Grant | `lambda:UpdateFunctionCode` on `whichpart-api`; read of `phase8/*` |
+| Stack | `UPDATE_COMPLETE`. Drift `IN_SYNC` on all 43 resources. No-op confirmed. Execution policy back to read-only (v42) |
+| Before / after | S4R health 3× clean, `/part-finder` contract ok, ingress ok, smoke equal, AC endpoints 8 PASS, AC auth 13 PASS. Both before and after. No runtime error in the API logs after the release |
+| Build reference | `build/reference/whichpart-api.zip.json` updated; 85 files |
+
+**Rollback.** Set `functions.whichpart-api.code.s3Key` back to the `phase7/` key and run the same change. Published version `1` remains a further fallback.
