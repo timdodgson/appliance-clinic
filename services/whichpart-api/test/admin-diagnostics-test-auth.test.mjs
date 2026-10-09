@@ -20,7 +20,7 @@ const api = require('../index.js');
 const aiConfig = require('../ai-config.js');
 const registry = require('../../part-finder/canonical/journey-registry.js');
 const mediaAdmin = require('../media-admin.js');
-const src = fs.readFileSync(path.join(here, '..', 'index.js'), 'utf8');
+const src = require('./api-source.cjs')();
 
 const ROUTES = Array.from(new Set(Array.from(src.matchAll(/path\.endsWith\('(\/admin\/(?:library|benchmark|diagnostics)[a-z/_-]*)'\)/g)).map((m) => m[1]))).sort();
 const METHODS = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];

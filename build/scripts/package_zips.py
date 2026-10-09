@@ -62,11 +62,12 @@ def whichpart_api_entries(generated):
     """services/whichpart-api/deploy.sh lines 192-231: the zip list, plus the files it copies in or generates."""
     # deploy.sh line 214: the packaging check that media-canonical-refs.json is current.
     subprocess.run(['node', os.path.join(WP, 'scripts', 'build-media-canonical-refs.cjs'), '--check'], check=True, cwd=ROOT)
-    files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js', 'fit-evidence.js',
+    # Phase 8: fit-evidence.js (never required) and benchmark/acq-simulator.js (test-only) are no longer shipped.
+    files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js',
              'package.json', 'transcripts.js', 'ddb.js', 'conversation-state.js', 'canonical-audit.js', 'state-token.js',
              'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js', 'knowledge-admin.js',
              'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js',
-             'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js', 'benchmark/acq-simulator.js',
+             'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js',
              'benchmark/acq-grade.js', 'benchmark/acq-judge.js', 'benchmark/acq-store.js', 'benchmark/acq-library.js',
              'benchmark/acq-reviews.js', 'benchmark/routing-override.js', 'benchmark/acq-100.v1.json',
              'benchmark/gold-v2/version.js']

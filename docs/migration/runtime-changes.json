@@ -1,15 +1,16 @@
 {
-  "description": "Phase 7 onwards: deliberate changes to the runtime imported in Phase 2. Each modified imported file records its current SHA-256 and the change that made it; files added after the import are listed with their role (runtime, test, or test-helper: a file tests load but the runner does not run). tools/migration/test/import-manifest.test.js checks both; build/test/run-tests.mjs also runs the tests added here. Refresh the hashes with: node tools/migration/bin/runtime-changes.mjs --write",
+  "description": "Phase 7 onwards: deliberate changes to the runtime imported in Phase 2. Each modified imported file records its current SHA-256 and the change that made it; files added after the import are listed with their role (runtime, test, or test-helper: a file tests load but the runner does not run). tools/migration/test/import-manifest.test.js checks both; build/test/run-tests.mjs also runs the tests added here. Imported files deliberately deleted are listed under removed, with the change and the reason. Refresh the hashes with: node tools/migration/bin/runtime-changes.mjs --write",
   "modified": [
     {
       "path": "services/whichpart-api/index.js",
-      "sha256": "d8d4c59ee579c36194d9bdbf4f2c0613df7adaed394a4355f6838eaee0166705",
+      "sha256": "093677a18a4ef55bebd2b5d866d21d8a3fc25a885ad2327439bd75ef75254460",
       "changes": [
         "7.2-ac-auth",
         "7.5-rate-limit",
         "7.6-compose-failure",
         "7.11-benchmark-target",
-        "7.12-http-headers"
+        "7.12-http-headers",
+        "8.2-api-split"
       ]
     },
     {
@@ -235,6 +236,48 @@
       "changes": [
         "8.1-engine-split"
       ]
+    },
+    {
+      "path": "services/whichpart-api/settings-admin.js",
+      "sha256": "0001ad502e8ac258960871ca51d9366343e2744f428f48d03f26485fe935f6f6",
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/admin-diagnostics-test-auth.test.mjs",
+      "sha256": "a27fcc2e09e47c186601806a1931594f0ee2505808283835bf1239c470158b7a",
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/media-admin-auth.test.mjs",
+      "sha256": "a4245a8aadcf59245e6763b5263ffe5bacdc8946c870fc7b44cd34aada2a0896",
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/recall-admin.test.mjs",
+      "sha256": "a26d979d8b6eed1e2fb5d4a1aa94df6a0f42cb8eda9800e2bdbcb316154037c2",
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/safety-ingest.test.cjs",
+      "sha256": "f8365475a8d949caaaf066c64cbd28fca67098305e4eb6b19db8bb8bfadada1f",
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/settings-admin-hardening.test.mjs",
+      "sha256": "f438ea65334ed29c93562bd3561b7760456c22f9e391ac973919e15151ef41cc",
+      "changes": [
+        "8.2-api-split"
+      ]
     }
   ],
   "added": [
@@ -306,13 +349,14 @@
     },
     {
       "path": "services/whichpart-api/test/benchmark-target.test.mjs",
-      "sha256": "cd53eb68996d55de685cb429c48275ad9b76dc90e7b73c30fcf0ffa22d68b1c6",
+      "sha256": "c846087c3cb25c563e953c9ed0bbbbf1011c787aab7c82bdc861048e13527855",
       "role": "test",
       "units": [
         "whichpart-api"
       ],
       "changes": [
-        "7.11-benchmark-target"
+        "7.11-benchmark-target",
+        "8.2-api-split"
       ]
     },
     {
@@ -534,6 +578,220 @@
       "changes": [
         "8.1-engine-split"
       ]
+    },
+    {
+      "path": "services/whichpart-api/admin/content.js",
+      "sha256": "f97ecf4ae2df1a5ca8bfbfa481df8e1dd23f250186a910ec50ada749e9dbbe58",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/diagnostics.js",
+      "sha256": "edf1aac633d16183964a85d45679c472dbcdda8734cfc619609ef845a1ad36cb",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/error-codes.js",
+      "sha256": "be946aa8434dd4ef89b9e64d185f3f9d25a56ae358c7ffdb86f76c4c23752825",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/health.js",
+      "sha256": "4359b1d29ed0b92274153830f400d67f8b76307907a86ea84e987148cd9984ca",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/recalls.js",
+      "sha256": "97aac345dab3299f986791e75f6d77ad4b1e9c2ca224b9b0b1e7a39cae2fdc8c",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/settings.js",
+      "sha256": "b676f2e4b4cdaa1c3c522878398925118aa69cd933d72f27332b44aa38973e1b",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/test-area.js",
+      "sha256": "355fa284ad059fb358d39ab2a38c0733dc812800ab7076f0a27be1e6cbb5eefa",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/admin/transcripts.js",
+      "sha256": "0413d2e17f099581b58379d34380e51b79b1348c5bdf2b855a5df5ff6ccd28c4",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/benchmark-state.js",
+      "sha256": "d5480c22cf27d8e2b46be125afb5a2512850e8e1f2361a396a1a8c9decef0a0d",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/config.js",
+      "sha256": "268ace7c9951081c11a772222250314208b38fbb4b271416807c84087153996f",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/http-io.js",
+      "sha256": "e4906db5d34bb1e1d8ec55e2f40d018a6a66498396a3b6c5f37be1fff1f57ffa",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/log.js",
+      "sha256": "1ebe0690294b8ab0d1b42a5a3f6c661b67c1c5647cb77aa1908c45f216b3b366",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/rate-limiting.js",
+      "sha256": "bbb1d52c5f0493af9e3892cda92c740f48d42462834ac68fe42018ae6812c62e",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/s3.js",
+      "sha256": "8256de727c7b1cd17f9f1349d905ba55b47f7f8fdfcccdc6282a439e7d445d5d",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/session.js",
+      "sha256": "c4ce8842cc5620ead3f05e31bd826219cbc0ad17848913936e461e8d05fa4304",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/admin-routes.test.mjs",
+      "sha256": "4e9f4bd1dc13a8b3d5be3727008d7424672f909a94bd397183e6bcd2da90b2c9",
+      "role": "test",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/api-source.cjs",
+      "sha256": "7ddb2bda63a01789cbafe6e485b9aacc00dc0f39dab6454fb6e8862c2d0d3e11",
+      "role": "test-helper",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/transcript-store.js",
+      "sha256": "6a005fc6dcf5d6d7eb8e9b63a49864a5fd4b6e718e80db4836d9d6cd1f14fa37",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "8.2-api-split"
+      ]
+    }
+  ],
+  "removed": [
+    {
+      "path": "services/whichpart-api/fit-evidence.js",
+      "changes": [
+        "8.2-api-split"
+      ],
+      "reason": "Never required by the API; the diagnosis engine has its own copy (Phase 8 findings \u00a76)."
+    },
+    {
+      "path": "services/whichpart-api/recalls/write-static.cjs",
+      "changes": [
+        "8.2-api-split"
+      ],
+      "reason": "No reference anywhere (Phase 8 findings \u00a76)."
     }
   ]
 }

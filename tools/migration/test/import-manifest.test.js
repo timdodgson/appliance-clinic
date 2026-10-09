@@ -12,6 +12,8 @@ const followUp = load('import-manifest-phase-2b.json');
 // Phase 7 onwards: deliberate runtime changes. A modified imported file is checked against its latest recorded change.
 const changes = load('runtime-changes.json');
 const modified = new Map(changes.modified.map((f) => [f.path, f]));
+// Phase 8 onwards: imported files deliberately removed (dead code), each with its change.
+const removed = new Map((changes.removed || []).map((f) => [f.path, f]));
 const sha256 = (path) => createHash('sha256').update(readFileSync(path)).digest('hex');
 
 describe('Phase 2 import manifests', () => {
@@ -25,7 +27,7 @@ describe('Phase 2 import manifests', () => {
     expect(hotfix.map((f) => f.path)).toEqual(['services/whichpart-api/index.js']);
   });
 
-  it.each([...runtime.files, ...followUp.files].map((f) => [f.path, f]))('%s matches its recorded SHA-256', (path, f) => {
+  it.each([...runtime.files, ...followUp.files].filter((f) => !removed.has(f.path)).map((f) => [f.path, f]))('%s matches its recorded SHA-256', (path, f) => {
     const full = join(REPO_ROOT, path);
     expect(existsSync(full)).toBe(true);
     expect(sha256(full)).toBe(modified.has(path) ? modified.get(path).sha256 : f.sha256);
@@ -44,5 +46,14 @@ describe('Phase 7 runtime changes (runtime-changes.json)', () => {
   });
   it.each(changes.added.map((f) => [f.path, f]))('%s matches its recorded SHA-256', (path, f) => {
     expect(sha256(join(REPO_ROOT, path))).toBe(f.sha256);
+  });
+  it('remove only imported files, which no longer exist, each with its change and reason', () => {
+    for (const f of removed.values()) {
+      expect(imported.has(f.path), f.path).toBe(true);
+      expect(existsSync(join(REPO_ROOT, f.path)), f.path).toBe(false);
+      expect(f.changes.length, f.path).toBeGreaterThan(0);
+      expect(f.reason, f.path).toBeTruthy();
+      expect(modified.has(f.path), f.path).toBe(false);
+    }
   });
 });
