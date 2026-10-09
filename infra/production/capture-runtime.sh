@@ -13,6 +13,8 @@ export AWS_REGION=eu-west-1 AWS_DEFAULT_REGION=eu-west-1
 A=800960611664
 if [[ $PROFILE == sandbox ]]; then S=-sbx; else S=; fi
 ROLES=(whichpart-api-role$S diag-orchestrator-role$S error-code-mcp-role$S)
+# Phase 7 (B): the diagnosis Lambda's own role, created by AcRuntimeStack (change 7.15a); skipped until it exists.
+[[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-role)
 FUNCTIONS=(spares4repairs-error-code-mcp$S spares4repairs-diag-orchestrator$S whichpart-api$S spares4repairs-part-finder$S)
 RULES=(whichpart-recall-ingest-daily$S whichpart-transcript-review$S)
 umask 077

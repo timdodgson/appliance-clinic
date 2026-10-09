@@ -1,0 +1,58 @@
+{
+  "id": "7.14-diag-public-invoke",
+  "description": "A1 (owner-approved, POTENTIALLY IMPACTS S4R): limit the diagnosis Lambda's public lambda:InvokeFunction statement (PublicInvoke) to invocations through its Function URL (InvokedViaFunctionUrl), the pattern of 7.9. The Function URL, its auth type, invoke mode and CORS, FnUrlPublic, apigateway-invoke (unmanaged), code, environment and role are unchanged.",
+  "classification": "POTENTIALLY IMPACTS S4R (approved)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinderPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "PublicInvoke",
+      "replacement": "True",
+      "details": [
+        "Metadata.",
+        "Properties.InvokedViaFunctionUrl",
+        "UpdateReplacePolicy."
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:RemovePermission"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    }
+  ],
+  "grantNotes": "AddPermission and RemovePermission on the diagnosis Lambda only, for this execution.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Permission"
+    ],
+    "expected": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionUrlConfig",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:CreateFunctionUrlConfig",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX",
+      "65vnizdmk4",
+      "whichpart-api"
+    ]
+  }
+}

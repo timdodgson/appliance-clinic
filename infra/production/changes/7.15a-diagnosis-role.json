@@ -1,0 +1,95 @@
+{
+  "id": "7.15a-diagnosis-role",
+  "description": "B.1 (owner-approved; SAFE AC CHANGE on its own): create ac-diagnosis-role for the diagnosis Lambda, with exactly the package's minimum (docs/migration/phase-7-package-diagnosis-role.md section 3): trust lambda.amazonaws.com with aws:SourceAccount, no managed policies, five inline policies (scoped logs, GetSecretValue on the three current diagnosis secrets, and the three S3 documents byte for byte). Nothing uses it yet.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisrole",
+      "type": "AWS::IAM::Role",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisroleacdiagnosislogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisroleacdiagnosissecrets",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisroleWhichpartLearningPut",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisrolewhichpartmediaoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisrolewhichpartknowledgeoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "iam:CreateRole",
+        "iam:GetRole",
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:TagRole",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one new role and its inline policies; nothing on any other role (ac-deny-s4r still denies every action on SparesSite-* roles).",
+  "writes": {
+    "types": [
+      "AWS::IAM::Role",
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "iam:CreateRole",
+      "iam:PutRolePolicy",
+      "iam:TagRole"
+    ],
+    "forbidden": [
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:DeleteRole",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "resources": [
+      "ac-diagnosis-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

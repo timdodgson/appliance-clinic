@@ -42,8 +42,9 @@ class RuntimeStack extends cdk.Stack {
     shellHandle(this);
 
     for (const [name, r] of Object.entries(live.roles)) {
+      let roleResource = null;
       if (has('5.5')) {
-        retain(new iam.CfnRole(this, logical(prod(name)), {
+        roleResource = retain(new iam.CfnRole(this, logical(prod(name)), {
           roleName: name,
           assumeRolePolicyDocument: r.trust,
           managedPolicyArns: r.managed,
@@ -56,7 +57,10 @@ class RuntimeStack extends cdk.Stack {
       }
       if (has('5.6')) {
         for (const [policyName, policyDocument] of Object.entries(r.inline)) {
-          retain(new iam.CfnRolePolicy(this, logical(`${prod(name)}-${prod(policyName)}`), { roleName: name, policyName, policyDocument }));
+          const policy = retain(new iam.CfnRolePolicy(this, logical(`${prod(name)}-${prod(policyName)}`), { roleName: name, policyName, policyDocument }));
+          // A role this stack creates (Phase 7): its policies name it by a literal, so they need an explicit order.
+          // Imported roles already exist and keep their template unchanged.
+          if (r.stackCreated && roleResource) policy.addDependency(roleResource);
         }
       }
     }

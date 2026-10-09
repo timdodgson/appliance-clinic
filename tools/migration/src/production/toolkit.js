@@ -27,7 +27,8 @@ export const policyArn = (name) => `arn:aws:iam::${A}:policy/${name}`;
 /** The AC production resources of Phase 5 (ownership.md), by type. */
 export const AC = {
   functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder'],
-  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role'],
+  // ac-diagnosis-role: Phase 7 (B), created by AcRuntimeStack (change 7.15a).
+  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role'],
   // applianceclinic-rate-limits: Phase 7, created by change 7.4-rate-limit-table.
   tables: ['whichpart-transcripts', 'whichpart-recalls', 'applianceclinic-rate-limits'],
   buckets: [`whichpart-web-${A}`, `whichpart-learning-${A}`],
@@ -37,6 +38,8 @@ export const AC = {
     'spares4repairs/diag-orchestrator/bearer-token', 'spares4repairs/error-code-mcp/bearer-token',
     // Phase 7: the AC secret namespace, created by AcDataStack (change 7.10a-ac-secrets).
     'applianceclinic/production/canonical-state-token', 'applianceclinic/production/orchestrator-bearer', 'applianceclinic/production/mcp-bearer',
+    // Phase 7 (D): created by change 7.17a-ac-ai-secrets.
+    'applianceclinic/production/ai-config', 'applianceclinic/production/openai', 'applianceclinic/production/jev',
   ],
   repositories: ['spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp'],
   rules: ['whichpart-recall-ingest-daily', 'whichpart-transcript-review'],

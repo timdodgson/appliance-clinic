@@ -1,6 +1,8 @@
 # 0011. The diagnosis Lambda keeps the S4R execution role during the migration
 
-- **Status:** Accepted
+- **Status:** Superseded on 2026-10-08 by Phase 7 change 7.15b (owner-approved item B): the diagnosis Lambda now runs on
+  the AC role `ac-diagnosis-role`. The S4R role was not changed, and its three AC inline policies remain; removing them is
+  S4R cleanup. See [phase-7-results.md](../migration/phase-7-results.md#b-the-diagnosis-lambda-on-ac-diagnosis-role).
 - **Date:** 2026-10-07
 
 ## Context

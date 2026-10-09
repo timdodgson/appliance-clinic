@@ -109,3 +109,30 @@ Stop, change nothing more, and report on the Phase 7 issue if:
   2. Re-deploy every consumer in one change. The reference does not change, so pin the reference to the new
      `VersionId`, or make another change to the environment, to force the update.
   3. Expect a mismatch window of seconds.
+
+## Roles the stack creates (finding from 7.15a)
+
+An inline policy names its role by a literal `RoleName`, so CloudFormation sees no ordering between a new role and its
+policies. It created them in parallel, the policies failed ("role cannot be found"), and the change rolled back with
+nothing created. The generator therefore gives every policy of a role declared in `runtime-overrides.json` `roles` an
+explicit `DependsOn` on that role (`stackCreated`, `infra/cdk/lib/overrides.js` and `runtime-stack.js`). Imported roles
+already exist and keep their template unchanged. `tools/migration/test/runtime-overrides.test.js` covers the flag.
+Check the dry-run template for `DependsOn` on each new role's policies before executing.
+
+## The diagnosis Lambda (owner-approved S4R-sensitive changes)
+
+- **Role.** It runs on `ac-diagnosis-role` (`AcRuntimeStack`).
+  - `bash infra/production/verify-diagnosis-role.sh <dir> ac-diagnosis-role` checks it end to end.
+  - `… cloudtrail <since>` checks the session issuer of its secret reads.
+- **Rolling back the role.** The owner's IAM user runs
+  `aws lambda update-function-configuration --function-name spares4repairs-part-finder --role <S4R role ARN>`.
+  CloudFormation cannot pass the S4R role (`ac-deny-s4r`).
+- **`/ai/chat`** is retired (C1). Re-opening it is one `add-permission` call (recorded by `c1-retire-ai-chat.sh`).
+  `verify-ai-chat-ingress.sh <dir> retired` proves it is closed.
+- **AI-config, OpenAI and Jev** live in `applianceclinic/production/`.
+  - Both consumers take the ids from `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID` and `JEV_SECRET_ID`.
+  - Settings writes them. Rotating a provider credential means saving the new one in Settings.
+  - `d-copy-secrets.sh` is the one-off copy used for the move. It refuses to overwrite a secret that already has more
+    than its placeholder version.
+- **Execution policy size.** The read-only base plus a change's grant must stay under 6,144 characters. `change.sh`
+  refuses an oversized grant before anything runs.
