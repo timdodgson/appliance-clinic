@@ -1,0 +1,65 @@
+{
+  "id": "8.4-gold-v2-1",
+  "description": "GOLD v2.1: whichpart-api ships benchmark/gold-v2/version.js stamping GOLD-v2.1 and judge rubric gold-v2-rubric-v2 (the only file that differs in the zip; the scenario set and judge are test-area files run by tools/gold-v2/run-live.mjs). Code only; no configuration, permission or URL change. Previous code: rraoIvZQiggi29idg8bNEvv954Hu/XdWuaF6fkfhcPM= (phase8/ key in the AC assets bucket).",
+  "classification": "SAFE AC CHANGE (AC-only function; S4R health and the /part-finder contract checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of whichpart-api only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-part-finder"
+    ]
+  }
+}

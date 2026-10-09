@@ -23,10 +23,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_0.json');
+// GOLD-v2.1 (49): GOLD-v2.0 after the value audit. scenarios.v2_0.json is kept unchanged as the historical set.
+const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_1.json');
+
+const SCENARIO_SET_VERSION = 'GOLD-v2.1';
+const SCENARIO_COUNT = 49;
 
 const EXPECTED_FAMILY_DISTRIBUTION = Object.freeze({
-  'washing-machine': 8,
+  'washing-machine': 7,
   'washer-dryer': 4,
   'tumble-dryer': 6,
   dishwasher: 6,
@@ -57,12 +61,12 @@ const STRING_ARRAY_FIELDS = [
 /** Validate a parsed scenario-set object, throwing on the first problem. */
 function validateScenarioSet(data) {
   if (!data || typeof data !== 'object') throw new Error('scenario set is not an object');
-  if (data.scenarioSetVersion !== 'GOLD-v2.0') {
+  if (data.scenarioSetVersion !== SCENARIO_SET_VERSION) {
     throw new Error(`unexpected scenarioSetVersion: ${data.scenarioSetVersion}`);
   }
   if (!Array.isArray(data.scenarios)) throw new Error('scenarios is not an array');
-  if (data.scenarios.length !== 50) {
-    throw new Error(`expected 50 scenarios, found ${data.scenarios.length}`);
+  if (data.scenarios.length !== SCENARIO_COUNT) {
+    throw new Error(`expected ${SCENARIO_COUNT} scenarios, found ${data.scenarios.length}`);
   }
 
   const ids = new Set();
