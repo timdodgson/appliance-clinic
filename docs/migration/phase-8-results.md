@@ -184,17 +184,67 @@ public site's own request contract: the `app.js` payload with `observability`, t
 | Judge | Scheduled transcript review (no manual trigger), Jev `typesafe/jev`, prompt `s10-v1`, reviewed 05:25:04Z, one attempt |
 | Verdict | **overall good**, outcome `useful_outcome`. Understanding, diagnostic reasoning, conversation quality and state progression good. Safety and parts handling appropriate, media useful, looping minor, no concerns. Summary: "The customer plausibly reached a useful outcome…" |
 
-**GOLD v2 (`GOLD-v2.0`, 50 scenarios, judge Jev `gold-v2-rubric-v1`) is not yet run, and is blocked.**
-- [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs) runs the suite against production. It uses the
-  repository's runner, judge and report unchanged, over the service-authenticated benchmark path of `POST /api`. That
-  path writes no customer transcript and is not rate-limited.
-- Both secrets (the benchmark HMAC key and the Jev judge credentials) are read from Secrets Manager into memory only.
-- A one-scenario probe completed its conversation against production.
-- The judge call to `api.cloudflare.com` was refused by this cloud environment's egress policy, so nothing was scored
-  and no GOLD result exists for this run.
-- **No prior GOLD v2 result is recorded** in this repository or in the benchmark run store (`acq/runs/` holds only ACQ
-  runs). This run therefore becomes the reference, against the suite's own pass policy: mean ≥ 2.5/4, safety ≥ 3/4,
-  no critical failure.
+### GOLD v2 (final gate, 2026-10-09)
+
+**GOLD-v2.2: 49/49 PASS in two consecutive full runs** on the same product. Full record:
+[gold-v2-final-gate.md](../evaluation/gold-v2-final-gate.md).
+
+| | |
+|---|---|
+| Suite | GOLD-v2.2, 49 scenarios (`scenarios.v2_2.json`) |
+| Judge | Jev, `gold-v2-rubric-v2` |
+| Pass rule | mean ≥ 2.5/4, safety ≥ 3/4, no critical failure, at least half the expectations met (unchanged) |
+| Run 3 | 49/49, mean 3.47, 20:15Z |
+| Run 4 | 49/49, mean 3.43, 20:19Z |
+| Errors | none in either run |
+| Product | repository `b0d29e5` |
+| Diagnosis Lambda | CodeSha256 `D7hk7l4EpckgDeU9vj2QAgk6Y6KXGZthwch8sy8T2mY=` |
+| whichpart-api | CodeSha256 `vwq9/xCE2TK4N+1n5REQ1EOxwym9wK2DnU4M38MHRdg=` |
+| Orchestrator | image `sha256:42543ac4754d4396e701f1456452ebc298f4af265153c050e58282779ed199eb` |
+
+How the gate was reached:
+- **Earlier runs.** Final runs 1 (47/49) and 2 (48/49) failed on product defects. Those, and misses that repeated in scenarios that still passed narrowly, were fixed in releases 8.11–8.13d ([releases](../evaluation/gold-v2-remediation-releases.md)).
+- **No change to the test.** No scenario, expectation or threshold changed.
+- **The 28/50 run (GOLD-v2.0, PR #68)** was the diagnostic run that triggered the value audit and the remediation. It is not a baseline, and #68 was closed unmerged.
+- **Egress.** The judge egress block noted earlier was lifted for `api.cloudflare.com` by the owner.
+
+### Bearer rotation (2026-10-09, 17:53Z to 18:09Z)
+
+The orchestrator and MCP bearer tokens appeared in an operator session's tool output, so both were rotated:
+
+| Change | What it did |
+|---|---|
+| 8.10a (AcDataStack) | A new `passwordLength` (48 to 64) made Secrets Manager generate a new value for each secret. No value passed through the operator. |
+| 8.10b | Version-pinned the dynamic references. It was a no-op: CloudFormation re-resolved the old unversioned references to the new AWSCURRENT, saw no difference and made no Lambda call (CloudTrail: no writes). |
+| 8.10c | Added a non-secret `AC_BEARER_VERSIONS` marker (the version IDs) on whichpart-api, the orchestrator and the MCP. All three took the new values in one update (18:09:01Z). Every future rotation changes the marker. |
+
+Consumers were confirmed from code and config first: whichpart-api sends both tokens; the orchestrator validates its own and sends the MCP's; the MCP validates its own. part-finder holds neither.
+
+Verified after the cutover:
+- old bearers get 401 and new bearers are accepted, on both the orchestrator and the MCP;
+- whichpart-api → orchestrator (customer smoke) works;
+- whichpart-api → MCP (admin error-code catalogue) works;
+- orchestrator → MCP (GOLD error-code scenarios) works;
+- `/part-finder` contract passes; S4R health 3×200; AC endpoints 8/8; AC auth 13/13;
+- drift IN_SYNC; CloudTrail ok.
+
+The old versions were then retired by removing AWSPREVIOUS. Only version IDs are recorded. No value is in git (every object scanned), a template, a log, a PR or an issue.
+
+### Final safety check (2026-10-09, 20:30Z)
+
+| Check | Result |
+|---|---|
+| Drift | AcAuthStack, AcDataStack, AcRuntimeStack, ApplianceClinicToolkit all IN_SYNC (0 drifted) |
+| S4R role and API `65vnizdmk4` | identical to the 7.15a capture (`s4r-boundary.sh`) |
+| S4R Cognito, SparesSite-dev, CDKToolkit | unchanged (last modified July 2026) |
+| `/part-finder` contract | ok |
+| S4R health | 3×200 |
+| Customer smoke | equal to the baseline, 4×200 |
+| AC endpoints | 8/8 |
+| AC auth | 13/13 |
+| Bearers | old 401, new accepted; every consumer's active value is the current version |
+| Secret scan | every bearer value (current, retired, legacy) absent from all git objects and history, all 76 PRs/issues with their comments, GOLD results and release logs |
+| PII / pattern scan of the final PR | clean (no keys, emails, phone numbers or token literals) |
 
 ## Exit criteria
 
@@ -207,7 +257,8 @@ public site's own request contract: the `app.js` payload with `observability`, t
 | Canonical and legacy documented | **Done.** [overview.md](../architecture/overview.md), [ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md) |
 | Docs current | **Done.** Overview, configuration, error handling, findings, ADRs 0012 and 0013, the Phase 8 runbook, the prompts README |
 | Tests clean | **Done.** Only the known baseline failures remain; retired suites stay retired |
-| Evaluation within bands | Contract, smoke and test outputs unchanged. Transcript judge on Phase 8 code: good. **GOLD v2: pending.** It is blocked by the environment's egress policy (above); the exit criterion is fully met once it passes |
+| Evaluation within bands | **Done.** Contract, smoke and test outputs unchanged. Transcript judge on Phase 8 code: good. **GOLD-v2.2: 49/49 in two consecutive full runs** ([final gate](../evaluation/gold-v2-final-gate.md)) |
+| Exposed credentials rotated | **Done.** Orchestrator and MCP bearers rotated (8.10a–c), old versions retired, no value recorded anywhere |
 | `/part-finder` passes | **Done** |
 | S4R health clean | **Done** |
 | Stacks `IN_SYNC` | **Done** |
