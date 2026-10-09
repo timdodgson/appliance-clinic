@@ -109,7 +109,10 @@ const CONCLUSION = {
   'B7:inlet-mesh-filter': 'The blocked inlet mesh was very likely the cause, so no part is needed.',
   'inlet-valve': 'With the supply, hose and mesh fine but no water coming in, the fill side inside the dishwasher (the inlet valve or its control) is the most likely area. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.',
   'fill-sensing-or-control': 'With the supply, tap, hose and mesh all fine, the fault is inside the dishwasher — the fill valve, the fill sensing or the control side. An appliance engineer is the best next step; I\'m not recommending a part from this.',
-  'tap-hose-or-aquastop': 'A red AquaStop window means its safety valve has shut off the water, usually after a leak in the hose. The inlet hose needs replacing — with the tap off until then.',
+  // only what the customer reported is stated: a red AquaStop window is said only when they saw one
+  'tap-hose-or-aquastop': (state) => (engine.checkResult(state, 'inlet-hose-tap') === 'fault_seen'
+    ? 'A red AquaStop window means its safety valve has shut off the water, usually after a leak in the hose. The inlet hose needs replacing — with the tap off until then.'
+    : 'The most likely place is the tap, the inlet hose or its AquaStop safety valve. Check the tap is fully on and the hose isn\'t kinked behind the machine; if the hose has an AquaStop box at the tap end and its little window shows red, the valve has shut off the water after a leak and the hose needs replacing (tap off until then). If all of that is fine, an appliance engineer is the next step; I\'m not recommending a part from this.'),
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it filling normally now?',
@@ -123,4 +126,4 @@ const compose = ck.createCompose({
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'Turn the water off at the tap and switch the dishwasher off at the socket before fitting it; if you\'d rather not, an appliance engineer can fit it.' }),
   PURCHASE_RE: /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(inlet valve|fill valve|valve|solenoid|hose|aquastop|door lock|latch|interlock|pcb|control board|float)\b/i,
 });
-module.exports = { SPEC, FAMILY, diagnose, P, ...pipeline, FAMILY_LABEL, COMPONENT_LABEL, TASK, REQUIREMENT: ck.REQUIREMENT, SAFETY_COPY: ck.SAFETY_COPY, ...compose };
+module.exports = { SPEC, FAMILY, diagnose, P, ...pipeline, FAMILY_LABEL, COMPONENT_LABEL, TASK, CONCLUSION, REQUIREMENT: ck.REQUIREMENT, SAFETY_COPY: ck.SAFETY_COPY, ...compose };

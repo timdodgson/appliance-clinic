@@ -144,7 +144,8 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it drying properly now?',
   retestKey: (a) => (a.kind === 'ask_check' && a.target === 'drain-filter' && a.reason === 'condensed-water-backs-up-at-pump-filter' ? 'ask_check:drain-filter:leak' : null),
-  OBS_COPY: { noHeat: ['no heat when drying', 'warm when drying'], heatPresent: ['warm when drying', null], wdDrySide: ['problem during drying', 'problem during washing'], faultPersists: ['still damp', 'dry now'] },
+  OBS_COPY: { noHeat: ['no heat when drying', 'warm when drying'], heatPresent: ['warm when drying', null], wdDrySide: ['problem during drying', 'problem during washing'], faultPersists: ['still damp', 'dry now'],
+    tankStaysEmpty: ['water container stays empty', 'water container full'] },
   CHECK_RESULT_COPY: { 'wd-dry-capacity': { clear: 'within dry capacity', found_and_cleared: 'load reduced' }, 'programme-setting': { clear: 'full drying programme', found_and_cleared: 'programme changed' },
     'inlet-hose-tap': { clear: 'water supply fine', found_and_cleared: 'tap / hose sorted' }, 'drain-filter': { clear: 'pump filter clean', found_and_cleared: 'pump filter cleaned' },
     'drain-hose': { clear: 'drain hose and waste clear', found_and_cleared: 'drain hose / waste sorted' },

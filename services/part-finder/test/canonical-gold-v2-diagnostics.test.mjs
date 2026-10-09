@@ -137,4 +137,15 @@ describe('live GOLD follow-ups (after 8.6)', () => {
     expect(t).toMatch(/condensed-water path/);
     expect(t).not.toMatch(/No part is needed/);
   });
+  it('conclusions state only what the customer reported (no red AquaStop window unless they saw one)', () => {
+    const DW2 = require('../canonical/dw2-not-filling.js');
+    const s = emptyState('cs_x');
+    expect(DW2.CONCLUSION['tap-hose-or-aquastop'](s)).not.toMatch(/^A red AquaStop window means/);
+    s.evidence.checks['inlet-hose-tap'] = { status: 'done', result: 'fault_seen', turn: 2, history: [] };
+    expect(DW2.CONCLUSION['tap-hose-or-aquastop'](s)).toMatch(/^A red AquaStop window means/);
+  });
+  it('a washing machine banging is not described as happening on spin unless the customer said so', () => {
+    const J7 = require('../canonical/j7-compose.js');
+    expect(J7.OBS_COPY.excessiveVibration[0]).not.toMatch(/spin/);
+  });
 });
