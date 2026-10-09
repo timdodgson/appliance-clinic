@@ -1,0 +1,76 @@
+{
+  "id": "8.5-progression",
+  "description": "GOLD v2 remediation, progression: the canonical engine ingests volunteered facts (superseded requests), never re-asks an ignored request word for word, carries an owner check the customer moved past into the conclusion, follows up briefly instead of repeating a conclusion, and the mc/1 classifier's check-result questions are self-contained (diagnosis.jev.mc1 v2, diagnosis.canonical.compose v2). The diagnosis Lambda zip differs in canonical/{compose-kit,mc1-questions,merge,policy-kit,requests}.js; whichpart-api ships the same canonical/{merge,requests}.js. Code only; no configuration, permission or URL change. S4R /part-finder runs the legacy pipeline (not canonical). Previous code: part-finder KAmytwKg5kTcVDPvfOvKvR0S8RBzRkCV37UceCMP7/w=, whichpart-api Ankxkep7EnwjJ8QAyk2nIDaB2p+Jhv6ko6kd7iJiikQ= (phase8/ keys in the AC assets bucket).",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda and whichpart-api only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: no role changes.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
