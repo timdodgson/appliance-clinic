@@ -492,18 +492,156 @@ Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (i
 | **Secret and PII scan** | gitleaks over all 40 Phase 7 commits: no leaks. The only emails are `example.test`/`example.invalid` placeholders; the only addresses are RFC 5737 documentation ranges and test fixtures |
 | **Owner** | The AC admin is still `FORCE_CHANGE_PASSWORD`: set your password (below) |
 
-## Changes that need the owner's approval
+## Owner-approved S4R-sensitive items (2026-10-08/09)
 
-**Not executed.** Every item is POTENTIALLY IMPACTS S4R or needs the owner's own credentials.
+The owner approved A1, B, C1 and D and held A2 and C2. Each item ran with the usual gates:
+- refreshed live state and the regenerated S4R denylist (unchanged, 79 entries)
+- drift `IN_SYNC` before and after
+- a reviewed change set limited to the named resource and property
+- a temporary resource-scoped grant, with the read-only base restored straight after
+- before and after checks: S4R health 3 × 200, the `/part-finder` contract, `/ai/chat`, smoke
+- CloudTrail
+- a no-op
+- the rollback prepared before execution
 
-| # | Change | Why it needs approval | Prepared in |
-|---|---|---|---|
-| A1 | Diagnosis Lambda `PublicInvoke`: add `lambda:InvokedViaFunctionUrl` (as 7.9 did for the AC functions) | Its resource policy serves `/part-finder` | 7.9 tooling (one override line); run with the `/part-finder` contract before and after |
-| A2 | Reserved concurrency for the diagnosis Lambda and the AC functions | Needs the account quota raised first. Reserving on the diagnosis Lambda changes S4R behaviour under load | *Reserved concurrency* above |
-| B | Move the diagnosis Lambda off the S4R role onto `ac-diagnosis-role`. **7.Da** creates the role and is safe on its own. **7.Db** switches the function's `Role` | Changes the S4R-facing Lambda's permissions. Rollback must be the owner's own `update-function-configuration`, because `ac-deny-s4r` stops CloudFormation passing the S4R role | [Diagnosis-role package](phase-7-package-diagnosis-role.md) |
-| C1 | Remove the diagnosis Lambda's `apigateway-invoke` permission, which closes unauthenticated `POST /ai/chat` | S4R API path. In its whole history it has had no real use, only this migration's probes | [`/ai/chat` package](phase-7-package-ai-chat.md) |
-| C2 | Delete the route `POST /ai/chat` and its integration on API `65vnizdmk4` | Edits the S4R API | Same package (proposal for the S4R owner) |
-| D | Move the OpenAI, Jev and AI-config secrets to `applianceclinic/production/`, and rotate the provider credentials | The diagnosis Lambda reads them (after B, from the AC role). New provider keys come from the owner | 7.10, *Packaged, not done* |
+Preconditions held throughout:
+- no batch run queued; the external worker offline since 2026-10-05; the routing lease released
+- `SparesSite-dev` and `CDKToolkit` unchanged
+- traffic low (24 S4R API requests in the hour before B, against 240 to 650 an hour in the day)
+- Jev healthy
+
+| Item | Status |
+|---|---|
+| A1 | Complete (7.14) |
+| A2 | **Held**: needs the account Lambda concurrency quota raised first (it is 10). Not configured |
+| B | Complete (7.15a, 7.15b) |
+| C1 | Complete |
+| C2 | **Deferred** to S4R cleanup: route `ncdglq1` and integration `nk77gue` left in place, API untouched |
+| D | Namespace migration complete (7.17a to 7.17d). **OpenAI and Jev provider rotation pending**: no new provider credentials were supplied, so the existing values were migrated, not rotated |
+
+### A1: the diagnosis Lambda's `PublicInvoke` (7.14, 22:31Z)
+
+**Change set:** 1 Modify, `spares4repairspartfinderPublicInvoke` replaced with `InvokedViaFunctionUrl = true`. This is
+the 7.9 pattern.
+
+**Unchanged:**
+- the Function URL, its auth type `NONE`, invoke mode `RESPONSE_STREAM` and CORS (identical before and after)
+- `FnUrlPublic`, code, environment and role
+
+**IAM simulation** with the live resource policy, for a caller in another account: `InvokeFunction` is allowed only with
+`lambda:InvokedViaFunctionUrl = true`, and denied without that context or when it is false. The streaming
+`/part-finder` contract passes, so the URL path still works.
+
+**CloudTrail:** `AddPermission` (the new statement) and `RemovePermission` (`PublicInvoke`), both on the diagnosis
+Lambda only.
+
+### B: the diagnosis Lambda on `ac-diagnosis-role`
+
+**7.15a (22:49Z): the role is created, unused.**
+- Exactly the [package](phase-7-package-diagnosis-role.md) §3 design:
+  - trust `lambda.amazonaws.com` with `aws:SourceAccount`
+  - no managed policies
+  - five inline policies: scoped logs, `GetSecretValue` on the three diagnosis secrets, and `WhichpartLearningPut`,
+    `whichpart-media-overlay-s3` and `whichpart-knowledge-overlay-s3`, byte for byte as on the S4R role
+- The 31-row IAM simulation was re-run immediately before (31/31) and, on the live role, before 7.15b (31/31).
+- **First attempt failed safely.** It failed and rolled back with nothing created: the inline policies name their role
+  by a literal, so CloudFormation created them before the role. New roles' policies now carry `DependsOn` (runbook,
+  *Roles the stack creates*).
+- CloudTrail: `CreateRole` and `PutRolePolicy` on `ac-diagnosis-role` only.
+
+**7.15b (23:17Z): the role switch.**
+- **Change set:** 1 Modify, the diagnosis Lambda, `Properties.Role` only, Replacement False. The template differs
+  only in the `Role` ARN.
+- **Grant:** `UpdateFunctionConfiguration` on the function, and `PassRole` on `ac-diagnosis-role` with
+  `iam:PassedToService = lambda.amazonaws.com`.
+- **Rollback, ready before execution and not needed:** the owner's direct
+  `update-function-configuration --role <S4R role ARN>`, saved in
+  `.migration-output/phase7/7.15b-diagnosis-role-switch/rollback.sh`. `ac-deny-s4r` stops CloudFormation passing the
+  S4R role, so CloudFormation could not do this rollback.
+- **After** ([`verify-diagnosis-role.sh`](../../infra/production/verify-diagnosis-role.sh)):
+  - `Role` is `ac-diagnosis-role`, and `LastUpdateStatus` is `Successful`
+  - the contract turn ran on a new execution environment (cold start logged)
+  - no AccessDenied, no learning-trace write failure, no overlay failure
+  - a new learning-trace object was written
+- **Unchanged:**
+  - code, environment, URL and resource policy
+  - S4R health 3 × 200, `/part-finder` contract, `/ai/chat` (still the recorded result, still an ingress at that
+    point), smoke
+- **S4R role and API `65vnizdmk4`:** identical before and after.
+- **CloudTrail:**
+  - `UpdateFunctionConfiguration` on the diagnosis Lambda only
+  - every `GetSecretValue` by the function since then is issued by `ac-diagnosis-role`, without error
+- ADR 0011 is superseded. The three AC policies stay on the S4R role, unused by AC. Removing them is S4R cleanup.
+
+### C1: `/ai/chat` retired (23:24Z)
+
+- **Script:** [`c1-retire-ai-chat.sh`](../../infra/production/steps/c1-retire-ai-chat.sh).
+  - It checked `apigateway-invoke` equalled the reviewed statement exactly.
+  - It saved the one-call rollback (`add-permission`, in `.migration-output/phase7/c1-retire-ai-chat/rollback.txt`).
+  - It removed only that statement, using the policy's `RevisionId`.
+  - Every other statement is identical.
+- **Before and after** ([`verify-ai-chat-ingress.sh`](../../infra/production/verify-ai-chat-ingress.sh)):
+
+| Check | Before (`open`) | After (`retired`) |
+|---|---|---|
+| `/ai/chat` caller-visible result | The recorded 500 / JSON / `message` | The same |
+| `apigateway-invoke` | Present | Absent |
+| API Gateway turns in the diagnosis logs after the probe | ≥ 1 | 0 |
+
+- **API `65vnizdmk4`:** routes, integrations and stage are identical before and after (`s4r-boundary.sh`). No route,
+  integration, stage, auth or throttling was touched.
+- **Unchanged:** `/part-finder`, S4R health and smoke.
+- **Drift:** `AcRuntimeStack` is `IN_SYNC`. The statement was never in the template (`NEVER_MANAGED_SIDS`), so CDK
+  cannot recreate it.
+- **CloudTrail:** one `RemovePermission` of `apigateway-invoke` by the IAM user.
+- **Tooling:** `/ai/chat` is recorded as `retired` (`tools/migration/config/baseline.json`). `ingress verify` now
+  checks only the caller-visible shape; `verify-ai-chat-ingress.sh … retired` proves the Lambda is not reached.
+
+### D: AI-config, OpenAI and Jev in the AC namespace
+
+| Change | What | Evidence |
+|---|---|---|
+| 7.17a (23:33Z) | `applianceclinic/production/{ai-config,openai,jev}` created in `AcDataStack`, each with a generated placeholder | 3 Add. CloudTrail: `CreateSecret` on the three names only |
+| Copy (23:34Z) | The existing values were copied by [`d-copy-secrets.sh`](../../infra/production/steps/d-copy-secrets.sh): Secrets Manager to Secrets Manager through a pipe, never printed, stored, logged or compared. Each copy runs only while the new secret holds just its placeholder | CloudTrail: three `PutSecretValue`, on the new names only. The old secrets are unchanged (last changed 2026-10-08 02:00:50Z, before and after) |
+| 7.17b (23:42Z) | `ac-diagnosis-role` and `whichpart-api-role` may also read (`whichpart-api`: and write) the new secrets | 2 Modify, `PolicyDocument` only |
+| 7.17c (23:57Z) | **Cut-over:** both consumers switch together, by code (secret ids overridable by environment, defaults unchanged, 6 tests) and environment (`AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID`, `JEV_SECRET_ID`). No fallback to the old ids | 2 Modify, Code and Environment only. Artefacts: only `admin-config.js` / `ai-config.js` differ. The first attempt stopped before anything ran: the temporary execution policy exceeded IAM's 6,144-character limit. The grant was narrowed, and `change.sh` now refuses an oversized grant up front |
+| 7.17d (00:12Z) | `ac-diagnosis-role` reads only the three new secrets. `whichpart-api-role` reads and writes the new three instead of the old ones (it keeps the old HMAC secret as previous, and benchmark-service) | Run after CloudTrail showed no read of the old three names since 7.17c. Simulation on the live role: 34/34, the old names denied |
+
+**After the cut-over and the tightening (CloudTrail, `GetSecretValue`, by principal):**
+- **The diagnosis Lambda** (issuer `ac-diagnosis-role`) reads `applianceclinic/production/ai-config` and `jev`.
+  - It reads `openai` only when a stage is routed to OpenAI. Routing is local, so that read is proven by simulation, and
+    `whichpart-api` reads the same secret live.
+- **`whichpart-api`** reads `applianceclinic/production/{ai-config,openai,jev,canonical-state-token}`, plus the old
+  canonical secret as previous.
+- **No read of the old AI-config, OpenAI or Jev names, and no error.**
+- **Unchanged:** `/part-finder`, smoke, S4R health, Settings reads (admin), and canonical sessions (a conversation
+  continues in the same session).
+
+**Not done, on purpose:**
+- **Provider credentials not rotated.** OpenAI and Jev rotation stays pending until the owner supplies new keys. Then
+  put them through Settings, which now writes the AC secrets, and revoke the old ones.
+- **Old secrets not deleted.** `spares4repairs/dev/applianceclinic-{ai-config,openai,jev}` remain; nothing in AC reads
+  them.
+- **The S4R role is not touched.** It still grants `spares4repairs/dev/*`.
+
+## Final verification, after the approved items (2026-10-09, 00:16 to 00:30Z)
+
+| Check | Result |
+|---|---|
+| **Drift** | `AcDataStack`, `AcRuntimeStack` and `AcAuthStack`: `IN_SYNC` |
+| **Production configuration vs Phase 5 final** | 238 differences. Every one is an AC resource changed in Phase 7, data churn in the learning bucket, or a consequence of the diagnosis Lambda's new role and C1. The S4R role leaves the inventory's scope because no AC function uses it any more; it is read directly by `s4r-boundary.sh` and is identical |
+| **S4R denylist** | Regenerated, identical (79 entries) |
+| **S4R role and API `65vnizdmk4`** | Identical to the Phase 5 final state |
+| **S4R Cognito pool and client, `SparesSite-dev`, `CDKToolkit`** | Unchanged since July |
+| **Diagnosis Lambda** | Role `ac-diagnosis-role`. Code `SHj8697y…` (7.17c, equal to `build/reference`). Environment adds the three secret ids. URL unchanged. Resource policy: `FnUrlPublic` and the URL-only `PublicInvoke`; `apigateway-invoke` absent |
+| **AC auth** | 13/13 PASS |
+| **AC-only endpoints** | 8/8 PASS; `PublicInvoke` URL-only on all four functions |
+| **Rate limiting** | Enforced. The only refusals ever are this work's own sign-in tests |
+| **Customer** | Smoke equal to the baseline. Real browser: page, `/api/auth/me` and a chat turn all 200, no console error |
+| **S4R** | Health 3 × 200; `/part-finder` contract ok |
+| **`/ai/chat`** | Retired: the caller sees the recorded 500, and the Lambda is not reached (by design, not a failure) |
+| **Tests** | All JS tests, including #21 and the secret-id tests; `tools/migration` 719. CI on every merged head |
+| **Secret and PII scan** | gitleaks over the branch: no leaks. No email beyond placeholders |
 
 ## For the owner
 
@@ -515,13 +653,21 @@ Every result is unchanged. In particular, the IAM imports 5.5 (roles) and 5.6 (i
   - Then compare it with your last GOLD v2 run.
   - The runner and judge are in `services/whichpart-api/benchmark/gold-v2/`. The live transport `run-baseline.mjs`
     lives outside this repository.
-- **Batch worker.**
+- **Batch worker.** Batch runs stay blocked until it is updated.
   - Update the external batch worker to this repository's `routing-override.js`.
+  - It must now read and write `applianceclinic/production/ai-config`: the old secret is no longer read by anything.
   - Send `target`, `confirmProduction` and `confirmProductionRouting` when you mean production.
   - Better still, give the worker its own role, without write access to the live AI-config secret. Today it uses your
     IAM user.
 - **Retire the unused AC secrets** when convenient: `spares4repairs/diag-orchestrator/bearer-token` and
   `spares4repairs/error-code-mcp/bearer-token`. The old canonical secret can follow after 2026-11-08, when the last
   token it signed has expired.
+- **Rotate the OpenAI key and the Jev token.** Get new credentials from the providers and save them through Settings
+  (which writes `applianceclinic/production/openai` and `jev`), check a diagnosis turn, then revoke the old ones at the
+  providers.
+- **S4R cleanup, when convenient:**
+  - delete route `POST /ai/chat` (`ncdglq1`) and integration `nk77gue` (C2)
+  - remove the three AC inline policies from the S4R role
+  - retire `spares4repairs/dev/applianceclinic-{ai-config,openai,jev}`
 - **Lambda concurrency quota.** Request a Service Quotas increase of "Concurrent executions" (currently 10). Reserved
   concurrency for AC functions, and isolation from S4R, depend on it.

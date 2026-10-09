@@ -1,6 +1,11 @@
 # Phase 7 package: a dedicated execution role for the diagnosis Lambda
 
 **Classification: POTENTIALLY IMPACTS S4R.**
+
+**Status: executed with owner approval** on 2026-10-08 as 7.15a (role) and 7.15b (switch), as planned here, plus a
+`DependsOn` from the role's policies (the first 7.15a attempt rolled back without it). The secret namespace move (§3,
+"possible later tightening") followed as D (7.17a to 7.17d). The role now reads only `applianceclinic/production/
+{ai-config,openai,jev}`. Results: [phase-7-results.md](phase-7-results.md#b-the-diagnosis-lambda-on-ac-diagnosis-role).
 - The diagnosis Lambda `spares4repairs-part-finder` serves the S4R `/part-finder` page.
 - This package moves it from the S4R role to an AC role. It follows the later change that
   [ADR 0011](../adr/0011-diagnosis-lambda-keeps-the-s4r-execution-role.md) anticipates.

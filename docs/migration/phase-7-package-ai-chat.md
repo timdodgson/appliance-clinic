@@ -1,7 +1,11 @@
 # Phase 7 package: `POST /ai/chat` on the S4R HTTP API
 
-**Classification: POTENTIALLY IMPACTS S4R.** Read-only analysis. Nothing in this package has been executed; every
-option needs the owner's approval as an S4R change.
+**Classification: POTENTIALLY IMPACTS S4R.** Read-only analysis.
+
+**Status:** the owner approved **C1**, executed on 2026-10-08 at 23:24Z (`infra/production/steps/c1-retire-ai-chat.sh`).
+`apigateway-invoke` is removed: callers still get the recorded 500, and the diagnosis Lambda is no longer reached. **C2**
+(deleting the route and integration) is deferred to S4R cleanup. Options A and B are not taken. Results:
+[phase-7-results.md](phase-7-results.md#c1-ai-chat-retired-2324z).
 
 Evidence was gathered read-only on 2026-10-08 (account `800960611664`, eu-west-1): `apigatewayv2 get-*`,
 `lambda get-policy` and `get-function-url-config`, CloudWatch metrics, and Logs Insights counts over the diagnosis Lambda's
