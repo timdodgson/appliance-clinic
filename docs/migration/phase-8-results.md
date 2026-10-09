@@ -122,6 +122,7 @@ The behavioural cases pass against the original `index.js` too.
 | Artefact | `rraoIvZQiggi29idg8bNEvv954Hu/XdWuaF6fkfhcPM=`, staged at `phase8/`. Previous: `5XbUXy5x7Mvz7lNRxZhwXlSc23uYgUiPTu7cC7PPB14=` |
 | Change set | 1 Modify, `whichpartapi`, `Properties.Code` only. Update-mode check passed |
 | Grant | `lambda:UpdateFunctionCode` on `whichpart-api`; read of `phase8/*` |
+| CloudTrail | One write: `UpdateFunctionCode` on `whichpart-api`. Nothing outside the spec's resources |
 | Stack | `UPDATE_COMPLETE`. Drift `IN_SYNC` on all 43 resources. No-op confirmed. Execution policy back to read-only (v42) |
 | Before / after | S4R health 3× clean, `/part-finder` contract ok, ingress ok, smoke equal, AC endpoints 8 PASS, AC auth 13 PASS. Both before and after. No runtime error in the API logs after the release |
 | Build reference | `build/reference/whichpart-api.zip.json` updated; 85 files |
