@@ -26,7 +26,8 @@ const run = (k) => H.play(J, SEQ[k], { modelParts: [{ title: 'Drip Tray' }, { ti
 describe('policy / diagnostics', () => {
   it('INSIDE → defrost drain hole → cleared → retest → fixed; stuck → engineer (no sharp tools)', () => {
     expect(run('insideDrain').rules).toEqual(['FL11:defrost-drain', 'FL6:retest', 'FL7:blocked-defrost-drain']);
-    expect(run('insideDrain').actions[0].action.requires).toEqual(['no_sharp_tools_on_ice']);
+    // GOLD v2 remediation: flushing the drain with water is done with the fridge unplugged
+    expect(run('insideDrain').actions[0].action.requires).toEqual(['unplug_fridge', 'no_sharp_tools_on_ice']);
     expect(run('insideStuck').last).toMatchObject({ kind: 'conclude', target: 'blocked-defrost-drain', conclusion: { handoff: 'engineer', noPart: true } });
   });
   it('inside with the drain clear + door left open → condensation (no part)', () => { expect(run('condensation').last).toMatchObject({ target: 'condensation-door-or-warm-food', conclusion: { noPart: true } }); });

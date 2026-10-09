@@ -315,7 +315,9 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fi
     if (c.cause === 'fault-source-unconfirmed') return `From what we have so far I can't pin down the cause safely. ${HANDOFF_COPY.engineer}`;
     const alts = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
     const label = FAMILY_LABEL[c.cause] || 'a fault we haven\'t been able to pin down';
-    return `From the checks so far, the most likely cause is ${label}${alts.length ? ` (${naturalListFn(alts)} is also possible)` : ''}. ${HANDOFF_COPY[c.handoff] || HANDOFF_COPY.engineer}`;
+    // an owner-fixable cause that is only "possible" is not confirmed: no "no part is needed" claim until it is
+    const tail = c.handoff === 'none' && c.confidence !== 'likely' ? 'The check for it is simple; if it doesn\'t sort it, let me know what you find.' : (HANDOFF_COPY[c.handoff] || HANDOFF_COPY.engineer);
+    return `From the checks so far, the most likely cause is ${label}${alts.length ? ` (${naturalListFn(alts)} is also possible)` : ''}. ${tail}`;
   };
 }
 /** Fixed decline copy for an unsafe request (policy P8, opt-in per journey). */

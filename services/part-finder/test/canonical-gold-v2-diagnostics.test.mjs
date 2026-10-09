@@ -88,3 +88,33 @@ describe('washer-dryer: a leak only while drying is the condensed-water path', (
     expect(await H.ownerOf(L, [WD('leaking', [O('leakAtDoor'), O('wdDrySide', false)])], KEYS)).toBe('wd-leaking');
   });
 });
+
+describe('live GOLD follow-ups (after 8.6)', () => {
+  const Q = require('../canonical/mc1-questions.js');
+  const { emptyState } = require('../canonical/cs1.js');
+  it('clearing the defrost drain is done with the fridge unplugged', () => {
+    const r = H.play(J('ff-not-cooling'), [open('fridge-freezer', 'not-cooling', [O('bothCompartmentsWarm'), O('waterInsideFridge'), O('doorLeftOpen', false)])]);
+    expect(r.last).toMatchObject({ target: 'defrost-drain' });
+    expect(r.last.requires).toEqual(expect.arrayContaining(['unplug_fridge', 'no_sharp_tools_on_ice']));
+  });
+  it('a washer-dryer fluff (lint) filter reported clean counts as the drying airflow filter', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'not-drying', [O('heatPresent')]), ck('lint-filter')]);
+    expect(r.prep.diag.facts).toContain('filterOk');
+  });
+  it('an owner-fixable cause that is only "possible" makes no "no part is needed" claim', () => {
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), C({ observations: [O('leaksOnDrain')] })]);
+    expect(r.last.conclusion).toMatchObject({ handoff: 'none', confidence: 'possible' });
+    expect(text('wd-not-drying', r)).not.toMatch(/No part is needed/);
+  });
+  it('a washing machine / washer-dryer is never offered tumble-dryer parts as checks', () => {
+    const s = emptyState('cs_x'); s.identity.appliance = { value: 'washer-dryer', basis: 'stated', turn: 1 };
+    const crit = Object.keys(Q.buildMc1Request({ latestMessage: 'x', state: s, candidates: { identifiers: [], brands: [], components: [] } }).questions.mcCheckA.criteria);
+    expect(crit).toEqual(expect.arrayContaining(['drain-filter', 'lint-filter']));
+    for (const k of ['condenser', 'water-container', 'vent-duct']) expect(crit).not.toContain(k);
+  });
+  it('"still there straight after the fix" counts as the fault persisting; a leak during drying is still leaking', () => {
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcObsFaultPersists.instructions).toMatch(/straight after the fix/);
+    expect(q.mcJourney.instructions).toMatch(/water escaping during the drying part is still leaking/);
+  });
+});

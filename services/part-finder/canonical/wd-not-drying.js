@@ -46,7 +46,9 @@ const SPEC = {
   schema: 'wdy-diag/1', FAMILY, PRIOR: ['CAP', 'PG', 'WT', 'LF', 'DR', 'DH', 'SN', 'AF', 'CL'], SIGNALS, FACT_LABEL,
   obs: {},
   checks: { 'wd-dry-capacity': { clear: 'capOk', found: 'capFixed' }, 'programme-setting': { clear: 'progOk', found: 'progFixed' },
-    'inlet-hose-tap': { clear: 'tapOk', found: 'tapFixed' }, 'drain-filter': { clear: 'filterOk', found: 'filterFixed' }, 'drain-hose': { clear: 'hoseOk', found: 'hoseFixed' } },
+    'inlet-hose-tap': { clear: 'tapOk', found: 'tapFixed' }, 'drain-filter': { clear: 'filterOk', found: 'filterFixed' }, 'drain-hose': { clear: 'hoseOk', found: 'hoseFixed' },
+    // washer-dryers that have a separate fluff (lint) filter: the same airflow / fluff evidence as the pump filter
+    'lint-filter': { clear: 'filterOk', found: 'filterFixed' } },
   FIX_CHECK: { CAP: ['wd-dry-capacity', 'Cap'], PG: ['programme-setting', 'Prog'], WT: ['inlet-hose-tap', 'Tap'], LF: ['drain-filter', 'Filter'], DR: ['drain-hose', 'Hose'] },
   DECISIVE_PART: { DH: { codeDryHeater: 'drying-heater' } },
   extra(s, ctx, on) {
