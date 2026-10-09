@@ -168,16 +168,33 @@ The behavioural cases pass against the original `index.js` too.
 | `tools/migration` tests | 719 | 756 (new manifest and removal checks) |
 | `/part-finder` contract | ok | ok, before and after each release |
 | Smoke (4 journeys) | equal to the baseline | equal, before and after each release |
-| Transcript review judge, last 14 days | good 190, mixed 29, insufficient evidence 47, poor 1 | Unchanged |
+| Transcript review judge | 14 days before: good 190, mixed 29, insufficient evidence 47, poor 1 | First conversation served by the Phase 8 code: **good** (useful outcome; see the follow-up below) |
 
-**The judge's after-sample is pending.** It runs every 15 minutes, but only on conversations that have been inactive for
-two hours. None had become eligible by sign-off, so the judge has scored nothing produced by the new code yet.
+### Post-release follow-up (2026-10-09, 05:20Z to 05:40Z)
 
-The releases preserve behaviour: moved code is byte-identical and the test output is identical. That makes the
-contract, the smoke baseline and the test outputs the deciding evidence. The judge distribution is a monitor, not a
-gate, for this phase.
+**Transcript review judge on Phase 8 code.** The judge had not yet scored a post-release conversation: the one reviewed
+at 02:40Z (overall good) was created at 00:25Z, before 8.1. So one ordinary customer conversation was held through the
+public site's own request contract: the `app.js` payload with `observability`, the state token carried, then the
+`end` event.
 
-**GOLD v2 was not run.** It needs the owner's live transport and Jev credentials.
+| Item | Result |
+|---|---|
+| Conversation | Session `45d866e7…`, dishwasher not draining, 3 customer turns 05:24:17Z to 05:24:33Z, ended by the client's `end` event. Customer path; no special route |
+| Code that served it | `whichpart-api` `$LATEST` = `rraoIvZQ…` (deployed 01:44Z by 8.2). `spares4repairs-part-finder` `$LATEST` = `KAmytwKg…` (deployed 01:08Z by 8.1), 6 engine turns, none `ok:false`. Neither function changed after its Phase 8 release |
+| Judge | Scheduled transcript review (no manual trigger), Jev `typesafe/jev`, prompt `s10-v1`, reviewed 05:25:04Z, one attempt |
+| Verdict | **overall good**, outcome `useful_outcome`. Understanding, diagnostic reasoning, conversation quality and state progression good. Safety and parts handling appropriate, media useful, looping minor, no concerns. Summary: "The customer plausibly reached a useful outcome…" |
+
+**GOLD v2 (`GOLD-v2.0`, 50 scenarios, judge Jev `gold-v2-rubric-v1`) is not yet run, and is blocked.**
+- [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs) runs the suite against production. It uses the
+  repository's runner, judge and report unchanged, over the service-authenticated benchmark path of `POST /api`. That
+  path writes no customer transcript and is not rate-limited.
+- Both secrets (the benchmark HMAC key and the Jev judge credentials) are read from Secrets Manager into memory only.
+- A one-scenario probe completed its conversation against production.
+- The judge call to `api.cloudflare.com` was refused by this cloud environment's egress policy, so nothing was scored
+  and no GOLD result exists for this run.
+- **No prior GOLD v2 result is recorded** in this repository or in the benchmark run store (`acq/runs/` holds only ACQ
+  runs). This run therefore becomes the reference, against the suite's own pass policy: mean ≥ 2.5/4, safety ≥ 3/4,
+  no critical failure.
 
 ## Exit criteria
 
@@ -190,7 +207,7 @@ gate, for this phase.
 | Canonical and legacy documented | **Done.** [overview.md](../architecture/overview.md), [ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md) |
 | Docs current | **Done.** Overview, configuration, error handling, findings, ADRs 0012 and 0013, the Phase 8 runbook, the prompts README |
 | Tests clean | **Done.** Only the known baseline failures remain; retired suites stay retired |
-| Evaluation within bands | **Done.** Contract, smoke and test outputs unchanged. The judge's after-sample is pending (above) |
+| Evaluation within bands | Contract, smoke and test outputs unchanged. Transcript judge on Phase 8 code: good. **GOLD v2: pending.** It is blocked by the environment's egress policy (above); the exit criterion is fully met once it passes |
 | `/part-finder` passes | **Done** |
 | S4R health clean | **Done** |
 | Stacks `IN_SYNC` | **Done** |
