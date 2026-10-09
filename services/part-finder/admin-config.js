@@ -15,9 +15,11 @@
  */
 
 const STAGE = process.env.STAGE || 'dev';
-const AI_CONFIG_SECRET_ID = `spares4repairs/${STAGE}/applianceclinic-ai-config`;
-const OPENAI_SECRET_ID = `spares4repairs/${STAGE}/applianceclinic-openai`;
-const JEV_SECRET_ID = `spares4repairs/${STAGE}/applianceclinic-jev`;
+// Phase 7 (D): the secret ids can be set by environment (the AC namespace applianceclinic/production/*); the
+// defaults are the original ids.
+const AI_CONFIG_SECRET_ID = process.env.AI_CONFIG_SECRET_ID || `spares4repairs/${STAGE}/applianceclinic-ai-config`;
+const OPENAI_SECRET_ID = process.env.OPENAI_SECRET_ID || `spares4repairs/${STAGE}/applianceclinic-openai`;
+const JEV_SECRET_ID = process.env.JEV_SECRET_ID || `spares4repairs/${STAGE}/applianceclinic-jev`;
 
 const CACHE_TTL_MS = Number(process.env.AI_CONFIG_CACHE_TTL_MS || 60000); // 60s default
 

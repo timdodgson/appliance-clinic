@@ -12,7 +12,10 @@
           "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
           "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
           "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}",
+          "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
+          "OPENAI_SECRET_ID": "applianceclinic/production/openai",
+          "JEV_SECRET_ID": "applianceclinic/production/jev"
         },
         "unset": [
           "AC_ADMIN_SUBS"
@@ -20,7 +23,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase7/whichpart-api-5m3zfrU9JljmXycWepjKk08HYrW2uVF4hXKsNbR47cY.zip"
+        "s3Key": "phase7/whichpart-api-5XbUXy5x7Mvz7lNRxZhwXlSc23uYgUiPTu7cC7PPB14.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -65,7 +68,18 @@
           "invokedViaFunctionUrl": true
         }
       },
-      "role": "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      "role": "arn:aws:iam::800960611664:role/ac-diagnosis-role",
+      "code": {
+        "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
+        "s3Key": "phase7/spares4repairs-part-finder-SHj8697yf2eIxSF1-MYOVUWdBa7o1fdu6BSJg6MXheI.zip"
+      },
+      "env": {
+        "set": {
+          "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
+          "OPENAI_SECRET_ID": "applianceclinic/production/openai",
+          "JEV_SECRET_ID": "applianceclinic/production/jev"
+        }
+      }
     }
   },
   "rolePolicies": {
