@@ -158,10 +158,31 @@ function makeStepPolicy(cfg) {
     return { s, d, has: (f) => facts.has(f), obs: (k) => obs(s, k), res: (c) => res(s, c), done: (t) => done(s, t),
       scope: () => { const p = problemOf(s); return p && p.scope ? p.scope.value : null; } };
   };
+  // A check the customer brought up themselves but has not finished (they saw dirt / a blockage and have not dealt with it)
+  // is the lead they gave us: it comes before the other steps.
+  const volunteered = (s, t) => { const k = chk(s, t); return Boolean(k && k.status === 'not_done' && !rq.requestsFor(s, t).length); };
   function nextStep(s, d) {
     const h = helpers(s, d);
-    for (const st of cfg.steps) if (st.when(h) && askable(s, st.target)) return st;
-    return null;
+    const steps = cfg.steps.filter((st) => st.when(h) && askable(s, st.target));
+    return steps.find((st) => volunteered(s, st.target)) || steps[0] || null;
+  }
+  /** This message added a stated fact (an observation, a check report or the model). */
+  function freshEvidence(s) {
+    const v = s.version; const ev = s.evidence || {};
+    return Object.values(ev.observations || {}).some((f) => f && f.turn === v && f.basis !== 'derived')
+      || Object.values(ev.checks || {}).some((k) => k && k.turn === v)
+      || Boolean(s.identity && s.identity.model && s.identity.model.turn === v);
+  }
+  /**
+   * "Not sure" twice in a row: the last two requests (identity aside) went unanswered. The policy stops asking and gives
+   * the most-likely conclusion instead of another question of the same kind, and stays there until the customer adds a
+   * new fact.
+   */
+  function disengaged(s) {
+    const rs = (s.requests || []).filter((r) => r.slot !== 'IDENTITY' && r.outcome !== 'pending');
+    const [a, b] = rs.slice(-2);
+    if (!(a && b && [a, b].every((r) => ['cannot_answer', 'ignored'].includes(r.outcome)))) return false;
+    return b.resolvedTurn === s.version || !freshEvidence(s);
   }
   const pathExhausted = (s, d) => nextStep(s, d) === null && !retestDue(s);
   /** Active stop-level hazards are ALL continuable for this journey → {hazard, now}; otherwise null. */
@@ -222,14 +243,14 @@ function makeStepPolicy(cfg) {
       requestKind: kindFor(s, t, retest), pending: { slot: 'CHECK', target: t, purpose: 'DIAGNOSIS' } });
   }
   /**
-   * The owner check offered most recently that the customer moved past without reporting on (superseded / ignored /
-   * "not sure"), still not done and not refused or impossible for them. A conclusion carries it as the first thing to do
-   * (with its safety requirements) instead of the question being asked again.
+   * The owner check offered most recently that the customer moved past without reporting on (superseded / ignored),
+   * still not done and not refused. A conclusion carries it as the first thing to do (with its safety requirements)
+   * instead of the question being asked again. A check they said they cannot tell about is not repeated.
    */
   const refused = (s, t) => (s.declined || []).some((x) => x.target === t && x.kind === 'declined' && x.resolvedTurn == null)
     || ['declined', 'unable'].includes((chk(s, t) || {}).status);
   function outstandingOwnerCheck(s) {
-    const rs = (s.requests || []).filter((r) => r.slot === 'CHECK' && ['superseded', 'ignored', 'cannot_answer'].includes(r.outcome));
+    const rs = (s.requests || []).filter((r) => r.slot === 'CHECK' && ['superseded', 'ignored'].includes(r.outcome));
     for (let i = rs.length - 1; i >= 0; i -= 1) {
       const t = rs[i].target;
       if (CHECKS.includes(t) && t !== 'retest' && !OUT[t] && !done(s, t) && !refused(s, t)) return t;
@@ -243,14 +264,10 @@ function makeStepPolicy(cfg) {
   function concludedAgain(s) {
     const v = s.version;
     if (!(v > 1) || (s.requests || []).some((r) => r.askedTurn === v - 1)) return false;
-    const ev = s.evidence || {};
-    const fresh = Object.values(ev.observations || {}).some((f) => f && f.turn === v && f.basis !== 'derived')
-      || Object.values(ev.checks || {}).some((k) => k && k.turn === v)
-      || Boolean(s.identity && s.identity.model && s.identity.model.turn === v);
-    return !fresh;
+    return !freshEvidence(s);
   }
-  function concludeWith(s, kind, target, reason, rule, conclusion) {
-    const oc = conclusion.handoff !== 'plumbing' ? outstandingOwnerCheck(s) : null;
+  function concludeWith(s, kind, target, reason, rule, conclusion, fallbackCheck = null) {
+    const oc = conclusion.handoff !== 'plumbing' ? (outstandingOwnerCheck(s) || fallbackCheck) : null;
     const again = concludedAgain(s);
     const c = { ...conclusion, ...(oc ? { ownerCheck: oc } : {}), ...(again ? { repeat: true } : {}) };
     return action(kind, target, reason, rule, { conclusion: c, ...(oc && !again ? { requires: ((cfg.REQUIRES || {})[oc] || []).slice() } : {}) });
@@ -309,8 +326,12 @@ function makeStepPolicy(cfg) {
       return action('conclude', L.family, 'owner-fix-restored', R(7), { conclusion: { cause: L.family, level: 'cause_family', confidence: 'likely', handoff: 'none', alternatives: [], noPart: true },
         pending: confirmPending(s), expects: ['reply.outcome'] });
     }
-    const step = nextStep(s, d);
+    const stop = disengaged(s);
+    const step = stop ? null : nextStep(s, d);
     if (step) return ask(s, step.target, step.reason, R(step.n));
+    // after two unanswered requests: the next owner check still open is offered once inside the conclusion
+    const pendingStep = stop ? nextStep(s, d) : null;
+    const openCheck = pendingStep && !isObs(pendingStep.target) && CHECKS.includes(pendingStep.target) && !OUT[pendingStep.target] ? pendingStep.target : null;
     const faultRemains = s.resolution !== 'resolved' && !d.likelyResolved;
     if (faultRemains && L && L.committed && L.level === 'component' && PART_FAMILIES.has(L.key) && K.modelAskable(s)) {
       return action('ask_identity', 'model', 'model-required-for-part-fit', R(20), { expects: ['identity.model', 'identity.modelStatus'], requestKind: kindFor(s, 'model'),
@@ -320,10 +341,15 @@ function makeStepPolicy(cfg) {
     if (gate.eligible) {
       return action('recommend_part', gate.component, 'part-gate-met', R(21), { conclusion: { cause: L.family, level: 'component', confidence: 'likely', handoff: 'none', component: gate.component, alternatives: [] } });
     }
-    if (!L) return concludeWith(s, 'conclude', 'fault-source-unconfirmed', 'nothing-askable', R(22), { cause: 'fault-source-unconfirmed', level: 'cause_family', confidence: 'possible', handoff: cfg.unconfirmedHandoff || 'engineer', alternatives: [], noPart: true });
+    // "not sure" with nothing to rank on: the usual causes in the journey's own order (most likely first), not a dead end
+    if (!L && stop && (d.rank || []).length) {
+      return concludeWith(s, 'conclude', 'likely-causes', 'customer-cannot-say', R(22), { cause: 'likely-causes', level: 'cause_family', confidence: 'possible',
+        handoff: cfg.unconfirmedHandoff || 'engineer', alternatives: d.rank.slice(0, 3).map((x) => x.family), noPart: true }, openCheck);
+    }
+    if (!L) return concludeWith(s, 'conclude', 'fault-source-unconfirmed', 'nothing-askable', R(22), { cause: 'fault-source-unconfirmed', level: 'cause_family', confidence: 'possible', handoff: cfg.unconfirmedHandoff || 'engineer', alternatives: [], noPart: true }, openCheck);
     return concludeWith(s, 'conclude', L.family, 'best-supported-conclusion', R(22), { cause: L.family, level: L.level, confidence: L.committed ? 'likely' : 'possible',
       handoff: (cfg.HANDOFF || {})[L.key] || 'engineer', component: L.level === 'component' ? L.component : null, alternatives: alternativesOf(d),
-      noPart: !PART_FAMILIES.has(L.key) || L.level !== 'component' });
+      noPart: !PART_FAMILIES.has(L.key) || L.level !== 'component' }, openCheck);
   }
 
   return { JOURNEY, APPLIANCE, REQUIRES: { ...(cfg.REQUIRES || {}) }, CHECKS, policy, entry, partGate,

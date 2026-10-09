@@ -68,6 +68,7 @@ const TASK = {
 const CONCLUSION = {
   'MS7:supply-or-plug-fuse': 'That was the supply, so no part is needed.', 'MS7:control-or-child-lock': 'The control lock was on, so no part is needed.',
   'MS7:clock-or-programme-not-set': 'That was the clock / programme, so no part is needed.',
+  'supply-or-plug-fuse': `With the display completely dead, the supply is the first suspect: the socket, the plug or the fuse in the plug. If another appliance works in that socket and a new 13A plug fuse doesn't bring it back, the fault is inside (an internal fuse or the control). ${F.HV} At that point an appliance engineer is the next step.`,
   'internal-fuse-cut-out-or-control': `With the socket working but the display dead, the internal fuse, a thermal cut-out or the control has gone — and a blown internal fuse usually means another fault. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
   control: `It has power and nothing is locked, so the control (or the door switch side) is the likely area. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
 };

@@ -150,7 +150,7 @@
     },
     {
       "id": "diagnosis.jev.mc1",
-      "version": 2,
+      "version": 3,
       "purpose": "The canonical mc/1 question set: what the latest customer message alone says, resolved against the prior assistant message, the pending request and a cs/1 summary.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -186,6 +186,12 @@
           "date": "2026-10-09",
           "fingerprint": "fc4b36fa1ece932849202aafe010bac3400a522c64f18574a6971cd618eb09da",
           "change": "GOLD v2 remediation: the check-result questions are self-contained (they name the first / second check in the message, never another question's answer) and count terse reports; a stated dryer type removes the other type's airflow checks from the choices; a reported-done fallback when the target is clear but the result answer is none; vacuum type names cylinder / canister as corded; ice location has a 'no ice' answer; door open vs door lock clarified; a powered washing machine that beeps but will not start is door-problem."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-09",
+          "fingerprint": "7712eb055e798df872df69363c45816059d48588286e38b6a8475af37153b57b",
+          "change": "Live GOLD follow-up and fallback removal: the probability-mass override (reported-done fallback) is removed — a check result is Jev's own top answer, nothing else; hedged reports ('I think it's fine', 'there was a light earlier' = done_clear) are covered by the question wording instead. 'Found dirt but did not say it is dealt with' maps to not_done (the owner fix is still to do)."
         }
       ]
     },

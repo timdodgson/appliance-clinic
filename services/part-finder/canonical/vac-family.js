@@ -5,7 +5,7 @@
  *
  * Ownership precedence (first match wins; a handoff happens once):
  *   1. battery     : a battery / charging report, a cut-out with short-runtime or won't-charge evidence, or a cordless
- *                    won't-start that won't charge                                            → vacuum-battery-runtime
+ *                    won't-start that won't charge (never a corded vacuum: its cut-out is airflow) → vacuum-battery-runtime
  *   2. not running : won't start / dead                                                       → vacuum-not-running
  *   3. brush       : the brush bar / roller doesn't spin                                      → vacuum-brush-not-turning
  *   4. pulsing     : pulsing / surging / revving, or a cut-out with NO battery evidence      → vacuum-pulsing-cutting-out
@@ -38,12 +38,13 @@ function vacType(state) {
   return { type: 'unknown', source: null };
 }
 const typeFacts = (on, vt) => { on('cordless', vt.type === 'cordless'); on('corded', vt.type === 'corded'); on('robot', vt.type === 'robot'); };
-const batteryEvidence = (h) => h.obs('shortRuntime') === true || h.obs('wontCharge') === true;
+// A corded vacuum has no battery: a short run before it cuts out is the thermal cut-out (airflow), never battery evidence.
+const batteryEvidence = (h) => vacType(h.s).type !== 'corded' && (h.obs('shortRuntime') === true || h.obs('wontCharge') === true);
 
 function vacOwner(h, journey) {
   if (!VAC_JOURNEYS.includes(journey)) return null;
   const vt = vacType(h.s).type;
-  if (journey === 'battery-problem') return 'vacuum-battery-runtime';
+  if (journey === 'battery-problem') return vt === 'corded' ? 'vacuum-pulsing-cutting-out' : 'vacuum-battery-runtime';
   if (journey === 'cuts-out' && batteryEvidence(h)) return 'vacuum-battery-runtime';
   if (journey === 'wont-start') return vt !== 'corded' && h.obs('wontCharge') === true ? 'vacuum-battery-runtime' : 'vacuum-not-running';
   if (journey === 'trips-electrics') return 'vacuum-not-running';

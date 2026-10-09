@@ -308,6 +308,10 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fi
       return `The ${COMPONENT_LABEL[c.component]} looks like the cause. ${noMatch}, so an appliance engineer is the best next step.`;
     }
     if (CONCLUSION[c.cause]) return typeof CONCLUSION[c.cause] === 'function' ? CONCLUSION[c.cause](state, a) : CONCLUSION[c.cause];
+    if (c.cause === 'likely-causes') {
+      const ls = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
+      if (ls.length) return `That's fine — I can't narrow it down further from what we know, so here are the usual causes, most likely first: ${naturalListFn(ls).replace(/ or ([^,]+)$/, ' and $1')}. ${HANDOFF_COPY[c.handoff] || HANDOFF_COPY.engineer}`;
+    }
     if (c.cause === 'fault-source-unconfirmed') return `From what we have so far I can't pin down the cause safely. ${HANDOFF_COPY.engineer}`;
     const alts = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
     const label = FAMILY_LABEL[c.cause] || 'a fault we haven\'t been able to pin down';

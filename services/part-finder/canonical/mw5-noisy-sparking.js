@@ -6,8 +6,9 @@
  *   metal / foil only, nothing damaged → remove it; it can be used again (if it sparks again, stop)
  *   waveguide cover burnt / damaged → that cover (part with a model; don't use until fitted)
  *   cavity paint burnt / bare metal, or sparking with nothing visible → engineer (stop use)
- * Noise without sparking: turntable rumble / rattle → the turntable parts (owner) · a loud buzz / grind from the HV side →
- * engineer. Never inside the casing.
+ * Noise without sparking: turntable rumble / rattle → the turntable parts (owner) · a hum while it heats normally, with no
+ * sparks, burning or smoke → the normal running hum (magnetron, transformer and fan; no part) · a hum or buzz from inside
+ * with no heat → the HV side → engineer (a hum with the heat unknown asks about the heat first). Never inside the casing.
  */
 const engine = require('./evidence-engine.js');
 const kit = require('./policy-kit.js');
@@ -24,7 +25,7 @@ const SIGNALS = {
   CB: { cavity: SS, cavitySeen: S, arcing: S },
   HS: { arcing: S, cavityOk: S, coverDamaged: A, metal: A, cavity: A },
   TN: { partsFixed: SS, restoredAfterPartsFix: SS, failsAfterPartsFix: SA, rattle: S, grind: S, scrape: S, arcing: SA },
-  HN: { hum: S, buzz: S, partsOk: S, failsAfterPartsFix: S, arcing: A, restoredAfterPartsFix: SA },
+  HN: { hum: S, buzz: S, partsOk: S, failsAfterPartsFix: S, arcing: A, heats: A, restoredAfterPartsFix: SA },
 };
 const FACT_LABEL = { arcing: 'sparking / arcing inside', metal: 'metal / foil was inside', metalRemoved: 'metal removed', coverDamaged: 'waveguide cover burnt / damaged', coverSeen: 'cover panel burnt',
   cavity: 'inside paint burnt / chipped', cavitySeen: 'inside paint burnt', cavityOk: 'nothing visible inside', rattle: 'rattling', grind: 'grinding', scrape: 'scraping', hum: 'loud hum', buzz: 'buzzing',
@@ -39,7 +40,9 @@ const SPEC = {
   extra(s, ctx, on) {
     // a sparking report is arcing even when the classifier typed no hazard (safety alters the path either way)
     on('arcing', ((s.safety && s.safety.hazards) || []).some((x) => x.hazard === 'microwave_arcing') || sparkingReport(s));
-    on('buzz', engine.obsVal(s, 'humNoise') === true);
+    // a hum / buzz from inside is HV evidence only when it does not heat; one that heats normally is the normal running hum
+    on('buzz', engine.obsVal(s, 'humNoise') === true && engine.obsVal(s, 'noHeat') === true);
+    on('heats', engine.obsVal(s, 'heatPresent') === true && engine.obsVal(s, 'noHeat') !== true);
   },
   eligible: (k, has) => (['ME', 'WG', 'CB', 'HS'].includes(k) ? has('arcing') || has('metal') || has('coverDamaged') || has('cavity') : true),
 };
@@ -59,20 +62,27 @@ function sparkContainment(s) {
   if (!sparkingReport(s) || !p.journey || p.journey.turn !== s.version) return null;
   return { target: 'mw-arcing', reason: 'sparking-report-stop-use', requires: ['stop_use'], pending: { slot: 'OBSERVATION', target: 'mwSparkCause', purpose: 'DIAGNOSIS' } };
 }
+const BURNING = ['burning', 'smoke', 'microwave_arcing'];
+const burningReported = (s) => ((s.safety && s.safety.hazards) || []).some((x) => BURNING.includes(x.hazard));
+const HARSH = ['grindingNoise', 'scrapingNoise', 'knockingNoise', 'rattlingNoise', 'squealNoise'];
+/** A hum while it heats normally, with no sparking, burning, smoke or harsher noise: the normal running hum. */
+const normalHum = (h) => h.obs('humNoise') === true && h.has('heats') && !SPARK(h) && !burningReported(h.s) && !HARSH.some((k) => h.obs(k) === true);
 const NOISE = ['grindingNoise', 'humNoise', 'scrapingNoise', 'knockingNoise', 'rattlingNoise', 'squealNoise', 'clickingNoise'];
 const P = kit.makeStepPolicy({
   JOURNEY: KEY, P: 'MN', appliance: 'microwave', journeys: ['sparking', 'noisy'], ...F.owns(KEY), declineUnsafe: F.UNSAFE,
   continueAfterHazard: { microwave_arcing: { stop: 'mw-arcing', pending: 'mwSparkCause', partOk: true } },
   containment: (s) => sparkContainment(s),
   CHECKS: ['mw-cavity-check', 'turntable-parts'],
-  OBS_TARGETS: { mwSparkCause: ['metalInside', 'waveguideCoverDamaged', 'cavityBurnt'], noiseType: NOISE },
-  REQUIRES: { mwSparkCause: ['mw_no_casing'], 'mw-cavity-check': ['mw_no_casing'], noiseType: [], 'turntable-parts': ['mw_no_casing'], retest: [] },
+  OBS_TARGETS: { mwSparkCause: ['metalInside', 'waveguideCoverDamaged', 'cavityBurnt'], noiseType: NOISE, heatState: ['noHeat', 'heatPresent'] },
+  REQUIRES: { mwSparkCause: ['mw_no_casing'], 'mw-cavity-check': ['mw_no_casing'], noiseType: [], heatState: [], 'turntable-parts': ['mw_no_casing'], retest: [] },
+  early(h) { return normalHum(h) ? { target: 'normal-operating-hum', reason: 'hums-while-heating-normally', rule: 'MN5', handoff: 'none' } : null; },
   FIX_CHECKS: ['turntable-parts'],
   steps: [
     { n: 10, target: 'mwSparkCause', reason: 'metal-cover-or-paint', when: (h) => h.has('arcing') && !h.has('metal') && !h.has('coverDamaged') && !h.has('cavity') },
     { n: 11, target: 'mw-cavity-check', reason: 'look-inside-unplugged', when: (h) => SPARK(h) && !h.has('coverDamaged') && !h.has('cavity') },
     { n: 12, target: 'noiseType', reason: 'type-the-noise', when: (h) => !SPARK(h) && !NOISE.some((k) => h.obs(k) === true) },
     { n: 13, target: 'turntable-parts', reason: 'turntable-rumble-rattle', when: (h) => !SPARK(h) && (h.has('rattle') || h.has('grind') || h.has('scrape')) },
+    { n: 14, target: 'heatState', reason: 'hum-normal-if-it-heats', when: (h) => !SPARK(h) && h.has('hum') && h.obs('noHeat') == null && h.obs('heatPresent') == null },
   ],
   PART_FAMILIES: new Set(['WG']),
   HANDOFF: { ME: 'none', WG: 'engineer', CB: 'engineer', HS: 'engineer', TN: 'none', HN: 'engineer' },
@@ -85,13 +95,14 @@ const pipeline = JP.makeModelPartPipeline({
 
 // ---- COMPOSE (wording only) ----
 const FAMILY_LABEL = { 'metal-or-foil-inside': 'metal or foil inside', 'waveguide-cover': 'a burnt waveguide cover', 'cavity-paint-burnt': 'burnt / chipped paint inside', 'arcing-high-voltage-side': 'the high-voltage side',
-  'turntable-noise': 'the turntable parts', 'high-voltage-noise': 'the high-voltage parts' };
+  'turntable-noise': 'the turntable parts', 'high-voltage-noise': 'the high-voltage parts', 'normal-operating-hum': 'the normal running hum' };
 const COMPONENT_LABEL = { 'waveguide-cover': 'waveguide cover' };
 const TASK = {
   'ask_observation:mwSparkCause': { say: 'With it unplugged and the door open, have a look inside.', ask: 'Was there any metal, foil or a dish with a metal rim inside, is the small cover panel on the inside wall burnt or damaged, or is the paint inside burnt or chipped?' },
   'ask_check:mw-cavity-check': { say: 'With it unplugged and the door open, take out anything metal or foil, then look closely at the small flat cover panel on the inside wall (usually on the right) and the paint inside — wipe off any food splatter on the panel.', ask: 'Did you find metal / food splatter and remove it, is the cover panel burnt or holed, or does everything look clean and undamaged?' },
   'ask_observation:noiseType': { say: 'The sound tells us where it\'s coming from.', ask: 'Is it a rattle or grinding as the turntable goes round, or a loud buzz / hum from inside?' },
   'ask_check:turntable-parts': { say: 'Lift the glass tray out, clean the roller ring and the floor under it, check the coupler in the middle isn\'t cracked, and refit the tray on the coupler.', ask: 'Was the tray off the coupler or the ring dirty (and is it sorted), is a part broken, or was it all fine?' },
+  'ask_observation:heatState': { say: 'A microwave normally hums while it runs — the magnetron, transformer and fan all make a steady hum.', ask: 'Does it still heat food normally, or has it stopped heating?' },
   'ask_check:retest': { say: 'Try it with a cup of water for a minute.', ask: 'Has the noise gone, or is it still there?' },
   'ask_identity:model': F.MW_MODEL_ASK, 'ask_identity:appliance': F.MW_APPLIANCE_ASK,
 };
@@ -101,6 +112,7 @@ const CONCLUSION = {
   'arcing-high-voltage-side': `Sparking with no metal inside and nothing visibly burnt points to the high-voltage side. Please don't use it again. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
   'waveguide-cover': 'A burnt or holed waveguide cover is a common cause of sparking. Please don\'t use the microwave until it\'s replaced. With your model number I can check for the cover; I\'m not recommending a part without it.',
   'MN7:turntable-noise': 'That was the turntable parts, so no part is needed.',
+  'normal-operating-hum': 'A steady hum while it runs is normal — it\'s the magnetron, transformer and cooling fan working. As it heats food normally with no sparks, burning smell or smoke, nothing needs fixing and no part is needed. If the hum turns into a loud buzz, it stops heating, or you see sparks or smell burning, stop using it and let me know.',
   'high-voltage-noise': `A loud buzz or hum from inside (rather than the turntable) points to the high-voltage parts. Please don't keep using it. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
 };
 const compose = ck.createCompose({

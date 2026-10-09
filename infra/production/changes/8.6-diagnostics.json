@@ -1,0 +1,64 @@
+{
+  "id": "8.6-diagnostics",
+  "description": "GOLD v2 remediation, journey diagnostics: a normal microwave hum (heats normally, no sparking / burning) is not a high-voltage fault (the HV stop-use stays for no heat or sparking); a corded vacuum never takes the battery path; a dishwasher continues owner-safe drain checks after a cleaned filter; water inside a warm fridge is the defrost drain; a washer-dryer drying-only leak is the condensed-water path; 'not sure' twice gives the usual causes instead of another question; the mc/1 reported-done probability override is removed (diagnosis.jev.mc1 v3). The diagnosis Lambda zip differs in canonical/{compose-kit,dw1-not-draining,ff1-not-cooling,mc1-questions,mw2-not-starting,mw5-noisy-sparking,ov2-overheating,policy-kit,vac-family,wd-family,wd-not-drying}.js. Code only; no configuration, permission or URL change. S4R /part-finder runs the legacy pipeline. Previous code: DJcWEwQyaUQQ+MiPHgRoLL9OJzzIUMoFAPurLHMIq0M= (phase8/ key in the AC assets bucket).",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change. The read-only base already allows lambda:Get* on AC functions.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

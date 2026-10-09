@@ -60,7 +60,8 @@ describe('policy', () => {
     expect(r.rules[1]).not.toMatch(/^K1:/);
     expect(run('socket').rules.slice(1)).toEqual(['K1:electrical_water', 'K1:electrical_water']);
   });
-  it('sparse → location → base tray → unconfirmed engineer', () => { expect(run('sparse').rules).toEqual(['K10:dwLeakLocation', 'K15:waterInBase', 'K22:fault-source-unconfirmed']); });
+  // GOLD v2 remediation: "not sure" twice ends with the usual causes, most likely first (engineer), not a bare "unconfirmed"
+  it('sparse → location → base tray → usual causes, engineer', () => { expect(run('sparse').rules).toEqual(['K10:dwLeakLocation', 'K15:waterInBase', 'K22:likely-causes']); expect(run('sparse').last.conclusion.handoff).toBe('engineer'); });
 });
 describe('part gate', () => {
   it('internal / flood never yields a part; drain hose split + model + listed → drain hose', () => {
