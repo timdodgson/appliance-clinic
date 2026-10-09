@@ -23,10 +23,11 @@
 const fs = require('fs');
 const path = require('path');
 
-// GOLD-v2.1 (49): GOLD-v2.0 after the value audit. scenarios.v2_0.json is kept unchanged as the historical set.
-const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_1.json');
+// GOLD-v2.2 (49): GOLD-v2.0 after the value audit, with G2-WD-04 corrected to washer-dryer facts (v2.2). The earlier
+// sets (scenarios.v2_0.json, scenarios.v2_1.json) are kept unchanged as historical sets.
+const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_2.json');
 
-const SCENARIO_SET_VERSION = 'GOLD-v2.1';
+const SCENARIO_SET_VERSION = 'GOLD-v2.2';
 const SCENARIO_COUNT = 49;
 
 const EXPECTED_FAMILY_DISTRIBUTION = Object.freeze({
