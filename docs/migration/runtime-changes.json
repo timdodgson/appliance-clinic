@@ -1,5 +1,5 @@
 {
-  "description": "Phase 7 onwards: deliberate changes to the runtime imported in Phase 2. Each modified imported file records its current SHA-256 and the change that made it; files added after the import are listed with their role. tools/migration/test/import-manifest.test.js checks both; build/test/run-tests.mjs also runs the tests added here. Refresh the hashes with: node tools/migration/bin/runtime-changes.mjs --write",
+  "description": "Phase 7 onwards: deliberate changes to the runtime imported in Phase 2. Each modified imported file records its current SHA-256 and the change that made it; files added after the import are listed with their role (runtime, test, or test-helper: a file tests load but the runner does not run). tools/migration/test/import-manifest.test.js checks both; build/test/run-tests.mjs also runs the tests added here. Refresh the hashes with: node tools/migration/bin/runtime-changes.mjs --write",
   "modified": [
     {
       "path": "services/whichpart-api/index.js",
@@ -52,6 +52,188 @@
       "sha256": "4c28c1c127e259c60fb89fd203898a15975f2ec46ddd1e7660f0b9593fd6657e",
       "changes": [
         "7.17c-ac-ai-secrets-cutover"
+      ]
+    },
+    {
+      "path": "services/part-finder/canonical/evidence-engine.js",
+      "sha256": "39e339a835f3dff6fa3c0855a63a1daa8cc77a2b34e43695c3d9c26294124c4b",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/canonical/j1-diagnostics.js",
+      "sha256": "3de23971e60d26076e12284d6ff511c0c43cd9eacb26efa444c8c1d3a5a79bed",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/inference.js",
+      "sha256": "f86dabf5a5c132915f5e71f3669b79a16d71df087002b4660e63d5170e3134b0",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/jev-understand.js",
+      "sha256": "eafad05cb60a09255e90415ec612b3892b5792c21d2be523c2e8678f62c78394",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/part-finder-lambda.js",
+      "sha256": "2e7ba154b64c70ab1180d12af1d9c568ee13c2439a3526ac9fd5526e08042af6",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/answered-discriminator.test.js",
+      "sha256": "f1a51b571d91ee39d061cad0581b66752051fb1604bb81b26f6d26f327e38db0",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/canonical-j1-control.test.mjs",
+      "sha256": "284f8d93c7aff9ce2b0afcf123d5c4262256ec8b50ab3b3ae5bc75008c0bbc17",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/conversation-progression.test.js",
+      "sha256": "ccb01e453dc7e7b1113cb2b2931368a4b6b9da1afbb3d0c1c2f327706d6d329e",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/diagnostic-evidence-reasoning.test.js",
+      "sha256": "6e1e4489e281baef0fdd784307b346ffa7e0773e1bbe4fe1815e71064a89d87d",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/diagnostic-presentation.test.js",
+      "sha256": "bbd8a9d8458dcef69b12c629fcae154b839c05184459f75eda4ed69f9b24e8ae",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/drain-vs-spin-diagnostic-depth.test.js",
+      "sha256": "87b4c1a98bc33af21c3a453b6d7270c29562c370c8cdf4bfe923f49924a0f735",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/drying-diagnostic-depth.test.js",
+      "sha256": "21a1239c879b93af531bd9f8d2c5ec73f10799e89109e47e5990707aee640600",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/engineering-finding.test.mjs",
+      "sha256": "c68b59484828928039de76130f2ed75e6611944feda26c00de0b1a6cdec04b58",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/error-code-component.test.js",
+      "sha256": "e98b7cc3fbcffafcb0818103a8836c1d5d75329ef32c315b293c25422a54ec7e",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/fridge-warm-fridge-cold-freezer-depth.test.js",
+      "sha256": "586cae7e8f948a745904ba313e0a91691b8496db48f54b6fcc679d3a196aa8ee",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/hard-diagnostic-correctness.test.js",
+      "sha256": "83ef9b273fe94fd6080981387921017cedd72bcf45f59eb7e03d7251eccefd8e",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/hob-single-zone-diagnostic-depth.test.js",
+      "sha256": "bfb10699368d0700952cc6db77a073682aee6ccb11f9063545120952a22dc267",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/identification-fit-confidence.test.js",
+      "sha256": "8cbc0254517334f1a42c76f8b433951398d678366abd5e8b8b773af70584dde7",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/material-diagnostic-discrimination.test.js",
+      "sha256": "d30e9700558128edc16a9333697fd1aee4017d9b21c078882e730fcd355bd58c",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/media-neutrality.test.mjs",
+      "sha256": "c5eb82fe22c71e545ce3a7e2a8dfc1bd8fa3447ba6022039701c8d198fc2fb65",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/microwave-not-heating-depth.test.js",
+      "sha256": "2810cac885f45c3f964832898f8b79155d12678b25377674fc9cb60379887f11",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/normal-behaviour.test.js",
+      "sha256": "6adce08d01f113277ebed4f9bc59f363b7460e7c007b53995c0ad68d1023f05f",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/oven-first-use-burnoff.test.js",
+      "sha256": "fcf3afc473e7f327a15735641543765f141d49bccff63512f1361c4202599f45",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/vacuum-observation-authority.test.js",
+      "sha256": "5793f618aa9b49b7e1b82e155595e5c3eb723c48266a9e8677e5d60d673b9222",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/washing-machine-leak-source-depth.test.js",
+      "sha256": "e016816cdcf408b7c83fcce4ef14df6434aca286993a964881ced691f0a54968",
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/test/diagnosis-vs-part-fit.test.mjs",
+      "sha256": "4ff82be7c27d975630000c4d0a78827b2e586f91f7b442eb9c333384e8aba50e",
+      "changes": [
+        "8.1-engine-split"
       ]
     }
   ],
@@ -175,6 +357,182 @@
       ],
       "changes": [
         "7.17c-ac-ai-secrets-cutover"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/catalogue.js",
+      "sha256": "7524e97d0f3beec126ec7cd055bb7b41258bdeeff8cd6e3b5541c13745300212",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/compose.js",
+      "sha256": "ccf1fff1a19f112a93777e62d0be715aa2b4272feac26acc3ab3d540f42bb3ee",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/config.js",
+      "sha256": "d8fae983f329385493eebb2ac2b2e182da1d674beec33ef3421520ca825a08d9",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/conversation.js",
+      "sha256": "422154e74f5cb875a7aa72ff08135c890de31b2c80493de3fa0319faeeabc5c4",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/error-codes.js",
+      "sha256": "05ba2943a40d57ed470c65b7ba8ec142d4fb4ffcd1e8cb442d04626c07bddcab",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/evidence.js",
+      "sha256": "8bc429cc40fed1346f5341d02cd988d634b90a51051bc2bca941970cfa495428",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/intent-vocabulary.js",
+      "sha256": "413984ba6993691694430f57432d02c4b98f11f5305bb265a87686b75caf4293",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/learning-log.js",
+      "sha256": "6d3d660b52150de4295ddeb30e62fb931e270301b9e7a718e245aea128485d05",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/media-concepts.js",
+      "sha256": "cbbc413c2ed5b571d08be13020ed8e583657808430e379b483d7ffb59151a2f7",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/parts-client.js",
+      "sha256": "684170429f567c862e9d9bd75a7464396f5319a0bfa71285731e58999db23a24",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/presentation.js",
+      "sha256": "04e06582128f2121f96ea31b63bf609aef4e2259afe6c47f222ae98dbaf589d3",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/progression.js",
+      "sha256": "d7db49075106449041d2b4ebab47273abe81012658d1d7626e90249b97fe393b",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/safety.js",
+      "sha256": "db73e98a7ec32cba5f47b1389162cc21cea5cfce6062e501a2f0e460c1a45e73",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine/understand.js",
+      "sha256": "98ec5bc6b2f6877e7b185931e5ac067a91cc23effcb2f1812d6d1b595347938d",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/engine-source.cjs",
+      "sha256": "d8a7a58c9dc1d0abe935c1747dad4611d04c886b357b24f3e92fac2d37dffdde",
+      "role": "test-helper",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/engine-structure.test.mjs",
+      "sha256": "b4d70ba16c71ff122c7dc546906d32c6d3b33b2732be7c24e8f41d210ae7a8d7",
+      "role": "test",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "8.1-engine-split"
       ]
     }
   ]

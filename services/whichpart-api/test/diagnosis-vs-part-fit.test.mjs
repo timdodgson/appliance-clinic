@@ -115,7 +115,7 @@ describe('safety precedence (unchanged)', () => {
 // ---------------------------------------------------------------------------
 describe('source guards', () => {
   const scoringSrc = readFileSync(join(HERE, '..', 'benchmark', 'acq-scoring.js'), 'utf8');
-  const composeSrc = readFileSync(join(HERE, '..', '..', 'part-finder', 'part-finder-lambda.js'), 'utf8');
+  const composeSrc = require('../../part-finder/test/engine-source.cjs')();
 
   it('scoring: modelOnlyRequest requires a delivered diagnosis (cannot exempt a bare model ask)', () => {
     expect(/function modelOnlyRequest\(view\)\s*\{[\s\S]*?diagnosisDelivered\(view\)/.test(scoringSrc)).toBe(true);

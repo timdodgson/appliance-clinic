@@ -103,7 +103,7 @@ check('G1 UNKNOWN noPower is neutral in scoring', scoreNodeEvidence(node('wont-r
 // ============================================================================
 // H. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('H1 no VC journey/benchmark id in code', !/vc-006|vc-00\d/i.test(codeOnly));
 check('H2 no "won\'t turn on -> remove burning" style rule', !/won'?t turn on[\s\S]{0,40}(burning|smell)/i.test(codeOnly));

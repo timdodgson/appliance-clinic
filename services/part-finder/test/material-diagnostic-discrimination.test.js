@@ -101,7 +101,7 @@ check('E2 no facts + contradictable leader -> surfaces a material discriminator'
 // ============================================================================
 // F. SOURCE GUARDS
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('F1 no journey/benchmark id in code', !/dw-015|wm-008|ov-003/i.test(codeOnly));
 check('F2 no "grinding -> foreign-object/bearings" fault string rule',

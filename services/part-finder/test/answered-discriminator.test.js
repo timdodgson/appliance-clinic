@@ -143,7 +143,7 @@ check('G4 single decisive strong support commits', (() => { const c = commit({ g
 // ============================================================================
 // H. SOURCE GUARDS — no journey/bearings string-rule, no new LLM call
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
 check('H1 no WM-008 / journey id in code', !/wm-008|wd-007|wm-025/i.test(codeOnly));
 check('H2 no "grinding -> bearings" string rule (no bearings faultId literal beside grinding)',

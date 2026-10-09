@@ -206,7 +206,7 @@ check('A11 schema requires checksReported', (INTENT_SCHEMA.required || []).inclu
 }
 
 {
-  const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const SRC = require('./engine-source.cjs')();
   const codeOnly = SRC.split('\n').filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//')).join('\n');
   check('D4 no benchmark / journey ids in product code', !/\bRJ-|H-001|CG-002|RO-001/i.test(codeOnly));
   check('D5 no special-case of this opening wording', !/spin just hums/i.test(codeOnly));

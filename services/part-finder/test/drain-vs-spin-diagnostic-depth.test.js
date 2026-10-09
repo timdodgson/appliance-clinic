@@ -76,7 +76,7 @@ for (const fam of ['washing-machine', 'washer-dryer']) {
 // ============================================================================
 // F. NO HARD-CODED SHORTCUTS (mutation guards, source-level)
 // ============================================================================
-const SRC = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+const SRC = require('./engine-source.cjs')();
 check('F1 no "wont spin -> motor" hard-code', !/won'?t ?spin[^\n]{0,30}motor/i.test(SRC));
 check('F2 no "water -> pump" hard-code', !/water[^\n]{0,25}->[^\n]{0,10}pump/i.test(SRC));
 check('F3 no "wet -> drain" hard-code', !/wet[^\n]{0,25}->[^\n]{0,10}drain/i.test(SRC));

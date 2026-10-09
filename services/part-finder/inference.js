@@ -2,7 +2,7 @@
 /**
  * Inference provider boundary for ApplianceClinic.
  *
- * The diagnostic pipeline (UNDERSTAND + COMPOSE in part-finder-lambda.js) used
+ * The diagnostic pipeline (UNDERSTAND + COMPOSE in engine/understand.js and engine/compose.js) used
  * to call LM Studio directly over an OpenAI-compatible HTTP endpoint. This
  * module turns that into an INFRASTRUCTURE boundary: the engine now depends on
  * a small `infer()` contract and no longer knows which provider serves the

@@ -79,7 +79,7 @@ const original = readFileSync(MEDIA_PATH, 'utf8');
 
 // ---- B. STATIC DATAFLOW PROOF (engine) ------------------------------------------------------
 {
-  const lambda = readFileSync(join(HERE, '..', 'part-finder-lambda.js'), 'utf8');
+  const lambda = require('./engine-source.cjs')();
   const iResolve = lambda.indexOf('resolveFault(intent)');
   const iCand = lambda.indexOf('let candidateComponents');
   const iMediaBlock = lambda.indexOf('let media = [];');

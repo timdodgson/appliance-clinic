@@ -151,7 +151,7 @@ describe('diagnose: canonicalRespond (COMPOSE wording only)', () => {
 
 describe('legacy Journey 1 logic is bypassed on a controlled turn (structural)', () => {
   const fs = require('node:fs');
-  const SRC = fs.readFileSync(new URL('../part-finder-lambda.js', import.meta.url), 'utf8');
+  const SRC = require('./engine-source.cjs')();
   const handlerStart = SRC.indexOf("if (body.mode === 'understand')");
   const branch = SRC.indexOf('if (canonicalRuntime().controls(body.canonical)) {', handlerStart);
   it('the control branch returns before every legacy J1 progression / COMPOSE site in the handler', () => {

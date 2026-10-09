@@ -1,7 +1,7 @@
 'use strict';
 /**
  * Shared deterministic evidence engine for canonical journey diagnostics. PURE.
- * Semantics are identical to part-finder-lambda.js scoreNodeEvidence / factConflict (equivalence-tested):
+ * Semantics are identical to engine/evidence.js scoreNodeEvidence / factConflict (equivalence-tested):
  *   TRUE:  STRONG_SUPPORT +2 (strong), SUPPORT +1, AGAINST -1, STRONG_AGAINST -3
  *   FALSE: STRONG_SUPPORT -2, STRONG_AGAINST +2 (strong)
  *   contradicted = a TRUE fact on STRONG_AGAINST, or a FALSE fact on STRONG_SUPPORT

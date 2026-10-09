@@ -169,7 +169,7 @@ const facts = (obj) => Object.entries(obj).map(([name, value]) => ({ name, value
 // H. Source guards — no journey ids / no benchmark-answer map in production logic
 // ============================================================================
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'part-finder-lambda.js'), 'utf8');
+  const src = require('./engine-source.cjs')();
   const codeLines = src.split('\n').filter((l) => !l.trim().startsWith('//') && !l.trim().startsWith('*'));
   const blob = codeLines.join('\n');
   check('H1 no OV-006 journey id in production logic', !/OV-006/.test(blob));
