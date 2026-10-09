@@ -3,7 +3,8 @@
  * Phase 7 onwards: the reviewed changes (infra/cdk/config/runtime-overrides.json), applied to the live capture. Only
  * production names are overridden; the sandbox profile has no overrides.
  *   functions.<name>.env.set / env.unset   environment variables (a value may be a {{resolve:secretsmanager:...}} reference)
- *   functions.<name>.code                  {s3Bucket, s3Key} of a zip built from this repository
+ *   functions.<name>.code                  {s3Bucket, s3Key} of a zip built from this repository, or {imageUri} (by digest)
+ *                                          of an image built from this repository for an image function
  *   functions.<name>.url.cors              the Function URL CORS: null removes it, an object replaces it (live shape)
  *   functions.<name>.permissions.<sid>     {invokedViaFunctionUrl: true}: a resource-policy statement is limited to
  *                                          invocations through the function's URL. <sid> is the imported statement id

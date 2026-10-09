@@ -20,6 +20,10 @@ describe('runtime overrides', () => {
     expect(out.functions.f.codeOverride).toEqual({ s3Bucket: 'b', s3Key: 'k' });
     expect(out.roles.r.inline.p).toEqual(doc);
   });
+  it('records an image override (by digest) for an image function', () => {
+    const uri = '800960611664.dkr.ecr.eu-west-1.amazonaws.com/repo@sha256:' + 'a'.repeat(64);
+    expect(applyOverrides(live(), { functions: { f: { code: { imageUri: uri } } } }).functions.f.codeOverride).toEqual({ imageUri: uri });
+  });
   it('is the desired state: applying it to an already-changed capture changes nothing more', () => {
     const o = { functions: { f: { env: { set: { B: '3' }, unset: ['A'] } } } };
     const once = applyOverrides(live(), o);
