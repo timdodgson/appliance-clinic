@@ -1,0 +1,66 @@
+{
+  "id": "8.9b-orchestrator-clarify",
+  "description": "GOLD v2 remediation: the orchestrator's open 'describe the problem' clarification asks ONE question (the common symptoms as choices) instead of two bundled questions. The image differs from production only in orchestration/orchestrator.py (build/scripts/compare_image.py: base identical, 1901/1902 files identical). Deployed by digest (the arm64 image manifest) instead of the :v1 tag. Code only; no configuration, permission or URL change. Previous image: sha256:d681e5556cd10867a53013e4b52c28887726b24c401071725df3ecbb45df8e07 (:v1).",
+  "classification": "SAFE AC CHANGE (AC-only function; S4R health and the /part-finder contract checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      ]
+    },
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the orchestrator only, by image digest; read of that image in its ECR repository (the repository policy already lets Lambda pull). No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-part-finder"
+    ]
+  }
+}
