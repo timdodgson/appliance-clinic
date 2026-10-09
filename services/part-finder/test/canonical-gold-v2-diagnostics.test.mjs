@@ -128,4 +128,13 @@ describe('live GOLD follow-ups (after 8.6)', () => {
     const JC = compose('wd-not-drying');
     expect(JC.brief(r.state, r.last, null, {}).latest).toContain('fluff filter clean');
   });
+  it('a washer-dryer drying-only leak says why it is the drying side, and makes no part claim', () => {
+    const JC = compose('wd-not-drying');
+    const r = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')])]);
+    expect(JC.template(JC.brief(r.state, r.last, null, {}))).toMatch(/only leaks while drying/);
+    const r2 = H.play(J('wd-not-drying'), [open('washer-dryer', 'leaking', [O('wdDrySide')]), C({ observations: [O('leaksOnDrain')] })]);
+    const t = JC.template(JC.brief(r2.state, r2.last, null, {}));
+    expect(t).toMatch(/condensed-water path/);
+    expect(t).not.toMatch(/No part is needed/);
+  });
 });
