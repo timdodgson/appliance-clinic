@@ -47,7 +47,7 @@ function fixTurn(s) {
   return t;
 }
 const K = kit.makeKit({ checks: CHECKS, observations: OBS_TARGETS,
-  outcomeObs: { 'empty-spin-test': 'spinsEmpty', 'spin-command': 'commandedSpin' }, resetAfter: { 'spin-command': fixTurn } });
+  outcomeObs: { 'empty-spin-test': 'spinsEmpty', 'spin-command': 'commandedSpin', 'drum-by-hand': 'drumTurnsByHand' }, resetAfter: { 'spin-command': fixTurn } });
 const { obs, obsTurn, chk, blocked, askable, settled, modelKnown, modelAskable, problemOf, counted } = K;
 
 function spinStale(s) { const f = fixTurn(s); const t = obsTurn(s, 'commandedSpin'); return t == null || (f != null && t < f); }
@@ -132,7 +132,10 @@ function nextStep(s, d) {
   if (turns) {
     const loadSignals = has('redistributes') || has('vibration') || obs(s, 'loadDependent') === true;
     if (loadSignals && askable(s, 'load-check')) return () => askCheck(s, 'load-check', 'load-balance-suspected', 'S11');
-    if (!has('emptySpinOk') && !has('emptySpinFails') && !has('spinOnCommand') && askable(s, 'empty-spin-test')) {
+    // a spin-only programme already failed with the motor silent: the motor does not even try, so an empty drum
+    // cannot separate the load from the machine
+    const motorDead = obs(s, 'commandedSpin') === false && obs(s, 'motorAudible') === false;
+    if (!motorDead && !has('emptySpinOk') && !has('emptySpinFails') && !has('spinOnCommand') && askable(s, 'empty-spin-test')) {
       return () => askCheck(s, 'empty-spin-test', 'empty-spin-separates-load-from-machine', 'S12');
     }
     if (has('emptySpinOk') || has('spinOnCommand')) {

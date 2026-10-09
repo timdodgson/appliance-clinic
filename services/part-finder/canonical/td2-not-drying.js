@@ -58,9 +58,10 @@ const P = kit.makeStepPolicy({
     'sensor-bars': ['td_unplug_cool'], 'programme-setting': [], retest: [] },
   FIX_CHECKS: ['lint-filter', 'load-check', 'condenser', 'vent-duct', 'sensor-bars', 'programme-setting'],
   steps: [
-    { n: 10, target: 'heatState', reason: 'heat-or-no-heat', when: (h) => !h.has('warm') && F.heatState(h.s) == null },
-    { n: 11, target: 'dryerType', reason: 'technology-decides-airflow', when: (h) => !archKnown(h) },
+    // the fluff filter first: free, safe, on every dryer type, and a blocked one also trips the heat off
     { n: 12, target: 'lint-filter', reason: 'lint-filter-airflow', when: () => true },
+    { n: 11, target: 'dryerType', reason: 'technology-decides-airflow', when: (h) => !archKnown(h) },
+    { n: 10, target: 'heatState', reason: 'heat-or-no-heat', when: (h) => !h.has('warm') && F.heatState(h.s) == null },
     { n: 13, target: 'load-check', reason: 'overloaded-or-not-spun', when: (h) => !h.has('filterTorn') },
     { n: 14, target: 'condenser', reason: 'condenser-airflow', when: (h) => (h.has('condenser') || h.has('heatPump')) && !h.has('filterTorn') },
     { n: 15, target: 'vent-duct', reason: 'vent-airflow', when: (h) => h.has('vented') && !h.has('filterTorn') },
@@ -85,7 +86,7 @@ const COMPONENT_LABEL = { 'lint-filter': 'lint (fluff) filter' };
 const TASK = {
   'ask_observation:heatState': { say: 'First, whether it\'s heating.', ask: 'Partway through a drying programme, is the air and the laundry warm, or completely cold?' },
   'ask_observation:dryerType': { say: 'The type of dryer changes what to check.', ask: 'Is it a vented dryer (a hose out of the back), a condenser dryer with a water container, or a heat-pump dryer?' },
-  'ask_check:lint-filter': { say: 'Hot but damp laundry is usually an airflow problem. Clean the fluff filter in the door opening — heat-pump models often have a second filter at the bottom too.', ask: 'Was it full of fluff (and is it clean now), is the mesh torn, or was it already clean?' },
+  'ask_check:lint-filter': { say: 'Damp laundry is most often an airflow problem, and the first free check is the fluff filter in the door opening — heat-pump models often have a second filter at the bottom too.', ask: 'Was it full of fluff (and is it clean now), is the mesh torn, or was it already clean?' },
   'ask_check:load-check': { say: 'Overloading, or putting clothes in that weren\'t spun well in the washer, makes drying much slower. The drum should be no more than about two-thirds full.', ask: 'Was it overloaded or were the clothes very wet going in (and have you changed that), or was it a normal, well-spun load?' },
   'ask_check:condenser': { say: 'Behind the flap at the bottom front there\'s a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off under the tap, then let it drip-dry and refit it.', ask: 'Was it clogged with fluff (and is it clean now), or was it already clean?' },
   'ask_check:vent-duct': { say: 'Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside vent.', ask: 'Was it kinked, squashed or blocked (and is it sorted), or was it already clear?' },

@@ -2,7 +2,7 @@
 /**
  * Shared COMPOSE kit (wording only) for canonical journeys. PURE. Extracted from Journey 1.
  *   createCompose(pack) -> {brief, prompt, template, checkReply}
- * pack = {TASK, retestKey(nextAction)->key|null, conclusionCopy(state, a), OBS_COPY, CHECK_RESULT_COPY, statusChecks[], extraFacts(state, a)}
+ * pack = {TASK, retestKey(nextAction, state)->key|null, conclusionCopy(state, a), OBS_COPY, CHECK_RESULT_COPY, statusChecks[], extraFacts(state, a)}
  * Every word a customer reads is either fixed copy keyed by typed keys, or an LLM rewording of it that
  * checkReply verifies (question count, no invented part / purchase / model ask, required safety present).
  */
@@ -98,11 +98,14 @@ SAFETY_COPY.sparks_at_supply = SAFETY_COPY.supply_trip;
 
 
 const REOFFER = 'No problem if you haven\'t had a chance yet.';
+// they looked and found it blocked / dirty but have not cleared it yet: clearing it is the next step
+const REOFFER_FOUND = 'You\'ve found it blocked, so clearing it is the next step, and that may well sort it.';
 // Re-offer framing by the typed outcome of the previous request for the same target.
 function reofferFrame(state, target) {
   const rs = ((state && state.requests) || []).filter((r) => r.target === target);
   const last = rs.length ? rs[rs.length - 1].outcome : null;
   const k = state && state.evidence && state.evidence.checks && state.evidence.checks[target];
+  if (k && k.status === 'not_done' && k.result === 'found_unspecified') return REOFFER_FOUND;
   return last === 'not_done' || (k && k.status === 'not_done') ? REOFFER : '';
 }
 
@@ -130,12 +133,14 @@ function makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks) {
     for (const [k, [t, f]] of Object.entries(OBS_COPY)) {
       const o = obs[k]; const v = o && o.value;
       if (!o || !isNow(Math.max(o.turn || 0, o.lastTurn || 0))) continue;
+      if (o.basis === 'derived') continue; // what the customer reported, never what we inferred from it
       if (v === true && t) out.push(t); else if (v === false && f) out.push(f);
     }
     const checks = (state.evidence && state.evidence.checks) || {};
     for (const [c, m] of Object.entries(CHECK_RESULT_COPY)) {
       const k = checks[c]; if (!k || !isNow(k.turn)) continue;
       if (k.status === 'done' && m[k.result]) out.push(m[k.result]);
+      else if (k.status === 'not_done' && k.result === 'found_unspecified') out.push(`${c.replace('-', ' ')}: found blocked or dirty, not cleared yet`);
       else if (STATUS_COPY[k.status]) out.push(`${c.replace('-', ' ')}: ${STATUS_COPY[k.status]}`);
     }
     // Status-only functional checks (their result is an observation): report a non-performed status.
@@ -170,7 +175,7 @@ function createCompose(pack) {
     return task && task.say ? `${text} If you haven't had a chance yet, this check comes first: ${task.say}` : text;
   }
   function brief(state, a, diag, { partLookup = null, media = [] } = {}) {
-    const key = retestKey(a) || `${a.kind}:${a.target}`;
+    const key = retestKey(a, state) || `${a.kind}:${a.target}`;
     const task = TASK[key] || null;
     const isAsk = /^ask_/.test(a.kind);
     return {
@@ -228,7 +233,7 @@ function createCompose(pack) {
     } else if (b.conclusion) lines.push(b.conclusion);
     if (b.safety.length) lines.push('', 'SAFETY (all required):', ...b.safety.map((s) => `- ${s.copy}`));
     else lines.push('', 'SAFETY: none for this step — do not add any safety or physical instructions.');
-    if (b.media.length) lines.push('', `A ${b.media.map((m) => (m.type === 'VIDEO' ? 'video' : 'picture')).join(' and ')} is shown below the reply; you may mention it once.`);
+    if (b.media.length) lines.push('', `MEDIA (instruction, not content): the app shows a ${b.media.map((m) => (m.type === 'VIDEO' ? 'video' : 'picture')).join(' and ')} under your reply. You may point the customer to it once in your own words; never copy this line.`);
     if (b.part) lines.push('', 'Do not quote a price or a part number.');
     const q = b.task ? b.task.ask : b.confirm;
     if (q) lines.push('', `End with this one question: ${q}`);
@@ -237,6 +242,8 @@ function createCompose(pack) {
   }
   
   const MODEL_ASK_RE = /\bmodel (number|no\.?)\b/i;
+  // Prompt scaffolding copied into the reply (instruction text, section labels) is a contract breach.
+  const PROMPT_ECHO_RE = /you may (mention|point the customer to) (it|them) once|shown below the reply|never copy this line|\b(CONTENT to convey|SAFETY \(all required\)|FACTS \(trusted\)|MEDIA \(instruction)/i;
   const ASK_COMPONENT_WORDS = /\b(pcb|control board|motor|bearings?|heater|heating element|element|thermostat|thermistor|sensor|magnetron|capacitor|diode|transformer|inlet valve|drain pump|drive belt|compressor|relay|igniter|thermocouple|gas valve|regulator|interlock|battery|charger|fan motor|power board|induction (module|board|coil))\b/gi;
   
   /** Verify COMPOSE kept to the NextAction. Missing safety -> fixed copy prepended; contract breach -> fallback. */
@@ -260,6 +267,7 @@ function createCompose(pack) {
     const asksModel = (text.match(/[^.!?]*\?/g) || []).some((q) => MODEL_ASK_RE.test(q));
     if (!(a.kind === 'ask_identity' && a.target === 'model') && asksModel) violations.push('model-ask-not-decided');
     if (text.split(/\s+/).length > 190) violations.push('too-long');
+    if (PROMPT_ECHO_RE.test(text)) violations.push('prompt-echo');
     if (violations.length) return { ok: false, reply: template(b), violations };
     const plain = text.replace(/[\u2018\u2019]/g, "'"); // typographic apostrophes ("don’t") match the markers too
     const missing = b.safety.filter((s) => !REQUIREMENT[s.token].marker.test(plain));
@@ -292,7 +300,7 @@ function followUpCopy(a) {
   const tail = c.handoff === 'none' || !HANDOFF_COPY[c.handoff] ? 'just let me know what you find.' : HANDOFF_COPY[c.handoff].replace(/^./, (x) => x.toLowerCase());
   return `No problem — nothing changes from what I said above. ${next}${next ? tail : tail.replace(/^./, (x) => x.toUpperCase())}`;
 }
-function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fitNote = 'Switch the machine off and unplug it before fitting it; if you\'d rather not, an appliance engineer can fit it.' }) {
+function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, REASON = {}, fitNote = 'Switch the machine off and unplug it before fitting it; if you\'d rather not, an appliance engineer can fit it.' }) {
   return function conclusionCopy(state, a) {
     const c = a.conclusion || {};
     const model = state.identity.model && state.identity.model.confirmed ? state.identity.model.value : null;
@@ -306,7 +314,10 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fi
     if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
     if (c.level === 'component' && COMPONENT_LABEL[c.component]) {
       const noMatch = unavailable ? 'Without the model number I can\'t match the exact part' : 'I can\'t match a compatible part for your model from here';
-      // a component is the leading candidate from what the customer described, never a certain cause (nothing was tested)
+      // a component is the leading candidate from what the customer described, never a certain cause (nothing was tested);
+      // a journey may say WHY the evidence points there (REASON[component](state) -> sentence | null)
+      const why = typeof REASON[c.component] === 'function' ? REASON[c.component](state, a) : null;
+      if (why) return `${why} That makes the ${COMPONENT_LABEL[c.component]} the most likely cause — it would need testing to be certain. ${noMatch}, so an appliance engineer is the best next step.`;
       return `From what you've described, the ${COMPONENT_LABEL[c.component]} is the most likely cause — it would need testing to be certain. ${noMatch}, so an appliance engineer is the best next step.`;
     }
     if (CONCLUSION[c.cause]) return typeof CONCLUSION[c.cause] === 'function' ? CONCLUSION[c.cause](state, a) : CONCLUSION[c.cause];

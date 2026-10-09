@@ -87,7 +87,7 @@
     },
     {
       "id": "diagnosis.canonical.compose",
-      "version": 2,
+      "version": 3,
       "purpose": "Canonical COMPOSE: words one already-chosen NextAction from a typed brief. The output is checked; failures fall back to fixed templates.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -115,6 +115,12 @@
           "date": "2026-10-09",
           "fingerprint": "aa040d9f9253796dc7aff438db4829e90c04bab6c81942c669475b6a36d1973f",
           "change": "GOLD v2 remediation: a conclusion carries an owner check the customer moved past (said once, with its safety copy); a conclusion repeated with nothing new is a short follow-up; the conclusion template includes the step's safety copy."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-09",
+          "fingerprint": "faa40a58b7fc69e8bd0cf7d87cc54e360e49e2fff012e4e2d7d2d670fdd4a035",
+          "change": "Media line marked as an instruction (never copied into the reply); a reply that echoes prompt scaffolding falls back to the fixed template. The washing-machine not-draining filter step names a noise heard while it tries to empty."
         }
       ]
     },
@@ -150,7 +156,7 @@
     },
     {
       "id": "diagnosis.jev.mc1",
-      "version": 7,
+      "version": 8,
       "purpose": "The canonical mc/1 question set: what the latest customer message alone says, resolved against the prior assistant message, the pending request and a cs/1 summary.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -216,6 +222,12 @@
           "date": "2026-10-09",
           "fingerprint": "a2a74d69fe7e079fb21467142ea0e49b97e6dfdb1db6d14db9c2ee1328144126",
           "change": "Full GOLD v2.1 follow-up (8.6g): the pending-check question treats a message about a DIFFERENT check ('haven't checked the filter yet') as no report on the pending one."
+        },
+        {
+          "version": 8,
+          "date": "2026-10-09",
+          "fingerprint": "3e196ecffff401a97271e4352428c8f1164d54793777a0936d2a7378c61f2416",
+          "change": "GOLD final (8.13c): the pending-check question reads a hedged finding ('it looked a bit clogged') as done_found_unspecified, not not_done; the found result is kept so the re-offer says to clear it."
         }
       ]
     },

@@ -1,0 +1,89 @@
+{
+  "id": "8.10b-bearer-cutover",
+  "description": "Cut every consumer over to the bearer values regenerated in 8.10a, in one AcRuntimeStack update: the dynamic references now pin the new secret versions (orchestrator-bearer d73919bd-\u2026, mcp-bearer 40f015b8-\u2026), so whichpart-api, the orchestrator and the MCP re-resolve together. No value passes through the operator, git, a template or a log. The old values stop working. Environment only.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairserrorcodemcp",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-error-code-mcp",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role",
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    }
+  ],
+  "grantNotes": "Environment updates of the three AC functions and PassRole on their own roles. The pinned dynamic references are resolved with the read-only base's ResolveAcBearerReferences statement (the two bearer secrets only).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionCode",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:UpdateSecret"
+    ],
+    "resources": [
+      "whichpart-api",
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX",
+      "65vnizdmk4"
+    ]
+  }
+}

@@ -34,6 +34,10 @@ const TASK = {
     say: 'The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it\'s a free fix. On most washing machines it\'s behind a small flap or kick-plate at the bottom front.',
     ask: 'Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can\'t shift, or does anything look broken?',
   },
+  'ask_check:drain-filter:noise': {
+    say: 'A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it\'s often a free fix. On most washing machines it\'s behind a small flap or kick-plate at the bottom front.',
+    ask: 'Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can\'t shift, or does anything look broken?',
+  },
   'ask_check:drain-command': {
     say: 'Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out.',
     ask: 'Does the water pump away, and can you hear the pump humming or is it silent?',
@@ -83,6 +87,8 @@ const OBS_COPY = {
   waterRemaining: ['water left in the drum', 'no water left in the drum'],
   commandedDrain: ['a drain/spin programme pumped the water out', 'a drain/spin programme did not pump the water out'],
   pumpHumming: ['the pump hums when draining', 'the pump is silent when draining'],
+  grindingNoise: ['a grinding noise', null],
+  noiseOnDrain: ['the noise happens when it tries to empty', null],
   excessiveFoam: ['excess foam seen', null],
   waterReturnsAfterDrain: ['water comes back after draining / the sink backs up', null],
 };
@@ -113,7 +119,12 @@ function conclusionCopy(state, a) {
 const compose = ck.createCompose({
   TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, CONFIRM_ASK,
   statusChecks: [['drain-command', 'drain/spin test']],
-  retestKey: (a) => (a.kind === 'ask_check' && a.target === 'drain-command' && a.requestKind === 'retest' ? 'ask_check:drain-command:retest' : null),
+  retestKey: (a, state) => {
+    if (a.kind === 'ask_check' && a.target === 'drain-command' && a.requestKind === 'retest') return 'ask_check:drain-command:retest';
+    const o = state && state.evidence && state.evidence.observations && state.evidence.observations.noiseOnDrain;
+    if (a.kind === 'ask_check' && a.target === 'drain-filter' && o && o.value === true) return 'ask_check:drain-filter:noise';
+    return null;
+  },
 });
 const { brief, prompt, template, checkReply } = compose;
 

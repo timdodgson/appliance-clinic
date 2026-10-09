@@ -25,13 +25,14 @@ const OPEN = {
 const asWM = (turns) => turns.map((c) => (c.identity && c.identity.appliance && c.identity.appliance.value === 'washer-dryer'
   ? { ...c, identity: { ...c.identity, appliance: { value: 'washing-machine', basis: 'stated' } } } : c));
 const DRY = {
-  capacity: [[WD('not-drying', [O('heatPresent')]), ck('wd-dry-capacity', 'found_and_cleared'), ob(O('faultPersists', false))], 'WY11:wd-dry-capacity WY6:retest WY7:drying-load-over-capacity'],
-  airflow: [[WD('not-drying', [O('heatPresent')]), ck('wd-dry-capacity'), ck('programme-setting'), ck('inlet-hose-tap'), ck('drain-filter')],
-    'WY11:wd-dry-capacity WY12:programme-setting WY13:inlet-hose-tap WY14:drain-filter WY22:drying-fan-or-air-duct'],
-  heater: [[WD('not-drying', [O('noHeat')]), ck('programme-setting')], 'WY12:programme-setting WY22:drying-heater-or-thermostat'],
-  tap: [[WD('not-drying', [O('heatPresent')]), ck('wd-dry-capacity'), ck('programme-setting'), ck('inlet-hose-tap', 'found_and_cleared'), ob(O('faultPersists', false))],
-    'WY11:wd-dry-capacity WY12:programme-setting WY13:inlet-hose-tap WY6:retest WY7:condenser-water-supply'],
-  sideHandoff: [[WD('no-heat', [O('noHeat'), O('wdDrySide')])], 'WY12:programme-setting'],
+  // the fluff (pump-filter) check comes first on every drying path: free, safe, whatever the heat state
+  capacity: [[WD('not-drying', [O('heatPresent')]), ck('drain-filter'), ck('wd-dry-capacity', 'found_and_cleared'), ob(O('faultPersists', false))], 'WY14:drain-filter WY11:wd-dry-capacity WY6:retest WY7:drying-load-over-capacity'],
+  airflow: [[WD('not-drying', [O('heatPresent')]), ck('drain-filter'), ck('wd-dry-capacity'), ck('programme-setting'), ck('inlet-hose-tap')],
+    'WY14:drain-filter WY11:wd-dry-capacity WY12:programme-setting WY13:inlet-hose-tap WY22:drying-fan-or-air-duct'],
+  heater: [[WD('not-drying', [O('noHeat')]), ck('drain-filter'), ck('programme-setting')], 'WY14:drain-filter WY12:programme-setting WY22:drying-heater-or-thermostat'],
+  tap: [[WD('not-drying', [O('heatPresent')]), ck('drain-filter'), ck('wd-dry-capacity'), ck('programme-setting'), ck('inlet-hose-tap', 'found_and_cleared'), ob(O('faultPersists', false))],
+    'WY14:drain-filter WY11:wd-dry-capacity WY12:programme-setting WY13:inlet-hose-tap WY6:retest WY7:condenser-water-supply'],
+  sideHandoff: [[WD('no-heat', [O('noHeat'), O('wdDrySide')])], 'WY14:drain-filter'],
 };
 
 describe('wash side: the WM journey under the view, certified separately', () => {

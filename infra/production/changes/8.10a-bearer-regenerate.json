@@ -1,0 +1,25 @@
+{
+  "id": "8.10a-bearer-regenerate",
+  "description": "Rotate the two service bearer tokens after exposure in an operator session: a new passwordLength (48 to 64) on AcOrchestratorBearer and AcMcpBearer makes Secrets Manager generate a new value for each. No value passes through the operator, git, a template or a log. Consumers keep their deploy-time values until 8.10b pins the new versions. The other AC secrets do not change.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcDataStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    { "action": "Modify", "logicalId": "AcOrchestratorBearer", "type": "AWS::SecretsManager::Secret", "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-nIv5lp", "replacement": "False", "details": ["Properties.GenerateSecretString"] },
+    { "action": "Modify", "logicalId": "AcMcpBearer", "type": "AWS::SecretsManager::Secret", "physicalId": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-rnQlBp", "replacement": "False", "details": ["Properties.GenerateSecretString"] }
+  ],
+  "grant": [
+    { "Action": ["secretsmanager:UpdateSecret", "secretsmanager:PutSecretValue", "secretsmanager:DescribeSecret", "secretsmanager:TagResource", "secretsmanager:UntagResource"],
+      "Resource": ["arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-??????",
+                   "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-??????"] },
+    { "Action": ["secretsmanager:GetRandomPassword"], "Resource": ["*"] }
+  ],
+  "grantNotes": "A new generated value on the two bearer secrets only, and the random generator (GetRandomPassword takes no resource). No value read, no delete, no other secret, nothing under spares4repairs/.",
+  "writes": {
+    "types": ["AWS::SecretsManager::Secret"],
+    "expected": ["secretsmanager:UpdateSecret", "secretsmanager:PutSecretValue", "secretsmanager:TagResource", "secretsmanager:UntagResource"],
+    "forbidden": ["secretsmanager:DeleteSecret", "secretsmanager:CreateSecret", "secretsmanager:RestoreSecret", "secretsmanager:PutResourcePolicy"],
+    "resources": ["applianceclinic/production/orchestrator-bearer", "applianceclinic/production/mcp-bearer"],
+    "forbiddenResources": ["spares4repairs/", "canonical-state-token", "applianceclinic/production/jev", "applianceclinic/production/openai", "applianceclinic/production/ai-config", "SparesSite-dev", "eu-west-1_mUWucohuX"]
+  }
+}

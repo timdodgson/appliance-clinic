@@ -1,7 +1,8 @@
 # GOLD v2.1: test and rubric changes
 
-GOLD-v2.1 is GOLD-v2.0 after the value audit ([gold-v2-value-audit.md](gold-v2-value-audit.md)). It is the authoritative
-GOLD suite from now on. `scenarios.v2_0.json` stays unchanged as the historical set.
+GOLD-v2.1 is GOLD-v2.0 after the value audit ([gold-v2-value-audit.md](gold-v2-value-audit.md)). `scenarios.v2_0.json`
+stays unchanged as the historical set. The authoritative suite is now GOLD-v2.2 (below), which passed the Phase 8 gate
+49/49 twice: [gold-v2-final-gate.md](gold-v2-final-gate.md).
 
 | | GOLD-v2.0 | GOLD-v2.1 |
 |---|---|---|

@@ -73,10 +73,10 @@ const FAMILY_LABEL = { 'clock-or-auto-mode': 'the clock / timer being in auto mo
   'thermostat-or-sensor': 'the thermostat or temperature sensor', 'selector-or-control': 'the function selector or control' };
 const COMPONENT_LABEL = { 'fan-oven-element': 'fan-oven (circular) element' };
 const TASK = {
-  'ask_check:oven-clock-mode': { say: 'Many ovens won\'t heat at all after a power cut (or with an end time set) until the clock is set or manual mode is selected — often a hand symbol, or holding two buttons together; the manual shows how.', ask: 'Was the clock flashing or an auto / timer mode set (and have you set it to manual), or was the clock already set in manual mode?' },
+  'ask_check:oven-clock-mode': { say: 'Many ovens won\'t heat at all after a power cut (or with an end time set) until the clock is set or manual mode is selected — often a hand symbol, or holding two buttons together; the manual shows how.', ask: 'Was the clock flashing or set to an auto / timer mode, or was it already showing the time in manual mode?' },
   'ask_observation:ovenFunctions': { say: 'This tells us which part has failed.', ask: 'If you try the grill on its own for a few minutes, does it heat — and does the main oven heat at all?' },
   'ask_observation:ovenFanTurns': { say: 'With the oven on the fan setting, look through the door at the fan cover at the back.', ask: 'Can you see or hear the fan turning?' },
-  'ask_check:programme-setting': { say: 'Check the function knob is on a heating function (not light-only, defrost or eco) and the temperature knob is turned up — the temperature light should come on.', ask: 'Was it on the wrong function or setting (and have you changed it), or was it set correctly?' },
+  'ask_check:programme-setting': { say: 'One quick check, because the defrost setting runs the fan with no heat: make sure the function knob is on a fan-oven heating symbol (a fan with a ring around it) rather than defrost, light-only or eco, and that the temperature knob is turned up so the temperature light comes on.', ask: 'Was it on one of those other settings, or was it already on a heating function with the temperature up?' },
   'ask_check:retest': { say: 'Set it to 180°C on the fan function for 15 minutes.', ask: 'Is it heating up properly now, or still not?' },
   'ask_identity:model': F.OVEN_MODEL_ASK, 'ask_identity:appliance': F.OVEN_APPLIANCE_ASK,
 };
@@ -87,13 +87,20 @@ const CONCLUSION = {
   'thermostat-or-sensor': 'Heating only slowly with the fan and grill working points to the thermostat / temperature sensor (or a weak element). That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
   'selector-or-control': 'With the clock working but nothing heating, the function selector or the control is the likely area. That needs an appliance engineer — please don\'t take any panels off. I\'m not recommending a part from this.',
 };
+// Why the evidence points at a component (used when no part can be matched): the grill has its own element.
+const ovObs = (s, k) => { const o = s.evidence && s.evidence.observations && s.evidence.observations[k]; return o ? o.value : null; };
+const REASON = {
+  'fan-oven-element': (s) => (ovObs(s, 'ovenFanTurns') === true && ovObs(s, 'grillWorks') === true
+    ? 'With the fan turning and the grill heating, power and the controls are reaching the oven — but the grill has its own element, so it working doesn\'t clear the fan-oven element behind the back panel.'
+    : null),
+};
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it heating properly now?',
   OBS_COPY: { grillWorks: ['grill heats', 'grill cold'], mainOvenWorks: ['main oven heats', 'main oven cold'], ovenFanTurns: ['fan turns', 'fan not turning'], heatsSlowly: ['heats slowly', null],
     clockFlashing: ['clock flashing', null], faultPersists: ['still not heating', 'heating now'] },
   CHECK_RESULT_COPY: { 'oven-clock-mode': { clear: 'clock set, manual mode', found_and_cleared: 'clock / auto mode sorted' }, 'programme-setting': { clear: 'setting correct', found_and_cleared: 'setting changed' } },
   statusChecks: [['retest', 'retest']],
-  conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'Switch the oven off at the isolator and let it cool before fitting it; the element sits behind the back panel inside — if you\'d rather not, an appliance engineer can fit it.' }),
+  conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, REASON, fitNote: 'Switch the oven off at the isolator and let it cool before fitting it; the element sits behind the back panel inside — if you\'d rather not, an appliance engineer can fit it.' }),
   PURCHASE_RE: /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(element|fan element|thermostat|sensor|probe|selector|switch|pcb|control board|fan motor)\b/i,
 });
 module.exports = { SPEC, FAMILY, diagnose, P, ...pipeline, FAMILY_LABEL, COMPONENT_LABEL, TASK, REQUIREMENT: ck.REQUIREMENT, SAFETY_COPY: ck.SAFETY_COPY, ...compose };

@@ -1,0 +1,64 @@
+{
+  "id": "8.12a-describe-turns",
+  "description": "GOLD v2 remediation, follow-up from final run 1 (DW-05): a still-vague second turn gets one concrete question about the last time the appliance was used (never the same open question again, never a menu of faults), and the done event reports exclusiveClarify so the orchestrator knows the reply is a describe-the-problem question (8.12b). part-finder differs in engine/progression.js and part-finder-lambda.js. Code only; no configuration, permission or URL change. The /part-finder contract only gains a boolean done field. Previous code: NjbH1Laem5K5+n25VWnxMzEJ9i+DORC7Yr4zNTL5h58= (8.11).",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change. The read-only base already allows lambda:Get* on AC functions.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

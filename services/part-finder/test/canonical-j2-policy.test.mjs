@@ -33,6 +33,14 @@ describe('Y01–Y30 single-state fixtures', () => {
   it('Y03 drains, drum movement unknown -> S10 drumTurns', () => {
     expect(decide(B())).toMatchObject({ kind: 'ask_observation', target: 'drumTurns', rule: 'S10' });
   });
+  it('Y04a spin-only already failed with the motor silent -> no empty-spin test; drum-by-hand reported counts as done', () => {
+    const s = F.obs(F.obs(turns(B()), 'commandedSpin', false, 2), 'motorAudible', false, 3);
+    expect(decide(s)).not.toMatchObject({ target: 'empty-spin-test' });
+    F.obs(s, 'drumTurnsByHand', true, 3);
+    const a = decide(s);
+    expect(a.target).not.toBe('empty-spin-test');
+    expect(a.target).not.toBe('drum-by-hand');
+  });
   it('Y04 turns on wash, nothing else -> S12 empty-spin test with door/shaking requires', () => {
     const a = decide(turns(B()));
     expect(a).toMatchObject({ kind: 'ask_check', target: 'empty-spin-test', rule: 'S12' });

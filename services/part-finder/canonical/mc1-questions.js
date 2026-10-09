@@ -500,7 +500,7 @@ const CHECK_STATUS = {
   done_clear: ['done', 'clear'], done_found_and_cleared: ['done', 'found_and_cleared'],
   done_found_not_cleared: ['done', 'found_not_cleared'], done_fault_seen: ['done', 'fault_seen'],
   // found dirt / a blockage but did not say it is dealt with: the owner fix is still to do (the check is not finished)
-  done_found_unspecified: ['not_done', null], done_no_result: ['done', null],
+  done_found_unspecified: ['not_done', 'found_unspecified'], done_no_result: ['done', null],
   not_done: ['not_done', null], declined: ['declined', null], unable: ['unable', null],
   // `unsure` deliberately has no mapping: a mention without a report records no check.
 };
@@ -762,7 +762,7 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
   if (pending && pending.slot === 'CHECK' && mc1.CHECK_KEYS.includes(pending.target)) {
     questions.mcPendingCheck = {
       type: 'choice',
-      instructions: `pendingRequest: we asked the customer to do this check: ${CHECK_DESC[pending.target]}. What does ${LATEST} report about THAT check? Short replies count ("it's clear" = done_clear, "done it" = done_no_result, "not yet" = not_done, "can't open it" = unable, "no I won't" = declined). A hedged report still reports the result: "I think it's fine", "there was a light earlier" = done_clear. A reply that gives the RESULT of running it again ("it starts now", "it works now", "fine now", "heating again", "it ran right through", "still the same") means they DID it = done_no_result — the result itself is recorded by the outcome question. Choose none if the message does not report on it (e.g. it fixed itself, or they ask something else) — including when it talks about a DIFFERENT check ("haven't checked the filter yet" is about the filter, not about this check).`,
+      instructions: `pendingRequest: we asked the customer to do this check: ${CHECK_DESC[pending.target]}. What does ${LATEST} report about THAT check? Short replies count ("it's clear" = done_clear, "done it" = done_no_result, "not yet" = not_done, "can't open it" = unable, "no I won't" = declined). A hedged report still reports the result: "I think it's fine", "there was a light earlier" = done_clear; "it looked a bit clogged", "there was some gunk in it" = done_found_unspecified (they looked and found something, but did not say they cleared it — that is NOT not_done). A reply that gives the RESULT of running it again ("it starts now", "it works now", "fine now", "heating again", "it ran right through", "still the same") means they DID it = done_no_result — the result itself is recorded by the outcome question. Choose none if the message does not report on it (e.g. it fixed itself, or they ask something else) — including when it talks about a DIFFERENT check ("haven't checked the filter yet" is about the filter, not about this check).`,
       criteria: resultCriteria,
     };
     plan.pendingCheck = ['mcPendingCheck', pending.target];

@@ -91,6 +91,18 @@ const choice = (c) => ({ type: 'choice', choice: c, confidence: 0.9, probabiliti
   const withFault = { applianceType: 'dishwasher', needMoreInfo: true, candidateComponents: [], _jev: { decisions: { symptomFamily: 'uncertain' } } };
   preferSingleVagueClarify(withFault, { faultId: 'x' }, {});
   check('23 grounded fault → no vague clarify', !withFault._exclusiveClarify);
+  const again = { applianceType: 'dishwasher', needMoreInfo: true, candidateComponents: [], _jev: { decisions: { symptomFamily: 'uncertain' } } };
+  preferSingleVagueClarify(again, null, { progress: { priorAdvisorText: 'Switch it off first. What is the main thing the dishwasher is doing wrong?' } });
+  check('24a still vague after the open question → ONE concrete question about the last use, not the same question again',
+    again._exclusiveClarify === true && !/main thing/i.test(again.clarifyingQuestion)
+      && /^Thinking about the last time you used it, did it run right through the programme to the end/.test(again.clarifyingQuestion)
+      && (again.clarifyingQuestion.match(/\?/g) || []).length === 1, again.clarifyingQuestion);
+  const unknownFam = { applianceType: null, needMoreInfo: true, candidateComponents: [], _jev: { decisions: { symptomFamily: 'uncertain' } } };
+  preferSingleVagueClarify(unknownFam, null, { progress: { priorAdvisorText: 'What is the main thing the appliance is doing wrong?' } });
+  check('24b unknown family → generic follow-up question', unknownFam.clarifyingQuestion === 'The last time you used it, did it work right through as normal?', unknownFam.clarifyingQuestion);
+  const hob = { applianceType: 'hob', needMoreInfo: true, candidateComponents: [], _jev: { decisions: { symptomFamily: 'uncertain' } } };
+  preferSingleVagueClarify(hob, null, {});
+  check('24c family word reads naturally (hob, not hobs)', hob.clarifyingQuestion === 'What is the main thing the hob is doing wrong?', hob.clarifyingQuestion);
   const promptVague = buildComposeSystem([], null, { applianceType: 'dishwasher', _exclusiveClarify: true, clarifyingQuestion: 'What is the main thing the dishwasher is doing wrong?' }, null, [], null, false, false, null, false, null, {});
   check('24 COMPOSE carries the one-question directive', /ONE QUESTION ONLY/i.test(promptVague) && /main thing/i.test(promptVague));
 }

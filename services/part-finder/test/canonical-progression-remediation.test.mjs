@@ -102,8 +102,20 @@ describe('classifier: dryer type narrows the check choices; check result is self
     const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
     expect(q.mcCheckAResult.instructions).toMatch(/hedged report/);
   });
-  it('"found dirt but did not say it is dealt with" leaves the owner fix to do', () => {
-    expect(Q.CHECK_STATUS.done_found_unspecified).toEqual(['not_done', null]);
+  it('"found dirt but did not say it is dealt with" leaves the owner fix to do, and keeps what they found', () => {
+    expect(Q.CHECK_STATUS.done_found_unspecified).toEqual(['not_done', 'found_unspecified']);
+  });
+  it('a found-but-not-cleared check survives mc/1 validation and the merge', () => {
+    const mc1 = require('../canonical/mc1.js');
+    const { merge } = require('../canonical/merge.js');
+    const { emptyState } = require('../canonical/cs1.js');
+    const c = mc1.validateClassification({ scope: 'appliance', checks: [{ check: 'dishwasher-filter', status: 'not_done', result: 'found_unspecified' }] });
+    expect(c.checks[0]).toMatchObject({ status: 'not_done', result: 'found_unspecified' });
+    expect(merge(emptyState('s'), c).state.evidence.checks['dishwasher-filter']).toMatchObject({ status: 'not_done', result: 'found_unspecified' });
+  });
+  it('the pending-check question reads a hedged finding as found-but-not-cleared, never as not done', () => {
+    const src = require('node:fs').readFileSync(require.resolve('../canonical/mc1-questions.js'), 'utf8');
+    expect(src).toMatch(/"it looked a bit clogged".*= done_found_unspecified/);
   });
 
   it('a check reported "not done yet" after its request was closed is re-offered once, with the not-yet frame', () => {

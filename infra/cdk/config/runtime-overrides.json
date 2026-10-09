@@ -11,8 +11,9 @@
           "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
           "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
           "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
-          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}",
+          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai",
           "JEV_SECRET_ID": "applianceclinic/production/jev"
@@ -23,7 +24,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/whichpart-api-cC1ArhlgLjtKY-RsGlzGr2kOvUazlBHUNFIzeUkyUbM.zip"
+        "s3Key": "phase8/whichpart-api-vwq9_xCE2TK4N-1n5REQ1EOxwym9wK2DnU4M38MHRdg.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -42,12 +43,13 @@
       },
       "env": {
         "set": {
-          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
+          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb"
         }
       },
       "code": {
-        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:08c5372a19febcf2aa58bf8a009c8419e78851e901ac7558d6af89a6f3ebc851"
+        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:42543ac4754d4396e701f1456452ebc298f4af265153c050e58282779ed199eb"
       }
     },
     "spares4repairs-error-code-mcp": {
@@ -61,7 +63,8 @@
       },
       "env": {
         "set": {
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token}}"
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb"
         }
       }
     },
@@ -74,7 +77,7 @@
       "role": "arn:aws:iam::800960611664:role/ac-diagnosis-role",
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/spares4repairs-part-finder-Dy1L_RumZ-3KSgY17avL5aoqunnpHVEX_N3QW3B1T7s.zip"
+        "s3Key": "phase8/spares4repairs-part-finder-D7hk7l4EpckgDeU9vj2QAgk6Y6KXGZthwch8sy8T2mY.zip"
       },
       "env": {
         "set": {

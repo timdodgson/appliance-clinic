@@ -291,6 +291,13 @@ class Orchestrator:
             return degraded("session_mismatch")
         return out
 
+    def _rag_diagnose(self, st: ConversationState, **kw) -> dict:
+        """The diagnostic RAG call. Records whether its reply is part-finder's single vague-opener clarification
+        (describe the problem): that turn asks for no physical step, so it carries no owner-safety note."""
+        rag = self.rag.diagnose(**kw)
+        st._ragExclusiveClarify = bool(isinstance(rag, dict) and rag.get("exclusiveClarify"))
+        return rag
+
     @staticmethod
     def _canon_kw(st) -> dict:
         """diagnose() receives the merged canonical result for its trace only — never for decisions."""
@@ -458,6 +465,7 @@ class Orchestrator:
         # SEMANTIC "did this turn answer it / is it a model or a code" is now Jev's job, so there is
         # no prose fill/correction here.
         st._pendingIn = turn.pendingRequest if isinstance(turn.pendingRequest, dict) else None
+        st._ragExclusiveClarify = False  # set by _rag_diagnose for this turn only
         st._pendingFilled = False
         st._turnIndex = int(turn.turnIndex or 0)
         st._pendingModelTokens = [jev_model] if jev_model else []
@@ -947,7 +955,7 @@ class Orchestrator:
         c = st.customer
         t = time.perf_counter()
         try:
-            rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, "_understand", None),
+            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, "_understand", None),
                                     symptoms=self._rag_symptoms(st) or c.symptomsText or "",
                                     appliance=c.appliance, make=c.make, image=getattr(st, "_image", None),
                                     established=self._established_identity(c),
@@ -1093,7 +1101,7 @@ class Orchestrator:
         if status in ("NEEDS_CONTEXT", "AMBIGUOUS", "NOT_FOUND"):
             t = time.perf_counter()
             try:
-                rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st), appliance=c.appliance,
+                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st), appliance=c.appliance,
                                         make=c.make, image=getattr(st, "_image", None),
                                         established=self._established_identity(c),
                                         conversation=getattr(st, "_conversation", None))
@@ -1176,7 +1184,7 @@ class Orchestrator:
         c = st.customer
         t = time.perf_counter()
         try:
-            rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
+            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
                                     appliance=c.appliance, make=c.make,
                                     image=getattr(st, "_image", None),
                                     established=self._established_identity(c),
@@ -1203,7 +1211,7 @@ class Orchestrator:
             # can't trust code meaning; still offer the symptom side, clearly labelled
             debug["mcpError"] = str(e)[:120]
             try:
-                rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance, make=c.make,
+                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance, make=c.make,
                                         established=self._established_identity(c),
                                         conversation=getattr(st, "_conversation", None))
                 self._apply_rag_safety(st, rag)
@@ -1241,7 +1249,7 @@ class Orchestrator:
             # symptoms as a SEPARATE probabilistic investigation.
             t = time.perf_counter()
             try:
-                rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
+                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
                                         appliance=c.appliance, make=c.make,
                                         established=self._established_identity(c),
                                         conversation=getattr(st, "_conversation", None))
@@ -1258,7 +1266,7 @@ class Orchestrator:
         trusted = self._trusted_context(st, mcp)
         t = time.perf_counter()
         try:
-            rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance,
+            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance,
                                     make=c.make, trusted=trusted.to_prompt_facts(),
                                     established=self._established_identity(c),
                                     conversation=getattr(st, "_conversation", None))
@@ -1333,10 +1341,10 @@ class Orchestrator:
                 q = ("Could you tell me a bit more — what kind of appliance is it, what is it doing, "
                      "and is anything showing on the display or control panel?")
             else:
-                # ONE question (GOLD v2): the common symptoms as choices help a vague customer pick the main
-                # one; a display code can come later, so it is not asked in the same breath.
-                q = ("Which is closest to what it's doing — not starting, stopping part-way, not draining, "
-                     "leaking, making a noise, or poor results?")
+                # ONE open question (GOLD v2), the same one part-finder asks; a display code can come later, so
+                # it is not asked in the same breath, and no menu of faults is offered.
+                fam = str(c.appliance).replace("-", " ")
+                q = f"What is the main thing the {fam} is doing wrong?"
             needs = ["description"]
             intent = "SYMPTOM_DESCRIPTION"
         debug["clarifyIntent"] = intent
@@ -1469,6 +1477,9 @@ class Orchestrator:
             return None
         if getattr(resp, "safety", None) and (resp.safety or {}).get("stopUse"):
             return None
+        # A describe-the-problem question asks for no physical step, so it carries no precaution.
+        if getattr(st, "_ragExclusiveClarify", False):
+            return None
         outcome = resp.outcome
         applies = False
         if outcome == Outcome.CLARIFICATION_REQUIRED.value:
@@ -1477,7 +1488,9 @@ class Orchestrator:
             # Only a symptom/diagnostic clarify — not a MAKE/APPLIANCE/MODEL/CODE identity ask.
             applies = any(
                 (isinstance(n, str) and "symptom" in n.lower()) for n in needs
-            ) or clar.get("intent") in ("SYMPTOM_DISCRIMINATOR", "SYMPTOM_DESCRIPTION")
+            ) or clar.get("intent") == "SYMPTOM_DISCRIMINATOR"
+            if clar.get("intent") == "SYMPTOM_DESCRIPTION":
+                applies = False
         elif outcome == Outcome.ANSWER.value:
             # A diagnostic answer that is NOT a bare model-ask and NOT a reassurance / recovery
             # closure (those are tagged _reassurance and imply no owner physical action). This catches
@@ -1715,8 +1728,11 @@ class Orchestrator:
         # A safe generic check has been COMPLETED this journey when Jev typed the latest turn as a
         # check result, OR classified it as answering the pending check (yes/partial), OR an earlier
         # completed check is already in the established set. "cannot_answer" / "no" are NOT completions.
+        # A turn Jev typed as a symptom, identity, correction or hazard report answers a question about the problem or
+        # the appliance; it is not a check result.
         check_completed = (establishes == "check_result"
-                           or answered in ("yes", "partial")
+                           or (answered in ("yes", "partial")
+                               and establishes not in ("symptom", "identity", "correction", "hazard"))
                            or bool(st.customer.checksReported))
         # The fault still remains unless Jev typed a recovery / normal-behaviour outcome.
         fault_remains = (not rag.get("normalBehaviour")) and establishes != "recovery"

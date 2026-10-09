@@ -1,0 +1,64 @@
+{
+  "id": "8.13a-gold-robustness",
+  "description": "GOLD v2 remediation from final runs 1\u20132 (repeat misses): oven not heating asks one plain question per check, the setting check says why (defrost runs the fan with no heat), and a fan-oven-element conclusion explains that a working grill does not clear it; tumble dryer and washer-dryer not drying lead with the free fluff-filter check; a spin-only failure with the motor silent skips the empty-spin test, and a drum-by-hand result reported as an observation counts as done; a check found blocked but not yet cleared is re-offered as 'clear it' (mc1 keeps found_unspecified); the vague question uses natural family words (hob, oven). part-finder differs in canonical/{compose-kit,j2-policy,mc1-questions,ov1-not-heating,td2-not-drying,wd-not-drying}.js and engine/progression.js. Code only. Previous code: Qt59ZUHA7EVRok9ODCG6ktYfmD4ymqvu52bddi+EP3M= (8.12c).",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the role does not change. The read-only base already allows lambda:Get* on AC functions.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
