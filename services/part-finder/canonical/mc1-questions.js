@@ -93,7 +93,7 @@ const CORE = [
   },
   {
     key: 'mcJourney', field: 'problem.journey',
-    instructions: `What appliance PROBLEM does ${LATEST} describe, at the grain an engineer would open a job with? Choose none if the latest message describes no problem itself (check results, model numbers, "I don't know", "yes", "still the same", "that fixed it") — even when a problem is already known from currentState. A safety hazard alone (smoke, burning smell, shock, trip) is not a journey: choose none for it — but if the message ALSO describes a fault (a noise, not cooling, not heating, leaking, not starting), choose that fault's journey. A humming or silent drain pump is an observation, not a noisy problem. A reply that reports the RESULT of what pendingRequest asked (e.g. "door never clicks locked", "it's stiff", "it spins empty") describes no new problem: choose none. "Keeps pulsing" is pulsing; "won't drain"/"ends full of water" is not-draining; water escaping onto the FLOOR is leaking — including the sink / waste overflowing onto the floor when the machine drains (dirty water coming back INTO the drum is not-draining); "won't spin" / clothes come out soaking wet at the end is not-spinning; the drum never turning at all is drum-not-turning; error-code-only = only a code is reported, no other symptom. For a washing machine: "won't fill" / no water comes in / fills very slowly is not-filling; keeps taking water, the water level INSIDE the drum is too high, or water comes in while it is switched off is overfilling (water escaping onto the floor — including water overflowing or spilling out of the detergent drawer — is leaking, not overfilling); shaking violently, walking across the floor or banging while it still spins is vibration (if it will not spin at all it is not-spinning); a noise while it otherwise works is noisy; the door will not open, lock or close, a broken handle, or "says door open" is door-problem; washes cold / never warms the water is no-heat. For a dishwasher: water left in the bottom is not-draining; no / too little water coming in is not-filling; water escaping onto the floor (or water in the base tray / a flood warning) is leaking; dishes still dirty is poor-results; cold water or dishes is no-heat, dishes wet at the end is not-drying; the door will not latch or the machine will not start (incl. "says door open") is door-problem, and completely dead with no lights is wont-start. For a fridge / freezer: warm / not cold enough / food defrosting is not-cooling; too cold / food freezing in the fridge is over-cooling; heavy ice or frost build-up is ice-build-up; water inside it or on the floor under it is leaking; the door will not close or seal (or the seal is damaged / the door has dropped) is door-problem; completely dead, not running at all, or clicking but never starting is wont-start; a noise is noisy. For a tumble dryer: no heat / cold air is no-heat; it gets warm but the clothes are still damp is not-drying; the drum does not turn is drum-not-turning; it stops part way / cuts out is cuts-out; water leaking or a water-container / tank problem is leaking; the door will not shut / says door open or it will not start is door-problem (completely dead with no lights is wont-start). For an oven / cooker: not heating, heating slowly or only partly is no-heat (also when only the grill or only the oven fails); far too hot / burning food on normal settings is overheating; the oven fan not turning, a noisy fan, or a fan that keeps running after the oven is switched off is noisy unless it also stops heating (no-heat); completely dead / no display is wont-start; the door, hinge, seal or door glass is door-problem; it trips the house electrics is trips-electrics only if no other fault is described; a gas burner / oven that will not light or stay lit is wont-light. For a hob: a zone / ring not heating is no-heat; whole hob dead is wont-start; stuck on high / will not turn down / switches off when hot is overheating; a gas burner that will not light is wont-light. For a microwave: runs but does not heat is no-heat; will not start — or starts by itself as soon as the door is shut — is wont-start; door will not latch / open / says door open is door-problem; turntable not turning is turntable-not-turning; sparks or arcing inside is sparking; an unusual noise is noisy. For a vacuum: weak suction is lost-suction; pulsing / surging / revving on and off is pulsing; will not switch on is wont-start (a cordless one that runs only briefly or will not charge is battery-problem); brush bar not spinning is brush-bar-not-spinning; a noise is noisy. For a washer-dryer use the washing-machine values for wash-side problems, not-drying for drying problems, and no-heat for "doesn't heat".${ONLY}`,
+    instructions: `What appliance PROBLEM does ${LATEST} describe, at the grain an engineer would open a job with? Choose none if the latest message describes no problem itself (check results, model numbers, "I don't know", "yes", "still the same", "that fixed it") — even when a problem is already known from currentState. A safety hazard alone (smoke, burning smell, shock, trip) is not a journey: choose none for it — but if the message ALSO describes a fault (a noise, not cooling, not heating, leaking, not starting), choose that fault's journey. A humming or silent drain pump is an observation, not a noisy problem. A reply that reports the RESULT of what pendingRequest asked (e.g. "door never clicks locked", "it's stiff", "it spins empty") describes no new problem: choose none. "Keeps pulsing" is pulsing; "won't drain"/"ends full of water" is not-draining; water escaping onto the FLOOR is leaking — including the sink / waste overflowing onto the floor when the machine drains (dirty water coming back INTO the drum is not-draining); "won't spin" / clothes come out soaking wet at the end is not-spinning; the drum never turning at all is drum-not-turning; error-code-only = only a code is reported, no other symptom. For a washing machine: "won't fill" / no water comes in / fills very slowly is not-filling; keeps taking water, the water level INSIDE the drum is too high, or water comes in while it is switched off is overfilling (water escaping onto the floor — including water overflowing or spilling out of the detergent drawer — is leaking, not overfilling); shaking violently, walking across the floor or banging while it still spins is vibration (if it will not spin at all it is not-spinning); a noise while it otherwise works is noisy; the door will not open, lock or close, a broken handle, or "says door open" is door-problem — and so is a machine that has power (lights / display on, it beeps) but will not start a cycle, because the door must lock before any wash starts (completely dead with no lights is wont-start); washes cold / never warms the water is no-heat. For a dishwasher: water left in the bottom is not-draining; no / too little water coming in is not-filling; water escaping onto the floor (or water in the base tray / a flood warning) is leaking; dishes still dirty is poor-results; cold water or dishes is no-heat, dishes wet at the end is not-drying; the door will not latch or the machine will not start (incl. "says door open") is door-problem, and completely dead with no lights is wont-start. For a fridge / freezer: warm / not cold enough / food defrosting is not-cooling; too cold / food freezing in the fridge is over-cooling; heavy ice or frost build-up is ice-build-up; water inside it or on the floor under it is leaking; the door will not close or seal (or the seal is damaged / the door has dropped) is door-problem; completely dead, not running at all, or clicking but never starting is wont-start; a noise is noisy. For a tumble dryer: no heat / cold air is no-heat; it gets warm but the clothes are still damp is not-drying; the drum does not turn is drum-not-turning; it stops part way / cuts out is cuts-out; water leaking or a water-container / tank problem is leaking; the door will not shut / says door open or it will not start is door-problem (completely dead with no lights is wont-start). For an oven / cooker: not heating, heating slowly or only partly is no-heat (also when only the grill or only the oven fails); far too hot / burning food on normal settings is overheating; the oven fan not turning, a noisy fan, or a fan that keeps running after the oven is switched off is noisy unless it also stops heating (no-heat); completely dead / no display is wont-start; the door, hinge, seal or door glass is door-problem; it trips the house electrics is trips-electrics only if no other fault is described; a gas burner / oven that will not light or stay lit is wont-light. For a hob: a zone / ring not heating is no-heat; whole hob dead is wont-start; stuck on high / will not turn down / switches off when hot is overheating; a gas burner that will not light is wont-light. For a microwave: runs but does not heat is no-heat; will not start — or starts by itself as soon as the door is shut — is wont-start; door will not latch / open / says door open is door-problem; turntable not turning is turntable-not-turning; sparks or arcing inside is sparking; an unusual noise is noisy. For a vacuum: weak suction is lost-suction; pulsing / surging / revving on and off is pulsing; will not switch on is wont-start (a cordless one that runs only briefly or will not charge is battery-problem); brush bar not spinning is brush-bar-not-spinning; a noise is noisy. For a washer-dryer use the washing-machine values for wash-side problems, not-drying for drying problems, and no-heat for "doesn't heat".${ONLY}`,
     options: opts([...mc1.JOURNEYS, NONE]),
   },
   {
@@ -155,7 +155,7 @@ const OBS = [
     instructions: `Does ${LATEST} say the machine keeps turning the drum back and forth, rocking or trying to redistribute / balance the load instead of going into the spin?` },
   { key: 'mcObsVibration', noul: ['excessiveVibration', 'It bangs, shakes violently / badly, bounces, or moves / walks across the floor (usually on the spin)', 'Not stated'],
     instructions: `Does ${LATEST} say the machine bangs, shakes violently or badly, bounces around, or moves / walks across the floor (usually when it spins)?` },
-  { key: 'mcObsDoorLock', instructions: `Does ${LATEST} say the DOOR LOCKS when a programme starts (clicks shut, lock light on), or that the door does NOT lock / never clicks locked — including the machine saying or showing "door open" (door light / door error) while the door is shut? none = not mentioned.`,
+  { key: 'mcObsDoorLock', instructions: `Does ${LATEST} say the DOOR LOCKS when a programme starts (clicks shut, lock light on), or that the door does NOT lock / never clicks locked — including the machine saying or showing "door open" (door light / door error) while the door is shut, or the door being shut (pushed shut again) while the machine still only beeps and will not start? none = not mentioned.`,
     options: { locks: ['doorLocks', true, 'Door locks normally'], no_lock: ['doorLocks', false, 'Door does not lock / never clicks locked'] } },
   { key: 'mcObsMotorSound', instructions: `Does ${LATEST} say the drum MOTOR can be heard running / humming / whirring when the drum should be turning or spinning, or that there is NO motor sound at all? The drain pump is NOT the motor — a pump noise while draining is a separate question = none here.`,
     options: { runs: ['motorAudible', true, 'Motor can be heard running'], silent: ['motorAudible', false, 'No motor sound at all'] } },
@@ -202,7 +202,7 @@ const OBS = [
     options: { high: ['waterLevelHigh', true, 'Water level too high in the drum'], normal: ['waterLevelHigh', false, 'Keeps taking water but the level stays normal / low'] } },
   { key: 'mcObsWaterDirty', instructions: `Does ${LATEST} say water that appears in the washing machine drum is DIRTY / grey / smelly (like waste water), or CLEAN (like tap water)? none = not described.`,
     options: { dirty: ['waterIsDirty', true, 'Dirty / grey / smelly water'], clean: ['waterIsDirty', false, 'Clean water'] } },
-  { key: 'mcObsDoorOpen', instructions: `Only about a washing machine, oven or microwave DOOR: does ${LATEST} say the door will NOT OPEN (stuck shut / stays locked), or that it OPENS now / opens normally? none = not described.`,
+  { key: 'mcObsDoorOpen', instructions: `Only about a washing machine, oven or microwave DOOR: does ${LATEST} say the door will NOT OPEN (stuck shut / stays locked when they try to open it), or that it OPENS now / opens normally? Saying the door IS shut / closed, or that they pushed it shut, is about closing or locking, NOT about opening = none. none = not described.`,
     options: { wont_open: ['doorOpens', false, 'Door will not open / stays locked'], opens: ['doorOpens', true, 'Door opens (now / normally)'] } },
   { key: 'mcObsDoorFault', instructions: `Only about a washing machine, tumble dryer, fridge / freezer, oven or microwave DOOR: does ${LATEST} say the door will not CLOSE / latch shut (it springs back open), the door HANDLE is broken / snapped / loose, or the door lock keeps CLICKING on and off repeatedly? none = none of these.`,
     options: { wont_close: ['doorCloses', false, 'Door will not close / latch shut'], handle_broken: ['handleBroken', true, 'Door handle broken / snapped / loose'], lock_clicking: ['lockClicking', true, 'The lock keeps clicking on and off'] } },
@@ -273,7 +273,7 @@ const OBS = [
     options: { metal: ['metalInside', true, 'Metal / foil / metal-trimmed dish inside'], cover_damaged: ['waveguideCoverDamaged', true, 'Waveguide cover burnt / damaged'],
       cavity_burnt: ['cavityBurnt', true, 'Inside paint burnt / chipped / bare metal'] } },
   // vacuum
-  { key: 'mcObsVacType', instructions: `Only for a VACUUM: does ${LATEST} say it is CORDLESS / battery (stick, handheld, e.g. Dyson V-series), CORDED (plugged in, e.g. Henry, upright), or a ROBOT vacuum? none = not stated.`,
+  { key: 'mcObsVacType', instructions: `Only for a VACUUM: does ${LATEST} say it is CORDLESS / battery (stick, handheld, e.g. Dyson V-series), CORDED (plugged in / mains: e.g. Henry, a CYLINDER or canister vacuum, an upright with a cable), or a ROBOT vacuum? none = not stated.`,
     options: { cordless: ['vacuumCordless', true, 'Cordless / battery'], corded: ['vacuumCorded', true, 'Corded / mains'], robot: ['vacuumRobot', true, 'Robot vacuum'] } },
   { key: 'mcObsVacBattery', instructions: `Only for a CORDLESS VACUUM: does ${LATEST} say it runs only a short time (seconds / a few minutes) before stopping, that it will NOT CHARGE (no charging light / battery stays flat), or that it charges and runs for its normal time? none = not described. Pulsing / surging on and off is NOT a short runtime.`,
     options: { short_runtime: ['shortRuntime', true, 'Runs only a short time'], wont_charge: ['wontCharge', true, 'Will not charge'], runtime_normal: ['shortRuntime', false, 'Charges and runs its normal time'] } },
@@ -300,8 +300,9 @@ const OBS = [
     instructions: `Only for a FRIDGE / FREEZER: does ${LATEST} say the door was left open or ajar (or did not shut properly for a while), or that a large amount of warm / room-temperature food was put in recently?` },
   { key: 'mcObsIceReturns', instructions: `Only for FRIDGE / FREEZER ice or frost: does ${LATEST} say the ice / frost COMES BACK (again within days) after they defrosted it, or that it has NOT come back since? none = not described.`,
     options: { returns: ['iceReturns', true, 'It comes back after defrosting'], not_returned: ['iceReturns', false, 'It has not come back since defrosting'] } },
-  { key: 'mcObsFfIceWhere', instructions: `Only for FRIDGE / FREEZER ice or frost: where does ${LATEST} say the ice or frost is — on the BACK WALL / rear panel inside, AROUND THE DOOR / seal edge, or a sheet of ice in the BASE / bottom of the compartment? none = not described.`,
-    options: { back_wall: ['frostOnBackWall', true, 'On the back wall / rear panel inside'], near_door: ['frostNearDoor', true, 'Around the door / seal edge'], base: ['iceInBase', true, 'Ice in the base / bottom of the compartment'] } },
+  { key: 'mcObsFfIceWhere', instructions: `Only for FRIDGE / FREEZER ice or frost: where does ${LATEST} say the ice or frost is — on the BACK WALL / rear panel inside, AROUND THE DOOR / seal edge, or a sheet of ice in the BASE / bottom of the compartment? no_ice = they say there is NO ice or frost there ("the back isn't iced up", "no frost"). none = not described.`,
+    options: { back_wall: ['frostOnBackWall', true, 'On the back wall / rear panel inside'], near_door: ['frostNearDoor', true, 'Around the door / seal edge'], base: ['iceInBase', true, 'Ice in the base / bottom of the compartment'],
+      no_ice: ['frostOnBackWall', false, 'They say there is NO ice or frost (not iced up)'] } },
   { key: 'mcObsFfLocation', noul: ['inColdOrHotLocation', 'The fridge / freezer is in a garage, outbuilding or very cold room, or a very hot spot (next to an oven, radiator or in full sun)', 'Not stated'],
     instructions: `Only for a FRIDGE / FREEZER: does ${LATEST} say it stands in a garage, outbuilding, conservatory or unheated room, or next to an oven, radiator or in direct sun?` },
   // tumble dryer family
@@ -401,6 +402,13 @@ const PENDING_LABELS = {
 };
 
 // ---- 3. checks ----------------------------------------------------------------------------------------
+// A dryer type the customer has stated rules out the other type's airflow checks, so a terse "the filter's clean" on a
+// vented dryer is read as the lint filter, never as a condenser it does not have.
+const TD_TYPE_ONLY = { 'vent-duct': ['dryerCondenser', 'dryerHeatPump'], condenser: ['dryerVented'], 'water-container': ['dryerVented'] };
+function tdTypeExcludes(summary, key) {
+  const obs = (summary && summary.observations) || {};
+  return (TD_TYPE_ONLY[key] || []).some((k) => obs[k] === true);
+}
 const CHECK_DESC = {
   'drain-filter': 'washing machine / washer-dryer: the drain / pump filter or trap (front bottom)',
   'drain-hose': 'washing machine / dishwasher: the drain hose / waste connection (kinks, blockage)',
@@ -716,7 +724,7 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
   for (const key of mc1.CHECK_KEYS) {
     if (dwContext) { if (DW_CHECKS.has(key)) targetCriteria[key] = CHECK_DESC[key]; continue; }
     if (ffContext) { if (FF_CHECKS.has(key)) targetCriteria[key] = CHECK_DESC[key]; continue; }
-    if (tdContext) { if (TD_CHECKS.has(key)) targetCriteria[key] = CHECK_DESC[key]; continue; }
+    if (tdContext) { if (TD_CHECKS.has(key) && !tdTypeExcludes(summary, key)) targetCriteria[key] = CHECK_DESC[key]; continue; }
     const fam = summary && { 'oven-cooker': OV_CHECKS, hob: HOB_CHECKS, microwave: MW_CHECKS, vacuum: VAC_CHECKS }[summary.appliance];
     if (fam) { if (fam.has(key)) targetCriteria[key] = CHECK_DESC[key]; continue; }
     if (WD_ONLY.has(key) && !(summary && summary.appliance === 'washer-dryer')) continue;
@@ -735,7 +743,9 @@ function buildMc1Request({ latestMessage, priorAssistantMessage = null, state = 
     };
     questions[`mcCheck${slot}Result`] = {
       type: 'choice',
-      instructions: `For the check chosen in mcCheck${slot}, what does ${LATEST} report? Choose none if mcCheck${slot} is none.`,
+      // Each question is evaluated on its own: this one names the check by its position in the message, never by
+      // another question's answer.
+      instructions: `Find the ${slot === 'A' ? 'FIRST' : 'SECOND (different)'} owner check ${LATEST} refers to (a part they looked at, cleaned, cleared or tried: a filter, hose, vent, coils, seal, setting, socket...). What does the message report about THAT check? Terse reports count: "the filter's clean", "vent's clear", "hose is fine" = done_clear; "cleaned it", "cleaned the coils", "cleared it out", "sorted it" = done_found_and_cleared (they found something to clean and cleaned it); "did it, no change" / "still the same" = they did it (whether it helped is recorded separately). Choose none only if the message refers to no ${slot === 'A' ? '' : 'second '}check.`,
       criteria: resultCriteria,
     };
     plan.checks.push([`mcCheck${slot}`, `mcCheck${slot}Result`]);
@@ -822,6 +832,25 @@ const FAMILY_OBS = {
   stuckOnHigh: COOK, startsWhenDoorCloses: MWO, turntableTurns: MWO, metalInside: MWO, waveguideCoverDamaged: MWO, cavityBurnt: MWO,
   vacuumCordless: VAC, vacuumCorded: VAC, vacuumRobot: VAC, shortRuntime: VAC, wontCharge: VAC, whistleNoise: VAC, wdDrySide: ['washer-dryer'],
 };
+/**
+ * A reported check whose target was identified but whose result question gave no confident choice: when most of the
+ * result's probability mass says the customer DID the check ("cleaned the fluff filter, no change"), it is recorded as
+ * done with the most likely done result. Otherwise nothing is recorded (an unsure mention stays a non-report).
+ */
+const REPORTED_DONE_MIN = 0.25;
+function reportedDoneResult(ans) {
+  const p = ans && ans.type === 'choice' && ans.probabilities;
+  if (!p || typeof p !== 'object') return null;
+  let done = 0; let best = null;
+  for (const [k, v] of Object.entries(p)) {
+    if (!k.startsWith('done_') || typeof v !== 'number') continue;
+    done += v;
+    if (!best || v > p[best]) best = k;
+  }
+  const notDone = ['not_done', 'declined', 'unable', 'unsure'].reduce((sum, k) => sum + (typeof p[k] === 'number' ? p[k] : 0), 0);
+  return done >= REPORTED_DONE_MIN && done > notDone ? best : null;
+}
+
 function adaptMc1Answers(answers, plan, { messageId = null } = {}) {
   const a = answers || {};
   const meta = { source: SOURCE, degraded: false, recallGap: null, uncertain: [], chunked: [], questionCount: (plan && plan.questionKeys || []).length };
@@ -919,7 +948,7 @@ function adaptMc1Answers(answers, plan, { messageId = null } = {}) {
   if (noulTrue(a.mcReportDamper)) addCheck('shock-absorbers', 'done_fault_seen');
   for (const [tk, rk] of (plan && plan.checks) || []) {
     const key = pick(tk);
-    if (key && mc1.CHECK_KEYS.includes(key)) addCheck(key, pick(rk));
+    if (key && mc1.CHECK_KEYS.includes(key)) addCheck(key, pick(rk) || reportedDoneResult(a[rk]));
   }
 
   // Reply.

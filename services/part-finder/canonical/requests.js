@@ -2,7 +2,7 @@
 /**
  * G2 request history — pure helpers over cs/1 `requests[]` + `pendingRequest`.
  *
- *   recordOutcome(state, classification, turn)  — M20 (called by merge)
+ *   recordOutcome(state, classification, turn, before)  — M20 (called by merge; `before` = the pre-merge state)
  *   issueRequest(state, request, turn)          — M21 (called only by the journey step for the policy NextAction)
  *   asked / lastOutcome / wasReoffered / requestsFor — readers for later policy
  *
@@ -17,7 +17,9 @@ const SLOTS = ['CHECK', 'OBSERVATION', 'IDENTITY'];
 const PURPOSES = ['DIAGNOSIS', 'PART_FIT', 'CONFIRM'];
 const KINDS = ['ask', 'reoffer', 'retest'];
 const OUTCOMES = ['pending', 'answered', 'partial', 'not_done', 'cannot_answer', 'declined', 'unable', 'ignored', 'superseded'];
-const REOFFERABLE = new Set(['not_done', 'partial', 'ignored']);
+// A reoffer only when the customer said they have not done it yet; an ignored request is not asked again word for
+// word (the policy moves on, and an owner check is carried into the conclusion instead).
+const REOFFERABLE = new Set(['not_done', 'partial']);
 const IDENTITY_TARGETS = new Set(['appliance', 'make', 'model', 'fuel']);
 // Functional checks whose outcome is recorded as an observation (journey doc §17 G3).
 const CHECK_OUTCOME_OBSERVATION = {
@@ -88,10 +90,30 @@ function targetFilled(req, c) {
 }
 
 /**
+ * Does this classification add typed facts the state does not already hold (a new or changed observation, a check
+ * report, a new identity detail, a replaced part or theory)? Restating what is already known is not new.
+ */
+function carriesNewFacts(c, state) {
+  if (!c) return false;
+  const ev = (state && state.evidence) || {};
+  const known = ev.observations || {};
+  if ((c.observations || []).some((o) => !known[o.key] || known[o.key].value !== o.value)) return true;
+  if ((c.checks || []).length) return true;
+  const id = c.identity || {};
+  const sid = (state && state.identity) || {};
+  const changed = (k) => Boolean(id[k] && id[k].value && !(sid[k] && sid[k].value === id[k].value));
+  if (changed('make') || changed('model') || id.displayedCode) return true;
+  if (id.fuel && !(sid.fuel && sid.fuel.value === id.fuel)) return true;
+  if (id.modelStatus === 'unavailable' && sid.modelStatus !== 'unavailable') return true;
+  const m = c.mentions || {};
+  return Boolean((m.replacedParts || []).length || (m.customerTheories || []).length);
+}
+
+/**
  * M20. Write exactly one outcome onto the pending request, set resolvedTurn, clear pendingRequest.
  * M0 turns (prompt_attack / unrelated) must NOT call this (merge returns before it) — the request stays pending.
  */
-function recordOutcome(state, c, turn) {
+function recordOutcome(state, c, turn, before = state) {
   const req = pending(state);
   if (!req || req.outcome !== 'pending') return { state, outcome: null };
   let outcome = null;
@@ -99,7 +121,13 @@ function recordOutcome(state, c, turn) {
   if (chk && ['not_done', 'declined', 'unable'].includes(chk.status)) outcome = chk.status;
   else if (c.reply && ['answered', 'partial', 'cannot_answer', 'declined'].includes(c.reply.toPending)) outcome = c.reply.toPending;
   else if (targetFilled(req, c)) outcome = 'answered';
-  else outcome = 'ignored';
+  // The customer did not answer, but moved the conversation on with new typed facts: the request is superseded by
+  // what they told us (re-evaluated by policy), not re-asked as if they had ignored it. An owner check left this way is
+  // carried into the conclusion as the first thing to do (policy-kit ownerCheck), never asked again word for word.
+  else if (carriesNewFacts(c, before)) outcome = 'superseded';
+  // An unanswered question about what the customer saw or knows is not asked again (they cannot or will not say);
+  // an owner check they have not reported on may be re-offered once.
+  else outcome = req.slot === 'OBSERVATION' ? 'cannot_answer' : 'ignored';
   const next = clone(state);
   const r = next.requests.find((x) => x.id === req.id);
   r.outcome = outcome;

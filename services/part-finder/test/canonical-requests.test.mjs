@@ -85,11 +85,17 @@ describe('M20 outcome lifecycle', () => {
     s = issue(s, 'drain-filter');
     expect(s.requests[1].kind).toBe('reoffer');
   });
-  it('ignored (unrelated on-topic content) → outcome ignored, re-offerable', () => {
+  // GOLD v2 remediation: an ignored request is no longer re-offered word for word (only not_done / partial are); policy
+  // moves on and an owner check is carried into the conclusion instead.
+  it('ignored (unrelated on-topic content) → outcome ignored, NOT re-offerable', () => {
     let s = merge(pendingFilter(), C({ intent: 'price_or_availability' })).state;
     expect(s.requests[0].outcome).toBe('ignored');
     s = issue(s, 'drain-filter');
-    expect(s.requests[1].kind).toBe('reoffer');
+    expect(s.requests[1].kind).toBe('ask');
+  });
+  it('new typed facts instead of an answer → superseded (judged against the pre-merge state)', () => {
+    const s = merge(pendingFilter(), C({ observations: [{ key: 'noHeat', value: true }] })).state;
+    expect(s.requests[0].outcome).toBe('superseded');
   });
   it('identity target filled → answered', () => {
     const s = rq.issueRequest(base(), { slot: 'IDENTITY', target: 'model', purpose: 'PART_FIT' }, 1).state;

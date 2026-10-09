@@ -333,7 +333,8 @@ function merge(state, classification, opts = {}) {
   // ---- M20 request outcome ----------------------------------------------------------------------------------------------------
   let requestOutcome = null;
   if (req) {
-    const r = requests.recordOutcome(next, c, turn);
+    // new facts are judged against the state BEFORE this message was merged
+    const r = requests.recordOutcome(next, c, turn, prev);
     next = r.state; requestOutcome = r.outcome; hit('M20');
     // G3: a pending functional check answered through its outcome observation is a performed check.
     const obsKey = requests.CHECK_OUTCOME_OBSERVATION[req.target];

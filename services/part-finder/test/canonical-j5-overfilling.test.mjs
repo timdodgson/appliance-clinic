@@ -53,7 +53,9 @@ describe('policy', () => {
     expect(r.actions[0].action.requires).toEqual(['water_off_at_tap', 'power_off_only_if_dry', 'keep_clear_of_socket_if_water_near']);
     expect(r.rules).toEqual(['O1:uncontrolled-fill-off', 'O20:model', 'O21:inlet-valve']);
   });
-  it('fills when off, water type unknown → asks clean vs dirty', () => { expect(run('whenOffAsk').rules).toEqual(['O1:uncontrolled-fill-off', 'O12:waterIsDirty', 'O20:model']); });
+  // GOLD v2 remediation: the clean-vs-dirty question asked with the containment stop is not re-asked when the reply
+  // carries nothing; the journey moves on (model), and the clean-water answer that follows leads to the valve.
+  it('fills when off, water type unanswered → not re-asked; clean water later → inlet valve', () => { expect(run('whenOffAsk').rules).toEqual(['O1:uncontrolled-fill-off', 'O20:model', 'O22:inlet-valve-stuck-open']); });
   it('stops when off + high level → engineer, no part', () => {
     const r = run('highRunning');
     expect(r.rules).toEqual(['O1:uncontrolled-fill', 'O13:waterLevelHigh', 'O22:level-sensing-or-control']);

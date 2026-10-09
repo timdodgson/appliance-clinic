@@ -6,7 +6,7 @@
  *   effectiveSafety(state) -> {level, hazard, stop}   (journey stickiness L5 / journey doc §9.3)
  *
  * Request semantics (journey doc §6.5, G2): a target gets at most one `ask` and one `reoffer`; a reoffer only
- * after not_done / partial / ignored; declined / unable / cannot_answer never re-asked. A functional check
+ * after not_done / partial; ignored / superseded / declined / unable / cannot_answer never re-asked. A functional check
  * may be reset by a later fix (resetAfter[target](state) -> turn): then only requests since that turn count.
  */
 
@@ -14,7 +14,9 @@ const { SAFETY_ORDER, HAZARD_LEVEL, strongestLevel } = require('./cs1.js');
 const rq = require('./requests.js');
 
 const STICKY = new Set(['electrical_water', 'electric_shock', 'gas_escape', 'gas_smell']);
-const REOFFERABLE = new Set(['not_done', 'partial', 'ignored']);
+// A reoffer only when the customer said they have not done it yet; an ignored request is not asked again word for
+// word (the policy moves on, and an owner check is carried into the conclusion instead).
+const REOFFERABLE = new Set(['not_done', 'partial']);
 const HARD_BLOCK = new Set(['declined', 'unable', 'cannot_answer']);
 
 const obsFact = (s, k) => (s.evidence && s.evidence.observations && s.evidence.observations[k]) || null;
@@ -219,6 +221,40 @@ function makeStepPolicy(cfg) {
     return action('ask_check', t, reason, rule, { requires: ((cfg.REQUIRES || {})[t] || []).slice(), expects: [`checks.${t}`, ...(out ? [`observations.${out}`] : [])],
       requestKind: kindFor(s, t, retest), pending: { slot: 'CHECK', target: t, purpose: 'DIAGNOSIS' } });
   }
+  /**
+   * The owner check offered most recently that the customer moved past without reporting on (superseded / ignored /
+   * "not sure"), still not done and not refused or impossible for them. A conclusion carries it as the first thing to do
+   * (with its safety requirements) instead of the question being asked again.
+   */
+  const refused = (s, t) => (s.declined || []).some((x) => x.target === t && x.kind === 'declined' && x.resolvedTurn == null)
+    || ['declined', 'unable'].includes((chk(s, t) || {}).status);
+  function outstandingOwnerCheck(s) {
+    const rs = (s.requests || []).filter((r) => r.slot === 'CHECK' && ['superseded', 'ignored', 'cannot_answer'].includes(r.outcome));
+    for (let i = rs.length - 1; i >= 0; i -= 1) {
+      const t = rs[i].target;
+      if (CHECKS.includes(t) && t !== 'retest' && !OUT[t] && !done(s, t) && !refused(s, t)) return t;
+    }
+    return null;
+  }
+  /**
+   * The conclusion was already given last turn (no request was issued then) and this message added nothing new: the
+   * reply follows up briefly instead of repeating the whole conclusion.
+   */
+  function concludedAgain(s) {
+    const v = s.version;
+    if (!(v > 1) || (s.requests || []).some((r) => r.askedTurn === v - 1)) return false;
+    const ev = s.evidence || {};
+    const fresh = Object.values(ev.observations || {}).some((f) => f && f.turn === v && f.basis !== 'derived')
+      || Object.values(ev.checks || {}).some((k) => k && k.turn === v)
+      || Boolean(s.identity && s.identity.model && s.identity.model.turn === v);
+    return !fresh;
+  }
+  function concludeWith(s, kind, target, reason, rule, conclusion) {
+    const oc = conclusion.handoff !== 'plumbing' ? outstandingOwnerCheck(s) : null;
+    const again = concludedAgain(s);
+    const c = { ...conclusion, ...(oc ? { ownerCheck: oc } : {}), ...(again ? { repeat: true } : {}) };
+    return action(kind, target, reason, rule, { conclusion: c, ...(oc && !again ? { requires: ((cfg.REQUIRES || {})[oc] || []).slice() } : {}) });
+  }
   function alternativesOf(d) {
     const r = d.rank || [];
     if (!r.length || (d.leader && d.leader.committed)) return [];
@@ -284,10 +320,10 @@ function makeStepPolicy(cfg) {
     if (gate.eligible) {
       return action('recommend_part', gate.component, 'part-gate-met', R(21), { conclusion: { cause: L.family, level: 'component', confidence: 'likely', handoff: 'none', component: gate.component, alternatives: [] } });
     }
-    if (!L) return action('conclude', 'fault-source-unconfirmed', 'nothing-askable', R(22), { conclusion: { cause: 'fault-source-unconfirmed', level: 'cause_family', confidence: 'possible', handoff: cfg.unconfirmedHandoff || 'engineer', alternatives: [], noPart: true } });
-    return action('conclude', L.family, 'best-supported-conclusion', R(22), { conclusion: { cause: L.family, level: L.level, confidence: L.committed ? 'likely' : 'possible',
+    if (!L) return concludeWith(s, 'conclude', 'fault-source-unconfirmed', 'nothing-askable', R(22), { cause: 'fault-source-unconfirmed', level: 'cause_family', confidence: 'possible', handoff: cfg.unconfirmedHandoff || 'engineer', alternatives: [], noPart: true });
+    return concludeWith(s, 'conclude', L.family, 'best-supported-conclusion', R(22), { cause: L.family, level: L.level, confidence: L.committed ? 'likely' : 'possible',
       handoff: (cfg.HANDOFF || {})[L.key] || 'engineer', component: L.level === 'component' ? L.component : null, alternatives: alternativesOf(d),
-      noPart: !PART_FAMILIES.has(L.key) || L.level !== 'component' } });
+      noPart: !PART_FAMILIES.has(L.key) || L.level !== 'component' });
   }
 
   return { JOURNEY, APPLIANCE, REQUIRES: { ...(cfg.REQUIRES || {}) }, CHECKS, policy, entry, partGate,

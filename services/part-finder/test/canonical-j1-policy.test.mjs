@@ -242,11 +242,11 @@ describe('regressions: requests, loops, determinism', () => {
   it('cleared + "drains fine now" (drainsNormally) -> R9 likely fixed, no retest ask', () => {
     expect(decide(F.obs(J07(), 'drainsNormally', true, 3))).toMatchObject({ kind: 'conclude', rule: 'R9', target: 'filter-blockage' });
   });
-  it('R9 CONFIRM pending is offered at most twice; then concludes without a pending request', () => {
+  // GOLD v2 remediation: an ignored request is not re-asked (only not_done / partial are re-offered).
+  it('R9 CONFIRM pending is offered once; ignored → concludes without a pending request', () => {
     const s = F.obs(J07(), 'commandedDrain', true, 3);
-    F.request(s, 'resolution', 'ask', 'ignored', 3, 'OBSERVATION');
     expect(decide(s).pending).toMatchObject({ purpose: 'CONFIRM' });
-    F.request(s, 'resolution', 'reoffer', 'ignored', 4, 'OBSERVATION');
+    F.request(s, 'resolution', 'ask', 'ignored', 3, 'OBSERVATION');
     const a = decide(s);
     expect(a.rule).toBe('R9'); expect(a.pending).toBe(null);
   });
