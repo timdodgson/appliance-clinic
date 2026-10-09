@@ -161,6 +161,13 @@ function createCompose(pack) {
   const { TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, statusChecks = [], retestKey = () => null, extraFacts = () => [], CONFIRM_ASK = 'Is it all working normally now?', PURCHASE_RE = DEFAULT_PURCHASE_RE,
     ASK_GUARD = false } = pack;
   const { evidenceLines, latestIdentity } = makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks);
+  // An owner check the customer moved past (policy ownerCheck) is the first thing to do, said once with the conclusion.
+  function withOwnerCheck(text, a) {
+    if (a.conclusion && a.conclusion.repeat) return null;
+    const t = a.conclusion && a.conclusion.ownerCheck;
+    const task = t ? TASK[`ask_check:${t}`] : null;
+    return task && task.say ? `${text} If you haven't had a chance yet, this check comes first: ${task.say}` : text;
+  }
   function brief(state, a, diag, { partLookup = null, media = [] } = {}) {
     const key = retestKey(a) || `${a.kind}:${a.target}`;
     const task = TASK[key] || null;
@@ -169,7 +176,7 @@ function createCompose(pack) {
       kind: a.kind, rule: a.rule, target: a.target,
       facts: [...factLine(state), ...extraFacts(state, a)], evidence: evidenceLines(state), latest: (state.version > 1 ? [...latestIdentity(state), ...evidenceLines(state, true)] : []),
       task: task ? { say: task.say, ask: task.ask, reoffer: a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '' } : null,
-      conclusion: !isAsk && a.kind !== 'safety_stop' ? conclusionCopy(state, a) : null,
+      conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a) || followUpCopy(a)) : null,
       confirm: a.pending && a.pending.purpose === 'CONFIRM' ? CONFIRM_ASK : null,
       safety: (a.requires || []).map((t) => (REQUIREMENT[t] ? { token: t, copy: REQUIREMENT[t].copy } : null)).filter(Boolean),
       safetyStop: a.kind === 'safety_stop' ? (SAFETY_COPY[a.target] || 'Stop using the machine now and unplug it — this can be dangerous.') : null,
@@ -190,6 +197,7 @@ function createCompose(pack) {
       parts.push(b.task.ask);
     } else {
       if (b.conclusion) parts.push(b.conclusion);
+      for (const s of b.safety) parts.push(s.copy);
       if (b.confirm) parts.push(b.confirm);
     }
     return parts.filter(Boolean).join(' ');
@@ -276,6 +284,13 @@ const HANDOFF_COPY = {
   none: 'No part is needed.',
   gas: 'That needs a Gas Safe registered engineer — please don\'t take any gas parts apart or loosen any fittings. I\'m not recommending a part from this.',
 };
+/** A conclusion already given, with nothing new since: a short follow-up, not the whole conclusion again. */
+function followUpCopy(a) {
+  const c = a.conclusion || {};
+  const next = c.ownerCheck ? 'The check I described is still the best next step when you get the chance, and if it doesn\'t help, ' : '';
+  const tail = c.handoff === 'none' || !HANDOFF_COPY[c.handoff] ? 'just let me know what you find.' : HANDOFF_COPY[c.handoff].replace(/^./, (x) => x.toLowerCase());
+  return `No problem — nothing changes from what I said above. ${next}${next ? tail : tail.replace(/^./, (x) => x.toUpperCase())}`;
+}
 function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fitNote = 'Switch the machine off and unplug it before fitting it; if you\'d rather not, an appliance engineer can fit it.' }) {
   return function conclusionCopy(state, a) {
     const c = a.conclusion || {};
