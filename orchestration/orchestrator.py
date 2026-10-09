@@ -1333,8 +1333,10 @@ class Orchestrator:
                 q = ("Could you tell me a bit more — what kind of appliance is it, what is it doing, "
                      "and is anything showing on the display or control panel?")
             else:
-                q = ("Could you tell me a bit more about what's happening — what is the appliance "
-                     "doing, and is anything showing on the display or control panel?")
+                # ONE question (GOLD v2): the common symptoms as choices help a vague customer pick the main
+                # one; a display code can come later, so it is not asked in the same breath.
+                q = ("Which is closest to what it's doing — not starting, stopping part-way, not draining, "
+                     "leaking, making a noise, or poor results?")
             needs = ["description"]
             intent = "SYMPTOM_DESCRIPTION"
         debug["clarifyIntent"] = intent

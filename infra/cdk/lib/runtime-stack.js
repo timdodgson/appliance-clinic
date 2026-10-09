@@ -79,7 +79,10 @@ class RuntimeStack extends cdk.Stack {
           variables[k] = param.valueAsString;
         }
         const zip = c.PackageType === 'Zip';
-        const code = zip ? (f.codeOverride || props.codeLocations?.[name]) : { imageUri: f.code.imageUri };
+        // An image function keeps its live image unless a reviewed override names another one (by digest).
+        const imageUri = f.codeOverride && f.codeOverride.imageUri ? f.codeOverride.imageUri : f.code.imageUri;
+        if (!zip && f.codeOverride && !/@sha256:[0-9a-f]{64}$/.test(imageUri)) throw new Error(`${name}: an image override must name a digest`);
+        const code = zip ? (f.codeOverride || props.codeLocations?.[name]) : { imageUri };
         if (!code) throw new Error(`no code location for ${name}`);
         retain(new lambda.CfnFunction(this, fid, {
           functionName: name,

@@ -306,7 +306,8 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, fi
     if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
     if (c.level === 'component' && COMPONENT_LABEL[c.component]) {
       const noMatch = unavailable ? 'Without the model number I can\'t match the exact part' : 'I can\'t match a compatible part for your model from here';
-      return `The ${COMPONENT_LABEL[c.component]} looks like the cause. ${noMatch}, so an appliance engineer is the best next step.`;
+      // a component is the leading candidate from what the customer described, never a certain cause (nothing was tested)
+      return `From what you've described, the ${COMPONENT_LABEL[c.component]} is the most likely cause — it would need testing to be certain. ${noMatch}, so an appliance engineer is the best next step.`;
     }
     if (CONCLUSION[c.cause]) return typeof CONCLUSION[c.cause] === 'function' ? CONCLUSION[c.cause](state, a) : CONCLUSION[c.cause];
     if (c.cause === 'likely-causes') {
