@@ -90,8 +90,15 @@ function aggregate(results) {
   const dimCounts = {};
   let criticalCount = 0;
   const judged = [];
+  // Telemetry, not a score: turns whose canonical COMPOSE reply was replaced by the deterministic template (the run
+  // then tests the templates for those turns, not COMPOSE). From the benchmark status's structured compose record.
+  const composeTemplateTurns = [];
 
   for (const r of results) {
+    (r.transcript || []).forEach((t, i) => {
+      const c = t && t.view && t.view.benchmark && t.view.benchmark.compose;
+      if (c && c.source === 'template') composeTemplateTurns.push({ id: r.id, turn: i + 1, violations: c.violations || [], error: c.error || null });
+    });
     statusCounts[r.status] = (statusCounts[r.status] || 0) + 1;
     const fam = byFamily[r.family] || (byFamily[r.family] = { total: 0, pass: 0, fail: 0, error: 0, judgeError: 0 });
     fam.total += 1;
@@ -125,6 +132,7 @@ function aggregate(results) {
     criticalCount,
     byFamily,
     dimensionMeans,
+    composeTemplateTurns,
   };
 }
 
@@ -146,6 +154,8 @@ function formatReport(agg, results, metadata) {
   lines.push('');
   lines.push(`- PASS ${agg.statusCounts.PASS} · FAIL ${agg.statusCounts.FAIL} · ERROR ${agg.statusCounts.ERROR} · JUDGE_ERROR ${agg.statusCounts.JUDGE_ERROR}`);
   lines.push(`- Critical failures observed: ${agg.criticalCount}`);
+  const tpl = agg.composeTemplateTurns || [];
+  lines.push(`- Turns answered by the COMPOSE template instead of COMPOSE: ${tpl.length}${tpl.length ? ` (${tpl.map((x) => `${x.id} t${x.turn}: ${[...x.violations, x.error].filter(Boolean).join(', ') || 'template'}`).join('; ')})` : ''}`);
   lines.push('');
   lines.push('## Per family');
   lines.push('');
