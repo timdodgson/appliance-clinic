@@ -1061,6 +1061,30 @@ class Orchestrator:
                                if pending else None)
         return resp
 
+    def _ambiguous_code_reply(self, st, mcp: dict) -> str:
+        """A code with more than one documented meaning: say what it can mean (the MCP's structured candidates) and
+        what would settle it. Never the same message twice in a row: a repeat gives the other way forward."""
+        shown = _facing_code(st, mcp)
+        fam = str(st.customer.appliance or "appliance").replace("-", " ")
+        make = str(st.customer.make or "").strip()
+        where = f"your {(make[:1].upper() + make[1:] + ' ' + fam).strip()}" if make else f"this {fam}"
+        meanings = []
+        for c in mcp.get("candidates") or []:
+            m = str((c or {}).get("meaning") or "").strip().rstrip(".")
+            if m and m.lower() not in {x.lower() for x in meanings}:
+                meanings.append(m)
+        listed = "; or ".join(meanings[:3])
+        settle = ("If you tell me what the machine is doing when the code shows, I can help from that."
+                  if st.customer.modelUnavailable else
+                  "The model number on the rating plate would tell me which one applies to your machine.")
+        msg = (f"{shown} on {where} has more than one documented meaning: {listed}. {settle}" if listed else
+               "That code has more than one documented meaning on this appliance and I can't pin it down for certain. "
+               "If you can give the model/rating-plate number I can try to narrow it.")
+        if msg.strip() == (self._last_assistant_text(st) or "").strip():
+            msg = (f"Without the model number I can't tell which of those meanings {shown} has on your machine. "
+                   "If you tell me what the machine is doing when the code shows, I'll help from that.")
+        return msg
+
     # ---------------- MCP mapping ----------------
     def _apply_mcp(self, st: ConversationState, mcp: dict) -> None:
         rv = st.resolved
@@ -1764,8 +1788,7 @@ class Orchestrator:
                                         codeResult=CodeResultView(displayed=_facing_code(st, mcp),
                                                                   status=status))
         if status == "AMBIGUOUS":
-            msg = ("That code has more than one documented meaning on this appliance and I can't "
-                   "pin it down for certain. If you can give the model/rating-plate number I can try to narrow it.")
+            msg = self._ambiguous_code_reply(st, mcp)
             return OrchestratorResponse(route="", outcome=Outcome.AMBIGUOUS.value, message=msg,
                                         codeResult=CodeResultView(displayed=_facing_code(st, mcp),
                                                                   status=status))

@@ -142,6 +142,19 @@ for name, spec, want in (("E15 bosch dishwasher", {"appliance": "dishwasher", "m
     check(f"an obvious {want} is committed with no code-or-model question", ok and r.message != routing.code_or_model_question(name.split()[0]),
           (st.customer.displayedCode, st.customer.observed, r.message))
 
+# 4d. a code with more than one documented meaning (live journey after 11.5: "what does it mean?" got the same reply twice)
+amb = {"status": "AMBIGUOUS", "code": {"input": "F06", "displayed": "F06"},
+       "candidates": [{"meaning": "Door-lock will not release / stuck shut"}, {"meaning": "Door lock / interlock fault"}]}
+o = Orchestrator(FakeErrorCodeService(CANNED), Scripted({}))
+st = o._load(TurnInput(message="x", sessionId="amb", canonical=block(cs1_state(appliance="washing-machine", establishment="established",
+                                                                               make="hotpoint", codes=["F06"]))))
+first = o._ambiguous_code_reply(st, amb)
+check("an ambiguous code says what it can mean (the MCP's documented meanings) and what would settle it",
+      "Door-lock will not release" in first and "interlock" in first and "model number" in first, first)
+st._conversation = [{"role": "user", "content": "x"}, {"role": "assistant", "content": first}, {"role": "user", "content": "what does it mean?"}]
+second = o._ambiguous_code_reply(st, amb)
+check("...and never sends the same message twice in a row", second != first and "doing when the code shows" in second, second)
+
 # 5. identity progression across turns: appliance -> make -> model, read from cs/1 each turn
 T = ["my washer is leaking", "it's a Beko", "the model is WTG841B2W"]
 o = FakeBff(Orchestrator(FakeErrorCodeService(CANNED), Scripted({

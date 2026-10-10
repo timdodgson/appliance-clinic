@@ -51,3 +51,27 @@ describe('a conclusion and the replies after it that add nothing new', () => {
     expect(again.template(again.brief(r2.state, r2.last, null, {}))).toBe(t2);
   });
 });
+
+/**
+ * Phase 11 final journeys: an opener that volunteers the model and that the filter is already cleaned, with water still
+ * left. mc/1 records the filter check as done with no result; the policy concluded "blocked filter" on the first turn
+ * (pointing back at the filter just cleaned) instead of moving to the next owner check.
+ */
+describe('a volunteered "already cleaned it" with the fault still there moves on to the next check', () => {
+  const op = H.opener('not-draining', null, [O('waterRemaining'), O('faultPersists')], {},
+    { appliance: { value: 'dishwasher', basis: 'stated' }, make: { value: 'beko', basis: 'stated' }, model: { value: 'DFN05R10W', basis: 'stated' } });
+  it('done with no result stated, fault persists: the pump cover check, not a filter conclusion', () => {
+    const r = H.play(J('dw-not-draining'), [C({ ...op, checks: [K('dishwasher-filter', 'done', null)] })]);
+    expect(r.rules).toEqual(['A12:pump-impeller']);
+  });
+  it('unchanged when the result is stated (clear, or found and cleared)', () => {
+    for (const res of ['clear', 'found_and_cleared']) {
+      expect(H.play(J('dw-not-draining'), [C({ ...op, checks: [K('dishwasher-filter', 'done', res)] })]).rules).toEqual(['A12:pump-impeller']);
+    }
+  });
+  it('done with no result and the fault NOT persisting is not a failed fix', () => {
+    const op2 = H.opener('not-draining', null, [O('waterRemaining')], {}, { appliance: { value: 'dishwasher', basis: 'stated' } });
+    const r = H.play(J('dw-not-draining'), [C({ ...op2, checks: [K('dishwasher-filter', 'done', null)] })]);
+    expect(r.rules[0]).not.toBe('A12:pump-impeller');
+  });
+});

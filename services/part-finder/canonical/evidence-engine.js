@@ -82,7 +82,9 @@ const checkOf = (s, c) => (s.evidence && s.evidence.checks && s.evidence.checks[
 const checkResult = (s, c) => { const k = checkOf(s, c); return k && k.status === 'done' ? k.result : null; };
 const checkDone = (s, c) => { const k = checkOf(s, c); return Boolean(k && k.status === 'done'); };
 /** Turn of the latest owner fix on check c (found_and_cleared / found_not_cleared), else null. */
-function fixTurnOf(s, c) { const k = checkOf(s, c); return k && k.status === 'done' && FOUND.has(k.result) ? k.turn : null; }
+// A fix check the customer did: something found, or done with no result stated ("I've already cleaned the filter"). If
+// the fault persists at or after it, the fix did not cure it either way (Phase 11: a volunteered "already cleaned").
+function fixTurnOf(s, c) { const k = checkOf(s, c); return k && k.status === 'done' && (FOUND.has(k.result) || k.result == null) ? k.turn : null; }
 
 /**
  * Project cs/1 into TRUE facts from a declarative spec (typed state only; no prose):
