@@ -7,12 +7,18 @@
 # (never committed, never baked into the image, never returned to clients). No CDK.
 set -euo pipefail
 
+# RETIRED (Phase 5 onwards): kept as a packaging reference only. Production is managed by CloudFormation (AcRuntimeStack)
+# through the reviewed change process (infra/production/steps/change.sh); running this script would overwrite managed
+# configuration outside it. See docs/migration/PLAN.md ("Use the old repo's deploy.sh ... DO NOT DO").
+echo "$(basename "$0") is retired: production changes go through infra/production/steps/change.sh (see CONTRIBUTING.md)." >&2
+exit 1
+
 REGION="${REGION:-eu-west-1}"
 FUNCTION="${FUNCTION:-spares4repairs-diag-orchestrator}"
 ECR_REPO="${ECR_REPO:-spares4repairs-diag-orchestrator}"
 ROLE_NAME="${ROLE_NAME:-diag-orchestrator-role}"
-ORCH_SECRET="${ORCH_SECRET:-spares4repairs/diag-orchestrator/bearer-token}"
-MCP_SECRET="${MCP_SECRET:-spares4repairs/error-code-mcp/bearer-token}"
+ORCH_SECRET="${ORCH_SECRET:-applianceclinic/production/orchestrator-bearer}"
+MCP_SECRET="${MCP_SECRET:-applianceclinic/production/mcp-bearer}"
 MCP_URL="${MCP_URL:-https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/}"
 RAG_URL="${RAG_URL:-https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/}"
 ARCH="${ARCH:-arm64}"; PLATFORM="linux/${ARCH}"; TAG="${TAG:-v1}"

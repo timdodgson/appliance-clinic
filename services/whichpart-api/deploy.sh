@@ -4,6 +4,12 @@
 # Does NOT touch any Spares4Repairs resources.
 set -euo pipefail
 
+# RETIRED (Phase 5 onwards): kept as a packaging reference only. Production is managed by CloudFormation (AcRuntimeStack)
+# through the reviewed change process (infra/production/steps/change.sh); running this script would overwrite managed
+# configuration outside it. See docs/migration/PLAN.md ("Use the old repo's deploy.sh ... DO NOT DO").
+echo "$(basename "$0") is retired: production changes go through infra/production/steps/change.sh (see CONTRIBUTING.md)." >&2
+exit 1
+
 FUNCTION="${FUNCTION:-whichpart-api}"
 REGION="${REGION:-eu-west-1}"
 ROLE_NAME="${ROLE_NAME:-whichpart-api-role}"
@@ -12,7 +18,7 @@ S4R_PRODUCT_BASE_URL="${S4R_PRODUCT_BASE_URL:-https://d1hrb3pgx61xww.cloudfront.
 # The customer diagnostic orchestrator (ONE diagnostic API the browser talks to). The boundary
 # fans out to MCP/RAG server-side; the bearer never leaves the server.
 ORCHESTRATOR_URL="${ORCHESTRATOR_URL:-https://ajpz33wv4yezh6g2ayv5ite3zu0ruviq.lambda-url.eu-west-1.on.aws/}"
-ORCH_TOKEN_SECRET_ID="${ORCH_TOKEN_SECRET_ID:-spares4repairs/diag-orchestrator/bearer-token}"
+ORCH_TOKEN_SECRET_ID="${ORCH_TOKEN_SECRET_ID:-applianceclinic/production/orchestrator-bearer}"
 # Cognito (customer UI header + admin console). Reuses the existing shared S4R user pool; the app
 # client has no secret and allows ADMIN_USER_PASSWORD_AUTH. This is the boundary/BFF, not a
 # diagnostic backend — diagnosis behaviour is unchanged.
@@ -21,7 +27,7 @@ COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID:-60phdcnl0eetdq4kcp327d0fkm}"
 # MCP health (public GET) surfaced read-only on the admin dashboard.
 MCP_HEALTH_URL="${MCP_HEALTH_URL:-https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/health}"
 MCP_URL="${MCP_URL:-https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws}"
-MCP_TOKEN_SECRET_ID="${MCP_TOKEN_SECRET_ID:-spares4repairs/error-code-mcp/bearer-token}"
+MCP_TOKEN_SECRET_ID="${MCP_TOKEN_SECRET_ID:-applianceclinic/production/mcp-bearer}"
 # LM Studio base URL — used ONLY by the admin console to display the loaded model
 # name and check the local connection. Diagnosis uses the part-finder's own copy.
 LM_STUDIO_URL="${LM_STUDIO_URL:-https://isolating-eldercare-hurdle.ngrok-free.dev}"
