@@ -102,7 +102,7 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it collecting the water normally now?',
-  OBS_COPY: { dryerVented: ['vented', null], dryerCondenser: ['condenser', null], dryerHeatPump: ['heat pump', null], tankStaysEmpty: ['container stays empty', 'container fills'],
+  OBS_COPY: { dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null], dryerHeatPump: ['a heat-pump-type dryer', null], tankStaysEmpty: ['container stays empty', 'container fills'],
     tankWarning: ['container warning on', null], leakUnderneath: ['water under the dryer', null], drainKitFitted: ['drain kit fitted', 'no drain kit'], faultPersists: ['still the same', 'working now'] },
   CHECK_RESULT_COPY: { 'water-container': { clear: 'container fine', found_and_cleared: 'container emptied / reseated', fault_seen: 'container cracked' },
     condenser: { clear: 'condenser clean', found_and_cleared: 'condenser cleaned' } },

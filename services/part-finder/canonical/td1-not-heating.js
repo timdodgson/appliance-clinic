@@ -114,7 +114,7 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it heating normally now?',
-  OBS_COPY: { noHeat: ['no heat', 'gets warm'], heatPresent: ['gets warm', null], dryerVented: ['vented', null], dryerCondenser: ['condenser', null], dryerHeatPump: ['heat pump', null],
+  OBS_COPY: { noHeat: ['no heat', 'gets warm'], heatPresent: ['gets warm', null], dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null], dryerHeatPump: ['a heat-pump-type dryer', null],
     restartsAfterCooling: ['restarts after cooling', 'never restarts'], faultPersists: ['still cold', 'heating now'] },
   CHECK_RESULT_COPY: {
     'programme-setting': { clear: 'normal heat programme', found_and_cleared: 'programme changed' }, 'lint-filter': { clear: 'lint filter clean', found_and_cleared: 'lint filter cleaned' },
