@@ -23,12 +23,13 @@
 const fs = require('fs');
 const path = require('path');
 
-// GOLD-v2.3 (55): GOLD-v2.2 unchanged plus six scenarios reproducing the shapes of real production failures (Phase 10,
-// docs/evaluation/phase-10-gold-audit.md). The earlier sets (scenarios.v2_0/1/2.json) are kept unchanged as history.
-const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_3.json');
+// GOLD-v2.4 (56): GOLD-v2.3 unchanged plus G2-MW-06, a conclusion followed by replies that add nothing new (Phase 11,
+// docs/evaluation/phase-11-gold-audit.md). GOLD-v2.3 added six real production failure shapes (Phase 10). The earlier
+// sets (scenarios.v2_0/1/2/3.json) are kept unchanged as history.
+const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_4.json');
 
-const SCENARIO_SET_VERSION = 'GOLD-v2.3';
-const SCENARIO_COUNT = 55;
+const SCENARIO_SET_VERSION = 'GOLD-v2.4';
+const SCENARIO_COUNT = 56;
 
 const EXPECTED_FAMILY_DISTRIBUTION = Object.freeze({
   'washing-machine': 10,
@@ -38,7 +39,7 @@ const EXPECTED_FAMILY_DISTRIBUTION = Object.freeze({
   'fridge-freezer': 6,
   'oven-cooker': 6,
   hobs: 4,
-  microwave: 5,
+  microwave: 6,
   vacuum: 6,
 });
 

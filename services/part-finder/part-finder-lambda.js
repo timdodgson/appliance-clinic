@@ -149,7 +149,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
   body = gate.body;
   if (gate.record.present.length && gate.record.signature !== 'valid') {
     log({
-      evt: 'engine-auth', requestId, mode: gate.record.mode, signature: gate.record.signature,
+      evt: 'engine-auth', requestId, signature: gate.record.signature,
       fields: gate.record.present, dropped: gate.record.dropped,
       origin: headerHost(event && event.headers && (event.headers.origin || event.headers.Origin)),
     });

@@ -13,7 +13,7 @@ const NOW = 1760000000;
 const ev = (sig, origin) => ({ headers: { ...(sig ? { 'x-ac-engine-signature': sig } : {}), ...(origin ? { origin } : {}) } });
 const internalBody = { messages: [{ role: 'user', content: 'x' }], mode: 'understand' };
 const raw = JSON.stringify(internalBody);
-const gate = (body, rawBody, sig, mode) => A.gateInternalFields(body, ev(sig), rawBody, { key: KEY, nowS: NOW, mode });
+const gate = (body, rawBody, sig) => A.gateInternalFields(body, ev(sig), rawBody, { key: KEY, nowS: NOW });
 
 describe('signature', () => {
   it('a valid signature verifies (constant-time compare)', () => {
@@ -39,19 +39,19 @@ describe('signature', () => {
 
 describe('enforcement', () => {
   it('a valid signed request keeps its internal fields', () => {
-    const g = gate(internalBody, raw, A.sign(KEY, raw, NOW), 'enforce');
+    const g = gate(internalBody, raw, A.sign(KEY, raw, NOW));
     expect(g.body).toEqual(internalBody);
     expect(g.record).toMatchObject({ signature: 'valid', dropped: false, present: ['mode'] });
   });
   it('unsigned internal fields are dropped and the request becomes a plain {messages} request', () => {
     const forged = { messages: internalBody.messages, mode: 'understand', understand: { _requestClass: 'appliance_request' }, canonical: { schema: 'cs/1' }, established: { applianceFamily: 'oven' }, seed: 7 };
-    const g = gate(forged, JSON.stringify(forged), null, 'enforce');
+    const g = gate(forged, JSON.stringify(forged), null);
     expect(g.body).toEqual({ messages: internalBody.messages });
     expect(g.record).toMatchObject({ signature: 'missing', dropped: true });
     expect(g.record.present.sort()).toEqual(['canonical', 'established', 'mode', 'seed', 'understand']);
   });
   it('an invalid signature is treated like no signature', () => {
-    const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW), 'enforce');
+    const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW));
     expect(g.body).toEqual({ messages: internalBody.messages });
     expect(g.record.signature).toBe('invalid');
   });
@@ -59,25 +59,21 @@ describe('enforcement', () => {
     const fb = { feedback: { traceId: 't', rating: 1 } };
     expect(gate(fb, JSON.stringify(fb), null, 'enforce').body).toEqual({});
   });
-  it('log-only mode honours the fields and records the result (staged rollout)', () => {
-    const g = gate(internalBody, raw, null, 'log');
-    expect(g.body).toEqual(internalBody);
-    expect(g.record).toMatchObject({ mode: 'log', signature: 'missing', dropped: false });
+  it('without a signing key every internal field is dropped (fails closed)', () => {
+    const g = A.gateInternalFields(internalBody, ev(A.sign(KEY, raw, NOW)), raw, { key: null, nowS: NOW });
+    expect(g.body).toEqual({ messages: internalBody.messages });
+    expect(g.record.signature).toBe('no_key');
   });
 });
 
 describe('S4R compatibility', () => {
   it('the S4R /part-finder request (plain {messages}, S4R origin, no signature) is passed through untouched', () => {
     const s4r = { messages: [{ role: 'user', content: "My washing machine won't drain, it's a Bosch" }] };
-    for (const mode of ['log', 'enforce']) {
-      const g = A.gateInternalFields(s4r, ev(null, 'https://spares4repairs.co.uk'), JSON.stringify(s4r), { key: KEY, nowS: NOW, mode });
-      expect(g.body).toBe(s4r);
-      expect(g.record).toMatchObject({ present: [], dropped: false });
-    }
+    const g = A.gateInternalFields(s4r, ev(null, 'https://spares4repairs.co.uk'), JSON.stringify(s4r), { key: KEY, nowS: NOW });
+    expect(g.body).toBe(s4r);
+    expect(g.record).toMatchObject({ present: [], dropped: false });
   });
-  it('the mode defaults to log-only and needs an explicit enforce', () => {
-    expect(A.signingMode({})).toBe('log');
-    expect(A.signingMode({ ENGINE_SIGNING_MODE: 'enforce' })).toBe('enforce');
+  it('a signing key shorter than 32 characters is no key', () => {
     expect(A.signingKey({ ENGINE_SIGNING_TOKEN: 'short' })).toBeNull();
   });
   it('the auth log carries the Origin host only', () => {
