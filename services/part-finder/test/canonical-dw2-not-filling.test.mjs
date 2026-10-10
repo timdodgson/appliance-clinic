@@ -97,7 +97,13 @@ describe('"I can\'t get to the model" while another question is pending (GOLD G2
     expect(r.last.requestKind).toBe('reoffer');
     expect(r.state.declined.map((d) => d.target)).not.toContain('waterInBase');
     expect(r.state.identity.modelStatus).toBe('unavailable');
-    expect(J.brief(r.state, r.last, null, {}).task.reoffer).toMatch(/carry on without it/);
+    const b = J.brief(r.state, r.last, null, {});
+    expect(b.task.reoffer).toMatch(/carry on without it.*confirm that a part fits/);
+    expect(b.task.say).toBe(''); // the explanation was given one turn ago
+    const t = J.template(b); // the frame, any required safety copy, then the question; never the explanation again
+    expect(t.startsWith(b.task.reoffer)).toBe(true);
+    expect(t.endsWith(J.TASK['ask_observation:waterInBase'].ask)).toBe(true);
+    expect(t).not.toContain(J.TASK['ask_observation:waterInBase'].say);
   });
   it('a cannot-answer to the pending question itself still settles it', () => {
     const r = H.play(J, [op(), C({ observations: [O('supplyOk')] }), C({ reply: { toPending: 'cannot_answer' } })]);
