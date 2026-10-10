@@ -231,6 +231,7 @@ function createCompose(pack) {
     '- Reported items are recorded categories: describe them generally, and never tell the customer they said a detail that is not in the category itself.',
     '- At most 120 words. A physical check may use a short numbered list (up to 5 steps). No headings, no bold, no emojis.',
     '- If the CONTENT ends with a question, finish with exactly that one question.',
+    '- Ask the decided question once only. Do not also put it to the customer beforehand as a request or an instruction.',
   ].join('\n');
   
   function prompt(b) {
@@ -273,6 +274,22 @@ function createCompose(pack) {
     const t = ` ${norm(text)} `;
     return INSTRUCTION_SENTENCES.some((x) => t.includes(` ${x} `));
   }
+  // The decided question put twice: once as a request ("let me know whether …") and again as the question. Compared
+  // with the step's own fixed copy only: a non-question sentence carrying most of the question's content words (other
+  // than words the step's lead copy itself uses) restates it. Never compared with customer text.
+  const ASK_STOP = new Set(['that', 'this', 'with', 'what', 'when', 'your', 'have', 'does', 'there', 'from', 'they', 'them', 'were', 'will', 'would', 'could', 'which', 'whether', 'into', 'than', 'then', 'also', 'been']);
+  const askWords = (x) => (String(x).toLowerCase().replace(/[\u2018\u2019]/g, "'").match(/[a-z']{4,}/g) || []).filter((w) => !ASK_STOP.has(w));
+  function restatesAsk(text, b) {
+    const ask = b.task ? b.task.ask : b.confirm;
+    if (!ask) return false;
+    const lead = new Set(askWords(b.task ? `${b.task.codeNote || ''} ${b.task.reoffer || ''} ${b.task.say || ''}` : ''));
+    const target = [...new Set(askWords(ask))].filter((w) => !lead.has(w));
+    if (target.length < 3) return false;
+    return text.split(/(?<=[.!?])\s+/).filter((x) => !/\?\s*$/.test(x)).some((x) => {
+      const has = new Set(askWords(x));
+      return target.filter((w) => has.has(w)).length / target.length >= 0.6;
+    });
+  }
   const MODEL_ASK_RE = /\bmodel (number|no\.?)\b/i;
   // Prompt scaffolding copied into the reply (instruction text, section labels) is a contract breach.
   const ASK_COMPONENT_WORDS = /\b(pcb|control board|motor|bearings?|heater|heating element|element|thermostat|thermistor|sensor|magnetron|capacitor|diode|transformer|inlet valve|drain pump|drive belt|compressor|relay|igniter|thermocouple|gas valve|regulator|interlock|battery|charger|fan motor|power board|induction (module|board|coil))\b/gi;
@@ -286,6 +303,7 @@ function createCompose(pack) {
     const asks = Boolean(b.task || b.confirm);
     if (asks && questions === 0) violations.push('missing-question');
     if (asks && questions > 1) violations.push('extra-questions'); // exactly the ONE decided question
+    if (asks && questions === 1 && restatesAsk(text, b)) violations.push('restated-question');
     if (!asks && questions > 0) violations.push('unexpected-question');
     if (a.kind !== 'recommend_part' && PURCHASE_RE.test(text)) violations.push('invented-part-or-purchase');
     // opt-in (final-pass packs): on an ask turn a component word must come from that step's fixed copy, the safety copy or
