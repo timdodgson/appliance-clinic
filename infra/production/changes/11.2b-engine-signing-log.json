@@ -1,0 +1,76 @@
+{
+  "id": "11.2b-engine-signing-log",
+  "description": "Phase 11 (ADR 0017) stage 1, engine side, log-only: the diagnosis Lambda verifies an HMAC signature on the orchestrator-only fields (mode, understand, canonical, established, seed, feedback) and logs every unsigned or invalid use (evt engine-auth), but still honours them (ENGINE_SIGNING_MODE=log). Code: engine-auth.js, part-finder-lambda.js. Environment: ENGINE_SIGNING_TOKEN (pinned dynamic reference to applianceclinic/production/engine-signing 60abac20-...), ENGINE_SIGNING_MODE=log, AC_BEARER_VERSIONS marker. The signers follow in 11.2c. Previous code jLLonFOP9iIYfk1Q0NBlgWUfbzYEfaPnz4Uw6tIB2NQ= (11.1); rollback = restore that s3Key and remove the three env entries.",
+  "classification": "POTENTIALLY IMPACTS S4R (diagnosis Lambda code and environment; S4R sends only {messages}, which the gate passes through untouched, and nothing is dropped in log mode; /part-finder contract, ingress, smoke and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code and environment update of the diagnosis Lambda, PassRole on its own unchanged role, read of the staged zip. The pinned engine-signing reference is resolved with the read-only base's ResolveAcBearerReferences statement (extended in 11.2a).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp",
+      "whichpart-api",
+      "spares4repairs-diag-orchestrator"
+    ]
+  }
+}
