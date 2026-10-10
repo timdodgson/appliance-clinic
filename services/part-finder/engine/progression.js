@@ -10,6 +10,7 @@ const {
 const {
   asciiFold, progressCustomerText, conversationEvidenceText, makeAlreadyKnown, productIdentitySufficient,
   customerFacingNextCheck, messageText, latestUserMessage, messageHasImage, customerProposedDrainPathPart,
+  setNextCheck, customerCheckText,
 } = require('./conversation.js');
 const { CATALOGUE, applianceKey, matchesComponent } = require('./catalogue.js');
 const {
@@ -661,7 +662,7 @@ function preferNotRepeatIntervention(intent) {
     if (!token) continue;
     if (next.includes(token) || finding.includes(token) || !intent.nextBestCheck) {
       touched = true;
-      intent.nextBestCheck = 'That already produced only temporary recovery, so repeating it is not the next diagnostic step. Treat the recurrence as evidence that the underlying cause remains, and choose a different discriminator or identification.';
+      setNextCheck(intent, null, 'That already produced only temporary recovery, so repeating it is not the next diagnostic step. Treat the recurrence as evidence that the underlying cause remains, and choose a different discriminator or identification.');
       intent.nextCheckCustomerSafe = true;
       if (intent._nextAction === 'check') intent._nextAction = 'discriminator';
       if (/defrost|de-?ice|ice|frost/.test(token) && /defrost|de-?ice/.test(finding)) {
@@ -671,7 +672,7 @@ function preferNotRepeatIntervention(intent) {
     }
   }
   if (!touched) {
-    intent.nextBestCheck = 'That already produced only temporary recovery, so repeating it is not the next diagnostic step. Treat the recurrence as evidence that the underlying cause remains, and choose a different discriminator or identification.';
+    setNextCheck(intent, null, 'That already produced only temporary recovery, so repeating it is not the next diagnostic step. Treat the recurrence as evidence that the underlying cause remains, and choose a different discriminator or identification.');
     intent.nextCheckCustomerSafe = true;
     if (intent._nextAction === 'check' || intent._nextAction === 'advice') intent._nextAction = 'discriminator';
   }
@@ -993,7 +994,7 @@ function ensureNonTerminalProgression(reply, intent, extras) {
     reply = stripModelAskOnProfessionalBoundary(reply);
     const hvText = String(reply || '');
     if (!/\b(?:professional|engineer|qualified|high[- ]voltage|\bhv\b)\b/i.test(hvText)) {
-      const hvNext = intent.nextBestCheck
+      const hvNext = customerCheckText(intent)
         || 'A qualified microwave engineer is required once the next step would be high-voltage heating-system access or testing.';
       const lead = hvText.trim() ? hvText.trim().replace(/[;:\s]+$/, '.') : '';
       reply = (lead ? `${lead} ` : '') + hvNext;
@@ -1228,7 +1229,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   const complaintRemains = /\b(still (?:showing|there|happening|doing it)|error|won'?t (?:wash|complete|spin|finish|start)|stops? mid|fault)\b/.test(t)
     || /\be[\s-]?\d{1,3}\b/.test(t);
   if (filterDone && drainAttemptWorked && complaintRemains) {
-    intent.nextBestCheck = 'Check whether water is left standing after it stops, then inspect the small pressure/level hose and air trap. Do not replace the filter already cleaned.';
+    setNextCheck(intent, 'Check whether water is left standing after it stops, then inspect the small pressure/level hose and air trap.', 'Do not replace the filter already cleaned.');
     intent.nextCheckCustomerSafe = true;
     intent.furtherGenericCheckJustified = true;
     intent.needMoreInfo = true;
@@ -1254,14 +1255,14 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
       && !latestTurnSaysChecksNotDone(progress)) {
     if (modelKnown) {
       intent.primaryFindingKind = 'subsystem';
-      intent.nextBestCheck = 'A weak or failed drain-path component is a reasonable hypothesis together with any remaining downstream restriction. Do not treat a free impeller or an earlier hum as proof the pump has failed, and do not instruct buying or replacing it as the next step. Give advice before any replacement.';
+      setNextCheck(intent, 'A weak or failed drain-path component is a reasonable hypothesis together with any remaining downstream restriction.', 'Do not treat a free impeller or an earlier hum as proof the pump has failed, and do not instruct buying or replacing it as the next step. Give advice before any replacement.');
       intent.nextCheckCustomerSafe = true;
       intent.furtherGenericCheckJustified = true;
       intent.needMoreInfo = true;
       intent._nextAction = 'advice';
       return clearPendingDiscriminators(intent);
     }
-    intent.nextBestCheck = familyKnownIdentificationAsk(intent, 'Do not repeat the accessible impeller or filter check, and do not treat the earlier hum as proof the pump has failed.').nextBestCheck;
+    setNextCheck(intent, null, familyKnownIdentificationAsk(intent, 'Do not repeat the accessible impeller or filter check, and do not treat the earlier hum as proof the pump has failed.').nextBestCheck);
     intent.nextCheckCustomerSafe = false;
     intent.furtherGenericCheckJustified = false;
     intent.needMoreInfo = true;
@@ -1272,14 +1273,14 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   if (filterDone && waterLeft && impellerInspected && !impellerConditionLimited && !laundryTrapIsImpeller) {
     if (modelKnown) {
       intent.primaryFindingKind = 'subsystem';
-      intent.nextBestCheck = 'A weak or failed drain-path component is a reasonable hypothesis together with any remaining downstream restriction. Do not treat a free impeller or an earlier hum as proof the pump has failed, and do not instruct buying or replacing it as the next step. Give advice before any replacement.';
+      setNextCheck(intent, 'A weak or failed drain-path component is a reasonable hypothesis together with any remaining downstream restriction.', 'Do not treat a free impeller or an earlier hum as proof the pump has failed, and do not instruct buying or replacing it as the next step. Give advice before any replacement.');
       intent.nextCheckCustomerSafe = true;
       intent.furtherGenericCheckJustified = true;
       intent.needMoreInfo = true;
       intent._nextAction = 'advice';
       return clearPendingDiscriminators(intent);
     }
-    intent.nextBestCheck = familyKnownIdentificationAsk(intent, 'Do not repeat the accessible impeller or filter check, and do not treat the earlier hum as proof the pump has failed.').nextBestCheck;
+    setNextCheck(intent, null, familyKnownIdentificationAsk(intent, 'Do not repeat the accessible impeller or filter check, and do not treat the earlier hum as proof the pump has failed.').nextBestCheck);
     intent.nextCheckCustomerSafe = false;
     intent.furtherGenericCheckJustified = false;
     intent.needMoreInfo = true;
@@ -1288,7 +1289,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
     return clearPendingDiscriminators(intent);
   }
   if (filterDone && waterLeft && !impellerInspected && !impellerConditionLimited && !laundryTrapIsImpeller) {
-    intent.nextBestCheck = 'With the appliance isolated from the mains, look in the user-accessible pump or impeller area for a blockage or a jammed impeller. Do not repeat the filter check already done, and do not confirm the pump has failed.';
+    setNextCheck(intent, 'With the appliance isolated from the mains, look in the user-accessible pump or impeller area for a blockage or a jammed impeller.', 'Do not repeat the filter check already done, and do not confirm the pump has failed.');
     intent.nextCheckCustomerSafe = true;
     intent.furtherGenericCheckJustified = true;
     intent.needMoreInfo = true;
@@ -1296,7 +1297,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
     return clearPendingDiscriminators(intent);
   }
   if (filterDone && waterLeft && !hoseDone && !(impellerConditionLimited && pumpPathClearLatest)) {
-    intent.nextBestCheck = 'Check the drain hose for a kink or blockage. Do not confirm the pump or a jammed impeller; the accessible filter being clear does not prove that.';
+    setNextCheck(intent, 'Check the drain hose for a kink or blockage.', 'Do not confirm the pump or a jammed impeller; the accessible filter being clear does not prove that.');
     intent.nextCheckCustomerSafe = true;
     intent.furtherGenericCheckJustified = true;
     intent.needMoreInfo = true;
@@ -1309,14 +1310,14 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   if (filterDone && waterLeft && hoseDone) {
     if (modelKnown) {
       intent.primaryFindingKind = 'subsystem';
-      intent.nextBestCheck = 'The accessible filter, pump/impeller area and drain hose have all been checked and are clear, yet water remains. A weak or failed drain pump, or a blockage in the sump/pressure path, is the reasonable next hypothesis. Do not re-recommend the filter, impeller or hose checks already completed, and give advice before any replacement.';
+      setNextCheck(intent, 'The accessible filter, pump/impeller area and drain hose have all been checked and are clear, yet water remains. A weak or failed drain pump, or a blockage in the sump/pressure path, is the reasonable next hypothesis.', 'Do not re-recommend the filter, impeller or hose checks already completed, and give advice before any replacement.');
       intent.nextCheckCustomerSafe = true;
       intent.furtherGenericCheckJustified = true;
       intent.needMoreInfo = true;
       intent._nextAction = 'advice';
       return clearPendingDiscriminators(intent);
     }
-    intent.nextBestCheck = familyKnownIdentificationAsk(intent, 'Do not repeat the filter, impeller or drain-hose checks already completed and reported clear.').nextBestCheck;
+    setNextCheck(intent, null, familyKnownIdentificationAsk(intent, 'Do not repeat the filter, impeller or drain-hose checks already completed and reported clear.').nextBestCheck);
     intent.nextCheckCustomerSafe = false;
     intent.furtherGenericCheckJustified = false;
     intent.needMoreInfo = true;
@@ -1407,7 +1408,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   const replacedHeater = /\b(element|heater|heating element)\b/.test(replacedBlob);
   const familyKnown = Boolean(applianceKey(intent.applianceType));
   if (replacedHeater && (noHeat || heatThenStops) && !familyKnown) {
-    intent.nextBestCheck = 'Ask which appliance this is. Do not list example families. A replaced heater with the same no-heat remaining is not solved by fitting another, and a power-cycle is not the next diagnosis. Remaining heat-path stays open as hypotheses only: airflow or restriction, a thermostat or cut-out, wiring or command.';
+    setNextCheck(intent, null, 'Ask which appliance this is. Do not list example families. A replaced heater with the same no-heat remaining is not solved by fitting another, and a power-cycle is not the next diagnosis. Remaining heat-path stays open as hypotheses only: airflow or restriction, a thermostat or cut-out, wiring or command.');
     intent.nextCheckCustomerSafe = false;
     intent.furtherGenericCheckJustified = false;
     intent.needMoreInfo = true;
@@ -1418,7 +1419,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   const latest = String((progress && progress.latestUserText) || t).replace(/[\u2019\u02bc]/g, "'");
   if (/\bimpeller\b/.test(t) && /\b(sometimes|by hand|flick)\b/.test(t)) {
     if (/\b(pump and filter are clear|pump.{0,32}clear|housing.{0,32}clear)\b/i.test(latest)) {
-      intent.nextBestCheck = familyKnownIdentificationAsk(intent, 'Do not repeat the housing look, and do not invent a lodged object.').nextBestCheck;
+      setNextCheck(intent, null, familyKnownIdentificationAsk(intent, 'Do not repeat the housing look, and do not invent a lodged object.').nextBestCheck);
       intent.nextCheckCustomerSafe = false;
       intent.furtherGenericCheckJustified = false;
       intent.needMoreInfo = true;
@@ -1427,7 +1428,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
       intent.candidateComponents = [];
       return clearPendingDiscriminators(intent);
     }
-    intent.nextBestCheck = 'The impeller working only sometimes or by hand is condition-limited. Give one accessible housing look as a check. Do not confirm the pump and do not ask for the model on this turn.';
+    setNextCheck(intent, null, 'The impeller working only sometimes or by hand is condition-limited. Give one accessible housing look as a check. Do not confirm the pump and do not ask for the model on this turn.');
     intent.nextCheckCustomerSafe = true;
     intent.furtherGenericCheckJustified = true;
     intent.needMoreInfo = true;
@@ -1441,7 +1442,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
   const silentNotDrying = /\bsilent/.test(t) && /\b(not drying|isn'?t drying|aren'?t drying)\b/.test(t);
   const drumTurnsTrue = facts.some((f) => f && f.name === 'drumTurns' && String(f.value).toUpperCase() === 'TRUE');
   if (silentNotDrying && dryerFamily && !drumTurnsTrue) {
-    intent.nextBestCheck = 'Does the drum still turn, and is there useful heat? Silent is not proof it is dead, and not drying is not proof the drum has stopped.';
+    setNextCheck(intent, 'Does the drum still turn, and is there useful heat?', 'Silent is not proof it is dead, and not drying is not proof the drum has stopped.');
     intent.clarifyingQuestion = 'Does the drum still turn when you start a cycle, and can you tell if there is useful heat?';
     intent.nextCheckCustomerSafe = true;
     intent.needMoreInfo = true;
@@ -1452,7 +1453,7 @@ function preferAccessibleFirstAction(intent, queryText, progress) {
     return intent;
   }
   if (silentNotDrying && drumTurnsTrue) {
-    intent.nextBestCheck = 'The drum turning is established. Ask whether there is useful heat. Do not name any component.';
+    setNextCheck(intent, null, 'The drum turning is established. Ask whether there is useful heat. Do not name any component.');
     intent.clarifyingQuestion = 'When it runs, is there useful heat, or does it stay cold?';
     intent.nextCheckCustomerSafe = true;
     intent.needMoreInfo = true;

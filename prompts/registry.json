@@ -59,7 +59,7 @@
     },
     {
       "id": "diagnosis.compose.turn",
-      "version": 1,
+      "version": 2,
       "purpose": "The COMPOSE conversation and final user-turn instruction: the customer conversation as the model sees it, and what to reply about now.",
       "owner": "diagnosis engine",
       "consumers": [
@@ -72,6 +72,12 @@
           "declarations": [
             "buildComposeContext"
           ]
+        },
+        {
+          "file": "services/part-finder/engine/presentation.js",
+          "declarations": [
+            "formatTrustedCustomerEvidence"
+          ]
         }
       ],
       "input": "Intent, fault, safety stop, unsafe intent, normal behaviour, the conversation messages, presentation.",
@@ -82,6 +88,12 @@
           "date": "2026-10-09",
           "fingerprint": "6201b881b7db5a7ed2300c4b60b9c8ff1a6ccfab0f77e73b8f729faf9188a4d2",
           "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-10",
+          "fingerprint": "23b49c35e408b6068a90cb701950e3e068c8cf1a3522b4a4dd1c72f6ba46aa95",
+          "change": "F15: the trusted state block (formatTrustedCustomerEvidence, now registered) gives the customer-facing next check and the model-only guidance as separate lines; guidance is never presented as the check."
         }
       ]
     },
