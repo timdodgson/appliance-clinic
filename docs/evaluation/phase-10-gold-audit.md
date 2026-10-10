@@ -56,7 +56,7 @@ This audit was written before any change to the suite.
 
 **Retained: all 49 scenarios.** Each one tests a behaviour that real use reaches. None duplicates another's input shape and journey: the nine `safe_check_then_model` scenarios cover nine different journeys across seven families. No scenario was found to test something the product should not do. Nothing is removed for the sake of removal.
 
-**Rewritten: none.** The real gaps are missing input shapes, not wrong expectations.
+**Rewritten: 1 (G2-DW-01), during the gate.** Its expectation said a part should be named straight after the first owner check. That contradicts the deliberate owner-checks-first policy (further safe drain-path checks or the model come before a part), so the scenario passed or failed by judge variance. The expectation now allows either; the reason is in its `judgeNotes`. The other gaps were missing input shapes, not wrong expectations.
 
 **Added: 6 scenarios.** These are synthetic: each reproduces the *shape* of a real failure (a bare code with a misspelt brand; a bare yes to an either/or question), never a real customer's words.
 
@@ -82,6 +82,8 @@ This audit was written before any change to the suite.
 - This is telemetry, not a score.
 
 **Final size: 55 scenarios** (GOLD-v2.3, rubric `gold-v2-rubric-v3`).
+
+**Final gate:** 55/55 in two consecutive full runs on release 10.12 ([gold-v2-3-final-gate.md](gold-v2-3-final-gate.md)). The first v2.3 run was 48/55; every failure on the way was a product defect fixed at its root layer.
 
 ## Why the leak was not caught before
 

@@ -100,6 +100,8 @@ The product was then fixed, not the test, over a series of reviewed releases:
 
 Misses that kept repeating in scenarios that still passed narrowly were treated as defects too. The gate was **49/49 in two consecutive full runs** ([final gate](../evaluation/gold-v2-final-gate.md)). The 28/50 run is kept as the diagnostic run that started the work, not as a baseline.
 
+Phase 10 then asked whether GOLD would have caught what went wrong in real conversations. It would not have: it passed a prompt leak and had no error-code scenario. The suite grew to 55 scenarios with two rubric-wide fidelity checks, the first run fell to 48/55, and twelve root-layer releases later the gate was **55/55 twice** ([Phase 10 results](../evaluation/phase-10-results.md)).
+
 During that work two bearer tokens appeared in an operator session's output, and both were rotated. The rotation exposed a CloudFormation subtlety: pinning a dynamic reference to the new version id changed nothing. CloudFormation re-resolved the old unversioned reference to the same new value, saw no difference and skipped the update. A non-secret version marker in each function's environment now forces the update on every rotation.
 
 ### 8. Make it readable (Phase 9)
