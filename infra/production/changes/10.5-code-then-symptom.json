@@ -1,0 +1,66 @@
+{
+  "id": "10.5-code-then-symptom",
+  "description": "Phase 10 release 5 (GOLD-v2.3 G2-EC-02): a code conversation whose latest turn establishes a real symptom (Jev typed) carries a symptom and routes to code + symptoms instead of repeating the code meaning. The image differs from production only in orchestration/orchestrator.py (1901/1902 files identical). Deployed by the arm64 image-manifest digest. Code only. Previous image: sha256:3f4c6ef55a1a31690613c3e6ba5fd2496028fb59a016bf06f0f4a3103ef2ed8c (10.2).",
+  "classification": "SAFE AC CHANGE (AC-only function; S4R health and the /part-finder contract checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      ]
+    },
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the orchestrator only, by image digest; read of that image in its ECR repository (the repository policy already lets Lambda pull). No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-part-finder"
+    ]
+  }
+}
