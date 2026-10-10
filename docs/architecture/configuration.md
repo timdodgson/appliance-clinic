@@ -35,7 +35,7 @@ this page does not list.
 | `MEDIA_OVERLAY_TTL_MS` | Optional | 10000 | No | `media-effective.js` |
 | `JEV_TIMEOUT_MS` | Optional | 15000 | No | `jev-client.js` |
 | `CANONICAL_MC1_QUESTIONS` | Optional | `1` (on) | No | `canonical-runtime.js` |
-| `ENGINE_SIGNING_TOKEN`, `ENGINE_SIGNING_MODE` | Optional (ADR 0017) | none (unsigned internal fields are honoured only in `log` mode); `log` | Yes: a dynamic reference to `applianceclinic/production/engine-signing`; the mode | `engine-auth.js` |
+| `ENGINE_SIGNING_TOKEN` | Required for the orchestrator-only fields (ADR 0017) | none: every orchestrator-only field is dropped (fails closed); plain `{messages}` requests are unaffected | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-auth.js` |
 | `LLM_PROVIDER`, `UNDERSTAND_PROVIDER`, `COMPOSE_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_BASE_URL` | Optional | `lmstudio`; OpenAI base `https://api.openai.com/v1` | No | `inference.js` (environment-only provider selection; production uses the admin AI config) |
 | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_GATEWAY_ID`, `JEV_ACCOUNT_ID`, `JEV_API_TOKEN`, `JEV_GATEWAY_ID` | Optional | none (the Jev secret is used) | No | `admin-config.js` (local runs) |
 | `AWS_REGION` | Lambda | `eu-west-1` | Lambda sets it | AWS clients |

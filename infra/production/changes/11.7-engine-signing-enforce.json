@@ -1,0 +1,65 @@
+{
+  "id": "11.7-engine-signing-enforce",
+  "description": "Phase 11 (ADR 0017) stage 3, enforcement: ENGINE_SIGNING_MODE=enforce on the diagnosis Lambda. The orchestrator-only fields (mode, understand, canonical, established, seed, feedback) are honoured only with a valid AC signature; without one they are dropped and the request is handled as plain {messages}. Gate met: 60 days of logs show engine requests using mode never exceed orchestrator invocations; in the log-only window (since 11.2b) every unsigned use is accounted for (the orchestrator before its signer, and operator probes), none from the S4R origin; every orchestrator call verifies. Environment only. Rollback: ENGINE_SIGNING_MODE=log (configuration only).",
+  "classification": "POTENTIALLY IMPACTS S4R (diagnosis Lambda configuration; S4R sends only {messages}, which carries no internal field; /part-finder contract, ingress, smoke and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      ]
+    }
+  ],
+  "grantNotes": "Environment update of the diagnosis Lambda and PassRole on its own unchanged role.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionCode",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ]
+  }
+}

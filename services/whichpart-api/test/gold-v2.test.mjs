@@ -46,12 +46,12 @@ const view = (o) => Object.assign({ reply: 'ok', needsModel: false, safety: fals
 const makeCallApi = (fn) => async (messages) => fn(messages);
 
 describe('schema', () => {
-  // GOLD-v2.3: GOLD-v2.2 (the value-audited set) unchanged, plus six scenarios from real production failure shapes.
-  it('loads exactly 55 unique scenarios with the expected family distribution', () => {
-    expect(set.scenarios.length).toBe(55);
+  // GOLD-v2.4: GOLD-v2.3 unchanged plus G2-MW-06 (Phase 11); v2.3 added six scenarios from real production failure shapes.
+  it('loads exactly 56 unique scenarios with the expected family distribution', () => {
+    expect(set.scenarios.length).toBe(56);
     const ids = set.scenarios.map((s) => s.id);
-    expect(new Set(ids).size).toBe(55);
-    for (const id of ['G2-EC-01', 'G2-EC-02', 'G2-EC-03', 'G2-WM-09', 'G2-WM-10', 'G2-VAC-06']) expect(ids).toContain(id);
+    expect(new Set(ids).size).toBe(56);
+    for (const id of ['G2-EC-01', 'G2-EC-02', 'G2-EC-03', 'G2-WM-09', 'G2-WM-10', 'G2-VAC-06', 'G2-MW-06']) expect(ids).toContain(id);
     expect(ids).not.toContain('G2-WM-02');
     const counts = {};
     for (const s of set.scenarios) counts[s.family] = (counts[s.family] || 0) + 1;
@@ -64,7 +64,7 @@ describe('schema', () => {
     }
   });
   it('rejects a bad scenario set (wrong count, duplicate id, forbidden field)', () => {
-    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.3', scenarios: [] })).toThrow();
+    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.4', scenarios: [] })).toThrow();
     expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.2' })).toThrow(/scenarioSetVersion/);
     const dup = JSON.parse(JSON.stringify(set));
     dup.scenarios[1].id = dup.scenarios[0].id;
@@ -281,10 +281,10 @@ describe('COMPOSE telemetry', () => {
 });
 
 describe('version provenance + legacy separation', () => {
-  it('stamps GOLD-v2.3 / jev / rubric-v3 / policy constants', () => {
+  it('stamps GOLD-v2.4 / jev / rubric-v3 / policy constants', () => {
     const m = V.versionMetadata({ productSha: 'abc1234' });
-    expect(m.benchmark).toBe('GOLD-v2.3');
-    expect(m.scenarioSetVersion).toBe('GOLD-v2.3');
+    expect(m.benchmark).toBe('GOLD-v2.4');
+    expect(m.scenarioSetVersion).toBe('GOLD-v2.4');
     expect(m.judgeModel).toBe('jev');
     expect(m.judgePromptVersion).toBe('gold-v2-rubric-v3');
     expect(m.productSha).toBe('abc1234');

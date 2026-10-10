@@ -11,6 +11,13 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
 const lambda = require('../part-finder-lambda.js');
+const { sign, SIGNATURE_HEADER } = require('../engine-auth.js');
+// ADR 0017: understand mode and the canonical block are orchestrator-only fields, honoured only when signed.
+process.env.ENGINE_SIGNING_TOKEN = 'test-engine-signing-key-0123456789abcdef';
+const signedEvent = (body, extra = {}) => {
+  const raw = JSON.stringify(body);
+  return { body: raw, headers: { [SIGNATURE_HEADER]: sign(process.env.ENGINE_SIGNING_TOKEN, raw) }, ...extra };
+};
 const { _setJevEvaluateForTest } = require('../jev-understand.js');
 const { _setMc1EvaluateForTest } = require('../jev-mc1.js');
 const admin = require('../admin-config.js');
@@ -46,7 +53,7 @@ async function mc1Fake(req) {
 async function understandCall(bodyExtra = {}) {
   const writes = [];
   const stream = { write: (x) => writes.push(String(x)), end: () => {} };
-  await lambda.handler({ body: JSON.stringify({ mode: 'understand', messages: MESSAGES, ...bodyExtra }), requestContext: { requestId: 'req-d1', http: { method: 'POST', path: '/' } } }, stream);
+  await lambda.handler(signedEvent({ mode: 'understand', messages: MESSAGES, ...bodyExtra }, { requestContext: { requestId: 'req-d1', http: { method: 'POST', path: '/' } } }), stream);
   const lines = writes.join('').split('\n').filter(Boolean).map((l) => JSON.parse(l));
   return lines.find((l) => l.type === 'understand');
 }
@@ -125,7 +132,7 @@ describe('canonical classification in understand mode', () => {
     _setMc1EvaluateForTest(async (req) => { mc1Calls.push(req); return { model: 't', latencyMs: 1, answers: { mcScope: ch('appliance') } }; });
     const msgs = [...MESSAGES, { role: 'assistant', content: 'Can you hear the pump?' }, { role: 'user', content: "I don't know" }];
     const writes = [];
-    await lambda.handler({ body: JSON.stringify({ mode: 'understand', messages: msgs, canonical: { ...block, version: 1, state: first.state } }), requestContext: { requestId: 'req-d2' } },
+    await lambda.handler(signedEvent({ mode: 'understand', messages: msgs, canonical: { ...block, version: 1, state: first.state } }, { requestContext: { requestId: 'req-d2' } }),
       { write: (x) => writes.push(String(x)), end: () => {} });
     const ev = writes.join('').split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((l) => l.type === 'understand');
     expect(mc1Calls[mc1Calls.length - 1].state.currentState).toMatchObject({ appliance: 'washing-machine', make: 'hotpoint', activeProblem: { journey: 'not-draining' } });

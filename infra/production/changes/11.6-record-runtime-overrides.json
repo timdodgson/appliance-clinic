@@ -1,0 +1,24 @@
+{
+  "id": "11.6-record-runtime-overrides",
+  "description": "Phase 11 (E), record-only: every live environment variable of the four AC functions is declared in runtime-overrides.json with its live value (CANONICAL_MODE=control, the 63 CANONICAL_CONTROL_JOURNEYS, transcript-review settings, LM_MAX_TOKENS, the judge model, service URLs, tables and buckets); a private tunnel endpoint (LM_STUDIO_URL) is declared by SHA-256 only; secrets stay pinned dynamic references. No behaviour changes: the template must equal the deployed AcRuntimeStack template and be a no-op.",
+  "classification": "SAFE AC CHANGE (record-only; nothing is executed)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [],
+  "grant": [],
+  "grantNotes": "None: nothing is executed.",
+  "writes": {
+    "types": [],
+    "expected": [],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
