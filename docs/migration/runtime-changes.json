@@ -3,7 +3,7 @@
   "modified": [
     {
       "path": "services/whichpart-api/index.js",
-      "sha256": "789cd9937328fa1accd3e9837a3c0e5eb4fb2de68e5121475a15ab0e64b9f9f3",
+      "sha256": "6592c367c7448dd2a0f6530bb895715b3ed26ea90b708f1b798e4fa91a5fef05",
       "changes": [
         "7.2-ac-auth",
         "7.5-rate-limit",
@@ -12,7 +12,8 @@
         "7.12-http-headers",
         "8.2-api-split",
         "8.7-throttle-retry",
-        "10.3-degraded-and-gold-v2-3"
+        "10.3-degraded-and-gold-v2-3",
+        "11.2b-engine-signing-log"
       ]
     },
     {
@@ -87,12 +88,13 @@
     },
     {
       "path": "services/part-finder/part-finder-lambda.js",
-      "sha256": "3452abee39e6d700dafe2bb92c3e3c1ba5748c3edc95fa682026de9808e9fce5",
+      "sha256": "1b0c0d0bc039da803fc607bbaa2eafb1def40ba17c8134dfe53a7d139ab89f69",
       "changes": [
         "8.1-engine-split",
         "8.11-gold-final",
         "8.12a-describe-turns",
-        "11.1-f15-legacy-guidance"
+        "11.1-f15-legacy-guidance",
+        "11.2b-engine-signing-log"
       ]
     },
     {
@@ -534,10 +536,11 @@
     },
     {
       "path": "orchestration/services.py",
-      "sha256": "2286bdbf1de0126faa6c5ea5f5070da74c341f86da37a309a68b71e6d15ae3dd",
+      "sha256": "71ce89c75942299780e7a73ce42570a0f9ecb9533769edd901290c5ba0b42015",
       "changes": [
         "8.12b-describe-turns",
-        "10.7-orchestrator-carryover"
+        "10.7-orchestrator-carryover",
+        "11.2b-engine-signing-log"
       ]
     },
     {
@@ -1480,6 +1483,50 @@
       ],
       "changes": [
         "11.1-f15-legacy-guidance"
+      ]
+    },
+    {
+      "path": "services/part-finder/engine-auth.js",
+      "sha256": "897f2805fac874de666a154d52c7ca78471c05c804af8eb30819a09a91a47d23",
+      "role": "runtime",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "11.2b-engine-signing-log"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/engine-auth.test.mjs",
+      "sha256": "937688b57ffb687e1fddd947ae1f1265f7d050aae0b8d81269663d984cca0d99",
+      "role": "test",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "11.2b-engine-signing-log"
+      ]
+    },
+    {
+      "path": "services/whichpart-api/engine-signature.js",
+      "sha256": "e90047addd121190cafa3cac36b320b698f64aeafd5a92681ca8b4135dfcf7b0",
+      "role": "runtime",
+      "units": [
+        "whichpart-api"
+      ],
+      "changes": [
+        "11.2b-engine-signing-log"
+      ]
+    },
+    {
+      "path": "orchestration/tests/test_engine_signing.py",
+      "sha256": "377b568dd44c1f0ded451382685d76ad301b5708b6104f9787187c862da19a2f",
+      "role": "test",
+      "units": [
+        "spares4repairs-diag-orchestrator"
+      ],
+      "changes": [
+        "11.2b-engine-signing-log"
       ]
     }
   ],

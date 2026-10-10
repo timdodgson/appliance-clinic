@@ -1,0 +1,76 @@
+{
+  "id": "11.2d-engine-signing-feedback",
+  "description": "Phase 11 (ADR 0017) stage 1, whichpart-api signer: the feedback pass-through to the engine is signed (engine-signature.js, index.js) with ENGINE_SIGNING_TOKEN, a pinned dynamic reference to applianceclinic/production/engine-signing 60abac20-...; AC_BEARER_VERSIONS marker extended. Previous code mSkHPkTmegW6nCINGtXOeGZSNzggpb7R5hk+NQSs/l8= (10.3); rollback = restore that s3Key and remove the env entry.",
+  "classification": "SAFE AC CHANGE (AC functions only; the engine accepts signed and unsigned requests alike in log mode)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code and environment update of whichpart-api, PassRole on its own unchanged role, read of the staged zip. The pinned engine-signing reference is resolved by the read-only base.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp",
+      "spares4repairs-part-finder",
+      "spares4repairs-diag-orchestrator"
+    ]
+  }
+}
