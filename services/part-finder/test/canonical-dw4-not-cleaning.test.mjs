@@ -69,6 +69,17 @@ describe('COMPOSE contract', () => {
     expect(H.composeProblems(J, J.P, seen)).toEqual([]);
     expect(J.mediaFor(run('jets').actions[1].action)).toMatchObject({ ids: ['dishwasher-spray-arm'] });
   });
+  it('the decided question put twice (as a request, then as the question) falls back to the fixed template', () => {
+    const r = H.play(J, [op()]);
+    expect(r.last).toMatchObject({ kind: 'ask_observation', target: 'cleanArea' });
+    const b = J.brief(r.state, r.last, null, {});
+    const ask = J.TASK['ask_observation:cleanArea'].ask;
+    const twice = J.checkReply(`Where the dirt is left is a useful clue. Please let me know if it is limited to the top rack, only the bottom rack, or if everything comes out dirty. ${ask}`, r.last, b);
+    expect(twice.ok).toBe(false); expect(twice.violations).toContain('restated-question');
+    expect(twice.reply).toBe(J.template(b));
+    expect(J.checkReply(`Where the dirt is left can tell us a lot about the cause. ${ask}`, r.last, b)).toMatchObject({ ok: true, violations: [] });
+    expect(J.prompt(b)[0].content).toMatch(/question once only/);
+  });
 });
 afterEach(() => { delete process.env.CANONICAL_DW4_CONTROL; });
 describe('routing / handoffs', () => {
