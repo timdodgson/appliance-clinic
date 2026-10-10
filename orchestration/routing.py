@@ -232,6 +232,31 @@ FAMILY_PROCEED_MIN_MARGIN = 0.55       # required top-vs-runner-up separation (i
 _NON_FAMILY_CHOICES = {"unknown", "uncertain", "none", "", None}
 
 
+def token_meaning_decision(token_meaning, probabilities=None,
+                           min_conf=FAMILY_PROCEED_MIN_CONFIDENCE, min_margin=FAMILY_PROCEED_MIN_MARGIN):
+    """Whether Jev's MODEL reading of an identifier token is strong enough to COMMIT as the model.
+
+    The same commit rule as the appliance family (below): the selected meaning must be both confident and
+    decisively ahead of the runner-up. Returns ("commit" | "uncertain", detail). Only a model reading is gated:
+    committing a wrong model silently discards a displayed error code, and the customer is never asked again.
+    A missing distribution (older Jev) commits, as before. Deterministic; reads only Jev's typed output.
+    """
+    probs = probabilities if isinstance(probabilities, dict) else {}
+    ordered = sorted(((k, float(v)) for k, v in probs.items() if isinstance(v, (int, float))), key=lambda kv: -kv[1])
+    detail = {"meaning": token_meaning}
+    if token_meaning != "model" or not ordered:
+        detail["reason"] = "not_gated"
+        return "commit", detail
+    top, top_p = ordered[0]
+    runner_up_p = ordered[1][1] if len(ordered) > 1 else 0.0
+    detail.update({"top": top, "topP": round(top_p, 4), "margin": round(top_p - runner_up_p, 4)})
+    if top == "model" and top_p >= min_conf and (top_p - runner_up_p) >= min_margin:
+        detail["reason"] = "strong"
+        return "commit", detail
+    detail["reason"] = "weak_or_near_tie"
+    return "uncertain", detail
+
+
 def first_turn_family_decision(*, provenance, probabilities=None, confidence=None,
                                min_conf=FAMILY_PROCEED_MIN_CONFIDENCE,
                                min_margin=FAMILY_PROCEED_MIN_MARGIN):
