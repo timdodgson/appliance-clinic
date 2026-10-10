@@ -16,6 +16,7 @@ All inputs are treated as data. No implementation interprets instructions embedd
 """
 from __future__ import annotations
 from typing import Protocol, Optional, Any
+import json
 import os
 import re as _re
 
@@ -499,6 +500,21 @@ def build_rag_messages(*, symptoms="", image=None, conversation=None):
     return msgs
 
 
+# ADR 0017: the engine honours its orchestrator-only fields (mode, understand, canonical, established, seed) only when
+# the request carries this HMAC over the exact body, keyed by the AC engine signing secret.
+ENGINE_SIGNATURE_HEADER = "x-ac-engine-signature"
+
+
+def engine_signature(body: bytes, key: Optional[str] = None, now: Optional[int] = None) -> Optional[str]:
+    import hashlib, hmac, time as _time
+    key = key if key is not None else os.environ.get("ENGINE_SIGNING_TOKEN")
+    if not key:
+        return None
+    t = int(now if now is not None else _time.time())
+    mac = hmac.new(key.encode("utf-8"), f"{t}.".encode("ascii") + body, hashlib.sha256).hexdigest()
+    return f"t={t},v1={mac}"
+
+
 class RealDiagnosticService:
     """Adapter over the banked Diagnostic RAG (part-finder Function URL, NDJSON stream).
 
@@ -520,8 +536,13 @@ class RealDiagnosticService:
 
     def _post(self, httpx, payload) -> str:
         import time as _time
+        body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
         for attempt in (1, 2):
-            r = httpx.post(self.url, json=payload, timeout=self.timeout, headers={"content-type": "application/json"})
+            headers = {"content-type": "application/json"}
+            sig = engine_signature(body)   # ADR 0017: re-signed per attempt so the timestamp is fresh
+            if sig:
+                headers[ENGINE_SIGNATURE_HEADER] = sig
+            r = httpx.post(self.url, content=body, timeout=self.timeout, headers=headers)
             if r.status_code == 429 and attempt == 1:
                 _time.sleep(self.THROTTLE_RETRY_S)
                 continue

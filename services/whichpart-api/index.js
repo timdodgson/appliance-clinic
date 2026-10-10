@@ -34,6 +34,7 @@ const {
   ORCHESTRATOR_URL, ORCHESTRATOR_TOKEN, ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, ORCH_TIMEOUT_MS,
   MAX_MESSAGES,
 } = require('./config.js');
+const { signedJsonHeaders } = require('./engine-signature.js');
 const { log } = require('./log.js');
 const { fetchWithThrottleRetry } = require('./orchestrator-retry.js');
 const { queryParam, authPath, CORS, respond } = require('./http-io.js');
@@ -589,10 +590,8 @@ async function handleEvent(event) {
   if (live && (body.feedback || !Array.isArray(body.messages))) return respond(400, { error: 'liveTest requires messages' });
   if (body.feedback) {
     try {
-      await fetch(ENGINE_URL, {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ feedback: body.feedback }),
-      });
+      const feedbackBody = JSON.stringify({ feedback: body.feedback });
+      await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(feedbackBody), body: feedbackBody });
     } catch (e) {
       log({ evt: 'whichpart-api', rid, feedbackError: e.message });
     }

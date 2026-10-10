@@ -13,6 +13,7 @@ const {
   getEffectiveMediaJoin, countJoinIdentities, MEDIA_OVERLAY_TTL_MS,
 } = require('./retrieval');
 const { outputTripwire, REFUSAL_TEXT } = require('./security');
+const { gateInternalFields, headerHost } = require('./engine-auth.js');
 const {
   identityNamedFamilies, resolveConversationIdentity, constrainReplyToIdentity, constrainIntentToFamily,
   hasOperationalFamily, customerOnlyText, looksLikeModelToken,
@@ -143,6 +144,16 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
   } catch {
     return failJson(400, { error: 'Invalid JSON' });
   }
+  // ADR 0017: orchestrator-only fields need a valid AC signature; S4R's plain {messages} request is unaffected.
+  const gate = gateInternalFields(body && typeof body === 'object' ? body : {}, event, rawBody);
+  body = gate.body;
+  if (gate.record.present.length && gate.record.signature !== 'valid') {
+    log({
+      evt: 'engine-auth', requestId, mode: gate.record.mode, signature: gate.record.signature,
+      fields: gate.record.present, dropped: gate.record.dropped,
+      origin: headerHost(event && event.headers && (event.headers.origin || event.headers.Origin)),
+    });
+  }
 
   // Feedback signal: a lightweight {feedback:{traceId,rating,note}} POST (no
   // diagnosis). Records the customer's 👍/👎 on a prior reply so the learning
@@ -173,6 +184,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
   const metric = {
     evt: 'part-finder',
     requestId,
+    engineAuth: gate.record,
     hasImage: latestHasImage,
     msgCount: messages.length,
   };

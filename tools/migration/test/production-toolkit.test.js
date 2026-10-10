@@ -50,7 +50,7 @@ describe('the production toolkit documents', () => {
 });
 
 describe('ac-cfn-execution', () => {
-  it('allows reads only: no action that could change a resource, and no secret value but the two resolved bearers', () => {
+  it('allows reads only: no action that could change a resource, and no secret value but the resolved references', () => {
     for (const s of exec.Statement) {
       expect(s.Effect).toBe('Allow');
       for (const a of list(s.Action)) expect(a, s.Sid).toMatch(/^[a-z0-9-]+:(Get|List|Describe|BatchGet)/);
@@ -59,6 +59,7 @@ describe('ac-cfn-execution', () => {
       if (s.Sid === 'ResolveAcBearerReferences') {
         expect(list(s.Action)).toEqual(['secretsmanager:GetSecretValue']);
         expect(list(s.Resource).sort()).toEqual([
+          'arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-??????',
           'arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-??????',
           'arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-??????',
         ]);

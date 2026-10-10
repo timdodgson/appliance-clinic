@@ -35,6 +35,7 @@ this page does not list.
 | `MEDIA_OVERLAY_TTL_MS` | Optional | 10000 | No | `media-effective.js` |
 | `JEV_TIMEOUT_MS` | Optional | 15000 | No | `jev-client.js` |
 | `CANONICAL_MC1_QUESTIONS` | Optional | `1` (on) | No | `canonical-runtime.js` |
+| `ENGINE_SIGNING_TOKEN`, `ENGINE_SIGNING_MODE` | Optional (ADR 0017) | none (unsigned internal fields are honoured only in `log` mode); `log` | Yes: a dynamic reference to `applianceclinic/production/engine-signing`; the mode | `engine-auth.js` |
 | `LLM_PROVIDER`, `UNDERSTAND_PROVIDER`, `COMPOSE_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_BASE_URL` | Optional | `lmstudio`; OpenAI base `https://api.openai.com/v1` | No | `inference.js` (environment-only provider selection; production uses the admin AI config) |
 | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_GATEWAY_ID`, `JEV_ACCOUNT_ID`, `JEV_API_TOKEN`, `JEV_GATEWAY_ID` | Optional | none (the Jev secret is used) | No | `admin-config.js` (local runs) |
 | `AWS_REGION` | Lambda | `eu-west-1` | Lambda sets it | AWS clients |
@@ -48,6 +49,7 @@ this page does not list.
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
 | `ORCH_TIMEOUT_MS` | Optional | 120000 | No | `config.js` |
+| `ENGINE_SIGNING_TOKEN` | Optional (ADR 0017) | none (feedback is sent unsigned and the engine drops it once enforcing) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-signature.js` |
 | `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `AC_ADMIN_GROUP` | Required for sign-in (empty refuses every session) | empty, empty, `admin` | Yes | `config.js` |
 | `LEARNING_BUCKET` | Optional | `whichpart-learning-800960611664` | Yes | `config.js` |
 | `WHICHPART_WEB_BUCKET` | Optional | `whichpart-web-800960611664` | Yes | `admin/content.js`, `recalls/ingest.js` |
@@ -73,6 +75,7 @@ this page does not list.
 |---|---|---|---|
 | `RAG_URL` (the engine Function URL), `MCP_URL`, `MCP_BEARER_TOKEN` | Required (`KeyError` at first use) | none | Yes |
 | `ORCH_BEARER_TOKEN` | Required for any request (absent refuses all) | none | Yes |
+| `ENGINE_SIGNING_TOKEN` | Required once the engine enforces ADR 0017 (absent sends unsigned requests, whose internal fields the engine then drops) | none | Yes: a dynamic reference to `applianceclinic/production/engine-signing` |
 
 ## Error-code MCP (`spares4repairs-error-code-mcp`)
 
