@@ -52,18 +52,18 @@ Every action in this plan, its runbooks and its issues carries one of these labe
 
 ## Phases
 
-| Phase | Concern | Summary |
-|---|---|---|
-| 0 | Preparation | Freeze, inventory, ownership proof, backups, behavioural baseline |
-| 1 | Hotfix | AC-side admin allowlist on the deployed artefact |
-| 2 | Extract | Runtime-identical import into this public repository, after a secret and PII scan |
-| 3 | Extract | Reproducible builds, CI, known-failure baseline, build equivalence |
-| 4 | Ownership | Rehearsal on isolated `-sbx` resources in the same account |
-| 5 | Ownership | Production CDK import in small groups |
-| 6 | Ownership | Prove ownership with one harmless change |
-| 7 | Improve | Security hardening through CDK |
-| 8 | Improve | Architecture cleanup |
-| 9 | Improve | Portfolio readiness of this public repository |
+| Phase | Concern | Summary | Record |
+|---|---|---|---|
+| 0 | Preparation | Freeze, inventory, ownership proof, backups, behavioural baseline | [findings](phase-0-findings.md) |
+| 1 | Hotfix | AC-side admin allowlist on the deployed artefact | [runbook](runbooks/phase-1-admin-hotfix.md) |
+| 2 | Extract | Runtime-identical import into this public repository, after a secret and PII scan | [runbook](runbooks/phase-2-extraction.md) |
+| 3 | Extract | Reproducible builds, CI, known-failure baseline, build equivalence | [runbook](runbooks/phase-3-reproducible-build.md) |
+| 4 | Ownership | Rehearsal on isolated `-sbx` resources in the same account | [results](phase-4-results.md) |
+| 5 | Ownership | Production CDK import in small groups | [results](phase-5-results.md) |
+| 6 | Ownership | Prove ownership with one harmless change | [results](phase-6-results.md) |
+| 7 | Improve | Security hardening through CDK | [results](phase-7-results.md) |
+| 8 | Improve | Architecture cleanup | [results](phase-8-results.md) |
+| 9 | Improve | Portfolio readiness of this public repository | [results](phase-9-results.md) |
 
 ### Phase 0: Freeze, inventory, ownership proof, backups, baseline
 

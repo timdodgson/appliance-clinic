@@ -18,7 +18,7 @@ direct push, a force-push or a merge with a failing check. The rules hold becaus
 follows them:
 
 - No direct pushes to `main`. Every change is a pull request from a branch.
-- Merge only when `migration-tooling` is green on the pull request's latest commit, and the branch is
+- Merge only when every CI check (`migration-tooling`, `runtime-tests`, `typecheck`, `lambda-zips` and `images`) is green on the pull request's latest commit, and the branch is
   up to date with `main`.
 - Resolve every review conversation before merging.
 - Merge with a merge commit.
@@ -46,7 +46,7 @@ PII scan defined in the [migration plan](../migration/PLAN.md) (Phase 2):
 | Required approvals | 0 (see below) |
 | Dismiss stale approvals when new commits are pushed | On |
 | Require conversation resolution before merging | On |
-| Require status checks to pass | On: `migration-tooling` from GitHub Actions |
+| Require status checks to pass | On: `migration-tooling`, `runtime-tests`, `typecheck`, `lambda-zips` and `images`, from GitHub Actions |
 | Require branches to be up to date before merging | On |
 | Allowed merge method | Merge commit, which keeps the focused commits of each branch |
 | Bypass list | Empty. The rules apply to administrators too |
@@ -74,7 +74,7 @@ branch name pattern `main`:
   - Dismiss stale pull request approvals when new commits are pushed
 - Require status checks to pass before merging
   - Require branches to be up to date before merging
-  - Status check: `migration-tooling`
+  - Status checks: `migration-tooling`, `runtime-tests`, `typecheck`, `lambda-zips`, `images`
 - Require conversation resolution before merging
 - Do not allow bypassing the above settings
 - Allow force pushes: off
@@ -82,7 +82,7 @@ branch name pattern `main`:
 
 Then, under *Settings → General → Pull Requests*, allow merge commits only.
 
-**Check name.** The `migration-tooling` check appears in the status check search only after it has
+**Check names.** A check appears in the status check search only after it has
 run once. It runs on every pull request.
 
 ### Verifying the rules
@@ -90,7 +90,7 @@ run once. It runs on every pull request.
 Once the ruleset is applied:
 
 - `git push origin main` from a local commit is rejected.
-- A pull request shows *Merging is blocked* until `migration-tooling` passes and every conversation is resolved.
+- A pull request shows *Merging is blocked* until every required check passes and every conversation is resolved.
 - `git push --force origin main` is rejected.
 
 ## Milestones

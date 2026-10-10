@@ -39,6 +39,10 @@ Run from this directory after `npm ci`.
 | `npm run token:sub` | None | READ-ONLY | Read your Cognito `sub` from your own access token |
 | `npm run hotfix:patch -- --in <deployed.zip> --out <patched.zip>` | None | READ-ONLY | Phase 1: patch the admin check in a copy of the deployed artefact |
 | `npm run hotfix:admin -- apply\|rollback ... [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 1: apply or roll back the hotfix on `whichpart-api` only |
+| `npm run production:toolkit [-- --check]` | None | READ-ONLY | Render the production toolkit documents (execution policy, deny-S4R policy, bootstrap template) into `docs/migration/phase-5/toolkit/`. `change.sh` refuses to run while they are stale |
+| `node bin/import-writes.mjs ...` | None | READ-ONLY | Phase 5 import-semantics helpers: the writes each resource type's post-import update makes |
+| `node bin/runtime-changes.mjs [--write]` | None | READ-ONLY | List (or refresh) stale SHA-256s in `docs/migration/runtime-changes.json` after a deliberate runtime change |
+| `node bin/sandbox-image-copy.mjs ...` | Writes (sandbox ECR) | Sandbox only | Phase 4: copy a deployed image into its `-sbx` repository, byte for byte |
 
 ## Development
 
@@ -55,7 +59,8 @@ The tests run offline. AWS calls are short-circuited after the guard runs, and H
 - The sandbox guard (`src/sandbox/guard.js`) enforces the Phase 4 isolation rules of
   [`phase-4-sandbox-rehearsal.md`](../../docs/migration/runbooks/phase-4-sandbox-rehearsal.md) against the real
   `sandbox-allowlist.json`, `ac-production-denylist.json` and `s4r-denylist.json`. It runs no mutation itself.
-- The change-set checker is a skeleton. Its rules are tested against fixtures and are finalised
-  against real change sets in the Phase 4 sandbox rehearsal.
-- The smoke scenarios and banding thresholds are first versions, to be refined after the first
-  baseline capture.
+- The change-set checker gates every production change: the Phase 5 imports, then every reviewed update through
+  `infra/production/steps/change.sh` (Phase 7 onwards), including approved removals (Phase 9). Its rules were finalised
+  against real change sets in the Phase 4 sandbox rehearsal; real outputs are kept as test fixtures.
+- The behavioural baseline (`/part-finder` contract, smoke, S4R health) is checked before and after every runtime
+  release.

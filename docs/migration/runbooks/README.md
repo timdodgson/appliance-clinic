@@ -57,3 +57,6 @@ in a pull request.
 | [Sandbox rehearsal](phase-4-sandbox-rehearsal.md) | 4 | Sandbox-namespaced (`-sbx`) resources only; no production AC or S4R change |
 | [Recovery](phase-4-recovery.md) | 4 (used from 5) | SAFE AC CHANGE (restore into new resources); POTENTIALLY IMPACTS S4R (switch-back) |
 | [Production CDK import](phase-5-import.md) | 5 | SAFE AC CHANGE (5.1 to 5.9); POTENTIALLY IMPACTS S4R (5.10) |
+| [Prove CDK ownership](phase-6-ownership-proof.md) | 6 | SAFE AC CHANGE (one inert tag, added and removed) |
+| [Security hardening](phase-7-security.md) | 7 | SAFE AC CHANGE; the POTENTIALLY IMPACTS S4R packages were prepared, each signed off separately |
+| [Architecture cleanup](phase-8-architecture.md) | 8 | SAFE AC CHANGE (`whichpart-api`); POTENTIALLY IMPACTS S4R (diagnosis engine releases, contract checked before and after) |
