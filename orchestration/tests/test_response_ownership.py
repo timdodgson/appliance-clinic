@@ -15,8 +15,9 @@ Bosch WM F06 (NEEDS_CONTEXT) + a grounding drain symptom as the deterministic an
 """
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome, Route, Trust
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator
+from orchestration.tests.cs1_bff import FakeBff
 from orchestration.tests.fixtures import CANNED
 
 passed = 0; failed = 0
@@ -26,7 +27,7 @@ def check(n, cond, detail=""):
     print(("  ok  " if ok else "  FAIL") + f" {n}" + ("" if ok else f"  :: {detail}"))
 
 def orch():
-    return Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService()))
 
 def turn(o, msg, sid="s", **kw):
     return o.handle_turn(TurnInput(message=msg, sessionId=sid, **kw))

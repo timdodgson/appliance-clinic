@@ -1,0 +1,66 @@
+{
+  "id": "11.3b-conversation-quality-bff",
+  "description": "Phase 11 release 3b: whichpart-api carries the same canonical/cs1.js and canonical/merge.js as the engine (11.3a: identity.unconfirmedToken, merge M16b), so a BFF one-step replay reproduces the engine merge. Code only. Previous code Xgkr/9h/PrKOOYlWqypDEbEgcAVJ57yyoi1WNDjbxx8= (11.2d); rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (whichpart-api only)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of whichpart-api only; read of the staged zip. No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-part-finder",
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ]
+  }
+}

@@ -210,15 +210,19 @@ function createCanonicalRuntime(deps) {
     if (!isTransportBlock(block)) return null;
     return { block, pending: classifierEnabled() ? classify(messages, block, requestId) : null };
   }
-  async function finishUnderstand(started) {
+  async function finishUnderstand(started, tokenSignal) {
     if (!started) return null;
     const { block, pending } = started;
     const result = pending
       ? await awaitClassification(pending, anyControlRequested(block) ? CLASSIFIER_CONTROL_GRACE_MS : CLASSIFIER_GRACE_MS)
       : { classification: null, meta: { source: 'mc1-questions', degraded: true, reason: 'classifier_disabled' } };
     const degraded = Boolean(!result || !result.classification || (result.meta && result.meta.degraded));
-    const t = await runJourneys(transportMerge(degraded ? null : result.classification, block), block);
-    return { ...t, classifier: classifierSummary(result && result.meta) };
+    // One code-or-model commit rule before the merge (canonical/token-gate.js): a weak model reading is held, not lost.
+    // eslint-disable-next-line global-require
+    const gated = degraded ? { classification: null, decision: null }
+      : require('./canonical/token-gate.js').gateClassification(result.classification, tokenSignal, block && block.state);
+    const t = await runJourneys(transportMerge(gated.classification, block), block);
+    return { ...t, classifier: classifierSummary(result && result.meta), ...(gated.decision ? { tokenDecision: gated.decision } : {}) };
   }
 
   /** Diagnose mode: does canonical control own this turn? */

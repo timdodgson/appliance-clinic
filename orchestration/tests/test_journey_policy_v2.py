@@ -11,8 +11,9 @@ Run: python3 -m orchestration.tests.test_journey_policy_v2
 """
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome
-from orchestration.services import FakeErrorCodeService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService
 from orchestration.orchestrator import Orchestrator
+from orchestration.tests.cs1_bff import FakeBff
 
 passed = 0
 failed = 0
@@ -73,7 +74,7 @@ class JourneyRag:
 
 
 def orch(script):
-    return Orchestrator(FakeErrorCodeService({}), JourneyRag(script), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService({}), JourneyRag(script)))
 
 
 # Reusable typed-decision fragments ------------------------------------------------

@@ -11,7 +11,7 @@ import copy
 import json
 import pathlib
 from orchestration.model import TurnInput
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator
 from orchestration.tests.fixtures import CANNED
 
@@ -61,7 +61,7 @@ class J1Rag(FakeDiagnosticService):
 
 
 def run(rag, canonical=BLOCK, message=MSG):
-    orch = Orchestrator(FakeErrorCodeService(CANNED), rag, InMemoryStateStore())
+    orch = Orchestrator(FakeErrorCodeService(CANNED), rag)
     return orch.handle_turn(TurnInput(message=message, sessionId="s1", canonical=canonical))
 
 
@@ -118,7 +118,7 @@ def test_shadow_degraded_or_absent_canonical_is_legacy():
                            (J1Rag(action()), None)):
         resp = run(rag, canonical=canonical)
         assert "canonicalControl" not in resp.debug
-        legacy = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore()).handle_turn(
+        legacy = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService()).handle_turn(
             TurnInput(message=MSG, sessionId="s1"))
         assert resp.message == legacy.message
         assert resp.outcome == legacy.outcome

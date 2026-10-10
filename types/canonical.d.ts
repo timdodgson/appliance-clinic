@@ -31,6 +31,8 @@ export interface ConversationState {
     modelStatus: 'known' | 'unavailable' | 'pending_lookup' | null;
     fuel: Fact<string> & { conflict: boolean };
     displayedCodes: Array<Fact<string>>;
+    /** A code-or-model token whose meaning is not settled (canonical/token-gate.js). Absent in states written before Phase 11. */
+    unconfirmedToken: Fact<string>;
   };
   intent: { active: string | null; history: unknown[] };
   problems: Array<{ id: string; status: string; [k: string]: unknown }>;

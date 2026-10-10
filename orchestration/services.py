@@ -4,7 +4,6 @@
 Ports:
   ErrorCodeService       -> resolve_error_code / resolve_appliance_context (deterministic MCP)
   DiagnosticService      -> diagnose (probabilistic RAG) — FAKE in this prototype
-  ConversationStateStore -> get / put session state
   ResponseComposer       -> deterministic customer-facing text (lives in orchestrator.py)
 
 Implementations here:
@@ -67,23 +66,6 @@ class DiagnosticService(Protocol):
                  canonical: Optional[dict] = None) -> dict: ...
     # `canonical` is the BFF-owned cs/1 block (understand) or the merged result (diagnose), transported
     # verbatim. It is passed ONLY when the BFF supplied one, so implementations without it are unaffected.
-
-
-class ConversationStateStore(Protocol):
-    def get(self, session_id: str): ...
-    def put(self, state) -> None: ...
-
-
-# ---------------- in-memory state store ----------------
-class InMemoryStateStore:
-    def __init__(self):
-        self._m: dict[str, Any] = {}
-
-    def get(self, session_id: str):
-        return self._m.get(session_id)
-
-    def put(self, state) -> None:
-        self._m[state.sessionId] = state
 
 
 # ---------------- FAKE Diagnostic RAG (deterministic; stands in for services/part-finder) ----------------

@@ -67,6 +67,7 @@ function emptyState(sessionId) {
       modelStatus: null,                           // known | unavailable | pending_lookup | null
       fuel: emptyFact({ conflict: false }),
       displayedCodes: [],                          // [Fact<string>] latest active last
+      unconfirmedToken: emptyFact(),               // a code-or-model token not yet settled (token-gate.js); optional
     },
     intent: { active: null, history: [] },
     problems: [],                                  // [{id, status, origin, journey, faultDomain, scope, openedTurn, resolvedTurn, recurrences, archive}]

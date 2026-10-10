@@ -19,7 +19,8 @@
  *      part number / code / error / fault / showing / displaying / display says / flashing — offered
  *      even when digit-free (so "showing UE" yields UE). Digit-free tokens WITHOUT a cue are not
  *      identifier candidates (documented limitation; surfaced by the recall-gap question).
- * Brand candidates: every brand-catalogue mention (whole word / phrase).
+ * Brand candidates: every brand-catalogue mention (whole word / phrase), and a near-miss spelling of a single-word
+ *   brand (one edit, same first letter), offered as the brand for Jev to accept or reject.
  * Component candidates: every catalogue component name or alias mentioned (whole word / phrase), plus,
  *   for a bare head noun ("pump", "filter", "element", "motor", …), every vocabulary entry ending in
  *   that head noun INSTEAD of the bare word, so the specific part is chosen by Jev in context
@@ -203,6 +204,26 @@ function buildVocab(cat) {
 
 const phraseRe = (p) => new RegExp(`(^|[^a-z0-9])${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s-]+')}s?([^a-z0-9]|$)`, 'i');
 
+/** Optimal-string-alignment distance, stopping once it exceeds `max` (short words only). */
+function editDistanceWithin(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j += 1) d[0][j] = j;
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[a.length][b.length];
+}
+
+/**
+ * Brand candidates: every brand-catalogue mention, plus a NEAR-MISS spelling of a single-word brand of five or more
+ * letters (one letter changed, added, dropped or swapped, same first letter: "Horpoint" → Hotpoint). A near miss is
+ * only offered as an option; Jev decides whether it is the make, as for every candidate.
+ */
 function brandCandidates(text, vocab) {
   const t = String(text || '');
   const out = [];
@@ -215,6 +236,17 @@ function brandCandidates(text, vocab) {
     if (taken.some(([s, e]) => start >= s && start + b.length <= e)) continue;
     taken.push([start, start + b.length]);
     out.push({ start, value: b });
+  }
+  const single = vocab.brands.filter((b) => /^[a-z]{5,}$/i.test(b));
+  const wordRe = /[A-Za-z]{5,}/g;
+  let w;
+  while ((w = wordRe.exec(t))) {
+    const start = w.index;
+    if (taken.some(([s, e]) => start < e && start + w[0].length > s)) continue;
+    const word = w[0].toLowerCase();
+    const near = single.find((b) => b[0].toLowerCase() === word[0] && b.toLowerCase() !== word
+      && editDistanceWithin(word, b.toLowerCase(), 1) <= 1);
+    if (near && !out.some((x) => x.value === near)) { taken.push([start, start + w[0].length]); out.push({ start, value: near }); }
   }
   return out.sort((a, b) => a.start - b.start).map((x, i) => ({ id: `b${i + 1}`, value: x.value }));
 }

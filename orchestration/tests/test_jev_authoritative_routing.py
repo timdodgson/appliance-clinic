@@ -13,8 +13,9 @@ Run: python3 -m orchestration.tests.test_jev_authoritative_routing
 """
 import sys
 from orchestration.model import TurnInput, Outcome, Route
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator
+from orchestration.tests.cs1_bff import FakeBff
 from orchestration.tests.fixtures import CANNED
 
 passed = 0; failed = 0
@@ -46,7 +47,7 @@ class CountingRag(FakeDiagnosticService):
 
 def build():
     rag = CountingRag()
-    return Orchestrator(FakeErrorCodeService(CANNED), rag, InMemoryStateStore()), rag
+    return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), rag)), rag
 
 def turn(o, msg, sid="s", **kw):
     return o.handle_turn(TurnInput(message=msg, sessionId=sid, **kw))
@@ -132,7 +133,7 @@ class ScriptedRag(FakeDiagnosticService):
         return base
 
 def build_scripted(u=None, d=None):
-    return Orchestrator(FakeErrorCodeService(CANNED), ScriptedRag(u, d), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), ScriptedRag(u, d)))
 
 # ---- CONTRACT 1: "cannot provide the model" is the TYPED field, never prose --------------------
 o, _ = build()

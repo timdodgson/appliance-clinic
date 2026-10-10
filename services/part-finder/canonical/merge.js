@@ -199,6 +199,13 @@ function merge(state, classification, opts = {}) {
       if (f.status === 'active' && norm(f.value) === norm(next.identity.model.value)) { f.status = 'superseded'; hit('M16'); }
     }
   }
+  // M16b: a code-or-model token whose meaning is not settled (canonical/token-gate.js) is held until the customer says
+  // which it is; the answer turn commits it (above) and clears it. Absent in states written before Phase 11.
+  if (c.identity.unconfirmedToken !== undefined) {
+    next.identity.unconfirmedToken = c.identity.unconfirmedToken
+      ? newFact(c.identity.unconfirmedToken, 'stated', turn) : emptyFact();
+    hit('M16b');
+  }
 
   // ---- M17 intent ---------------------------------------------------------------------------------------
   if (c.intent) { next.intent.active = c.intent; next.intent.history.push({ intent: c.intent, turn }); hit('M17'); }

@@ -3,8 +3,9 @@
 No network, no LLM, no real RAG. Run: python3 -m orchestration.tests.test_orchestration"""
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome, Route, Trust
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore, rag_safety_from_done
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, rag_safety_from_done
 from orchestration.orchestrator import Orchestrator, _with_safety_prefix
+from orchestration.tests.cs1_bff import FakeBff
 from orchestration.tests.fixtures import CANNED
 
 passed = 0; failed = 0
@@ -14,7 +15,7 @@ def check(n, cond, detail=""):
     print(("  ok  " if ok else "  FAIL") + f" {n}" + ("" if ok else f"  :: {detail}"))
 
 def orch():
-    return Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService()))
 
 def turn(o, msg, sid="s", **kw):
     return o.handle_turn(TurnInput(message=msg, sessionId=sid, **kw))
@@ -84,7 +85,7 @@ class EmptyStatusMcp:
     def resolve_appliance_context(self, *a, **k):
         return {"status": "NEEDS_CONTEXT", "resolvedAttributes": {}, "confidence": "LOW"}
 
-r = Orchestrator(EmptyStatusMcp(), FakeDiagnosticService(), InMemoryStateStore()).handle_turn(
+r = FakeBff(Orchestrator(EmptyStatusMcp(), FakeDiagnosticService())).handle_turn(
     TurnInput(message="Zanussi E21 still showing after I cleaned the filter. it still won't empty",
               sessionId="empty-mcp", make="zanussi", displayedCode="E21"))
 check("I3 incomplete MCP payload does not claim the displayed code is undocumented",
@@ -147,7 +148,8 @@ check("extractor cannot divert code+theory without identity to SYMPTOMS",
 # O. symptoms then code (multi-turn accumulation -> combined, conflict leak vs drain)
 o = orch()
 turn(o, "my bosch dishwasher won't drain", sid="O")
-r = turn(o, "it also shows E15", sid="O")
+# The BFF sends the labelled transcript as `message` (ADR 0014: the earlier symptom is not held in orchestrator memory).
+r = turn(o, "Customer: my bosch dishwasher won't drain\nCustomer: it also shows E15", sid="O", latestMessage="it also shows E15")
 check("O symptom-then-code combined", r.route == Route.ERROR_CODE_AND_SYMPTOMS.value
       and r.debug.get("conflict") is True, f"{r.route}/conflict={r.debug.get('conflict')}")
 

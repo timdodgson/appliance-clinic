@@ -324,9 +324,21 @@ const HANDOFF_COPY = {
   none: 'No part is needed.',
   gas: 'That needs a Gas Safe registered engineer — please don\'t take any gas parts apart or loosen any fittings. I\'m not recommending a part from this.',
 };
-/** A conclusion already given, with nothing new since: a short follow-up, not the whole conclusion again. */
+/**
+ * A conclusion already given, with nothing new since: a short follow-up, not the whole conclusion again. A second
+ * follow-up in a row is not the same line again: it closes with the way forward and what would reopen it, and after
+ * that the reply invites anything new rather than repeating itself.
+ */
 function followUpCopy(a) {
   const c = a.conclusion || {};
+  const n = c.followUp || 1;
+  if (n >= 3) return 'Is there anything new you\'ve noticed, or something else I can help with? If you tell me what has changed, I\'ll look at it again.';
+  if (n === 2) {
+    const way = c.ownerCheck ? 'The check I described is still the best place to start.'
+      : (HANDOFF_COPY[c.handoff] && c.handoff !== 'none' ? HANDOFF_COPY[c.handoff] : (c.confidence === 'likely' ? 'What I said above still stands.'
+        : 'An appliance engineer can look at it safely if you can\'t check it yourself.'));
+    return `I don't have anything further to add from what we have so far. ${way} If anything changes, or you find something new, tell me and I'll look at it again.`;
+  }
   const next = c.ownerCheck ? 'The check I described is still the best next step when you get the chance, and if it doesn\'t help, ' : '';
   // with no owner check left to do, "let me know what you find" asks for something the customer may not be able to give
   const tail = c.handoff === 'none' || !HANDOFF_COPY[c.handoff]

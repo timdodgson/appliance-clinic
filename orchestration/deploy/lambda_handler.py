@@ -8,15 +8,15 @@ Thin transport around the deterministic orchestrator. Routes:
 
 Downstream: real Error-Code MCP (Streamable HTTP + bearer) and real Diagnostic RAG (Function URL).
 Config via env only (never hard-coded): MCP_URL, MCP_BEARER_TOKEN, RAG_URL, ORCH_BEARER_TOKEN.
-The orchestrator is STATELESS per request (the client carries accumulated conversation context in
-the structured fields); an in-memory store gives best-effort warm-container continuity only.
+The orchestrator holds no conversation state (ADR 0014): each turn starts from the request, including the
+BFF's persisted cs/1 block; nothing survives the invocation.
 Downstream bearer tokens are never returned to the client. Structured logs never include tokens.
 """
 import os, json, time, hmac, logging
 
 # package import (image copies the repo's orchestration/ package to /var/task/orchestration)
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome
-from orchestration.services import McpErrorCodeService, RealDiagnosticService, InMemoryStateStore
+from orchestration.services import McpErrorCodeService, RealDiagnosticService
 from orchestration.orchestrator import Orchestrator
 
 log = logging.getLogger("diag-orchestrator"); log.setLevel(logging.INFO)
@@ -25,8 +25,8 @@ _TOKEN = os.environ.get("ORCH_BEARER_TOKEN")
 if not _TOKEN:
     raise RuntimeError("ORCH_BEARER_TOKEN not set; refusing to start an unauthenticated orchestrator.")
 
-# built once per warm container
-ORCH = Orchestrator(McpErrorCodeService(), RealDiagnosticService(), InMemoryStateStore())
+# built once per warm container; it holds clients and configuration only, never conversation state
+ORCH = Orchestrator(McpErrorCodeService(), RealDiagnosticService())
 SERVICE, VERSION = "customer-diagnostic-orchestrator", "1"
 
 

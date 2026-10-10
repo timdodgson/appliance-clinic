@@ -1,0 +1,66 @@
+{
+  "id": "11.4-one-conversation-state",
+  "description": "Phase 11 release 4 (ADR 0014): the orchestrator keeps no conversation state. Each turn starts from the request (the BFF cs/1 block seeds identity, displayed code, unconfirmed token, model status and the active safety level); InMemoryStateStore is removed. D2: the make and a held code-or-model token are read from cs/1. Image sha256:0b75ba8a305eaeb85be66a2885fe8f872ea40f1f814e9c1a642546646d7d5fe8 (orchestrator.py, model.py, services.py, lambda_handler.py). Previous image sha256:ae375d03bcb47f15b08d0483c19cddbd1d96a2f367141ef94a60418f400ffd3a (11.2c); rollback = restore it.",
+  "classification": "SAFE AC CHANGE (orchestrator only; S4R never calls it)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      ]
+    },
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the orchestrator only, by image digest; read of that image in its ECR repository (the repository policy already lets Lambda pull). No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-part-finder"
+    ]
+  }
+}

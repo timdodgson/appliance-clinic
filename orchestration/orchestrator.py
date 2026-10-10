@@ -17,7 +17,7 @@ from .model import (Route, Outcome, Trust, TurnInput, ConversationState, Custome
                     OrchestratorResponse, CodeResultView, DiagnosisView, ObservedIdentifier,
                     strongest_safety)
 from . import routing
-from .services import (ErrorCodeService, DiagnosticService, InMemoryStateStore,
+from .services import (ErrorCodeService, DiagnosticService,
                        McpUnavailable, RagUnavailable)
 
 NON_FAULT_RECORD_TYPES = {"STATUS", "INFORMATION", "MAINTENANCE", "WARNING"}
@@ -266,11 +266,11 @@ def _customer_has_model(st: ConversationState) -> bool:
 
 
 class Orchestrator:
-    def __init__(self, error_code: ErrorCodeService, diagnostic: DiagnosticService,
-                 store: Optional[InMemoryStateStore] = None):
+    def __init__(self, error_code: ErrorCodeService, diagnostic: DiagnosticService):
+        # ADR 0014: no state store. Each turn starts from the BFF's persisted cs/1 (the canonical block in the
+        # request) plus the request itself; nothing the orchestrator computes survives the invocation.
         self.ec = error_code
         self.rag = diagnostic
-        self.store = store or InMemoryStateStore()
 
     # ---------------- canonical transport (canonical-architecture.md §1) ----------------
     @staticmethod
@@ -307,9 +307,57 @@ class Orchestrator:
         return {}
 
     # ---------------- state ----------------
+    # cs/1 hazard -> the cause _safety_block words a stop for (canonical/cs1.js HAZARD_LEVEL).
+    _HAZARD_REASON = {"gas_escape": "gas", "gas_smell": "gas", "burning": "burning", "smoke": "burning",
+                      "electric_shock": "shock", "electrical_water": "electrical", "supply_trip": "electrical",
+                      "sparks_at_supply": "electrical", "exposed_live_wiring": "electrical"}
+
+    @classmethod
+    def _seed_from_cs1(cls, st: ConversationState, state) -> None:
+        """ADR 0014: what earlier turns established comes from cs/1 — the state part-finder merged on the previous
+        turn and the BFF persisted — never from process memory. Identity, the displayed code, model status and the
+        active safety level are read here; this turn's Jev reading then applies on top, exactly as before."""
+        st._priorProblem = False
+        st._priorToken = None
+        if not isinstance(state, dict):
+            return
+        c = st.customer
+        ident = state.get("identity") or {}
+
+        def active(f):
+            return f.get("value") if isinstance(f, dict) and f.get("status", "active") == "active" else None
+        appliance, establishment = active(ident.get("appliance")), ident.get("applianceEstablishment")
+        if appliance and establishment in ("established", "working"):
+            c.appliance, c.applianceState = appliance, establishment
+        make = active(ident.get("make"))
+        if make:
+            c.make = make
+        model_fact = ident.get("model") or {}
+        model = active(model_fact)
+        if model and (model_fact.get("confirmed") or model_fact.get("basis") == "stated"):
+            c.observed.append(ObservedIdentifier("MODEL", model))
+        codes = [f.get("value") for f in ident.get("displayedCodes") or []
+                 if isinstance(f, dict) and f.get("status") == "active" and f.get("value")]
+        if codes:
+            c.displayedCode = codes[-1]
+        st._priorToken = active(ident.get("unconfirmedToken"))   # a code-or-model token not yet settled (token-gate.js)
+        c.modelUnavailable = ident.get("modelStatus") == "unavailable" and not c.observed
+        safety = state.get("safety") or {}
+        if safety.get("activeLevel"):
+            st.safetyState = safety["activeLevel"]
+        live = [h for h in safety.get("hazards") or [] if isinstance(h, dict) and h.get("status", "active") == "active"]
+        if live:
+            st.safetyReason = cls._HAZARD_REASON.get(live[-1].get("hazard"))
+        st._priorProblem = (any(isinstance(p, dict) and p.get("status") == "active" for p in state.get("problems") or [])
+                            or any(isinstance(h, dict) and h.get("intent") == "report_fault"
+                                   for h in (state.get("intent") or {}).get("history") or []))
+
     def _load(self, turn: TurnInput) -> ConversationState:
-        st = self.store.get(turn.sessionId) or ConversationState(sessionId=turn.sessionId)
-        st.turns += 1
+        st = ConversationState(sessionId=turn.sessionId)
+        st.turns = int(turn.turnIndex or 0) or 1
+        canon_block = getattr(turn, "canonical", None)
+        self._seed_from_cs1(st, canon_block.get("state") if isinstance(canon_block, dict) else None)
+        st._journeyStage = None
         c = st.customer
         _MODEL_ID_TYPES = ("MODEL", "E_NR", "PNC", "12NC")
 
@@ -379,7 +427,8 @@ class Orchestrator:
         code_case = (token_meaning in ("error_code", "uncertain")
                      or decisions.get("secondaryTokenMeaning") == "error_code"
                      or symptom_family == "error_display"
-                     or bool(jev_code))
+                     or bool(jev_code)
+                     or bool(st._uncertainToken))   # a token our commit rule held is a code-or-model question, every time
         # FITTING_HELP (customer asking HOW to do a repair/test) also belongs to the RAG: it owns
         # fitting guidance AND the deterministic unsafe-intent refusal (e.g. microwave HV capacitor
         # discharge). Left on the orchestrator's generic clarify, an unsafe DIY request would get a
@@ -404,6 +453,12 @@ class Orchestrator:
         # MAKE stays a STRUCTURAL brand-catalogue lookup (recognising a KNOWN brand token is not
         # interpreting customer meaning). Jev does not classify make; identity retention is state.
         make = routing.detect_make(turn.message, turn.make)
+        # The make the engine's typed identity holds for this turn (mc/1 reads misspellings Jev accepts as the brand).
+        merged_state = st._canonical.get("state") if isinstance(st._canonical, dict) and not st._canonical.get("degraded") else None
+        merged_ident = (merged_state or {}).get("identity") or {} if isinstance(merged_state, dict) else {}
+        merged_make = (merged_ident.get("make") or {}).get("value")
+        if not make and merged_make:
+            make = merged_make
         # APPLIANCE family is Jev's (applianceFamily) — never a BFF/regex fallback (that would be a
         # second semantic authority). Retention across turns is state (c.appliance below). We DEFER
         # to Jev's own confidence: when Jev says the family is not established (identitySufficiency ==
@@ -475,7 +530,8 @@ class Orchestrator:
             # The customer is answering OUR "is it a code or the model?" question and Jev reads the conversation as a
             # code one: the code is the token that question named (read from our own fixed question, never their text).
             if not code and (jev_says_code or decisions.get("symptomFamily") == "error_display"):
-                asked = routing.code_or_model_token(self._last_assistant_text_of(getattr(turn, "conversation", None)))
+                asked = st._priorToken or routing.code_or_model_token(
+                    self._last_assistant_text_of(getattr(turn, "conversation", None)))
                 if asked:
                     code = asked
         explicit_model_tokens = [jev_model] if jev_model else []
@@ -483,13 +539,9 @@ class Orchestrator:
         # PENDING-SLOT STATE remains deterministic (what the assistant asked for last turn); the
         # SEMANTIC "did this turn answer it / is it a model or a code" is now Jev's job, so there is
         # no prose fill/correction here.
-        st._pendingIn = turn.pendingRequest if isinstance(turn.pendingRequest, dict) else None
         st._ragExclusiveClarify = False  # set by _rag_diagnose for this turn only
         st._codeOnlyAnswer = False       # set by _compose_code_only for this turn only
-        st._pendingFilled = False
-        st._turnIndex = int(turn.turnIndex or 0)
         st._pendingModelTokens = [jev_model] if jev_model else []
-        st._suppressModelLine = []
         # "Code present but no usable value" is now a Jev decision (symptomFamily == error_display
         # with no resolved code value), not a prose scan. Used by the clarify flow to ask for the
         # EXACT code rather than a generic description.
@@ -498,6 +550,10 @@ class Orchestrator:
 
         if make:
             c.make = make
+        # The engine reads identity from the forwarded intent only: a make held by cs/1 (or found in the transcript) that
+        # Jev's UNDERSTAND left empty is forwarded, so the engine never asks for a make the customer already gave.
+        if c.make and not raw.get("make"):
+            raw["make"] = c.make
         # STAGE A: deterministic cross-turn appliance-identity precedence. Jev owns the SEMANTIC
         # provenance (applianceFamilyProvenance: customer_named = the customer stated OR corrected the
         # family in their own words); this code owns the STATE precedence. No phrase/keyword parsing.
@@ -547,15 +603,11 @@ class Orchestrator:
                 c.observed.append(ObservedIdentifier("MODEL", mt))
 
         sympt = jev_symptom
-        if sympt:
-            # A later identity-only answer (Jev: latestTurnEstablishes == identity) must not erase
-            # the persisted symptom by overwriting it with a bare model/identifier turn.
-            model_answer_only = (establishes == "identity" and bool(c.symptomsText))
-            if not model_answer_only:
-                # Store the CUSTOMER's own words. The boundary may send a labelled transcript
-                # ("Customer: … / Advisor asked: …"); our own advisor prose must never be captured as
-                # the symptom. customer_speech strips advisor lines (unlabelled text is unchanged).
-                c.symptomsText = routing.customer_speech(turn.message) or turn.message
+        if sympt or st._priorProblem:
+            # The problem is this turn's symptom or one cs/1 already holds (a later identity-only answer keeps it).
+            # The customer's own words: the boundary sends the labelled transcript ("Customer: … / Advisor asked:
+            # …"); our advisor prose is never captured as the symptom. customer_speech strips advisor lines.
+            c.symptomsText = routing.customer_speech(turn.message) or turn.message
 
         # TYPED-EVIDENCE RECONCILIATION (conversation-state persistence). Jev owns the semantic
         # reading of the latest turn; deterministic state owns what is already established and must
@@ -571,38 +623,17 @@ class Orchestrator:
         # (augmentable/correctable) — never promoted to an L1 trusted fact here.
         self._reconcile_typed_evidence(c, raw, decisions, establishes)
 
-        # ---- MODEL-UNAVAILABLE LATCH (Journey Policy v2+: no model re-ask loop) ----
-        # The model is UNAVAILABLE for the rest of the journey when EITHER Jev typed it this turn
-        # (modelUnavailable: the customer cannot find/read the plate), OR we ASKED for the model on
-        # the previous turn (pendingRequest.slot == MODEL) and the customer could not answer it this
-        # turn (Jev answeredPrevious == cannot_answer / no, or cannotAnswer). "I don't know the model
-        # offhand" is a cannot-answer to the model ask that Jev does not always type as the narrower
-        # modelUnavailable, so without this the engine re-asks the same model question verbatim. The
-        # latch is MONOTONIC and PERSISTED on customer state: once set, _cannot_provide_model is true
-        # and the forwarded intent carries modelUnavailable, so NEITHER the Python model-acquisition
-        # gate NOR the Node identification gate re-asks. A later trusted MODEL still wins (stage
-        # MODEL_KNOWN is checked first). Typed-state only; no prose parsing. A trusted model supplied
-        # THIS turn clears the latch (they found it after all).
-        _pend = getattr(st, "_pendingIn", None) or {}
-        _asked_model_last_turn = _pend.get("slot") == "MODEL"
-        _could_not_answer = (decisions.get("answeredPrevious") in ("cannot_answer", "no")
-                             or decisions.get("cannotAnswer") is True)
+        # ---- MODEL UNAVAILABLE (Journey Policy v2+: no model re-ask loop) ----
+        # Unavailable when cs/1 holds modelStatus 'unavailable' (merge M9: the customer could not answer our model
+        # request, monotonic until a confirmed model) or Jev types it this turn. A trusted model clears it. Seeded
+        # in _seed_from_cs1; nothing is latched in process memory (ADR 0014).
         _has_trusted_model = any(o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value
                                  for o in c.observed)
-        # Durable record that a MODEL request has gone out at least once (survives an intermediate
-        # degenerate/sparse turn that would otherwise lose the pendingRequest=MODEL signal).
-        if _asked_model_last_turn:
-            c.modelRequestedBefore = True
+        merged = st._canonical.get("state") if isinstance(st._canonical, dict) and not st._canonical.get("degraded") else None
+        merged_unavailable = isinstance(merged, dict) and (merged.get("identity") or {}).get("modelStatus") == "unavailable"
         if _has_trusted_model:
             c.modelUnavailable = False
-        elif (bool(raw.get("modelUnavailable"))
-              or (_asked_model_last_turn and _could_not_answer)
-              # ANTI-LOOP: we already asked for the model and the customer's reply still did not
-              # supply one — do not ask a second time, proceed model-independently. This fires on a
-              # plain deflection ("not sure how old it is", a new symptom) that Jev does not type as
-              # a narrow model cannot-answer, which is exactly the "repeats an unanswerable question"
-              # loop. A model volunteered later still clears the latch (checked above).
-              or (c.modelRequestedBefore and not _has_trusted_model)):
+        elif bool(raw.get("modelUnavailable")) or merged_unavailable:
             c.modelUnavailable = True
         # Forward the latched state to BOTH consumers: _cannot_provide_model (reads raw) and the Node
         # diagnose pass (receives the forwarded intent), so each layer independently stops re-asking.
@@ -836,7 +867,6 @@ class Orchestrator:
             "displayedCode": c.displayedCode,
         }
         resp.debug = {**resp.debug, **debug}
-        self.store.put(st)
         return resp
 
     # ---------------- canonical control ----------------
@@ -1198,10 +1228,8 @@ class Orchestrator:
         if c.displayedCode and c.displayedCode.lower() not in joined.lower():
             parts.append(f"The displayed error code is {c.displayedCode}.")
             joined = "  ".join(parts)
-        _suppress_line = {routing._norm_ident(t) for t in (getattr(st, "_suppressModelLine", None) or [])}
         models = [o.value for o in c.observed
-                  if o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value
-                  and routing._norm_ident(o.value) not in _suppress_line]
+                  if o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value]
         if models and not any(m in joined for m in models):
             parts.append(f"The model number is {models[0]}.")
         return "  ".join(parts).strip()
