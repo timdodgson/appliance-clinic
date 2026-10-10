@@ -110,7 +110,7 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it starting normally now?',
-  OBS_COPY: { noPower: ['no lights at all', 'lights come on'], doorRecognised: ['door recognised', 'says door open'], doorCloses: [null, 'door won\'t latch'],
+  OBS_COPY: { noPower: ['no lights at all', 'has power (something shows on the display)'], doorRecognised: ['door recognised', 'says door open'], doorCloses: [null, 'door won\'t latch'],
     startsWhenPushed: ['only starts when the door is pushed', null], faultPersists: ['still won\'t start', 'starts now'] },
   CHECK_RESULT_COPY: {
     'power-supply': { clear: 'socket and switch fine', found_and_cleared: 'switch / fuse / plug was off (sorted)' },

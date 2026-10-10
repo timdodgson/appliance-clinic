@@ -124,7 +124,7 @@ const compose = ck.createCompose({
   OBS_COPY: { waterRemaining: ['water left in the bottom', 'no water left'], pumpHumming: ['pump hums', 'pump silent'], waterReturnsAfterDrain: ['sink / waste backs up', null],
     commandedDrain: ['empties on a drain / cancel', 'still will not pump out'], faultPersists: ['still not draining after the fix', 'drains after the fix'] },
   CHECK_RESULT_COPY: {
-    'dishwasher-filter': { clear: 'filter clean', found_and_cleared: 'filter / sump blocked (cleaned)' },
+    'dishwasher-filter': { clear: 'filter clean', found_and_cleared: 'filter was blocked and has been cleaned' },
     'pump-impeller': { clear: 'impeller turns freely', found_and_cleared: 'debris at the pump (removed)', fault_seen: 'impeller broken' },
     'drain-hose': { clear: 'drain hose clear', found_and_cleared: 'drain hose kinked / blocked (fixed)' },
     'waste-spigot': { clear: 'sink waste fine', found_and_cleared: 'blanking plug / trap blocked (cleared)' },

@@ -181,3 +181,25 @@ describe('post-release journeys (Phase 10)', () => {
     expect(r.last.pending).toBe(null);
   });
 });
+
+describe('final-gate findings (10.9)', () => {
+  const ck = require('../canonical/compose-kit.js');
+  it('a repeated uncertain conclusion with no owner check does not ask the customer to report what they find', () => {
+    const JC = require('../canonical/j8-compose.js');
+    const t = JC.template(JC.brief({ version: 5, identity: {}, evidence: {}, requests: [] }, { kind: 'conclude', target: 'x', rule: 'X22',
+      conclusion: { cause: 'x', confidence: 'possible', handoff: 'unknown-handoff', repeat: true } }, null, {}));
+    expect(t).toMatch(/if you can't check it, that's fine/i);
+    expect(t).not.toMatch(/let me know what you find/);
+  });
+  it('category copy says what was reported: a cleaned dishwasher filter, a charger that only seems fine', () => {
+    const src = (f) => require('node:fs').readFileSync(new URL(`../canonical/${f}`, import.meta.url), 'utf8');
+    expect(src('dw1-not-draining.js')).toContain("found_and_cleared: 'filter was blocked and has been cleaned'");
+    for (const f of ['vac3-not-running.js', 'vac5-battery.js']) expect(src(f)).toContain("clear: 'charger seems fine (a light came on)'");
+  });
+  it('saying that a picture is shown under the reply is not an echo; the instruction half is', async () => {
+    const ok = 'Switch it off and unplug it first. Empty the bin and wash the filters, then let them dry for 24 hours. The app shows a picture under your reply. Was a filter clogged or damp, is a filter torn or damaged, or were they clean and dry already?';
+    const { r } = await vacRespond([VAC], ok);
+    expect(r.done.canonicalControl.compose.source).toBe('compose');
+    expect(ck).toBeTruthy();
+  });
+});

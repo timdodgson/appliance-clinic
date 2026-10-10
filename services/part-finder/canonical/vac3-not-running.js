@@ -88,7 +88,7 @@ const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running normally now?',
   OBS_COPY: { noPower: ['dead', 'has power'], cutsOut: ['stopped during use', null], vacuumCordless: ['cordless', null], vacuumCorded: ['corded', null], vacuumRobot: ['robot', null], faultPersists: ['still dead', 'running now'] },
   CHECK_RESULT_COPY: { 'power-supply': { clear: 'supply fine', found_and_cleared: 'supply sorted', fault_seen: 'cable / plug damaged' },
-    'vacuum-charger-check': { clear: 'charger fine', found_and_cleared: 'charging sorted', fault_seen: 'charging light never on' },
+    'vacuum-charger-check': { clear: 'charger seems fine (a light came on)', found_and_cleared: 'charging sorted', fault_seen: 'charging light never on' },
     'vacuum-blockage': { clear: 'no blockage', found_and_cleared: 'blockage cleared', found_not_cleared: 'blockage stuck' } },
   statusChecks: [['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: '' }),
