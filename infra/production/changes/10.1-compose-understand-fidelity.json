@@ -1,0 +1,76 @@
+{
+  "id": "10.1-compose-understand-fidelity",
+  "description": "Phase 10 release 1 (real-transcript fixes, canonical layer): COMPOSE replies that repeat any sentence of the prompt's own rules or a section label fall back to the template; reported evidence is framed as recorded categories and the vacuum / lint filter fault copy says damaged (torn or broken); the template no longer repeats a safety line the step already carries; a COMPOSE provider failure records its class; mc/1 treats a bare yes/no to an either/or question as partial and merge records 'answered' with no target fact as partial (re-offered once). part-finder differs in canonical-runtime.js and canonical/{compose-kit,mc1-questions,requests,td2-not-drying,vac1-low-suction,vac2-pulsing,vac6-noisy}.js; whichpart-api differs only in its copied canonical/requests.js (one-step state recovery replays the same merge). Code only. Previous code: part-finder D7hk7l4EpckgDeU9vj2QAgk6Y6KXGZthwch8sy8T2mY=, whichpart-api vwq9/xCE2TK4N+1n5REQ1EOxwym9wK2DnU4M38MHRdg=.",
+  "classification": "POTENTIALLY IMPACTS S4R (canonical engine change in the shared diagnosis Lambda; S4R uses the legacy pipeline, which does not run the changed modules; /part-finder contract and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the diagnosis Lambda and whichpart-api only; read of the staged phase8 build artefacts in the AC assets bucket. No PassRole: the roles do not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
