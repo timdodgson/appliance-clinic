@@ -137,4 +137,4 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 
 ## Licence
 
-The repository does not include a licence yet; choosing one is the owner's decision. Without one, default copyright applies.
+Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 Tim Dodgson; see [NOTICE](NOTICE).
