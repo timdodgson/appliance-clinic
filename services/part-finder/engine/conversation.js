@@ -56,15 +56,57 @@ function productIdentitySufficient(intent) {
   return false;
 }
 
+/**
+ * A deterministic next action has two audiences: `say` is what the customer is asked to check or
+ * answer; `guide` is a constraint for COMPOSE and must never reach the customer (F15). nextBestCheck
+ * keeps the combined text for the engine's own reasoning, so existing decisions are unchanged;
+ * every customer-output path reads customerCheckText() instead.
+ */
+function setNextCheck(intent, say, guide) {
+  if (!intent) return intent;
+  intent.nextBestCheck = [say, guide].filter(Boolean).join(' ') || null;
+  intent._nextCheckGuide = guide || null;
+  return intent;
+}
+
+/** The model-only guidance still attached to this turn's nextBestCheck (null once it was replaced). */
+function nextCheckGuide(intent) {
+  const next = intent && intent.nextBestCheck;
+  const guide = intent && intent._nextCheckGuide;
+  return (typeof next === 'string' && guide && next.includes(guide)) ? guide : null;
+}
+
+/** nextBestCheck without its model-only guidance. */
+function customerCheckText(intent) {
+  const next = intent && intent.nextBestCheck;
+  if (typeof next !== 'string' || !next.trim()) return null;
+  const guide = nextCheckGuide(intent);
+  const say = guide ? next.replace(guide, '').replace(/\s+/g, ' ').trim() : next;
+  return say || null;
+}
+
 /** nextBestCheck that is actually a customer-facing check, not identification control. */
 function customerFacingNextCheck(intent) {
   if (!intent) return null;
   if (intent._nextAction === 'identification' && intent.nextCheckCustomerSafe !== true) {
     return null;
   }
-  const next = intent.nextBestCheck;
-  if (typeof next !== 'string' || !next.trim()) return null;
-  return next;
+  return customerCheckText(intent);
+}
+
+/**
+ * Drop any reply sentence that repeats this turn's model-only guidance. Structural, like the
+ * canonical COMPOSE check: compared against the guidance text we actually hold, not a phrase list.
+ */
+function stripGuidanceEcho(reply, intent) {
+  const guide = nextCheckGuide(intent);
+  if (!guide || !reply) return reply;
+  const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const pieces = guide.split(/(?<=[.!?;])\s+/).map(norm).filter((s) => s.length >= 12);
+  if (!pieces.length) return reply;
+  const kept = String(reply).trim().split(/(?<=[.!?])\s+/)
+    .filter((s) => !pieces.some((p) => norm(s).includes(p)));
+  return kept.join(' ').trim();
 }
 
 function messageText(m) {
@@ -106,5 +148,5 @@ function customerProposedDrainPathPart(intent, queryText) {
 module.exports = {
   asciiFold, latestUserText, progressCustomerText, conversationEvidenceText, makeAlreadyKnown, modelAlreadyKnown,
   productIdentitySufficient, customerFacingNextCheck, messageText, latestUserMessage, messageHasImage,
-  customerProposedDrainPathPart,
+  customerProposedDrainPathPart, setNextCheck, nextCheckGuide, customerCheckText, stripGuidanceEcho,
 };

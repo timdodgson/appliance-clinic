@@ -23,7 +23,7 @@ const {
 } = require('./engine/config.js');
 const {
   latestUserText, progressCustomerText, modelAlreadyKnown, productIdentitySufficient, customerFacingNextCheck,
-  customerProposedDrainPathPart,
+  customerProposedDrainPathPart, customerCheckText, stripGuidanceEcho,
 } = require('./engine/conversation.js');
 const {
   CATALOGUE, collectFaultIds, applianceKey, brandFamily, uniqueBrandCodeHit, resolveFault,
@@ -1398,6 +1398,12 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
     const recovered = (intent.facts || []).some((f) => f && f.name === 'functionRecovered' && f.value === 'TRUE')
       || latestTurnReportsRecovery(progress);
     reply = ensureNonTerminalProgression(reply, intent, { safetyStop, diagnoseStop, normalBehaviour, recovered }); // structured next-action / HV boundary
+    {
+      // F15: guidance written for COMPOSE never reaches the customer, whichever step produced the text.
+      const before = reply;
+      reply = stripGuidanceEcho(reply, intent);
+      if (reply !== before) metric.guidanceEchoStripped = true;
+    }
     if (!reply || !reply.trim()) {
       metric.emptyReply = true;
       reply = (intent && (customerFacingNextCheck(intent) || intent.clarifyingQuestion))
@@ -1465,7 +1471,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       purchaseAppropriate: presentation.purchaseAppropriate,
       primaryFindingKind: intent.primaryFindingKind || 'unknown',
       customerTheories: intent.customerTheories || [],
-      nextBestCheck: intent.nextBestCheck || null,
+      nextBestCheck: customerCheckText(intent),
       clarifyingQuestion: intent.clarifyingQuestion || null,
       // provenance comes from the server (what we injected), not the LLM's output
       knowledgeIds: retrieval.docs.map((d) => d.knowledgeId),

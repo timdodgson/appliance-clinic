@@ -3,7 +3,7 @@
  * and normal-behaviour matching.
  */
 const { getNormalBehaviourRecords } = require('../retrieval');
-const { productIdentitySufficient } = require('./conversation.js');
+const { productIdentitySufficient, setNextCheck } = require('./conversation.js');
 const { applianceKey } = require('./catalogue.js');
 
 // ---------------------------------------------------------------------------
@@ -90,17 +90,17 @@ function applyDisplayedIndicationIdentity(intent, queryText, metric) {
   intent.candidateComponents = [];
   const named = applianceKey(intent.applianceType);
   if (!named && !intent.make) {
-    intent.nextBestCheck = 'Ask for make, appliance type, and the model or a rating-plate photo so the displayed indication can be interpreted.';
+    setNextCheck(intent, null, 'Ask for make, appliance type, and the model or a rating-plate photo so the displayed indication can be interpreted.');
     if (!intent.clarifyingQuestion) {
       intent.clarifyingQuestion = 'What make is it, and which appliance (washing machine, dishwasher, oven, etc.)? The model is on the rating plate if you can see it.';
     }
   } else if (!named) {
-    intent.nextBestCheck = 'Ask which kind of appliance this is, and the model or a rating-plate photo.';
+    setNextCheck(intent, null, 'Ask which kind of appliance this is, and the model or a rating-plate photo.');
     if (!intent.clarifyingQuestion) {
       intent.clarifyingQuestion = `Which kind of ${intent.make} appliance is this, and what is the model number on the rating plate?`;
     }
   } else if (!intent.make) {
-    intent.nextBestCheck = 'Ask for the make and the model or a rating-plate photo.';
+    setNextCheck(intent, null, 'Ask for the make and the model or a rating-plate photo.');
     if (!intent.clarifyingQuestion) {
       intent.clarifyingQuestion = 'What make is it, and what is the model number on the rating plate?';
     }

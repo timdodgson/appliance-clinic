@@ -2,7 +2,7 @@
  * Presentation: customer claims and theories, hazard provenance, remote-action boundaries, part readiness, the
  * presentation grain, replacement-language calibration, and the trusted customer-evidence block.
  */
-const { productIdentitySufficient, customerFacingNextCheck } = require('./conversation.js');
+const { productIdentitySufficient, customerFacingNextCheck, nextCheckGuide } = require('./conversation.js');
 const { applianceKey, phraseRefersToComponent } = require('./catalogue.js');
 const { FINDING_KINDS, COMPONENT_MENTION, REMOTE_ACTION } = require('./intent-vocabulary.js');
 const { evidenceDecisive } = require('./evidence.js');
@@ -460,6 +460,9 @@ function formatTrustedCustomerEvidence(intent) {
   }
   const nextCheck = customerFacingNextCheck(intent);
   if (nextCheck) lines.push(`- Next useful check: ${nextCheck}.`);
+  const guide = (nextCheck || intent.nextCheckCustomerSafe === true || intent._nextAction !== 'identification')
+    ? nextCheckGuide(intent) : null;
+  if (guide) lines.push(`- Constraint for this reply (internal: follow it, never repeat or paraphrase it to the customer): ${guide}`);
   if (intent.primaryFinding) {
     lines.push(`- Current diagnostic conclusion (calibrate to finding grain; not automatically a confirmed failed part): ${intent.primaryFinding}.`);
   }
