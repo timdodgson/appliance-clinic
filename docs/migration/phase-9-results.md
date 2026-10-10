@@ -81,7 +81,7 @@ Historical documents were not rewritten. The Phase 8 findings stay the record of
 
 | Item | State | Recommendation |
 |---|---|---|
-| **Licence** | No licence file. The README says so | The owner chooses one, or keeps all rights reserved. Not chosen here |
+| **Licence** | **Resolved (2026-10-10):** the owner chose the Apache License 2.0. `LICENSE` holds the unmodified licence text; the copyright notice (Tim Dodgson) is in `NOTICE`; `package.json` declares `Apache-2.0` | None. No per-file licence headers are added |
 | Private vulnerability reporting | Off | Enable it (*Settings → Code security → Private vulnerability reporting*). `SECURITY.md` already points to it when offered |
 | Main-branch ruleset | Not applied; `main` unprotected (enforced by process) | Import [`.github/rulesets/protect-main.json`](../../.github/rulesets/protect-main.json), which now requires all five CI checks |
 | Repository description | Empty | `Production AI-assisted appliance diagnosis on AWS Lambda: deterministic policy around LLMs, AWS CDK, GOLD evaluation, and the full record of its migration out of a monorepo.` |
@@ -148,4 +148,4 @@ Non-secret identifiers (account ID, resource names) appear in the migration reco
 | Broken and stale docs fixed | **Done** |
 | CI green | **Done** |
 | Production healthy, S4R unchanged | **Done** |
-| Licence | **Owner decision**, recorded above |
+| Licence | **Done**: Apache License 2.0, chosen by the owner |
