@@ -92,8 +92,8 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it running right through now?',
-  OBS_COPY: { restartsAfterCooling: ['restarts after cooling', 'doesn\'t restart'], overheatsThenCuts: ['gets very hot then stops', null], dryerVented: ['vented', null], dryerCondenser: ['condenser', null],
-    dryerHeatPump: ['heat pump', null], faultPersists: ['still stops', 'runs right through'] },
+  OBS_COPY: { restartsAfterCooling: ['restarts after cooling', 'doesn\'t restart'], overheatsThenCuts: ['gets very hot then stops', null], dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null],
+    dryerHeatPump: ['a heat-pump-type dryer', null], faultPersists: ['still stops', 'runs right through'] },
   CHECK_RESULT_COPY: { 'lint-filter': { clear: 'lint filter clean', found_and_cleared: 'lint filter cleaned' }, condenser: { clear: 'condenser clean', found_and_cleared: 'condenser cleaned' },
     'vent-duct': { clear: 'vent hose clear', found_and_cleared: 'vent hose cleared' }, 'load-check': { clear: 'normal load', found_and_cleared: 'load changed' },
     'sensor-bars': { clear: 'sensor strips clean', found_and_cleared: 'sensor strips cleaned' } },

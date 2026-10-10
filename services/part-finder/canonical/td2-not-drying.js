@@ -108,7 +108,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it drying properly now?',
   OBS_COPY: { heatPresent: ['gets warm / hot', null], noHeat: ['no heat', 'gets warm'], longCycle: ['takes much longer', null], tankStaysEmpty: ['container stays empty', 'container fills'],
-    dryerVented: ['vented', null], dryerCondenser: ['condenser', null], dryerHeatPump: ['heat pump', null], faultPersists: ['still damp', 'dry now'] },
+    dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null], dryerHeatPump: ['a heat-pump-type dryer', null], faultPersists: ['still damp', 'dry now'] },
   CHECK_RESULT_COPY: {
     'lint-filter': { clear: 'lint filter clean', found_and_cleared: 'lint filter cleaned', fault_seen: 'lint filter damaged (torn or split)' }, 'load-check': { clear: 'normal load', found_and_cleared: 'load changed' },
     condenser: { clear: 'condenser clean', found_and_cleared: 'condenser cleaned' }, 'vent-duct': { clear: 'vent hose clear', found_and_cleared: 'vent hose cleared' },
