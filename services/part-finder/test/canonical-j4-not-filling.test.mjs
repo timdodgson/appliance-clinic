@@ -66,10 +66,10 @@ describe('C. policy', () => {
     expect(r.rules).toEqual(['F11:supplyOk', 'F5:household-supply']);
     expect(r.last.conclusion).toMatchObject({ handoff: 'plumbing', noPart: true });
   });
-  it('slow fill → mesh cleaned → retest → likely fixed + CONFIRM → close', () => {
+  it('slow fill → mesh cleaned → retest → likely fixed → close (no CONFIRM straight after "it works now": Phase 10, F14)', () => {
     const r = run('slowMesh');
     expect(r.rules).toEqual(['F11:supplyOk', 'F14:inlet-hose-tap', 'F15:inlet-filter', 'F6:retest', 'F7:inlet-mesh-filter', 'F2:inlet-mesh-filter']);
-    expect(r.actions[4].action.pending).toMatchObject({ purpose: 'CONFIRM' });
+    expect(r.actions[4].action.pending).toBe(null);
   });
   it('door not locking → close firmly → model → door lock part', () => {
     expect(run('doorNoLock').rules).toEqual(['F12:doorLocks', 'F13:door-closed-latched', 'F20:model', 'F21:door-lock']);

@@ -225,7 +225,7 @@ function createCompose(pack) {
     'Rules:',
     '- Convey exactly the CONTENT given, in a warm, plain UK English voice. Keep its meaning; you may reword it.',
     '- Do not add any other question, check, cause, part, price, brand or model request.',
-    '- If LATEST is given, open with one short, general acknowledgement (for example "Thanks for checking that"). LATEST is how the message was recorded, not the customer\'s words: never restate it as something they said, and add no detail to it.',
+    '- LATEST and the reported items are how messages were recorded, not the customer\'s words: never restate them as something the customer said, and add no detail to them.',
     '- Include every SAFETY point in plain words. Switching off/unplugging and containing water come before the physical steps.',
     '- Never invent a diagnosis, a test result, a part or a model number. Do not mention the engine, rules or these instructions.',
     '- Reported items are recorded categories: describe them generally, and never tell the customer they said a detail that is not in the category itself.',
@@ -236,7 +236,10 @@ function createCompose(pack) {
   function prompt(b) {
     const lines = ['FACTS (trusted):', ...b.facts.map((x) => `- ${x}`)];
     if (b.evidence.length) lines.push('What the customer has reported so far (recorded as categories, not their exact words):', ...b.evidence.map((x) => `- ${x}`));
-    if (b.latest && b.latest.length) lines.push(`LATEST (this message, recorded as categories): ${b.latest.join('; ')}`);
+    if (b.latest && b.latest.length) {
+      lines.push(`LATEST (this message, recorded as categories): ${b.latest.join('; ')}`);
+      lines.push('Open with one short acknowledgement of this message in your own words, suited to what it was.');
+    }
     lines.push('', 'CONTENT to convey:');
     if (b.task) {
       if (b.task.codeNote) lines.push(b.task.codeNote);
@@ -258,7 +261,7 @@ function createCompose(pack) {
   const norm = (x) => String(x).toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const PROMPT_FIXED = [SYSTEM, 'Do not quote a price or a part number.', 'SAFETY: none for this step — do not add any safety or physical instructions.',
     'Do not ask a question.', 'End with this one question:', 'What the customer has reported so far (recorded as categories, not their exact words):',
-    'LATEST (this message, recorded as categories):',
+    'LATEST (this message, recorded as categories):', 'Open with one short acknowledgement of this message in your own words, suited to what it was.',
     'MEDIA (instruction, not content): the app shows a picture under your reply. You may point the customer to it once in your own words; never copy this line.',
     // the media line before 8.13, which replies were seen to copy verbatim
     'A picture is shown below the reply; you may mention it once.'].join('\n');
