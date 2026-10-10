@@ -25,7 +25,7 @@ const SIGNALS = {
   DS: { warm: S, filterOk: S, loadOk: S, condOk: S, ventOk: S, sensorOk: S, progOk: S, long: S, filterTorn: SA, restoredAfterFilterFix: SA, restoredAfterLoadFix: SA, restoredAfterCondFix: SA, restoredAfterVentFix: SA, restoredAfterSensorFix: SA, restoredAfterProgFix: SA },
 };
 const FACT_LABEL = {
-  warm: 'gets warm / hot', long: 'takes much longer than it used to', tankEmpty: 'water container stays empty', filterFixed: 'lint filter blocked (cleaned)', filterTorn: 'lint filter torn',
+  warm: 'gets warm / hot', long: 'takes much longer than it used to', tankEmpty: 'water container stays empty', filterFixed: 'lint filter blocked (cleaned)', filterTorn: 'lint filter damaged (torn or split)',
   filterOk: 'lint filter clean', loadFixed: 'overloaded / not spun enough (changed)', loadOk: 'normal load, well spun', condFixed: 'condenser clogged (cleaned)', condOk: 'condenser clean',
   ventFixed: 'vent hose kinked / blocked (cleared)', ventOk: 'vent hose clear', sensorFixed: 'sensor strips coated (cleaned)', sensorOk: 'sensor strips clean',
   progFixed: 'programme / dryness level too low (changed)', progOk: 'normal drying programme', vented: 'vented dryer', condenser: 'condenser dryer', heatPump: 'heat-pump dryer',
@@ -110,7 +110,7 @@ const compose = ck.createCompose({
   OBS_COPY: { heatPresent: ['gets warm / hot', null], noHeat: ['no heat', 'gets warm'], longCycle: ['takes much longer', null], tankStaysEmpty: ['container stays empty', 'container fills'],
     dryerVented: ['vented', null], dryerCondenser: ['condenser', null], dryerHeatPump: ['heat pump', null], faultPersists: ['still damp', 'dry now'] },
   CHECK_RESULT_COPY: {
-    'lint-filter': { clear: 'lint filter clean', found_and_cleared: 'lint filter cleaned', fault_seen: 'lint filter torn' }, 'load-check': { clear: 'normal load', found_and_cleared: 'load changed' },
+    'lint-filter': { clear: 'lint filter clean', found_and_cleared: 'lint filter cleaned', fault_seen: 'lint filter damaged (torn or split)' }, 'load-check': { clear: 'normal load', found_and_cleared: 'load changed' },
     condenser: { clear: 'condenser clean', found_and_cleared: 'condenser cleaned' }, 'vent-duct': { clear: 'vent hose clear', found_and_cleared: 'vent hose cleared' },
     'sensor-bars': { clear: 'sensor strips clean', found_and_cleared: 'sensor strips cleaned' }, 'programme-setting': { clear: 'normal programme', found_and_cleared: 'programme changed' },
   },

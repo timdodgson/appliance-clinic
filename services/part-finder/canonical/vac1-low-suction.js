@@ -23,7 +23,7 @@ const SIGNALS = {
     filterTorn: SA, hoseSplit: SA, blockStuck: SA, brushBroken: SA, restoredAfterFilterFix: SA, restoredAfterBlockFix: SA, restoredAfterBrushFix: SA },
 };
 const FACT_LABEL = {
-  filterFixed: 'bin full / filter clogged (sorted)', filterTorn: 'filter torn / damaged', filterOk: 'bin empty, filters clean and dry',
+  filterFixed: 'bin full / filter clogged (sorted)', filterTorn: 'filter damaged (torn or broken)', filterOk: 'bin empty, filters clean and dry',
   blockFixed: 'blockage found (cleared)', blockStuck: 'blockage that will not clear', hoseSplit: 'hose split', blockOk: 'hose, wand and head clear', whistle: 'high-pitched whistle',
   brushFixed: 'brush bar tangled (cleared)', brushBroken: 'brush bar broken', brushOk: 'brush bar clean, turns freely',
   cordless: 'cordless', corded: 'corded', robot: 'robot',
@@ -79,7 +79,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the suction back to normal now?',
   OBS_COPY: { weakSuction: ['weak suction', null], whistleNoise: ['whistling', null], vacuumCordless: ['cordless', null], vacuumCorded: ['corded', null], vacuumRobot: ['robot', null], faultPersists: ['still weak', 'suction back'] },
-  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'bin and filters clean', found_and_cleared: 'bin / filters sorted', fault_seen: 'filter torn' },
+  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'bin and filters clean', found_and_cleared: 'bin / filters sorted', fault_seen: 'filter damaged (torn or broken)' },
     'vacuum-blockage': { clear: 'no blockage', found_and_cleared: 'blockage cleared', found_not_cleared: 'blockage stuck', fault_seen: 'hose split' },
     'brush-bar-clear': { clear: 'brush bar clean', found_and_cleared: 'brush bar cleared', fault_seen: 'brush bar broken' } },
   statusChecks: [['retest', 'retest']],

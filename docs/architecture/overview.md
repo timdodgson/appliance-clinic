@@ -2,7 +2,10 @@
 
 This describes the system as it runs in production. It is the one current-state architecture document. The decisions
 behind it are in [`docs/adr/`](../adr/README.md). The Phase 8 review that produced this page is
-[phase-8-findings.md](phase-8-findings.md); it is kept as the record of that review.
+[phase-8-findings.md](phase-8-findings.md); it is kept as the record of that review. The Phase 10 truth audit traced
+every hop from code and production evidence: [as-built.md](as-built.md) (with the line-level
+[trace](as-built-trace.md)) and the [target architecture](target.md). Where this page summarises, those are the
+evidence.
 
 ```mermaid
 flowchart TB
@@ -36,11 +39,11 @@ which is served but not developed.
 
 | Step | Owner | Model? |
 |---|---|---|
-| Classify the latest message into the typed `mc/1` vocabulary | Jev (`diagnosis.jev.understand`, `diagnosis.jev.mc1`) | Yes: typed choices, validated by code |
+| Classify the latest message into the typed `mc/1` vocabulary | Jev (`diagnosis.jev.understand`, `diagnosis.jev.mc1`) | Yes: typed choices, validated by code. A canonical turn makes **two** Jev calls in parallel (legacy understand and mc/1) |
 | Merge into `cs/1` state, request outcomes | `canonical/merge.js`, `requests.js` | No |
 | Diagnose (evidence against cause families) | `canonical/*-diagnostics.js`, `evidence-engine.js` | No |
 | Choose the one next action; safety stops; part gate | `canonical/*-policy.js`, `policy-kit.js` | No |
-| Turn control, routing, safety blocks, model-ask staging | orchestrator | No |
+| Turn control, routing, safety blocks, model-ask staging | orchestrator | No. On legacy turns it also writes customer prose (clarify questions, model asks, staging and error-code text) |
 | Word the chosen action | COMPOSE (`diagnosis.canonical.compose`, legacy `diagnosis.compose.*`) | Yes: then checked; template on failure; safety stops never |
 | Error-code meaning | Error-code MCP | No |
 | Retrieval ranking | `retrieval.js` | Embedding only, where configured; lexical otherwise |
@@ -52,7 +55,7 @@ which is served but not developed.
 |---|---|---|---|
 | **AC site** | Not in this repository: the static site is still published from the original monorepo (`apps/whichpart`) | Static files in S3 `whichpart-web-<account>` behind CloudFront | Customer chat UI, admin UI |
 | **BFF** (`whichpart-api`) | `services/whichpart-api` | Lambda zip, Function URL, CloudFront `/api*` origin | Customer turns, AC sign-in, admin, scheduled jobs, canonical session state, transcripts |
-| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model |
+| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model. Keeps a per-container in-memory session state with latches (to be retired: [ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)) |
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |
 | **Diagnosis engine** (`part-finder`) | `services/part-finder` | Lambda zip `spares4repairs-part-finder`, public Function URL (response streaming) | UNDERSTAND (Jev), retrieval, decisions, COMPOSE, the NDJSON stream. **Also the S4R `/part-finder` backend** |
 
@@ -75,7 +78,8 @@ Data: DynamoDB `whichpart-transcripts`, `whichpart-recalls`, `applianceclinic-ra
 
 **AC customer turn**
 
-1. Browser → CloudFront `/api/...` → `whichpart-api`. The browser holds only an opaque signed session token.
+1. Browser → CloudFront `/api/...` → `whichpart-api`. The browser sends the conversation it shows (customer and
+   assistant turns, up to 12) and a signed state token; the chat route itself is not authenticated, only rate-limited.
 2. `whichpart-api` loads the conversation state, applies the rate limit, and calls the orchestrator with its bearer,
    attaching the canonical cs/1 block.
 3. The orchestrator calls the diagnosis engine's Function URL twice:
@@ -83,7 +87,8 @@ Data: DynamoDB `whichpart-transcripts`, `whichpart-recalls`, `applianceclinic-ra
    - diagnose: the typed understanding is injected
    On error-code routes it also calls the MCP with its bearer.
 4. `whichpart-api` maps the result to the WhichPart view, persists the transcript and the new state (conditional
-   write), and returns.
+   write), and returns. The cs/1 merge itself runs in the engine's understand call; the BFF stores the result and
+   re-merges only to recover one missed write.
 
 **S4R `/part-finder` turn**
 
@@ -107,17 +112,20 @@ before any admin handler runs.
 | In-process generative UNDERSTAND | **Removed** in Phase 8 | Nothing; Jev replaced it |
 | `POST /ai/chat` on the S4R HTTP API | **Retired** in Phase 7 (C1) | Nothing reaches the engine through it |
 
-Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or `off` on `whichpart-api`.
+Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or `off` on `whichpart-api`, or one
+journey key dropped from `CANONICAL_CONTROL_JOURNEYS`; per-journey engine kill switches `CANONICAL_Jx_CONTROL=0` also
+exist. The live mode and allow-list (control, 63 journeys, equal to the registry) are set on the function and are not
+yet in `runtime-overrides.json`.
 
 ## Authentication
 
 | Boundary | Mechanism |
 |---|---|
-| Customer browser → `whichpart-api` | Signed opaque session token (HMAC, `applianceclinic/production/canonical-state-token`), rate limit by hashed key |
+| Customer browser → `whichpart-api` | No authentication on the chat route; rate limit by hashed key. The cs/1 state token is HMAC-signed (`applianceclinic/production/canonical-state-token`; the previous-key slot still names the old `spares4repairs/dev/applianceclinic-canonical-state-token`) |
 | Admin browser → `whichpart-api` | AC Cognito user pool (`AcAuthStack`), group `admin`; the BFF checks it per request |
 | `whichpart-api` → orchestrator | Bearer `applianceclinic/production/orchestrator-bearer` |
 | `whichpart-api`, orchestrator → MCP | Bearer `applianceclinic/production/mcp-bearer` |
-| Anyone → diagnosis engine URL | **Unauthenticated (public).** S4R's browser calls it. The fields `understand`, `canonical` and `seed` are meant for the orchestrator only but are not yet authenticated ([findings §5](phase-8-findings.md#5-brittle-interfaces-and-risks)) |
+| Anyone → diagnosis engine URL | **Unauthenticated (public).** S4R's browser calls it. The fields `mode`, `understand`, `canonical`, `established`, `seed` and `feedback` are meant for the orchestrator only but are not yet authenticated ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md)) |
 | Engine → Jev, OpenAI | Provider credentials from `applianceclinic/production/{jev,openai}` |
 
 ## Secrets and configuration
@@ -125,7 +133,8 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
 - **Secrets** live in Secrets Manager under `applianceclinic/production/*` (`AcDataStack`).
   - Lambdas receive secret **ids** in environment variables, never values.
   - Bearers are resolved through CloudFormation dynamic references.
-  - The old `spares4repairs/dev/applianceclinic-*` secrets remain unread. They are not deleted.
+  - The old `spares4repairs/dev/applianceclinic-*` secrets are not deleted. One is still read: the previous-key slot
+    of the state token (`CANONICAL_TOKEN_PREVIOUS_SECRET_ID`).
   - The legacy bearer secrets (`spares4repairs/{diag-orchestrator,error-code-mcp}/bearer-token`) were deleted in
     Phase 9 ([phase-9-results.md](../migration/phase-9-results.md)).
 - **Configuration** is environment variables on each Lambda, owned by `AcRuntimeStack` (`infra/cdk/config/runtime-overrides.json`).
@@ -157,6 +166,9 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
 | GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.2, 49 scenarios) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 49/49 twice ([final gate](../evaluation/gold-v2-final-gate.md)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
 
 Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
+(Behaviour is still *produced* by regular expressions in places — safety cues, brand lists, legacy rewrites; see
+[as-built Q10](as-built-trace.md#q10-regex--string-matching-used-as-behaviour-most-significant).) The transcript-review
+provider is configurable (`TRANSCRIPT_REVIEW_PROVIDER`; production: `jev`).
 [ADR 0009](../adr/0009-evaluation-strategy.md) has the strategy.
 
 ## Infrastructure ownership (CDK)

@@ -87,7 +87,7 @@
     },
     {
       "id": "diagnosis.canonical.compose",
-      "version": 3,
+      "version": 4,
       "purpose": "Canonical COMPOSE: words one already-chosen NextAction from a typed brief. The output is checked; failures fall back to fixed templates.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -121,6 +121,12 @@
           "date": "2026-10-09",
           "fingerprint": "faa40a58b7fc69e8bd0cf7d87cc54e360e49e2fff012e4e2d7d2d670fdd4a035",
           "change": "Media line marked as an instruction (never copied into the reply); a reply that echoes prompt scaffolding falls back to the fixed template. The washing-machine not-draining filter step names a noise heard while it tries to empty."
+        },
+        {
+          "version": 4,
+          "date": "2026-10-10",
+          "fingerprint": "64573caa45f00b35ac3e916056f586047586bae681a6923ff1cb1e7de6478649",
+          "change": "Phase 10: reported evidence framed as recorded categories (never quoted as the customer's words); rule against repeating the prompt's rules or labels"
         }
       ]
     },
@@ -156,7 +162,7 @@
     },
     {
       "id": "diagnosis.jev.mc1",
-      "version": 8,
+      "version": 9,
       "purpose": "The canonical mc/1 question set: what the latest customer message alone says, resolved against the prior assistant message, the pending request and a cs/1 summary.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -174,7 +180,8 @@
             "PENDING_LABELS",
             "CHECK_DESC",
             "CHECK_OPTIONS",
-            "buildMc1Request"
+            "buildMc1Request",
+            "TO_PENDING_OPTIONS"
           ]
         }
       ],
@@ -228,6 +235,12 @@
           "date": "2026-10-09",
           "fingerprint": "3e196ecffff401a97271e4352428c8f1164d54793777a0936d2a7378c61f2416",
           "change": "GOLD final (8.13c): the pending-check question reads a hedged finding ('it looked a bit clogged') as done_found_unspecified, not not_done; the found result is kept so the re-offer says to clear it."
+        },
+        {
+          "version": 9,
+          "date": "2026-10-10",
+          "fingerprint": "7a75da6498edcfecc4e5c78166c9cd6f9c23f443da05d5c19357dc326ed408cb",
+          "change": "Phase 10: TO_PENDING_OPTIONS registered; a bare yes/no to an either/or question is partial, not answered"
         }
       ]
     },
