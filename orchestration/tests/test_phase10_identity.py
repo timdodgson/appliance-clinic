@@ -129,5 +129,12 @@ except RuntimeError:
     ok = fx.calls == 1
 check("a 500 is not retried", ok)
 
+# GOLD-v2.3 G2-DW-05: "dishwasher playing up" -> "it's just not right" got the same describe question twice.
+st = st_with(appliance="dishwasher", make=None)
+q1 = o._flow_clarify(st, {}).message
+st2 = st_with(appliance="dishwasher", make=None, _conversation=[{"role": "user", "content": "a"}, {"role": "assistant", "content": q1}])
+q2 = o._flow_clarify(st2, {}).message
+check("the describe question is asked a second way, not repeated", q2 != q1 and q2.count("?") == 1, q2)
+
 print(f"\nPhase 10 identity: {passed} passed / {failed} failed  (total {passed + failed})")
 sys.exit(0 if failed == 0 else 1)
