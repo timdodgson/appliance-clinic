@@ -97,7 +97,8 @@ function aggregate(results) {
   for (const r of results) {
     (r.transcript || []).forEach((t, i) => {
       const c = t && t.view && t.view.benchmark && t.view.benchmark.compose;
-      if (c && c.source === 'template') composeTemplateTurns.push({ id: r.id, turn: i + 1, violations: c.violations || [], error: c.error || null });
+      // fixed copy by design (a safety stop or decline: source template, no violations) is not a COMPOSE replacement
+      if (c && c.source === 'template' && ((c.violations || []).length || c.error)) composeTemplateTurns.push({ id: r.id, turn: i + 1, violations: c.violations || [], error: c.error || null });
     });
     statusCounts[r.status] = (statusCounts[r.status] || 0) + 1;
     const fam = byFamily[r.family] || (byFamily[r.family] = { total: 0, pass: 0, fail: 0, error: 0, judgeError: 0 });

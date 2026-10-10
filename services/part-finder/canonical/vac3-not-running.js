@@ -81,7 +81,7 @@ const CONCLUSION = {
   'VN7:thermal-cut-out-after-blockage': 'It had cut out to protect itself after a blockage, so no part is needed. Keep the filters clean to stop it happening again.',
   'damaged-cable-stop-use': 'Please don\'t use it with a damaged cable or plug — unplug it and don\'t tape it up. A repairer can replace the cable safely.',
   'thermal-cut-out-after-blockage': 'There\'s a blockage that won\'t shift, which will keep tripping its cut-out. A repairer can clear it — please don\'t open the main body.',
-  'battery-or-charger-fault': 'With the charging light never coming on, it\'s the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
+  'battery-or-charger-fault': 'From what you\'ve described, it\'s most likely the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
   'switch-cable-or-motor': 'The supply and airflow are fine but it\'s still dead, so it\'s the switch, an internal connection, the battery or the motor. That needs a repairer — please don\'t open it or test inside. I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

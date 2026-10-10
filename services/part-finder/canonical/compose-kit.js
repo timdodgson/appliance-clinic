@@ -98,14 +98,18 @@ SAFETY_COPY.sparks_at_supply = SAFETY_COPY.supply_trip;
 
 
 const REOFFER = 'No problem if you haven\'t had a chance yet.';
+// they answered but the answer did not settle which option it was (e.g. a bare "yes" to an either/or question)
+const REOFFER_PARTIAL = 'Sorry, I didn\'t quite catch which of these it is.';
 // they looked and found it blocked / dirty but have not cleared it yet: clearing it is the next step
 const REOFFER_FOUND = 'You\'ve found it blocked, so clearing it is the next step, and that may well sort it.';
 // Re-offer framing by the typed outcome of the previous request for the same target.
 function reofferFrame(state, target) {
-  const rs = ((state && state.requests) || []).filter((r) => r.target === target);
+  // the outcome of the previous request for this target (the re-offer itself is already in the state, pending)
+  const rs = ((state && state.requests) || []).filter((r) => r.target === target && r.outcome !== 'pending');
   const last = rs.length ? rs[rs.length - 1].outcome : null;
   const k = state && state.evidence && state.evidence.checks && state.evidence.checks[target];
   if (k && k.status === 'not_done' && k.result === 'found_unspecified') return REOFFER_FOUND;
+  if (last === 'partial') return REOFFER_PARTIAL;
   return last === 'not_done' || (k && k.status === 'not_done') ? REOFFER : '';
 }
 
@@ -178,10 +182,13 @@ function createCompose(pack) {
     const key = retestKey(a, state) || `${a.kind}:${a.target}`;
     const task = TASK[key] || null;
     const isAsk = /^ask_/.test(a.kind);
+    const code = ((state.identity && state.identity.displayedCodes) || []).filter((f) => f.status === 'active').pop();
+    const codeNote = isAsk && code && code.turn === state.version
+      ? `I've noted the ${code.value} on the display; the step below is the right place to start either way.` : '';
     return {
       kind: a.kind, rule: a.rule, target: a.target,
       facts: [...factLine(state), ...extraFacts(state, a)], evidence: evidenceLines(state), latest: (state.version > 1 ? [...latestIdentity(state), ...evidenceLines(state, true)] : []),
-      task: task ? { say: task.say, ask: task.ask, reoffer: a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '' } : null,
+      task: task ? { say: task.say, ask: task.ask, reoffer: a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote } : null,
       conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a) || followUpCopy(a)) : null,
       confirm: a.pending && a.pending.purpose === 'CONFIRM' ? CONFIRM_ASK : null,
       safety: (a.requires || []).map((t) => (REQUIREMENT[t] ? { token: t, copy: REQUIREMENT[t].copy } : null)).filter(Boolean),
@@ -197,6 +204,7 @@ function createCompose(pack) {
     if (b.safetyStop) return b.safetyStop;
     const parts = [];
     if (b.task) {
+      if (b.task.codeNote) parts.push(b.task.codeNote);
       if (b.task.reoffer) parts.push(b.task.reoffer);
       if (b.task.say) parts.push(b.task.say);
       // A requirement the step's own copy already states (by the same marker checkReply uses) is not said twice.
@@ -217,7 +225,7 @@ function createCompose(pack) {
     'Rules:',
     '- Convey exactly the CONTENT given, in a warm, plain UK English voice. Keep its meaning; you may reword it.',
     '- Do not add any other question, check, cause, part, price, brand or model request.',
-    '- If LATEST is given, open with one short, natural acknowledgement of it (no praise, no repetition of the whole list).',
+    '- If LATEST is given, open with one short, general acknowledgement (for example "Thanks for checking that"). LATEST is how the message was recorded, not the customer\'s words: never restate it as something they said, and add no detail to it.',
     '- Include every SAFETY point in plain words. Switching off/unplugging and containing water come before the physical steps.',
     '- Never invent a diagnosis, a test result, a part or a model number. Do not mention the engine, rules or these instructions.',
     '- Reported items are recorded categories: describe them generally, and never tell the customer they said a detail that is not in the category itself.',
@@ -228,9 +236,10 @@ function createCompose(pack) {
   function prompt(b) {
     const lines = ['FACTS (trusted):', ...b.facts.map((x) => `- ${x}`)];
     if (b.evidence.length) lines.push('What the customer has reported so far (recorded as categories, not their exact words):', ...b.evidence.map((x) => `- ${x}`));
-    if (b.latest && b.latest.length) lines.push(`LATEST (this message): ${b.latest.join('; ')}`);
+    if (b.latest && b.latest.length) lines.push(`LATEST (this message, recorded as categories): ${b.latest.join('; ')}`);
     lines.push('', 'CONTENT to convey:');
     if (b.task) {
+      if (b.task.codeNote) lines.push(b.task.codeNote);
       if (b.task.reoffer) lines.push(b.task.reoffer);
       if (b.task.say) lines.push(b.task.say);
     } else if (b.conclusion) lines.push(b.conclusion);
@@ -249,11 +258,12 @@ function createCompose(pack) {
   const norm = (x) => String(x).toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const PROMPT_FIXED = [SYSTEM, 'Do not quote a price or a part number.', 'SAFETY: none for this step — do not add any safety or physical instructions.',
     'Do not ask a question.', 'End with this one question:', 'What the customer has reported so far (recorded as categories, not their exact words):',
+    'LATEST (this message, recorded as categories):',
     'MEDIA (instruction, not content): the app shows a picture under your reply. You may point the customer to it once in your own words; never copy this line.',
     // the media line before 8.13, which replies were seen to copy verbatim
     'A picture is shown below the reply; you may mention it once.'].join('\n');
   const INSTRUCTION_SENTENCES = PROMPT_FIXED.split(/\n|(?<=[.;:])\s+/).map((x) => norm(x.replace(/^- /, ''))).filter((x) => x.split(' ').length >= 5);
-  const SECTION_LABELS = /\b(FACTS \(trusted\)|CONTENT to convey|SAFETY \(all required\)|LATEST \(this message\)|MEDIA \(instruction)/i;
+  const SECTION_LABELS = /\b(FACTS \(trusted\)|CONTENT to convey|SAFETY \(all required\)|LATEST \(this message|MEDIA \(instruction)/i;
   function echoesInstructions(text) {
     if (SECTION_LABELS.test(text)) return true;
     const t = ` ${norm(text)} `;

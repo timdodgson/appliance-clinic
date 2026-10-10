@@ -80,7 +80,7 @@ const CONCLUSION = {
   'VR7:charger-socket-or-contacts': 'That was the charging connection, so no part is needed.',
   'VR7:boost-or-max-mode': 'That was boost mode — it\'s designed to use the battery fast, so no part is needed. Save it for stubborn patches.',
   'VR7:filters-choking-motor': 'Cleaning the filters very likely fixed it, so no part is needed.',
-  'battery-or-charger-not-charging': 'With the charging light never coming on, it\'s either the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
+  'battery-or-charger-not-charging': 'From what you\'ve described, it\'s most likely the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
   'battery-worn': 'It runs only briefly from a full charge with the charger, power mode and filters all fine, so the battery has very likely worn out.',
 };
 const compose = ck.createCompose({

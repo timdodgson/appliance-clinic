@@ -130,3 +130,39 @@ describe('F5: a bare yes to an either/or check settles nothing', () => {
     expect(rq.lastOutcome(moved.state, 'drum-by-hand')).toBe('superseded');
   });
 });
+
+// Found by GOLD-v2.3 after release 10.1 (docs/evaluation/phase-10-gold-audit.md): the rubric-wide fidelity question
+// caught replies restating the recorded categories as the customer's words, an unframed partial re-offer, a displayed
+// code never acknowledged on a canonical journey, and a conclusion asserting a fact the evidence did not hold.
+describe('GOLD-v2.3 findings: fidelity of the wording', () => {
+  const noisy = H.opener('noisy', 'noise', [], {}, {});
+  it('a partial answer is re-offered with its own framing, not word for word', () => {
+    const turns = [noisy, C({ observations: [O('noiseOnSpin')], reply: { toPending: 'answered' } }), C({ reply: { toPending: 'answered' } })];
+    const r = H.play(J8, turns);
+    expect(r.last).toMatchObject({ kind: 'ask_observation', target: 'noiseType', requestKind: 'reoffer' });
+    const t = J8C.template(J8C.brief(r.state, r.last, null, {}));
+    expect(t.startsWith("Sorry, I didn't quite catch which of these it is.")).toBe(true);
+  });
+  it('LATEST is labelled as recorded categories, and the rules forbid restating it as the customer\'s words', async () => {
+    await vacRespond([VAC, { checks: [K('vacuum-bin-filters', 'done', 'fault_seen')] }], 'Thanks for checking that. I have shown the matching filter below.');
+    const [sys, user] = provider.last.messages.map((m) => m.content);
+    expect(user).toContain('LATEST (this message, recorded as categories)');
+    expect(sys).toMatch(/never restate it as something they said/);
+  });
+  it('a displayed code first recorded this turn is acknowledged on the journey\'s first step, and only then', () => {
+    const DW = require('../canonical/dw1-not-draining.js');
+    const op = H.dwOpener('not-draining', 'water', [O('waterRemaining')], {}, { make: { value: 'bosch', basis: 'stated' } });
+    const withCode = mc1.validateClassification({ ...op, identity: { ...op.identity, displayedCode: 'E24' } });
+    const r = H.play(DW, [withCode]);
+    const b = DW.brief(r.state, r.last, null, {});
+    expect(DW.template(b)).toMatch(/^I've noted the E24 on the display/);
+    const r2 = H.play(DW, [withCode, C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(DW.template(DW.brief(r2.state, r2.last, null, {}))).not.toMatch(/noted the E24/);
+  });
+  it('the battery-or-charger conclusion does not assert a charging light the customer never reported', () => {
+    for (const f of ['vac3-not-running.js', 'vac5-battery.js']) {
+      const src = require('node:fs').readFileSync(new URL(`../canonical/${f}`, import.meta.url), 'utf8');
+      expect(src).not.toMatch(/With the charging light never coming on/);
+    }
+  });
+});
