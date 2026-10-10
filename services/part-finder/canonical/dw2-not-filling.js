@@ -116,7 +116,7 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it filling normally now?',
-  OBS_COPY: { waterEntering: ['water comes in', 'no water comes in'], fillsSlowly: ['only a little water', null], supplyOk: ['other taps run normally', 'household supply off / low'],
+  OBS_COPY: { waterEntering: ['water comes in', 'no water comes in'], fillsSlowly: ['only a little water', null], supplyOk: ['water supply on', 'household supply off / low'],
     waterInBase: ['water in the base / flood warning', 'base dry'], doorRecognised: ['door recognised', 'says door open'], faultPersists: ['still not filling', 'fills after the fix'] },
   CHECK_RESULT_COPY: {
     'inlet-hose-tap': { clear: 'tap on, hose clear, AquaStop fine', found_and_cleared: 'tap off / hose kinked (sorted)', fault_seen: 'hose damaged / AquaStop red' },

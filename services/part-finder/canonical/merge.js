@@ -282,7 +282,7 @@ function merge(state, classification, opts = {}) {
   // A typed check status for the pending target is more specific than the reply class: "not done yet"
   // (check not_done) is never a refusal / cannot-answer, so it does not block the target.
   const pendingNotDone = req && (c.checks || []).some((k) => k.check === req.target && k.status === 'not_done');
-  if (req && !pendingNotDone && (tp === 'cannot_answer' || tp === 'declined')) {
+  if (req && !pendingNotDone && (tp === 'cannot_answer' || tp === 'declined') && !requests.cannotIsAboutModel(req, c)) {
     const already = next.declined.some((d) => d.target === req.target && d.turn === turn);
     if (!already) next.declined.push({ target: req.target, kind: tp, turn, resolvedTurn: null });
     if (req.target === 'model' && !next.identity.model.confirmed) next.identity.modelStatus = 'unavailable';

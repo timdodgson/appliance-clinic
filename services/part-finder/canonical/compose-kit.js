@@ -100,6 +100,8 @@ SAFETY_COPY.sparks_at_supply = SAFETY_COPY.supply_trip;
 const REOFFER = 'No problem if you haven\'t had a chance yet.';
 // they answered but the answer did not settle which option it was (e.g. a bare "yes" to an either/or question)
 const REOFFER_PARTIAL = 'Sorry, I didn\'t quite catch which of these it is.';
+// their reply was that the model number cannot be reached, not an answer to this question
+const REOFFER_MODEL = 'No problem about the model number — we can carry on without it for now.';
 // they looked and found it blocked / dirty but have not cleared it yet: clearing it is the next step
 const REOFFER_FOUND = 'You\'ve found it blocked, so clearing it is the next step, and that may well sort it.';
 // Re-offer framing by the typed outcome of the previous request for the same target.
@@ -109,6 +111,7 @@ function reofferFrame(state, target) {
   const last = rs.length ? rs[rs.length - 1].outcome : null;
   const k = state && state.evidence && state.evidence.checks && state.evidence.checks[target];
   if (k && k.status === 'not_done' && k.result === 'found_unspecified') return REOFFER_FOUND;
+  if (last === 'partial' && rs[rs.length - 1].reason === 'model_unavailable') return REOFFER_MODEL;
   if (last === 'partial') return REOFFER_PARTIAL;
   return last === 'not_done' || (k && k.status === 'not_done') ? REOFFER : '';
 }

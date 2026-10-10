@@ -26,7 +26,7 @@ const CONCLUSION = {
   'pressure-or-control': 'With the supply, tap, hose and mesh all fine, the fault is inside the machine — the fill valve, the water-level sensing or the control side. An appliance engineer is the best next step to confirm it safely; I\'m not recommending a part from this.',
 };
 const OBS_COPY = {
-  waterEntering: ['water comes in', 'no water comes in'], fillsSlowly: ['fills only very slowly', null], supplyOk: ['other taps run normally', 'household supply off / low'],
+  waterEntering: ['water comes in', 'no water comes in'], fillsSlowly: ['fills only very slowly', null], supplyOk: ['water supply on', 'household supply off / low'],
   doorLocks: ['door locks', 'door does not lock'], faultPersists: ['still not filling after the fix', 'fills normally after the fix'],
 };
 const CHECK_RESULT_COPY = {

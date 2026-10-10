@@ -80,6 +80,30 @@ describe('COMPOSE contract', () => {
   });
 });
 afterEach(() => { delete process.env.CANONICAL_DW2_CONTROL; });
+describe('a recorded category says only what the answer gave (GOLD G2-DW-06)', () => {
+  it('"the tap under the sink is on" is recorded as the supply being on, never as other taps running normally', () => {
+    const r = H.play(J, [op(), C({ observations: [O('supplyOk')] })]);
+    const b = J.brief(r.state, r.last, null, {});
+    const said = [...b.evidence, ...(b.latest || [])].join(' | ');
+    expect(said).toMatch(/water supply on/);
+    expect(said).not.toMatch(/other taps/);
+  });
+});
+describe('"I can\'t get to the model" while another question is pending (GOLD G2-DW-06)', () => {
+  const noModel = C({ identity: { modelStatus: 'unavailable' }, reply: { toPending: 'cannot_answer' } });
+  it('does not decline the pending question: it is re-offered once, framed as carrying on without the model', () => {
+    const r = H.play(J, [op(), C({ observations: [O('supplyOk')] }), noModel]);
+    expect(r.rules).toEqual(['B11:supplyOk', 'B12:waterInBase', 'B12:waterInBase']);
+    expect(r.last.requestKind).toBe('reoffer');
+    expect(r.state.declined.map((d) => d.target)).not.toContain('waterInBase');
+    expect(r.state.identity.modelStatus).toBe('unavailable');
+    expect(J.brief(r.state, r.last, null, {}).task.reoffer).toMatch(/carry on without it/);
+  });
+  it('a cannot-answer to the pending question itself still settles it', () => {
+    const r = H.play(J, [op(), C({ observations: [O('supplyOk')] }), C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(r.rules.slice(-1)[0]).not.toBe('B12:waterInBase');
+  });
+});
 describe('routing / handoffs', () => {
   it('own gate; not filling + water in base → dw-leaking; poor cleaning + low fill → dw-not-filling; kill switch', async () => {
     const all = ['dw-not-filling', 'dw-leaking', 'dw-not-cleaning'];
