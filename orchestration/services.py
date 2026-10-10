@@ -514,6 +514,21 @@ class RealDiagnosticService:
         self.seed = seed
         self.timeout = timeout
 
+    # The account's Lambda concurrency is shared with another site (Phase 7), so the engine can be throttled for a
+    # moment (HTTP 429). One short retry, on 429 only; any other failure degrades at once (ADR 0016 makes it visible).
+    THROTTLE_RETRY_S = 0.6
+
+    def _post(self, httpx, payload) -> str:
+        import time as _time
+        for attempt in (1, 2):
+            r = httpx.post(self.url, json=payload, timeout=self.timeout, headers={"content-type": "application/json"})
+            if r.status_code == 429 and attempt == 1:
+                _time.sleep(self.THROTTLE_RETRY_S)
+                continue
+            r.raise_for_status()
+            return r.text
+        return ""
+
     def understand(self, *, symptoms: str, image=None, conversation=None, established=None,
                    canonical=None) -> dict:
         """Story 3: run the SINGLE Jev UNDERSTAND pass (mode:'understand') and return its typed
@@ -534,11 +549,8 @@ class RealDiagnosticService:
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
-            r = httpx.post(self.url, json=payload, timeout=self.timeout,
-                           headers={"content-type": "application/json"})
-            r.raise_for_status()
-            text = r.text
-        except Exception as e:
+            text = self._post(httpx, payload)
+        except Exception as e:  # transport/timeout -> degrade
             raise RagUnavailable(str(e))
         for line in text.split("\n"):
             t = line.strip()
@@ -575,10 +587,7 @@ class RealDiagnosticService:
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
-            r = httpx.post(self.url, json=payload, timeout=self.timeout,
-                           headers={"content-type": "application/json"})
-            r.raise_for_status()
-            text = r.text
+            text = self._post(httpx, payload)
         except Exception as e:  # transport/timeout -> degrade
             raise RagUnavailable(str(e))
         done, reply = None, ""
