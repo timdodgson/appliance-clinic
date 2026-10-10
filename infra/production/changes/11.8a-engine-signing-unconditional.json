@@ -1,0 +1,76 @@
+{
+  "id": "11.8a-engine-signing-unconditional",
+  "description": "Phase 11 (ADR 0017) stage 4: the log-only rollout mode is removed from the diagnosis Lambda (engine-auth.js, part-finder-lambda.js); enforcement is unconditional and a missing key fails closed. ENGINE_SIGNING_MODE is unset. Previous code K0GOjl/gA71tVJCISd2MDq/4Kh2j9Yyl/54v35sDuFQ= (11.3a) with ENGINE_SIGNING_MODE=enforce; rollback = restore that s3Key and the variable.",
+  "classification": "POTENTIALLY IMPACTS S4R (diagnosis Lambda code and environment; behaviour unchanged from 11.7 enforcement; S4R plain {messages} untouched; /part-finder contract, ingress, smoke and S4R health checked before and after)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code and environment update of the diagnosis Lambda, PassRole on its own unchanged role, read of the staged zip. The pinned engine-signing reference is resolved with the read-only base's ResolveAcBearerReferences statement (extended in 11.2a).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-part-finder"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp",
+      "whichpart-api",
+      "spares4repairs-diag-orchestrator"
+    ]
+  }
+}

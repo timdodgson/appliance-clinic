@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { overridesDrift, leaseState, sha256 } from '../src/production/overrides-drift.js';
+import { overridesDrift, leaseState, sha256, keySha256 } from '../src/production/overrides-drift.js';
 
 // Phase 11 (E): the declared runtime state against the deployed configuration. Findings name keys, never values.
 const REF = '{{resolve:secretsmanager:applianceclinic/production/x:SecretString:token::v1}}';
@@ -30,6 +30,13 @@ describe('overrides drift', () => {
   it('never puts a value in a finding', () => {
     const l = live(); l.f.env.MODE = 'leaky-value';
     expect(JSON.stringify(overridesDrift(declared(), l, { f: 'REF' }))).not.toMatch(/leaky-value|resolved-secret|a\.example/);
+  });
+  it('a staged key names the code hash it must deploy (url-safe base64 in the file name)', () => {
+    expect(keySha256('phase8/spares4repairs-part-finder-K0GOjl_gA71tVJCISd2MDq_4Kh2j9Yyl_54v35sDuFQ.zip')).toBe('K0GOjl/gA71tVJCISd2MDq/4Kh2j9Yyl/54v35sDuFQ=');
+    expect(keySha256('phase5/other.zip')).toBeNull();
+    const d = declared(); d.f.code.s3Key = 'phase8/f-K0GOjl_gA71tVJCISd2MDq_4Kh2j9Yyl_54v35sDuFQ.zip';
+    const l = live(); l.f.codeSha256 = 'K0GOjl/gA71tVJCISd2MDq/4Kh2j9Yyl/54v35sDuFQ=';
+    expect(overridesDrift(d, l, { f: 'STALE-REFERENCE' }).ok).toBe(true);
   });
   it('a benchmark routing lease is active only while unreleased and unexpired', () => {
     const now = Date.parse('2026-10-10T12:00:00Z');

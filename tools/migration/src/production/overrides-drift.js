@@ -8,11 +8,16 @@
  *                    AC_BEARER_VERSIONS marker, which is compared by value).
  *   env.unset        must be absent.
  *   env.digests      sensitive non-secret values (a private tunnel URL) declared by SHA-256, never by value.
- *   code             s3Key (zip, checked against build/reference/<fn>.zip.json codeSha256) or imageUri (by digest).
+ *   code             s3Key (zip: the CodeSha256 its staged name encodes, else build/reference/<fn>.zip.json) or imageUri (by digest).
  * Any live variable that is not declared is drift: a behavioural switch must not exist only on the live function.
  */
 import { createHash } from 'node:crypto';
 
+/** The CodeSha256 a staged key names (phase8/<fn>-<url-safe base64 SHA-256>.zip), or null. */
+export function keySha256(key) {
+  const m = /-([A-Za-z0-9_-]{43})\.zip$/.exec(String(key || ''));
+  return m ? `${m[1].replace(/-/g, '+').replace(/_/g, '/')}=` : null;
+}
 const isSecretRef = (v) => typeof v === 'string' && v.startsWith('{{resolve:secretsmanager:');
 export const sha256 = (v) => createHash('sha256').update(String(v)).digest('hex');
 
@@ -45,7 +50,10 @@ export function overridesDrift(declared, live, refs = {}) {
     if (code.imageUri) {
       const want = String(code.imageUri).split('@')[1];
       if (want && l.imageDigest !== want) findings.push({ fn, kind: 'image-differs' });
-    } else if (code.s3Key && refs[fn] && l.codeSha256 !== refs[fn]) findings.push({ fn, kind: 'code-differs' });
+    } else if (code.s3Key) {
+      const want = keySha256(code.s3Key) || refs[fn];
+      if (want && l.codeSha256 !== want) findings.push({ fn, kind: 'code-differs' });
+    }
   }
   return { ok: findings.length === 0, findings };
 }
