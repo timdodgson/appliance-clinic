@@ -147,7 +147,8 @@ describe('GOLD-v2.3 findings: fidelity of the wording', () => {
     await vacRespond([VAC, { checks: [K('vacuum-bin-filters', 'done', 'fault_seen')] }], 'Thanks for checking that. I have shown the matching filter below.');
     const [sys, user] = provider.last.messages.map((m) => m.content);
     expect(user).toContain('LATEST (this message, recorded as categories)');
-    expect(sys).toMatch(/never restate it as something they said/);
+    expect(user).toContain('Open with one short acknowledgement of this message in your own words');
+    expect(sys).toMatch(/never restate them as something the customer said/);
   });
   it('a displayed code first recorded this turn is acknowledged on the journey\'s first step, and only then', () => {
     const DW = require('../canonical/dw1-not-draining.js');
@@ -164,5 +165,19 @@ describe('GOLD-v2.3 findings: fidelity of the wording', () => {
       const src = require('node:fs').readFileSync(new URL(`../canonical/${f}`, import.meta.url), 'utf8');
       expect(src).not.toMatch(/With the charging light never coming on/);
     }
+  });
+});
+
+describe('post-release journeys (Phase 10)', () => {
+  it('the opening turn carries no acknowledgement instruction (there is no LATEST yet)', async () => {
+    await vacRespond([VAC], 'Switch it off and unplug it first. Empty the bin and wash the filters, then let them dry for 24 hours. Was a filter clogged or damp, is a filter torn or damaged, or were they clean and dry already?');
+    expect(provider.last.messages[1].content).not.toMatch(/LATEST|Open with one short acknowledgement/);
+  });
+  it('no "is it working normally now?" straight after the customer said it works normally again', () => {
+    const DW = require('../canonical/dw1-not-draining.js');
+    const op = H.dwOpener('not-draining', 'water', [O('waterRemaining'), O('waterIsDirty')]);
+    const r = H.play(DW, [op, C({ checks: [K('dishwasher-filter', 'done', 'found_and_cleared')] }), C({ observations: [O('faultPersists', false), O('commandedDrain')] })]);
+    expect(r.last.kind).toBe('conclude');
+    expect(r.last.pending).toBe(null);
   });
 });

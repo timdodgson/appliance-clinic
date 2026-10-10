@@ -284,7 +284,9 @@ function makeStepPolicy(cfg) {
     if (!r.length || (d.leader && d.leader.committed)) return [];
     return r.slice(1).filter((x) => r[0].score - x.score < 2 && x.score > 0).map((x) => x.family);
   }
-  const confirmPending = (s) => (askable(s, 'resolution') ? { slot: 'OBSERVATION', target: 'resolution', purpose: 'CONFIRM' } : null);
+  // "Is it working normally now?" is not asked straight after the customer has just said it works normally again
+  const confirmPending = (s) => (askable(s, 'resolution') && !(obs(s, 'faultPersists') === false && obsTurn(s, 'faultPersists') === s.version)
+    ? { slot: 'OBSERVATION', target: 'resolution', purpose: 'CONFIRM' } : null);
   const PART_FAMILIES = cfg.PART_FAMILIES || new Set();
 
   function policy(s, diag, ctx = {}) {
