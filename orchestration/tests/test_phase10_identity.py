@@ -91,5 +91,43 @@ check("code + a latest symptom report -> symptom present (code stays)", loaded({
 check("code + 'still showing the code' (error_display) -> code path only", loaded({**base, "symptomFamily": "error_display", "latestTurnEstablishes": "symptom"})._sympt is False)
 check("code + an identity answer -> code path only", loaded({**base, "symptomFamily": "other", "latestTurnEstablishes": "identity"})._sympt is False)
 
+# Post-release journey: "F06 <misspelt brand> washing machine" -> we ask code or model -> "that's ok, still error".
+# The answer is about the token our question named; the code must not be asked for again.
+check("our code-or-model question is recognised and names its token", routing.code_or_model_token(routing.code_or_model_question("F06")) == "F06")
+check("any other reply names no token", routing.code_or_model_token("To look up F06 I just need the make") is None)
+ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+ol.rag.understand = lambda **kw: {"jev": {"decisions": {"candidateTokenMeaning": "none", "symptomFamily": "error_display", "userIntent": "EVIDENCE_UPDATE",
+                                                         "latestTurnEstablishes": "symptom", "applianceFamily": "washing-machine", "applianceFamilyProvenance": "customer_named"}},
+                                  "understand": {"applianceType": "washing-machine"}}
+st = ol._load(TurnInput(message="x", sessionId="carry", conversation=[{"role": "user", "content": "a"}, {"role": "assistant", "content": routing.code_or_model_question("F06")}, {"role": "user", "content": "b"}]))
+check("the answer to our code-or-model question keeps the token as the displayed code", st.customer.displayedCode == "F06", st.customer.displayedCode)
+check("...so the turn is not a 'what is the exact code?' intake", getattr(st, "_codePresentNoValue", False) is False)
+
+# The engine shares the account's Lambda concurrency: one short retry on 429, never on other failures.
+from orchestration.services import RealDiagnosticService as HttpDiagnosticService
+class R:
+    def __init__(self, code, text=""): self.status_code, self.text = code, text
+    def raise_for_status(self):
+        if self.status_code >= 400: raise RuntimeError(f"HTTP {self.status_code}")
+class FakeHttpx:
+    def __init__(self, codes): self.codes, self.calls = list(codes), 0
+    def post(self, *a, **k):
+        self.calls += 1; return R(self.codes.pop(0), "ok")
+svc = HttpDiagnosticService.__new__(HttpDiagnosticService); svc.url, svc.timeout = "http://x", 1
+svc.THROTTLE_RETRY_S = 0
+fx = FakeHttpx([429, 200]); check("429 then 200 -> retried once and succeeds", svc._post(fx, {}) == "ok" and fx.calls == 2)
+fx = FakeHttpx([429, 429])
+try:
+    svc._post(fx, {}); ok = False
+except RuntimeError:
+    ok = fx.calls == 2
+check("two 429s -> fails after one retry", ok)
+fx = FakeHttpx([500, 200])
+try:
+    svc._post(fx, {}); ok = False
+except RuntimeError:
+    ok = fx.calls == 1
+check("a 500 is not retried", ok)
+
 print(f"\nPhase 10 identity: {passed} passed / {failed} failed  (total {passed + failed})")
 sys.exit(0 if failed == 0 else 1)
