@@ -128,14 +128,8 @@ class CustomerProvided:
     region: Optional[str] = None
     observed: list[ObservedIdentifier] = field(default_factory=list)
     symptomsText: Optional[str] = None
-    # CONVERSATION-STATE PERSISTENCE: the established typed problem/evidence the customer has given
-    # over the WHOLE conversation, kept so a sparse follow-up turn (an identity answer, a check
-    # result, an "I don't know") can never silently drop what was already established. Jev owns the
-    # semantic reading of the latest turn: when its current-turn output carries a set it is
-    # authoritative over the whole thread (it both ADDS new evidence and drops anything the customer
-    # CORRECTED); when the latest turn is sparse and Jev returns an empty set, deterministic state
-    # PRESERVES the established set and re-injects it into the forwarded intent so COMPOSE still sees
-    # it. These are L0 customer-said evidence (augmentable, correctable), never promoted to L1 facts.
+    # This turn's typed problem/evidence from Jev, which reads the whole (windowed) conversation each turn. Durable
+    # evidence lives in cs/1 (ADR 0014); these are L0 customer-said evidence, never promoted to L1 facts.
     fault: Optional[str] = None  # Jev's short established problem phrase (e.g. "not spinning")
     reportedSymptoms: list[str] = field(default_factory=list)
     checksReported: list[str] = field(default_factory=list)
@@ -144,18 +138,9 @@ class CustomerProvided:
     # later sparse turn cannot reopen a declined fact. Union across turns (still correctable by Jev
     # re-reading the thread if the customer later supplies the answer).
     declinedFacts: list[str] = field(default_factory=list)
-    # MONOTONIC identity-unavailable latch. Set once the customer has said they cannot find/read the
-    # model (Jev modelUnavailable) OR could not answer a MODEL request we made. Once latched, neither
-    # the Python model-acquisition gate nor the Node identification gate re-asks for the model — the
-    # engine proceeds on the best model-independent route. Cleared implicitly: a later trusted MODEL
-    # observation makes _journey_stage return MODEL_KNOWN (checked first), so the latch is moot then.
+    # The model is unavailable: cs/1 modelStatus 'unavailable' (merge M9, monotonic until a confirmed model) or Jev
+    # typed it this turn. Neither the Python model-acquisition gate nor the Node identification gate re-asks then.
     modelUnavailable: bool = False
-    # MONOTONIC "we have asked for the model at least once" flag. Set the turn after we emit a MODEL
-    # request. Drives the anti-loop: if the model was already requested and the customer's reply did
-    # not supply one, we must NOT ask again (that reads as "repeats an unanswerable question") — the
-    # engine latches modelUnavailable and proceeds model-independently. A later trusted MODEL still
-    # wins (MODEL_KNOWN is checked first), so a customer who finds it later is never blocked.
-    modelRequestedBefore: bool = False
 
 
 @dataclass
@@ -191,7 +176,7 @@ class ConversationState:
     resolved: DeterministicResolved = field(default_factory=DeterministicResolved)
     inferred: ProbabilisticInferred = field(default_factory=ProbabilisticInferred)
     clarificationRequested: Optional[str] = None
-    safetyState: str = "NORMAL_DIAGNOSTIC"     # monotonic high-water mark across the conversation
+    safetyState: str = "NORMAL_DIAGNOSTIC"     # cs/1 safety.activeLevel, raised by this turn's MCP / RAG classes
     # The CAUSE behind the current safetyState, carried from the RAG's deterministic detector
     # ('gas' | 'shock' | 'burning' | None). Lets _safety_block select cause-specific customer
     # guidance instead of one generic electrical stop. Latched to the most recent non-null reason.
@@ -199,7 +184,7 @@ class ConversationState:
     # The customer has asked to PERFORM a dangerous action (bypass a safety device, test live,
     # keep resetting the trip, discharge a capacitor, re-gas a sealed system, hunt a gas leak with a
     # flame, …). Distinct from reporting a hazard: we actively WARN and refuse, but do not stop the
-    # whole diagnosis. Latched true once seen in the conversation.
+    # whole diagnosis. This turn only (the RAG's per-turn detector); cs/1 keeps the history.
     unsafeIntent: bool = False
     turns: int = 0
 

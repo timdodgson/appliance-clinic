@@ -8,8 +8,9 @@ Run: python3 -m orchestration.tests.test_progression_policy
 """
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome
-from orchestration.services import FakeErrorCodeService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService
 from orchestration.orchestrator import Orchestrator
+from orchestration.tests.cs1_bff import FakeBff
 
 passed = 0
 failed = 0
@@ -68,7 +69,7 @@ class JourneyRag:
 
 
 def orch(script):
-    return Orchestrator(FakeErrorCodeService({}), JourneyRag(script), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService({}), JourneyRag(script)))
 
 
 def opening_symptom(fam="tumble-dryer", fault="not drying", family_symptom="not_heating"):
@@ -120,15 +121,17 @@ o = orch([
     (check_turn(fam="oven-cooker", family_symptom="other", answered="yes"), GROUNDED),
     # cannot-answer to the MODEL ask: answeredPrevious cannot_answer, modelUnavailable NOT typed
     (check_turn(fam="oven-cooker", family_symptom="other", answered="cannot_answer",
-                establishes="cannot_answer", modelUnavailable=False), GROUNDED),
+                establishes="cannot_answer", modelUnavailable=False,
+                _mc1ModelStatus="unavailable"), GROUNDED),
     (check_turn(fam="oven-cooker", family_symptom="other", answered="cannot_answer",
-                establishes="cannot_answer", modelUnavailable=False), GROUNDED),
+                establishes="cannot_answer", modelUnavailable=False,
+                _mc1ModelStatus="unavailable"), GROUNDED),
 ])
 o.handle_turn(TurnInput(message="my oven isn't cooking evenly, one side burns", sessionId="loop"))
 r2 = o.handle_turn(TurnInput(message="checked, no debris around the fan", sessionId="loop"))
 check("asked for the model after the check", r2.modelRequired is True and r2.pendingRequest
       and r2.pendingRequest.get("slot") == "MODEL", f"{r2.modelRequired}/{r2.pendingRequest}")
-# feed the MODEL pending back (as the boundary does) + a cannot-answer to it
+# a cannot-answer to the model ask: mc/1 types modelStatus unavailable and this turn's merge records it (cs/1)
 r3 = o.handle_turn(TurnInput(message="don't know the model offhand", sessionId="loop",
                              pendingRequest=r2.pendingRequest))
 check("cannot-answer to model -> stage MODEL_UNAVAILABLE", r3.debug.get("journeyStage") == "MODEL_UNAVAILABLE",
@@ -146,7 +149,7 @@ print("MODEL SUPPLIED LATER — a real model overrides any prior unavailable lat
 o = orch([
     (opening_symptom(fam="oven-cooker", fault="one side burns", family_symptom="other"), GROUNDED),
     (check_turn(fam="oven-cooker", family_symptom="other", answered="cannot_answer",
-                establishes="cannot_answer"), GROUNDED),
+                establishes="cannot_answer", _mc1ModelStatus="unavailable"), GROUNDED),
     (check_turn(fam="oven-cooker", family_symptom="other", establishes="identity",
                 answered="not_applicable"), GROUNDED),
 ])

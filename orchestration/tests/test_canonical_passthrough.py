@@ -17,7 +17,7 @@ import os
 import sys
 
 from orchestration.model import TurnInput
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator
 from orchestration.tests.fixtures import CANNED
 
@@ -80,10 +80,9 @@ MSG = "my washing machine won't drain, water sits in the drum"
 
 
 def run(rag, canonical=None, session="s1", message=MSG):
-    store = InMemoryStateStore()
-    orch = Orchestrator(FakeErrorCodeService(CANNED), rag, store)
+    orch = Orchestrator(FakeErrorCodeService(CANNED), rag)
     resp = orch.handle_turn(TurnInput(message=message, sessionId=session, canonical=canonical))
-    return resp, store
+    return resp, orch
 
 
 def test_block_forwarded_verbatim_to_understand():
@@ -155,15 +154,12 @@ def test_customer_view_never_exposes_canonical():
     assert "canonical" not in view and CSID not in view
 
 
-def test_orchestrator_store_does_not_persist_canonical():
-    resp, store = run(StubRag(), canonical=copy.deepcopy(BLOCK))
-    st = store.get("s1")
-    # The orchestrator's own state object carries no canonical fields beyond the per-turn
-    # transport slot, which _load() overwrites every turn.
-    persisted = {k: v for k, v in vars(st).items() if "canonical" in k.lower()}
-    assert set(persisted) <= {"_canonical"}
+def test_orchestrator_keeps_no_state_between_turns():
+    """ADR 0014: nothing a turn computes survives it. A next turn without a block starts empty."""
+    resp, orch = run(StubRag(), canonical=copy.deepcopy(BLOCK))
+    assert not hasattr(orch, "store")
     rag = StubRag()
-    orch = Orchestrator(FakeErrorCodeService(CANNED), rag, store)
+    orch.rag = rag
     nxt = orch.handle_turn(TurnInput(message="still not draining", sessionId="s1"))
     assert "canonical" not in nxt.debug  # no carry-over from the previous turn's block
     assert rag.understand_canonical == [None]
@@ -190,7 +186,7 @@ def test_lambda_canonical_in_envelope_check():
 
 def test_lambda_returns_canonical_only_when_sent():
     h = _load_handler()
-    h.ORCH = Orchestrator(FakeErrorCodeService(CANNED), StubRag(), InMemoryStateStore())
+    h.ORCH = Orchestrator(FakeErrorCodeService(CANNED), StubRag())
     hdr = {"authorization": "Bearer " + os.environ["ORCH_BEARER_TOKEN"]}
 
     def call(body):

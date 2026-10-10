@@ -7,7 +7,7 @@ the journey to the model ask.
 import sys
 from orchestration.model import ConversationState, OrchestratorResponse, Outcome
 from orchestration.orchestrator import Orchestrator
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.tests.fixtures import CANNED
 
 passed = 0; failed = 0
@@ -16,7 +16,7 @@ def check(n, cond, detail=""):
     ok = bool(cond); passed += ok; failed += (not ok)
     print(("  ok  " if ok else "  FAIL") + f" {n}" + ("" if ok else f"  :: {detail}"))
 
-o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
 
 def state(appliance="dishwasher", exclusive=False, establishes=None, answered=None):
     st = ConversationState(sessionId="describe")

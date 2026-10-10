@@ -1,4 +1,7 @@
-"""STAGE A — deterministic cross-turn appliance-identity persistence in the orchestrator.
+"""STAGE A — deterministic cross-turn appliance-identity precedence, with the prior identity read from cs/1.
+
+ADR 0014: the orchestrator keeps no state; the established identity of earlier turns arrives in the BFF's cs/1 block
+(here carried by the fake BFF, whose fake merge stands in for part-finder's).
 
 Proves (no network, no real Jev) that once a family is genuinely ESTABLISHED (Jev provenance
 customer_named) it is preserved across weak / null / uncertain / inferred later turns, and is
@@ -9,8 +12,9 @@ Run: PYTHONPATH=. python3 orchestration/tests/test_identity_persistence.py
 """
 import sys
 from orchestration.model import TurnInput
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator
+from orchestration.tests.cs1_bff import FakeBff
 from orchestration.tests.fixtures import CANNED
 
 passed = 0
@@ -65,15 +69,15 @@ class ScriptedTurnsRag(FakeDiagnosticService):
 
 
 def build(script):
-    return Orchestrator(FakeErrorCodeService(CANNED), ScriptedTurnsRag(script), InMemoryStateStore())
+    return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), ScriptedTurnsRag(script)))
 
 
 def state_after(o, msgs, sid):
-    st = None
+    """Replay turns through the fake BFF (ADR 0014: the prior identity arrives as cs/1, not from memory) and return
+    the identity the orchestrator worked with on the last turn."""
     for m in msgs:
         o.handle_turn(TurnInput(message=m, sessionId=sid))
-        st = o.store.get(sid)
-    return st.customer
+    return o.last_state.customer
 
 
 # --- Explicit identity persists across a weak follow-up that names no appliance -----------------

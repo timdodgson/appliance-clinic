@@ -11,7 +11,7 @@ import sys
 from orchestration import routing
 from orchestration.model import ConversationState, OrchestratorResponse, Outcome
 from orchestration.orchestrator import Orchestrator
-from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, InMemoryStateStore, RagUnavailable
+from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, RagUnavailable
 from orchestration.tests.fixtures import CANNED
 
 passed = 0; failed = 0
@@ -20,7 +20,7 @@ def check(n, cond, detail=""):
     ok = bool(cond); passed += ok; failed += (not ok)
     print(("  ok  " if ok else "  FAIL") + f" {n}" + ("" if ok else f"  :: {detail}"))
 
-o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
 
 # F8: the token commit rule (same thresholds as the family gate)
 weak_a = {"model": 0.72, "uncertain": 0.18, "error_code": 0.02, "none": 0.05, "other": 0.03}
@@ -71,7 +71,7 @@ check("code-only answer carries no owner precaution", o._owner_safety_note(st, r
 class DownRag(FakeDiagnosticService):
     def diagnose(self, **kw):
         raise RagUnavailable("down")
-od = Orchestrator(FakeErrorCodeService(CANNED), DownRag(), InMemoryStateStore())
+od = Orchestrator(FakeErrorCodeService(CANNED), DownRag())
 st = st_with(appliance="washing-machine")
 debug = {"latencies": {}, "canonical": {"schema": "cs/1", "version": 3, "state": {}}}
 r = od._flow_canonical(st, {"key": "wm-not-draining", "nextAction": {"kind": "ask_check"}}, debug)
@@ -82,7 +82,7 @@ check("...and the canonical result is marked degraded (the BFF will not persist 
 # the same code answer was repeated. A latest turn that establishes a real symptom carries a symptom.
 from orchestration.model import TurnInput
 def loaded(decisions, error_code="F01"):
-    ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+    ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
     ol.rag.understand = lambda **kw: {"jev": {"decisions": decisions}, "understand": {"errorCode": error_code, "applianceType": "tumble-dryer"}}
     return ol._load(TurnInput(message="x", sessionId="ec02", make="hotpoint"))
 base = {"candidateTokenMeaning": "error_code", "userIntent": "EVIDENCE_UPDATE", "partReadiness": "diagnosis_only",
@@ -95,7 +95,7 @@ check("code + an identity answer -> code path only", loaded({**base, "symptomFam
 # The answer is about the token our question named; the code must not be asked for again.
 check("our code-or-model question is recognised and names its token", routing.code_or_model_token(routing.code_or_model_question("F06")) == "F06")
 check("any other reply names no token", routing.code_or_model_token("To look up F06 I just need the make") is None)
-ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
 ol.rag.understand = lambda **kw: {"jev": {"decisions": {"candidateTokenMeaning": "none", "symptomFamily": "error_display", "userIntent": "EVIDENCE_UPDATE",
                                                          "latestTurnEstablishes": "symptom", "applianceFamily": "washing-machine", "applianceFamilyProvenance": "customer_named"}},
                                   "understand": {"applianceType": "washing-machine"}}
