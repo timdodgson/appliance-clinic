@@ -1,13 +1,56 @@
 # Architecture overview
 
-This describes the system as it runs in production. Decisions behind it are in [`docs/adr/`](../adr/README.md); the
-Phase 8 review that produced this page is [phase-8-findings.md](phase-8-findings.md).
+This describes the system as it runs in production. It is the one current-state architecture document. The decisions
+behind it are in [`docs/adr/`](../adr/README.md). The Phase 8 review that produced this page is
+[phase-8-findings.md](phase-8-findings.md); it is kept as the record of that review.
+
+```mermaid
+flowchart TB
+  subgraph ENG["Diagnosis engine (part-finder)"]
+    E["Engine handler"] --> U["UNDERSTAND"]
+    U -.->|"typed choices"| J[("Jev")]
+    E --> C["Canonical engine: merge, diagnostics,<br/>policy, part gate (deterministic)"]
+    E --> R["Retrieval: knowledge index"]
+    C --> P["COMPOSE + reply checks"]
+    P -.->|"wording only"| L[("Chat model")]
+  end
+  subgraph AC["Appliance Clinic customer path"]
+    B["Browser (AC site, CloudFront)"] -->|"/api, signed opaque session token"| W["whichpart-api (BFF)"]
+    W -->|"bearer; cs/1 block"| O["Orchestrator<br/>deterministic turn control, no LLM"]
+    O -->|"1. mode: understand"| E
+    O -->|"2. diagnose (typed understanding injected)"| E
+    O -->|"error-code routes, bearer"| M["Error-code MCP"]
+    W -->|"conditional writes"| D[("DynamoDB: session state,<br/>transcripts, rate limits")]
+    T["EventBridge schedule"] --> W
+  end
+  W -->|"transcript review (scheduled)"| J
+  S["Spares4Repairs page (S4R)"] -.->|"legacy /part-finder, {messages} only"| E
+  classDef llm fill:#fff3cd,stroke:#b58900;
+  class J,L llm;
+```
+
+Dotted lines into a shaded box are the only places a model is used. The dotted S4R line is the frozen legacy contract,
+which is served but not developed.
+
+## Where the language models are, and are not
+
+| Step | Owner | Model? |
+|---|---|---|
+| Classify the latest message into the typed `mc/1` vocabulary | Jev (`diagnosis.jev.understand`, `diagnosis.jev.mc1`) | Yes: typed choices, validated by code |
+| Merge into `cs/1` state, request outcomes | `canonical/merge.js`, `requests.js` | No |
+| Diagnose (evidence against cause families) | `canonical/*-diagnostics.js`, `evidence-engine.js` | No |
+| Choose the one next action; safety stops; part gate | `canonical/*-policy.js`, `policy-kit.js` | No |
+| Turn control, routing, safety blocks, model-ask staging | orchestrator | No |
+| Word the chosen action | COMPOSE (`diagnosis.canonical.compose`, legacy `diagnosis.compose.*`) | Yes: then checked; template on failure; safety stops never |
+| Error-code meaning | Error-code MCP | No |
+| Retrieval ranking | `retrieval.js` | Embedding only, where configured; lexical otherwise |
+| Transcript review, GOLD judge | Jev (`review.transcript.*`, `benchmark.gold-v2.judge`) | Yes, offline from the customer path |
 
 ## Components
 
 | Component | Code | Runs as | Owns |
 |---|---|---|---|
-| **AC site** | `apps/whichpart` | Static files in S3 `whichpart-web-<account>`, CloudFront `E1QD02IAJZPJLM` | Customer chat UI, admin UI |
+| **AC site** | Not in this repository: the static site is still published from the original monorepo (`apps/whichpart`) | Static files in S3 `whichpart-web-<account>` behind CloudFront | Customer chat UI, admin UI |
 | **BFF** (`whichpart-api`) | `services/whichpart-api` | Lambda zip, Function URL, CloudFront `/api*` origin | Customer turns, AC sign-in, admin, scheduled jobs, canonical session state, transcripts |
 | **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model |
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |
@@ -83,6 +126,8 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
   - Lambdas receive secret **ids** in environment variables, never values.
   - Bearers are resolved through CloudFormation dynamic references.
   - The old `spares4repairs/dev/applianceclinic-*` secrets remain unread. They are not deleted.
+  - The legacy bearer secrets (`spares4repairs/{diag-orchestrator,error-code-mcp}/bearer-token`) were deleted in
+    Phase 9 ([phase-9-results.md](../migration/phase-9-results.md)).
 - **Configuration** is environment variables on each Lambda, owned by `AcRuntimeStack` (`infra/cdk/config/runtime-overrides.json`).
   - Changing a value is a CDK change, not a console edit.
 - **Admin-editable AI settings** (models, prompts toggles) are stored in the `ai-config` secret and written by the
@@ -109,7 +154,7 @@ Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or 
 | `/part-finder` contract (`baseline contract verify`) | Status, CORS, NDJSON framing and the fields S4R reads | Before and after every engine release |
 | Smoke (`baseline smoke`) | Four journeys against the pre-migration baseline | Before and after every runtime release |
 | Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
-| GOLD v2 | Semantic whole-conversation benchmark with Jev as the fixed judge (`benchmark.gold-v2.judge`) | Owner-run from the admin test area; needs the live transport and Jev credentials |
+| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.2, 49 scenarios) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 49/49 twice ([final gate](../evaluation/gold-v2-final-gate.md)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
 
 Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
 [ADR 0009](../adr/0009-evaluation-strategy.md) has the strategy.
@@ -123,7 +168,7 @@ Behaviour is never scored by regular expressions; semantic judgement uses the Je
 | `AcRuntimeStack` | The four Lambda functions, their Function URLs and permissions, execution roles and policies, EventBridge schedules |
 | AC CDK toolkit | Bootstrap for the above ([ADR 0005](../adr/0005-dedicated-cdk-bootstrap.md)) |
 
-Not owned: CloudFront `E1QD02IAJZPJLM` ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)), and everything S4R
+Not owned: the CloudFront distribution ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)), and everything S4R
 owns ([ADR 0003](../adr/0003-s4r-compatibility-boundary.md); [ownership.md](../migration/ownership.md)).
 
 Every production change goes through `infra/production/steps/change.sh`:
