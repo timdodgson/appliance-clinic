@@ -550,6 +550,10 @@ class Orchestrator:
 
         if make:
             c.make = make
+        # The engine reads identity from the forwarded intent only: a make held by cs/1 (or found in the transcript) that
+        # Jev's UNDERSTAND left empty is forwarded, so the engine never asks for a make the customer already gave.
+        if c.make and not raw.get("make"):
+            raw["make"] = c.make
         # STAGE A: deterministic cross-turn appliance-identity precedence. Jev owns the SEMANTIC
         # provenance (applianceFamilyProvenance: customer_named = the customer stated OR corrected the
         # family in their own words); this code owns the STATE precedence. No phrase/keyword parsing.

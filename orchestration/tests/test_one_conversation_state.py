@@ -126,6 +126,8 @@ c = st.customer
 check("D2 turn 2: the answer commits the token as the displayed code", c.displayedCode == "F06", c.displayedCode)
 check("D2 turn 2: the make comes from cs/1, so it is not asked again", c.make == "hotpoint" and "brand" not in (r2.message or "").lower()
       and "make" not in (r2.message or "").lower(), (c.make, r2.message))
+check("D2 turn 2: the make from cs/1 is forwarded to the engine (it never asks for it again)", (st._understand or {}).get("make") == "hotpoint",
+      (st._understand or {}).get("make"))
 check("D2 turn 2: cs/1 records the code and clears the token", [f["value"] for f in o.state("m3")["identity"]["displayedCodes"] if f["status"] == "active"] == ["F06"]
       and not o.state("m3")["identity"]["unconfirmedToken"]["value"], o.state("m3")["identity"])
 
