@@ -35,7 +35,7 @@ export const AC = {
   secrets: [
     'spares4repairs/dev/applianceclinic-ai-config', 'spares4repairs/dev/applianceclinic-openai', 'spares4repairs/dev/applianceclinic-jev',
     'spares4repairs/dev/applianceclinic-canonical-state-token', 'spares4repairs/dev/applianceclinic-benchmark-service',
-    'spares4repairs/diag-orchestrator/bearer-token', 'spares4repairs/error-code-mcp/bearer-token',
+    // the legacy bearer secrets (spares4repairs/{diag-orchestrator,error-code-mcp}/bearer-token) were deleted in Phase 9 (9.1)
     // Phase 7: the AC secret namespace, created by AcDataStack (change 7.10a-ac-secrets).
     'applianceclinic/production/canonical-state-token', 'applianceclinic/production/orchestrator-bearer', 'applianceclinic/production/mcp-bearer',
     // Phase 7 (D): created by change 7.17a-ac-ai-secrets.

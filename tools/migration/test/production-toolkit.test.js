@@ -19,7 +19,9 @@ const actionMatches = (statement, action) => list(statement.Action).some((a) => 
 const allows = (action, arn) => exec.Statement.some((s) => s.Effect === 'Allow' && actionMatches(s, action) && matches(s, arn));
 const denies = (action, arn) => deny.Statement.some((s) => s.Effect === 'Deny' && !s.Condition && (s.Action ? actionMatches(s, action) : !list(s.NotAction).some((a) => iamGlobMatch(a, action))) && matches(s, arn));
 
+// Retired resources (deleted after the import, e.g. 9.1) stay denylisted for the sandbox but are no longer read.
 const acArns = readJson(join(REPO_ROOT, 'docs', 'migration', 'ac-production-denylist.json')).entries
+  .filter((e) => !e.retired)
   .map((e) => e.value)
   .filter((v) => v.startsWith('arn:') && !v.endsWith('/') && !v.endsWith('-') && !/cloudfront|acm:/.test(v));
 const s4rArns = readJson(join(REPO_ROOT, 'docs', 'migration', 's4r-denylist.json')).entries.map((e) => e.value).filter((v) => v.startsWith('arn:'));
@@ -75,7 +77,7 @@ describe('ac-cfn-execution', () => {
       secretsmanager: 'secretsmanager:DescribeSecret', ecr: 'ecr:DescribeRepositories', events: 'events:DescribeRule',
     };
     const targets = acArns.filter((a) => !/migration-backup|log-group|:role\/cdk-|s3:::cdk-/.test(a));
-    expect(targets.length).toBeGreaterThan(20);
+    expect(targets.length).toBeGreaterThanOrEqual(20);
     for (const arn of targets) {
       const service = arn.split(':')[2];
       expect(allows(reads[service], arn), arn).toBe(true);

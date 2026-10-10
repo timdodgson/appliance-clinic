@@ -9,6 +9,12 @@
 #
 set -euo pipefail
 
+# RETIRED (Phase 5 onwards): kept as a packaging reference only. Production is managed by CloudFormation (AcRuntimeStack)
+# through the reviewed change process (infra/production/steps/change.sh); running this script would overwrite managed
+# configuration outside it. See docs/migration/PLAN.md ("Use the old repo's deploy.sh ... DO NOT DO").
+echo "$(basename "$0") is retired: production changes go through infra/production/steps/change.sh (see CONTRIBUTING.md)." >&2
+exit 1
+
 FUNCTION="${FUNCTION:-spares4repairs-part-finder}"
 REGION="${REGION:-eu-west-1}"
 LEARNING_BUCKET="${LEARNING_BUCKET:-whichpart-learning-800960611664}"

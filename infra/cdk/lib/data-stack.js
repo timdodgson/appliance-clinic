@@ -19,8 +19,8 @@ const SECRETS = {
   'spares4repairs/dev/applianceclinic-jev': null,
   'spares4repairs/dev/applianceclinic-canonical-state-token': 'ApplianceClinic Stage C canonical state token HMAC signing secret {current, previous}',
   'spares4repairs/dev/applianceclinic-benchmark-service': 'ApplianceClinic benchmark/test runner service auth (HMAC key for x-benchmark-signature). Read by whichpart-api and the local batch runners.',
-  'spares4repairs/diag-orchestrator/bearer-token': null,
-  'spares4repairs/error-code-mcp/bearer-token': null,
+  // spares4repairs/diag-orchestrator/bearer-token and spares4repairs/error-code-mcp/bearer-token: superseded by the AC
+  // bearer secrets (7.10c), removed from the stack and deleted in Phase 9 (change 9.1-legacy-bearer-secrets).
 };
 
 /**

@@ -88,6 +88,7 @@ ACK=$(jq -c '.acknowledgedReferences // empty' "$SPEC")
 [[ -z $ACK && $STACK == AcRuntimeStack ]] && ACK=$(jq -c .acknowledgedReferences "$P5_ROOT/infra/production/steps/5.10.json")
 jq --argjson ack "${ACK:-[]}" '{step: .id, stack, allowedPhysicalIds: [.expectedChanges[] | .physicalId | select(. != null)], acknowledgedReferences: $ack,
      approvedReplacements: [.expectedChanges[] | select(.replacement == "True") | .logicalId],
+     approvedRemovals: [.expectedChanges[] | select(.action == "Remove") | .logicalId],
      expectedChanges: [.expectedChanges[] | {action, logicalId, type, physicalId, replacement}]}' "$SPEC" > "$SF"
 CS=change-${ID//./-}
 EXECUTE=0 changeset "$STACK" "$CS" "$KIND" "$T" "$SF"
@@ -122,9 +123,10 @@ make_version() {
 set_default() { aws iam set-default-policy-version --policy-arn "$POL" --version-id "$1"; sleep 15; }
 BASE_V=$(make_version "$BASE_DOC"); CHANGE_V=$(make_version "$W/change-policy.json")
 REPLACE=$(jq -c '[.expectedChanges[] | select(.replacement == "True") | .logicalId]' "$SPEC")
+REMOVE=$(jq -c '[.expectedChanges[] | select(.action == "Remove") | .logicalId]' "$SPEC")
 restore() {
   aws iam set-default-policy-version --policy-arn "$POL" --version-id "$BASE_V"
-  [[ $KIND == UPDATE && $REPLACE != '[]' ]] && protect "$STACK" >/dev/null 2>&1
+  [[ $KIND == UPDATE && ( $REPLACE != '[]' || $REMOVE != '[]' ) ]] && protect "$STACK" >/dev/null 2>&1
   return 0
 }
 trap 'restore; : > "$W/params.json"' EXIT
@@ -140,6 +142,18 @@ if [[ $KIND == UPDATE && $REPLACE != '[]' ]]; then
     {Effect: "Allow", Principal: "*", Action: "Update:Modify", Resource: "*"},
     {Effect: "Allow", Principal: "*", Action: ["Update:Replace", "Update:Delete"], Resource: [$r[] | "LogicalResourceId/\(.)"]}]}')"
   result "change $ID stack policy: Update:Replace allowed for this execution on $REPLACE only"
+fi
+if [[ $KIND == UPDATE && $REMOVE != '[]' ]]; then
+  # Phase 9: a resource the spec removes (Action Remove, checked as an approved removal) needs Update:Delete for this
+  # execution only. CloudFormation validates a stack policy against the NEW template, where a removed logical ID no
+  # longer exists, so the allow is scoped by the removed resources' types; the checked change set holds exactly the
+  # spec's changes, so nothing else can be deleted. Every AC resource is DeletionPolicy Retain: nothing physical goes.
+  TYPES=$(jq -c '[.expectedChanges[] | select(.action == "Remove") | .type] | unique' "$SPEC")
+  aws cloudformation set-stack-policy --stack-name "$STACK" --stack-policy-body "$(jq -nc --argjson r "$REPLACE" --argjson t "$TYPES" '{Statement: ([
+    {Effect: "Allow", Principal: "*", Action: "Update:Modify", Resource: "*"},
+    {Effect: "Allow", Principal: "*", Action: "Update:Delete", Resource: "*", Condition: {StringEquals: {ResourceType: $t}}}]
+    + (if ($r | length) > 0 then [{Effect: "Allow", Principal: "*", Action: ["Update:Replace", "Update:Delete"], Resource: [$r[] | "LogicalResourceId/\(.)"]}] else [] end))}')"
+  result "change $ID stack policy: Update:Delete allowed for this execution on $TYPES only, for the removals $REMOVE (DeletionPolicy Retain)"
 fi
 
 # --- 5. Execute -----------------------------------------------------------------------------------------------
