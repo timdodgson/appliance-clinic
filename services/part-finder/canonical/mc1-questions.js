@@ -552,8 +552,8 @@ const { CHECK_OUTCOME_OBSERVATION } = require('./requests.js');
 
 // ---- 4. reply ----------------------------------------------------------------------------------------
 const TO_PENDING_OPTIONS = {
-  answered: 'It answers what was asked: gives the requested value or reports the result (e.g. "it\'s clear", "yes", "no", a model number)',
-  partial: 'It answers only part of what was asked',
+  answered: 'It settles what was asked: gives the requested value or reports the result (e.g. "it\'s clear", a model number, or "yes" / "no" to a yes-or-no question)',
+  partial: 'It responds but does not settle it: answers only part of what was asked, or gives a bare "yes" / "no" to a question that offered a choice between options (e.g. "does it turn smoothly, or feel rough?" answered "yes")',
   cannot_answer: 'They cannot tell / do not know / cannot find it',
   declined: 'They refuse to answer or to do it',
   ignored: 'It does not address what was asked at all',

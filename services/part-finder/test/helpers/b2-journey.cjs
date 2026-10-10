@@ -47,7 +47,8 @@ function composeProblems(JC, P, seen) {
     for (const tok of a.requires || []) if (!JC.REQUIREMENT[tok]) out.push(`${where} unknown requirement ${tok}`);
     // Ask templates carry each requirement's fixed copy; a fixed safety-stop copy must satisfy each marker.
     for (const s of b.safety) {
-      const ok = a.kind === 'safety_stop' ? JC.REQUIREMENT[s.token].marker.test(t.replace(/[\u2018\u2019]/g, "'")) : t.includes(s.copy);
+      // a template says each requirement once: its fixed copy, or the step's own words carrying the same marker checkReply uses
+      const ok = JC.REQUIREMENT[s.token].marker.test(t.replace(/[\u2018\u2019]/g, "'"));
       if (!ok) out.push(`${where} safety ${s.token} missing from template`);
     }
     if (a.kind === 'safety_stop' && t !== JC.SAFETY_COPY[a.target]) out.push(`${where} safety copy not fixed`);

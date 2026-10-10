@@ -28,7 +28,7 @@ const FACT_LABEL = {
   whistle: 'whistle / high pitch', rattle: 'rattling', click: 'clicking', grinding: 'grinding', squeal: 'screeching / squealing',
   blockFixed: 'blockage found (cleared)', blockStuck: 'blockage that will not clear', hoseSplit: 'hose split', blockOk: 'no blockage',
   brushFixed: 'something caught in the brush bar (cleared)', brushBroken: 'brush bar broken', brushOk: 'brush bar clean, turns freely',
-  filterFixed: 'filter / bin not seated or clogged (sorted)', filterTorn: 'filter torn', filterOk: 'filters seated and clean',
+  filterFixed: 'filter / bin not seated or clogged (sorted)', filterTorn: 'filter damaged (torn or broken)', filterOk: 'filters seated and clean',
 };
 const SPEC = {
   schema: 'vac6-diag/1', FAMILY, PRIOR: ['BL', 'BB', 'BF', 'MB'], SIGNALS, FACT_LABEL,
@@ -67,7 +67,7 @@ const TASK = {
   'ask_observation:noiseType': { say: 'The kind of noise points to where it comes from.', ask: 'Is it a high-pitched whistle, a rattle or click, a grinding or screeching from the main body, or something else?' },
   'ask_check:vacuum-blockage': { say: 'A whistle or a change in pitch usually means a part-blocked airway. With it switched off, look through the hose, wand and floorhead neck and check the bin inlet.', ask: 'Did you find a blockage and clear it, is there one you can\'t shift, is the hose split, or was it all clear?' },
   'ask_check:brush-bar-clear': { say: 'A rattle or click is often something caught in the floorhead. Turn it over and remove anything stuck, cut away tangles and check the brush bar (roller) turns freely.', ask: 'Was something caught (and is it clear now), is the bar broken, or was it clean and turning freely?' },
-  'ask_check:vacuum-bin-filters': { say: 'Check the bin clicks fully home and each filter is seated properly (and dry) — a gap makes it whistle.', ask: 'Was the bin or a filter not seated or clogged (and is it sorted), is a filter torn, or was everything seated and clean?' },
+  'ask_check:vacuum-bin-filters': { say: 'Check the bin clicks fully home and each filter is seated properly (and dry) — a gap makes it whistle.', ask: 'Was the bin or a filter not seated or clogged (and is it sorted), is a filter torn or damaged, or was everything seated and clean?' },
   'ask_check:retest': { say: 'Switch it on and listen.', ask: 'Has the noise gone, or is it still there?' },
   'ask_identity:model': F.VAC_MODEL_ASK, 'ask_identity:appliance': F.VAC_APPLIANCE_ASK,
 };
@@ -84,7 +84,7 @@ const compose = ck.createCompose({
     faultPersists: ['still noisy', 'noise gone'] },
   CHECK_RESULT_COPY: { 'vacuum-blockage': { clear: 'no blockage', found_and_cleared: 'blockage cleared', found_not_cleared: 'blockage stuck', fault_seen: 'hose split' },
     'brush-bar-clear': { clear: 'brush bar clean', found_and_cleared: 'floorhead cleared', fault_seen: 'brush bar broken' },
-    'vacuum-bin-filters': { clear: 'filters seated', found_and_cleared: 'bin / filters reseated', fault_seen: 'filter torn' } },
+    'vacuum-bin-filters': { clear: 'filters seated', found_and_cleared: 'bin / filters reseated', fault_seen: 'filter damaged (torn or broken)' } },
   statusChecks: [['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'It fits by hand with the vacuum switched off — no tools needed.' }),
   PURCHASE_RE: /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(motor|bearing|fan|filter|hose|brush\s*bar)\b/i,

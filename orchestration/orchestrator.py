@@ -352,6 +352,14 @@ class Orchestrator:
         jev_model = raw.get("model") or None                        # candidateTokenMeaning == model
         jev_code = raw.get("errorCode") or None                     # candidateTokenMeaning == error_code
         token_meaning = raw.get("_tokenMeaning") or decisions.get("candidateTokenMeaning")
+        # A weak MODEL reading of the token (the family commit rule, applied to the token) is not committed: a
+        # displayed code read as a model would otherwise be dropped silently. The clarify flow asks which it is.
+        token_probs = (jev.get("probabilities") or {}).get("candidateTokenMeaning") if isinstance(jev, dict) else None
+        token_decision, st._tokenDecision = routing.token_meaning_decision(token_meaning, token_probs)
+        st._uncertainToken = None
+        if jev_model and not jev_code and token_decision == "uncertain":
+            st._uncertainToken = jev_model
+            jev_model = None
         establishes = decisions.get("latestTurnEstablishes")
         # A turn goes to the RAG (which owns diagnosis AND the deterministic safety stop) when Jev
         # classified a diagnosable symptom (raw.fault) OR flagged a safety significance (gas / shock /
@@ -466,6 +474,7 @@ class Orchestrator:
         # no prose fill/correction here.
         st._pendingIn = turn.pendingRequest if isinstance(turn.pendingRequest, dict) else None
         st._ragExclusiveClarify = False  # set by _rag_diagnose for this turn only
+        st._codeOnlyAnswer = False       # set by _compose_code_only for this turn only
         st._pendingFilled = False
         st._turnIndex = int(turn.turnIndex or 0)
         st._pendingModelTokens = [jev_model] if jev_model else []
@@ -962,6 +971,10 @@ class Orchestrator:
                                     conversation=getattr(st, "_conversation", None))
         except RagUnavailable as e:
             debug["ragError"] = str(e)[:120]
+            # The customer never saw the NextAction this state records (its issued request included): mark the
+            # canonical result degraded so the BFF does not persist it, and the next turn starts from the prior state.
+            if isinstance(debug.get("canonical"), dict):
+                debug["canonical"] = {**debug["canonical"], "degraded": "diagnose_unavailable"}
             return self._service_unavailable("symptom", "I can't run the diagnosis right now. Please try again shortly.")
         debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
         debug["ragInvoked"] = True
@@ -1319,17 +1332,38 @@ class Orchestrator:
         if getattr(st, '_codePresentNoValue', False):
             debug["codeIntake"] = "present_no_value"
             return self._code_intake_clarify(st)
-        if c.displayedCode and not (c.make and c.appliance):
-            # We already HAVE a code value but need the brand + type to look it up. The specific
-            # thing we are asking for is the make/appliance IDENTITY — not another code. Intent is
-            # therefore MAKE/APPLIANCE, never ERROR_CODE.
+        if getattr(st, "_uncertainToken", None) and not c.displayedCode:
+            # Jev could not tell whether the identifier is a displayed code or the model (weak reading): ask
+            # rather than guess. The answer is typed by Jev on the next turn like any other.
+            tok = st._uncertainToken
+            debug["identifierUncertain"] = st._tokenDecision
+            q = f"Is {tok} a code showing on the display, or is it the model number?"
+            needs = ["code_or_other"]
+            intent = "CODE_OR_MODEL"
+        elif c.displayedCode and not (c.make and c.appliance):
+            # We already HAVE a code value but need the brand and/or type to look it up: ask for exactly what
+            # is missing (the type is never asked again once known). Intent is MAKE/APPLIANCE, never ERROR_CODE.
             needs = []
             if not c.make:
                 needs.append("make")
             if not c.appliance:
                 needs.append("appliance")
-            q = ("To look up that error code I need the appliance brand and type — "
-                 "what make is it and is it a washing machine, dishwasher, oven, etc.?")
+            shown = _facing_code(st) or "that code"
+            if needs == ["make"]:
+                fam = str(c.appliance).replace("-", " ")
+                q = f"To look up {shown} I just need the make of your {fam} — which brand is it?"
+            elif needs == ["appliance"]:
+                q = f"To look up {shown} I just need the appliance type — is it a washing machine, dishwasher, oven or something else?"
+            else:
+                q = (f"To look up {shown} I need the make and the type of appliance — "
+                     "which brand is it, and is it a washing machine, dishwasher, oven or something else?")
+            # The same identity question was our last reply and nothing it asked for arrived: say why it is
+            # needed and offer a way on, rather than repeating it word for word.
+            if q == self._last_assistant_text(st):
+                missing = " and ".join("make" if n == "make" else "appliance type" for n in needs)
+                q = (f"Sorry — I still need the {missing} to look {shown} up, because the same code means different "
+                     "things on different brands. If you'd rather not say, tell me what the appliance is doing when "
+                     "the code shows and I'll help from that.")
             intent = "MAKE" if not c.make else "APPLIANCE"
         else:
             # OPEN FAULT / SYMPTOM DESCRIPTION. No code, no usable symptom yet, and no single
@@ -1477,8 +1511,8 @@ class Orchestrator:
             return None
         if getattr(resp, "safety", None) and (resp.safety or {}).get("stopUse"):
             return None
-        # A describe-the-problem question asks for no physical step, so it carries no precaution.
-        if getattr(st, "_ragExclusiveClarify", False):
+        # A describe-the-problem question, or a code meaning, asks for no physical step, so it carries no precaution.
+        if getattr(st, "_ragExclusiveClarify", False) or getattr(st, "_codeOnlyAnswer", False):
             return None
         outcome = resp.outcome
         applies = False
@@ -1549,6 +1583,7 @@ class Orchestrator:
         "APPLIANCE": ("APPLIANCE", "DISAMBIGUATION"),
         "SYMPTOM_DISCRIMINATOR": ("SYMPTOM_DISCRIMINATOR", "DIAGNOSIS"),
         "SYMPTOM_DESCRIPTION": ("SYMPTOM_DESCRIPTION", "DIAGNOSIS"),
+        "CODE_OR_MODEL": ("IDENTIFIER", "DISAMBIGUATION"),
     }
 
     def _pending_for(self, st: ConversationState, resp: "OrchestratorResponse") -> Optional[dict]:
@@ -1598,6 +1633,17 @@ class Orchestrator:
         if conf is None:
             return "possible"
         return "likely" if conf >= 0.75 else "possible"
+
+    @staticmethod
+    def _last_assistant_text(st: ConversationState) -> Optional[str]:
+        """Our own previous reply, from the client-carried conversation (structure only: role + text)."""
+        conv = getattr(st, "_conversation", None)
+        if not isinstance(conv, list):
+            return None
+        for m in reversed(conv):
+            if isinstance(m, dict) and m.get("role") == "assistant":
+                return str(m.get("content") or "").strip() or None
+        return None
 
     def _code_needs_appliance_clarify(self, st: ConversationState, mcp: dict) -> Optional[OrchestratorResponse]:
         """MCP INVALID_INPUT is USUALLY the appliance FAMILY missing (customer gave make + model +
@@ -1684,14 +1730,21 @@ class Orchestrator:
             msg = f"{shown} is {kind}, not a fault: {meaning}."
         else:
             shown = _facing_code(st, mcp)
-            msg = f"{shown} on your {st.customer.make} {st.customer.appliance} means: {meaning}."
+            fam = str(st.customer.appliance or "appliance").replace("-", " ")
+            make = str(st.customer.make or "").strip()
+            make = make[:1].upper() + make[1:] if make else ""
+            msg = f"{shown} on your {(make + ' ' + fam).strip()} means: {meaning}."
+            # The catalogue's likelyCauses are mostly fragments ("off", "stuck / not confirmed"): they stay in the
+            # structured result for the trace but are never printed as prose. The reply gives the next step instead.
+            msg += (" Tell me what it's doing when the code shows — for example whether it stops part-way or "
+                    "won't start — and I'll help you narrow it down.")
             if causes:
-                msg += " Possible causes include " + ", ".join(causes[:3]) + "."
                 prov["possibleCauses"] = Trust.L2_EVIDENCE_BACKED.value
         if checks:
             prov["suggestedChecks"] = Trust.L2_EVIDENCE_BACKED.value
         if safety:
             msg = safety["message"] + " " + msg
+        st._codeOnlyAnswer = True  # a code meaning gives no physical step, so it carries no owner precaution
         return OrchestratorResponse(
             route="", outcome=(Outcome.SAFETY_STOP.value if safety and safety["stopUse"] else Outcome.ANSWER.value),
             message=msg,
