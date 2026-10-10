@@ -32,7 +32,7 @@ const CONCLUSION = {
 };
 const OBS_COPY = {
   noHeat: ['washes cold', 'gets warm'], heatPresent: ['gets warm', null], longCycle: ['programme takes much longer than usual', null],
-  hotProgrammeUsed: ['a hot programme was used', 'an eco / quick / low-temperature programme was used'], faultPersists: ['still cold after the change', 'warm after the change'],
+  hotProgrammeUsed: ['a hot programme was used', 'a cooler programme (such as eco, quick or low temperature) was used'], faultPersists: ['still cold after the change', 'warm after the change'],
   wdDrySide: ['the problem is during drying', 'the problem is during washing'],
 };
 const CHECK_RESULT_COPY = { 'programme-setting': { clear: 'temperature setting fine', found_and_cleared: 'temperature setting changed' } };

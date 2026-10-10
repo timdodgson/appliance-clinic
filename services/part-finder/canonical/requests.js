@@ -115,12 +115,23 @@ function carriesNewFacts(c, state) {
  * M20. Write exactly one outcome onto the pending request, set resolvedTurn, clear pendingRequest.
  * M0 turns (prompt_attack / unrelated) must NOT call this (merge returns before it) — the request stays pending.
  */
+/** A cannot-answer / refusal in a message that says the model is unavailable, while the pending request is not the model. */
+function cannotIsAboutModel(req, c) {
+  const tp = c && c.reply && c.reply.toPending;
+  return Boolean(req && req.target !== 'model' && (tp === 'cannot_answer' || tp === 'declined')
+    && c.identity && c.identity.modelStatus === 'unavailable');
+}
+
 function recordOutcome(state, c, turn, before = state) {
   const req = pending(state);
   if (!req || req.outcome !== 'pending') return { state, outcome: null };
   let outcome = null;
   const chk = (c.checks || []).find((k) => k.check === req.target);
+  let reason = null;
   if (chk && ['not_done', 'declined', 'unable'].includes(chk.status)) outcome = chk.status;
+  // "I can't get to the model" while a different question is pending: the can't is about the model, not this question.
+  // The question is unsettled (re-offered once), never refused or cannot-answer.
+  else if (cannotIsAboutModel(req, c) && !targetFilled(req, c)) { outcome = 'partial'; reason = 'model_unavailable'; }
   // "Answered" means the target was filled. A reply typed as answered that recorded no value or result for the target
   // (e.g. a bare "yes" to an either/or check) settles nothing: it is partial, so the request may be re-offered once.
   else if (c.reply && c.reply.toPending === 'answered' && !targetFilled(req, c)) outcome = carriesNewFacts(c, before) ? 'superseded' : 'partial';
@@ -136,6 +147,7 @@ function recordOutcome(state, c, turn, before = state) {
   const next = clone(state);
   const r = next.requests.find((x) => x.id === req.id);
   r.outcome = outcome;
+  if (reason) r.reason = reason;
   r.resolvedTurn = turn;
   next.pendingRequest = null;
   return { state: next, outcome, request: r };
@@ -194,6 +206,7 @@ function pendingCount(state) {
 }
 
 module.exports = {
+  cannotIsAboutModel,
   CHECK_OUTCOME_OBSERVATION, OBSERVATION_GROUPS,
   SLOTS, PURPOSES, KINDS, OUTCOMES,
   pending, recordOutcome, issueRequest, requestsFor, asked, lastOutcome, wasReoffered, pendingCount,

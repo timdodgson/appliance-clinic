@@ -100,8 +100,15 @@ SAFETY_COPY.sparks_at_supply = SAFETY_COPY.supply_trip;
 const REOFFER = 'No problem if you haven\'t had a chance yet.';
 // they answered but the answer did not settle which option it was (e.g. a bare "yes" to an either/or question)
 const REOFFER_PARTIAL = 'Sorry, I didn\'t quite catch which of these it is.';
+// their reply was that the model number cannot be reached, not an answer to this question
+const REOFFER_MODEL = 'No problem about the model number — we can carry on without it; the only thing I can\'t do without it is confirm that a part fits.';
 // they looked and found it blocked / dirty but have not cleared it yet: clearing it is the next step
 const REOFFER_FOUND = 'You\'ve found it blocked, so clearing it is the next step, and that may well sort it.';
+// A question re-offered because the reply was about the model was asked one turn ago with its explanation: the
+// re-offer is the frame and the question, not the explanation again.
+function reofferTask(task, reoffer, codeNote) {
+  return { say: reoffer === REOFFER_MODEL ? '' : task.say, ask: task.ask, reoffer, codeNote };
+}
 // Re-offer framing by the typed outcome of the previous request for the same target.
 function reofferFrame(state, target) {
   // the outcome of the previous request for this target (the re-offer itself is already in the state, pending)
@@ -109,6 +116,7 @@ function reofferFrame(state, target) {
   const last = rs.length ? rs[rs.length - 1].outcome : null;
   const k = state && state.evidence && state.evidence.checks && state.evidence.checks[target];
   if (k && k.status === 'not_done' && k.result === 'found_unspecified') return REOFFER_FOUND;
+  if (last === 'partial' && rs[rs.length - 1].reason === 'model_unavailable') return REOFFER_MODEL;
   if (last === 'partial') return REOFFER_PARTIAL;
   return last === 'not_done' || (k && k.status === 'not_done') ? REOFFER : '';
 }
@@ -188,7 +196,7 @@ function createCompose(pack) {
     return {
       kind: a.kind, rule: a.rule, target: a.target,
       facts: [...factLine(state), ...extraFacts(state, a)], evidence: evidenceLines(state), latest: (state.version > 1 ? [...latestIdentity(state), ...evidenceLines(state, true)] : []),
-      task: task ? { say: task.say, ask: task.ask, reoffer: a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote } : null,
+      task: task ? reofferTask(task, a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote) : null,
       conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a) || followUpCopy(a)) : null,
       confirm: a.pending && a.pending.purpose === 'CONFIRM' ? CONFIRM_ASK : null,
       safety: (a.requires || []).map((t) => (REQUIREMENT[t] ? { token: t, copy: REQUIREMENT[t].copy } : null)).filter(Boolean),

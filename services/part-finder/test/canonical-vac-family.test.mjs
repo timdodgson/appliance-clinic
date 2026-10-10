@@ -97,6 +97,23 @@ describe('round-1 live fixes', () => {
     expect(H.play(J('vacuum-not-running'), t).last.kind).toBe('safety_stop');
   });
 });
+describe('a check the customer did, with the result unsettled (GOLD G2-VAC-03)', () => {
+  // live mc/1 answers to "cut all the hair off the roller, it still won't turn" with the brush-bar check pending
+  const split = { type: 'choice', choice: 'done_fault_seen', confidence: 0.37,
+    probabilities: { done_clear: 0, done_found_and_cleared: 0.22, done_found_not_cleared: 0.17, done_fault_seen: 0.43, done_found_unspecified: 0, done_no_result: 0.17, unsure: 0, not_done: 0.01, declined: 0, unable: 0, none: 0 } };
+  const plan = { stateAppliance: 'vacuum', roles: {}, candidates: { identifiers: [], brands: [], components: [] }, pendingCheck: ['mcPendingCheck', 'brush-bar-clear'] };
+  it('is recorded as done with no result, not dropped', () => {
+    expect(Q.adaptMc1Answers({ mcPendingCheck: split }, plan).classification.checks).toEqual([{ check: 'brush-bar-clear', status: 'done', result: null }]);
+  });
+  it('is not recorded when the answer does not say it was done', () => {
+    const unsure = { type: 'choice', choice: 'none', confidence: 0.4, probabilities: { done_no_result: 0.3, not_done: 0.3, none: 0.4 } };
+    expect(Q.adaptMc1Answers({ mcPendingCheck: unsure }, plan).classification.checks).toEqual([]);
+  });
+  it('then moves on instead of concluding the check it already did', () => {
+    const r = H.play(J('vacuum-brush-not-turning'), [V('brush-bar-not-spinning', [O('brushNotSpinning')]), C({ checks: [K('brush-bar-clear', 'done', null)], observations: [O('faultPersists')] })]);
+    expect(r.rules).toEqual(['VB10:brush-bar-clear', 'VB11:vacType']);
+  });
+});
 describe('ownership', () => {
   const cases = [
     [[V('lost-suction')], 'vacuum-low-suction'], [[V('pulsing')], 'vacuum-pulsing-cutting-out'], [[V('cuts-out')], 'vacuum-pulsing-cutting-out'],
