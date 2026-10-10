@@ -93,7 +93,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Has the noise gone now?',
   OBS_COPY: { knockingNoise: ['knocking', null], rattlingNoise: ['rattling', null], scrapingNoise: ['scraping', null], squealNoise: ['squealing', null], grindingNoise: ['rumbling / grinding', null],
-    humNoise: ['humming', null], clickingNoise: ['clicking', null], dryerVented: ['vented', null], dryerCondenser: ['condenser', null], dryerHeatPump: ['heat pump', null], faultPersists: ['still noisy', 'noise gone'] },
+    humNoise: ['humming', null], clickingNoise: ['clicking', null], dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null], dryerHeatPump: ['a heat-pump-type dryer', null], faultPersists: ['still noisy', 'noise gone'] },
   CHECK_RESULT_COPY: { 'drum-foreign-object': { clear: 'nothing loose found', found_and_cleared: 'item found and removed', found_not_cleared: 'item stuck out of reach' },
     'drum-by-hand': { clear: 'smooth by hand', fault_seen: 'rough / squeaky by hand' } },
   statusChecks: [['retest', 'retest']],
