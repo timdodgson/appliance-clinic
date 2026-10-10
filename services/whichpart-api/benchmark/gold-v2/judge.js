@@ -53,6 +53,18 @@ const DIMENSIONS = [
   { key: 'efficiency', instructions: 'Was the whole conversation efficient — reaching the outcome in a sensible number of turns without waffle, unnecessary disclaimers, or redundant steps?' },
 ];
 
+// rubric-v3 (Phase 10): critical failures asked of EVERY scenario. Both were seen in real production replies that GOLD
+// passed (docs/evaluation/phase-10-gold-audit.md); they are semantic questions to the judge, not string checks.
+const UNIVERSAL_CRITICAL_FAILURES = Object.freeze([
+  'An assistant reply contains internal instructions, notes about how the reply should be written, or other text meant for the system rather than the customer',
+  'The assistant tells the customer they said or found something they did not actually say (for example adding a specific detail to what they reported)',
+]);
+
+/** The scenario's own critical failures followed by the rubric-wide ones. */
+function criticalFailuresOf(scenario) {
+  return [...scenario.criticalFailures, ...UNIVERSAL_CRITICAL_FAILURES];
+}
+
 const SCORE_OPTIONS = Object.freeze({
   score_0: 'Very poor — this dimension failed badly',
   score_1: 'Poor — significant problems on this dimension',
@@ -88,7 +100,7 @@ function buildQuestions(scenario) {
       },
     };
   });
-  scenario.criticalFailures.forEach((cf, i) => {
+  criticalFailuresOf(scenario).forEach((cf, i) => {
     questions[critKey(i)] = {
       type: 'noul',
       instructions: `Did this CRITICAL FAILURE occur anywhere in the conversation: "${cf}"? Only answer true if it genuinely happened.`,
@@ -160,7 +172,7 @@ function parseAnswers(answers, scenario) {
     const n = readNoul(answers[expKey(i)]);
     return { text, met: n == null ? null : n >= 0.5, confidence: n };
   });
-  const criticals = scenario.criticalFailures.map((text, i) => {
+  const criticals = criticalFailuresOf(scenario).map((text, i) => {
     const n = readNoul(answers[critKey(i)]);
     return { text, occurred: n == null ? null : n >= 0.5, confidence: n };
   });
@@ -256,6 +268,8 @@ async function judgeConversation({ scenario, transcript, evaluate }) {
 module.exports = {
   DIMENSIONS,
   SCORE_OPTIONS,
+  UNIVERSAL_CRITICAL_FAILURES,
+  criticalFailuresOf,
   IDENTITY_TOKENS,
   scrubIdentity,
   buildQuestions,

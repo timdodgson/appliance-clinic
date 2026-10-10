@@ -46,11 +46,12 @@ const view = (o) => Object.assign({ reply: 'ok', needsModel: false, safety: fals
 const makeCallApi = (fn) => async (messages) => fn(messages);
 
 describe('schema', () => {
-  // GOLD-v2.2: GOLD-v2.0 after the value audit (WM-02 removed as a duplicate of WM-01; 5 scenarios rewritten; WD-04 corrected).
-  it('loads exactly 49 unique scenarios with the expected family distribution', () => {
-    expect(set.scenarios.length).toBe(49);
+  // GOLD-v2.3: GOLD-v2.2 (the value-audited set) unchanged, plus six scenarios from real production failure shapes.
+  it('loads exactly 55 unique scenarios with the expected family distribution', () => {
+    expect(set.scenarios.length).toBe(55);
     const ids = set.scenarios.map((s) => s.id);
-    expect(new Set(ids).size).toBe(49);
+    expect(new Set(ids).size).toBe(55);
+    for (const id of ['G2-EC-01', 'G2-EC-02', 'G2-EC-03', 'G2-WM-09', 'G2-WM-10', 'G2-VAC-06']) expect(ids).toContain(id);
     expect(ids).not.toContain('G2-WM-02');
     const counts = {};
     for (const s of set.scenarios) counts[s.family] = (counts[s.family] || 0) + 1;
@@ -63,8 +64,8 @@ describe('schema', () => {
     }
   });
   it('rejects a bad scenario set (wrong count, duplicate id, forbidden field)', () => {
-    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.2', scenarios: [] })).toThrow();
-    expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.1' })).toThrow(/scenarioSetVersion/);
+    expect(() => schema.validateScenarioSet({ scenarioSetVersion: 'GOLD-v2.3', scenarios: [] })).toThrow();
+    expect(() => schema.validateScenarioSet({ ...set, scenarioSetVersion: 'GOLD-v2.2' })).toThrow(/scenarioSetVersion/);
     const dup = JSON.parse(JSON.stringify(set));
     dup.scenarios[1].id = dup.scenarios[0].id;
     expect(() => schema.validateScenarioSet(dup)).toThrow(/duplicate/);
@@ -82,7 +83,7 @@ describe('judge — typed questions', () => {
     const crits = Object.keys(q).filter((k) => k.startsWith('crit_'));
     expect(dims.length).toBe(10);
     expect(exps.length).toBe(SCEN.journeyExpectations.length);
-    expect(crits.length).toBe(SCEN.criticalFailures.length);
+    expect(crits.length).toBe(SCEN.criticalFailures.length + judge.UNIVERSAL_CRITICAL_FAILURES.length);
     expect(q.dim_safety.type).toBe('choice');
     expect(q.exp_0.type).toBe('noul');
   });
@@ -246,13 +247,46 @@ describe('rubric-v2 safety dimension', () => {
   });
 });
 
+describe('rubric-v3 rubric-wide critical failures', () => {
+  it('every scenario is asked the reply-fidelity critical failures after its own', () => {
+    const q = judge.buildQuestions(SCEN);
+    const n = SCEN.criticalFailures.length;
+    expect(judge.UNIVERSAL_CRITICAL_FAILURES).toHaveLength(2);
+    expect(q[`crit_${n}`].instructions).toMatch(/internal instructions/);
+    expect(q[`crit_${n + 1}`].instructions).toMatch(/did not actually say/);
+    expect(q[`crit_${n + 2}`]).toBeUndefined();
+  });
+  it('a rubric-wide critical failure fails the scenario like any other', async () => {
+    const n = SCEN.criticalFailures.length;
+    const evaluate = async ({ questions }) => {
+      const a = fakeAnswers(questions, {});
+      a[`crit_${n}`] = { type: 'noul', noul: 0.9 };
+      return a;
+    };
+    const r = await runner.runScenario({ scenario: SCEN, callApi: makeCallApi(() => view({ reply: 'Please check the filter. Is it clear?' })), evaluate });
+    expect(r.status).toBe('FAIL');
+    expect(r.verdict.criticalFailures.join(' ')).toMatch(/internal instructions/);
+  });
+});
+
+describe('COMPOSE telemetry', () => {
+  it('template turns are counted from the structured benchmark status, never from text', () => {
+    const results = [{ id: 'X', family: 'vacuum', status: 'PASS', verdict: { dimensions: {}, criticalFailures: [] }, transcript: [
+      { userText: 'a', view: view({ benchmark: { compose: { source: 'compose', violations: [] } } }) },
+      { userText: 'b', view: view({ benchmark: { compose: { source: 'template', violations: ['prompt-echo'], error: null } } }) }] }];
+    const agg = runner.aggregate(results);
+    expect(agg.composeTemplateTurns).toEqual([{ id: 'X', turn: 2, violations: ['prompt-echo'], error: null }]);
+    expect(runner.formatReport(agg, results, V.versionMetadata())).toMatch(/COMPOSE template instead of COMPOSE: 1 \(X t2: prompt-echo\)/);
+  });
+});
+
 describe('version provenance + legacy separation', () => {
-  it('stamps GOLD-v2.2 / jev / rubric-v2 / policy constants', () => {
+  it('stamps GOLD-v2.3 / jev / rubric-v3 / policy constants', () => {
     const m = V.versionMetadata({ productSha: 'abc1234' });
-    expect(m.benchmark).toBe('GOLD-v2.2');
-    expect(m.scenarioSetVersion).toBe('GOLD-v2.2');
+    expect(m.benchmark).toBe('GOLD-v2.3');
+    expect(m.scenarioSetVersion).toBe('GOLD-v2.3');
     expect(m.judgeModel).toBe('jev');
-    expect(m.judgePromptVersion).toBe('gold-v2-rubric-v2');
+    expect(m.judgePromptVersion).toBe('gold-v2-rubric-v3');
     expect(m.productSha).toBe('abc1234');
     expect(m.passMin).toBe(V.PASS_MIN);
     expect(m.safetyMin).toBe(V.SAFETY_MIN);

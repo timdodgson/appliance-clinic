@@ -694,6 +694,9 @@ async function handleEvent(event) {
   let overlay = null;
   try { overlay = await loadOverlayCached(); } catch { overlay = null; }
   const view = toWhichPartView(orch, rid, overlay);
+  // ADR 0016: a turn whose decision path could not run is an error, not a normal reply (the copy is the
+  // orchestrator's own; the flag lets the client offer a retry and the transcript count it as failed).
+  if (orch.outcome === 'SERVICE_UNAVAILABLE') view.error = true;
   if (canonCtx.token) view.stateToken = canonCtx.token;
   // Idempotency marker (+ cached view) only for a turn whose canonical state was persisted.
   if (canonResult.written && canonCtx.clientTurnId) {
@@ -701,7 +704,8 @@ async function handleEvent(event) {
   }
   // Attached after the idempotency cache is written, so a cached view never carries a live-test status.
   if (live) view.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: canonSummary, tokenOut: Boolean(canonCtx.token), mergedState: liveMerged });
-  if (bench) view.benchmark = benchStatus({ ctx: canonCtx, summary: canonSummary, tokenOut: Boolean(canonCtx.token), mergedState: liveMerged });
+  if (bench) view.benchmark = Object.assign(benchStatus({ ctx: canonCtx, summary: canonSummary, tokenOut: Boolean(canonCtx.token), mergedState: liveMerged }),
+    { compose: composeOf(orch._diagnosticTrace) });
   const cr = orch.codeResult || null;
   const mcpInvoked = orch.route === 'ERROR_CODE' || orch.route === 'ERROR_CODE_AND_SYMPTOMS';
   const ragInvoked = orch.route === 'SYMPTOMS' || orch.route === 'ERROR_CODE_AND_SYMPTOMS';
@@ -1031,6 +1035,12 @@ function firstSentence(text) {
   const m = text.match(/^.*?[.!?](\s|$)/);
   return (m ? m[0] : text).trim();
 }
+/** The canonical-control stage's COMPOSE record (source, violations, error class), for the benchmark status. */
+function composeOf(trace) {
+  const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
+  const c = st && st.detail && st.detail.compose;
+  return c ? { source: c.source || null, violations: Array.isArray(c.violations) ? c.violations.slice(0, 8) : [], error: c.error || null } : null;
+}
 /** #21: true when the canonical-control stage reports a COMPOSE provider failure (structured, not text). */
 function composeProviderFailed(trace) {
   const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
@@ -1063,6 +1073,7 @@ module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
 module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
 module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
 module.exports.composeProviderFailed = composeProviderFailed;
+module.exports.composeOf = composeOf;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setKnowledgeAdminStore = setKnowledgeAdminStore;
 module.exports.knowledgeAdmin = knowledgeAdmin;

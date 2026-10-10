@@ -23,23 +23,23 @@
 const fs = require('fs');
 const path = require('path');
 
-// GOLD-v2.2 (49): GOLD-v2.0 after the value audit, with G2-WD-04 corrected to washer-dryer facts (v2.2). The earlier
-// sets (scenarios.v2_0.json, scenarios.v2_1.json) are kept unchanged as historical sets.
-const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_2.json');
+// GOLD-v2.3 (55): GOLD-v2.2 unchanged plus six scenarios reproducing the shapes of real production failures (Phase 10,
+// docs/evaluation/phase-10-gold-audit.md). The earlier sets (scenarios.v2_0/1/2.json) are kept unchanged as history.
+const SCENARIOS_PATH = path.join(__dirname, 'scenarios.v2_3.json');
 
-const SCENARIO_SET_VERSION = 'GOLD-v2.2';
-const SCENARIO_COUNT = 49;
+const SCENARIO_SET_VERSION = 'GOLD-v2.3';
+const SCENARIO_COUNT = 55;
 
 const EXPECTED_FAMILY_DISTRIBUTION = Object.freeze({
-  'washing-machine': 7,
+  'washing-machine': 10,
   'washer-dryer': 4,
-  'tumble-dryer': 6,
-  dishwasher: 6,
+  'tumble-dryer': 7,
+  dishwasher: 7,
   'fridge-freezer': 6,
   'oven-cooker': 6,
   hobs: 4,
   microwave: 5,
-  vacuum: 5,
+  vacuum: 6,
 });
 
 const REQUIRED_SCENARIO_FIELDS = [
