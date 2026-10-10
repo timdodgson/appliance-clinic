@@ -232,6 +232,21 @@ FAMILY_PROCEED_MIN_MARGIN = 0.55       # required top-vs-runner-up separation (i
 _NON_FAMILY_CHOICES = {"unknown", "uncertain", "none", "", None}
 
 
+_CODE_OR_MODEL_Q = "Is {tok} a code showing on the display, or is it the model number?"
+_CODE_OR_MODEL_RE = re.compile(r"^Is (\S{1,20}) a code showing on the display, or is it the model number\?$")
+
+
+def code_or_model_question(tok: str) -> str:
+    """Our fixed question when Jev could not tell a displayed code from a model number."""
+    return _CODE_OR_MODEL_Q.format(tok=tok)
+
+
+def code_or_model_token(assistant_text) -> Optional[str]:
+    """The token our own code-or-model question named, if that question was our previous reply (our fixed copy)."""
+    m = _CODE_OR_MODEL_RE.match(str(assistant_text or "").strip())
+    return m.group(1) if m else None
+
+
 def token_meaning_decision(token_meaning, probabilities=None,
                            min_conf=FAMILY_PROCEED_MIN_CONFIDENCE, min_margin=FAMILY_PROCEED_MIN_MARGIN):
     """Whether Jev's MODEL reading of an identifier token is strong enough to COMMIT as the model.

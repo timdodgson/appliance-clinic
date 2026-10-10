@@ -472,6 +472,12 @@ class Orchestrator:
                 code = routing.code_from_cue(latest_evidence)
             if not code and token_meaning != "model":
                 code = routing.slash_compound_code(latest_evidence)
+            # The customer is answering OUR "is it a code or the model?" question and Jev reads the conversation as a
+            # code one: the code is the token that question named (read from our own fixed question, never their text).
+            if not code and (jev_says_code or decisions.get("symptomFamily") == "error_display"):
+                asked = routing.code_or_model_token(self._last_assistant_text_of(getattr(turn, "conversation", None)))
+                if asked:
+                    code = asked
         explicit_model_tokens = [jev_model] if jev_model else []
 
         # PENDING-SLOT STATE remains deterministic (what the assistant asked for last turn); the
@@ -488,7 +494,7 @@ class Orchestrator:
         # with no resolved code value), not a prose scan. Used by the clarify flow to ask for the
         # EXACT code rather than a generic description.
         st._codePresentNoValue = (decisions.get("symptomFamily") == "error_display"
-                                  and not (jev_code or c.displayedCode))
+                                  and not (jev_code or code or c.displayedCode))
 
         if make:
             c.make = make
@@ -1342,7 +1348,7 @@ class Orchestrator:
             # rather than guess. The answer is typed by Jev on the next turn like any other.
             tok = st._uncertainToken
             debug["identifierUncertain"] = st._tokenDecision
-            q = f"Is {tok} a code showing on the display, or is it the model number?"
+            q = routing.code_or_model_question(tok)
             needs = ["code_or_other"]
             intent = "CODE_OR_MODEL"
         elif c.displayedCode and not (c.make and c.appliance):
@@ -1639,10 +1645,13 @@ class Orchestrator:
             return "possible"
         return "likely" if conf >= 0.75 else "possible"
 
-    @staticmethod
-    def _last_assistant_text(st: ConversationState) -> Optional[str]:
+    @classmethod
+    def _last_assistant_text(cls, st: ConversationState) -> Optional[str]:
         """Our own previous reply, from the client-carried conversation (structure only: role + text)."""
-        conv = getattr(st, "_conversation", None)
+        return cls._last_assistant_text_of(getattr(st, "_conversation", None))
+
+    @staticmethod
+    def _last_assistant_text_of(conv) -> Optional[str]:
         if not isinstance(conv, list):
             return None
         for m in reversed(conv):
