@@ -163,7 +163,7 @@ yet in `runtime-overrides.json`.
 | `/part-finder` contract (`baseline contract verify`) | Status, CORS, NDJSON framing and the fields S4R reads | Before and after every engine release |
 | Smoke (`baseline smoke`) | Four journeys against the pre-migration baseline | Before and after every runtime release |
 | Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
-| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.2, 49 scenarios) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 49/49 twice ([final gate](../evaluation/gold-v2-final-gate.md)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
+| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.3, 55 scenarios, rubric v3) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 55/55 twice ([final gate](../evaluation/gold-v2-3-final-gate.md)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
 
 Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
 (Behaviour is still *produced* by regular expressions in places — safety cues, brand lists, legacy rewrites; see

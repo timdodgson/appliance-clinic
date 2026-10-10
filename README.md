@@ -77,9 +77,9 @@ The diagnosis engine also still serves a legacy `/part-finder` contract for the 
 | Typecheck (`npm run typecheck`) | Strict TypeScript declarations for the `/part-finder` frames, `cs/1` state, engine configuration and prompt registry |
 | Build equivalence (CI) | Rebuilt Lambda zips and container images match the recorded references byte for byte |
 | `/part-finder` contract, smoke | Before and after every production release |
-| **GOLD v2** | 49 whole-conversation scenarios, judged by Jev on a 10-dimension rubric with critical failures |
+| **GOLD v2** | 55 whole-conversation scenarios (GOLD-v2.3), judged by Jev on a 10-dimension rubric with critical failures |
 
-The final Phase 8 gate was **49/49 in two consecutive full runs** ([gold-v2-final-gate.md](docs/evaluation/gold-v2-final-gate.md)). The fixes along the way were product fixes; the tests were not weakened ([value audit](docs/evaluation/gold-v2-value-audit.md)).
+The latest gate (Phase 10) was **55/55 in two consecutive full runs** ([gold-v2-3-final-gate.md](docs/evaluation/gold-v2-3-final-gate.md)); Phase 8's was 49/49 on v2.2 ([gold-v2-final-gate.md](docs/evaluation/gold-v2-final-gate.md)). The fixes along the way were product fixes; the tests were not weakened ([value audit](docs/evaluation/gold-v2-value-audit.md)).
 
 ## AWS and CDK
 
