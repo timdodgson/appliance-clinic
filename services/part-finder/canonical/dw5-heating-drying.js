@@ -110,7 +110,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it heating and drying normally now?',
   OBS_COPY: { noHeat: ['stays cold', 'gets hot'], heatPresent: ['gets hot', null], dishesWet: ['dishes wet', null], onlyPlasticsWet: ['only plastics wet', 'glass / china wet too'],
-    hotProgrammeUsed: ['normal / intensive programme', 'eco / quick programme'], longCycle: ['takes much longer', null], faultPersists: ['still the same', 'fixed'] },
+    hotProgrammeUsed: ['a normal or intensive programme', 'a cooler programme such as eco or quick'], longCycle: ['takes much longer', null], faultPersists: ['still the same', 'fixed'] },
   CHECK_RESULT_COPY: { 'rinse-aid': { clear: 'rinse aid full, normal setting', found_and_cleared: 'rinse aid empty / low (sorted)' } },
   statusChecks: [['hot-wash-test', 'intensive test'], ['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'Switch the dishwasher off at the socket before fitting it — the heater sits inside, so if you\'re not confident an appliance engineer can fit and test it.' }),

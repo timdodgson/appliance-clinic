@@ -67,12 +67,12 @@ describe('F1: a reply never shows the customer our instructions', () => {
 });
 
 describe('F2: a recorded category is not presented as the customer\'s words', () => {
-  it('a damaged filter is recorded as damaged (torn or broken), never as "torn" alone', () => {
+  it('a damaged filter is recorded as damaged, never with a kind of damage the customer did not give ("torn")', () => {
     const t = transportFor([VAC, { checks: [K('vacuum-bin-filters', 'done', 'fault_seen')] }]);
     const b = JV.brief(t.state, { kind: 'recommend_part', target: 'vacuum-filter', rule: 'VP21', conclusion: { component: 'vacuum-filter' } }, null, {});
     const said = [...b.evidence, ...b.latest].join(' | ');
-    expect(said).toMatch(/filter damaged \(torn or broken\)/);
-    expect(said).not.toMatch(/filter torn(?! or)/);
+    expect(said).toMatch(/filter damaged/);
+    expect(said).not.toMatch(/torn/);
   });
   it('the prompt frames reported items as recorded categories', async () => {
     await vacRespond([VAC, { checks: [K('vacuum-bin-filters', 'done', 'fault_seen')] }], 'What you found points to the filter. I have shown the matching filter below.');

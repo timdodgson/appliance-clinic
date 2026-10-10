@@ -23,7 +23,7 @@ const SIGNALS = {
     filterTorn: SA, hoseSplit: SA, blockStuck: SA, brushBroken: SA, restoredAfterFilterFix: SA, restoredAfterBlockFix: SA, restoredAfterBrushFix: SA },
 };
 const FACT_LABEL = {
-  filterFixed: 'bin full / filter clogged (sorted)', filterTorn: 'filter damaged (torn or broken)', filterOk: 'bin empty, filters clean and dry',
+  filterFixed: 'bin full / filter clogged (sorted)', filterTorn: 'filter damaged', filterOk: 'bin empty, filters clean and dry',
   blockFixed: 'blockage found (cleared)', blockStuck: 'blockage that will not clear', hoseSplit: 'hose split', blockOk: 'hose, wand and head clear', whistle: 'high-pitched whistle',
   brushFixed: 'brush bar tangled (cleared)', brushBroken: 'brush bar broken', brushOk: 'brush bar clean, turns freely',
   cordless: 'cordless', corded: 'corded', robot: 'robot',
@@ -63,7 +63,7 @@ const FAMILY_LABEL = { 'bin-or-filters': 'a full bin or clogged filters', 'airfl
   'internal-seal-or-motor-area': 'an internal seal or the motor area' };
 const COMPONENT_LABEL = { 'vacuum-filter': 'filter', 'vacuum-hose': 'hose', 'vacuum-brush-bar': 'brush bar' };
 const TASK = {
-  'ask_check:vacuum-bin-filters': { say: 'Weak suction is nearly always airflow. With it switched off (battery out or unplugged), empty the bin or change the bag, then wash the filters in cold water only and leave them to dry fully — at least 24 hours. A damp filter chokes the airflow too.', ask: 'Was the bin full or a filter clogged (and is it sorted), is a filter torn or damaged, or was it all clean already?' },
+  'ask_check:vacuum-bin-filters': { say: 'Weak suction is nearly always airflow. With it switched off (battery out or unplugged), empty the bin or change the bag, then wash the filters in cold water only and leave them to dry fully — at least 24 hours. A damp filter chokes the airflow too.', ask: 'Was the bin full or a filter clogged (and is it sorted), is a filter damaged, or was it all clean already?' },
   'ask_check:vacuum-blockage': { say: 'Detach the hose and wand and look through each one — a coin dropped through should fall straight out. Check the neck of the floorhead and the bin inlet too.', ask: 'Did you find a blockage and clear it, is there one you can\'t shift, is the hose split, or was it all clear?' },
   'ask_check:brush-bar-clear': { say: 'Turn the floorhead over and cut away any hair or thread wrapped round the brush bar (roller), then check it turns freely by hand.', ask: 'Was it tangled (and is it clear now), is the brush bar broken, or was it already clean?' },
   'ask_check:retest': { say: 'Try it on a hard floor with the filters fully dry.', ask: 'Is the suction back to normal now, or still weak?' },
@@ -79,7 +79,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the suction back to normal now?',
   OBS_COPY: { weakSuction: ['weak suction', null], whistleNoise: ['whistling', null], vacuumCordless: ['cordless', null], vacuumCorded: ['corded', null], vacuumRobot: ['robot', null], faultPersists: ['still weak', 'suction back'] },
-  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'bin and filters clean', found_and_cleared: 'bin / filters sorted', fault_seen: 'filter damaged (torn or broken)' },
+  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'bin and filters clean', found_and_cleared: 'bin / filters sorted', fault_seen: 'filter damaged' },
     'vacuum-blockage': { clear: 'no blockage', found_and_cleared: 'blockage cleared', found_not_cleared: 'blockage stuck', fault_seen: 'hose split' },
     'brush-bar-clear': { clear: 'brush bar clean', found_and_cleared: 'brush bar cleared', fault_seen: 'brush bar broken' } },
   statusChecks: [['retest', 'retest']],

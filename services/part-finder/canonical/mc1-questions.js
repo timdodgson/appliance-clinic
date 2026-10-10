@@ -33,6 +33,12 @@ const choiceOf = (a) => {
   return a.choice;
 };
 const noulTrue = (a) => Boolean(a && a.type === 'noul' && typeof a.noul === 'number' && a.noul >= NOUL_TRUE);
+// Check-result options that mean the customer did the check (status 'done' in CHECK_STATUS), and the probability mass
+// over them that reports the check as done when no single result reaches CHOICE_MIN.
+const DONE_RESULTS = ['done_clear', 'done_found_and_cleared', 'done_found_not_cleared', 'done_fault_seen', 'done_no_result'];
+const DONE_MASS = 0.7;
+const doneMass = (a) => (a && a.type === 'choice' && a.probabilities
+  ? DONE_RESULTS.reduce((t, k) => t + (Number(a.probabilities[k]) || 0), 0) : 0);
 const confOf = (a) => (a && typeof a.confidence === 'number' ? a.confidence : (a && typeof a.noul === 'number' ? a.noul : 0));
 
 const LATEST = 'the LATEST customer message';
@@ -928,7 +934,10 @@ function adaptMc1Answers(answers, plan, { messageId = null } = {}) {
     const [status, result] = CHECK_STATUS[ch];
     c.checks.push({ check: key, status, result: STATUS_ONLY_CHECKS.has(key) ? null : result });
   };
-  const reported = (rk) => pick(rk);
+  // A check result Jev cannot settle (its answer under the choice threshold) is still a report that the check was DONE
+  // when the done-with-a-result options together carry DONE_MASS: the customer did it, which result is unclear. It is
+  // recorded as done with no result (as "done it" is), never dropped — a dropped check is asked again.
+  const reported = (rk) => pick(rk) || (doneMass(a[rk]) >= DONE_MASS ? 'done_no_result' : null);
   if (plan && plan.pendingCheck) addCheck(plan.pendingCheck[1], reported(plan.pendingCheck[0]));
   if (noulTrue(a.mcReportBelt)) addCheck('drive-belt', 'done_fault_seen');
   if (noulTrue(a.mcReportDamper)) addCheck('shock-absorbers', 'done_fault_seen');
