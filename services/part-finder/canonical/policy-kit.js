@@ -273,10 +273,30 @@ function makeStepPolicy(cfg) {
     if (!(v > 1) || (s.requests || []).some((r) => r.askedTurn === v - 1)) return false;
     return !freshEvidence(s);
   }
+  /** Whether turn `t` recorded a customer observation, check result or model (current values and their history). */
+  function turnHasEvidence(s, t) {
+    const ev = s.evidence || {};
+    const at = (f) => f && (f.turn === t || (f.history || []).some((h) => h && h.turn === t));
+    return Object.values(ev.observations || {}).some((f) => at(f) && f.basis !== 'derived')
+      || Object.values(ev.checks || {}).some(at) || at(s.identity && s.identity.model);
+  }
+  /**
+   * The follow-ups already given for this conclusion: the turns before this one, after the conclusion turn (the turn
+   * after the last request), that added nothing new. Read from cs/1 (requests and evidence turns); nothing is latched.
+   */
+  function followUpsGiven(s) {
+    const lastAsk = (s.requests || []).reduce((m, r) => Math.max(m, r.askedTurn || 0), 0);
+    let n = 0;
+    for (let t = s.version - 1; t > lastAsk + 1; t -= 1) {
+      if (turnHasEvidence(s, t)) break;
+      n += 1;
+    }
+    return n;
+  }
   function concludeWith(s, kind, target, reason, rule, conclusion, fallbackCheck = null) {
     const oc = conclusion.handoff !== 'plumbing' ? (outstandingOwnerCheck(s) || fallbackCheck) : null;
     const again = concludedAgain(s);
-    const c = { ...conclusion, ...(oc ? { ownerCheck: oc } : {}), ...(again ? { repeat: true } : {}) };
+    const c = { ...conclusion, ...(oc ? { ownerCheck: oc } : {}), ...(again ? { repeat: true, followUp: followUpsGiven(s) + 1 } : {}) };
     return action(kind, target, reason, rule, { conclusion: c, ...(oc && !again ? { requires: ((cfg.REQUIRES || {})[oc] || []).slice() } : {}) });
   }
   function alternativesOf(d) {
