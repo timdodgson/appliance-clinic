@@ -767,6 +767,8 @@ class Orchestrator:
         # precaution never reached the customer (that branch uses only the short question). Carry it
         # here so safe framing is reliable on those turns too — narrow and additive (see
         # _owner_safety_note); never on identity asks, safety stops, reassurance or grounded answers.
+        if getattr(st, "_ragExclusiveClarify", False) and resp.message and resp.message.strip() == (self._last_assistant_text(st) or ""):
+            resp.message = self._DESCRIBE_AGAIN
         note = self._owner_safety_note(st, resp)
         if note and note not in (resp.message or ""):
             resp.message = (note + " " + (resp.message or "")).strip()
@@ -1390,6 +1392,10 @@ class Orchestrator:
                 # it is not asked in the same breath, and no menu of faults is offered.
                 fam = str(c.appliance).replace("-", " ")
                 q = f"What is the main thing the {fam} is doing wrong?"
+            # Asked this exact question last turn and got no usable description: ask it differently, still one
+            # question, rather than repeating it word for word (GOLD-v2.3 G2-DW-05).
+            if q == self._last_assistant_text(st):
+                q = self._DESCRIBE_AGAIN
             needs = ["description"]
             intent = "SYMPTOM_DESCRIPTION"
         debug["clarifyIntent"] = intent
@@ -1644,6 +1650,11 @@ class Orchestrator:
         if conf is None:
             return "possible"
         return "likely" if conf >= 0.75 else "possible"
+
+    # The describe-the-problem question asked a second way (one question, no menu), used when the same question was
+    # our last reply and the customer still gave no usable description.
+    _DESCRIBE_AGAIN = ("No problem — let's take it one step at a time. When you start a programme, what happens "
+                       "that shouldn't, or what doesn't happen that should?")
 
     @classmethod
     def _last_assistant_text(cls, st: ConversationState) -> Optional[str]:
