@@ -1,27 +1,48 @@
 {
-  "description": "Phase 7 onwards: the reviewed changes to AcRuntimeStack. The template is generated from a capture of live (infra/production/capture-runtime.sh) with these overrides applied, so each production change is a reviewed edit of this file. Empty: the template equals live.",
+  "description": "Phase 7 onwards: the reviewed changes to AcRuntimeStack. The template is generated from a capture of live (infra/production/capture-runtime.sh) with these overrides applied, so each production change is a reviewed edit of this file. Empty: the template equals live. Phase 11: every live environment variable is declared here (a secret by its pinned dynamic reference, a private endpoint by SHA-256 under env.digests), so a behavioural switch never lives only on the deployed function; tools/migration/bin/check-overrides-drift.mjs fails on any difference.",
   "functions": {
     "whichpart-api": {
       "env": {
         "set": {
-          "COGNITO_USER_POOL_ID": "eu-west-1_r4fXXEdxC",
-          "COGNITO_CLIENT_ID": "2hgmm8m02n78agi46kae4p2eja",
+          "ACQ_JUDGE_MODEL": "gpt-5.6-terra",
           "AC_ADMIN_GROUP": "admin",
-          "RATE_LIMIT_MODE": "enforce",
-          "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
-          "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
-          "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
-          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
           "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
-          "OPENAI_SECRET_ID": "applianceclinic/production/openai",
+          "CANONICAL_CONTROL_JOURNEYS": "wm-not-draining+wm-not-spinning+wm-leaking+wm-not-filling+wm-overfilling+wm-door+wm-excessive-vibration+wm-noisy+wm-not-heating+dw-not-draining+dw-not-filling+dw-leaking+dw-not-cleaning+dw-not-heating-drying+dw-door-not-starting+ff-not-cooling+ff-too-cold-freezing+ff-noisy+ff-leaking-water+ff-ice-frost-build-up+ff-door-seal-door+ff-not-running-dead+td-not-heating+td-not-drying+td-drum-not-turning+td-noisy+td-stops-mid-cycle+td-water-container-drain+td-door-not-starting+oven-not-heating+oven-overheating+oven-grill-not-working+oven-fan-not-working+oven-dead-no-power+oven-door+oven-tripping+cooker-ignition-gas+hob-zone-not-heating+hob-no-power+hob-overheating-control+hob-ignition-gas+mw-not-heating+mw-not-starting+mw-door+mw-turntable+mw-noisy-sparking+mw-starts-when-door-closes+vacuum-low-suction+vacuum-pulsing-cutting-out+vacuum-not-running+vacuum-brush-not-turning+vacuum-battery-runtime+vacuum-noisy+wd-not-draining+wd-not-spinning+wd-leaking+wd-not-filling+wd-overfilling+wd-door+wd-excessive-vibration+wd-noisy+wd-not-heating-wash+wd-not-drying",
+          "CANONICAL_MODE": "control",
+          "CANONICAL_TOKEN_PREVIOUS_SECRET_ID": "spares4repairs/dev/applianceclinic-canonical-state-token",
+          "CANONICAL_TOKEN_SECRET_ID": "applianceclinic/production/canonical-state-token",
+          "COGNITO_CLIENT_ID": "2hgmm8m02n78agi46kae4p2eja",
+          "COGNITO_USER_POOL_ID": "eu-west-1_r4fXXEdxC",
+          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
+          "ENGINE_URL": "https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/",
           "JEV_SECRET_ID": "applianceclinic/production/jev",
-          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}"
+          "LEARNING_BUCKET": "whichpart-learning-800960611664",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "MCP_HEALTH_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/health",
+          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws",
+          "OPENAI_SECRET_ID": "applianceclinic/production/openai",
+          "ORCHESTRATOR_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
+          "ORCHESTRATOR_URL": "https://ajpz33wv4yezh6g2ayv5ite3zu0ruviq.lambda-url.eu-west-1.on.aws/",
+          "RATE_LIMIT_MODE": "enforce",
+          "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
+          "RECALL_TABLE": "whichpart-recalls",
+          "S4R_PRODUCT_BASE_URL": "https://d1hrb3pgx61xww.cloudfront.net",
+          "TRANSCRIPT_INACTIVE_MINUTES": "120",
+          "TRANSCRIPT_RETENTION_DAYS": "90",
+          "TRANSCRIPT_REVIEW_ENABLED": "1",
+          "TRANSCRIPT_REVIEW_MAX_PER_RUN": "3",
+          "TRANSCRIPT_REVIEW_MODEL": "",
+          "TRANSCRIPT_REVIEW_PROVIDER": "jev",
+          "TRANSCRIPT_TABLE": "whichpart-transcripts",
+          "WHICHPART_WEB_BUCKET": "whichpart-web-800960611664"
         },
         "unset": [
           "AC_ADMIN_SUBS"
-        ]
+        ],
+        "digests": {
+          "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
+        }
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
@@ -44,10 +65,12 @@
       },
       "env": {
         "set": {
-          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
           "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
-          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}"
+          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/",
+          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
+          "RAG_URL": "https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/"
         }
       },
       "code": {
@@ -65,8 +88,9 @@
       },
       "env": {
         "set": {
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
-          "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb"
+          "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb",
+          "LEARNING_BUCKET": "whichpart-learning-800960611664",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}"
         }
       }
     },
@@ -83,12 +107,17 @@
       },
       "env": {
         "set": {
+          "AC_BEARER_VERSIONS": "engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
-          "OPENAI_SECRET_ID": "applianceclinic/production/openai",
-          "JEV_SECRET_ID": "applianceclinic/production/jev",
-          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
           "ENGINE_SIGNING_MODE": "log",
-          "AC_BEARER_VERSIONS": "engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a"
+          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
+          "JEV_SECRET_ID": "applianceclinic/production/jev",
+          "LEARNING_BUCKET": "whichpart-learning-800960611664",
+          "LM_MAX_TOKENS": "900",
+          "OPENAI_SECRET_ID": "applianceclinic/production/openai"
+        },
+        "digests": {
+          "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
         }
       }
     }

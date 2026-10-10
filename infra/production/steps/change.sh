@@ -20,6 +20,7 @@
 #      the spec names, and is restored straight after
 #   5. execute; drift IN_SYNC; the same template is a no-op; termination protection and the stack policy are set
 #   6. CloudTrail after delivery: infra/production/check-cloudtrail.sh change:<id>
+#   A record-only spec (expectedChanges []) stops after 2: the template must equal the deployed one and be a no-op.
 source "$(dirname "$0")/../lib.sh"
 require_caller
 SPEC=$(cd "$(dirname "${1:?spec}")" && pwd)/$(basename "$1")
@@ -74,6 +75,12 @@ if [[ $KIND == UPDATE ]]; then
     | .Parameters |= ((. // {}) | with_entries(select((.key | test("^Env[A-Za-z0-9]+TOKEN$")) | not)))' "$1"; }
   cmp -s <(rest "$W/deployed.json") <(rest "$T") || { diff <(rest "$W/deployed.json") <(rest "$T") >&2 || true; stop "the template changes resources the spec does not name"; }
   result "change $ID template: equal to the deployed $STACK template for every resource but $(jq -r 'join(", ")' <<<"$NAMED")"
+  # Phase 11: a record-only spec (no expected changes) declares live state in the overrides; it must be a no-op.
+  if [[ $NAMED == '[]' ]]; then
+    expect_noop "$STACK" "$T"
+    result "change $ID record-only: the template equals the deployed $STACK template and is a no-op; nothing executed"
+    exit 0
+  fi
 else
   stack_exists "$STACK" && stop "$STACK already exists"
   [[ "$(jq -c '[.Resources | keys[]] | sort' "$T")" == "$(jq -c 'sort' <<<"$NAMED")" ]] || stop "the template's resources are not exactly the spec's"
@@ -181,5 +188,10 @@ d=$(drift "$STACK")
 result "change $ID drift: $d; $(awk '{print $1"="$3}' "$P5_OUT/$STACK.drift.txt" | paste -sd' ')"
 [[ $d == *IN_SYNC* ]] || stop "drift after change $ID is not IN_SYNC"
 expect_noop "$STACK" "$T"
+# Phase 11: the deployed functions match the declared overrides exactly (environment, code, image); fails on drift.
+if [[ $STACK == AcRuntimeStack ]]; then
+  (cd "$P5_TOOLS" && node bin/check-overrides-drift.mjs > "$W/overrides-drift.json") || { cat "$W/overrides-drift.json" >&2; stop "deployed configuration differs from runtime-overrides.json"; }
+  result "change $ID overrides: deployed environment, code and images equal runtime-overrides.json"
+fi
 result "change $ID no-op: the same template contains no changes"
 result "change $ID CloudTrail: check after delivery with infra/production/check-cloudtrail.sh change:$ID"
