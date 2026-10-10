@@ -1,0 +1,22 @@
+# gitleaks configuration: the default rules, plus an allowlist of reviewed false positives (Phase 9 audit).
+# Add an entry only with a reason. Run: `gitleaks dir --redact .` and `gitleaks git --redact .` (see CONTRIBUTING.md).
+title = "appliance-clinic"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Reviewed false positives"
+regexTarget = "line"
+regexes = [
+  # error-codes/enrichment/generated/enrichment.json: content-hash keys of generated enrichment records, not credentials
+  '''"enrichmentKey"\s*:''',
+  # build/reference/*.image.json: the Python base image's public release-signing GPG key fingerprint (ENV GPG_KEY)
+  '''GPG_KEY=[0-9A-F]{40}''',
+  # deterministic signing secrets that exist only in tests, marked on the line
+  '''//.*\btest only\b''',
+]
+paths = [
+  # the change-set checker's own test: a fake value proving that a literal secret in a template is detected
+  '''tools/migration/test/changeset\.test\.js''',
+]

@@ -4,8 +4,12 @@
   "description": "Appliance Clinic runtime build and test tooling. The runtime itself is deployed from services/, orchestration/ and error-codes/; this file only pins what the tests and builds need.",
   "engines": { "node": ">=20 <23" },
   "scripts": {
+    "setup:python": "bash build/scripts/setup-python-envs.sh",
     "test:runtime": "node build/test/run-tests.mjs",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test:tooling": "npm --prefix tools/migration test",
+    "lint": "npm --prefix tools/migration run lint",
+    "build:zips": "python3 build/scripts/package_zips.py --out-dir build/out && python3 build/scripts/compare_zip.py build/reference/spares4repairs-part-finder.zip.json build/out/spares4repairs-part-finder.zip && python3 build/scripts/compare_zip.py build/reference/whichpart-api.zip.json build/out/whichpart-api.zip"
   },
   "devDependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.1091.0",

@@ -26,15 +26,7 @@ jobs:
           python-version: '3.12'
       - run: npm ci
       - name: Python test environments (production package versions)
-        run: |
-          python -m venv .venv-orchestrator
-          .venv-orchestrator/bin/pip install --disable-pip-version-check -q \
-            -r orchestration/deploy/requirements.txt -c build/python/orchestrator.constraints.txt \
-            -r build/python/requirements-test.txt
-          python -m venv .venv-error-code-mcp
-          .venv-error-code-mcp/bin/pip install --disable-pip-version-check -q \
-            -r error-codes/mcp/deploy/requirements.txt -c build/python/error-code-mcp.constraints.txt \
-            -r build/python/requirements-test.txt
+        run: npm run setup:python
       - run: npm run test:runtime
 
   # Phase 8: strict TypeScript over the contract declarations (types/), the checks that the runtime still matches them,
