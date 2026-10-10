@@ -26,7 +26,7 @@ const SIGNALS = {
     filterTorn: SA, hoseSplit: SA, blockStuck: SA, brushBroken: SA, ...RESTORED },
 };
 const FACT_LABEL = {
-  pulsing: 'pulsing / surging', filterFixed: 'filter clogged / damp (sorted)', filterTorn: 'filter torn', filterOk: 'filters clean and fully dry',
+  pulsing: 'pulsing / surging', filterFixed: 'filter clogged / damp (sorted)', filterTorn: 'filter damaged (torn or broken)', filterOk: 'filters clean and fully dry',
   blockFixed: 'blockage found (cleared)', blockStuck: 'blockage that will not clear', hoseSplit: 'hose split', blockOk: 'no blockage', whistle: 'whistling',
   brushFixed: 'brush bar jammed (cleared)', brushBroken: 'brush bar broken', brushOk: 'brush bar turns freely',
   shortRun: 'runs only a short time', noCharge: 'will not charge', runtimeNormal: 'charges and runs its normal time', cordless: 'cordless', corded: 'corded', robot: 'robot',
@@ -74,7 +74,7 @@ const FAMILY_LABEL = { 'bin-or-filters': 'clogged or damp filters', 'airflow-blo
   'battery-or-charging': 'the battery or charging', 'internal-motor-or-electronics': 'the motor or electronics inside' };
 const COMPONENT_LABEL = { 'vacuum-filter': 'filter', 'vacuum-hose': 'hose', 'vacuum-brush-bar': 'brush bar' };
 const TASK = {
-  'ask_check:vacuum-bin-filters': { say: 'Pulsing on and off is usually the vacuum protecting itself because the airflow is restricted. With it switched off (battery out or unplugged), empty the bin, then wash the filters in cold water and let them dry fully for at least 24 hours — a filter that is even slightly damp causes pulsing.', ask: 'Was a filter clogged or damp (and is it sorted), is a filter torn, or were they clean and dry already?' },
+  'ask_check:vacuum-bin-filters': { say: 'Pulsing on and off is usually the vacuum protecting itself because the airflow is restricted. With it switched off (battery out or unplugged), empty the bin, then wash the filters in cold water and let them dry fully for at least 24 hours — a filter that is even slightly damp causes pulsing.', ask: 'Was a filter clogged or damp (and is it sorted), is a filter torn or damaged, or were they clean and dry already?' },
   'ask_check:vacuum-blockage': { say: 'Detach the wand and floorhead and look through each part, and check the bin inlet — a coin dropped through the wand should fall straight out.', ask: 'Did you find a blockage and clear it, is there one you can\'t shift, is a hose split, or was it all clear?' },
   'ask_check:brush-bar-clear': { say: 'A jammed brush bar can also make it cut in and out. Turn the floorhead over, clear any hair or thread from the brush bar (roller) and check it turns freely by hand.', ask: 'Was it jammed or tangled (and is it clear now), is it broken, or did it turn freely?' },
   'ask_observation:vacType': { say: 'With the airflow clear, the type matters next.', ask: 'Is it a cordless (battery) vacuum, a corded one, or a robot?' },
@@ -94,7 +94,7 @@ const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running steadily now?',
   OBS_COPY: { whistleNoise: ['whistling', null], shortRuntime: ['runs only a short time', 'runs its normal time'], wontCharge: ['won\'t charge', null],
     vacuumCordless: ['cordless', null], vacuumCorded: ['corded', null], vacuumRobot: ['robot', null], cutsOut: ['cuts out', null], faultPersists: ['still pulsing', 'running steadily'] },
-  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'filters clean and dry', found_and_cleared: 'filters sorted', fault_seen: 'filter torn' },
+  CHECK_RESULT_COPY: { 'vacuum-bin-filters': { clear: 'filters clean and dry', found_and_cleared: 'filters sorted', fault_seen: 'filter damaged (torn or broken)' },
     'vacuum-blockage': { clear: 'no blockage', found_and_cleared: 'blockage cleared', found_not_cleared: 'blockage stuck', fault_seen: 'hose split' },
     'brush-bar-clear': { clear: 'brush bar turns freely', found_and_cleared: 'brush bar cleared', fault_seen: 'brush bar broken' } },
   statusChecks: [['retest', 'retest']],

@@ -85,6 +85,8 @@ function targetFilled(req, c) {
     const obsKey = CHECK_OUTCOME_OBSERVATION[t];
     return Boolean(obsKey && (c.observations || []).some((o) => o.key === obsKey));
   }
+  // the CONFIRM question ("is it working normally now?") is answered by the typed resolution outcome
+  if (t === 'resolution') return Boolean((c.reply && c.reply.outcome) || (c.observations || []).some((o) => o.key === 'faultPersists'));
   if (OBSERVATION_GROUPS[t]) return (c.observations || []).some((o) => OBSERVATION_GROUPS[t].includes(o.key));
   return (c.observations || []).some((o) => o.key === t);
 }
@@ -119,6 +121,9 @@ function recordOutcome(state, c, turn, before = state) {
   let outcome = null;
   const chk = (c.checks || []).find((k) => k.check === req.target);
   if (chk && ['not_done', 'declined', 'unable'].includes(chk.status)) outcome = chk.status;
+  // "Answered" means the target was filled. A reply typed as answered that recorded no value or result for the target
+  // (e.g. a bare "yes" to an either/or check) settles nothing: it is partial, so the request may be re-offered once.
+  else if (c.reply && c.reply.toPending === 'answered' && !targetFilled(req, c)) outcome = carriesNewFacts(c, before) ? 'superseded' : 'partial';
   else if (c.reply && ['answered', 'partial', 'cannot_answer', 'declined'].includes(c.reply.toPending)) outcome = c.reply.toPending;
   else if (targetFilled(req, c)) outcome = 'answered';
   // The customer did not answer, but moved the conversation on with new typed facts: the request is superseded by
