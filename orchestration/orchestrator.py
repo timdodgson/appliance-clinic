@@ -392,8 +392,13 @@ class Orchestrator:
         # and the diagnosis regresses to a generic clarify. Structured Jev state only; a code-display
         # family is NOT a diagnosable symptom (it belongs to the code path).
         real_symptom = bool(symptom_family) and symptom_family not in ("none", "uncertain", "error_display")
+        # A code conversation in which the LATEST message reports what the appliance is doing (Jev: the turn
+        # establishes a symptom, of a real symptom family) carries a symptom too: the code stays known and the turn
+        # routes to code + symptoms, instead of repeating the code meaning and dropping what the customer said.
+        code_then_symptom = code_case and establishes == "symptom" and real_symptom
         jev_symptom = (bool(raw.get("fault"))
                        or jev_hazard
+                       or code_then_symptom
                        or ((diagnostic_turn or real_symptom) and not code_case))
 
         # MAKE stays a STRUCTURAL brand-catalogue lookup (recognising a KNOWN brand token is not

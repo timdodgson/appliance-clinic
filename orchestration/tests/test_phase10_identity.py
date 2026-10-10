@@ -78,5 +78,18 @@ r = od._flow_canonical(st, {"key": "wm-not-draining", "nextAction": {"kind": "as
 check("diagnose failure -> service unavailable", r.outcome == Outcome.SERVICE_UNAVAILABLE.value, r.outcome)
 check("...and the canonical result is marked degraded (the BFF will not persist it)", debug["canonical"].get("degraded") == "diagnose_unavailable", debug["canonical"])
 
+# GOLD-v2.3 G2-EC-02 (found by the new scenario): after the code meaning, the customer's symptom reached nobody and
+# the same code answer was repeated. A latest turn that establishes a real symptom carries a symptom.
+from orchestration.model import TurnInput
+def loaded(decisions, error_code="F01"):
+    ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService(), InMemoryStateStore())
+    ol.rag.understand = lambda **kw: {"jev": {"decisions": decisions}, "understand": {"errorCode": error_code, "applianceType": "tumble-dryer"}}
+    return ol._load(TurnInput(message="x", sessionId="ec02", make="hotpoint"))
+base = {"candidateTokenMeaning": "error_code", "userIntent": "EVIDENCE_UPDATE", "partReadiness": "diagnosis_only",
+        "applianceFamily": "tumble-dryer", "applianceFamilyProvenance": "customer_named"}
+check("code + a latest symptom report -> symptom present (code stays)", loaded({**base, "symptomFamily": "other", "latestTurnEstablishes": "symptom"})._sympt is True)
+check("code + 'still showing the code' (error_display) -> code path only", loaded({**base, "symptomFamily": "error_display", "latestTurnEstablishes": "symptom"})._sympt is False)
+check("code + an identity answer -> code path only", loaded({**base, "symptomFamily": "other", "latestTurnEstablishes": "identity"})._sympt is False)
+
 print(f"\nPhase 10 identity: {passed} passed / {failed} failed  (total {passed + failed})")
 sys.exit(0 if failed == 0 else 1)
