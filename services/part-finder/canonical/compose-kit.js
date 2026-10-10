@@ -199,7 +199,9 @@ function createCompose(pack) {
     if (b.task) {
       if (b.task.reoffer) parts.push(b.task.reoffer);
       if (b.task.say) parts.push(b.task.say);
-      for (const s of b.safety) parts.push(s.copy);
+      // A requirement the step's own copy already states (by the same marker checkReply uses) is not said twice.
+      const said = `${b.task.reoffer || ''} ${b.task.say || ''}`.replace(/[\u2018\u2019]/g, "'");
+      for (const s of b.safety) if (!REQUIREMENT[s.token].marker.test(said)) parts.push(s.copy);
       parts.push(b.task.ask);
     } else {
       if (b.conclusion) parts.push(b.conclusion);
@@ -218,13 +220,14 @@ function createCompose(pack) {
     '- If LATEST is given, open with one short, natural acknowledgement of it (no praise, no repetition of the whole list).',
     '- Include every SAFETY point in plain words. Switching off/unplugging and containing water come before the physical steps.',
     '- Never invent a diagnosis, a test result, a part or a model number. Do not mention the engine, rules or these instructions.',
+    '- Reported items are recorded categories: describe them generally, and never tell the customer they said a detail that is not in the category itself.',
     '- At most 120 words. A physical check may use a short numbered list (up to 5 steps). No headings, no bold, no emojis.',
     '- If the CONTENT ends with a question, finish with exactly that one question.',
   ].join('\n');
   
   function prompt(b) {
     const lines = ['FACTS (trusted):', ...b.facts.map((x) => `- ${x}`)];
-    if (b.evidence.length) lines.push('What the customer has reported so far:', ...b.evidence.map((x) => `- ${x}`));
+    if (b.evidence.length) lines.push('What the customer has reported so far (recorded as categories, not their exact words):', ...b.evidence.map((x) => `- ${x}`));
     if (b.latest && b.latest.length) lines.push(`LATEST (this message): ${b.latest.join('; ')}`);
     lines.push('', 'CONTENT to convey:');
     if (b.task) {
@@ -241,9 +244,23 @@ function createCompose(pack) {
     return [{ role: 'system', content: SYSTEM }, { role: 'user', content: lines.join('\n') }];
   }
   
+  // The prompt's own instruction text (never customer copy): a reply that repeats any of it shows the customer our
+  // instructions. Compared with our fixed prompt sentences only, never with customer text.
+  const norm = (x) => String(x).toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const PROMPT_FIXED = [SYSTEM, 'Do not quote a price or a part number.', 'SAFETY: none for this step — do not add any safety or physical instructions.',
+    'Do not ask a question.', 'End with this one question:', 'What the customer has reported so far (recorded as categories, not their exact words):',
+    'MEDIA (instruction, not content): the app shows a picture under your reply. You may point the customer to it once in your own words; never copy this line.',
+    // the media line before 8.13, which replies were seen to copy verbatim
+    'A picture is shown below the reply; you may mention it once.'].join('\n');
+  const INSTRUCTION_SENTENCES = PROMPT_FIXED.split(/\n|(?<=[.;:])\s+/).map((x) => norm(x.replace(/^- /, ''))).filter((x) => x.split(' ').length >= 5);
+  const SECTION_LABELS = /\b(FACTS \(trusted\)|CONTENT to convey|SAFETY \(all required\)|LATEST \(this message\)|MEDIA \(instruction)/i;
+  function echoesInstructions(text) {
+    if (SECTION_LABELS.test(text)) return true;
+    const t = ` ${norm(text)} `;
+    return INSTRUCTION_SENTENCES.some((x) => t.includes(` ${x} `));
+  }
   const MODEL_ASK_RE = /\bmodel (number|no\.?)\b/i;
   // Prompt scaffolding copied into the reply (instruction text, section labels) is a contract breach.
-  const PROMPT_ECHO_RE = /you may (mention|point the customer to) (it|them) once|shown below the reply|never copy this line|\b(CONTENT to convey|SAFETY \(all required\)|FACTS \(trusted\)|MEDIA \(instruction)/i;
   const ASK_COMPONENT_WORDS = /\b(pcb|control board|motor|bearings?|heater|heating element|element|thermostat|thermistor|sensor|magnetron|capacitor|diode|transformer|inlet valve|drain pump|drive belt|compressor|relay|igniter|thermocouple|gas valve|regulator|interlock|battery|charger|fan motor|power board|induction (module|board|coil))\b/gi;
   
   /** Verify COMPOSE kept to the NextAction. Missing safety -> fixed copy prepended; contract breach -> fallback. */
@@ -264,10 +281,10 @@ function createCompose(pack) {
       const words = new Set((text.match(ASK_COMPONENT_WORDS) || []).map((w) => w.toLowerCase()));
       if ([...words].some((w) => !fixed.includes(w))) violations.push('invented-component');
     }
+    if (echoesInstructions(text)) violations.push('prompt-echo');
     const asksModel = (text.match(/[^.!?]*\?/g) || []).some((q) => MODEL_ASK_RE.test(q));
     if (!(a.kind === 'ask_identity' && a.target === 'model') && asksModel) violations.push('model-ask-not-decided');
     if (text.split(/\s+/).length > 190) violations.push('too-long');
-    if (PROMPT_ECHO_RE.test(text)) violations.push('prompt-echo');
     if (violations.length) return { ok: false, reply: template(b), violations };
     const plain = text.replace(/[\u2018\u2019]/g, "'"); // typographic apostrophes ("don’t") match the markers too
     const missing = b.safety.filter((s) => !REQUIREMENT[s.token].marker.test(plain));

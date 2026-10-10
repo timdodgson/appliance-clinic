@@ -244,6 +244,15 @@ function createCanonicalRuntime(deps) {
     } catch (e) { return []; }
   }
 
+  function composeErrorClass(e) {
+    const m = String((e && e.message) || e || '');
+    const status = (m.match(/\bstatus (\d{3})\b/) || [])[1];
+    if (status) return `http_${status}`;
+    if (/abort|timeout|timed out/i.test(m)) return 'timeout';
+    if (e && e.name && e.name !== 'Error') return String(e.name).slice(0, 40);
+    return 'error';
+  }
+
   /** Word the NextAction (COMPOSE, wording only; fixed copy for safety stops / declines). Never throws. */
   async function word(JC, a, b, seed, provider) {
     const C = deps.compose;
@@ -265,7 +274,10 @@ function createCanonicalRuntime(deps) {
       violations.push(...chk.violations);
       return { reply: chk.reply, source: chk.ok ? 'compose' : 'template', violations, composeMs };
     } catch (e) {
-      return { reply: JC.template(b), source: 'template', violations: ['compose_failed'], composeMs: null };
+      // The reason is recorded (class and status only, never the provider's body), so a template turn is explainable.
+      const composeError = composeErrorClass(e);
+      console.warn(JSON.stringify({ evt: 'canonical-compose-failed', error: composeError }));
+      return { reply: JC.template(b), source: 'template', violations: ['compose_failed'], composeMs: null, composeError };
     }
   }
 
@@ -297,7 +309,7 @@ function createCanonicalRuntime(deps) {
       id: 'canonical-control', label: `Canonical journey control ${j.key} (NextAction -> COMPOSE wording only)`, evidence: 'DERIVED',
       summary: `${a.rule} ${a.kind} ${a.target || ''} (${w.source})`.trim(),
       detail: { nextAction: a, diagnostics: j.diagnostics, partGate: j.partGate, issuedRequest: j.issuedRequest || null,
-        compose: { source: w.source, violations: w.violations, latencyMs: w.composeMs, outputChars: w.reply.length, totalMs: Date.now() - t0 },
+        compose: { source: w.source, violations: w.violations, latencyMs: w.composeMs, outputChars: w.reply.length, totalMs: Date.now() - t0, ...(w.composeError ? { error: w.composeError } : {}) },
         media: media.map((m) => m.id), parts: parts.map((p) => p.partNo || null) },
     };
     return {
@@ -310,7 +322,7 @@ function createCanonicalRuntime(deps) {
         canonicalControl: { journey: j.key, nextAction: a, compose: { source: w.source, violations: w.violations }, control: true },
         diagnosticTrace: { schemaVersion: '1.0', capturedAt: new Date().toISOString(), stages: [stage] },
       },
-      metric: { journey: j.key, rule: a.rule, kind: a.kind, target: a.target, source: w.source, violations: w.violations, composeMs: w.composeMs },
+      metric: { journey: j.key, rule: a.rule, kind: a.kind, target: a.target, source: w.source, violations: w.violations, composeMs: w.composeMs, ...(w.composeError ? { composeError: w.composeError } : {}) },
     };
   }
 
