@@ -193,7 +193,7 @@ describe('final-gate findings (10.9)', () => {
   });
   it('category copy says what was reported: a cleaned dishwasher filter, a charger that only seems fine', () => {
     const src = (f) => require('node:fs').readFileSync(new URL(`../canonical/${f}`, import.meta.url), 'utf8');
-    expect(src('dw1-not-draining.js')).toContain("found_and_cleared: 'filter was blocked and has been cleaned'");
+    expect(src('dw1-not-draining.js')).toContain("found_and_cleared: 'filter cleaned'");
     for (const f of ['vac3-not-running.js', 'vac5-battery.js']) expect(src(f)).toContain("clear: 'charger seems fine (a light came on)'");
   });
   it('saying that a picture is shown under the reply is not an echo; the instruction half is', async () => {
