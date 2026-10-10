@@ -65,7 +65,7 @@ const CONCLUSION = {
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the hob working now?',
-  OBS_COPY: { noPower: ['no lights at all', 'lights come on'], faultPersists: ['still not working', 'working now'] },
+  OBS_COPY: { noPower: ['no lights at all', 'not completely dead'], faultPersists: ['still not working', 'working now'] },
   CHECK_RESULT_COPY: { 'power-supply': { clear: 'isolator and breaker on', found_and_cleared: 'isolator / breaker sorted' }, 'child-lock': { clear: 'no lock', found_and_cleared: 'lock off now' } },
   statusChecks: [['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL: {}, CONCLUSION }),

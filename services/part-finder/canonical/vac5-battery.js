@@ -87,7 +87,7 @@ const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running for its normal time now?',
   OBS_COPY: { shortRuntime: ['runs only a short time', 'runs its normal time'], wontCharge: ['won\'t charge', null], vacuumCordless: ['cordless', null], vacuumCorded: ['corded', null], vacuumRobot: ['robot', null],
     faultPersists: ['still short', 'normal runtime'] },
-  CHECK_RESULT_COPY: { 'vacuum-charger-check': { clear: 'charger fine', found_and_cleared: 'charging sorted', fault_seen: 'charging light never on' },
+  CHECK_RESULT_COPY: { 'vacuum-charger-check': { clear: 'charger seems fine (a light came on)', found_and_cleared: 'charging sorted', fault_seen: 'charging light never on' },
     'programme-setting': { clear: 'normal mode', found_and_cleared: 'boost mode off' }, 'vacuum-bin-filters': { clear: 'filters clean', found_and_cleared: 'filters cleaned' } },
   statusChecks: [['retest', 'retest']],
   conclusionCopy: ck.makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION, fitNote: 'Most cordless batteries clip or screw on with the vacuum switched off — use only a battery listed for your model.' }),

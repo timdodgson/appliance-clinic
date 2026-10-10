@@ -262,7 +262,8 @@ function createCompose(pack) {
   const PROMPT_FIXED = [SYSTEM, 'Do not quote a price or a part number.', 'SAFETY: none for this step — do not add any safety or physical instructions.',
     'Do not ask a question.', 'End with this one question:', 'What the customer has reported so far (recorded as categories, not their exact words):',
     'LATEST (this message, recorded as categories):', 'Open with one short acknowledgement of this message in your own words, suited to what it was.',
-    'MEDIA (instruction, not content): the app shows a picture under your reply. You may point the customer to it once in your own words; never copy this line.',
+    // the media line's instruction half only: "the app shows a picture under your reply" is fine to say to a customer
+    'You may point the customer to it once in your own words; never copy this line.',
     // the media line before 8.13, which replies were seen to copy verbatim
     'A picture is shown below the reply; you may mention it once.'].join('\n');
   const INSTRUCTION_SENTENCES = PROMPT_FIXED.split(/\n|(?<=[.;:])\s+/).map((x) => norm(x.replace(/^- /, ''))).filter((x) => x.split(' ').length >= 5);
@@ -327,7 +328,11 @@ const HANDOFF_COPY = {
 function followUpCopy(a) {
   const c = a.conclusion || {};
   const next = c.ownerCheck ? 'The check I described is still the best next step when you get the chance, and if it doesn\'t help, ' : '';
-  const tail = c.handoff === 'none' || !HANDOFF_COPY[c.handoff] ? 'just let me know what you find.' : HANDOFF_COPY[c.handoff].replace(/^./, (x) => x.toLowerCase());
+  // with no owner check left to do, "let me know what you find" asks for something the customer may not be able to give
+  const tail = c.handoff === 'none' || !HANDOFF_COPY[c.handoff]
+    ? (c.ownerCheck ? 'just let me know what you find.'
+      : c.confidence === 'likely' ? 'just let me know if anything changes.' : 'if you can\'t check it, that\'s fine — an appliance engineer can look at it safely.')
+    : HANDOFF_COPY[c.handoff].replace(/^./, (x) => x.toLowerCase());
   return `No problem — nothing changes from what I said above. ${next}${next ? tail : tail.replace(/^./, (x) => x.toUpperCase())}`;
 }
 function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, REASON = {}, fitNote = 'Switch the machine off and unplug it before fitting it; if you\'d rather not, an appliance engineer can fit it.' }) {
