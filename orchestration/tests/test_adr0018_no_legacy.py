@@ -210,3 +210,24 @@ def test_untyped_symptom_is_intake():
     resp = run(rag, message="my washing machine is acting up")
     assert resp.outcome == "CLARIFICATION_REQUIRED" and resp.route == "CLARIFY"
     assert rag.diagnose_calls == []
+
+
+def test_code_then_unowned_symptom_is_unsupported_not_the_code_meaning_again():
+    """Code-then-symptom: the code meaning was given on turn 1; a typed problem no journey owns on turn 2 is UNSUPPORTED,
+    never the same MCP reply repeated."""
+    st = cs1_state(appliance="tumble-dryer", establishment="established", make="hotpoint", codes=("F01",), problem=True, version=2)
+    st["problems"][0]["journey"] = {"value": "noisy", "basis": "stated", "turn": 2, "status": "active", "history": []}
+    rag = Rag(canonical=merged(state=st))
+    resp = run(rag, message="Customer: F01 on my Hotpoint tumble dryer\nCustomer: it makes a grinding noise")
+    assert resp.outcome == "UNSUPPORTED"
+    assert rag.diagnose_calls == []
+    # the same code and symptom in ONE message: the code's meaning (the MCP) answers it
+    st1 = copy.deepcopy(st); st1["version"] = 1; st1["identity"]["displayedCodes"][0]["turn"] = 1
+    resp1 = run(Rag(canonical=merged(state=st1, version=1, priorVersion=0)), message="F01 on my Hotpoint tumble dryer and it makes a grinding noise")
+    assert resp1.route == "ERROR_CODE"
+
+
+def test_error_code_only_placeholder_is_not_a_typed_problem():
+    st = cs1_state(appliance="tumble-dryer", establishment="established", version=2, problem=True)
+    st["problems"][0]["journey"] = {"value": "error-code-only", "basis": "stated", "turn": 2, "status": "active", "history": []}
+    assert Orchestrator._unowned_problem(st) is None

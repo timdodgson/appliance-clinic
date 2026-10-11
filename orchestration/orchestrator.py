@@ -593,7 +593,9 @@ class Orchestrator:
             r = Route.ERROR_CODE
         unowned = self._unowned_problem(merged)
         if r == Route.ERROR_CODE_AND_SYMPTOMS:
-            r = Route.ERROR_CODE            # the code's meaning comes from the MCP; the symptom has no journey
+            # The code's meaning comes from the MCP. Once it was given on an earlier turn, a typed problem no journey owns is
+            # said plainly rather than answered with the same code meaning again.
+            r = Route.UNSUPPORTED if (unowned and c.appliance and self._code_answered_earlier(merged)) else Route.ERROR_CODE
         elif r == Route.SYMPTOMS:
             r = Route.UNSUPPORTED if (unowned and c.appliance) else Route.CLARIFY
         debug["route"] = r.value
@@ -771,7 +773,15 @@ class Orchestrator:
         active = [p for p in (state or {}).get("problems") or [] if isinstance(p, dict) and p.get("status") == "active"]
         j = active[-1].get("journey") if active else None
         j = j.get("value") if isinstance(j, dict) else j     # a cs/1 Fact
-        return j if isinstance(j, str) and j and j != "none" else None
+        # 'error-code-only' is a placeholder (a code with no described behaviour), not a problem to diagnose
+        return j if isinstance(j, str) and j and j not in ("none", "error-code-only") else None
+
+    @staticmethod
+    def _code_answered_earlier(state: dict) -> bool:
+        """The active displayed code was stated on an earlier turn than this one (cs/1 identity.displayedCodes)."""
+        codes = [f for f in ((state or {}).get("identity") or {}).get("displayedCodes") or [] if isinstance(f, dict) and f.get("status", "active") == "active"]
+        turn, ver = (codes[-1].get("turn") if codes else None), (state or {}).get("version")
+        return isinstance(turn, int) and isinstance(ver, int) and turn < ver
 
     def _flow_hazard(self, st: ConversationState, hazard: str, debug: dict) -> OrchestratorResponse:
         """A hazard with no journey to carry it: the canonical safety stop, from cs/1, in the fixed stop copy."""

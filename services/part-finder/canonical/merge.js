@@ -66,6 +66,9 @@ function mergeProblemFact(old, value, turn, corrected) {
   const cur = old || emptyFact();
   if (cur.value == null) return { fact: newFact(value, 'stated', turn), rule: 'M1' };
   if (cur.value === value) return { fact: cur.basis === 'stated' ? cur : { ...cur, basis: 'stated' }, rule: 'M2' };
+  // M4b: 'error-code-only' is a placeholder journey (a code with no described behaviour yet). The behaviour the customer
+  // then describes replaces it; the displayed code itself stays in identity.displayedCodes.
+  if (cur.value === 'error-code-only') return { fact: supersedeFact(cur, value, 'stated', turn, 'update'), rule: 'M4b' };
   if (corrected) return { fact: supersedeFact(cur, value, 'stated', turn, 'correction'), rule: 'M3' };
   if (cur.basis !== 'stated') return { fact: supersedeFact(cur, value, 'stated', turn, 'update'), rule: 'M4' };
   return { fact: { ...cur, conflict: { value, basis: 'stated', turn } }, rule: 'M5' };
