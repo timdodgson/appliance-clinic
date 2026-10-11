@@ -1,0 +1,66 @@
+{
+  "id": "13.3-bff-canonical-explicit-errors",
+  "description": "ADR 0018 (BFF): in canonical control mode an AC turn is canonical or an explicit error. A turn whose canonical state could not be prepared gets an explicit error (degraded reason) and is not sent to the orchestrator; a reply whose canonical result degraded or could not be recorded is not shown as a normal answer; SERVICE_UNAVAILABLE carries the degraded reason; an invalid or expired token starts a fresh canonical session (reported as stateReset). Files: index.js, conversation-state.js. Code only. Previous code IUTJtrmSvJpeov8Xa7HwnfRnYFsCaqPJa/XGiGsvVwc=; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (whichpart-api only)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of whichpart-api only; read of the staged zip. No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-part-finder",
+      "spares4repairs-diag-orchestrator",
+      "spares4repairs-error-code-mcp"
+    ]
+  }
+}

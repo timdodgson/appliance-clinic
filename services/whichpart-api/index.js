@@ -618,11 +618,22 @@ async function handleEvent(event) {
     if (limitedTurn) return limitedTurn;
   }
 
-  // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. In `off` nothing
-  // happens. In `shadow` / `control` the signed token is verified, state is loaded and sent to the
-  // orchestrator, and the returned state is persisted. In `control` an allow-listed journey owns the
-  // reply; every canonical failure degrades that turn to the legacy path.
+  // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. The signed token is verified,
+  // state is loaded and sent to the orchestrator, and the returned state is persisted. ADR 0018: in `control` an AC
+  // turn is canonical or an explicit error. A turn whose state could not be prepared is never sent on to be answered
+  // some other way, and a turn whose result could not be persisted is not shown as a normal reply.
   const canonCtx = await canonicalPrepare(body, live ? live.clientTurnId : (bench ? bench.clientTurnId : (obs && obs.clientTurnId)), rid);
+  const canonicalFailure = async (reason, path, trace) => {
+    log({ evt: 'whichpart-api', rid, ok: false, canonicalUnavailable: reason, path,
+      canonical: { mode: canonCtx.mode, version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid) } });
+    const failed = canonicalUnavailableView(rid, reason);
+    if (canonCtx.token) failed.stateToken = canonCtx.token;
+    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path });
+    if (bench) failed.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path });
+    await persistTranscriptTurn(obs, messages, failed, null, rid,
+      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: reason }, trace || null, path));
+    return respond(200, failed);
+  };
 
   // IDEMPOTENT RETRY (canonical control): the same browser clientTurnId was already merged and
   // answered for this canonical session. Return the processed result; never merge again.
@@ -637,6 +648,11 @@ async function handleEvent(event) {
       version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid), replayedView: true } });
     await persistTranscriptReplay(obs);
     return respond(200, cached);
+  }
+
+  if (canonCtx.mode === 'control' && !canonCtx.block) {
+    const reason = canonCtx.degraded || (canonCtx.duplicate ? 'duplicate_unreplayable' : 'canonical_block_missing');
+    return canonicalFailure(reason, 'canonical_prepare_failed');
   }
 
   const t0 = Date.now();
@@ -677,6 +693,12 @@ async function handleEvent(event) {
   }
 
   const canonResult = await canonicalFinish(canonCtx, orch._canonical, rid);
+  const upstreamDegraded = orch._canonical && orch._canonical.degraded ? String(orch._canonical.degraded).slice(0, 60) : null;
+  // A reply whose canonical result could not be recorded is not shown as a normal answer (the customer would see a
+  // question the state never asked). A written turn record is enough: the next turn's one-step replay restores it.
+  if (canonCtx.mode === 'control' && orch.outcome !== 'SERVICE_UNAVAILABLE' && canonResult.degraded && !canonResult.recordWritten) {
+    return canonicalFailure(canonResult.degraded, 'canonical_finish_failed', orch._diagnosticTrace);
+  }
   let canonSummary = null;
   try { canonSummary = conversationState.summarise(canonCtx, orch._canonical, canonResult); } catch { canonSummary = null; }
   // Live Test only: the merged state this turn actually persisted (projected, never returned whole).
@@ -695,7 +717,10 @@ async function handleEvent(event) {
   const view = toWhichPartView(orch, rid, overlay);
   // ADR 0016: a turn whose decision path could not run is an error, not a normal reply (the copy is the
   // orchestrator's own; the flag lets the client offer a retry and the transcript count it as failed).
-  if (orch.outcome === 'SERVICE_UNAVAILABLE') view.error = true;
+  if (orch.outcome === 'SERVICE_UNAVAILABLE') {
+    view.error = true;
+    view.degraded = upstreamDegraded || canonResult.degraded || canonCtx.degraded || 'service_unavailable';
+  }
   if (canonCtx.token) view.stateToken = canonCtx.token;
   // Idempotency marker (+ cached view) only for a turn whose canonical state was persisted.
   if (canonResult.written && canonCtx.clientTurnId) {
@@ -1047,6 +1072,11 @@ function composeProviderFailed(trace) {
   return Boolean(c && Array.isArray(c.violations) && c.violations.indexOf('compose_failed') !== -1);
 }
 /** The documented public failure reply (the diagnosis service's "AI service unavailable"), as an error view. */
+// ADR 0016 / 0018: an AC turn whose canonical path could not run. Same customer copy as the AI-unavailable reply; the
+// flag lets the client offer a retry and the transcript count the turn as failed, with the reason.
+function canonicalUnavailableView(rid, reason) {
+  return { ...aiUnavailableView(rid), errorCode: 'canonical_unavailable', degraded: String(reason || 'unknown').slice(0, 60) };
+}
 function aiUnavailableView(rid) {
   return { ...fallbackView(rid), reply: 'AI service unavailable. Please try again in a moment.', errorCode: 'ai_unavailable' };
 }

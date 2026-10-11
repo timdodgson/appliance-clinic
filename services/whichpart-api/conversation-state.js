@@ -13,7 +13,8 @@
  * DynamoDB condition) and must always equal state.version. STATETURN#<csid>#<v> is the turn that
  * produced version v from v-1. Message index / turnIndex are metadata only.
  *
- * Every failure degrades the canonical turn (reported in the summary) and that turn falls back to the
+ * Every failure degrades the canonical turn (reported in the summary). In control mode the request handler answers a
+ * degraded turn with an explicit error and never sends it on to the orchestrator (ADR 0018); historically it fell back to the
  * legacy path; the legacy response path never depends on this module. Canonical state is never
  * reconstructed from transcript prose. Mode / allow-list: resolveMode (canonical-architecture.md §14).
  */
@@ -246,10 +247,14 @@ async function prepareTurn({ body, store, secrets, env = process.env, nowMs = Da
     const raw = body && typeof body.stateToken === 'string' ? body.stateToken : null;
     const v = stateToken.verifyToken(raw, secrets, { nowSec });
     if (!v.ok && v.reason !== 'missing') {
-      // Invalid/expired/forged: never read state for it. Start a fresh canonical session next turn.
-      ctx.degraded = 'token_' + v.reason;
+      // Invalid/expired/forged: never read state for it. This turn starts a fresh canonical session (ADR 0018: no
+      // legacy turn in between); the reset is reported, not hidden.
+      ctx.stateReset = 'token_' + v.reason;
       ctx.csid = stateToken.newCanonicalSessionId(newId);
       ctx.token = stateToken.issueToken(ctx.csid, secrets, { nowSec });
+      ctx.version = 0;
+      ctx.priorState = null;
+      ctx.block = makeBlock(ctx);
       return ctx;
     }
     if (!v.ok) {
@@ -447,6 +452,7 @@ function summarise(ctx, out, result) {
     priorVersion: ctx.block ? ctx.version : null,
     resultVersion: ok ? out.version : (ctx.block ? ctx.version : null),
     recovered: ctx.recovered || undefined,
+    stateReset: ctx.stateReset || undefined,
     mc1: valid ? mc1Summary(out.classification) : null,
     rulesFired: valid && Array.isArray(out.rulesFired) ? out.rulesFired.slice(0, 30) : [],
     requestOutcome: valid ? (out.requestOutcome || null) : null,
