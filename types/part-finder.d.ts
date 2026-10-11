@@ -91,3 +91,23 @@ export interface DoneFrame {
 
 /** One line of the NDJSON stream: deltas, then exactly one done (or an error once streaming has started). */
 export type PartFinderFrame = DeltaFrame | DoneFrame | ErrorFrame;
+
+/**
+ * The engine's code-or-model commit decision for this turn's identifier token (canonical/token-gate.js, the only
+ * implementation of the rule). `uncertain`: a model reading too weak to commit; the token must be confirmed by the
+ * customer. `commit`: anything else (including no token, a code reading, or no probability distribution).
+ */
+export interface TokenDecision {
+  meaning: string | null;
+  decision: 'commit' | 'uncertain';
+  reason: 'not_gated' | 'strong' | 'weak_or_near_tie';
+}
+
+/** Understand-mode response (orchestrator only; S4R never sends `mode`). */
+export interface UnderstandFrame {
+  type: 'understand';
+  understand: Record<string, unknown> & { tokenDecision?: TokenDecision };
+  jev: Record<string, unknown>;
+  canonical?: Record<string, unknown>;
+}
+

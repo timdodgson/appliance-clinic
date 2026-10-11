@@ -8,6 +8,7 @@ turn's canonical block).
   fake_merge(...)        a small stand-in for part-finder's merge (canonical/merge.js): identity, displayed codes,
                          model status, problems and safety from the fake engine's typed output. Fakes only.
 """
+from orchestration.tests.engine_token import token_decision, with_engine_token_decision
 import copy, inspect
 from orchestration import routing
 from orchestration.model import TurnInput, Outcome
@@ -78,7 +79,7 @@ def fake_merge(prior, res, turn, message):
     held = (ident.get("unconfirmedToken") or {}).get("value")
     code_in = raw.get("errorCode")
     if raw.get("model") and meaning in (None, "model"):
-        if routing.token_meaning_decision("model", probs)[0] == "uncertain":
+        if token_decision("model", probs)["decision"] == "uncertain":
             ident["unconfirmedToken"] = _fact(raw["model"], "stated", turn)
         else:
             ident["model"] = _fact(raw["model"], "stated", turn, confirmed=True)
@@ -129,6 +130,7 @@ class FakeBff:
         def understand(**kw):
             canon = kw.pop("canonical", None)
             res = inner_u(canonical=canon, **kw) if (u_takes and canon is not None) else inner_u(**kw)
+            res = with_engine_token_decision(res)   # the engine's own token decision, as part-finder adds it
             if isinstance(res, dict) and isinstance(canon, dict) and "canonical" not in res:
                 nxt = (canon.get("version") or 0) + 1
                 res = {**res, "canonical": {"schema": "cs/1", "mode": canon.get("mode", "shadow"),

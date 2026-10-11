@@ -232,8 +232,12 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       metric.jev = publicObservability(uIntent);
       // CANONICAL: merge(prior, mc/1) once, route to the owning journey, decide the NextAction; the result goes back
       // to the orchestrator (event field `canonical`) and the BFF persists it.
-      const canonicalTransport = await canonicalRuntime().finishUnderstand(canonicalStarted,
-        require('./canonical/token-gate.js').jevTokenSignal(uIntent, metric.jev));
+      // The token commit decision (canonical/token-gate.js, the only implementation): it gates the cs/1 merge, and the
+      // orchestrator routes on it (uIntent.tokenDecision) instead of recomputing the thresholds.
+      const tokenGate = require('./canonical/token-gate.js');
+      const tokenSignal = tokenGate.jevTokenSignal(uIntent, metric.jev);
+      uIntent.tokenDecision = tokenGate.tokenDecision(tokenSignal);
+      const canonicalTransport = await canonicalRuntime().finishUnderstand(canonicalStarted, tokenSignal);
       if (canonicalTransport) metric.canonicalTransport = canonicalRuntimeMod.transportMetric(canonicalTransport);
       out = awslambda.HttpResponseStream.from(responseStream, {
         statusCode: 200,
