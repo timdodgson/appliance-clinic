@@ -400,10 +400,13 @@ class Orchestrator:
         jev_model = raw.get("model") or None                        # candidateTokenMeaning == model
         jev_code = raw.get("errorCode") or None                     # candidateTokenMeaning == error_code
         token_meaning = raw.get("_tokenMeaning") or decisions.get("candidateTokenMeaning")
-        # A weak MODEL reading of the token (the family commit rule, applied to the token) is not committed: a
-        # displayed code read as a model would otherwise be dropped silently. The clarify flow asks which it is.
-        token_probs = (jev.get("probabilities") or {}).get("candidateTokenMeaning") if isinstance(jev, dict) else None
-        token_decision, st._tokenDecision = routing.token_meaning_decision(token_meaning, token_probs)
+        # A weak MODEL reading of the token is not committed: a displayed code read as a model would otherwise be dropped
+        # silently, so the clarify flow asks which it is. The decision is the engine's (canonical/token-gate.js, the only
+        # implementation of the rule), carried on the understand intent; no threshold is recomputed here. A missing
+        # decision (understand unavailable) commits, as a missing distribution always has.
+        engine_token = raw.get("tokenDecision") if isinstance(raw.get("tokenDecision"), dict) else {}
+        token_decision = "uncertain" if engine_token.get("decision") == "uncertain" else "commit"
+        st._tokenDecision = engine_token or {"reason": "not_reported"}
         st._uncertainToken = None
         if jev_model and not jev_code and token_decision == "uncertain":
             st._uncertainToken = jev_model

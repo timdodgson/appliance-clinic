@@ -89,7 +89,7 @@
     },
     {
       "path": "services/part-finder/part-finder-lambda.js",
-      "sha256": "c7c3081a086a5db3569e21bb68e5570eb639b118689d7835d0c1e60942316b36",
+      "sha256": "b3da60283e6a6e90c7390494c0633c375888d620a2613b1fee85ebc0fccaf030",
       "changes": [
         "8.1-engine-split",
         "8.11-gold-final",
@@ -97,7 +97,8 @@
         "11.1-f15-legacy-guidance",
         "11.2b-engine-signing-log",
         "11.3-conversation-quality",
-        "11.8a-engine-signing-unconditional"
+        "11.8a-engine-signing-unconditional",
+        "12.2a-engine-token-decision"
       ]
     },
     {
@@ -516,7 +517,7 @@
     },
     {
       "path": "orchestration/orchestrator.py",
-      "sha256": "38439c925ff7afa143f0de8777861e08614266988a66bd557b1d3b0a78654592",
+      "sha256": "1f606ee51ebfc839bb7adecd706fba1278a7e0c93d71340dced151c2bbb0fe8e",
       "changes": [
         "8.9-orchestrator-clarify",
         "8.12b-describe-turns",
@@ -528,7 +529,8 @@
         "11.4-one-conversation-state",
         "11.5-forward-make",
         "11.9b-ambiguous-code-meanings",
-        "12.1b-orchestrator-cause-summary"
+        "12.1b-orchestrator-cause-summary",
+        "12.2b-orchestrator-token-decision"
       ]
     },
     {
@@ -687,10 +689,11 @@
     },
     {
       "path": "orchestration/routing.py",
-      "sha256": "53a90a6e96eb06a0f598a140856639487a503c7d0bd9b7e31d097da6469766af",
+      "sha256": "b27554cc8e6b5ea87685abc79f8cb92d2a61112b6e6ac03bcc58844b2f69b2b7",
       "changes": [
         "10.2-orchestrator-identity",
-        "10.7-orchestrator-carryover"
+        "10.7-orchestrator-carryover",
+        "12.2b-orchestrator-token-decision"
       ]
     },
     {
@@ -1617,7 +1620,7 @@
     },
     {
       "path": "orchestration/tests/test_phase10_identity.py",
-      "sha256": "ba5d9f99923803c98c0eeaa907505a83ebde70126dbf872f51e73ed71f482cb5",
+      "sha256": "176b9580692f85bc591d9f5269e2496ed551b8edf976e69f5bf11b0532d44ec8",
       "role": "test",
       "units": [
         "spares4repairs-diag-orchestrator"
@@ -1627,7 +1630,8 @@
         "10.5-code-then-symptom",
         "10.7-orchestrator-carryover",
         "10.12-describe-repeat",
-        "11.4-one-conversation-state"
+        "11.4-one-conversation-state",
+        "12.2b-orchestrator-token-decision"
       ]
     },
     {
@@ -1713,13 +1717,14 @@
     },
     {
       "path": "services/part-finder/canonical/token-gate.js",
-      "sha256": "ee704249dbd9cf1876db0f956d2b4efa04d33d664c774395e29dcd1b24e62fd4",
+      "sha256": "4954844451d090a6416781489d913e3f6fb274a32d78bd99c4b560d30ab71c09",
       "role": "runtime",
       "units": [
         "spares4repairs-part-finder"
       ],
       "changes": [
-        "11.3-conversation-quality"
+        "11.3-conversation-quality",
+        "12.2a-engine-token-decision"
       ]
     },
     {
@@ -1747,13 +1752,14 @@
     },
     {
       "path": "orchestration/tests/cs1_bff.py",
-      "sha256": "4869812a11264513b7274578d11cd53413ae170f91a4a69bd703a23b552db574",
+      "sha256": "b7a3d6da036e397b0dd492e80b9b8679bf5238e4d1e07d3979216588764e3b1c",
       "role": "test",
       "units": [
         "spares4repairs-diag-orchestrator"
       ],
       "changes": [
-        "11.4-one-conversation-state"
+        "11.4-one-conversation-state",
+        "12.2b-orchestrator-token-decision"
       ]
     },
     {
@@ -1800,6 +1806,28 @@
       ],
       "changes": [
         "12.1a-engine-cause-summary"
+      ]
+    },
+    {
+      "path": "services/part-finder/test/phase12-token-decision.test.mjs",
+      "sha256": "83da0b905ddcaf148ce5f22602e46fba9cac78526e4412fa778d07f51cce4971",
+      "role": "test",
+      "units": [
+        "spares4repairs-part-finder"
+      ],
+      "changes": [
+        "12.2a-engine-token-decision"
+      ]
+    },
+    {
+      "path": "orchestration/tests/engine_token.py",
+      "sha256": "f5a7782bbd2d7642f248496b0ec6f19ea205f28f25d2ee8b2290ac124cd168e5",
+      "role": "test",
+      "units": [
+        "spares4repairs-diag-orchestrator"
+      ],
+      "changes": [
+        "12.2b-orchestrator-token-decision"
       ]
     }
   ],

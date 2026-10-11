@@ -3,9 +3,11 @@
  * One commit rule for an identifier token whose meaning is code-or-model (ADR 0015: one owner per decision; the
  * conversation state is that owner). Jev's UNDERSTAND gives the token's meaning with a probability distribution; mc/1
  * gives the typed identity. A token is committed as the MODEL only when Jev's model reading is confident (>= 0.70)
- * and decisively ahead of the runner-up (>= 0.55): the same thresholds as the orchestrator's family and token gates
- * (orchestration/routing.py). Otherwise the token is held as identity.unconfirmedToken, never lost and never committed,
- * until the customer says which it is; that answer commits it to the right field.
+ * and decisively ahead of the runner-up (>= 0.55). Otherwise the token is held as identity.unconfirmedToken, never lost
+ * and never committed, until the customer says which it is; that answer commits it to the right field.
+ *
+ * This is the only implementation of the rule (Phase 12). tokenDecision() exposes it on the understand intent, and the
+ * orchestrator routes on that decision (commit, or ask code-or-model) instead of recomputing it.
  *
  * Runs in understand mode on the mc/1 classification before the merge, so the merge, the persisted turn record and
  * a replay all see the same classification. Reads typed fields only.
@@ -20,6 +22,21 @@ function modelReadingIsStrong(probabilities) {
   const [top, p] = ordered[0];
   const runnerUp = ordered[1] ? ordered[1][1] : 0;
   return top === 'model' && p >= MIN_CONF && (p - runnerUp) >= MIN_MARGIN;
+}
+
+/**
+ * The commit decision for this turn's identifier token, for the orchestrator: 'uncertain' when Jev reads it as the model
+ * but not strongly enough to commit (the customer is asked which it is), otherwise 'commit' (a strong model reading, a
+ * code reading, no token, or no distribution from an older Jev).
+ */
+function tokenDecision(signal) {
+  const s = signal || {};
+  if (s.meaning !== 'model' || !s.probabilities || !Object.keys(s.probabilities).length) {
+    return { meaning: s.meaning || null, decision: 'commit', reason: 'not_gated' };
+  }
+  return modelReadingIsStrong(s.probabilities)
+    ? { meaning: 'model', decision: 'commit', reason: 'strong' }
+    : { meaning: 'model', decision: 'uncertain', reason: 'weak_or_near_tie' };
 }
 
 /** The token signal of this turn's Jev UNDERSTAND (intent + public observability). */
@@ -78,4 +95,4 @@ function gateClassification(classification, signal, prior) {
   return { classification: c, decision: null };
 }
 
-module.exports = { MIN_CONF, MIN_MARGIN, modelReadingIsStrong, jevTokenSignal, gateClassification };
+module.exports = { MIN_CONF, MIN_MARGIN, modelReadingIsStrong, tokenDecision, jevTokenSignal, gateClassification };

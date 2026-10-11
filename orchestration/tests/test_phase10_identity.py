@@ -13,6 +13,7 @@ from orchestration.model import ConversationState, OrchestratorResponse, Outcome
 from orchestration.orchestrator import Orchestrator
 from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, RagUnavailable
 from orchestration.tests.fixtures import CANNED
+from orchestration.tests.engine_token import token_decision
 
 passed = 0; failed = 0
 def check(n, cond, detail=""):
@@ -22,15 +23,17 @@ def check(n, cond, detail=""):
 
 o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
 
-# F8: the token commit rule (same thresholds as the family gate)
+# F8: the token commit rule. Phase 12: the engine (canonical/token-gate.js) is its only implementation; these cases run
+# the engine's own code, and the orchestrator no longer has a copy.
 weak_a = {"model": 0.72, "uncertain": 0.18, "error_code": 0.02, "none": 0.05, "other": 0.03}
 weak_b = {"model": 0.60, "uncertain": 0.27, "error_code": 0.08, "none": 0.03, "other": 0.02}
 strong = {"model": 0.97, "uncertain": 0.02, "error_code": 0.01}
-check("weak model reading (0.72 vs 0.18) is not committed", routing.token_meaning_decision("model", weak_a)[0] == "uncertain")
-check("weak model reading (0.60 vs 0.27) is not committed", routing.token_meaning_decision("model", weak_b)[0] == "uncertain")
-check("a clear model reading is committed", routing.token_meaning_decision("model", strong)[0] == "commit")
-check("an error-code reading is never gated", routing.token_meaning_decision("error_code", {"error_code": 0.5, "model": 0.4})[0] == "commit")
-check("no distribution (older Jev) commits as before", routing.token_meaning_decision("model", None)[0] == "commit")
+check("engine: weak model reading (0.72 vs 0.18) is not committed", token_decision("model", weak_a)["decision"] == "uncertain")
+check("engine: weak model reading (0.60 vs 0.27) is not committed", token_decision("model", weak_b)["decision"] == "uncertain")
+check("engine: a clear model reading is committed", token_decision("model", strong)["decision"] == "commit")
+check("engine: an error-code reading is never gated", token_decision("error_code", {"error_code": 0.5, "model": 0.4})["decision"] == "commit")
+check("engine: no distribution (older Jev) commits as before", token_decision("model", None)["decision"] == "commit")
+check("the orchestrator has no token threshold of its own", not hasattr(routing, "token_meaning_decision"))
 
 def st_with(**kw):
     st = ConversationState(sessionId="p10")
@@ -102,6 +105,28 @@ ol.rag.understand = lambda **kw: {"jev": {"decisions": {"candidateTokenMeaning":
 st = ol._load(TurnInput(message="x", sessionId="carry", conversation=[{"role": "user", "content": "a"}, {"role": "assistant", "content": routing.code_or_model_question("F06")}, {"role": "user", "content": "b"}]))
 check("the answer to our code-or-model question keeps the token as the displayed code", st.customer.displayedCode == "F06", st.customer.displayedCode)
 check("...so the turn is not a 'what is the exact code?' intake", getattr(st, "_codePresentNoValue", False) is False)
+
+# Phase 12: the orchestrator routes on the ENGINE's token decision (understand.tokenDecision) and never re-reads the
+# probabilities. The engine decision wins even when the distribution would have said otherwise.
+def token_loaded(decision, probs):
+    ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
+    ol.rag.understand = lambda **kw: {"jev": {"decisions": {"candidateTokenMeaning": "model", "applianceFamily": "washing-machine",
+                                                            "applianceFamilyProvenance": "customer_named"},
+                                              "probabilities": {"candidateTokenMeaning": probs}},
+                                      "understand": {"model": "F06", "applianceType": "washing-machine", "_tokenMeaning": "model",
+                                                     **({"tokenDecision": decision} if decision else {})}}
+    return ol._load(TurnInput(message="x", sessionId="tok"))
+uncertain = {"meaning": "model", "decision": "uncertain", "reason": "weak_or_near_tie"}
+commit = {"meaning": "model", "decision": "commit", "reason": "strong"}
+st = token_loaded(uncertain, strong)
+check("engine says uncertain -> the token is held for one code-or-model question (strong probabilities ignored)",
+      st._uncertainToken == "F06" and not any(o.value == "F06" for o in st.customer.observed), st._uncertainToken)
+st = token_loaded(commit, weak_a)
+check("engine says commit -> the model is committed (weak probabilities ignored)",
+      st._uncertainToken is None and any(o.type == "MODEL" and o.value == "F06" for o in st.customer.observed), st._uncertainToken)
+st = token_loaded(None, weak_a)
+check("no engine decision (understand unavailable / older engine) -> commits, as a missing distribution always has", st._uncertainToken is None)
+check("the engine decision is kept for telemetry", token_loaded(uncertain, weak_a)._tokenDecision == uncertain)
 
 # The engine shares the account's Lambda concurrency: one short retry on 429, never on other failures.
 from orchestration.services import RealDiagnosticService as HttpDiagnosticService
