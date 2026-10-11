@@ -96,7 +96,7 @@ Retrieval never supplies safety rules, error-code meanings, compatibility or sto
 
 | Layer | What it shows |
 |---|---|
-| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites for every runtime, against a recorded known-failure baseline |
+| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites for every runtime, all of which must pass (no accepted-failure list) |
 | Typecheck (`npm run typecheck`) | Strict TypeScript declarations for the `/part-finder` frames, `cs/1`, engine configuration and the prompt registry |
 | Build equivalence (CI) | Rebuilt Lambda zips and container images equal the recorded references, file by file |
 | `/part-finder` contract and smoke | Checked before and after every production release |
@@ -149,7 +149,7 @@ You need Node 20 (`>=20 <23`), Python 3.12 and, for images only, Docker with arm
 npm ci                    # root test and typecheck dependencies
 npm --prefix tools/migration ci
 npm run setup:python      # the two Python test environments, with production package versions
-npm run test:runtime      # runtime suites; must match build/test/known-failures.json
+npm run test:runtime      # runtime suites; every test must pass
 npm run typecheck
 npm run lint              # migration tooling (ESLint)
 npm run test:tooling      # migration tooling tests

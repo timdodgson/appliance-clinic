@@ -136,14 +136,18 @@ persisted ([ADR 0016](../adr/0016-degraded-turns-are-errors.md)). Every orchestr
 | Path | Status | Reached by |
 |---|---|---|
 | Canonical control (`services/part-finder/canonical/*`, orchestrator canonical branch) | **Canonical** | AC turns on allow-listed journeys. `whichpart-api` runs `CANONICAL_MODE=control` with `CANONICAL_CONTROL_JOURNEYS` listing them |
-| Legacy pipeline (part-finder handler decision chain and COMPOSE) | **Legacy, retained** ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md)) | Every S4R request; AC turns no canonical journey owns; AC fallback when canonical degrades |
-| Orchestrator legacy flows (`_flow_error_code`, `_flow_symptoms`, `_flow_combined`, `_flow_clarify`) | **Legacy, retained** | AC turns not under canonical control |
+| Legacy pipeline (part-finder handler decision chain and COMPOSE) | **Legacy, S4R only** ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md), [ADR 0018](../adr/0018-no-ac-legacy-fallback.md)) | Only S4R's plain unsigned `{messages}` request. Never an AC turn: internal fields without a valid signature are refused (401), and a signed diagnose call no journey controls is refused (409) |
+| Orchestrator non-journey outcomes (`_flow_hazard`, `_flow_unsafe_request`, `_flow_error_code`, `_flow_unsupported`, `_flow_clarify`) | **Canonical boundary** (ADR 0018) | AC turns no journey controls: cs/1 hazard → safety stop; unsafe request → fixed decline; displayed code → error-code MCP only; typed problem → `UNSUPPORTED`; nothing typed → intake. None of them diagnoses |
+| Orchestrator legacy flows (`_flow_symptoms`, `_flow_combined`, code reconciliation, `_journey_stage`) | **Removed** in Phase 13 | Nothing |
 | In-process generative UNDERSTAND | **Removed** in Phase 8 | Nothing; Jev replaced it |
 | `POST /ai/chat` on the S4R HTTP API | **Retired** in Phase 7 (C1) | Nothing reaches the engine through it |
 
-Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or `off` on `whichpart-api`, or one
-journey key dropped from `CANONICAL_CONTROL_JOURNEYS`; per-journey engine kill switches `CANONICAL_Jx_CONTROL=0` also
-exist. The live mode and allow-list (control, 63 journeys, equal to the registry) are declared in
+A canonical degradation (missing block, degraded or malformed canonical result, degraded understanding, a diagnose
+reply without the engine's `canonicalControl` proof, a failed diagnose) is an explicit `SERVICE_UNAVAILABLE`; nothing is
+persisted and no other path answers ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)). `CANONICAL_MODE=shadow` (no
+journey controls a turn) or `off` (no cs/1 block, so every AC turn is an explicit error) is therefore **not** a rollback
+to legacy; dropping one journey key from `CANONICAL_CONTROL_JOURNEYS` (or `CANONICAL_Jx_CONTROL=0`) makes that journey's
+turns `UNSUPPORTED`. Rollback of a release is the previous code or image. The live mode and allow-list (control, 63 journeys, equal to the registry) are declared in
 `runtime-overrides.json` with every other environment variable, and a drift check compares them with the live function
 after every runtime change.
 
@@ -194,7 +198,7 @@ after every runtime change.
 
 | Check | What it covers | When |
 |---|---|---|
-| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites, against the known-failure baseline (`build/test/known-failures.json`). Retired suites stay retired | Every pull request |
+| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites. Every test must pass: there is no accepted-failure list (Phase 13). Files deliberately removed are recorded under `removed` in `runtime-changes.json` | Every pull request |
 | `/part-finder` contract (`baseline contract verify`) | Status, CORS, NDJSON framing and the fields S4R reads | Before and after every engine release |
 | Smoke (`baseline smoke`) | Four journeys against the pre-migration baseline | Before and after every runtime release |
 | Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
@@ -243,4 +247,10 @@ Every production change goes through `infra/production/steps/change.sh`:
   - register added, changed or removed runtime files in `docs/migration/runtime-changes.json`
 - **Rollback:** revert the pull request and run the same change with the previous artefact. Each release spec records
   the previous code SHA-256. The published Lambda version `1` of `whichpart-api` is a further fallback.
+- **Jev is a shared single dependency.**
+  - AC, S4R `/part-finder`, GOLD and the transcript judge all use one Jev account.
+  - HTTP 402 from Jev means the credit is exhausted. S4R then returns 503 and AC returns its explicit diagnosis error.
+  - Recovery is a top-up, not a deploy. Then check with one S4R call, the `/part-finder` contract, S4R health and one AC
+    diagnosis ([Phase 13 finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
+  - Space GOLD runs, and run only those that are needed.
 - Phase runbooks: [`docs/migration/runbooks/`](../migration/runbooks/README.md).

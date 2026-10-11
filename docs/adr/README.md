@@ -27,9 +27,10 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0009](0009-evaluation-strategy.md) | Evaluation strategy | Accepted |
 | [0010](0010-deterministic-policy-around-llm.md) | Deterministic policy around the language model | Accepted |
 | [0011](0011-diagnosis-lambda-keeps-the-s4r-execution-role.md) | The diagnosis Lambda keeps the S4R execution role during the migration | Superseded (Phase 7 change 7.15b) |
-| [0012](0012-legacy-diagnosis-pipeline-retained.md) | The legacy diagnosis pipeline is retained | Accepted |
+| [0012](0012-legacy-diagnosis-pipeline-retained.md) | The legacy diagnosis pipeline is retained | Accepted; current-use parts (AC fallback) superseded by [0018](0018-no-ac-legacy-fallback.md) |
 | [0013](0013-prompt-registry-and-contract-types.md) | Prompt registry and contract types | Accepted |
 | [0014](0014-cs1-is-the-only-conversation-state.md) | cs/1 is the only conversation state | Implemented (Phase 11) |
 | [0015](0015-one-owner-per-decision.md) | One owner per decision | Accepted; partly implemented (state and token commit Phase 11; cause label and token decision single-owned Phase 12) |
 | [0016](0016-degraded-turns-are-errors.md) | Degraded turns are errors, not normal replies | Implemented (Phase 10) |
 | [0017](0017-authenticate-orchestrator-only-engine-fields.md) | Authenticate the orchestrator-only engine fields | Implemented (Phase 11) |
+| [0018](0018-no-ac-legacy-fallback.md) | No Appliance Clinic turn falls back to the legacy pipeline | Implemented (Phase 13) |

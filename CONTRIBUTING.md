@@ -15,7 +15,7 @@ This repository holds a live production service. Most rules below exist so that 
 | `infra/cdk/` | CDK stacks (`AcAuthStack`, `AcDataStack`, `AcRuntimeStack`) | Through reviewed change sets only |
 | `infra/production/` | Production change and verification scripts | Owner tooling, credentialed |
 | `infra/sandbox/` | The Phase 4 sandbox rehearsal, kept as a record | No |
-| `build/` | Reproducible builds, reference digests, the test runner and known-failure baseline | No |
+| `build/` | Reproducible builds, reference digests and the test runner | No |
 | `tools/migration/` | Migration tooling: inventory, change-set checker, guards, baselines (has its own `package.json`) | No |
 | `tools/gold-v2/` | Live GOLD v2 runner | Owner tooling, credentialed |
 | `docs/` | Architecture, ADRs, evaluation, migration record, portfolio | No |
@@ -27,7 +27,7 @@ You need Node 20 (`>=20 <23`), Python 3.12 and, for images only, Docker with arm
 ```bash
 npm ci && npm --prefix tools/migration ci
 npm run setup:python      # .venv-orchestrator and .venv-error-code-mcp, with production package versions
-npm run test:runtime      # every runtime test, compared with build/test/known-failures.json
+npm run test:runtime      # every runtime test; any failure fails
 npm run typecheck         # strict TypeScript over types/ and the runtime conformance checks
 npm run lint              # ESLint (migration tooling)
 npm run test:tooling      # migration tooling tests
@@ -36,7 +36,8 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 
 - **No credentials needed.** None of these commands needs AWS or model credentials. The runtime runner replaces AWS variables with fake values and strips proxy variables, so a test cannot reach production.
 - **Images.** Build them as CI does (`.github/workflows/build-images.yml`). Each rebuild must equal its `build/reference/*.image.json`.
-- **The known-failure baseline is a contract.** A new failure fails CI. A baseline test that starts passing also fails CI until you remove it from `known-failures.json` in the same change.
+- **Every runtime test passes.** There is no accepted-failure list, xfail or skip. A failing test is fixed in the product, rewritten to the current contract, or removed (recorded under `removed` in `docs/migration/runtime-changes.json` with its reason) in the same change.
+- **No AC feature goes into the legacy pipeline** ([ADR 0018](docs/adr/0018-no-ac-legacy-fallback.md)). Legacy serves only S4R's plain `{messages}` request; an AC turn is canonical, an explicit non-diagnostic outcome, or an explicit error. A test whose only purpose is to keep an AC turn on legacy is not kept.
 - **Retired suites stay retired.** Do not re-enable tests the runner excludes. Do not use the legacy ACQ-100 benchmark for evaluation; it is labelled non-authoritative.
 
 ## Branches and pull requests
