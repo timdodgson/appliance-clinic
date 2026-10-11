@@ -853,6 +853,9 @@ function ownerSafeAdvice(record, max) {
 function renderDeterministicTerminal(intent, record, extras) {
   if (!intent) return null;
   if (extras && (extras.safetyStop || extras.diagnoseStop || extras.normalBehaviour || extras.recovered)) return null;
+  // A competent-person boundary (gas, an electrical-leakage finding) is never a part to match: this terminal is about
+  // matching a part without the model, so it does not apply.
+  if (extras && extras.competentPerson) return null;
   const cannotAnswer = Boolean(intent._cannotAnswer) || intent.modelUnavailable === true;
   if (!cannotAnswer) return null;
   if (intent.model) return null;                     // model known -> commit path, not this terminal
@@ -969,6 +972,9 @@ function avoidVerbatimRepeat(reply, progress, extras) {
   const contained = (b.includes(a) || a.includes(b));
   if (!identical && !contained) return reply;
   if (extras && extras.metric) extras.metric.verbatimRepeatAvoided = true;
+  if (extras && extras.competentPerson) {
+    return "I don't have anything new to add: this needs a qualified engineer to test it safely, and I'm not recommending a part from here. Is there anything else I can help with in the meantime?";
+  }
   return "I don't have anything new to add on the cause without the model number \u2014 the likely cause and the safe step are the ones I've already given. When you can read the model off the rating plate, come back and I'll match the exact replacement part. Is there anything else I can help with in the meantime?";
 }
 

@@ -96,11 +96,8 @@ const original = readFileSync(MEDIA_PATH, 'utf8');
   const iParts = lambda.indexOf('const shownParts');
   const iSafetyStop = lambda.indexOf('safetyStop');
   ok('B media is assembled after parts are selected', iParts > 0 && iMediaBlock > iParts);
-  ok('B media is guarded by (and therefore later than) the safety-stop decision',
-    iSafetyStop > 0 && iSafetyStop < iMediaBlock && /!safetyStop && !metric\.tripwireBlocked && fault/.test(lambda));
-  // The built `media` list is only ever WRITTEN (built, then emitted in the done event) — it is never
-  // read back by the fault/parts/safety logic. Confirm it is emitted in the done event exactly once.
-  ok('B built media is emitted to the done event', /type: 'done'[^\n]*\bmedia\b/.test(lambda) || /normalBehaviour[\s\S]{0,80}media \}/.test(lambda));
+  ok('B the media block comes after the safety-stop decision', iSafetyStop > 0 && iSafetyStop < iMediaBlock);
+  // Whether media is withheld on a stop, and emitted otherwise, is proved by running the handler (section D).
 }
 
 // ---- C. PURITY + input independence ---------------------------------------------------------
@@ -127,6 +124,37 @@ const original = readFileSync(MEDIA_PATH, 'utf8');
   const nodeOnly = r.getMediaInformation('washing-machine', 'not-draining', { concepts: ['drainage-appliance'] });
   const withComps = r.getMediaInformation('washing-machine', 'not-draining', { concepts: ['drainage-appliance'], components: ['drain pump'] });
   ok('C node-only lookup unchanged when irrelevant components are supplied', eq(nodeOnly, withComps));
+}
+
+// ---- D. BEHAVIOUR: media reaches the done event on a grounded turn, and is withheld when we tell the customer to stop -
+{
+  globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
+  process.env.ENGINE_SIGNING_TOKEN = process.env.ENGINE_SIGNING_TOKEN || 'test-engine-signing-key-0123456789abcdef';
+  const handlerModule = require('../part-finder-lambda.js');
+  const { sign, SIGNATURE_HEADER } = require('../engine-auth.js');
+  let REPLY = 'Check the pump filter at the bottom front of the machine. What is the model number?';
+  handlerModule._internal._setProvidersForTest({ compose: { infer: async (_r, { onDelta }) => onDelta(REPLY) } });
+  const done = async (msg, understand, established) => {
+    const w = []; const raw = JSON.stringify({ messages: [{ role: 'user', content: msg }], understand, established });
+    await handlerModule.handler({ body: raw, headers: { [SIGNATURE_HEADER]: sign(process.env.ENGINE_SIGNING_TOKEN, raw) },
+      requestContext: { requestId: 'mn', http: { method: 'POST', path: '/' } } }, { write: (x) => w.push(String(x)), end: () => {} });
+    return w.join('').split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((l) => l.type === 'done');
+  };
+  const WM = { onTopic: true, userIntent: 'DIAGNOSE', applianceType: 'washing machine', make: 'bosch', faultId: 'not-draining',
+    fault: 'not draining', confidence: 0.9, _applianceFamilyProvenance: 'stated', _requestClass: 'appliance_request' };
+  const EST = { applianceFamily: 'washing-machine', familyState: 'ESTABLISHED' };
+  const drain = "my bosch washing machine won't drain, water left in the drum";
+  const shock = "my bosch washing machine won't drain and water is leaking onto the plug socket, there are sparks";
+  const safe = await done(drain, WM, EST);
+  ok('D media is emitted in the done event on a grounded, safe turn', safe.safetyStop === null && Array.isArray(safe.media) && safe.media.length > 0);
+  const stopped = await done(shock, { ...WM, _safetyClassification: handlerModule._internal.classifySafetyStop(shock) }, EST);
+  ok('D no media on a deterministic safety stop', stopped.safetyStop === 'shock' && eq(stopped.media, []));
+  ok('D (control) the same turn without the stop carries media', (await done(shock, WM, EST)).media.length > 0);
+  REPLY = '| a | b |\n| c | d |\n| e | f |';
+  ok('D no media when the output tripwire blocks the reply', eq((await done(drain, WM, EST)).media, []));
+  ok('D no media without an established family / grounded node',
+    eq((await done('something is wrong with it', { onTopic: true, userIntent: 'DIAGNOSE' }, null)).media, []));
+  handlerModule._internal._setProvidersForTest(null);
 }
 
 console.log(`\nmedia neutrality tests: ${pass} passed, ${fail} failed`);

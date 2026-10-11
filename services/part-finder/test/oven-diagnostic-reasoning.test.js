@@ -24,6 +24,7 @@ const {
   classifyRemoteActionClass, remoteActionBoundary, detectUnsafeIntent,
   detectSafetyStop, stripOutOfScopeElectricalTests,
   buildComposeSystem, formatTrustedCustomerEvidence, COMPONENT_MENTION, REMOTE_ACTION,
+  avoidVerbatimRepeat, renderDeterministicTerminal,
 } = require('../part-finder-lambda.js')._internal;
 const CAT = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'faults-catalogue.json'), 'utf8'));
 
@@ -74,15 +75,8 @@ check('A11 tripping does not treat selected function as proof', /not proof|NOT p
   check('B2 oven-dead without observations is not purchase', g.purchaseAppropriate === false);
 }
 
-{
-  const amb = materialAmbiguity('main-pcb', node('main-pcb'), [], 'oven-cooker');
-  check('B3 completely-dead leader asks programmer/display discriminator vs advice-only clock', amb && amb.altId === 'clock-timer' && amb.fact === 'clockFlashing', amb);
-}
-
-{
-  const amb = materialAmbiguity('element', node('element'), [], 'oven-cooker');
-  check('B4 heating-path leader asks flashing-programmer before a part', amb && amb.altId === 'clock-timer' && (amb.fact === 'clockFlashing' || amb.fact === 'programmerAuto'), amb);
-}
+// The clock / auto-mode check before any heating part is owned by the canonical oven journey (OH10 before the element;
+// canonical-ov-family.test.mjs). The legacy pipeline has no typed clock fact to ask or record it with.
 
 // ---------------------------------------------------------------------------
 // C. Flashing programmer / power-loss remains advice / no-part
@@ -225,8 +219,11 @@ check('D5 element node still lists selector/wiring as well as elements', {
   check('G6 insulation-test request is unsafe intent', detectUnsafeIntent('how do I megger the grill element') === true);
   check('G7 live test remains unsafe', detectUnsafeIntent('how do I test the element live') === true);
   const b = remoteActionBoundary(REMOTE_ACTION.COMPETENT_PERSON, 'oven-cooker', 'trips when grill is on');
-  check('G8 insulation testing is out of scope', /insulation-resistance|megger/i.test(b.outOfScope.join(' ')));
-  check('G9 compose forbids naming megger as the electrician method', /Never name insulation-resistance|never name insulation-resistance/i.test(prompt));
+  // An insulation test on an element IS testing internal electrical components; the reply-level guarantee that no such
+  // test reaches the customer is the deterministic filter (G10).
+  check('G8 testing or metering internal electrical parts, and live testing, are out of scope',
+    b.outOfScope.some((s) => /(?:testing|metering)[^;]*internal electrical components/i.test(s))
+      && b.outOfScope.some((s) => /live electrical testing/i.test(s)), b.outOfScope);
   check('G10 strip insulation-test sentence from customer reply', (() => {
     const a = stripOutOfScopeElectricalTests(
       'Stop using the grill. A qualified electrician must perform an insulation resistance test to identify the component.',
@@ -266,6 +263,22 @@ check('H2 none grain leaks nothing', presentableCandidateComponents(
   );
   check('H3 none grain forbids component names / catalogue cards', /do not mention replacement components/i.test(prompt));
   check('H4 none grain does not require a catalogue link', !/MANDATORY when CATALOGUE DATA/.test(prompt));
+}
+
+// ---------------------------------------------------------------------------
+// G11-G12. The deterministic closes never offer to match a part across a competent-person boundary
+// ---------------------------------------------------------------------------
+{
+  const intent = { faultId: 'tripping-electrics', primaryFinding: 'The grill circuit is leaking to earth and tripping the RCD.', _cannotAnswer: true };
+  const prior = 'You said it trips as soon as the grill heats up, which points to the grill circuit leaking to earth.';
+  const progress = { priorAdvisorText: prior };
+  const close = avoidVerbatimRepeat(prior, progress, { intent, competentPerson: true });
+  check('G11 repeat-avoid close on a competent-person turn does not offer to match a part',
+    close !== prior && !/replacement part|match the exact|model number/i.test(close) && /qualified engineer/i.test(close), close);
+  const plain = avoidVerbatimRepeat(prior, progress, { intent });
+  check('G11b the ordinary close is unchanged off the boundary', /model number/i.test(plain));
+  check('G12 the no-model terminal does not render on a competent-person turn',
+    renderDeterministicTerminal(intent, { advice: ['check the grill'] }, { competentPerson: true }) === null);
 }
 
 console.log(`\noven-diagnostic-reasoning: ${pass} passed / ${fail} failed`);

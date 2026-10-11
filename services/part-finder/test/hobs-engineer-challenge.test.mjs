@@ -44,7 +44,13 @@ const blob = (id) => `${discr(id)} \n ${conf(id)} \n ${clarify(id)}`;
 
 // ---- 0. COVERAGE ------------------------------------------------------------------------------
 ok('hobs family present (>=14 nodes incl new safety node)', NODES.length >= 14);
-for (const n of NODES) ok(`${n}: override + >=1 suspect`, Boolean(OV.docs[`${FAM}:${n}`]) && names(n).length >= 1);
+for (const n of NODES) {
+  // ADVICE_ONLY nodes are no-part fixes (parts suppressed at runtime): require the free-fix
+  // explanation instead of an ordered part list. Mirrors oven-cooker-engineer-challenge.
+  const adviceOnly = CAT.faults[FAM][n]?.outcome === 'ADVICE_ONLY';
+  ok(`${n}: override + >=1 suspect (advice-only: free-fix discriminator instead)`,
+    adviceOnly ? (CAT.faults[FAM][n].discriminators || []).length >= 1 : Boolean(OV.docs[`${FAM}:${n}`]) && names(n).length >= 1);
+}
 
 // ---- 1. SAFETY (hard) -------------------------------------------------------------------------
 const UNSAFE = /(insulation.?test|megger|live.{0,14}test|test.{0,14}\blive\b|bypass.{0,10}(protection|rcd|earth)|probe.{0,10}(live|mains)|discharge.{0,10}(capacitor|induction)|repair the gas|gas.{0,10}(valve|injector).{0,20}(replace|fit))/;

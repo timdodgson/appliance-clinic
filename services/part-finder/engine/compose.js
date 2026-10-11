@@ -21,6 +21,13 @@ const {
 } = require('./progression.js');
 const { sleep } = require('./parts-client.js');
 
+// The typed inputs the action class reads besides the stops (the same ones the handler passes), so the prompt's
+// boundary matches the grain decided for this turn.
+function remoteActionFacts(intent, fault) {
+  return { userIntent: intent && intent.userIntent, fuel: intent && intent._fuel && intent._fuel.value,
+    faultId: fault && fault.faultId, facts: intent && intent.facts };
+}
+
 function buildComposeSystem(parts, modelInfo, intent, fault, knowledgeDocs = [], safetyStop = null, unsafeIntent = false, normalBehaviour = false, diagnoseStop = null, committedDiagnosis = false, presentation = null, progress = null) {
   let prompt = `You are a friendly, expert parts advisor for Spares4Repairs, a UK online store for DOMESTIC APPLIANCE spare parts.
 
@@ -85,12 +92,12 @@ GROUNDING (critical):
     safetyStop,
     diagnoseStop,
     remoteAction: classifyRemoteActionClass({
-      safetyStop, diagnoseStop, applianceType: intent && intent.applianceType,
+      safetyStop, diagnoseStop, applianceType: intent && intent.applianceType, ...remoteActionFacts(intent, fault),
     }),
     outcome: (fault && fault.node && fault.node.outcome) || (normalBehaviour ? 'ADVICE_ONLY' : 'PART_ROUTING'),
   });
   const actionClass = classifyRemoteActionClass({
-    safetyStop, diagnoseStop, applianceType: intent && intent.applianceType,
+    safetyStop, diagnoseStop, applianceType: intent && intent.applianceType, ...remoteActionFacts(intent, fault),
   });
   const boundary = remoteActionBoundary(actionClass, intent && intent.applianceType);
   // "The customer named the appliance family" is Jev's typed provenance, not a prose scan. When Jev
@@ -515,7 +522,7 @@ The customer is proposing to open, remove, or electrically check something. This
           // handling below to offer as "likely compatible"; don't suppress it.
         }
         if (confirmed.length) {
-          prompt += `\n- FOR THIS MODEL we have model-confirmed parts for: ${confirmed.join(', ')} — lead with the first of THESE that fits the symptom (confirmed to exist for this machine). Any other matching parts below are brand-compatible ("verify fit") — offer them too, telling the customer to check they fit.`;
+          prompt += `\n- FOR THIS MODEL we have model-confirmed parts for: ${confirmed.join(', ')}. Keep the evidence order above: do NOT promote a component because we stock it. If the leading cause is one of these, link that part. Any other matching parts below are brand-compatible ("verify fit") — offer them only if relevant, telling the customer to check they fit.`;
           const checkFirst = String(compList[0] || '').toLowerCase();
           if (/filter/.test(checkFirst)) {
             prompt += `\n- CHECK-FIRST IS A FILTER: the inline [Title](/partNo) card MUST be a filter from CATALOGUE DATA when one is listed below. Do NOT make a battery, charger, motor or thermal cut-out the first (or only) linked part — those are later causes after the filter/blockage check.`;
