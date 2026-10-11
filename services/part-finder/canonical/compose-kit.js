@@ -245,7 +245,10 @@ function createCompose(pack) {
   function prompt(b) {
     const lines = ['FACTS (trusted):', ...b.facts.map((x) => `- ${x}`)];
     if (b.evidence.length) lines.push('What the customer has reported so far (recorded as categories, not their exact words):', ...b.evidence.map((x) => `- ${x}`));
-    if (b.latest && b.latest.length) {
+    // A reply that the model number cannot be reached is acknowledged by the model re-offer frame itself; a second,
+    // free acknowledgement of "the model number" read as if the customer had given it (GOLD G2-DW-06).
+    const frameAcknowledges = Boolean(b.task && b.task.reoffer === REOFFER_MODEL);
+    if (b.latest && b.latest.length && !frameAcknowledges) {
       lines.push(`LATEST (this message, recorded as categories): ${b.latest.join('; ')}`);
       lines.push('Open with one short acknowledgement of this message in your own words, suited to what it was.');
     }

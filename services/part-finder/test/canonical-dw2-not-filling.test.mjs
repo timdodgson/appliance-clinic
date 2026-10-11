@@ -105,6 +105,17 @@ describe('"I can\'t get to the model" while another question is pending (GOLD G2
     expect(t.endsWith(J.TASK['ask_observation:waterInBase'].ask)).toBe(true);
     expect(t).not.toContain(J.TASK['ask_observation:waterInBase'].say);
   });
+  it('the frame is the acknowledgement: COMPOSE is not asked for a second one (it read as if the model was given)', () => {
+    const r = H.play(J, [op(), C({ observations: [O('supplyOk')] }), noModel]);
+    const b = J.brief(r.state, r.last, null, {});
+    expect(b.latest).toContain('cannot find the model number');
+    const user = J.prompt(b)[1].content;
+    expect(user).not.toMatch(/LATEST|Open with one short acknowledgement/);
+    expect(user).toContain(b.task.reoffer);
+    // any other answer to a pending question is still acknowledged
+    const r2 = H.play(J, [op(), C({ observations: [O('supplyOk')] })]);
+    expect(J.prompt(J.brief(r2.state, r2.last, null, {}))[1].content).toContain('Open with one short acknowledgement');
+  });
   it('a cannot-answer to the pending question itself still settles it', () => {
     const r = H.play(J, [op(), C({ observations: [O('supplyOk')] }), C({ reply: { toPending: 'cannot_answer' } })]);
     expect(r.rules.slice(-1)[0]).not.toBe('B12:waterInBase');
