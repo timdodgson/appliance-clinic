@@ -26,17 +26,22 @@ function modelReadingIsStrong(probabilities) {
 
 /**
  * The commit decision for this turn's identifier token, for the orchestrator: 'uncertain' when Jev reads it as the model
- * but not strongly enough to commit (the customer is asked which it is), otherwise 'commit' (a strong model reading, a
- * code reading, no token, or no distribution from an older Jev).
+ * but not strongly enough to commit, or when the cs/1 gate held a token Jev could not place (`heldToken`); the customer
+ * is then asked which `token` is. Otherwise 'commit' (a strong model reading, a code reading, no token, or no
+ * distribution from an older Jev).
  */
-function tokenDecision(signal) {
+function tokenDecision(signal, heldToken) {
   const s = signal || {};
+  if (heldToken && s.meaning !== 'model') {
+    // The cs/1 gate held a token Jev did not read as the model (gateClassification, below): ask which it is.
+    return { meaning: s.meaning || null, decision: 'uncertain', reason: 'meaning_uncertain', token: heldToken };
+  }
   if (s.meaning !== 'model' || !s.probabilities || !Object.keys(s.probabilities).length) {
     return { meaning: s.meaning || null, decision: 'commit', reason: 'not_gated' };
   }
   return modelReadingIsStrong(s.probabilities)
     ? { meaning: 'model', decision: 'commit', reason: 'strong' }
-    : { meaning: 'model', decision: 'uncertain', reason: 'weak_or_near_tie' };
+    : { meaning: 'model', decision: 'uncertain', reason: 'weak_or_near_tie', token: s.model || heldToken || null };
 }
 
 /** The token signal of this turn's Jev UNDERSTAND (intent + public observability). */
@@ -55,10 +60,16 @@ const activeToken = (state) => {
   const f = state && state.identity && state.identity.unconfirmedToken;
   return f && f.status !== 'superseded' && f.value ? f.value : null;
 };
+/** The token is already settled in cs/1: the committed model or an active displayed code. */
+const settledToken = (state, token) => {
+  const id = (state && state.identity) || {};
+  return (id.model && id.model.value && norm(id.model.value) === norm(token))
+    || (id.displayedCodes || []).some((f) => f && f.status === 'active' && norm(f.value) === norm(token));
+};
 
 /**
  * Returns { classification, decision } — a new classification (the input is untouched) and what was decided:
- *   'held'           a weak model reading: not committed as model or code; held as identity.unconfirmedToken
+ *   'held'           a weak or unplaced model reading: not committed as model or code; held as identity.unconfirmedToken
  *   'answered_code'  a held token, and this turn reads as a code: committed as the displayed code
  *   'answered_model' a held token, and this turn reads strongly as the model: committed as the model
  *   null             nothing to decide
@@ -70,7 +81,12 @@ function gateClassification(classification, signal, prior) {
   const s = signal || {};
   const weakModel = s.meaning === 'model' && !modelReadingIsStrong(s.probabilities);
   const token = s.model || (id.model && id.model.value) || null;
-  if (weakModel && token) {
+  // Jev could not place the token (meaning 'uncertain': an explicit uncertain, or a pick below its confidence floor)
+  // but mc/1 typed it as the model: the same weak reading, so it is held too. Only for a new token: one already
+  // held is being answered (below), and a settled one stays settled.
+  const unplacedModel = s.meaning === 'uncertain' && Boolean(id.model && id.model.value)
+    && !activeToken(prior) && !settledToken(prior, id.model.value);
+  if ((weakModel || unplacedModel) && token) {
     if (id.model && norm(id.model.value) === norm(token)) id.model = { value: null, basis: null };
     if (id.displayedCode && norm(id.displayedCode) === norm(token)) id.displayedCode = null;
     id.unconfirmedToken = token;

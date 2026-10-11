@@ -100,7 +100,9 @@ export type PartFinderFrame = DeltaFrame | DoneFrame | ErrorFrame;
 export interface TokenDecision {
   meaning: string | null;
   decision: 'commit' | 'uncertain';
-  reason: 'not_gated' | 'strong' | 'weak_or_near_tie';
+  reason: 'not_gated' | 'strong' | 'weak_or_near_tie' | 'meaning_uncertain';
+  /** The token the customer is asked about, when the decision is 'uncertain'. */
+  token?: string | null;
 }
 
 /** Understand-mode response (orchestrator only; S4R never sends `mode`). */

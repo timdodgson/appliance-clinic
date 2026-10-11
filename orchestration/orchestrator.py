@@ -408,8 +408,10 @@ class Orchestrator:
         token_decision = "uncertain" if engine_token.get("decision") == "uncertain" else "commit"
         st._tokenDecision = engine_token or {"reason": "not_reported"}
         st._uncertainToken = None
-        if jev_model and not jev_code and token_decision == "uncertain":
-            st._uncertainToken = jev_model
+        # The engine names the token it held; a weak model reading also arrives as Jev's model value.
+        uncertain_token = engine_token.get("token") or jev_model
+        if uncertain_token and not jev_code and token_decision == "uncertain":
+            st._uncertainToken = uncertain_token
             jev_model = None
         establishes = decisions.get("latestTurnEstablishes")
         # A turn goes to the RAG (which owns diagnosis AND the deterministic safety stop) when Jev

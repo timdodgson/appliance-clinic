@@ -128,6 +128,20 @@ st = token_loaded(None, weak_a)
 check("no engine decision (understand unavailable / older engine) -> commits, as a missing distribution always has", st._uncertainToken is None)
 check("the engine decision is kept for telemetry", token_loaded(uncertain, weak_a)._tokenDecision == uncertain)
 
+# Phase 12: Jev could not place the token (meaning "uncertain", so no model value on the intent); the engine's gate held it
+# and names it. The orchestrator asks about that token instead of a generic symptom question.
+ol = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
+held = {"meaning": "uncertain", "decision": "uncertain", "reason": "meaning_uncertain", "token": "F06"}
+ol.rag.understand = lambda **kw: {"jev": {"decisions": {"candidateTokenMeaning": "uncertain", "applianceFamily": "washing-machine",
+                                                        "applianceFamilyProvenance": "customer_named"},
+                                          "probabilities": {"candidateTokenMeaning": {"model": 0.5, "uncertain": 0.36, "error_code": 0.09}}},
+                                  "understand": {"model": None, "applianceType": "washing-machine", "make": "hotpoint",
+                                                 "_tokenMeaning": "uncertain", "tokenDecision": held}}
+st = ol._load(TurnInput(message="x", sessionId="tok-u"))
+check("an unplaced token the engine held -> held for the code-or-model question", st._uncertainToken == "F06", st._uncertainToken)
+r = ol._flow_clarify(st, {})
+check("...and the question names it", "F06" in r.message and "model number" in r.message, r.message)
+
 # The engine shares the account's Lambda concurrency: one short retry on 429, never on other failures.
 from orchestration.services import RealDiagnosticService as HttpDiagnosticService
 class R:
