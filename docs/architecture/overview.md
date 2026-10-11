@@ -68,7 +68,7 @@ which is served but not developed.
 |---|---|---|---|
 | **AC site** | Not in this repository: the static site is still published from the original monorepo (`apps/whichpart`) | Static files in S3 `whichpart-web-<account>` behind CloudFront | Customer chat UI, admin UI |
 | **BFF** (`whichpart-api`) | `services/whichpart-api` | Lambda zip, Function URL, CloudFront `/api*` origin | Customer turns, AC sign-in, admin, scheduled jobs, canonical session state, transcripts |
-| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model. No conversation state of its own: each turn is built from the request and seeded from the cs/1 block ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md), Phase 11) |
+| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model. No conversation state of its own: each turn is built from the request and seeded from the cs/1 block ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md), Phase 11). Its responsibilities and size are reviewed in [orchestrator-review.md](orchestrator-review.md) |
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |
 | **Diagnosis engine** (`part-finder`) | `services/part-finder` | Lambda zip `spares4repairs-part-finder`, public Function URL (response streaming) | UNDERSTAND (Jev), retrieval, decisions, COMPOSE, the NDJSON stream. **Also the S4R `/part-finder` backend** |
 
