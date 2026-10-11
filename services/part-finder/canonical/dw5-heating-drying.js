@@ -55,7 +55,7 @@ function diagnose(state, ctx = {}) {
   return engine.diagnoseSpec(SPEC, state, { ...ctx, codeFault });
 }
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-not-heating-drying', P: 'T', appliance: 'dishwasher', journeys: ['no-heat', 'not-drying'], codeFaults: ['heating', 'temperature-sensor'],
+  JOURNEY: 'dw-not-heating-drying', declineUnsafe: kit.UNSAFE_WET, P: 'T', appliance: 'dishwasher', journeys: ['no-heat', 'not-drying'], codeFaults: ['heating', 'temperature-sensor'],
   claims: (h, journey) => journey === 'poor-results' && F.heatIssue(h) && !F.fillIssue(h) && !F.flood(h),
   ownedElsewhere: (h) => F.flood(h),
   CHECKS: ['rinse-aid', 'hot-wash-test'],

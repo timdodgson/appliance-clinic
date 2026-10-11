@@ -154,6 +154,9 @@ function policy(s, diag, ctx = {}) {
     return action('exit_journey', appliance === 'washer-dryer' ? 'washer-dryer' : 'router', 'wrong-journey', 'L3');
   }
   if (!appliance) return action('ask_identity', 'appliance', 'appliance-unknown', 'L4', { expects: EXPECTS.appliance.slice(), requestKind: kindFor(s, 'appliance'), pending: { slot: 'IDENTITY', target: 'appliance', purpose: 'DIAGNOSIS' } });
+  // L4u (ADR 0018, as policy-kit P8): an unsafe request THIS turn -> the fixed decline, no part; the next turn carries on.
+  const unsafe = kit.unsafeThisTurn(s, kit.UNSAFE_WET);
+  if (unsafe) return action('conclude', 'unsafe-request-declined', 'unsafe-action-requested', 'L4u', kit.unsafeDeclineConclusion(unsafe));
   // Household waste backs up: the plumbing, not the machine (no machine part).
   if (L && L.key === 'HB' && L.committed) {
     return action('conclude', 'household-backflow', 'household-waste-backflow', 'L5', { conclusion: { cause: 'household-backflow', level: 'cause_family', confidence: 'likely', handoff: 'plumbing', alternatives: [], noPart: true } });

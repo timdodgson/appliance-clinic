@@ -7,7 +7,7 @@
 const kit = require('./policy-kit.js');
 
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-excessive-vibration', P: 'V', journeys: ['vibration'], codeFaults: [], drainOwned: false,
+  JOURNEY: 'wm-excessive-vibration', declineUnsafe: kit.UNSAFE_WET, P: 'V', journeys: ['vibration'], codeFaults: [], drainOwned: false,
   CHECKS: ['transit-bolts', 'load-check', 'levelling', 'empty-vibration-test', 'drum-play', 'shock-absorbers'],
   OBS_TARGETS: { recentInstallation: ['recentInstallation'] },
   outcomeObs: { 'empty-vibration-test': 'shakesWhenEmpty', 'drum-play': 'drumPlay' },

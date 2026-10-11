@@ -55,7 +55,7 @@ function diagnose(state, ctx = {}) {
 // (pump cover, drain hose, sink waste) follow either way before any engineer handoff.
 const filterRuledOut = (h) => h.has('filterClear') || h.has('failsAfterFilterFix');
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-not-draining', P: 'A', appliance: 'dishwasher', journeys: ['not-draining'], codeFaults: ['not-draining', 'drain-pump'],
+  JOURNEY: 'dw-not-draining', declineUnsafe: kit.UNSAFE_WET, P: 'A', appliance: 'dishwasher', journeys: ['not-draining'], codeFaults: ['not-draining', 'drain-pump'],
   ownedElsewhere: (h) => F.flood(h),
   CHECKS: ['dishwasher-filter', 'pump-impeller', 'drain-hose', 'waste-spigot', 'drain-command'],
   OBS_TARGETS: { waterRemaining: ['waterRemaining'], pumpHumming: ['pumpHumming'] },

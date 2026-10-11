@@ -431,4 +431,4 @@ const RETEST_TASK = { say: 'Now run a normal programme again and see whether the
 const naturalListFn = (xs) => (xs.length <= 1 ? (xs[0] || '') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
 
 module.exports = { REQUIREMENT, SAFETY_COPY, REOFFER, reofferFrame, factLine, createCompose, naturalList: naturalListFn,
-  makeConclusionCopy, HANDOFF_COPY, RETEST_TASK };
+  makeConclusionCopy, HANDOFF_COPY, RETEST_TASK, UNSAFE_DECLINE };

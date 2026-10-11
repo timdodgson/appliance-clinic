@@ -50,7 +50,7 @@ function diagnose(state, ctx = {}) {
 }
 
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-not-filling', P: 'B', appliance: 'dishwasher', journeys: ['not-filling'], codeFaults: ['fill', 'flow-meter'],
+  JOURNEY: 'dw-not-filling', declineUnsafe: kit.UNSAFE_WET, P: 'B', appliance: 'dishwasher', journeys: ['not-filling'], codeFaults: ['fill', 'flow-meter'],
   claims: (h, journey) => journey === 'poor-results' && F.fillIssue(h) && !F.flood(h),
   ownedElsewhere: (h) => F.flood(h),
   CHECKS: ['inlet-hose-tap', 'inlet-filter', 'door-start-test'],

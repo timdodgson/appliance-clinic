@@ -144,15 +144,17 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
   } catch {
     return failJson(400, { error: 'Invalid JSON' });
   }
-  // ADR 0017: orchestrator-only fields need a valid AC signature; S4R's plain {messages} request is unaffected.
+  // ADR 0017 / 0018: orchestrator-only fields need a valid AC signature; S4R's plain {messages} request is unaffected.
+  // A request that carries them without one is refused outright: it never becomes a successful plain diagnosis.
   const gate = gateInternalFields(body && typeof body === 'object' ? body : {}, event, rawBody);
   body = gate.body;
-  if (gate.record.present.length && gate.record.signature !== 'valid') {
+  if (gate.record.rejected) {
     log({
       evt: 'engine-auth', requestId, signature: gate.record.signature,
-      fields: gate.record.present, dropped: gate.record.dropped,
+      fields: gate.record.present, rejected: true,
       origin: headerHost(event && event.headers && (event.headers.origin || event.headers.Origin)),
     });
+    return failJson(401, { error: 'This request needs a valid engine signature.', errorCode: 'engine_signature_required' });
   }
 
   // Feedback signal: a lightweight {feedback:{traceId,rating,note}} POST (no
@@ -166,6 +168,12 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
   let messages = body.messages;
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return failJson(400, { error: 'messages array required' });
+  }
+  // ADR 0018: a signed (AC) diagnose call is answered only by the canonical journey that controls it. If no journey
+  // controls it, it is an explicit error, never the legacy pipeline (which serves only S4R's unsigned {messages}).
+  if (gate.record.signature === 'valid' && body.mode !== 'understand' && !canonicalRuntime().controls(body.canonical)) {
+    log({ evt: 'engine-auth', requestId, signature: 'valid', rejected: true, reason: 'canonical_not_controlled' });
+    return failJson(409, { error: 'No canonical journey controls this turn.', errorCode: 'canonical_not_controlled' });
   }
   // Optional deterministic seed — TEST-ONLY. The regression harness sends a fixed
   // seed so runs are reproducible; production requests never send one, so prod

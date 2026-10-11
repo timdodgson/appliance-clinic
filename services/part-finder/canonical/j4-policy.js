@@ -8,7 +8,7 @@
 const kit = require('./policy-kit.js');
 
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-not-filling', P: 'F', journeys: ['not-filling'], codeFaults: ['inlet-valve', 'flow-meter'], drainOwned: false,
+  JOURNEY: 'wm-not-filling', declineUnsafe: kit.UNSAFE_WET, P: 'F', journeys: ['not-filling'], codeFaults: ['inlet-valve', 'flow-meter'], drainOwned: false,
   CHECKS: ['inlet-hose-tap', 'inlet-filter', 'door-closed-latched'],
   OBS_TARGETS: { fillState: ['waterEntering', 'fillsSlowly'], supplyOk: ['supplyOk'], doorLocks: ['doorLocks'] },
   outcomeObs: { 'door-closed-latched': 'doorLocks' },

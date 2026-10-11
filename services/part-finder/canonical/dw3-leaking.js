@@ -54,7 +54,7 @@ function containment(s) {
 }
 const LOC = ['atDoor', 'atRear', 'underneath', 'baseWater', 'pumping'];
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-leaking', P: 'K', appliance: 'dishwasher', journeys: ['leaking'], codeFaults: ['leak-flood'],
+  JOURNEY: 'dw-leaking', declineUnsafe: kit.UNSAFE_WET, P: 'K', appliance: 'dishwasher', journeys: ['leaking'], codeFaults: ['leak-flood'],
   claims: (h, journey) => F.DW_JOURNEYS.includes(journey) && F.flood(h),
   containment,
   CHECKS: ['door-seal', 'loading-clearance', 'inlet-connection', 'drain-connection'],

@@ -175,6 +175,9 @@ function policy(s, diag, ctx = {}) {
     return action('exit_journey', appliance === 'washer-dryer' ? 'washer-dryer' : 'router', 'wrong-journey', 'S3');
   }
   if (!appliance) return askIdentity(s, 'appliance', 'appliance-unknown', 'S4');
+  // S4u (ADR 0018, as policy-kit P8): an unsafe request THIS turn -> the fixed decline, no part; the next turn carries on.
+  const unsafe = kit.unsafeThisTurn(s, kit.UNSAFE_WET);
+  if (unsafe) return action('conclude', 'unsafe-request-declined', 'unsafe-action-requested', 'S4u', kit.unsafeDeclineConclusion(unsafe));
   if (!has('drainsOk') && obs(s, 'waterRemaining') == null && askable(s, 'waterRemaining')) {
     return askObs(s, 'waterRemaining', 'drain-state-decides-path', 'S5');
   }
