@@ -3,7 +3,7 @@
   "prompts": [
     {
       "id": "diagnosis.compose.system",
-      "version": 1,
+      "version": 2,
       "purpose": "System prompt of the legacy COMPOSE pass: how to word the reply to the customer from the decision already made (diagnosis, catalogue data, safety, presentation grain).",
       "owner": "diagnosis engine",
       "consumers": [
@@ -26,6 +26,12 @@
           "date": "2026-10-09",
           "fingerprint": "e0caf02c292ba4aa639c2f98dee772e0ddeda792712cb2ed2c91b0c2260cbbaf",
           "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-11",
+          "fingerprint": "a1e32c40b1d1d6a831d20e3224e29c5c25d288538a776ff2c88c8952aeb1013d",
+          "change": "ADR 0018 approved S4R fix: model-confirmed (stocked) parts no longer lead the reply; the evidence order is kept and a stocked part is linked only if it is the leading cause. The remote-action class in the prompt now reads the same typed inputs as the handler (gas part request, electrical-leakage finding are competent-person)."
         }
       ]
     },

@@ -48,7 +48,9 @@ const ok = (n, c) => { if (c) pass++; else { fail++; fails.push(n); console.log(
   // COMPOSE leads with the finding + does not force a part for a non-component finding
   ok('A COMPOSE injects PRIMARY ENGINEERING FINDING and says LEAD WITH THIS', /PRIMARY ENGINEERING FINDING \(LEAD WITH THIS\)/.test(SRC));
   ok('A COMPOSE forbids forcing a part headline for a condition finding', /do NOT force a part as the headline/i.test(SRC));
-  ok('A COMPOSE parts list is subordinated to the finding ("AFTER the primary finding")', /AFTER the primary finding/i.test(SRC));
+  ok('A COMPOSE parts list is subordinated to the finding (finding first; a part only if the finding IS a component)',
+    /If the primary finding IS a failed component, lead with it; otherwise state the finding first/.test(SRC)
+    && /Recommend\/name a replacement COMPONENT only when the finding IS a failed component/.test(SRC));
   // brand-overclaim / evidence-attribution guard (generic, derived — not a per-brand list)
   ok('A evidence-attribution KNOWLEDGE BASIS guard present', /KNOWLEDGE BASIS/.test(SRC));
   ok('A generic knowledge must not become brand-specific', /GENERIC appliance engineering, not \$\{intent\.make\}/.test(SRC));

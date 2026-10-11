@@ -1109,6 +1109,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
     );
     const remoteAction = classifyRemoteActionClass({
       safetyStop, diagnoseStop, applianceType: intent.applianceType, queryText,
+      userIntent: intent.userIntent, fuel: intent._fuel && intent._fuel.value, faultId: fault && fault.faultId, facts: intent.facts,
     });
     const presentation = computePresentationGrain({
       intent, fault, committedFinding, safetyStop, diagnoseStop, remoteAction, outcome, queryText,
@@ -1342,7 +1343,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       const _blobLc = _noiseBlob.toLowerCase();
       const _cordless = /\b(cordless|battery|batteries|charg\w*|dock)\b/.test(_blobLc) ? true
         : (/\b(corded|mains lead|plug fuse|power (?:cable|cord)|wall socket)\b/.test(_blobLc) ? false : null);
-      const _term = renderDeterministicTerminal(intent, _rec, { safetyStop, diagnoseStop, normalBehaviour, recovered: _recovered, cordless: _cordless });
+      const _term = renderDeterministicTerminal(intent, _rec, { safetyStop, diagnoseStop, normalBehaviour, recovered: _recovered, cordless: _cordless, competentPerson: metric.remoteActionClass === REMOTE_ACTION.COMPETENT_PERSON });
       if (_term) { metric.deterministicTerminal = true; reply = _term; }
       else {
         // Not a terminal: if a component is committed (model known) but COMPOSE didn't name it,
@@ -1428,7 +1429,7 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       reply = (intent && (customerFacingNextCheck(intent) || intent.clarifyingQuestion))
         || "Sorry, I didn't quite catch that — could you tell me the appliance make and model, and what it's doing?";
     }
-    reply = avoidVerbatimRepeat(reply, progress, { safetyStop, diagnoseStop, normalBehaviour, recovered, metric, intent }); // never send the same message twice (grounded-fault only)
+    reply = avoidVerbatimRepeat(reply, progress, { safetyStop, diagnoseStop, normalBehaviour, recovered, metric, intent, competentPerson: metric.remoteActionClass === REMOTE_ACTION.COMPETENT_PERSON }); // never send the same message twice (grounded-fault only)
     out.write(JSON.stringify({ type: 'delta', text: reply }) + '\n');
     metric.partsFound = shownParts.length;
     if (modelResolved && parts.length > 0 && shownParts.length === 0) {

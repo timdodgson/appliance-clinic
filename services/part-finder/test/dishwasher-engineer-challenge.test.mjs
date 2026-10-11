@@ -64,7 +64,13 @@ const nodeText = (id) => JSON.stringify(doc(id)).toLowerCase();
 
 // ---- 0. COVERAGE: every dishwasher node reviewed + has ordered suspects -----------------------
 ok('dishwasher family present (25 nodes)', NODES.length >= 25);
-for (const n of NODES) ok(`${n}: override present + >=1 ordered suspect`, Boolean(OV.docs[`dishwasher:${n}`]) && names(n).length >= 1);
+for (const n of NODES) {
+  // ADVICE_ONLY nodes are no-part fixes: the runtime suppresses parts for them, so an ordered part
+  // list is meaningless. They must instead carry the free-fix explanation (catalogue discriminators).
+  const adviceOnly = DW[n]?.outcome === 'ADVICE_ONLY';
+  ok(`${n}: override + >=1 ordered suspect (advice-only: free-fix discriminator instead)`,
+    adviceOnly ? (DW[n].discriminators || []).length >= 1 : Boolean(OV.docs[`dishwasher:${n}`]) && names(n).length >= 1);
+}
 
 // symptom-entry nodes must LEAD WITH A CHECK (never auto-jump to a part)
 const CHECK_FIRST = ['not-draining', 'fill', 'leak-flood', 'poor-clean-results', 'circulation-pump',

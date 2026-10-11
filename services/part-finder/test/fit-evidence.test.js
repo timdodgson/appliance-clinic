@@ -193,8 +193,12 @@ check('ask for fuller model on incomplete/ambiguous/conflict', shouldAskForFulle
     null, false, false, null, true,
     { mention: 'purchase', purchaseAppropriate: true },
   );
-  check('compose says catalogue is not a diagnosis', /CATALOGUE FIT IS NOT A DIAGNOSIS/.test(prompt));
-  check('compose does not tell the model to lead with stocked parts as more likely', !/lead with the first of THESE that fits the symptom \(confirmed to exist/.test(prompt));
+  check('compose separates catalogue fit from diagnosis',
+    /DIAGNOSIS vs CATALOGUE FIT \(keep these SEPARATE/.test(prompt)
+    && /Confirmed model compatibility does NOT prove that component caused the fault/.test(prompt)
+    && /does not prove this component caused the fault/i.test(prompt));
+  check('compose does not tell the model to lead with stocked parts as more likely', !/lead with the first of THESE/.test(prompt)
+    && /do NOT promote a component because we stock it/.test(prompt));
 }
 
 console.log('\nfit-evidence tests passed');

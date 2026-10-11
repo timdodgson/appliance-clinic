@@ -70,13 +70,25 @@ function applianceSafetyFamily(applianceType, queryText) {
   return 'general';
 }
 
-function classifyRemoteActionClass({ safetyStop, diagnoseStop, applianceType, queryText } = {}) {
+// An electrical-leakage finding (the tripping-electrics fault, or the customer's typed "it trips the electrics" fact) is
+// competent-person territory: the knowledge says not to recommend replacing the selected function's element from it.
+// It holds on every turn of the conversation, not only the turn whose wording raised the safety stop.
+function electricalLeakageFinding({ faultId, facts } = {}) {
+  if (faultId === 'tripping-electrics') return true;
+  return Array.isArray(facts) && facts.some((f) => f && f.name === 'tripsElectrics' && f.value === 'TRUE');
+}
+
+function classifyRemoteActionClass({ safetyStop, diagnoseStop, applianceType, queryText, userIntent, fuel, faultId, facts } = {}) {
   if (safetyStop === 'gas' || safetyStop === 'shock' || safetyStop === 'burning' || safetyStop === 'electrical') {
     return REMOTE_ACTION.STOP_USE;
   }
   if (diagnoseStop === 'arcing' || diagnoseStop === 'hv-service') return REMOTE_ACTION.STOP_USE;
   if (diagnoseStop === 'hv-boundary') return REMOTE_ACTION.COMPETENT_PERSON;
-  const family = applianceSafetyFamily(applianceType, queryText);
+  if (electricalLeakageFinding({ faultId, facts })) return REMOTE_ACTION.COMPETENT_PERSON;
+  // Jev's typed fuel counts as well as the wording: a later turn need not repeat "gas".
+  const family = fuel === 'gas' ? 'fuel-burning' : applianceSafetyFamily(applianceType, queryText);
+  // Gas parts are fitted by a Gas Safe engineer: a gas part request is never a customer purchase.
+  if (family === 'fuel-burning' && userIntent === 'PART_REQUEST') return REMOTE_ACTION.COMPETENT_PERSON;
   if (family === 'fuel-burning' || family === 'high-voltage' || family === 'sealed-refrigeration') {
     return REMOTE_ACTION.CAUTION;
   }
@@ -202,6 +214,7 @@ function computePresentationGrain({
   if (safetyStop || outcome === 'SAFETY_STOP' || remoteAction === REMOTE_ACTION.STOP_USE
       || remoteAction === REMOTE_ACTION.COMPETENT_PERSON) return none;
   if (diagnoseStop) return none;
+  if (electricalLeakageFinding({ faultId: fault && fault.faultId, facts: intent && intent.facts })) return none;
   // A useful customer-safe check or discriminator is still the current action: name a
   // hypothesis if needed, do not sell. Naming a part as a question ("pressure sensor?")
   // does not skip advice-before-replacement.

@@ -41,9 +41,20 @@ const syn = (id) => [...(WM[id]?.synonyms || []), ...(doc(id).symptoms || [])].j
 const allText = (id) => `${JSON.stringify(doc(id))}`.toLowerCase();
 
 // ---- 0. COVERAGE: every one of the 30 nodes reviewed + has an override ----------------------
-ok('exactly 30 washing-machine nodes', NODES.length === 30);
+ok('washing-machine family present (>=30 nodes)', NODES.length >= 30);
+// The leak-source decomposition (washing-machine-leak-source-depth.test.js) adds catalogue-authored,
+// check-first nodes. Every node needs ordered suspects: from an engineer override, or else from a
+// catalogue node whose own component order already leads with a free check (as built by
+// knowledge/build-knowledge.mjs, which falls back to the catalogue order).
+const catComps = (n) => (WM[n]?.components || []).map((s) => String(s).toLowerCase());
+const FREE_CHECK = /^(check|clean|clear|reduce)\b/;
 for (const n of NODES) {
-  ok(`${n}: has an override + ordered suspects`, Boolean(OV.docs[`washing-machine:${n}`]) && names(n).length >= 1);
+  const viaOverride = Boolean(OV.docs[`washing-machine:${n}`]) && names(n).length >= 1;
+  const viaCatalogue = catComps(n).length >= 2 && FREE_CHECK.test(catComps(n)[0]);
+  ok(`${n}: ordered suspects (engineer override, or check-first catalogue order)`, viaOverride || viaCatalogue);
+}
+for (const n of ['leak-door', 'leak-dispenser', 'leak-drain', 'leak-fill']) {
+  ok(`${n}: leak-source node present and leads with a free check before any part`, Boolean(WM[n]) && FREE_CHECK.test(catComps(n)[0] || ''));
 }
 
 // ---- 1. GLOBAL SAFETY (hard): no node instructs the customer to live-test / bypass / dismantle

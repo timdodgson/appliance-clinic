@@ -44,7 +44,7 @@ function intentFor(fam, comps, extra = {}) {
   check('A3 instructs tie to customer own words', /what the CUSTOMER THEMSELVES said/i.test(p));
   check('A4 anti-overcommit: no more-specific component', /do NOT substitute a different or MORE SPECIFIC component/i.test(p));
   check('A5 area-over-false-precision allowed', /calibrated .*points to.* beats a false-precise/i.test(p));
-  check('A6 still calibrated + suppresses re-ask', /most likely/i.test(p) && /Do NOT ask another diagnostic question to re-establish/i.test(p));
+  check('A6 still calibrated + suppresses re-ask', /most likely/i.test(p) && /Do NOT ask another diagnostic question (?:merely )?to re-establish/i.test(p));
 }
 
 // ---------------------------------------------------------------------------
@@ -77,7 +77,11 @@ function intentFor(fam, comps, extra = {}) {
   if (fault.node) {
     const intent = intentFor('washer-dryer', (fault.node.components || []).slice(0, 2), { facts: facts({ heatPresent: 'TRUE' }) });
     const p = buildComposeSystem([], null, intent, fault, [], null, false, false, null, true);
-    check('D1 advice-only committed -> ANSWER SHAPE present + ADVICE FIRST retained', /ANSWER SHAPE/.test(p) && /ADVICE FIRST/i.test(p));
+    // An advice-only node has no component grain (presentation.js: ADVICE_ONLY -> mention none), so the reply is the
+    // practical fix at subsystem grain with no parts, not an ANSWER SHAPE that names a component.
+    check('D1 advice-only committed -> ADVICE FIRST, subsystem grain, no ANSWER SHAPE, no parts',
+      /ADVICE FIRST/i.test(p) && /WORKING AREA AT SUBSYSTEM \/ TEST-PLAN GRAIN/.test(p)
+      && !/ANSWER SHAPE/.test(p) && /CATALOGUE DATA: \(none found yet — do not link any parts\)/.test(p));
   } else { pass++; }
 }
 

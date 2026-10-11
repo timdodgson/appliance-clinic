@@ -43,7 +43,13 @@ const blob = (id) => `${discr(id)} \n ${conf(id)} \n ${advice(id)} \n ${syn(id)}
 
 // ---- 0. COVERAGE: every WD node reviewed + has ordered suspects ------------------------------
 ok('washer-dryer family present', NODES.length >= 20);
-for (const n of NODES) ok(`${n}: override + ordered suspects`, Boolean(OV.docs[`washer-dryer:${n}`]) && wd(n).length >= 1);
+for (const n of NODES) {
+  // ADVICE_ONLY nodes are no-part fixes (parts suppressed at runtime): require the free-fix
+  // explanation instead of an ordered part list. Mirrors oven-cooker-engineer-challenge.
+  const adviceOnly = WD[n]?.outcome === 'ADVICE_ONLY';
+  ok(`${n}: override + ordered suspects (advice-only: free-fix discriminator instead)`,
+    adviceOnly ? (WD[n].discriminators || []).length >= 1 : Boolean(OV.docs[`washer-dryer:${n}`]) && wd(n).length >= 1);
+}
 
 // ---- 1. ELECTRICAL SAFETY (hard) — no live-mains/insulation/bypass instruction ---------------
 const UNSAFE = /(insulation.test|megger|live.{0,14}test|test.{0,14}\blive\b|bypass.{0,10}(interlock|protection)|discharge.{0,10}(capacitor|cap\b)|probe.{0,10}(live|mains))/;

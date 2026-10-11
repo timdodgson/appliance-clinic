@@ -543,10 +543,12 @@ function isWetPlasticsOnly(text) {
   if (/(everything (?:else )?(?:is )?wet|all (?:are )?(?:wet|damp)|nothing (?:is )?dry\w*|nothing dries|cold at the end|dishes are cold|not heating|no hot water|won'?t heat|wont heat|leak\w*|error|fault code|\bf\d|\be\d\d|flood\w*|burning|smok|spark)/.test(t)) return false;
   // Non-plastic crockery mentioned: OK only if it is explicitly DRY/fine (the "just the plastics"
   // case). If crockery is present and NOT said to be dry, more than the plastics is affected -> fault.
-  const crockery = /\b(glass\w*|plate\w*|dish\w*|china|cup\w*|bowl\w*|mug\w*|cutlery)\b/.test(t);
+  // The appliance's own name ("dishwasher") is not crockery: drop it before the crockery checks.
+  const c = t.replace(/\bdish[\s-]?washers?\b/g, ' ');
+  const crockery = /\b(glass\w*|plate\w*|dish\w*|china|cup\w*|bowl\w*|mug\w*|cutlery)\b/.test(c);
   if (crockery) {
-    const crockeryDry = /\b(glass\w*|plate\w*|dish\w*|china|cup\w*|bowl\w*|mug\w*|cutlery)\b[^.!?]{0,25}\b(dry|dried|fine|ok|okay)\b/.test(t)
-      || /\b(everything else|all else|the rest|everything but)\b[^.!?]{0,15}\b(dry|fine|ok)\b/.test(t);
+    const crockeryDry = /\b(glass\w*|plate\w*|dish\w*|china|cup\w*|bowl\w*|mug\w*|cutlery)\b[^.!?]{0,25}\b(dry|dried|fine|ok|okay)\b/.test(c)
+      || /\b(everything else|all else|the rest|everything but)\b[^.!?]{0,15}\b(dry|fine|ok)\b/.test(c);
     if (!crockeryDry) return false;
   }
   const stripped = t

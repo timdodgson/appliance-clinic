@@ -128,7 +128,9 @@ describe('source guards', () => {
   });
   it('COMPOSE: separates diagnosis from exact part fit (model NOT needed to diagnose)', () => {
     expect(/is NOT needed to give a useful DIAGNOSIS/.test(composeSrc)).toBe(true);
-    expect(/identify the exact replacement part/i.test(composeSrc)).toBe(true);
+    // the model number is asked to check part fit, never promised as the exact part (an overclaim presentation.js rewrites)
+    expect(/check whether a suitable replacement is available/.test(composeSrc)).toBe(true);
+    expect(/identify the exact replacement part/i.test(composeSrc)).toBe(false);
   });
   it('COMPOSE: sparse-catalogue steer no longer gates the diagnosis behind the model', () => {
     // The old wording "ASK for the model number ... BEFORE offering parts" (which withheld the

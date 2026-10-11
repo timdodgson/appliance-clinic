@@ -13,6 +13,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const K = join(HERE, '..', 'knowledge');
@@ -42,7 +44,7 @@ const discr = (id) => (doc(id).discriminators || []).concat(CAT.faults[FAM][id]?
 const nodeText = (id) => (JSON.stringify(doc(id)) + JSON.stringify(CAT.faults[FAM][id] || {})).toLowerCase();
 
 // ---- 0. COVERAGE ------------------------------------------------------------------------------
-ok('vacuum family present (3 nodes)', NODES.length >= 3);
+ok('vacuum family present (>=5 nodes)', NODES.length >= 5);
 for (const n of NODES) ok(`${n}: override + >=1 suspect`, Boolean(OV.docs[`${FAM}:${n}`]) && names(n).length >= 1);
 
 // ---- 1. SAFETY --------------------------------------------------------------------------------
@@ -56,10 +58,27 @@ ok('lost-suction: filters + blockage + brush hair all present', idx('lost-suctio
 ok('lost-suction: "most lost suction is full bin / dirty filter / blockage" before any part', /full bin|dirty filter|blockage/.test(discr('lost-suction')) && /before any part|check those/.test(discr('lost-suction')));
 
 // ---- 3. CUTS OUT = thermal protection from airflow restriction -------------------------------
-ok('motor: clean filters / clear blockage / let cutout reset BEFORE the motor', /filter|blockage|cut-?out|thermal/.test(first('motor')));
-ok('motor: the actual motor is NOT the first suspect', !/^motor \(|^motor$/.test(first('motor')) || /clean|blockage|cut/.test(first('motor')));
+// The motor node is reached on motor-failure evidence, so its PART suspects are motor parts. The airflow check that
+// comes before condemning the motor is carried as the node's expert advice (discriminators), which the legacy COMPOSE
+// is told to follow ahead of the first part. Proved on the shipped knowledge and the real prompt, not on list shape.
+const INDEX = JSON.parse(readFileSync(join(K, 'knowledge-index.json'), 'utf8'));
+const shipped = (id) => INDEX.docs.find((d) => d.knowledgeId === `${FAM}:${id}`) || {};
+const CLEAN_FIRST = /(before condemning the motor|first)[^.]*(clean the filters|clear any blockage)|(clean the filters|clear any blockage)[^.]*first/i;
+ok('motor: shipped knowledge says clean the filters / clear the blockage BEFORE condemning the motor',
+  (shipped('motor').discriminators || []).some((d) => CLEAN_FIRST.test(d)));
 ok('motor: cutting out with a smell = overheating from dirty filter/blockage (clean first)', /overheat/.test(discr('motor')) && /(filter|blockage|clean)/.test(discr('motor')));
-ok('motor (bare) ranked AFTER the airflow/thermal checks', motorIdx('motor') > 0);
+{
+  const { buildComposeSystem } = require('../engine/compose.js');
+  const doc = shipped('motor');
+  const p = buildComposeSystem([], null, { applianceType: 'vacuum', confidence: 0.8, facts: [], candidateComponents: doc.likelyComponents || [] },
+    { faultId: 'motor', node: { label: doc.label, components: doc.likelyComponents || [], discriminators: CAT.faults[FAM].motor?.discriminators || [] } },
+    [doc], null, false, false, null, true);
+  const i = p.indexOf('FOLLOW any free-fix / check-first');
+  ok('motor: the legacy COMPOSE prompt carries the clean-first advice under the check-first instruction',
+    i !== -1 && CLEAN_FIRST.test(p.slice(i)));
+}
+ok('cuts-out: filters / blockage / thermal cut-out reset BEFORE the motor', /filter|blockage|cut-?out|thermal/.test(first('cuts-out')) && motorIdx('cuts-out') > 0);
+ok('cuts-out: cutting out = overheating from a blocked filter/airway (clean first)', /overheat/.test(discr('cuts-out')) && /(filter|blockage|clean)/.test(discr('cuts-out')));
 
 // ---- 4. BRUSH-BAR = hair/belt first, not the motor -------------------------------------------
 ok('brush-bar: hair/thread wrapped round the roller checked first', /hair|thread/.test(first('brush-bar')));
@@ -78,10 +97,10 @@ for (const n of NODES) {
 // ---- 7. PAIRED / NEAR-NEIGHBOUR --------------------------------------------------------------
 const PAIRS = [
   ['weak-suction-everywhere(airflow) vs strong-hose/poor-floor-pickup(brush-bar)', () => motorIdx('lost-suction') === -1 && /hair|belt/.test(first('brush-bar'))],
-  ['cuts-out-hot-then-restarts(thermal/airflow) vs dead-permanently(motor/cord)', () => /overheat|thermal|cut/.test(first('motor')) && (idx('motor', 'cord') !== -1 || idx('motor', 'switch') !== -1)],
-  ['blocked-filter(airflow) vs clean-airflow+weak-motor-evidence', () => /filter/.test(first('motor')) && motorIdx('motor') > 0],
+  ['cuts-out-hot-then-restarts(thermal/airflow) vs dead-permanently(cord/switch)', () => /filter|blockage|thermal|cut/.test(first('cuts-out')) && motorIdx('cuts-out') > 0 && (idx('wont-run', 'cord') !== -1 || idx('wont-run', 'switch') !== -1) && motorIdx('wont-run') > 0],
+  ['blocked-filter(airflow) vs clean-airflow+weak-motor-evidence', () => (shipped('motor').discriminators || []).some((d) => CLEAN_FIRST.test(d)) && motorIdx('lost-suction') === -1],
   ['brushroll-jammed(hair) vs belt/head-drive failure', () => /hair|thread/.test(first('brush-bar')) && idx('brush-bar', 'belt') !== -1],
-  ['lost-suction airflow-only vs motor-node thermal-first (no motor-first anywhere)', () => motorIdx('lost-suction') === -1 && motorIdx('motor') > 0],
+  ['lost-suction airflow-only vs cuts-out thermal-first (the motor never leads a non-motor node)', () => motorIdx('lost-suction') === -1 && motorIdx('cuts-out') > 0 && /filter|blockage|thermal|cut/.test(first('cuts-out'))],
 ];
 for (const [name, fn] of PAIRS) ok(`PAIR: ${name}`, fn());
 

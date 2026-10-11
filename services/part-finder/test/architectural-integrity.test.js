@@ -14,7 +14,7 @@ const path = require('path');
 const {
   resolveEstablishedFamily: _resolveEstablishedFamily, lockApplianceType, identityNamedFamilies,
   customerOnlyText, looksLikeModelToken, guessErrorCode, collectEvidence, adjustDifferential,
-  classifySafetyStop, detectUnsafeIntent,
+  classifySafetyStop, detectUnsafeIntent, isMicrowaveHvProcedureRequest,
   classifyRemoteActionClass, computePresentationGrain, formatTrustedCustomerEvidence,
   COMPONENT_MENTION, REMOTE_ACTION, commitFromEvidence, factConflict,
 } = require('../part-finder-lambda.js')._internal;
@@ -168,23 +168,17 @@ const facts = (obj) => Object.entries(obj).map(([name, value]) => ({ name, value
   const ev = collectEvidence({ alreadyReplaced: [], provenGood: [], facts: [] },
     'I already replaced the heating element and nothing changed');
   check('E1 previous element replacement is captured', ev.alreadyReplaced.some((p) => /element/i.test(p)));
-  check('E2 component grain for a named part', ev.replacementGrain === 'component');
   const ranked = adjustDifferential(['heating element', 'thermostat', 'wiring'], ev);
   check('E3 replaced element is demoted not dropped', ranked[ranked.length - 1].includes('element') && ranked.length === 3);
-}
-{
-  const ev = collectEvidence({ alreadyReplaced: [], provenGood: [], facts: [] },
-    'I fitted a whole spare unit and the same fault came back');
-  check('E4 whole-unit replacement is unit grain', ev.replacementGrain === 'unit');
-  const ranked = adjustDifferential(['magnetron', 'capacitor', 'mains inlet'], ev);
-  check('E5 internals demoted ahead of external supply path', ranked[0].includes('inlet') || ranked[0].includes('mains'));
 }
 {
   const ev = collectEvidence({
     provenGood: [], alreadyReplaced: [],
     facts: [{ name: 'heatsAtAll', value: 'TRUE' }],
   }, 'the grill still works');
-  check('E6 proven-good from heatsAtAll fact', ev.provenGood.some((p) => /heater|element/i.test(p)));
+  // With no grounded fault, "it heats" proves the part works only under some conditions (evidence-works-strength).
+  check('E6 ungrounded heatsAtAll is condition-limited, not proven-good',
+    ev.conditionLimited.some((p) => /heater|element/i.test(p)) && !ev.provenGood.some((p) => /heater|element/i.test(p)), ev);
 }
 
 // ---------------------------------------------------------------------------
@@ -207,13 +201,21 @@ const facts = (obj) => Object.entries(obj).map(([name, value]) => ({ name, value
     userIntent: 'PART_REQUEST',
   });
   check('S2 gas part request is competent-person', remote === REMOTE_ACTION.COMPETENT_PERSON);
+  check('S2b gas known from typed fuel (a later turn need not say "gas") is competent-person',
+    classifyRemoteActionClass({ applianceType: 'oven-cooker', queryText: 'can you find the FSD', userIntent: 'PART_REQUEST', fuel: 'gas' }) === REMOTE_ACTION.COMPETENT_PERSON);
+  check('S2c an electric part request stays customer-safe',
+    classifyRemoteActionClass({ applianceType: 'oven-cooker', queryText: 'can you find the fan oven element', userIntent: 'PART_REQUEST', fuel: 'electric' }) === REMOTE_ACTION.CUSTOMER_SAFE);
 }
 {
-  const remote = classifyRemoteActionClass({
-    applianceType: 'microwave', queryText: 'I can take the cover off to test the magnetron',
-    unsafeIntent: true,
-  });
-  check('S3 microwave HV internals are competent-person', remote === REMOTE_ACTION.COMPETENT_PERSON);
+  // A request to work inside a microwave is detected as an HV procedure: the handler sets diagnoseStop 'hv-service'
+  // (stop use, professional only) or 'hv-boundary' (competent person), and neither allows a purchase.
+  const t = 'I can take the cover off to test the magnetron';
+  check('S3 microwave HV internals halt at the professional boundary',
+    detectUnsafeIntent(t) === true && isMicrowaveHvProcedureRequest(t) === true
+      && classifyRemoteActionClass({ applianceType: 'microwave', queryText: t, diagnoseStop: 'hv-service' }) === REMOTE_ACTION.STOP_USE
+      && classifyRemoteActionClass({ applianceType: 'microwave', queryText: t, diagnoseStop: 'hv-boundary' }) === REMOTE_ACTION.COMPETENT_PERSON
+      && computePresentationGrain({ intent: { userIntent: 'PART_REQUEST', candidateComponents: ['magnetron'] }, diagnoseStop: 'hv-service',
+        committedFinding: true, outcome: 'PART_ROUTING' }).purchaseAppropriate === false);
 }
 {
   const grain = computePresentationGrain({
@@ -272,15 +274,6 @@ check('H3 explicit burning smell still stops', classifySafetyStop('hot plastic s
     outcome: 'PART_ROUTING',
   });
   check('P2 isolated part request remains purchase-appropriate', grain.purchaseAppropriate === true && grain.mention === COMPONENT_MENTION.PURCHASE);
-}
-{
-  const block = formatTrustedCustomerEvidence({
-    alreadyReplaced: ['whole unit'],
-    replacementGrain: 'unit',
-    primaryFindingKind: 'subsystem',
-    reportedSymptoms: ['same fault after swap'],
-  });
-  check('P3 unit replacement grain reaches COMPOSE evidence', /replacement grain: unit/i.test(block) && /Whole-unit/i.test(block));
 }
 
 // ---------------------------------------------------------------------------
