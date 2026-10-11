@@ -124,6 +124,8 @@ const journeyOf = (canonical) => (canonical && canonical.journey) || null;
  *   media:   { ensureMediaOverlay, getEffectiveMediaJoin, selectMedia, previouslyShownMedia }
  *   COMPONENT_MENTION
  */
+const { journeyWithCauseSummary } = require('./canonical/cause-summary.js');
+
 function createCanonicalRuntime(deps) {
   /** The confirmed model's catalogue part list (typed; bounded wait). */
   async function modelParts(model, lookupFn = deps.getPartsForModel) {
@@ -155,7 +157,7 @@ function createCanonicalRuntime(deps) {
     const out = control ? J.decide(transport.state, prep, { partLookup: prep.partLookup, control: true, turn: transport.state.version }) : preview;
     const summary = J.summary(prep, out, { key, control, controlRequested: requested,
       partLookup: compactPartLookup(prep.partLookup), modelParts: parts ? parts.length : null, media: J.mediaFor(out.nextAction) });
-    return { applies: true, state: out.state, issuedRequest: out.issuedRequest || null, journey: summary };
+    return { applies: true, state: out.state, issuedRequest: out.issuedRequest || null, journey: journeyWithCauseSummary(summary) };
   }
 
   /**

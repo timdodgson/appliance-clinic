@@ -54,3 +54,19 @@ export interface ConversationState {
   pendingRequest: string | null;
   inferred: Record<string, unknown>;
 }
+
+/**
+ * A NextAction's conclusion, as the engine returns it in the journey summary (understand) and in
+ * `done.canonicalControl.nextAction` (diagnose). `summary` is the customer-facing label of `cause`, from the engine's
+ * cause vocabulary (canonical/cause-summary.js); null when the cause has none, never the raw key.
+ */
+export interface CanonicalConclusion {
+  cause: string | null;
+  summary?: string | null;
+  level?: string;
+  confidence?: 'likely' | 'possible';
+  handoff?: string;
+  component?: string;
+  alternatives?: string[];
+  noPart?: boolean;
+}
