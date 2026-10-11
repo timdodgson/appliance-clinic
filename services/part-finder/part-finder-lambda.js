@@ -236,8 +236,10 @@ exports.handler = awslambda.streamifyResponse(async (event, responseStream) => {
       // orchestrator routes on it (uIntent.tokenDecision) instead of recomputing the thresholds.
       const tokenGate = require('./canonical/token-gate.js');
       const tokenSignal = tokenGate.jevTokenSignal(uIntent, metric.jev);
-      uIntent.tokenDecision = tokenGate.tokenDecision(tokenSignal);
       const canonicalTransport = await canonicalRuntime().finishUnderstand(canonicalStarted, tokenSignal);
+      const held = canonicalTransport && canonicalTransport.tokenDecision === 'held' && canonicalTransport.classification
+        && canonicalTransport.classification.identity ? canonicalTransport.classification.identity.unconfirmedToken : null;
+      uIntent.tokenDecision = tokenGate.tokenDecision(tokenSignal, held);
       if (canonicalTransport) metric.canonicalTransport = canonicalRuntimeMod.transportMetric(canonicalTransport);
       out = awslambda.HttpResponseStream.from(responseStream, {
         statusCode: 200,
