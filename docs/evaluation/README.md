@@ -7,8 +7,8 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Check | Status |
 |---|---|
-| **GOLD-v2.4** | 56 whole-conversation scenarios, rubric `gold-v2-rubric-v3`, Jev as the fixed judge. **56/56 in two consecutive runs on the final Phase 11 build** ([results](phase-11-results.md#gold), [per-run evidence](phase-11/gold-runs.json)) |
-| Live transcript review | Six realistic journeys through the public site, reviewed by the production transcript judge and read by a person ([Phase 11](phase-11-results.md#transcript-review-live-final-build)) |
+| **GOLD-v2.4** | 56 whole-conversation scenarios, rubric `gold-v2-rubric-v3`, Jev as the fixed judge. **56/56 in two consecutive runs on the final Phase 12 build** ([results](phase-12-results.md#gold), [per-run evidence](phase-12/gold-runs.json)); Phase 11 likewise ([results](phase-11-results.md#gold)) |
+| Live transcript review | Realistic journeys through the public site, reviewed by the production transcript judge and read by a person ([Phase 12](phase-12-results.md#transcript-review-live-final-build), [Phase 11](phase-11-results.md#transcript-review-live-final-build)) |
 | Runtime suites, typecheck, build equivalence | Every pull request (CI) |
 | `/part-finder` contract and smoke | Before and after every production release |
 
@@ -27,6 +27,7 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Round | Document | What it shows |
 |---|---|---|
+| Phase 12 | [phase-12-results.md](phase-12-results.md) | The engine owns the cause label and the token decision; the unplaced-token commit; three COMPOSE defects found by the final gate; every GOLD run |
 | Phase 11 | [phase-11-results.md](phase-11-results.md) | One conversation state, signed engine fields, the F15 fix; every GOLD run with the defect each failure exposed; live transcript review |
 | | [phase-11-gold-audit.md](phase-11-gold-audit.md) | Why the suite grew by exactly one scenario (G2-MW-06) |
 | | [phase-11-concurrency.md](phase-11-concurrency.md) | Account concurrency analysis and the recommended quota |

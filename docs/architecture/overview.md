@@ -122,7 +122,8 @@ before any admin handler runs.
 | State | Owner | Notes |
 |---|---|---|
 | Conversation state (`cs/1`: identity, evidence, requests and their outcomes, sticky hazards, declines) | Merged by the engine (`canonical/merge.js`), stored only by `whichpart-api` (DynamoDB `STATE#`, conditional writes) | The only conversation state ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)). Versioned schema; additive fields only |
-| Code versus model for an uncertain token | One commit rule before the merge (`canonical/token-gate.js`) | A weak reading is held as `identity.unconfirmedToken`; the customer's answer commits it |
+| Code versus model for an uncertain token | The engine: one commit rule before the merge (`canonical/token-gate.js`) | A weak or unplaced reading is held as `identity.unconfirmedToken`; the customer's answer commits it. The decision reaches the orchestrator as `understand.tokenDecision`, and the orchestrator has no thresholds of its own (Phase 12) |
+| Customer-facing label of a canonical cause | The engine (`canonical/cause-summary.js`) | Sent as `conclusion.summary` on the NextAction; the orchestrator passes it through as `diagnosis.label`, and an unlabelled cause gets none, never its raw key (Phase 12) |
 | Orchestrator turn state | Request-local | Rebuilt every turn from the request and the cs/1 block; nothing survives the turn, so two instances given the same request decide the same way (tested) |
 | Transcripts | `whichpart-api` | Read by the scheduled review and the admin area |
 

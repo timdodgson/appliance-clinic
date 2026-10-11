@@ -227,7 +227,7 @@ On model or own prose:
 - `OWNER_SAFETY_NOTE` (`orchestrator.py:1451` ↔ `safety.js:339`) and the isolation-cue regex (`:1463` ↔ `safety.js:378`)
 - Gas, burning, shock and unsafe-intent copy (`orchestrator.py:1384-1442` ↔ `compose.js:198-213`, `compose-kit.js:76-95`)
 - `SCOPE_REFUSAL_TEXT` (`orchestrator.py:104-108`) "mirrors" `REFUSAL_TEXT` (`security.js`)
-- `_CAUSE_LABEL` (~200 cause keys → labels, `orchestrator.py:837-952`) duplicates the canonical packs' cause vocabulary and labels (`JC.COMPONENT_LABEL` etc.)
+- `_CAUSE_LABEL` (~200 cause keys → labels, `orchestrator.py:837-952`) duplicates the canonical packs' cause vocabulary and labels (`JC.COMPONENT_LABEL` etc.). *Resolved in Phase 12: the engine sends `conclusion.summary` and the table is deleted.*
 - The journey registry is read by Python from a copied file (`orchestrator.py:111-128`), with a silent "control disabled" fallback when the file is missing
 - `_MODEL_NEED_RE` (`orchestrator.py:1537`) ↔ BFF `modelNeedRe` (`index.js:931`)
 - `_FAMILY` / `_DIAGNOSTIC_AREAS` taxonomy (`orchestrator.py:46-96`) vs engine faultIds
@@ -274,7 +274,7 @@ On model or own prose:
 | 6 | **Authenticate orchestrator-only engine fields** (`understand`, `canonical`, `mode`, `established`, `seed`) with a header or HMAC, or route the orchestrator through a separate entry | Medium (integrity, learning-corpus poisoning, part-card injection) | Medium: S4R must keep sending `{messages}` | **Yes** (shared handler; contract pinned) |
 | 7 | **Single safety copy source** (owner note, gas, unsafe-intent, isolation cue) in a shared JSON consumed by Python and JS; remove the orchestrator prepends on canonical turns | Medium: duplicated or doubled precautions | Low–medium | Yes if the engine copy changes |
 | 8 | **Align timeouts and retries** (240 s COMPOSE vs 90 s client vs 120 s Lambda; Jev 3×15 s inside understand) | Medium: tail-latency failures | Low | Yes (engine config) |
-| 9 | **Replace `_CAUSE_LABEL` and other Python vocabularies** with values emitted by the engine (`done.canonicalControl` could carry the label) | Low–medium: label drift | Low | No |
+| 9 | **Replace `_CAUSE_LABEL` and other Python vocabularies** with values emitted by the engine (`done.canonicalControl` could carry the label). *`_CAUSE_LABEL` done in Phase 12* | Low–medium: label drift | Low | No |
 | 10 | **Collapse duplicate evidence scoring** (`evidence-engine.js` ↔ `engine/evidence.js`) into one module | Low (already equivalence-tested) | Low | Yes (legacy imports) |
 | 11 | **Retire the second Jev call** on canonical turns once mc/1 covers routing needs (the orchestrator still routes on legacy Jev) | Medium: latency, cost, two semantic authorities | High | Legacy Jev is S4R's understand: keep it for S4R |
 | 12 | **Reduce regex behaviour on model prose** (degenerate-ack, re-describe, verbatim-repeat, isolation-cue tail) by moving the decisions pre-COMPOSE as typed state | Medium | High (behavioural churn) | **Yes** |

@@ -1,6 +1,6 @@
 # 0015. One owner per decision
 
-- **Status:** Accepted; partly implemented. State and the code-versus-model commit have one owner (Phase 11). The error-code-to-journey bridge and one shared safety-copy source are still planned ([target](../architecture/target.md) T8, T9)
+- **Status:** Accepted; partly implemented. State and the code-versus-model commit have one owner (Phase 11). The orchestrator's copies of the token commit rule and of the canonical cause labels are removed, so the engine owns both (Phase 12). The error-code-to-journey bridge and one shared safety-copy source are still planned ([target](../architecture/target.md) T8, T9)
 - **Date:** 2026-10-10
 
 ## Context
@@ -20,6 +20,8 @@ The worst real failures came from the seams. In R30, the orchestrator committed 
 | What the message means | Jev, via mc/1 questions. A choice below its commit threshold is not a fact; the consequence is a disambiguating question |
 | State | cs/1 merge ([ADR 0014](0014-cs1-is-the-only-conversation-state.md)) |
 | Next action on a journey turn | The canonical policy |
+| Customer-facing label of a canonical cause | The engine (`canonical/cause-summary.js`), sent on the NextAction (Phase 12) |
+| Code versus model for an identifier token | The engine (`canonical/token-gate.js`), sent as `understand.tokenDecision` (Phase 12) |
 | Error-code facts | The MCP. The target is to bridge the MCP's typed system into the matching canonical journey |
 | Customer wording | COMPOSE for the decided action, or fixed copy for stops, declines and templates. The orchestrator writes prose only on legacy turns, and only from typed state (the slots it needs, what it already asked) |
 | Safety copy | One source per runtime now; one shared source as a target |

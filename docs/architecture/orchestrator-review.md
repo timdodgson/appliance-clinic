@@ -12,6 +12,16 @@ responsibilities are mixed?
 
 Reviewed at `c24662d` (after Phase 11 and the portfolio truth pass).
 
+**Phase 12 update.** Debt items 1 and 2, the two facts the orchestrator duplicated from the engine, are closed. Each now has
+one owner, the engine:
+- The customer-facing cause label is `conclusion.summary` on the engine's NextAction (`canonical/cause-summary.js`).
+  `_CAUSE_LABEL` is deleted (about 115 lines).
+- The code-or-model decision is `understand.tokenDecision` (`canonical/token-gate.js`).
+  `routing.token_meaning_decision` and its mirrored thresholds are deleted.
+
+`orchestrator.py` is now 2,234 lines. Items 3 to 8 are unchanged and still open. The tables below are the review as
+written; the debt table marks what changed ([Phase 12 results](../evaluation/phase-12-results.md)).
+
 ## The package as it stands
 
 | File | Lines | Responsibility |
@@ -43,7 +53,7 @@ That density is deliberate, and it is what makes the file readable.
 |---|---|---|---|
 | **Turn interpretation** | `_seed_from_cs1`, `_load`, `_reconcile_typed_evidence`, `_established_identity` | about 400 | Builds the request-local turn from the cs/1 block and Jev's typed output: identity, displayed code, model status, symptom presence, typed evidence. Decides nothing that survives the turn |
 | **Entry and control flow** | `handle_turn`, `_finish_turn` | about 150 | Scope refusal, then the canonical or legacy branch, then the choke points: unsafe-intent warning, owner note, code-list collapse, pending request, debug state |
-| **Canonical transport** | `_canonical_result`, `_canonical_control`, `_flow_canonical`, `_canon_kw`, `_CAUSE_LABEL` | about 90 code + 115 data | Passes the engine's merged cs/1 result through. On a canonical turn the engine decided the NextAction and COMPOSE worded it; the orchestrator maps it to the response |
+| **Canonical transport** | `_canonical_result`, `_canonical_control`, `_flow_canonical`, `_canon_kw`, `_CAUSE_LABEL` (deleted in Phase 12) | about 90 code + 115 data | Passes the engine's merged cs/1 result through. On a canonical turn the engine decided the NextAction and COMPOSE worded it; the orchestrator maps it to the response |
 | **Legacy flows** | `_flow_error_code`, `_flow_symptoms`, `_flow_combined`, `_flow_clarify`, `_code_intake_clarify` | about 330 | Turns no canonical journey owns: MCP first for codes, then the engine's legacy diagnose, then reconciliation of the code against the symptom by diagnostic area |
 | **Legacy composition and policy** | `_compose_code_only`, `_compose_symptoms_only`, `_compose_combined`, `_compose_unresolved_code_plus_symptoms`, `_compose_model_acquisition`, `_journey_stage`, `_ambiguous_code_reply`, `_code_needs_appliance_clarify` | about 600 | Writes the customer reply on legacy turns from typed state and the engine's result; decides when to ask for the model |
 | **Safety presentation** | `_safety_block`, `_owner_safety_note`, `_unsafe_intent_warning`, `_apply_rag_safety`, stop copy | about 170 | Turns a safety class or cause (from cs/1, the MCP or the engine) into fixed copy. It detects no hazards itself |
@@ -79,7 +89,7 @@ The intended role: **the orchestrator coordinates; it is not a second source of 
 | Owns persistent conversation state | **No.** Every turn is built from the request and the cs/1 block ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)). Nothing survives the invocation |
 | Duplicates canonical evidence scoring | **No.** On a canonical turn the engine's NextAction is passed through. The legacy area reconciliation compares the MCP with the engine by taxonomy; it is not journey scoring |
 | Detects hazards | **No.** The safety class and cause come from cs/1, the MCP or the engine. The stop and owner-note **copy** is mirrored from the engine, which is debt item 7 |
-| Duplicates identity truth | **Partly.** cs/1 identity is read, not re-derived. But the token commit rule exists twice, in `routing.token_meaning_decision` and the engine's `token-gate.js`, with mirrored thresholds (debt item 2) |
+| Duplicates identity truth | **Partly** at review; **no** after Phase 12. cs/1 identity is read, not re-derived. The token commit rule existed twice, in `routing.token_meaning_decision` and the engine's `token-gate.js`, with mirrored thresholds (debt item 2, now closed) |
 | A second policy engine | **Not on canonical turns.** On legacy turns it is the policy: when to ask for the model, which clarify to send. That is bounded by ADR 0015 and shrinks as canonical coverage grows |
 | Owns prompt logic | **No.** There are no prompts in the orchestrator, and all model calls are in the engine. Trusted MCP facts go to the engine as a structured dict (`TrustedDiagnosticContext.to_prompt_facts`), and the engine formats them |
 | Legacy prose bounded | **Yes.** On a canonical turn the only orchestrator text is the fixed unsafe-intent warning. All other prose is on legacy turns, from typed state |
@@ -107,8 +117,8 @@ That cost is worth paying for a fix, not for line count.
 
 | # | Item | Evidence | Suggested fix |
 |---|---|---|---|
-| 1 | **`_CAUSE_LABEL` duplicates the engine's cause vocabulary, and has drifted.** Four engine causes have no label: `condenser-water-path`, `drain-hose-or-standpipe`, `water-container-full` (washer-dryer not drying) and `normal-operating-hum` (microwave noisy). On those conclusions the raw key becomes the view's `diagnosis.label` | 199 engine `FAMILY_LABEL` keys compared with 239 orchestrator labels; the other 44 orchestrator-only keys are the washing-machine journeys' causes | The engine sends the summary label with its NextAction, and the orchestrator drops the table. Until then, add the four labels together with a coverage test |
-| 2 | **The token commit rule is implemented twice** | `routing.token_meaning_decision` (0.70 / 0.55) and `canonical/token-gate.js` (`MIN_CONF`, `MIN_MARGIN`) | Read the engine's `tokenDecision` from the canonical result instead of recomputing it |
+| 1 | **Closed in Phase 12 (12.1a/b).** **`_CAUSE_LABEL` duplicates the engine's cause vocabulary, and has drifted.** Four engine causes have no label: `condenser-water-path`, `drain-hose-or-standpipe`, `water-container-full` (washer-dryer not drying) and `normal-operating-hum` (microwave noisy). On those conclusions the raw key becomes the view's `diagnosis.label` | 199 engine `FAMILY_LABEL` keys compared with 239 orchestrator labels; the other 44 orchestrator-only keys are the washing-machine journeys' causes | The engine sends the summary label with its NextAction, and the orchestrator drops the table. Until then, add the four labels together with a coverage test |
+| 2 | **Closed in Phase 12 (12.2a–d).** **The token commit rule is implemented twice** | `routing.token_meaning_decision` (0.70 / 0.55) and `canonical/token-gate.js` (`MIN_CONF`, `MIN_MARGIN`) | Read the engine's `tokenDecision` from the canonical result instead of recomputing it |
 | 3 | **18 undeclared request-local attributes** set on `ConversationState` (`st._jev`, `st._uncertainToken`, …) and read through 39 `getattr(..., default)` calls; a typo would fail silently | AST scan | Declare them on a `TurnContext` dataclass |
 | 4 | **Dead code:** `_family` with its `_FAMILY` table, and `_intake_text` | No references | Delete |
 | 5 | **Repeated call boilerplate:** the engine diagnose call at six sites with near-identical arguments; the MCP call and its evidence block at two | Source | One helper each, explicit about the arguments that differ (`trusted`, `image`, the symptom text) |
@@ -119,10 +129,15 @@ That cost is worth paying for a fix, not for line count.
 Items 1 and 2 are the ones that matter. Both are a second copy of a fact the engine owns, which is the
 seam ADR 0015 is meant to close. The rest are hygiene.
 
+**After Phase 12.** Items 1 and 2 are closed. The engine sends the label and the token decision, and the orchestrator
+transports them. The live check on item 2 found one more incorrect commit in the engine's own rule. When Jev could not
+place the token at all, mc/1 committed it as the model. The engine now holds that token too, and names it for the
+question (12.2c/d). Items 3 to 8 remain as recorded.
+
 ## Assessment
 
 - **Can it be understood in ten minutes?** The control flow can: `handle_turn` reads top to bottom (scope, canonical, legacy route, choke points). The legacy composers take longer, because they encode many reply shapes.
 - **Do the boundaries reflect the architecture?** Yes, at package level. Inside the file, the canonical path is small and clean. Most of the size is the legacy path, which exists because the canonical engine does not yet own every AC turn.
-- **Would it be criticised in an interview?** The two duplicated facts (items 1 and 2) would be fair criticism, and are recorded here. The file length alone would not survive a look at what is in it.
+- **Would it be criticised in an interview?** The two duplicated facts (items 1 and 2) would have been fair criticism; Phase 12 removed them. The file length alone would not survive a look at what is in it.
 
 **Verdict: large, but appropriate.**
