@@ -94,16 +94,29 @@ def test_control_model_ask_sets_model_required_and_pending():
 
 
 def test_control_conclusion_and_part():
-    concl = {"cause": "drain-pump", "level": "component", "confidence": "likely", "handoff": "none", "component": "drain-pump"}
+    concl = {"cause": "drain-pump", "summary": "Drain pump", "level": "component", "confidence": "likely", "handoff": "none", "component": "drain-pump"}
     resp = run(J1Rag(action("recommend_part", "drain-pump", "R14", conclusion=concl), reply="The drain pump is the likely fault.",
                      parts=[{"partNo": "P1", "title": "Drain Pump"}]))
     assert resp.parts == [{"partNo": "P1", "title": "Drain Pump"}]
     assert resp.componentMention == "purchase"
     assert resp.diagnosis.summary == "Drain pump"
-    c2 = dict(concl, cause="household-waste-backflow", level="cause_family", handoff="plumbing")
+    c2 = dict(concl, cause="household-waste-backflow", summary="Household waste plumbing", level="cause_family", handoff="plumbing")
     resp2 = run(J1Rag(action("conclude", "household-waste-backflow", "R6a", conclusion=c2), reply="It's the household waste plumbing."))
     assert resp2.parts is None and resp2.componentMention == "none"
     assert resp2.pendingRequest is None
+
+
+def test_control_diagnosis_label_is_the_engine_summary_passed_through():
+    """Phase 12: the engine owns the cause label. The orchestrator shows conclusion.summary unchanged and never maps the cause
+    key itself: a cause with no summary gives no label, never the raw key."""
+    concl = {"cause": "water-container-full", "summary": "Engine label, passed through", "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+    resp = run(J1Rag(action("conclude", "water-container-full", "WY5", conclusion=concl), reply="Empty the water container first."))
+    assert resp.diagnosis.summary == "Engine label, passed through"
+    bare = {"cause": "water-container-full", "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+    resp2 = run(J1Rag(action("conclude", "water-container-full", "WY5", conclusion=bare), reply="Empty the water container first."))
+    assert resp2.diagnosis.summary is None
+    assert "water-container-full" not in str(resp2.diagnosis) and "water-container-full" not in (resp2.message or "")
+    assert not hasattr(Orchestrator, "_CAUSE_LABEL")
 
 
 def test_control_safety_stop_is_a_safety_stop():
@@ -148,7 +161,7 @@ def test_journey2_control_uses_generic_journey_field():
 
 
 def test_journey2_conclusion_area_and_label():
-    concl = {"cause": "load-imbalance", "level": "cause_family", "confidence": "likely", "handoff": "none"}
+    concl = {"cause": "load-imbalance", "summary": "Out-of-balance load", "level": "cause_family", "confidence": "likely", "handoff": "none"}
     resp = run(J2Rag(action("conclude", "load-imbalance", "S9", conclusion=concl), reply="That points to an out-of-balance load."),
                message="it spins fine now with a mixed load")
     assert resp.diagnosis.summary == "Out-of-balance load"
@@ -199,7 +212,7 @@ def test_journey3_control_ask_uses_nextaction_wording_only():
 
 
 def test_journey3_backflow_conclusion_area_label_no_part():
-    concl = {"cause": "household-backflow", "level": "cause_family", "confidence": "likely", "handoff": "plumbing", "noPart": True}
+    concl = {"cause": "household-backflow", "summary": "Household waste plumbing", "level": "cause_family", "confidence": "likely", "handoff": "plumbing", "noPart": True}
     resp = run(J2Rag(action("conclude", "household-backflow", "L5", conclusion=concl), key="wm-leaking",
                      reply="The blockage is in the household waste plumbing, not the machine."),
                message="the sink backs up when it drains")
@@ -216,7 +229,7 @@ def test_batch2_journey_keys_control_with_area_and_label():
              ("wm-noisy", "foreign-object", "N22", "motor-drum", "Object in the drum / tub"),
              ("wm-not-heating", "normal-low-temperature", "H22", "heater", "Normal low-temperature washing")]
     for key, cause, rule, area, label in cases:
-        concl = {"cause": cause, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+        concl = {"cause": cause, "summary": label, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
         resp = run(J2Rag(action("conclude", cause, rule, conclusion=concl), key=key, reply="That explains it."), message="my washing machine has a problem")
         assert resp.debug["canonicalControl"] == key
         assert resp.diagnosis.summary == label
@@ -232,7 +245,7 @@ def test_dishwasher_journey_keys_control_with_area_and_label():
              ("dw-not-heating-drying", "normal-condensation-drying", "T22", "heating", "Normal condensation drying"),
              ("dw-door-not-starting", "start-control", "G22", "door", "Start control")]
     for key, cause, rule, area, label in cases:
-        concl = {"cause": cause, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+        concl = {"cause": cause, "summary": label, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
         resp = run(J2Rag(action("conclude", cause, rule, conclusion=concl), key=key, reply="That explains it."), message="my dishwasher has a problem")
         assert resp.debug["canonicalControl"] == key
         assert resp.diagnosis.summary == label
@@ -256,7 +269,7 @@ def test_fridge_and_tumble_dryer_journey_keys_control_with_area_and_label():
              ("td-water-container-drain", "vented-no-container", "DW5", "not-emptying-condensate", "Vented dryer (no container)"),
              ("td-door-not-starting", "start-control", "DG22", "door", "Start control")]
     for key, cause, rule, area, label in cases:
-        concl = {"cause": cause, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+        concl = {"cause": cause, "summary": label, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
         resp = run(J2Rag(action("conclude", cause, rule, conclusion=concl), key=key, reply="That explains it."), message="my appliance has a problem")
         assert resp.debug["canonicalControl"] == key
         assert resp.diagnosis.summary == label
@@ -301,7 +314,7 @@ def test_final_pass_journey_keys_control_with_area_and_label():
              ("wd-noisy", "foreign-object", "N7", "motor-drum", "Object in the drum / tub"),
              ("wd-not-heating-wash", "heater-element", "H22", "heater", "Heater element")]
     for key, cause, rule, area, label in cases:
-        concl = {"cause": cause, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
+        concl = {"cause": cause, "summary": label, "level": "cause_family", "confidence": "likely", "handoff": "none", "noPart": True}
         resp = run(J2Rag(action("conclude", cause, rule, conclusion=concl), key=key, reply="That explains it."), message="my appliance has a problem")
         assert resp.debug["canonicalControl"] == key
         assert resp.diagnosis.summary == label

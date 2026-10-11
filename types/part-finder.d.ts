@@ -20,8 +20,8 @@ export interface PartFinderRequest {
 }
 
 /**
- * What the orchestrator adds. These fields are meant for the orchestrator only and are not authenticated yet
- * (docs/architecture/phase-8-findings.md §5).
+ * What the orchestrator adds. These fields are honoured only with a valid HMAC signature over the exact body
+ * (ADR 0017); without one they are dropped and the request is plain `{messages}`.
  */
 export interface OrchestratorPartFinderRequest extends PartFinderRequest {
   mode?: 'understand';
