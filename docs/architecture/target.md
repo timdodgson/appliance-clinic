@@ -60,8 +60,8 @@ flowchart TB
 | T3 | Orchestrator: a low-confidence Jev model is not committed (the existing family-gate rule, applied to the token); the identity clarify asks only for what is missing and does not repeat itself; the code reply drops fragmentary causes and gives a next step; the owner note goes only on turns that give a physical step | Yes | None |
 | T4 | Degraded turns: SERVICE_UNAVAILABLE is flagged `error:true` and `degraded`; cs/1 is not persisted when the NextAction was not delivered | Yes | None |
 | T5 | GOLD v2.3: error-code and either/or scenarios; rubric-wide fidelity critical failures; COMPOSE mode recorded per turn | Yes | None |
-| T6 | Authenticate the orchestrator-only engine fields: an HMAC header from the orchestrator; without it the fields are dropped | Planned (ADR 0017). Needs a new secret and both Lambdas; gated on S4R evidence | Gated: S4R never sends these fields (verified from logs before release) |
-| T7 | Retire the orchestrator's in-memory state: move the remaining latches into cs/1, then delete `InMemoryStateStore` | Planned (ADR 0014) | None |
+| T6 | Authenticate the orchestrator-only engine fields: an HMAC header from the orchestrator; without it the fields are dropped | **Done in Phase 11** (11.2a–11.8a) | None: S4R never sends these fields (verified from logs before enforcement) |
+| T7 | Retire the orchestrator's in-memory state: move the remaining latches into cs/1, then delete `InMemoryStateStore` | **Done in Phase 11** (11.3–11.5) | None |
 | T8 | Bridge error codes into canonical journeys: the MCP's typed system (for example door-lock) opens the matching journey | Planned (ADR 0015) | None |
 | T9 | One safety-copy source shared by Python and JS; one evidence-scoring module; one brand list | Planned | The legacy engine imports must stay byte-equivalent for S4R, or move behind the same gate |
 | T10 | Regenerate the error-code enrichment with complete cause sentences (the generator truncates them) | Planned | None |

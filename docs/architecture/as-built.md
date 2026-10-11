@@ -91,3 +91,46 @@ Key: green = deterministic code, orange = model, blue = durable state, dashed pu
 - Transcripts: the canonical audit of 304 turns since 2026-10-05 (289 controlled, 15 legacy).
 
 The full hop tables with file and line references, the per-question evidence and the ranked refactor list are in [as-built-trace.md](as-built-trace.md). The target is in [target.md](target.md).
+
+## After Phase 11 (releases 11.1–11.13)
+
+The Phase 10 audit above is kept as the record of what was found. Phase 11 changed these answers; the evidence is in [phase-11-results](../evaluation/phase-11-results.md).
+
+```mermaid
+flowchart TB
+  subgraph ENG["Diagnosis engine (one Lambda, public Function URL)"]
+    GATE["engine-auth: orchestrator-only fields<br/>need a valid HMAC signature"]
+    EU["understand mode<br/>token gate → cs/1 MERGE + journeys + policy → NA"]
+    ED["diagnose mode<br/>canonical: word the NA<br/>legacy: full pipeline (F15 guidance typed apart)"]
+    GATE --> EU
+    GATE --> ED
+  end
+  subgraph AC["Appliance Clinic customer turn"]
+    B[Browser] -->|"POST /api — rate-limited; signed state token"| W
+    W["BFF whichpart-api<br/>sole store of cs/1 (STATE#)"]
+    W -->|"bearer · cs/1 block"| O["Orchestrator (Python)<br/>no conversation state:<br/>seeds each turn from cs/1"]
+    O -->|"signed · mode=understand"| GATE
+    O -->|"signed · diagnose"| GATE
+    O -->|bearer| M["Error-code MCP"]
+  end
+  W <--> D[("DynamoDB STATE# cs/1")]
+  S["S4R /part-finder page"] -.->|"{messages} only · unchanged"| GATE
+  classDef det fill:#e8f3e8,stroke:#4a7;
+  classDef state fill:#e6eefb,stroke:#47a;
+  classDef s4r fill:#f3e6f3,stroke:#a4a,stroke-dasharray: 4 3;
+  class O,EU,ED,W,GATE det
+  class D state
+  class S s4r
+```
+
+| Question | Answer after Phase 11 |
+|---|---|
+| Who owns conversation state? | **cs/1, merged by the engine and stored by the BFF, is the only conversation state.** The orchestrator's `InMemoryStateStore` is gone (11.4): every turn starts from the request, seeded from the cs/1 block (identity, displayed code, unconfirmed token, model status, active safety level). A failed turn advances nothing anywhere. Field map: [phase-11-state-ownership](phase-11-state-ownership.md) |
+| Who decides code versus model? | **One commit rule** (`canonical/token-gate.js`, 0.70 / 0.55, the orchestrator gate's thresholds) before the merge: a weak model reading is held as `identity.unconfirmedToken`; the answer commits it. The orchestrator reads the result from cs/1 |
+| Public engine URL controls | **The orchestrator-only fields need a valid HMAC signature** over the exact body (ADR 0017; enforced since 11.7, unconditional since 11.8a). Without one they are dropped and the request is plain `{messages}`. S4R's request carries none and is unchanged |
+| Config not in the repo | **None.** Every live environment variable is declared in `runtime-overrides.json` (a private tunnel URL by SHA-256); `check-overrides-drift.mjs` fails on any difference and runs after every runtime change |
+| Model text reaching the customer (F15) | Deterministic rules type the customer-facing check apart from COMPOSE guidance; customer output reads only the customer part, and a final check drops any sentence repeating that turn's guidance |
+| Canonical COMPOSE checks | Unchanged from Phase 10, plus (11.10): the decided question is asked once; a reply that also puts it as a request falls back to the fixed template |
+| mc/1 check results | (11.11) a check Jev is sure was done but whose result it cannot settle is recorded as done with no result, never dropped (a dropped check was asked again) |
+| Requests and refusals | (11.12) a cannot-answer in a message that says the model is unavailable never declines a different pending question; that question stays unsettled and is re-offered once (11.13: the frame and the question, not the explanation again) |
+| Failures explicit | Unchanged from Phase 10 (ADR 0016), plus: an invalid signature is logged (`evt: engine-auth`) and the fields are dropped; a missing key fails closed; drift fails `change.sh` |

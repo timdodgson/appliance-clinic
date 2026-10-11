@@ -1,6 +1,6 @@
 # 0014. cs/1 is the only conversation state
 
-- **Status:** Accepted
+- **Status:** Implemented (Phase 11, release 11.4; field map in [phase-11-state-ownership](../architecture/phase-11-state-ownership.md))
 - **Date:** 2026-10-10
 
 ## Context
