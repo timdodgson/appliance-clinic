@@ -1,0 +1,66 @@
+{
+  "id": "13.4-orchestrator-no-legacy",
+  "description": "ADR 0018 release 13.4: no AC turn falls back to the legacy diagnosis. Every canonical degradation is an explicit SERVICE_UNAVAILABLE (canonical result marked degraded, nothing persisted); a controlled turn without canonical proof from diagnose is an error; with no journey owning the turn: cs/1 hazard -> safety stop, unsafe request -> fixed decline, displayed code -> MCP only, typed problem -> UNSUPPORTED, else intake. Image sha256:e6ee3807f813e2919214022f18c425149e051c889e5ace2e16aa12fd52e92d2d (orchestrator.py, model.py, services.py). Previous image sha256:f2851e20a79e79ea2a893243ec955046ea1e6cbc2d74313839963014456df800 (12.2d); rollback = restore it.",
+  "classification": "SAFE AC CHANGE (orchestrator only; S4R never calls it)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator"
+      ]
+    },
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": [
+        "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the orchestrator only, by image digest; read of that image in its ECR repository (the repository policy already lets Lambda pull). No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "spares4repairs-diag-orchestrator"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "whichpart-api",
+      "spares4repairs-part-finder"
+    ]
+  }
+}
