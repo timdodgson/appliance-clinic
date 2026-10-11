@@ -4,8 +4,7 @@ Proves the relocated topology deterministically (no network, no real Jev):
   * the orchestrator runs Jev UNDERSTAND exactly ONCE per turn, BEFORE routing;
   * routing consumes Jev's TYPED decisions (appliance family, symptom presence, model-vs-code) —
     never a prose re-parse;
-  * the SAME typed result is forwarded verbatim into the RAG diagnose call (understand=...), so
-    part-finder does not run Jev a second time;
+  * a turn no canonical journey owns is never sent to the legacy diagnosis (ADR 0018);
   * model-vs-error-code follows Jev meaning, not token shape (Dyson V6 stays a model);
   * cannot-answer / correction / pending-slot are driven by Jev, not regex.
 
@@ -56,11 +55,8 @@ def turn(o, msg, sid="s", **kw):
 o, rag = build()
 r = turn(o, "my dishwasher won't drain and there is water left in the bottom")
 check("symptom turn: Jev understand called exactly once", rag.understand_calls == 1, rag.understand_calls)
-check("symptom turn routes to RAG (diagnose called once)", rag.diagnose_calls == 1, rag.diagnose_calls)
-check("diagnose received the SAME typed Jev result (injected)",
-      rag.last_understand_arg is not None and rag.last_understand_arg is rag.last_understand_result["understand"],
-      type(rag.last_understand_arg).__name__)
-check("symptom-only route", r.route == Route.SYMPTOMS.value, r.route)
+check("symptom turn no journey owns: never sent to the legacy diagnosis", rag.diagnose_calls == 0, rag.diagnose_calls)
+check("symptom-only route is intake / unsupported", r.route in (Route.CLARIFY.value, Route.UNSUPPORTED.value), r.route)
 
 # a pure error-code turn still runs Jev exactly once (then MCP, no RAG diagnose)
 o, rag = build()
@@ -72,15 +68,15 @@ check("code turn routes ERROR_CODE", r.route == Route.ERROR_CODE.value and r.out
 # ---- MODEL vs ERROR-CODE by Jev MEANING, not token shape ---------------------------------------
 o, rag = build()
 r = turn(o, "my Dyson V6 keeps pulsing on and off")
-check("Dyson V6 pulsing: V6 is a MODEL (not a code), routes to RAG",
-      r.route == Route.SYMPTOMS.value
+check("Dyson V6 pulsing: V6 is a MODEL (not a code), not routed to the code path",
+      r.route not in (Route.ERROR_CODE.value, Route.ERROR_CODE_AND_SYMPTOMS.value)
       and (rag.last_understand_result["understand"].get("errorCode") in (None, ""))
       and rag.last_understand_result["understand"].get("model") == "V6", rag.last_understand_result["understand"])
 
 o, rag = build()
 r = turn(o, "My Bosch dishwasher is showing E15 and there is water underneath")
-check("explicit code + make + symptom -> combined MCP+RAG",
-      r.route == Route.ERROR_CODE_AND_SYMPTOMS.value, r.route)
+check("explicit code + make + symptom -> the MCP (the code's owner), no diagnosis call",
+      r.route == Route.ERROR_CODE.value and rag.diagnose_calls == 0, r.route)
 
 # code without sufficient identity (no make) -> clarify, not an invented interpretation
 o, rag = build()
@@ -134,19 +130,6 @@ class ScriptedRag(FakeDiagnosticService):
 
 def build_scripted(u=None, d=None):
     return FakeBff(Orchestrator(FakeErrorCodeService(CANNED), ScriptedRag(u, d)))
-
-# ---- CONTRACT 1: "cannot provide the model" is the TYPED field, never prose --------------------
-o, _ = build()
-st_typed_true = types.SimpleNamespace(_understand={"modelUnavailable": True},
-                                      customer=types.SimpleNamespace(symptomsText="the drum won't spin"))
-st_typed_false = types.SimpleNamespace(_understand={"modelUnavailable": False},
-                                       customer=types.SimpleNamespace(symptomsText="the model sticker is scratched off and unreadable"))
-check("CONTRACT model-unavailable follows Jev typed True (no prose cue present)",
-      o._cannot_provide_model(st_typed_true) is True)
-check("CONTRACT model-unavailable follows Jev typed False EVEN WHEN prose screams 'scratched off'",
-      o._cannot_provide_model(st_typed_false) is False)
-check("CONTRACT model-unavailable degrades safe when Jev absent",
-      o._cannot_provide_model(types.SimpleNamespace(_understand=None)) is False)
 
 # ---- CONTRACT 2: code VALUE recovery reads Jev's decision OR the customer's EXPLICIT label -------
 # The line the audit draws: deterministic code may read the customer's OWN explicit statement

@@ -1,8 +1,7 @@
 """GOLD v2: describe-the-problem turns.
 
 A question that only asks the customer to describe the problem asks for no physical step, so it carries no
-owner-safety note; and the customer's answer to it is a symptom report, not a completed check, so it does not move
-the journey to the model ask.
+owner-safety note. (How the answer moves a journey on is the canonical journey's decision, ADR 0018.)
 """
 import sys
 from orchestration.model import ConversationState, OrchestratorResponse, Outcome
@@ -38,16 +37,6 @@ check("SYMPTOM_DESCRIPTION clarify -> no owner-safety note", o._owner_safety_not
 disc = OrchestratorResponse(route="", outcome=Outcome.CLARIFICATION_REQUIRED.value, message="Is the water left in the bottom?",
                             clarification={"question": "x", "needs": ["symptom detail"], "intent": "SYMPTOM_DISCRIMINATOR"})
 check("SYMPTOM_DISCRIMINATOR clarify -> note still carried", o._owner_safety_note(state(), disc) is not None)
-
-# journey stage
-check("answer to a describe question typed as a symptom -> still diagnosing, no model ask",
-      o._journey_stage(state(establishes="symptom", answered="yes"), {}) == "DIAGNOSING")
-check("answer that only gives the appliance type (identity) -> still diagnosing, no model ask",
-      o._journey_stage(state(establishes="identity", answered="yes"), {}) == "DIAGNOSING")
-check("answer typed as a check result -> model required after check",
-      o._journey_stage(state(establishes="check_result", answered="yes"), {}) == "MODEL_REQUIRED_AFTER_CHECK")
-check("pending check answered (not a symptom) -> model required after check",
-      o._journey_stage(state(establishes="confirmation", answered="yes"), {}) == "MODEL_REQUIRED_AFTER_CHECK")
 
 print(f"\nDescribe turns: {passed} passed / {failed} failed  (total {passed + failed})")
 sys.exit(0 if failed == 0 else 1)

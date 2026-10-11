@@ -12,8 +12,7 @@ import re as _re
 import time
 from typing import Optional
 
-from .model import (Route, Outcome, Trust, TurnInput, ConversationState, CustomerProvided,
-                    DeterministicResolved, ProbabilisticInferred, TrustedDiagnosticContext,
+from .model import (Route, Outcome, Trust, TurnInput, ConversationState,
                     OrchestratorResponse, CodeResultView, DiagnosisView, ObservedIdentifier,
                     strongest_safety)
 from . import routing
@@ -23,79 +22,12 @@ from .services import (ErrorCodeService, DiagnosticService,
 NON_FAULT_RECORD_TYPES = {"STATUS", "INFORMATION", "MAINTENANCE", "WARNING"}
 
 
-def _fault_phrase(rag, default: str = "fault") -> str:
-    """Safe customer-facing fault label. dict.get(key, default) does not replace an explicit None."""
-    label = rag.get("faultLabel") if isinstance(rag, dict) else None
-    if isinstance(label, str) and label.strip():
-        return label.strip().lower()
-    return default
-
-
-def _with_safety_prefix(msg: str, safety: Optional[dict], safety_info) -> str:
-    """Do not prepend the same safety sentence when structured safetyInformation already carries it."""
-    if not safety or not safety.get("message"):
-        return msg
-    if isinstance(safety_info, dict) and (
-        str(safety_info.get("text") or "").strip()
-        or safety_info.get("classification") == "PROFESSIONAL_ONLY"
-    ):
-        return msg
-    return safety["message"] + " " + msg
-
-# coarse fault-family map to compare a deterministic (MCP) system with a probabilistic (RAG) one
-_FAMILY = {
-    "leak-flood": "leak", "leak": "leak", "leak-protection": "leak",
-    "drain": "drain", "not-draining": "drain", "circulation": "drain",
-    "fill": "fill", "inlet": "fill", "inlet-valve": "fill", "overflow": "leak",
-    "heating": "heat", "heater": "heat", "temperature-sensing": "heat", "temp-sensor": "heat",
-    "motor-drive": "motor", "motor": "motor", "motor-drum": "motor", "balance": "motor",
-    "door-lock": "door", "door": "door",
-}
-def _family(system: Optional[str]) -> Optional[str]:
-    if not system:
-        return None
-    return _FAMILY.get(system.lower(), system.lower())
-
-
 def _facing_code(st: ConversationState, mcp: Optional[dict] = None) -> Optional[str]:
     """The code the customer supplied, not a mapping alias/canonical sibling."""
     cust = getattr(st.customer, "displayedCode", None)
     code = (mcp or {}).get("code") or {}
     return cust or code.get("input") or code.get("displayed")
 
-
-# Coarse "diagnostic area" normaliser. The Error-Code MCP (code MEANING) and the part-finder
-# runtime resolver (SYMPTOM/fault diagnosis) are two INDEPENDENT deterministic authorities with
-# their own vocabularies (MCP: faultId/system like "cooling-fan"/"fan"; runtime: system/faultId
-# like "evaporator-fan"). To reconcile them on a code-only turn we need a small SHARED set of
-# physical fault areas so an unresolved-code candidate set can be compared with a grounded runtime
-# diagnosis STRUCTURALLY — no prose, no LLM, no per-code fact table. This is a taxonomy bridge like
-# `_FAMILY`: it holds NO code->meaning facts and NO make/model literals. Keyword-ordered — the
-# FIRST area whose keyword is a substring of the normalised token wins — so "cooling-fan" and
-# "evaporator-fan" both resolve to `fan` (not `compressor`/`cooling`).
-_DIAGNOSTIC_AREAS = [
-    ("fan", ("fan",)),
-    ("defrost", ("defrost", "frost", "de-ice", "ice-buildup", "icing")),
-    ("compressor", ("compressor", "sealed-system", "sealed system", "refrigerant",
-                    "cooling", "cold-control", "gas-leak-sealed")),
-    ("drain", ("drain", "not-draining", "circulation", "sump", "pump")),
-    ("fill", ("fill", "inlet", "overflow", "aquastop", "water-supply", "no-water")),
-    ("leak", ("leak", "flood")),
-    ("heat", ("heat", "heater", "heating", "element", "temperature-sens", "temp-sensor",
-              "ntc", "thermistor", "thermostat")),
-    ("motor", ("motor", "drum", "tacho", "brush", "belt", "balance", "bearing")),
-    ("door", ("door", "lock", "latch", "interlock")),
-    ("sensor", ("sensor", "sensing")),
-    ("control", ("control", "pcb", "board", "mainboard", "module")),
-]
-
-
-# Internal enumeration/bucket labels that the diagnostic engine may emit as differential entries
-# (e.g. "STAGE draining / water remains — pump / filter"). They are INTERNAL routing taxonomy, not
-# customer-facing "checks", and must never be dumped into the reply or the suggested-checks list.
-# Deterministic presentation restraint (§ question-cardinality / no-internal-enum-leak): drop a
-# leading internal bucket word and over-long enumerations; NOT a per-journey rule.
-_INTERNAL_CHECK_LABEL = _re.compile(r"^\s*(?:stage|phase|mode|step|route)\b", _re.I)
 
 # Fixed, safe in-scope redirect for an input Jev typed as a prompt attack or an
 # unrelated (non-appliance) request. Mirrors the part-finder REFUSAL_TEXT so the
@@ -111,7 +43,8 @@ SCOPE_REFUSAL_TEXT = (
 def _load_canonical_journeys() -> dict:
     """Canonical journey key -> likely area (faultId), from the ONE shared registry
     (services/part-finder/canonical/journeys.json; copied next to this module in the Lambda image).
-    Fails safe: no readable registry -> no key is recognised -> every turn takes the legacy path."""
+    Fails closed: no readable registry -> no key is recognised -> no journey owns any turn (ADR 0018: never another
+    diagnosis path)."""
     import json, logging, os
     here = os.path.dirname(os.path.abspath(__file__))
     for path in (os.path.join(here, "canonical_journeys.json"),
@@ -128,143 +61,6 @@ def _load_canonical_journeys() -> dict:
     return {}
 
 
-def _clean_checks(items, limit: int = 6) -> list:
-    """Filter a differential/checks list to customer-safe, concise suspect names. Drops internal
-    bucket labels (STAGE/PHASE/...) and over-long enumeration strings, de-dups, and caps the count
-    so a large internal candidate set is never enumerated into customer prose."""
-    out: list = []
-    seen = set()
-    for it in (items or []):
-        s = str(it or "").strip()
-        if not s or _INTERNAL_CHECK_LABEL.match(s) or len(s) > 60:
-            continue
-        key = s.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(s)
-        if len(out) >= limit:
-            break
-    return out
-
-
-def _component_mention(rag) -> str:
-    """How far retrieved candidates may be shown to the customer.
-
-    Production RAG always sends componentMention. Older/fake RAG without the field
-    keeps prior behaviour when it already listed candidates (offline tests).
-    Explicit 'none' always wins.
-    """
-    m = str((rag or {}).get("componentMention") or "").strip().lower()
-    if m in ("none", "discuss", "purchase"):
-        return m
-    if (rag or {}).get("candidateComponents"):
-        return "purchase"
-    return "none"
-
-
-def _customer_facing_components(rag, limit: int = 6) -> list:
-    mention = _component_mention(rag)
-    if mention == "none":
-        return []
-    comps = _clean_checks((rag or {}).get("candidateComponents") or [], limit=limit)
-    if mention == "discuss":
-        return comps[:2]
-    return comps
-
-
-def _diagnostic_area(token: Optional[str]) -> Optional[str]:
-    """Normalise an MCP or runtime fault token to a coarse shared diagnostic area (structural,
-    keyword-based). Returns the raw normalised token if nothing matches so unrelated areas stay
-    distinct (i.e. still compare as a conflict)."""
-    if not token:
-        return None
-    t = str(token).strip().lower().replace("_", "-")
-    if not t:
-        return None
-    for area, keys in _DIAGNOSTIC_AREAS:
-        if any(k in t for k in keys):
-            return area
-    return t
-
-
-def _areas_of(token: Optional[str]) -> set:
-    """Every diagnostic area a structured token matches.
-
-    First-match `_diagnostic_area` is too coarse for RESOLVED-code conflict: MCP may say
-    `sensor` while the runtime uses `temperature-sensor`. Those are the same physical
-    area; first-match maps the latter only to `heat` and manufactures a conflict.
-    Collecting every matching area lets a more specific token overlap the coarser one.
-    Unrelated areas (leak vs drain) still have an empty intersection.
-    """
-    if not token:
-        return set()
-    t = str(token).strip().lower().replace("_", "-")
-    if not t:
-        return set()
-    found = {area for area, keys in _DIAGNOSTIC_AREAS if any(k in t for k in keys)}
-    return found if found else {t}
-
-
-def _union_areas(*tokens) -> set:
-    out = set()
-    for tok in tokens:
-        if tok is None:
-            continue
-        if isinstance(tok, (list, tuple)):
-            for item in tok:
-                out |= _areas_of(item)
-        else:
-            out |= _areas_of(tok)
-    return out
-
-
-def _code_conflicts_with_rag(mcp: Optional[dict], rag: Optional[dict]) -> bool:
-    """True only when a grounded RAG diagnosis sits in a DIFFERENT diagnostic area from the
-    resolved code. Same-area vocabulary differences (sensor vs temperature-sensor) are not
-    a conflict. Uses structured MCP/RAG fields only — not customer prose, not catalogue
-    component shopping lists (those can mention a pump on a leak-protection code)."""
-    if not isinstance(rag, dict) or not rag.get("grounded"):
-        return False
-    mcp = mcp or {}
-    enr = mcp.get("enrichment") if isinstance(mcp.get("enrichment"), dict) else {}
-    mcp_areas = _union_areas(
-        mcp.get("system"), mcp.get("faultId"),
-        enr.get("system"), enr.get("faultId"),
-    )
-    rag_areas = _union_areas(rag.get("system"), rag.get("faultId"))
-    if not mcp_areas or not rag_areas:
-        return False
-    return mcp_areas.isdisjoint(rag_areas)
-
-
-def _parts_in_coded_area(parts, mcp: Optional[dict]) -> list:
-    """Keep only part cards whose title sits in the resolved code's diagnostic area.
-
-    A model lookup can return popular unrelated parts (pump, door lock) for the same
-    machine. Those must not be sold as the coded-area replacement.
-    """
-    mcp_areas = _union_areas((mcp or {}).get("system"), (mcp or {}).get("faultId"))
-    if not mcp_areas:
-        return []
-    out = []
-    for p in parts or []:
-        if not isinstance(p, dict):
-            continue
-        title = p.get("title") or p.get("name") or ""
-        if _areas_of(title) & mcp_areas:
-            out.append(p)
-    return out
-
-
-def _customer_has_model(st: ConversationState) -> bool:
-    _MODEL_TYPES = ("MODEL", "E_NR", "PNC", "12NC")
-    return any(
-        getattr(o, "type", None) in _MODEL_TYPES and getattr(o, "value", None)
-        for o in (st.customer.observed or [])
-    )
-
-
 class Orchestrator:
     def __init__(self, error_code: ErrorCodeService, diagnostic: DiagnosticService):
         # ADR 0014: no state store. Each turn starts from the BFF's persisted cs/1 (the canonical block in the
@@ -276,7 +72,7 @@ class Orchestrator:
     @staticmethod
     def _canonical_result(block: dict, res) -> dict:
         """Pass part-finder's merged canonical result through unchanged, or a degraded envelope (that turn
-        is legacy). Only the session binding is checked; the state itself is never read here."""
+        is an explicit error, ADR 0018). Only the session binding is checked; the state itself is never read here."""
         def degraded(reason):
             mode = "control" if block.get("mode") == "control" else "shadow"
             return {"schema": "cs/1", "mode": mode, "sessionId": block.get("sessionId"),
@@ -750,11 +546,16 @@ class Orchestrator:
                 provenance={"scope": Trust.L1_DETERMINISTIC.value},
                 debug=debug)
 
+        # ADR 0018: an AC turn is canonical, an explicit non-diagnostic outcome, or an explicit error. Nothing that
+        # failed on the canonical path is answered by another path, so the canonical result must be present and
+        # healthy, and the understanding it was built from must not be degraded.
+        failure = self._canonical_failure_reason(st)
+        if failure:
+            return self._finish_turn(st, self._canonical_unavailable(debug, failure), debug, Route.SYMPTOMS, t0)
+
         # CANONICAL CONTROL (any allow-listed registry journey, behind the BFF journey gate).
         # Part-finder decided the typed NextAction in understand mode (cs/1 -> diagnostics -> policy); the
-        # RAG diagnose call only WORDS it. None of the legacy overrides run on this turn (_journey_stage /
-        # model-acquisition, clarify routes, MCP code flows, owner note). Rollback: BFF CANONICAL_MODE=shadow
-        # (all journeys) or drop one key from CANONICAL_CONTROL_JOURNEYS (that journey).
+        # diagnose call only WORDS it.
         canonical = self._canonical_control(st)
         if canonical:
             debug["route"] = Route.SYMPTOMS.value
@@ -765,26 +566,42 @@ class Orchestrator:
                 resp.message = (warn + " " + (resp.message or "")).strip()
             return self._finish_turn(st, resp, debug, Route.SYMPTOMS, t0)
 
+        # NO JOURNEY OWNS THIS TURN (the canonical path ran and is healthy). What the merged cs/1 state says decides
+        # the outcome; the legacy diagnosis is never called (ADR 0018):
+        #   a hazard            -> the canonical safety stop (fixed copy)
+        #   an unsafe request   -> the fixed decline
+        #   a displayed code    -> the error-code MCP (the code's owner, ADR 0015), or the intake question it needs
+        #   a typed problem no journey owns (appliance known) -> an explicit "not supported yet"
+        #   nothing typed yet   -> the intake question (what is it / what is it doing)
+        merged = self._merged_state(st)
+        hazard = self._active_hazard(merged)
+        if hazard:
+            debug["route"] = Route.SYMPTOMS.value
+            return self._finish_turn(st, self._flow_hazard(st, hazard, debug), debug, Route.SYMPTOMS, t0)
+        if self._unsafe_request_this_turn(merged):
+            debug["route"] = Route.SYMPTOMS.value
+            return self._finish_turn(st, self._flow_unsafe_request(debug), debug, Route.SYMPTOMS, t0)
         # multi-turn: if we previously needed context for a code and the customer just supplied
         # model/identifiers (this turn added observed but no new code), retry the code resolution.
         supplied_context_followup = (bool(c.observed) and c.displayedCode
                                      and st.resolved.codeStatus in ("NEEDS_CONTEXT", None)
                                      and not st._sympt)
-
-        # symptoms persist across turns until diagnosed (multi-turn accumulation)
         symptoms_present = st._sympt or bool(c.symptomsText)
         r = routing.route(turn.message, code=c.displayedCode, make=c.make,
                           appliance=c.appliance, symptoms=symptoms_present)
         if supplied_context_followup and c.make and c.appliance:
             r = Route.ERROR_CODE
+        unowned = self._unowned_problem(merged)
+        if r == Route.ERROR_CODE_AND_SYMPTOMS:
+            r = Route.ERROR_CODE            # the code's meaning comes from the MCP; the symptom has no journey
+        elif r == Route.SYMPTOMS:
+            r = Route.UNSUPPORTED if (unowned and c.appliance) else Route.CLARIFY
         debug["route"] = r.value
 
         if r == Route.ERROR_CODE:
             resp = self._flow_error_code(st, debug)
-        elif r == Route.SYMPTOMS:
-            resp = self._flow_symptoms(st, debug)
-        elif r == Route.ERROR_CODE_AND_SYMPTOMS:
-            resp = self._flow_combined(st, debug)
+        elif r == Route.UNSUPPORTED:
+            resp = self._flow_unsupported(st, unowned, debug)
         else:
             resp = self._flow_clarify(st, debug)
 
@@ -876,10 +693,11 @@ class Orchestrator:
 
     # ---------------- canonical control ----------------
     def _canonical_control(self, st) -> Optional[dict]:
-        """The deciding canonical journey when it owns this turn: a non-degraded result whose `journey` is a
-        registry key, applies, is allow-listed (control) and carries a typed NextAction. Anything else -> legacy."""
+        """The deciding canonical journey when it owns this turn: a healthy result (the same transport shape the
+        engine's controls() accepts) whose `journey` is a registry key, applies, is allow-listed (control) and carries
+        a typed NextAction. Anything else: no journey owns the turn."""
         out = getattr(st, "_canonical", None)
-        if not isinstance(out, dict) or out.get("degraded"):
+        if not self._healthy_transport(out):
             return None
         j = out.get("journey")
         if isinstance(j, dict) and j.get("control") and j.get("applies") and isinstance(j.get("nextAction"), dict) \
@@ -889,6 +707,97 @@ class Orchestrator:
 
     # key -> likely area, from the shared journey registry (services/part-finder/canonical/journeys.json).
     _CANONICAL_JOURNEYS = _load_canonical_journeys()
+
+    # ---------------- ADR 0018: canonical or explicit ----------------
+    _UNAVAILABLE_MSG = "I can't run the diagnosis right now. Please try again shortly."
+
+    @staticmethod
+    def _healthy_transport(out) -> bool:
+        """The canonical result shape the engine's controls() accepts (canonical-runtime.js isTransportResult): cs/1,
+        not degraded, integer versions and a cs/1 state. The orchestrator never applies a looser gate than the engine."""
+        if not isinstance(out, dict) or out.get("schema") != "cs/1" or out.get("degraded"):
+            return False
+        if not isinstance(out.get("priorVersion"), int) or not isinstance(out.get("version"), int):
+            return False
+        state = out.get("state")
+        return isinstance(state, dict) and state.get("schemaVersion") == "cs/1"
+
+    def _canonical_failure_reason(self, st) -> Optional[str]:
+        """Why this AC turn cannot be decided on the canonical path, or None. A missing block, a degraded or malformed
+        canonical result, and a degraded understanding (the engine's Jev pass failed) are all explicit errors."""
+        out = getattr(st, "_canonical", None)
+        if out is None:
+            return "canonical_block_missing"
+        if isinstance(out, dict) and out.get("degraded"):
+            return str(out.get("degraded"))[:60]
+        if not self._healthy_transport(out):
+            return "canonical_result_invalid"
+        raw = getattr(st, "_understand", None) or {}
+        if raw.get("_degraded") or not (getattr(st, "_jev", None) or {}).get("decisions"):
+            return "understand_degraded"
+        return None
+
+    def _canonical_unavailable(self, debug: dict, reason: str) -> OrchestratorResponse:
+        """ADR 0016 / 0018: the explicit error for a turn the canonical path could not decide. The canonical result
+        is marked degraded so the BFF persists nothing from this turn."""
+        debug["canonicalUnavailable"] = reason
+        if isinstance(debug.get("canonical"), dict):
+            debug["canonical"] = {**debug["canonical"], "degraded": debug["canonical"].get("degraded") or reason}
+        return self._service_unavailable("canonical", self._UNAVAILABLE_MSG)
+
+    @staticmethod
+    def _merged_state(st) -> dict:
+        out = getattr(st, "_canonical", None)
+        return out.get("state") if isinstance(out, dict) and isinstance(out.get("state"), dict) else {}
+
+    @staticmethod
+    def _active_hazard(state: dict) -> Optional[str]:
+        """The hazard cs/1 holds active at a stop level (merge M14), or None."""
+        safety = (state or {}).get("safety") or {}
+        if safety.get("activeLevel") not in ("EMERGENCY_ACTION", "STOP_USE"):
+            return None
+        live = [h for h in safety.get("hazards") or [] if isinstance(h, dict) and h.get("status", "active") == "active"]
+        return live[-1].get("hazard") if live else None
+
+    @staticmethod
+    def _unsafe_request_this_turn(state: dict) -> bool:
+        """The customer asked how to do something unsafe on this turn (cs/1 safety.unsafeActions, merge M15)."""
+        ver = (state or {}).get("version")
+        return any(isinstance(u, dict) and u.get("turn") == ver for u in ((state or {}).get("safety") or {}).get("unsafeActions") or [])
+
+    @staticmethod
+    def _unowned_problem(state: dict) -> Optional[str]:
+        """The latest active problem cs/1 typed (its mc/1 journey value), when no journey took the turn; else None."""
+        active = [p for p in (state or {}).get("problems") or [] if isinstance(p, dict) and p.get("status") == "active"]
+        j = active[-1].get("journey") if active else None
+        j = j.get("value") if isinstance(j, dict) else j     # a cs/1 Fact
+        return j if isinstance(j, str) and j and j != "none" else None
+
+    def _flow_hazard(self, st: ConversationState, hazard: str, debug: dict) -> OrchestratorResponse:
+        """A hazard with no journey to carry it: the canonical safety stop, from cs/1, in the fixed stop copy."""
+        level = (self._merged_state(st).get("safety") or {}).get("activeLevel")
+        st.safetyState = strongest_safety(st.safetyState, level)
+        st.safetyReason = self._HAZARD_REASON.get(hazard) or st.safetyReason
+        block = self._safety_block(st) or {"class": "STOP_USE", "stopUse": True, "message": self.GENERIC_STOP_MSG}
+        debug["canonicalSafety"] = hazard
+        return OrchestratorResponse(route="", outcome=Outcome.SAFETY_STOP.value, message=block["message"], safety=block,
+                                    provenance={"safety": Trust.L1_DETERMINISTIC.value})
+
+    def _flow_unsafe_request(self, debug: dict) -> OrchestratorResponse:
+        """An unsafe request with no journey to decline it: the fixed decline, no procedure."""
+        debug["unsafeRequestDeclined"] = True
+        return OrchestratorResponse(route="", outcome=Outcome.ANSWER.value, message=self.UNSAFE_INTENT_MSG,
+                                    provenance={"safety": Trust.L1_DETERMINISTIC.value})
+
+    def _flow_unsupported(self, st: ConversationState, problem: Optional[str], debug: dict) -> OrchestratorResponse:
+        """ADR 0018: a typed problem no canonical journey owns yet. Said plainly, with the safety line; no cause, no part."""
+        fam = str(st.customer.appliance or "appliance").replace("-", " ").replace("hobs", "hob")
+        debug["unsupported"] = problem
+        msg = (f"I can't diagnose that problem with your {fam} here yet, so I won't guess at a cause or a part. "
+               "If there's any burning smell, sparking, smoke or water near the electrics, stop using it and switch it off "
+               "at the wall. Otherwise an appliance engineer can look at it, or tell me about a different problem with it.")
+        return OrchestratorResponse(route="", outcome=Outcome.UNSUPPORTED.value, message=msg,
+                                    provenance={"scope": Trust.L1_DETERMINISTIC.value})
 
     def _flow_canonical(self, st: ConversationState, journey: dict, debug: dict) -> OrchestratorResponse:
         c = st.customer
@@ -901,18 +810,19 @@ class Orchestrator:
                                     conversation=getattr(st, "_conversation", None))
         except RagUnavailable as e:
             debug["ragError"] = str(e)[:120]
-            # The customer never saw the NextAction this state records (its issued request included): mark the
-            # canonical result degraded so the BFF does not persist it, and the next turn starts from the prior state.
-            if isinstance(debug.get("canonical"), dict):
-                debug["canonical"] = {**debug["canonical"], "degraded": "diagnose_unavailable"}
-            return self._service_unavailable("symptom", "I can't run the diagnosis right now. Please try again shortly.")
+            # The customer never saw the NextAction this state records (its issued request included): the canonical
+            # result is marked degraded so the BFF does not persist it, and the next turn starts from the prior state.
+            return self._canonical_unavailable(debug, "diagnose_unavailable")
         debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
         debug["ragInvoked"] = True
         debug["ragTrace"] = rag.get("diagnosticTrace")
+        # The engine must prove this reply is the canonical one (diagnose `done.canonicalControl`). A reply without it
+        # was produced some other way (e.g. a dropped signature) and is never presented as the journey's answer.
+        cj = rag.get("canonicalControl")
+        if not isinstance(cj, dict) or not isinstance(cj.get("nextAction"), dict):
+            return self._canonical_unavailable(debug, "diagnose_not_canonical")
         self._apply_rag_safety(st, rag)
-        # The NextAction COMPOSE worded (diagnose `done.canonicalControl`); falls back to the understand-time one.
-        cj = rag.get("canonicalControl") or {}
-        a = cj.get("nextAction") if isinstance(cj.get("nextAction"), dict) else journey.get("nextAction") or {}
+        a = cj["nextAction"]
         debug["canonicalAction"] = {"journey": journey.get("key"), "rule": a.get("rule"), "kind": a.get("kind"),
                                     "target": a.get("target"), "compose": cj.get("compose")}
         kind = a.get("kind")
@@ -993,41 +903,6 @@ class Orchestrator:
         # monotonic safety high-water mark
         st.safetyState = strongest_safety(st.safetyState, rv.safetyClass)
 
-    @staticmethod
-    def _mcp_candidate_areas(mcp: dict) -> set:
-        """Coarse diagnostic areas of the MCP's candidate meanings for an UNRESOLVED code, derived
-        ONLY from the structured candidate fields (faultId / system) — never prose. Used to test
-        whether a grounded runtime diagnosis conflicts with what the code could mean. NEEDS_CONTEXT
-        and AMBIGUOUS responses both carry `candidates[]`; NOT_FOUND carries none (empty set)."""
-        areas: set = set()
-        for cand in (mcp.get("candidates") or []):
-            if not isinstance(cand, dict):
-                continue
-            area = _diagnostic_area(cand.get("faultId") or cand.get("system"))
-            if area:
-                areas.add(area)
-        return areas
-
-    def _trusted_context(self, st: ConversationState, mcp: dict) -> TrustedDiagnosticContext:
-        enr = mcp.get("enrichment") or {}
-        return TrustedDiagnosticContext(
-            facts={
-                "code": mcp.get("code"),
-                "make": st.customer.make, "appliance": st.customer.appliance,
-                "canonicalMeaning": mcp.get("meaning"),
-                "recordType": mcp.get("recordType"),
-                "system": mcp.get("system"),
-                "protectionState": (enr.get("behaviour") or {}).get("protectionState"),
-                "scheme": mcp.get("scheme"),  # internal to the port; never surfaced to customer
-            },
-            possibilities={
-                "components": (enr.get("components") or []),      # L2 — NOT facts
-                "likelyCauses": (enr.get("likelyCauses") or []),  # L2 — NOT facts
-            },
-            suggestedChecks=(enr.get("checks") or []),            # L2
-            safety={"class": (enr.get("safety") or {}).get("class"),
-                    "stopUse": (enr.get("safety") or {}).get("stopUse")},
-        )
 
     # ---------------- flows ----------------
     def _flow_error_code(self, st: ConversationState, debug: dict) -> OrchestratorResponse:
@@ -1051,61 +926,10 @@ class Orchestrator:
             "candidateCount": len(mcp.get("candidates") or []),
         }
         self._apply_mcp(st, mcp)
-        status = mcp.get("status")
-
-        # DETERMINISTIC AUTHORITY RECONCILIATION (code-only turn).
-        # Precedence: safety (monotonic, already folded in via _apply_mcp) > MCP RESOLVED meaning >
-        #   MCP-unresolved (NEEDS_CONTEXT / AMBIGUOUS / NOT_FOUND) reconciled with a NON-CONFLICTING
-        #   grounded runtime diagnosis > clarify. When the MCP recognises the code but cannot pin its
-        #   EXACT meaning (scheme/model dependent), we must NOT reflexively demand the model: the
-        #   part-finder runtime resolver is an equally-deterministic authority that may already
-        #   ground the fault from the make + appliance + code in hand. We ask it (its own staged
-        #   contract runs), then compare STRUCTURALLY — MCP candidate faultId/system areas vs the
-        #   runtime system/faultId area — with NO prose/LLM comparison. If the runtime diagnosis does
-        #   not CONFLICT with the MCP's documented meanings, that grounded diagnosis leads and the
-        #   model is requested only to refine the EXACT part (never "to read the code"). A genuinely
-        #   model-dependent code whose candidate meanings DIVERGE (or a runtime area outside the
-        #   candidate set) stays a clarification — we never silently pick one meaning. RESOLVED /
-        #   INVALID_INPUT keep their existing single-authority handling below.
-        if status in ("NEEDS_CONTEXT", "AMBIGUOUS", "NOT_FOUND"):
-            t = time.perf_counter()
-            try:
-                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st), appliance=c.appliance,
-                                        make=c.make, image=getattr(st, "_image", None),
-                                        established=self._established_identity(c),
-                                        conversation=getattr(st, "_conversation", None))
-            except RagUnavailable as e:
-                debug["ragError"] = str(e)[:120]
-                rag = None
-            debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
-            if rag and rag.get("grounded"):
-                self._apply_rag_safety(st, rag)
-                debug["ragTrace"] = rag.get("diagnosticTrace")
-                runtime_area = _diagnostic_area(rag.get("system") or rag.get("faultId"))
-                cand_areas = self._mcp_candidate_areas(mcp)
-                # non-conflicting when: (a) the MCP documented NO competing meaning (NOT_FOUND, or no
-                #   candidates) so the runtime diagnosis stands alone; OR (b) all candidate meanings
-                #   collapse to the SAME single area and the runtime agrees with it (structural
-                #   ambiguity the model only refines). Divergent candidate areas, or a runtime area
-                #   outside the candidate set, is a genuine conflict -> clarify (never silently pick).
-                non_conflicting = (len(cand_areas) == 0
-                                   or (len(cand_areas) == 1 and runtime_area in cand_areas))
-                debug["codeOnlyRuntimeArea"] = runtime_area
-                debug["codeOnlyMcpAreas"] = sorted(cand_areas)
-                debug["codeOnlyReconciled"] = non_conflicting
-                if non_conflicting:
-                    return self._compose_unresolved_code_plus_symptoms(st, mcp, rag)
-            else:
-                debug["codeOnlyReconciled"] = False
+        # ADR 0018: the code's meaning is the MCP's (ADR 0015). An unresolved code is answered from what the MCP knows
+        # (its documented meanings, or what would settle it); it is never reconciled with another diagnosis path.
         return self._compose_code_only(st, mcp)
 
-    # "The customer cannot give the model" is Jev's TYPED decision (understand.modelUnavailable), NOT
-    # something the orchestrator re-derives from prose. When Jev flags it we must STOP re-asking for
-    # the model (no loop) and fall back to the RAG's brand-scoped VERIFY_FIT parts / advice. Jev is
-    # the single semantic authority; there is no second phrase/regex parser here.
-    def _cannot_provide_model(self, st: ConversationState) -> bool:
-        raw = getattr(st, "_understand", None) or {}
-        return bool(raw.get("modelUnavailable"))
 
     def _rag_symptoms(self, st: ConversationState) -> str:
         """Assemble the symptom text handed to the RAG so its OWN staged conversation contract can
@@ -1147,121 +971,6 @@ class Orchestrator:
             parts.append(f"The model number is {models[0]}.")
         return "  ".join(parts).strip()
 
-    def _flow_symptoms(self, st: ConversationState, debug: dict) -> OrchestratorResponse:
-        c = st.customer
-        t = time.perf_counter()
-        try:
-            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
-                                    appliance=c.appliance, make=c.make,
-                                    image=getattr(st, "_image", None),
-                                    established=self._established_identity(c),
-                                    conversation=getattr(st, "_conversation", None))
-        except RagUnavailable as e:
-            debug["ragError"] = str(e)[:120]
-            return self._service_unavailable("symptom",
-                "I can't run the symptom diagnosis right now. Please try again shortly.")
-        debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
-        debug["ragInvoked"] = True
-        self._apply_rag_safety(st, rag)
-        debug["ragTrace"] = rag.get("diagnosticTrace")
-        return self._compose_symptoms_only(st, rag)
-
-    def _flow_combined(self, st: ConversationState, debug: dict) -> OrchestratorResponse:
-        c = st.customer
-        # MCP FIRST (authority)
-        t = time.perf_counter()
-        try:
-            mcp = self.ec.resolve_error_code(c.make, c.appliance, c.displayedCode,
-                                             observed=[{"type": o.type, "value": o.value} for o in c.observed] or None,
-                                             region=c.region, includeEnrichment=getattr(st, "_includeEnrichment", True))
-        except McpUnavailable as e:
-            # can't trust code meaning; still offer the symptom side, clearly labelled
-            debug["mcpError"] = str(e)[:120]
-            try:
-                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance, make=c.make,
-                                        established=self._established_identity(c),
-                                        conversation=getattr(st, "_conversation", None))
-                self._apply_rag_safety(st, rag)
-                debug["ragTrace"] = rag.get("diagnosticTrace")
-                sym = (f"the symptoms are {self._band(rag.get('confidence'))} a {_fault_phrase(rag)}"
-                       if rag.get("grounded") else "I couldn't pin down the symptoms either")
-                return OrchestratorResponse(route="", outcome=Outcome.SERVICE_UNAVAILABLE.value,
-                    message=f"I can't look up that error code right now (I won't guess it). In the meantime, {sym}.",
-                    diagnosis=(DiagnosisView(summary=rag.get("faultLabel"), confidenceBand=self._band(rag.get('confidence'))) if rag.get("grounded") else None),
-                    provenance={"diagnosis": Trust.L3_PROBABILISTIC.value}, debug={"mcpError": True})
-            except RagUnavailable:
-                return self._service_unavailable("both", "The diagnostic service is temporarily unavailable. Please try again shortly.")
-        debug["latencies"]["mcp_ms"] = round((time.perf_counter() - t) * 1000, 1)
-        debug["mcpStatus"] = mcp.get("status")
-        debug["mcpEvidence"] = {
-            "status": mcp.get("status"), "displayedCode": _facing_code(st, mcp),
-            "meaning": mcp.get("meaning"), "recordType": mcp.get("recordType"),
-            "system": mcp.get("system"), "confidence": mcp.get("confidence"),
-            "candidateCount": len(mcp.get("candidates") or []),
-        }
-        self._apply_mcp(st, mcp)
-
-        # INVALID_INPUT with a missing appliance family: preserve the customer's code and ask only
-        # for the appliance type. Do NOT fall through to the RAG-compose path, which second-guesses
-        # the displayed code ("Zanussi E21 isn't standard... might be F05?") — a CUSTOMER_CODE_CHANGED
-        # violation. This mirrors the code-only flow's handling.
-        if mcp.get("status") == "INVALID_INPUT":
-            missing = self._code_needs_appliance_clarify(st, mcp)
-            if missing is not None:
-                return missing
-
-        if mcp.get("status") != "RESOLVED":
-            # MCP could not resolve deterministically. Do NOT block the symptom side, but keep
-            # the code status honest (ask for context / ambiguous / not found) AND run RAG on
-            # symptoms as a SEPARATE probabilistic investigation.
-            t = time.perf_counter()
-            try:
-                rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=self._rag_symptoms(st) or c.symptomsText or "",
-                                        appliance=c.appliance, make=c.make,
-                                        established=self._established_identity(c),
-                                        conversation=getattr(st, "_conversation", None))
-            except RagUnavailable as e:
-                debug["ragError"] = str(e)[:120]
-                rag = {"grounded": False, "clarifyingQuestion": None, "safety": {}}
-            debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
-            debug["ragInvoked"] = True
-            self._apply_rag_safety(st, rag)
-            debug["ragTrace"] = rag.get("diagnosticTrace")
-            return self._compose_unresolved_code_plus_symptoms(st, mcp, rag)
-
-        # MCP RESOLVED -> trusted context -> RAG refine
-        trusted = self._trusted_context(st, mcp)
-        t = time.perf_counter()
-        try:
-            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, '_understand', None), symptoms=c.symptomsText or "", appliance=c.appliance,
-                                    make=c.make, trusted=trusted.to_prompt_facts(),
-                                    established=self._established_identity(c),
-                                    conversation=getattr(st, "_conversation", None))
-        except RagUnavailable as e:
-            # RAG down but code resolved deterministically -> still return the trusted code meaning.
-            debug["ragError"] = str(e)[:120]
-            resp = self._compose_code_only(st, mcp)
-            if resp.outcome == Outcome.ANSWER.value:
-                resp.message += " (Symptom-based refinement is temporarily unavailable.)"
-            resp.debug = {**resp.debug, "ragError": True}
-            return resp
-        debug["latencies"]["rag_ms"] = round((time.perf_counter() - t) * 1000, 1)
-        debug["ragInvoked"] = True
-        self._apply_rag_safety(st, rag)
-        debug["ragTrace"] = rag.get("diagnosticTrace")
-
-        # conflict: only when a grounded RAG diagnosis is a DIFFERENT diagnostic area from
-        # the resolved code. Same-area vocabulary (MCP `sensor` vs runtime `temperature-sensor`)
-        # is not a conflict — do not argue the code against itself.
-        conflict = _code_conflicts_with_rag(mcp, rag)
-        debug["conflict"] = conflict
-        debug["trustedContextUsed"] = True
-        return self._compose_combined(st, mcp, rag, conflict)
-
-    def _intake_text(self, st: ConversationState) -> str:
-        """Customer text used for deterministic intake detection (this turn's message + accumulated
-        symptom). Customer words only — never any prior composed prose."""
-        return f"{getattr(st, '_lastMessage', '') or ''}  {st.customer.symptomsText or ''}".strip()
 
     def _code_intake_clarify(self, st: ConversationState) -> OrchestratorResponse:
         """CODE PRESENT but VALUE MISSING: ask for the EXACT code (high-value), not a generic
@@ -1587,10 +1296,6 @@ class Orchestrator:
             return {"slot": "MODEL", "purpose": "CODE_RESOLUTION", "status": "PENDING"}
         return None
 
-    def _band(self, conf: Optional[float]) -> str:
-        if conf is None:
-            return "possible"
-        return "likely" if conf >= 0.75 else "possible"
 
     # The describe-the-problem question asked a second way (one question, no menu), used when the same question was
     # our last reply and the customer still gave no usable description.
@@ -1642,7 +1347,7 @@ class Orchestrator:
         safety = self._safety_block(st)
         prov = {}
         if status == "NOT_FOUND":
-            msg = (f"I couldn't find a documented meaning for that code on a "
+            msg = (f"I couldn't find a documented meaning for {_facing_code(st, mcp) or 'that code'} on a "
                    f"{st.customer.make or ''} {st.customer.appliance or 'appliance'}. "
                    "Please double-check the exact code on the display.")
             return OrchestratorResponse(route="", outcome=Outcome.NOT_FOUND.value, message=msg,
@@ -1681,9 +1386,20 @@ class Orchestrator:
             return OrchestratorResponse(route="", outcome=Outcome.AMBIGUOUS.value, message=msg,
                                         codeResult=CodeResultView(displayed=_facing_code(st, mcp),
                                                                   status=status))
-        # RESOLVED
         rt = mcp.get("recordType")
         meaning = mcp.get("meaning")
+        if status != "RESOLVED" or not meaning:
+            # An incomplete lookup: the code is kept and nothing is said about what it means.
+            shown = _facing_code(st, mcp)
+            fam = str(st.customer.appliance or "appliance").replace("-", " ")
+            q = (f"I couldn't confirm what {shown or 'that code'} means on your {fam} from the documented codes. "
+                 "What's the model number on the rating plate so I can look it up for your exact machine?")
+            st.clarificationRequested = q
+            return OrchestratorResponse(route="", outcome=Outcome.CLARIFICATION_REQUIRED.value, message=q,
+                                        codeResult=CodeResultView(displayed=shown, status=status),
+                                        clarification={"question": q, "needs": ["model"], "intent": "MODEL"},
+                                        provenance={"clarification": Trust.L1_DETERMINISTIC.value})
+        # RESOLVED
         enr = mcp.get("enrichment") or {}
         checks = enr.get("checks") or []
         causes = enr.get("likelyCauses") or []
@@ -1718,517 +1434,3 @@ class Orchestrator:
             suggestedChecks=checks, safety=safety, provenance=prov,
             debug={"system": mcp.get("system"), "scheme": mcp.get("scheme")})
 
-    def _journey_stage(self, st: ConversationState, rag: dict) -> str:
-        """Journey Policy v2 — derive the EXPLICIT journey stage from Jev's TYPED decisions and the
-        established evidence set (no prose parsing, no hard-coded appliance/make). Reuses existing
-        typed state; adds no persisted dataclass field.
-
-        Stages:
-          IMAGE_IN_PROGRESS            — a rating-plate photo this turn is being read/confirmed.
-          MODEL_KNOWN                  — a trusted/typed model (or a confirmed extraction) is held.
-          MODEL_UNAVAILABLE            — the customer has said they cannot provide the model.
-          MODEL_REQUIRED_AFTER_CHECK   — a safe, model-independent first check has been COMPLETED and
-                                         the fault remains; the next useful step is model-dependent, so
-                                         obtain the model before further narrowing / any part decision.
-          DIAGNOSING                   — still giving a safe generic first check / generic advice.
-        """
-        if bool(getattr(st, "_image", None)):
-            return "IMAGE_IN_PROGRESS"
-        trusted_model = any(o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value
-                            for o in st.customer.observed)
-        if trusted_model or rag.get("resolvedModel"):
-            return "MODEL_KNOWN"
-        if self._cannot_provide_model(st):
-            return "MODEL_UNAVAILABLE"
-        d = (getattr(st, "_jev", None) or {}).get("decisions") or {}
-        establishes = d.get("latestTurnEstablishes")
-        answered = d.get("answeredPrevious")
-        # A safe generic check has been COMPLETED this journey when Jev typed the latest turn as a
-        # check result, OR classified it as answering the pending check (yes/partial), OR an earlier
-        # completed check is already in the established set. "cannot_answer" / "no" are NOT completions.
-        # A turn Jev typed as a symptom, identity, correction or hazard report answers a question about the problem or
-        # the appliance; it is not a check result.
-        check_completed = (establishes == "check_result"
-                           or (answered in ("yes", "partial")
-                               and establishes not in ("symptom", "identity", "correction", "hazard"))
-                           or bool(st.customer.checksReported))
-        # The fault still remains unless Jev typed a recovery / normal-behaviour outcome.
-        fault_remains = (not rag.get("normalBehaviour")) and establishes != "recovery"
-        if check_completed and fault_remains:
-            return "MODEL_REQUIRED_AFTER_CHECK"
-        return "DIAGNOSING"
-
-    def _compose_model_acquisition(self, st: ConversationState, rag: dict,
-                                   safety: Optional[dict]) -> OrchestratorResponse:
-        """Journey Policy v2 (rule B) — a safe generic first check has completed and the fault
-        remains, so the next step is model-dependent: ask for the make/model (a rating-plate photo is
-        acceptable). Concise; acknowledges the completed check; never re-asks a fact already grounded
-        in the conversation; never claims a part or fit yet. A grounded diagnosis (if any) is retained
-        as structured context but the customer-facing action this turn is identification."""
-        ack = "Thanks — that's a useful step, and it tells us the simplest cause isn't the answer here."
-        ask = ("Before we narrow it down further, what's the make and full model number if you can "
-               "find it? It's on the rating plate — usually around the door opening, inside the frame, "
-               "or on the back — and a clear photo of the plate is fine too.")
-        msg = _with_safety_prefix(f"{ack} {ask}", safety, None)
-        diag = (DiagnosisView(summary=rag.get("faultLabel"), likelyArea=rag.get("system"),
-                              confidenceBand=self._band(rag.get("confidence")))
-                if rag.get("grounded") else None)
-        return OrchestratorResponse(
-            route="", outcome=Outcome.ANSWER.value, message=msg,
-            diagnosis=diag, suggestedChecks=[], componentMention="none",
-            parts=None, resolvedModel=None, traceId=rag.get("traceId"),
-            safety=safety, modelRequired=True,
-            clarification={"question": "What is the make and model number?",
-                           "needs": [{"attribute": "model",
-                                      "resolutionSources": ["MODEL", "E_NR", "RATING_PLATE"]}],
-                           "intent": "MODEL"},
-            provenance={"diagnosis": Trust.L3_PROBABILISTIC.value,
-                        "journey": Trust.L1_DETERMINISTIC.value})
-
-    def _compose_symptoms_only(self, st: ConversationState, rag: dict) -> OrchestratorResponse:
-        safety = self._safety_block(st)
-        if safety and safety["stopUse"]:
-            return OrchestratorResponse(route="", outcome=Outcome.SAFETY_STOP.value,
-                                        message=safety["message"], safety=safety,
-                                        provenance={"safety": Trust.L1_DETERMINISTIC.value})
-        # NORMAL-BEHAVIOUR reassurance (deterministic signal from the RAG). The customer asked whether
-        # a plausibly-normal condition is a fault; the RAG suppressed parts and composed a reassurance.
-        # Surface it as an ANSWER (no clarifying question, no parts) — needing no fault is the point.
-        if rag.get("normalBehaviour"):
-            prose = (rag.get("reply") or "").strip()
-            msg = prose if len(prose) >= 40 else (
-                "That sounds like normal, expected behaviour rather than a fault — there's nothing to "
-                "replace. If it changes (for example it stops getting hot, leaks, won't drain or shows "
-                "an error code), come back and we'll take a look.")
-            _resp = OrchestratorResponse(route="", outcome=Outcome.ANSWER.value, message=msg,
-                                        provenance={"diagnosis": Trust.L3_PROBABILISTIC.value})
-            _resp._reassurance = True  # no owner physical action implied — never prepend a precaution
-            return _resp
-        # ---- RECOVERY / SOLVED CLOSURE (Journey Policy v2+) ----
-        # If Jev typed the LATEST turn as a genuine recovery (the original failed function now works /
-        # it is fixed — e.g. "I straightened the hose and it's drying fine now"), the journey is
-        # COMPLETE. Close cleanly: acknowledge the fix, offer a one-line come-back-if-it-returns, and
-        # STOP — no model request, no part, no further check, no generic probe. This is the missing
-        # "a check fixed it" terminal (normal-behaviour reassurance is handled just above). Driven
-        # entirely by Jev's TYPED latestTurnEstablishes == 'recovery' (no prose parsing); the Node
-        # recovery suppression (nextBestCheck null, no identification) is mirrored here so the
-        # deterministic layer owns the closure even if the RAG prose drifts.
-        _dec = (getattr(st, "_jev", None) or {}).get("decisions") or {}
-        if _dec.get("latestTurnEstablishes") == "recovery":
-            prose = (rag.get("reply") or "").strip()
-            msg = prose if len(prose) >= 40 else (
-                "Glad that's sorted it. Since it's working again there's nothing that needs replacing. "
-                "If the same problem comes back, come back to me and we'll take another look.")
-            _resp = OrchestratorResponse(
-                route="", outcome=Outcome.ANSWER.value,
-                message=_with_safety_prefix(msg, safety, None),
-                diagnosis=None, suggestedChecks=[], componentMention="none",
-                parts=None, resolvedModel=None, modelRequired=False, traceId=rag.get("traceId"),
-                provenance={"diagnosis": Trust.L3_PROBABILISTIC.value,
-                            "journey": Trust.L1_DETERMINISTIC.value})
-            _resp._reassurance = True  # solved/closed — no further owner action, never prepend a precaution
-            return _resp
-        # ---- JOURNEY POLICY v2: acquire the model once diagnosis becomes model-dependent ----
-        # A safe, broadly-applicable first check is given WITHOUT blocking on identification (that
-        # happens in the grounded/ungrounded branches below and in the RAG prose). But once such a
-        # check has been COMPLETED and the fault still remains, the next useful step is model-dependent
-        # narrowing / a part decision — so we obtain the model NOW (exact number or a rating-plate
-        # photo) instead of chaining further generic questions or re-asking facts already grounded in
-        # the conversation. This is Journey Policy v2 rule B (identification timing). It is driven
-        # entirely by Jev's TYPED decisions + the established evidence set (no prose parsing, no
-        # hard-coded appliance/make), so it generalises across families. Safety has already returned
-        # above, so a stop-use always precedes identification.
-        stage = self._journey_stage(st, rag)
-        st._journeyStage = stage
-        if stage == "MODEL_REQUIRED_AFTER_CHECK":
-            return self._compose_model_acquisition(st, rag, safety)
-        if not rag.get("grounded"):
-            # CODE PRESENT but VALUE MISSING wins over a generic (or code-dumped) symptom clarify:
-            # the exact code is the highest-value next fact. Replaces the RAG's clarifyingQuestion
-            # (which may be generic or an enumerated code list). The symptom stays in state, so the
-            # next turn combines the code with it. Only when the RAG did NOT ground a diagnosis.
-            if getattr(st, '_codePresentNoValue', False):
-                return self._code_intake_clarify(st)
-            q = rag.get("clarifyingQuestion") or "Could you describe the problem in a bit more detail?"
-            comps = _customer_facing_components(rag)
-            conf = rag.get("confidence") or 0
-            # A useful generic diagnosis can be composed without locking an appliance family.
-            # Do not discard that prose in favour of a bare "tell me more".
-            prose = (rag.get("reply") or "").strip()
-            if len(prose) >= 60 and prose != q:
-                safety_info = rag.get("safetyInformation")
-                # Current-action media is instructional for the check in this reply.
-                # It must not require a committed fault node — Type 1 generic help
-                # (filter/trap, lint, blockage) is useful before a named failed part.
-                media_val = rag.get("media") or None
-                return OrchestratorResponse(
-                    route="", outcome=Outcome.ANSWER.value, message=_with_safety_prefix(prose, safety, safety_info),
-                    diagnosis=None, suggestedChecks=[], componentMention="none",
-                    parts=None, resolvedModel=None, traceId=rag.get("traceId"),
-                    media=media_val, safety=safety, safetyInformation=safety_info, modelRequired=False,
-                    provenance={"diagnosis": Trust.L3_PROBABILISTIC.value})
-            # BOUNDARY-DROP FIX: when the RAG is confident about the likely causes but hasn't locked
-            # onto a single fault, still talk the customer through what's worth checking (an engineer
-            # lists the possibilities) instead of a bare "tell me more". We stay in CLARIFICATION —
-            # no diagnosis claim and no parts are offered — and still ask the clarifying question.
-            if comps and conf >= 0.7 and _component_mention(rag) == "purchase":
-                label = (rag.get("faultLabel") or "").strip().lower()
-                lead = (f"From what you've described this could be a {label}, but I'd like to narrow it down."
-                        if label else "From what you've described there are a few likely causes.")
-                msg = f"{lead} {q}"
-                return OrchestratorResponse(route="", outcome=Outcome.CLARIFICATION_REQUIRED.value,
-                                            message=_with_safety_prefix(msg, safety, None),
-                                            clarification={"question": q, "needs": ["symptom-detail"]},
-                                            safety=safety,
-                                            provenance={"clarification": Trust.L3_PROBABILISTIC.value})
-            return OrchestratorResponse(route="", outcome=Outcome.CLARIFICATION_REQUIRED.value,
-                                        message=_with_safety_prefix(q, safety, None),
-                                        clarification={"question": q, "needs": ["symptom-detail"]},
-                                        safety=safety,
-                                        provenance={"clarification": Trust.L3_PROBABILISTIC.value})
-        # GROUNDED. Honour the RAG's STAGED conversation contract (grounded diagnosis != ready to
-        # sell a part). We NEVER show a part before the model is known.
-        band = self._band(rag.get("confidence"))
-        comps = _customer_facing_components(rag)
-        fault = _fault_phrase(rag)
-        rag_parts = rag.get("parts") or []
-        diag = DiagnosisView(summary=rag.get("faultLabel"), likelyArea=rag.get("system"), confidenceBand=band)
-        safety_info = rag.get("safetyInformation")
-        media_val = rag.get("media") or None   # instructional media for the grounded node (customer-safe subset)
-        # Never emit a generic "a fault." stub: _fault_phrase defaults to the literal "fault" when the
-        # RAG grounded without a usable label, which produced broken customer stubs like
-        # "this is possible a fault." Gate on the REAL faultLabel; otherwise fall back to the area, or
-        # a neutral next-step line.
-        _fault_label = (rag.get("faultLabel") or "").strip()
-        if _fault_label:
-            base = f"Based on what you've described, this is {band} a {fault}."
-        else:
-            area = (rag.get("system") or "").strip()
-            base = (f"Based on what you've described, the {area} area is the most likely place to look next."
-                    if area else "Based on what you've described, I'd like to narrow it down a little more.")
-        # Surface the full grounded differential the RAG produced (an appliance engineer lists the
-        # several things worth checking, not just the top one). Cap at 6 so the reply stays readable.
-        mention = _component_mention(rag)
-        # Never fold a catalogue of components into customer prose. The next action lives in
-        # the RAG reply; suggestedChecks stay structured for the UI/grader.
-        checks = ""
-        # G1/G3: the RAG's compose pass already writes a concise, PRIORITISED engineering explanation
-        # from the node's knowledge — most-likely cause, the free/safe CHECK to do first, and credible
-        # alternatives (see part-finder compose: "MOST LIKELY CAUSES IN ORDER" + "DISTINGUISHING
-        # DETAILS / free-fix first"). Surface THAT prose to the customer instead of a flat component
-        # list, so the engineering reasoning actually reaches them. Used only for the NON-IMAGE
-        # grounded branches below; image-confirmation branches keep their bespoke wording. Falls back
-        # to the structured reconstruction if the prose is missing/too short.
-        rag_prose = (rag.get("reply") or "").strip()
-        engineer_prose = rag_prose if len(rag_prose) >= 40 else None
-
-        # RATING-PLATE / MEDIA. A model the RAG read from an IMAGE this turn is UNCONFIRMED — it must
-        # be confirmed by the customer before it can drive part fit (a blurry plate can yield a
-        # plausible-but-wrong model). A TRUSTED model is one the customer typed, or a prior extraction
-        # they confirmed (both arrive as observed[] / resolvedModel on a NON-image turn).
-        had_image = bool(getattr(st, "_image", None))
-        trusted_model = any(o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value
-                            for o in st.customer.observed)
-        extracted_model = rag.get("resolvedModel")
-        has_model = trusted_model or (bool(extracted_model) and not had_image)
-
-        if had_image and not has_model:
-            if extracted_model:
-                # IMAGE_EXTRACTED_UNCONFIRMED — offer the model for confirmation. NEVER a part /
-                # never MODEL_CONFIRMED here. Keep the diagnostic prose (an unanswered
-                # discriminator must survive identification). Identity is a candidate, not missing.
-                confirm = (
-                    f"I've read the model as {extracted_model} from the photo \u2014 is that correct? "
-                    "If not, send a clearer photo or type the model.")
-                if engineer_prose:
-                    msg = f"{engineer_prose.rstrip()} {confirm}"
-                else:
-                    msg = (base + checks + " " + confirm).strip()
-                msg = _with_safety_prefix(msg, safety, safety_info)
-                return OrchestratorResponse(
-                    route="", outcome=Outcome.ANSWER.value, message=msg,
-                    diagnosis=diag, suggestedChecks=comps, componentMention=mention, parts=None, resolvedModel=None,
-                    traceId=rag.get("traceId"), safetyInformation=safety_info, media=media_val, safety=safety,
-                    modelRequired=False,
-                    imageExtraction={"make": rag.get("extractedMake"), "model": extracted_model,
-                                     "source": "IMAGE", "status": "IMAGE_EXTRACTED_UNCONFIRMED"},
-                    clarification={"question": f"Is the model {extracted_model}?",
-                                   "needs": [{"attribute": "model-confirmation", "candidate": extracted_model}]},
-                    provenance={"diagnosis": Trust.L3_PROBABILISTIC.value})
-            # Image present but nothing readable -> ask for a clearer photo / manual entry. No guess.
-            msg = _with_safety_prefix(base + checks + (
-                " I couldn't read the rating plate clearly \u2014 please send a sharper photo of it, "
-                "or type the model number (it's on the rating plate)."), safety, safety_info)
-            return OrchestratorResponse(
-                route="", outcome=Outcome.ANSWER.value, message=msg,
-                diagnosis=diag, suggestedChecks=comps, componentMention=mention, parts=None, resolvedModel=None,
-                traceId=rag.get("traceId"), safetyInformation=safety_info, media=media_val, safety=safety,
-                modelRequired=True,
-                clarification={"question": "What is the make and model number?",
-                               "needs": [{"attribute": "model",
-                                          "resolutionSources": ["MODEL", "E_NR", "RATING_PLATE"]}]},
-                provenance={"diagnosis": Trust.L3_PROBABILISTIC.value})
-
-        cannot_model = self._cannot_provide_model(st)
-        if mention != "purchase":
-            # Subsystem / advice / discuss grain: do not gate on the model or fold a shopping list.
-            msg = _with_safety_prefix(engineer_prose or base, safety, safety_info)
-            return OrchestratorResponse(
-                route="", outcome=Outcome.ANSWER.value, message=msg,
-                diagnosis=diag, suggestedChecks=(comps if mention == "discuss" else []),
-                componentMention=mention,
-                parts=None, resolvedModel=None, traceId=rag.get("traceId"),
-                safetyInformation=safety_info, media=media_val, safety=safety, modelRequired=False,
-                provenance={"diagnosis": Trust.L3_PROBABILISTIC.value})
-        if not has_model and not rag_parts and not cannot_model:
-            # STAGE 1 — grounded fault, but we need the model before recommending a part.
-            # G1/G3: use the RAG's prioritised engineering prose (it already leads with the likely
-            # cause, the free/safe check, and asks for the model). Fall back to the structured line.
-            msg = _with_safety_prefix(engineer_prose or (base + checks + (
-                " To match a candidate part, could you tell me the make and model? "
-                "It's on the rating plate — often inside the door or around the opening, or on the back.")), safety, safety_info)
-            return OrchestratorResponse(
-                route="", outcome=Outcome.ANSWER.value, message=msg,
-                diagnosis=diag, suggestedChecks=comps, componentMention=mention,
-                parts=None, resolvedModel=None, traceId=rag.get("traceId"),
-                safetyInformation=safety_info, media=media_val, safety=safety, modelRequired=True,
-                clarification={"question": "What is the make and model number?",
-                               "needs": [{"attribute": "model",
-                                          "resolutionSources": ["MODEL", "E_NR", "RATING_PLATE"]}]},
-                provenance={"diagnosis": Trust.L3_PROBABILISTIC.value,
-                            "suggestedChecks": Trust.L3_PROBABILISTIC.value})
-
-        # STAGE 2 (model known) / STAGE 3 (customer can't give the model). Parts flow where the RAG
-        # returned them; the fit invariant downstream marks anything not model-confirmed as
-        # VERIFY_FIT. In Stage 3 we do NOT re-ask for the model (no loop).
-        if has_model:
-            msg = engineer_prose or (base + checks)
-        elif rag_parts:
-            msg = (engineer_prose + (
-                " As you can't give the model, these are brand-compatible options — "
-                "please check they fit your exact machine before buying.")) if engineer_prose else (base + checks + (
-                " As you can't give the model, here are brand-compatible options — "
-                "please check they fit your exact machine before buying."))
-        else:
-            # Stage 3, no brand-compatible part available: give the diagnosis + checks, acknowledge
-            # the missing model, and stop asking rather than looping.
-            msg = engineer_prose or (base + checks + (
-                " Without the model number I can't confirm a candidate part for your machine, "
-                "so start with the checks above."))
-        msg = _with_safety_prefix(msg, safety, safety_info)
-        return OrchestratorResponse(
-            route="", outcome=Outcome.ANSWER.value, message=msg,
-            diagnosis=diag, suggestedChecks=comps, componentMention=mention, parts=(rag_parts or None),
-            resolvedModel=rag.get("resolvedModel"), traceId=rag.get("traceId"),
-            # informational, node-identity safety info + instructional media (verbatim passthrough);
-            # only on a genuine grounded ANSWER, never on a safety-stop (handled by the early return).
-            safetyInformation=safety_info, media=media_val, safety=safety,
-            provenance={"diagnosis": Trust.L3_PROBABILISTIC.value, "suggestedChecks": Trust.L3_PROBABILISTIC.value,
-                        "parts": Trust.L3_PROBABILISTIC.value})
-
-    def _compose_combined(self, st: ConversationState, mcp: dict, rag: dict, conflict: bool) -> OrchestratorResponse:
-        safety = self._safety_block(st)
-        rt = mcp.get("recordType")
-        meaning = mcp.get("meaning")
-        displayed = _facing_code(st, mcp)
-        prov = {"meaning": Trust.L1_DETERMINISTIC.value, "recordType": Trust.L1_DETERMINISTIC.value}
-        has_model = _customer_has_model(st)
-        mention = _component_mention(rag)
-        comps = _customer_facing_components(rag)
-        model_required = False
-        # L1 authoritative code statement first
-        if rt in NON_FAULT_RECORD_TYPES:
-            kind = {"STATUS": "a status message", "INFORMATION": "an information message",
-                    "MAINTENANCE": "a maintenance prompt", "WARNING": "a warning"}.get(rt, "a message")
-            lead = f"{displayed} is {kind}, not a fault: {meaning}."
-            # recordType guard: do NOT let the RAG promote a status/maintenance code into a fault.
-            rag_note = ""
-            if rag.get("grounded"):
-                rag_note = (f" Separately, the symptoms you describe are {self._band(rag.get('confidence'))} "
-                            f"a {_fault_phrase(rag)}, which is a different matter from the {displayed} message.")
-            msg = lead + rag_note
-            prov["diagnosis"] = Trust.L3_PROBABILISTIC.value
-            mention = "none"
-            comps = []
-            model_required = False
-        elif conflict:
-            # symptoms don't align with the deterministic code meaning — present both, discard neither
-            msg = (f"{displayed} on your {st.customer.make} {st.customer.appliance} means: {meaning}. "
-                   f"The symptoms you describe point more towards a {_fault_phrase(rag, 'different fault')}, "
-                   f"which doesn't fully line up with that code. Both are worth looking at — "
-                   f"can you confirm exactly what the machine is doing so we can tell whether it's the "
-                   f"coded fault or a separate problem?")
-            prov["diagnosis"] = Trust.L3_PROBABILISTIC.value
-            out = Outcome.CLARIFICATION_REQUIRED.value if not (safety and safety["stopUse"]) else Outcome.SAFETY_STOP.value
-            if safety:
-                msg = safety["message"] + " " + msg
-            return OrchestratorResponse(route="", outcome=out, message=msg,
-                                        codeResult=CodeResultView(displayed=displayed, meaning=meaning, recordType=rt, status="RESOLVED"),
-                                        diagnosis=DiagnosisView(summary=rag.get("faultLabel"), confidenceBand=self._band(rag.get("confidence"))),
-                                        safety=safety, provenance=prov,
-                                        debug={"conflict": True, "system": mcp.get("system"), "ragSystem": rag.get("system")})
-        else:
-            # aligned: code meaning is the anchor. RAG may refine checks/components, but must
-            # not be phrased as a competing diagnosis of the same area.
-            prior_asst = " ".join(
-                str(m.get("content") or "") for m in (getattr(st, "_conversation", None) or [])
-                if isinstance(m, dict) and m.get("role") == "assistant"
-            )
-            already = bool(meaning) and meaning.lower() in prior_asst.lower()
-            if already:
-                msg = f"{displayed} still names that coded fault area ({meaning})."
-            else:
-                msg = f"{displayed} on your {st.customer.make} {st.customer.appliance} means: {meaning}."
-            enr = mcp.get("enrichment") or {}
-            if enr.get("behaviour", {}).get("protectionState") and not already:
-                msg += " This is a protection state — the appliance has detected water where it shouldn't be; investigate the underlying leak."
-            if not already:
-                msg += (" That is the coded fault area to investigate — not a confirmed failed part "
-                        "on its own, and not a reason to replace a different part that was only suggested.")
-            if not has_model:
-                msg += (" To take the next useful check or match a part, I need the model number "
-                        "or a photo of the rating plate.")
-                model_required = True
-                mention = "none"
-                comps = []
-            else:
-                # Do not dump a catalogue of candidate components (that re-opens a suggested
-                # replacement) and do not paste runtime COMPOSE prose (it can invent completed
-                # checks). Progress from STRUCTURED runtime state: unanswered check vs reported
-                # check / part request vs actual part cards.
-                checks_done = bool(rag.get("checksReported"))
-                intent = str(rag.get("userIntent") or "").strip().upper()
-                wants_part = intent in ("PART_REQUEST", "PRICE_QUERY", "AVAILABILITY_QUERY")
-                already_asked_check = "check that coded area" in prior_asst.lower()
-                coded_parts = _parts_in_coded_area(rag.get("parts") or [], mcp)
-                has_cards = bool(coded_parts)
-                if has_cards:
-                    msg += (" A matching part is below if you want to proceed after the coded-area "
-                            "checks.")
-                    mention = "purchase"
-                elif checks_done or wants_part or already_asked_check:
-                    msg += (" If the accessible check on that coded area is already done and the "
-                            "fault remains, the next step is the matching part or an engineer "
-                            "test — not a different part that was only suggested.")
-                    msg += " I don't currently have a matching part card for this model."
-                    mention = "discuss" if mention == "purchase" else mention
-                    if mention == "discuss":
-                        comps = comps[:2]
-                else:
-                    msg += (" Next useful step: check that coded area on the machine before "
-                            "replacing anything.")
-                    if mention == "purchase":
-                        mention = "discuss"
-                    if mention == "discuss":
-                        comps = comps[:2]
-                prov["suggestedChecks"] = Trust.L3_PROBABILISTIC.value if rag.get("candidateComponents") else Trust.L2_EVIDENCE_BACKED.value
-                rag = dict(rag)
-                rag["parts"] = coded_parts
-        if safety:
-            msg = safety["message"] + " " + msg
-        stop = bool(safety and safety["stopUse"])
-        out = Outcome.SAFETY_STOP.value if stop else Outcome.ANSWER.value
-        # part cards flow through ONLY for a genuine fault answer (never for STATUS/MAINTENANCE via
-        # the recordType guard above, never on safety-stop, never on conflict). No model → no parts.
-        parts = (rag.get("parts") or None) if (
-            not stop and mention == "purchase" and _customer_has_model(st)
-        ) else None
-        # Customer safety information flows only on a genuine grounded ANSWER that is not a stop —
-        # mirrors parts. Suppressed on stop (deterministic safety reply leads), and never reached on
-        # the status/maintenance (recordType guard) or conflict branches (they return earlier).
-        safety_info = rag.get("safetyInformation") if (not stop and rag.get("grounded")) else None
-        media_c = (rag.get("media") or None) if not stop else None
-        return OrchestratorResponse(
-            route="", outcome=out, message=msg,
-            codeResult=CodeResultView(displayed=displayed, meaning=meaning, recordType=rt, status="RESOLVED"),
-            diagnosis=(DiagnosisView(summary=rag.get("faultLabel"), confidenceBand=self._band(rag.get("confidence"))) if rag.get("grounded") else None),
-            suggestedChecks=comps if has_model else [],
-            componentMention=mention,
-            parts=parts, resolvedModel=rag.get("resolvedModel"), traceId=rag.get("traceId"),
-            safetyInformation=safety_info, media=media_c, safety=safety, modelRequired=model_required,
-            provenance=prov,
-            debug={"conflict": False, "trustedContextUsed": True, "system": mcp.get("system"),
-                   "scheme": mcp.get("scheme"), "ragSystem": rag.get("system")})
-
-    def _compose_unresolved_code_plus_symptoms(self, st: ConversationState, mcp: dict, rag: dict) -> OrchestratorResponse:
-        status = mcp.get("status")
-        displayed = _facing_code(st, mcp)
-
-        # RESPONSE OWNERSHIP. NEEDS_CONTEXT / AMBIGUOUS mean the code IS a RECOGNISED manufacturer
-        # code whose EXACT meaning is model/scheme-dependent — the MCP just can't pin the scheme
-        # deterministically. When the RAG has GROUNDED a diagnosis it has effectively interpreted the
-        # code for the customer (e.g. "The 22E error code … indicates an evaporator-fan fault"), so
-        # that grounded diagnostic answer OWNS the reply. It is composed in exactly ONE place,
-        # `_compose_symptoms_only`, which surfaces the part-finder's own grounded prose, stages the
-        # model request for EXACT PART FIT (not "to read the code"), and preserves fit state
-        # (VERIFY_FIT / MODEL_CONFIRMED), safetyInformation, media, normal-behaviour and the
-        # safety-stop precedence. Previously this composer authored a SECOND, competing message that
-        # led with "To read the <code> code exactly I'd need the model…" and relegated the grounded
-        # diagnosis to a "Separately…" afterthought — discarding the good part-finder answer and
-        # misleadingly implying the model was needed to INTERPRET a code we can actually diagnose.
-        # The unresolved-code state stays visible in the structured `codeResult`. (Authority rule
-        # intact: only runs when the MCP resolved NO meaning, so nothing deterministic is contradicted.)
-        if status in ("NEEDS_CONTEXT", "AMBIGUOUS") and rag.get("grounded"):
-            resp = self._compose_symptoms_only(st, rag)
-            if displayed and displayed.lower() not in (resp.message or "").lower():
-                resp.message = f"The displayed code is {displayed}. " + (resp.message or "")
-            resp.codeResult = CodeResultView(displayed=displayed, status=status)
-            resp.provenance = {**(resp.provenance or {}), "codeStatus": Trust.L1_DETERMINISTIC.value}
-            resp.debug = {**(resp.debug or {}), "mcpStatus": status,
-                          "unresolvedCodeGroundedDiagnosis": True, "ragSystem": rag.get("system")}
-            return resp
-
-        # An incomplete or undocumented MCP lookup is not a conversation dead-end when the
-        # customer also reported symptoms. Keep the unresolved status on structured codeResult;
-        # continue diagnosis. INVALID_INPUT and a missing/empty MCP status include
-        # "make+code known, family not yet supplied" — the protocol schema requires a family, so
-        # the lookup never completed. That is not "this code does not exist". If the RAG grounded
-        # a unique make+code mapping, that grounded answer owns the reply. Preserve the
-        # customer-facing displayed code; do not rewrite it to a sibling alias.
-        rag_prose = (rag.get("reply") or rag.get("answer") or "").strip()
-        lookup_incomplete = status in ("NOT_FOUND", "INVALID_INPUT") or not status
-        if lookup_incomplete and (rag.get("grounded") or len(rag_prose) >= 40):
-            resp = self._compose_symptoms_only(st, rag)
-            if displayed and displayed.lower() not in (resp.message or "").lower():
-                resp.message = f"The displayed code is {displayed}. " + (resp.message or "")
-            resp.codeResult = CodeResultView(displayed=displayed, status=status or "INVALID_INPUT")
-            resp.provenance = {**(resp.provenance or {}), "codeStatus": Trust.L1_DETERMINISTIC.value}
-            resp.debug = {**(resp.debug or {}), "mcpStatus": status,
-                          "unresolvedIndicationSymptomLead": True, "ragSystem": rag.get("system")}
-            return resp
-
-        # Otherwise: either the RAG has no grounded diagnosis (an honest code clarification is all we
-        # can offer — a genuinely model-dependent code, or an unknown/partial one), OR the code is
-        # genuinely UNRECOGNISED (NOT_FOUND / INVALID_INPUT), where being honest that we have no
-        # documented meaning is correct (NOT misleading); any grounded symptom diagnosis is surfaced
-        # SEPARATELY rather than fabricating a code meaning. Safety still leads.
-        safety = self._safety_block(st)
-        if status == "NEEDS_CONTEXT":
-            code_note = f"To read the {displayed} code exactly I'd need the model/rating-plate number."
-            out = Outcome.CLARIFICATION_REQUIRED.value
-        elif status == "AMBIGUOUS":
-            code_note = f"The {displayed} code has more than one documented meaning here and I can't pin it down."
-            out = Outcome.AMBIGUOUS.value
-        else:  # NOT_FOUND / INVALID_INPUT — genuinely unrecognised code; be honest, never invent a meaning
-            code_note = f"I couldn't find a documented meaning for {displayed} on this appliance."
-            out = Outcome.NOT_FOUND.value if status == "NOT_FOUND" else Outcome.CLARIFICATION_REQUIRED.value
-        if rag.get("grounded"):
-            _cc = _customer_facing_components(rag)
-            mention = _component_mention(rag)
-            sym = (f" Separately, from your description this is {self._band(rag.get('confidence'))} a "
-                   f"{_fault_phrase(rag)}"
-                   + ((" \u2014 worth checking " + ", ".join(_cc) + ".") if (_cc and mention == "purchase") else "."))
-        else:
-            sym = " " + (rag.get("clarifyingQuestion") or "")
-        msg = (code_note + sym).strip()
-        if safety and safety["stopUse"]:
-            msg = safety["message"] + " " + msg
-            out = Outcome.SAFETY_STOP.value
-        return OrchestratorResponse(
-            route="", outcome=out, message=msg,
-            codeResult=CodeResultView(displayed=displayed, status=status),
-            diagnosis=(DiagnosisView(summary=rag.get("faultLabel"), confidenceBand=self._band(rag.get("confidence"))) if rag.get("grounded") else None),
-            safety=safety,
-            provenance={"codeStatus": Trust.L1_DETERMINISTIC.value,
-                        **({"diagnosis": Trust.L3_PROBABILISTIC.value} if rag.get("grounded") else {})},
-            debug={"mcpStatus": status, "ragSystem": rag.get("system")})

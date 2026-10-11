@@ -24,6 +24,7 @@ class Route(str, Enum):
     SYMPTOMS = "SYMPTOMS"
     ERROR_CODE_AND_SYMPTOMS = "ERROR_CODE_AND_SYMPTOMS"
     CLARIFY = "CLARIFY"
+    UNSUPPORTED = "UNSUPPORTED"        # ADR 0018: a typed problem no canonical journey owns
 
 
 class Outcome(str, Enum):
@@ -33,6 +34,8 @@ class Outcome(str, Enum):
     NOT_FOUND = "NOT_FOUND"
     SAFETY_STOP = "SAFETY_STOP"
     SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
+    # ADR 0018: a problem no canonical journey owns yet. Said plainly; never answered by another diagnosis path.
+    UNSUPPORTED = "UNSUPPORTED"
 
 
 class Trust(str, Enum):

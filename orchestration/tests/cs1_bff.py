@@ -14,8 +14,17 @@ from orchestration import routing
 from orchestration.model import TurnInput, Outcome
 
 CSID = "cs_" + "f" * 32
-_SAFETY = {"gas": ("gas_smell", "EMERGENCY_ACTION"), "shock": ("electric_shock", "STOP_USE"),
-           "burning": ("burning", "STOP_USE"), "electrical": ("supply_trip", "STOP_USE")}
+# Jev's safetySignificance choices -> the cs/1 hazard and level the merge records (merge M14).
+_SAFETY = {"gas_smell": ("gas_smell", "EMERGENCY_ACTION"), "gas_escape": ("gas_escape", "EMERGENCY_ACTION"),
+           "electric_shock": ("electric_shock", "STOP_USE"), "electrical_water": ("electrical_water", "STOP_USE"),
+           "burning": ("burning", "STOP_USE"), "supply_trip": ("supply_trip", "STOP_USE")}
+# mc/1 types an unsafe request (safety.unsafeAction, merge M15); the fake reads the same request phrases the fake
+# diagnose service treats as unsafe.
+_UNSAFE = (("test the element live", "live_electrical_test"), ("test it live", "live_electrical_test"),
+           ("live terminals", "live_electrical_test"), ("bypass the", "bypass_safety_device"),
+           ("keep resetting the rcd", "repeated_reset_after_trip"), ("discharge the capacitor", "hv_microwave_work"),
+           ("re-gas", "refrigerant_work"), ("regas", "refrigerant_work"),
+           ("while it's plugged in", "open_while_powered"), ("while its plugged in", "open_while_powered"))
 _REAL_SYMPTOM = lambda fam: bool(fam) and fam not in ("none", "uncertain", "error_display")
 
 
@@ -28,7 +37,7 @@ def cs1_state(appliance=None, establishment=None, make=None, model=None, model_c
     empty = lambda **x: {"value": None, "basis": None, "turn": None, "status": "active", "history": [], **x}
     basis = {"established": "stated", "working": "inferred"}.get(establishment)
     return {
-        "schemaVersion": 1, "sessionId": CSID, "version": version,
+        "schemaVersion": "cs/1", "sessionId": CSID, "version": version,
         "identity": {
             "appliance": _fact(appliance, basis, 1) if appliance else empty(),
             "applianceEstablishment": establishment if appliance else "unknown",
@@ -101,6 +110,15 @@ def fake_merge(prior, res, turn, message):
     if (raw.get("fault") or _REAL_SYMPTOM(dec.get("symptomFamily"))) and not any(p["status"] == "active" for p in s["problems"]):
         s["problems"].append({"id": f"p{turn}", "status": "active"})
         s["intent"]["history"].append({"intent": "report_fault", "turn": turn})
+    low = (message or "").lower()
+    unsafe = next((a for cue, a in _UNSAFE if cue in low), None)
+    if unsafe:
+        s["safety"]["unsafeActions"].append({"action": unsafe, "turn": turn})
+    if raw.get("_problemJourney") and not any(p["status"] == "active" for p in s["problems"]):
+        s["problems"].append({"id": f"p{turn}", "status": "active"})
+    for p in s["problems"]:
+        if p["status"] == "active" and raw.get("_problemJourney"):
+            p["journey"] = _fact(raw["_problemJourney"], "stated", turn)
     hz = _SAFETY.get(dec.get("safetySignificance"))
     if hz:
         s["safety"]["hazards"].append({"hazard": hz[0], "turn": turn, "status": "active"})
