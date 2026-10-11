@@ -63,5 +63,7 @@ The knowledge and media shapes are pinned by `test/admin-error-contracts.test.mj
   cannot happen, because creating the client does no I/O.
 - Cognito errors during a session check are treated as signed out.
 
-**The engine's public URL** accepts orchestrator-only fields without authentication
-([findings §5](phase-8-findings.md#5-brittle-interfaces-and-risks)). That is a security item, not an error-shape item.
+**The engine's public URL** honours the orchestrator-only fields only with a valid HMAC signature
+([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md), enforced since Phase 11). An unsigned, stale or
+invalid signature is not an error to the caller: the fields are dropped, the drop is logged (`evt: engine-auth`), and
+the request is handled as plain `{messages}`.

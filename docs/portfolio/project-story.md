@@ -1,6 +1,6 @@
 # Project story
 
-Appliance Clinic (AC) was built inside another product's monorepo and AWS account. This is how it was moved into its own repository and infrastructure while it kept serving customers, and how its quality was then measured and fixed. It records decisions, trade-offs and evidence. The full step-by-step record is in [docs/migration/](../migration/PLAN.md).
+Appliance Clinic (AC) was built inside another product's monorepo and AWS account. This is how it was moved into its own repository and infrastructure while it kept serving customers, and how its quality was then measured and fixed — including the point where every test was green and the real conversations were still not good enough. It records decisions, trade-offs and evidence. The full step-by-step record is in [docs/migration/](../migration/PLAN.md).
 
 ## Starting point
 
@@ -72,7 +72,7 @@ Every production change since has gone through one reviewed tool, [`change.sh`](
 4. after execution, check drift and confirm a no-op;
 5. audit CloudTrail.
 
-A finding that bounded the scope: the account's Lambda concurrency limit (10) is shared with S4R. AC cannot reserve capacity without affecting S4R, so throttling became a product concern (retry and explicit errors), not an infrastructure fix.
+A finding that bounded the scope: the account's Lambda concurrency limit (10) is shared with S4R. AC cannot reserve capacity without affecting S4R, so throttling became a product concern (retry and explicit errors), not an infrastructure fix. Phase 11 measured it: the pool sat at 10 for 383 minutes in 14 days. The recommendation is an account quota of 100, which needs the account owner ([analysis](../evaluation/phase-11-concurrency.md)).
 
 ### 6. Clean up the architecture (Phase 8)
 
@@ -100,15 +100,50 @@ The product was then fixed, not the test, over a series of reviewed releases:
 
 Misses that kept repeating in scenarios that still passed narrowly were treated as defects too. The gate was **49/49 in two consecutive full runs** ([final gate](../evaluation/gold-v2-final-gate.md)). The 28/50 run is kept as the diagnostic run that started the work, not as a baseline.
 
-Phase 10 then asked whether GOLD would have caught what went wrong in real conversations. It would not have: it passed a prompt leak and had no error-code scenario. The suite grew to 55 scenarios with two rubric-wide fidelity checks, the first run fell to 48/55, and twelve root-layer releases later the gate was **55/55 twice** ([Phase 10 results](../evaluation/phase-10-results.md)).
-
-During that work two bearer tokens appeared in an operator session's output, and both were rotated. The rotation exposed a CloudFormation subtlety: pinning a dynamic reference to the new version id changed nothing. CloudFormation re-resolved the old unversioned reference to the same new value, saw no difference and skipped the update. A non-secret version marker in each function's environment now forces the update on every rotation.
+During the Phase 10 work that followed (section 9) two bearer tokens appeared in an operator session's output, and both were rotated. The rotation exposed a CloudFormation subtlety: pinning a dynamic reference to the new version id changed nothing. CloudFormation re-resolved the old unversioned reference to the same new value, saw no difference and skipped the update. A non-secret version marker in each function's environment now forces the update on every rotation.
 
 ### 8. Make it readable (Phase 9)
 
 - The dead legacy secrets were removed through the same reviewed process.
 - The documentation and contributor guides were rewritten for an outside reader.
 - The public tree and full history were scanned for secrets and PII.
+
+### 9. Green tests, poor conversations (Phases 10 and 11)
+
+This is the part of the project that mattered most.
+
+**The tests were green; the conversations were not.** After Phase 8, GOLD-v2.2 passed 49/49 in four consecutive runs, and the runtime suites matched their baseline. Yet chatting with the service by hand still produced poor conversations. Phase 10 set the pass counts aside and asked two questions: does the system work the way the documents say, and is the customer experience actually good? ([Phase 10 results](../evaluation/phase-10-results.md))
+
+**Real transcripts were the evidence.** A privacy-safe review of production conversations recorded 15 findings ([F1–F15](../evaluation/phase-10-transcript-findings.md)). Three of the worst:
+- a model instruction was leaking into customer replies;
+- a bare error code was read as a weak model-number guess and committed;
+- the service asked the same fixed question twice.
+
+**The architecture audit explained why.** Each finding was traced hop by hop through the code and the live configuration ([as-built](../architecture/as-built.md)). The defects came from the seams:
+- One turn carried seven representations of conversation state, including a per-container store in the orchestrator that a cold start lost.
+- "Ask for the model" was decided in five places, and safety copy had five implementations.
+
+**The benchmark had blind spots.** An audit asked whether GOLD would have caught the real failures ([GOLD audit](../evaluation/phase-10-gold-audit.md)):
+- It had passed the instruction leak in every affected scenario, because the rubric never asked about reply fidelity.
+- It had no error-code scenario at all.
+
+**Real failures became regressions, and the product was fixed at the root.**
+- GOLD grew from that evidence: error-code and either/or scenarios, plus two rubric-wide fidelity checks. No scenario was removed or weakened. The first v2.3 run fell to 48/55. Twelve root-layer releases later it was 55/55 twice.
+- A [target architecture](../architecture/target.md) and four ADRs fixed the seams themselves. Phase 11 delivered the two largest ([results](../evaluation/phase-11-results.md)):
+  - **One conversation state.** The orchestrator's store was deleted; every turn is now built from the request and the `cs/1` block. Two instances given the same request decide identically, and a failed turn advances nothing ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)).
+  - **Signed internal fields on a public endpoint.** The engine's Function URL must stay public for S4R, yet it accepted fields meant only for the orchestrator. Signing was rolled out in stages: log-only first, then proof from logs that S4R never sends those fields, then enforcement, then removal of the compatibility code ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md)).
+  - **The last instruction leak, on the S4R path.** Fixed live without changing the `/part-finder` contract: 3/3 turns leaked before, 0/6 after.
+  - **One owner for an uncertain token.** A token that might be a code or a model number now has one commit rule. A weak reading is held and the customer is asked once.
+
+**The final gate was not re-run until it passed.** On the way to the Phase 11 gate, five runs came back 55/56. Each failure was read, traced to a product defect and fixed with a regression test, and the pair of runs was restarted on the new build ([every run](../evaluation/phase-11-results.md#gold)). The defects:
+- a question asked twice in one reply;
+- a check the customer had done being dropped and asked again;
+- "I can't get to the model" treated as refusing a different question;
+- three category labels that claimed more than the customer said.
+
+The final build passed **56/56 twice in a row** on GOLD-v2.4.
+
+**GOLD is not the only judge.** Six live journeys through the public site were ended so that the production transcript judge reviewed them. Both the judge's verdict and the conversation were read, and a three-turn journey the judge rated `insufficient_evidence` was accepted only after reading it. Production transcript review stays a separate check from the benchmark.
 
 ## Trade-offs, honestly
 
@@ -120,9 +155,20 @@ During that work two bearer tokens appeared in an operator session's output, and
 | CloudFront left unmanaged ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)) | No risk to the shared distribution during the migration | One AC resource is still outside CDK |
 | No automatic deployment | Every production change is reviewed, scoped and audited | Releases are manual and slower |
 | Required approvals set to 0 | A single maintainer can merge through PRs and checks | No second reviewer; the PR record and CI are the review |
+| Fix the product, then restart the gate | Every GOLD pass is evidence, not a lucky run | More releases and a slower gate: Phase 11 needed four extra releases and ten runs |
+| Sign internal fields instead of moving S4R | S4R's contract and URL never changed | The signing key is handled like the service bearers, through the Lambda environment |
 
 ## Still open
 
-- **Unauthenticated orchestrator-only fields.** The diagnosis engine's public URL still accepts fields meant only for the orchestrator. Closing that needs a coordinated change with the S4R caller ([findings §5](../architecture/phase-8-findings.md#5-brittle-interfaces-and-risks)).
-- **The site.** The static site is still published from the original monorepo.
-- **The orchestrator.** It is one large Python module; its split is documented but deferred.
+Checked against the code, the live configuration and the Phase 11 results. Solved items are not carried forward.
+
+| Item | Evidence or detail |
+|---|---|
+| **Account Lambda concurrency is 10**, shared with S4R | The pool sat at 10 for 383 minutes in 14 days. The recommended quota is 100, and only the account owner can request it ([analysis](../evaluation/phase-11-concurrency.md)) |
+| **The static site** is still published from the original monorepo | Not in this repository |
+| **The orchestrator** is one large Python module (about 2,300 lines) | It still writes customer prose on legacy turns, from typed state. Its split is documented but deferred |
+| **Two diagnosis paths** stay in the engine | The legacy pipeline serves every S4R request ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md)). Some of its behaviour is still produced by regular expressions (safety cues, brand lists) |
+| **Engine signing key in the Lambda environment** | The same pattern as the service bearers (dynamic references). A runtime secret fetch would keep it out of `lambda:GetFunctionConfiguration` |
+| **The GOLD judge is not independent** | GOLD and transcript review are judged by Jev, the same service that does the understanding. The rubric and pass rule are fixed and verdicts are checked by reading the conversations, but an independent judge would be stronger evidence |
+| **Planned target steps** | Error codes opening the matching canonical journey (T8); one safety-copy source shared by Python and JavaScript (T9); complete cause sentences in the error-code enrichment (T10) ([target](../architecture/target.md)) |
+| **Conversation-quality items** | The vacuum belt question asks corded or cordless even when the model implies it; the vacuum won't-start path is weak after an uncertain charge answer; a second model ask can follow an ambiguous code ([Phase 11](../evaluation/phase-11-results.md#remaining-debt)) |

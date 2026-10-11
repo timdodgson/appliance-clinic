@@ -1,5 +1,7 @@
 # As-built architecture (Phase 10 truth audit)
 
+> **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113), and the current system is described in the [overview](overview.md).
+
 This describes what the code at `ec48371` does, as traced from source, from the live Lambda configuration, and from production logs and transcripts. Where the earlier [overview](overview.md) disagrees, this document is the evidence. The overview has been corrected to match it.
 
 Abbreviations: BFF = `services/whichpart-api`; orch = `orchestration/`; engine = `services/part-finder`; cs/1 = canonical conversation state; mc/1 = canonical message classification; NA = NextAction.

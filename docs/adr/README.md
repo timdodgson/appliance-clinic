@@ -9,6 +9,8 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 2. Open a pull request with the record in **Proposed** status.
 3. On merge the status becomes **Accepted**. If a later decision replaces it, set it to
    **Superseded by NNNN** and link both ways.
+4. When the decision is delivered, the status records it (**Implemented**, with the phase and the evidence). The
+   decision text itself is not rewritten.
 
 ## Index
 
@@ -27,7 +29,7 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0011](0011-diagnosis-lambda-keeps-the-s4r-execution-role.md) | The diagnosis Lambda keeps the S4R execution role during the migration | Superseded (Phase 7 change 7.15b) |
 | [0012](0012-legacy-diagnosis-pipeline-retained.md) | The legacy diagnosis pipeline is retained | Accepted |
 | [0013](0013-prompt-registry-and-contract-types.md) | Prompt registry and contract types | Accepted |
-| [0014](0014-cs1-is-the-only-conversation-state.md) | cs/1 is the only conversation state | Accepted |
-| [0015](0015-one-owner-per-decision.md) | One owner per decision | Accepted |
-| [0016](0016-degraded-turns-are-errors.md) | Degraded turns are errors, not normal replies | Accepted |
-| [0017](0017-authenticate-orchestrator-only-engine-fields.md) | Authenticate the orchestrator-only engine fields | Accepted (implementation gated) |
+| [0014](0014-cs1-is-the-only-conversation-state.md) | cs/1 is the only conversation state | Implemented (Phase 11) |
+| [0015](0015-one-owner-per-decision.md) | One owner per decision | Accepted; partly implemented |
+| [0016](0016-degraded-turns-are-errors.md) | Degraded turns are errors, not normal replies | Implemented (Phase 10) |
+| [0017](0017-authenticate-orchestrator-only-engine-fields.md) | Authenticate the orchestrator-only engine fields | Implemented (Phase 11) |

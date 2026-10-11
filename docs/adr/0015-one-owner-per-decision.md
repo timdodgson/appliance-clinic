@@ -1,6 +1,6 @@
 # 0015. One owner per decision
 
-- **Status:** Accepted
+- **Status:** Accepted; partly implemented. State and the code-versus-model commit have one owner (Phase 11). The error-code-to-journey bridge and one shared safety-copy source are still planned ([target](../architecture/target.md) T8, T9)
 - **Date:** 2026-10-10
 
 ## Context
