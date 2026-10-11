@@ -109,7 +109,7 @@ const CONCLUSION = {
   'DH7:airflow-thermal-cut-out': 'Clearing the airflow very likely fixed it — blocked fluff makes the dryer cut its heat to stop overheating. No part is needed; clean the filter after every load.',
   'heat-pump-runs-cooler': 'Heat-pump dryers dry at a much lower temperature than older dryers, so the air feels warm rather than hot and programmes take longer. That\'s normal — no part is needed (and a heat-pump dryer has no conventional heater to replace).',
   'heat-pump-system': 'With the filters and the heat exchanger clean but no warmth at all, the heat-pump system itself is the likely area. That needs an appliance engineer — a heat-pump dryer has no conventional heater, and I\'m not recommending a part from this.',
-  'heater-or-thermal-cut-out': 'With the programme right and the airflow clear but still no heat, the heater, its thermal cut-out or the thermostat is the likely area. These need testing by an appliance engineer (a cut-out that has tripped usually did so for a reason) — I\'m not recommending a part from this.',
+  'heater-or-thermal-cut-out': 'With the airflow clear but still no heat, the heater, its thermal cut-out or the thermostat is the likely area. These need testing by an appliance engineer (a cut-out that has tripped usually did so for a reason) — I\'m not recommending a part from this.',
   'airflow-thermal-cut-out': 'Blocked airflow making the dryer cut its heat is the likely cause. Keep the filters and hose clear; if it still won\'t heat after that, an appliance engineer should check the cut-out — I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

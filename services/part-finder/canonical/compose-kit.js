@@ -180,11 +180,16 @@ function createCompose(pack) {
     ASK_GUARD = false } = pack;
   const { evidenceLines, latestIdentity } = makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks);
   // An owner check the customer moved past (policy ownerCheck) is the first thing to do, said once with the conclusion.
-  function withOwnerCheck(text, a) {
+  // One already asked was explained then: it is referred to, not explained again (repeating it read as a loop, GOLD
+  // G2-OC-03; the same rule as a re-offered question, 11.13).
+  function withOwnerCheck(text, a, state) {
     if (a.conclusion && a.conclusion.repeat) return null;
     const t = a.conclusion && a.conclusion.ownerCheck;
     const task = t ? TASK[`ask_check:${t}`] : null;
-    return task && task.say ? `${text} If you haven't had a chance yet, this check comes first: ${task.say}` : text;
+    if (!task || !task.say) return text;
+    const explained = ((state && state.requests) || []).some((r) => r.target === t && (r.kind === 'ask' || r.kind === 'reoffer'));
+    return explained ? `${text} If you haven't had a chance yet, the check I described earlier comes first.`
+      : `${text} If you haven't had a chance yet, this check comes first: ${task.say}`;
   }
   function brief(state, a, diag, { partLookup = null, media = [] } = {}) {
     const key = retestKey(a, state) || `${a.kind}:${a.target}`;
@@ -197,7 +202,7 @@ function createCompose(pack) {
       kind: a.kind, rule: a.rule, target: a.target,
       facts: [...factLine(state), ...extraFacts(state, a)], evidence: evidenceLines(state), latest: (state.version > 1 ? [...latestIdentity(state), ...evidenceLines(state, true)] : []),
       task: task ? reofferTask(task, a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote) : null,
-      conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a) || followUpCopy(a)) : null,
+      conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a, state) || followUpCopy(a)) : null,
       confirm: a.pending && a.pending.purpose === 'CONFIRM' ? CONFIRM_ASK : null,
       safety: (a.requires || []).map((t) => (REQUIREMENT[t] ? { token: t, copy: REQUIREMENT[t].copy } : null)).filter(Boolean),
       safetyStop: a.kind === 'safety_stop' ? (SAFETY_COPY[a.target] || 'Stop using the machine now and unplug it — this can be dangerous.') : null,
