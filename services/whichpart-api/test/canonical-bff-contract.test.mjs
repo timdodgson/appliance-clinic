@@ -158,13 +158,17 @@ describe('shadow', () => {
     api.setTranscriptStore(transcripts.createMemoryStore());
   });
 
-  it('degraded turns are visible in the trace stage too', async () => {
+  it('degraded turns are visible in the trace stage too (and a token reset is reported, not hidden)', async () => {
     const store = transcripts.createMemoryStore();
     api.setTranscriptStore(store);
     const sid = 'client-session-0003';
-    await post({ ...msg(), stateToken: 'garbage', observability: { sessionId: sid } });
-    const st = (await store.get(sid)).turns[0].diagnosticTrace.stages.find((s) => s.id === 'canonical-state');
-    expect(st.detail).toMatchObject({ degraded: 'token_malformed', persistence: { stateWritten: false } });
+    const r1 = await post({ ...msg(), stateToken: 'garbage', observability: { sessionId: sid } });
+    const reset = (await store.get(sid)).turns[0].diagnosticTrace.stages.find((s) => s.id === 'canonical-state');
+    expect(reset.detail).toMatchObject({ stateReset: 'token_malformed', persistence: { stateWritten: true } });
+    db.faults.push({ action: 'GetItem', match: () => true, error: new Error('throttled'), once: true });
+    await post({ ...msg('again'), stateToken: r1.json.stateToken, observability: { sessionId: sid } });
+    const st = (await store.get(sid)).turns[1].diagnosticTrace.stages.find((s) => s.id === 'canonical-state');
+    expect(st.detail).toMatchObject({ degraded: 'read_failed', persistence: { stateWritten: false } });
     api.setTranscriptStore(transcripts.createMemoryStore());
   });
 
@@ -175,12 +179,12 @@ describe('shadow', () => {
     expect(r.json.stateToken).toBeTruthy();
   });
 
-  it('forged token: degraded, no state read, no block, fresh token; response still succeeds', async () => {
+  it('forged token: no state read; this turn starts a fresh canonical session (version-0 block, fresh token)', async () => {
     const forged = tok.issueToken(CSID, { current: 'x'.repeat(40) });
     const r = await post({ ...msg(), stateToken: forged });
     expect(r.status).toBe(200);
-    expect(sent[0].canonical).toBeUndefined();
-    expect(db.calls).toEqual([]);
+    expect(sent[0].canonical).toMatchObject({ version: 0, state: null });
+    expect(db.calls.filter((c) => c.action === 'GetItem' && String(c.pk).startsWith('STATE#'))).toEqual([]);
     expect(tok.verifyToken(r.json.stateToken, SECRETS).ok).toBe(true);
   });
 

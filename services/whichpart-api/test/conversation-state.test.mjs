@@ -158,7 +158,7 @@ describe('per-turn protocol (prepare → orchestrator → finish)', () => {
     for (const v of [1, 2, 3]) expect(db.items.has(`STATETURN#${CSID}#${v}`)).toBe(true);
     expect(loaded.state.identity.appliance.value).toBe('washing-machine');
   });
-  it('invalid / forged / expired token → degraded token_<reason>, no read, no block, fresh token for next turn', async () => {
+  it('invalid / forged / expired token → no read; a fresh canonical session this turn (stateReset token_<reason>, version-0 block)', async () => {
     for (const [token, reason] of [
       ['garbage', 'token_malformed'],
       [tokenFor(CSID).replace(/.$/, (c) => (c === 'A' ? 'B' : 'A')), 'token_bad_signature'],
@@ -166,11 +166,12 @@ describe('per-turn protocol (prepare → orchestrator → finish)', () => {
     ]) {
       const { db, store } = setup();
       const { ctx, fin } = await turn({ store, token, newId: bytes24(2) });
-      expect(ctx.degraded).toBe(reason);
-      expect(ctx.block).toBeNull();
-      expect(db.calls).toEqual([]);
+      expect(ctx.degraded).toBeNull();
+      expect(ctx.stateReset).toBe(reason);
+      expect(ctx.block).toMatchObject({ version: 0, state: null, sessionId: tok.newCanonicalSessionId(bytes24(2)) });
+      expect(db.calls.filter((c) => c.action === 'GetItem' && String(c.pk).startsWith('STATE#'))).toEqual([]);
       expect(tok.verifyToken(ctx.token, SECRETS, { nowSec: NOW_MS / 1000 }).csid).toBe(tok.newCanonicalSessionId(bytes24(2)));
-      expect(fin).toMatchObject({ written: false, degraded: reason });
+      expect(fin.degraded).toBeNull();
     }
   });
   it('no signing secret → canonical disabled (no_signing_secret), no token', async () => {
