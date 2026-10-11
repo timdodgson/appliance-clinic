@@ -40,7 +40,24 @@ describe('progression: new facts, ignored requests, owner checks, repeated concl
     expect(r.rules).toEqual(['MS11:power-supply', 'MS22:supply-or-plug-fuse']);
     expect(r.last.conclusion.ownerCheck).toBe('power-supply');
     expect(r.last.requires).toEqual(['no_live_electrical_checks']);
-    expect(text('mw-not-starting', r)).toMatch(/try another appliance in that socket/);
+    // it was explained when asked: the conclusion refers to it rather than explaining it again (GOLD G2-OC-03)
+    const t = text('mw-not-starting', r);
+    expect(t).toMatch(/the check I described earlier comes first/);
+    expect(t).not.toContain(compose('mw-not-starting').TASK['ask_check:power-supply'].say);
+  });
+  it('an owner check that was never explained is given in full with the conclusion', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ intent: 'price_or_availability' })]);
+    const state = { ...r.state, requests: r.state.requests.filter((q) => q.target !== 'power-supply') };
+    const JC = compose('mw-not-starting');
+    expect(JC.template(JC.brief(state, r.last, null, {}))).toContain(`this check comes first: ${JC.TASK['ask_check:power-supply'].say}`);
+  });
+  it('a conclusion does not claim an owner check passed (tumble dryer heater with the programme check outstanding, GOLD G2-TD-06)', () => {
+    const turns = [H.tdOpener('no-heat', 'heat', [O('noHeat'), O('dryerVented')]), C({ checks: [K('lint-filter', 'done', 'clear'), K('vent-duct', 'done', 'clear')] }), ob(O('restartsAfterCooling', false))];
+    const r = H.play(J('td-not-heating'), turns);
+    expect(r.last.conclusion).toMatchObject({ cause: 'heater-or-thermal-cut-out', ownerCheck: 'programme-setting' });
+    const t = text('td-not-heating', r);
+    expect(t).toMatch(/airflow clear/);
+    expect(t).not.toMatch(/programme right|programme set correctly/);
   });
   it('a check the customer said they cannot tell about is not repeated in the conclusion', () => {
     const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } })]);
