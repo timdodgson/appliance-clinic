@@ -25,7 +25,7 @@ const SIGNALS = {
   PU: { pumpEvidence: SS, codePump: S, tankEmpty: S, tankWarning: S, condOk: S, tankOk: S, drainKit: SA, tankFills: A, restoredAfterTankFix: SA, restoredAfterCondFix: SA },
   LK: { leakUnder: S, tankOk: S, condOk: S, tankEmpty: A, restoredAfterTankFix: SA, restoredAfterCondFix: SA },
 };
-const FACT_LABEL = { tankWarning: 'container / tank warning on', tankEmpty: 'container stays empty', tankFills: 'container fills normally', leakUnder: 'water under the dryer',
+const FACT_LABEL = { tankWarning: 'container full', tankEmpty: 'container stays empty', tankFills: 'container fills normally', leakUnder: 'water under the dryer',
   drainKit: 'drain kit fitted', tankFixed: 'container full / not pushed home (sorted)', tankOk: 'container seated and undamaged', tankCracked: 'container cracked',
   condFixed: 'condenser clogged (cleaned)', condOk: 'condenser clean', codePump: 'pump / condensate error code', pumpEvidence: 'pump code, container empty, condenser clean',
   vented: 'vented dryer', condenser: 'condenser dryer', heatPump: 'heat-pump dryer' };
@@ -103,7 +103,7 @@ const CONCLUSION = {
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it collecting the water normally now?',
   OBS_COPY: { dryerVented: ['a vented-type dryer', null], dryerCondenser: ['a condenser-type dryer', null], dryerHeatPump: ['a heat-pump-type dryer', null], tankStaysEmpty: ['container stays empty', 'container fills'],
-    tankWarning: ['container warning on', null], leakUnderneath: ['water under the dryer', null], drainKitFitted: ['drain kit fitted', 'no drain kit'], faultPersists: ['still the same', 'working now'] },
+    tankWarning: ['container full', null], leakUnderneath: ['water under the dryer', null], drainKitFitted: ['drain kit fitted', 'no drain kit'], faultPersists: ['still the same', 'working now'] },
   CHECK_RESULT_COPY: { 'water-container': { clear: 'container fine', found_and_cleared: 'container emptied / reseated', fault_seen: 'container cracked' },
     condenser: { clear: 'condenser clean', found_and_cleared: 'condenser cleaned' } },
   statusChecks: [['retest', 'retest']],
