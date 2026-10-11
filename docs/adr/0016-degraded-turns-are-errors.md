@@ -1,6 +1,6 @@
 # 0016. Degraded turns are errors, not normal replies
 
-- **Status:** Accepted
+- **Status:** Implemented (Phase 10, releases 10.2 and 10.3; [results](../evaluation/phase-10-results.md))
 - **Date:** 2026-10-10
 
 ## Context

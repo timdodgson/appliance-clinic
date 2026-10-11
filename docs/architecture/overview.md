@@ -1,38 +1,51 @@
 # Architecture overview
 
-This describes the system as it runs in production. It is the one current-state architecture document. The decisions
-behind it are in [`docs/adr/`](../adr/README.md). The Phase 8 review that produced this page is
-[phase-8-findings.md](phase-8-findings.md); it is kept as the record of that review. The Phase 10 truth audit traced
-every hop from code and production evidence: [as-built.md](as-built.md) (with the line-level
-[trace](as-built-trace.md)) and the [target architecture](target.md). Where this page summarises, those are the
-evidence.
+This describes the system as it runs in production after Phase 11. It is the one current-state architecture document.
+The decisions behind it are in [`docs/adr/`](../adr/README.md).
+
+How it got here is kept as evidence, not rewritten:
+- [phase-8-findings.md](phase-8-findings.md) is the Phase 8 review that produced this page.
+- The Phase 10 truth audit traced every hop from code and production evidence: [as-built.md](as-built.md), with the
+  line-level [trace](as-built-trace.md).
+- From that audit came the [target architecture](target.md).
+- Phase 11 implemented the target's state and authentication steps ([as-built, After Phase 11](as-built.md#after-phase-11-releases-1111113);
+  [results](../evaluation/phase-11-results.md)).
 
 ```mermaid
 flowchart TB
-  subgraph ENG["Diagnosis engine (part-finder)"]
-    E["Engine handler"] --> U["UNDERSTAND"]
-    U -.->|"typed choices"| J[("Jev")]
-    E --> C["Canonical engine: merge, diagnostics,<br/>policy, part gate (deterministic)"]
-    E --> R["Retrieval: knowledge index"]
+  subgraph ENG["Diagnosis engine (part-finder, public Function URL)"]
+    GATE["engine-auth<br/>internal fields need a valid signature"] --> U["UNDERSTAND (mc/1)"]
+    U --> C["Canonical engine: token gate · merge into cs/1 ·<br/>diagnostics · policy · safety · part gate"]
     C --> P["COMPOSE + reply checks"]
-    P -.->|"wording only"| L[("Chat model")]
+    GATE --> LEG["Legacy pipeline"]
   end
   subgraph AC["Appliance Clinic customer path"]
-    B["Browser (AC site, CloudFront)"] -->|"/api, signed opaque session token"| W["whichpart-api (BFF)"]
-    W -->|"bearer; cs/1 block"| O["Orchestrator<br/>deterministic turn control, no LLM"]
-    O -->|"1. mode: understand"| E
-    O -->|"2. diagnose (typed understanding injected)"| E
-    O -->|"error-code routes, bearer"| M["Error-code MCP"]
-    W -->|"conditional writes"| D[("DynamoDB: session state,<br/>transcripts, rate limits")]
+    B["Browser (AC site, CloudFront)"] -->|"/api · signed opaque session token"| W["whichpart-api (BFF)<br/>sole store of cs/1 · view · transcripts"]
+    W <-->|"conditional writes"| D[("DynamoDB<br/>cs/1 state · transcripts · rate limits")]
+    W -->|"bearer · cs/1 block"| O["Orchestrator<br/>deterministic turn control<br/>no conversation state of its own"]
+    O -->|"1. mode: understand (HMAC-signed)"| GATE
+    O -->|"2. diagnose (HMAC-signed)"| GATE
+    O -->|"error-code routes · bearer"| M["Error-code MCP"]
     T["EventBridge schedule"] --> W
   end
-  W -->|"transcript review (scheduled)"| J
-  S["Spares4Repairs page (S4R)"] -.->|"legacy /part-finder, {messages} only"| E
-  classDef llm fill:#fff3cd,stroke:#b58900;
-  class J,L llm;
+  U -.->|"typed choices"| J[("Jev")]
+  P -.->|"wording only"| L[("Chat model")]
+  LEG -.-> J
+  LEG -.-> L
+  W -.->|"scheduled transcript review"| J
+  S["Spares4Repairs page (S4R)"] -.->|"legacy /part-finder · {messages} only"| GATE
+  classDef det fill:#e8f3e8,stroke:#4a7;
+  classDef model fill:#fdeee0,stroke:#c73;
+  classDef state fill:#e6eefb,stroke:#47a;
+  classDef s4r fill:#f3e6f3,stroke:#a4a,stroke-dasharray: 4 3;
+  class W,O,M,GATE,U,C,P,T det
+  class J,L model
+  class D state
+  class S,LEG s4r
 ```
 
-Dotted lines into a shaded box are the only places a model is used. The dotted S4R line is the frozen legacy contract,
+Green is deterministic code, orange is a model, blue is persistent state, dashed purple is the S4R compatibility path.
+Dotted lines into an orange box are the only places a model is used. The S4R line is the frozen legacy contract,
 which is served but not developed.
 
 ## Where the language models are, and are not
@@ -55,7 +68,7 @@ which is served but not developed.
 |---|---|---|---|
 | **AC site** | Not in this repository: the static site is still published from the original monorepo (`apps/whichpart`) | Static files in S3 `whichpart-web-<account>` behind CloudFront | Customer chat UI, admin UI |
 | **BFF** (`whichpart-api`) | `services/whichpart-api` | Lambda zip, Function URL, CloudFront `/api*` origin | Customer turns, AC sign-in, admin, scheduled jobs, canonical session state, transcripts |
-| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model. Keeps a per-container in-memory session state with latches (to be retired: [ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)) |
+| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, legacy flows, safety, identity. No language model. No conversation state of its own: each turn is built from the request and seeded from the cs/1 block ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md), Phase 11) |
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |
 | **Diagnosis engine** (`part-finder`) | `services/part-finder` | Lambda zip `spares4repairs-part-finder`, public Function URL (response streaming) | UNDERSTAND (Jev), retrieval, decisions, COMPOSE, the NDJSON stream. **Also the S4R `/part-finder` backend** |
 
@@ -82,8 +95,10 @@ Data: DynamoDB `whichpart-transcripts`, `whichpart-recalls`, `applianceclinic-ra
    assistant turns, up to 12) and a signed state token; the chat route itself is not authenticated, only rate-limited.
 2. `whichpart-api` loads the conversation state, applies the rate limit, and calls the orchestrator with its bearer,
    attaching the canonical cs/1 block.
-3. The orchestrator calls the diagnosis engine's Function URL twice:
-   - `mode: understand`: Jev classifies the latest message
+3. The orchestrator seeds the turn from the cs/1 block (identity, displayed code, unconfirmed token, model status,
+   active safety level), then calls the diagnosis engine's Function URL twice. Both calls carry an HMAC signature over
+   the exact body:
+   - `mode: understand`: Jev classifies the latest message; the engine merges it into cs/1 and decides the NextAction
    - diagnose: the typed understanding is injected
    On error-code routes it also calls the MCP with its bearer.
 4. `whichpart-api` maps the result to the WhichPart view, persists the transcript and the new state (conditional
@@ -102,6 +117,19 @@ before any admin handler runs.
 
 **Scheduled jobs (EventBridge → `whichpart-api`):** recall ingest and transcript review.
 
+## State ownership
+
+| State | Owner | Notes |
+|---|---|---|
+| Conversation state (`cs/1`: identity, evidence, requests and their outcomes, sticky hazards, declines) | Merged by the engine (`canonical/merge.js`), stored only by `whichpart-api` (DynamoDB `STATE#`, conditional writes) | The only conversation state ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)). Versioned schema; additive fields only |
+| Code versus model for an uncertain token | One commit rule before the merge (`canonical/token-gate.js`) | A weak reading is held as `identity.unconfirmedToken`; the customer's answer commits it |
+| Orchestrator turn state | Request-local | Rebuilt every turn from the request and the cs/1 block; nothing survives the turn, so two instances given the same request decide the same way (tested) |
+| Transcripts | `whichpart-api` | Read by the scheduled review and the admin area |
+
+A turn that could not run its decision path is an error in the view and the transcript, and its state change is not
+persisted ([ADR 0016](../adr/0016-degraded-turns-are-errors.md)). Every orchestrator field and where it now lives is in
+[phase-11-state-ownership.md](phase-11-state-ownership.md).
+
 ## Canonical and legacy
 
 | Path | Status | Reached by |
@@ -114,8 +142,9 @@ before any admin handler runs.
 
 Rollback of canonical control is configuration only: `CANONICAL_MODE=shadow` or `off` on `whichpart-api`, or one
 journey key dropped from `CANONICAL_CONTROL_JOURNEYS`; per-journey engine kill switches `CANONICAL_Jx_CONTROL=0` also
-exist. The live mode and allow-list (control, 63 journeys, equal to the registry) are set on the function and are not
-yet in `runtime-overrides.json`.
+exist. The live mode and allow-list (control, 63 journeys, equal to the registry) are declared in
+`runtime-overrides.json` with every other environment variable, and a drift check compares them with the live function
+after every runtime change.
 
 ## Authentication
 
@@ -125,7 +154,8 @@ yet in `runtime-overrides.json`.
 | Admin browser → `whichpart-api` | AC Cognito user pool (`AcAuthStack`), group `admin`; the BFF checks it per request |
 | `whichpart-api` → orchestrator | Bearer `applianceclinic/production/orchestrator-bearer` |
 | `whichpart-api`, orchestrator → MCP | Bearer `applianceclinic/production/mcp-bearer` |
-| Anyone → diagnosis engine URL | **Unauthenticated (public).** S4R's browser calls it. The fields `mode`, `understand`, `canonical`, `established`, `seed` and `feedback` are meant for the orchestrator only but are not yet authenticated ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md)) |
+| Anyone → diagnosis engine URL | **Public**, because S4R's browser calls it with `{messages}`. The orchestrator-only fields (`mode`, `understand`, `canonical`, `established`, `seed`, `feedback`) are honoured only with a valid HMAC-SHA256 signature over the exact body (header `x-ac-engine-signature`, 5-minute window, constant-time compare; key `applianceclinic/production/engine-signing`). Without one they are dropped and logged, and the request is handled as plain `{messages}`. Enforced since Phase 11 ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md)) |
+| Orchestrator, `whichpart-api` → engine internal fields | HMAC signature as above (the orchestrator signs every engine call; `whichpart-api` signs the feedback pass-through) |
 | Engine → Jev, OpenAI | Provider credentials from `applianceclinic/production/{jev,openai}` |
 
 ## Secrets and configuration
@@ -138,7 +168,11 @@ yet in `runtime-overrides.json`.
   - The legacy bearer secrets (`spares4repairs/{diag-orchestrator,error-code-mcp}/bearer-token`) were deleted in
     Phase 9 ([phase-9-results.md](../migration/phase-9-results.md)).
 - **Configuration** is environment variables on each Lambda, owned by `AcRuntimeStack` (`infra/cdk/config/runtime-overrides.json`).
+  - Every live variable is declared there, including the canonical mode and journey allow-list; a private tunnel URL is
+    recorded by SHA-256 only.
   - Changing a value is a CDK change, not a console edit.
+  - `tools/migration/bin/check-overrides-drift.mjs` compares the declaration with the live functions; `change.sh`
+    runs it after every runtime change and fails on any difference.
 - **Admin-editable AI settings** (models, prompts toggles) are stored in the `ai-config` secret and written by the
   Settings page.
 - **Every environment variable** each runtime reads is listed in [configuration.md](configuration.md): required or
@@ -163,7 +197,8 @@ yet in `runtime-overrides.json`.
 | `/part-finder` contract (`baseline contract verify`) | Status, CORS, NDJSON framing and the fields S4R reads | Before and after every engine release |
 | Smoke (`baseline smoke`) | Four journeys against the pre-migration baseline | Before and after every runtime release |
 | Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
-| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.3, 55 scenarios, rubric v3) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 55/55 twice ([final gate](../evaluation/gold-v2-3-final-gate.md)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
+| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.4, 56 scenarios, rubric `gold-v2-rubric-v3`) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 56/56 in two consecutive runs on the final Phase 11 build ([results](../evaluation/phase-11-results.md#gold)) | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
+| Live transcript review | Realistic journeys through the public AC path, ended so the production judge reviews them; both the judge's result and the conversation are read ([Phase 11](../evaluation/phase-11-results.md#transcript-review-live-final-build)) | After each phase's releases |
 
 Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
 (Behaviour is still *produced* by regular expressions in places — safety cues, brand lists, legacy rewrites; see

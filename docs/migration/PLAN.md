@@ -339,6 +339,14 @@ is. Phase 9 does not create a second repository or squash history.
   customer data or unlicensed media.
 - Check the README, architecture documentation, CI, licence, `SECURITY.md` and `CONTRIBUTING.md`.
 
+### After this plan
+
+The migration plan ended with Phase 9. Two further phases improved the running product:
+- **Phase 10**, a truth audit of the architecture and real conversations ([results](../evaluation/phase-10-results.md)).
+- **Phase 11**, one conversation state, signed engine fields and the final GOLD gate ([results](../evaluation/phase-11-results.md)).
+
+The current system is described in the [architecture overview](../architecture/overview.md).
+
 ## Safety gates
 
 ### Before any production AWS action

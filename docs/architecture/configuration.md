@@ -49,7 +49,7 @@ this page does not list.
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
 | `ORCH_TIMEOUT_MS` | Optional | 120000 | No | `config.js` |
-| `ENGINE_SIGNING_TOKEN` | Optional (ADR 0017) | none (feedback is sent unsigned and the engine drops it once enforcing) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-signature.js` |
+| `ENGINE_SIGNING_TOKEN` | Optional (ADR 0017) | none (feedback is sent unsigned, and the engine, which enforces signatures, drops it) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-signature.js` |
 | `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `AC_ADMIN_GROUP` | Required for sign-in (empty refuses every session) | empty, empty, `admin` | Yes | `config.js` |
 | `LEARNING_BUCKET` | Optional | `whichpart-learning-800960611664` | Yes | `config.js` |
 | `WHICHPART_WEB_BUCKET` | Optional | `whichpart-web-800960611664` | Yes | `admin/content.js`, `recalls/ingest.js` |
@@ -75,7 +75,7 @@ this page does not list.
 |---|---|---|---|
 | `RAG_URL` (the engine Function URL), `MCP_URL`, `MCP_BEARER_TOKEN` | Required (`KeyError` at first use) | none | Yes |
 | `ORCH_BEARER_TOKEN` | Required for any request (absent refuses all) | none | Yes |
-| `ENGINE_SIGNING_TOKEN` | Required once the engine enforces ADR 0017 (absent sends unsigned requests, whose internal fields the engine then drops) | none | Yes: a dynamic reference to `applianceclinic/production/engine-signing` |
+| `ENGINE_SIGNING_TOKEN` | Required: the engine enforces ADR 0017 (absent sends unsigned requests, whose internal fields the engine drops) | none | Yes: a dynamic reference to `applianceclinic/production/engine-signing` |
 
 ## Error-code MCP (`spares4repairs-error-code-mcp`)
 

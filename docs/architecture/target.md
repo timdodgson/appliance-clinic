@@ -7,6 +7,8 @@ The [as-built audit](as-built.md) found that each customer decision has several 
 
 The target keeps what works. It does not replace Jev, the canonical engine, or the S4R contract.
 
+> **Status after Phase 11.** T1–T5 were delivered in Phase 10 and T6–T7 in Phase 11: one conversation state, and signed orchestrator-only engine fields. T8–T10 are still planned. Principles 1, 4, 5 and 6 hold in production. Principle 2 holds for state and the code-versus-model commit; the error-code bridge and one shared safety-copy source are still to come. Principle 3 holds for the appliance family and code versus model.
+
 ## Principles
 
 1. **One state.** cs/1 is the only conversation state. Everything a later turn depends on is a typed cs/1 fact: the identity, the evidence, the requests asked and their outcomes, sticky hazards and declines. Nothing that changes a reply lives in process memory ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)).
