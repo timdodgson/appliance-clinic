@@ -3,7 +3,8 @@ Proves, with no network:
   * a turn whose canonical result carries journey.control is answered from the RAG's NextAction wording
     only — no legacy overrides (model-acquisition stage, clarify, owner note, MCP code flow)
   * the reply/media/parts/model-ask/safety-stop shapes per NextAction kind
-  * shadow (journey.control false), degraded, absent canonical or an unknown key -> the legacy path, unchanged
+  * ADR 0018: a degraded or absent canonical result is an explicit SERVICE_UNAVAILABLE; a turn no journey owns
+    (shadow, unknown or missing key) is never sent to the diagnosis (no legacy path)
   * the orchestrator's journey -> likely-area map IS the shared registry (journeys.json)
 Run: PYTHONPATH=. python3 -m pytest orchestration/tests/test_canonical_control.py -q
 """
@@ -126,15 +127,22 @@ def test_control_safety_stop_is_a_safety_stop():
     assert resp.message == "Water near the plug is dangerous."
 
 
-def test_shadow_degraded_or_absent_canonical_is_legacy():
-    for rag, canonical in ((J1Rag(action(), control=False), BLOCK), (J1Rag(action(), degraded="merge_failed"), BLOCK),
-                           (J1Rag(action()), None)):
+def test_degraded_or_absent_canonical_is_an_explicit_error():
+    for rag, canonical, reason in ((J1Rag(action(), degraded="merge_failed"), BLOCK, "merge_failed"),
+                                   (J1Rag(action()), None, "canonical_block_missing")):
         resp = run(rag, canonical=canonical)
+        assert resp.outcome == "SERVICE_UNAVAILABLE"
+        assert resp.debug["canonicalUnavailable"] == reason
         assert "canonicalControl" not in resp.debug
-        legacy = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService()).handle_turn(
-            TurnInput(message=MSG, sessionId="s1"))
-        assert resp.message == legacy.message
-        assert resp.outcome == legacy.outcome
+        assert rag.diagnose_calls == []                 # never answered another way
+
+
+def test_shadow_journey_is_not_diagnosed_another_way():
+    rag = J1Rag(action(), control=False)
+    resp = run(rag)
+    assert "canonicalControl" not in resp.debug
+    assert rag.diagnose_calls == []
+    assert resp.route == "ERROR_CODE"                   # the displayed code goes to its owner, the MCP
 
 
 class J2Rag(J1Rag):
@@ -169,12 +177,14 @@ def test_journey2_conclusion_area_and_label():
     assert resp.parts is None
 
 
-def test_unknown_journey_key_is_legacy():
-    resp = run(J2Rag(action(), key="wm-something-else"))
+def test_unknown_journey_key_owns_nothing():
+    rag = J2Rag(action(), key="wm-something-else")
+    resp = run(rag)
     assert "canonicalControl" not in resp.debug
+    assert rag.diagnose_calls == []
 
 
-def test_missing_key_or_retired_journey1_field_is_legacy():
+def test_missing_key_or_retired_journey1_field_owns_nothing():
     class NoKey(J1Rag):
         def understand(self, **kw):
             out = super().understand(**kw)
@@ -188,6 +198,7 @@ def test_missing_key_or_retired_journey1_field_is_legacy():
         rag = NoKey(action())
         rag.mode = mode
         assert "canonicalControl" not in run(rag).debug
+        assert rag.diagnose_calls == []
 
 
 def test_journey_map_is_the_shared_registry():

@@ -222,7 +222,7 @@ class FakeDiagnosticService:
         # Safety significance (Jev classifies this separately from symptomFamily). The orchestrator
         # routes any safety-significant turn to the RAG, which owns the deterministic safety stop.
         safety_sig = "none"
-        if "gas" in low:
+        if _re.search(r"smell\w*\s+(of\s+)?gas|gas\s+(smell|leak|hiss|escap)|leak\w*\s+gas", low):
             safety_sig, establishes = "gas_smell", "hazard"
         elif "shock" in low:
             safety_sig, establishes = "electric_shock", "hazard"

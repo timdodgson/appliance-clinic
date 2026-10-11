@@ -22,10 +22,12 @@ def check(n, cond, detail=""):
 
 class Scripted(FakeDiagnosticService):
     """Jev UNDERSTAND scripted per latest customer turn; diagnose() is the deterministic fake."""
-    def __init__(self, script, fail_diagnose=False):
-        self.script, self.fail_diagnose = script, fail_diagnose
+    def __init__(self, script, fail_diagnose=False, fail_understand=False):
+        self.script, self.fail_diagnose, self.fail_understand = script, fail_diagnose, fail_understand
 
     def understand(self, *, symptoms, image=None, conversation=None, established=None, canonical=None):
+        if self.fail_understand:
+            raise RagUnavailable("down")
         latest = routing.customer_speech(symptoms).split("\n")[-1] if "Customer:" in symptoms else symptoms
         latest = latest.replace("Customer:", "").strip()
         sp = self.script.get(latest, {})
@@ -174,9 +176,9 @@ rag = Scripted({T[0]: {"appliance": "dishwasher", "make": "bosch", "fault": "not
 o = FakeBff(Orchestrator(FakeErrorCodeService(CANNED), rag))
 play(o, T[:1], "d1")
 before = copy.deepcopy(o.state("d1"))
-rag.fail_diagnose = True
+rag.fail_understand = True
 r = o.handle_turn(TurnInput(message=transcript(T), sessionId="d1", latestMessage=T[1]))
-check("a failed diagnose is a service-unavailable turn", r.outcome == Outcome.SERVICE_UNAVAILABLE.value, r.outcome)
+check("a failed understanding is a service-unavailable turn", r.outcome == Outcome.SERVICE_UNAVAILABLE.value, r.outcome)
 check("...and cs/1 is not advanced", o.state("d1") == before, (o.state("d1") or {}).get("version"))
 check("...and the orchestrator holds no state of its own", not hasattr(o._o, "store"))
 

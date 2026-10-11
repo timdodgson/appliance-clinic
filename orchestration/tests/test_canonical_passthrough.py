@@ -3,11 +3,10 @@
 Proves, with no network and no real Jev:
   * the BFF's canonical block is forwarded verbatim to understand()
   * part-finder's canonical result is returned unchanged (same sessionId) in debug["canonical"]
-  * a missing / mismatched result degrades the envelope, never the customer turn
-  * diagnose() receives the merged result only when it is not degraded (trace only)
-  * routing, outcome and customer message are IDENTICAL with and without canonical
+  * a missing / mismatched result degrades the envelope, and (ADR 0018) the turn is an explicit error
+  * a turn with no block is an explicit error (canonical_block_missing), never answered another way
+  * a turn no journey owns is never sent to diagnose()
   * the orchestrator never persists canonical state, and customer_view() never exposes it
-  * services that predate Stage C (no `canonical` kwarg) still work when no block is sent
 Run: PYTHONPATH=. python3 -m pytest orchestration/tests/test_canonical_passthrough.py -q
 """
 import copy
@@ -100,11 +99,11 @@ def test_result_returned_unchanged_with_same_session():
     assert resp.debug["canonical"]["sessionId"] == CSID
 
 
-def test_diagnose_receives_merged_result_for_trace():
+def test_turn_no_journey_owns_never_reaches_diagnose():
     rag = StubRag()
-    run(rag, canonical=copy.deepcopy(BLOCK))
-    assert rag.diagnose_canonical, "the symptom turn must reach diagnose"
-    assert all(c == merged_result(BLOCK) for c in rag.diagnose_canonical)
+    resp, _ = run(rag, canonical=copy.deepcopy(BLOCK))
+    assert rag.diagnose_canonical == []
+    assert resp.outcome != "SERVICE_UNAVAILABLE"
 
 
 def test_missing_result_degrades_envelope_only():
@@ -134,18 +133,20 @@ def test_no_block_means_no_kwarg_and_no_debug_key():
     assert "canonical" not in resp.debug
 
 
-def test_legacy_service_unaffected_without_block():
+def test_no_block_is_an_explicit_error_for_any_service():
     resp, _ = run(LegacyRag(), canonical=None)
-    assert resp.outcome and resp.message
+    assert resp.outcome == "SERVICE_UNAVAILABLE"
+    assert resp.debug["canonicalUnavailable"] == "canonical_block_missing"
 
 
-def test_routing_and_customer_output_identical_with_and_without_canonical():
+def test_every_turn_without_a_block_is_an_explicit_error():
     for message in (MSG, "Bosch dishwasher E15", "hello", "I can smell gas from my oven"):
-        a, _ = run(StubRag(), canonical=None, message=message)
+        rag = StubRag()
+        a, _ = run(rag, canonical=None, message=message)
+        assert a.outcome == "SERVICE_UNAVAILABLE", message
+        assert rag.diagnose_canonical == [], message
         b, _ = run(StubRag(), canonical=copy.deepcopy(BLOCK), message=message)
-        assert a.route == b.route, message
-        assert a.outcome == b.outcome, message
-        assert a.customer_view() == b.customer_view(), message
+        assert b.outcome != "SERVICE_UNAVAILABLE", message
 
 
 def test_customer_view_never_exposes_canonical():
@@ -198,5 +199,4 @@ def test_lambda_returns_canonical_only_when_sent():
     without = call({"message": MSG, "sessionId": "s3"})
     assert with_c["_canonical"] == merged_result(BLOCK)
     assert "_canonical" not in without
-    strip = lambda d: {k: v for k, v in d.items() if k not in ("_canonical", "_diagnosticTrace")}
-    assert strip(with_c) == strip(without)
+    assert without["outcome"] == "SERVICE_UNAVAILABLE" and with_c["outcome"] != "SERVICE_UNAVAILABLE"
