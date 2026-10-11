@@ -68,6 +68,7 @@ const CONFIRM_ASK = 'Is it staying dry now?';
 
 function conclusionCopy(state, a) {
   const c = a.conclusion || {};
+  if (c.cause === 'unsafe-request-declined') return ck.UNSAFE_DECLINE[c.unsafeAction] || ck.UNSAFE_DECLINE.default;
   const model = state.identity.model && state.identity.model.confirmed ? state.identity.model.value : null;
   const unavailable = state.identity.modelStatus === 'unavailable';
   if (a.kind === 'close_resolved') return `Glad it's dry now${c.cause && FAMILY_LABEL[c.cause] ? ` — ${FAMILY_LABEL[c.cause]} was the likely cause` : ''}. No part is needed.`;

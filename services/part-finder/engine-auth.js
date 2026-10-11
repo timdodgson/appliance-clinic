@@ -2,8 +2,8 @@
 /**
  * ADR 0017: the orchestrator-only engine fields are honoured only from a caller that holds the AC engine signing
  * key (the orchestrator, and whichpart-api for feedback). The public Function URL also serves S4R's /part-finder
- * page, which sends only {messages}; without a valid signature the internal fields are dropped and the request is
- * handled as that plain request. (Rolled out log-only first, releases 11.2b-11.7; enforced unconditionally since 11.8.)
+ * page, which sends only {messages}. ADR 0018: a request that carries any internal field without a valid signature is
+ * refused (401), never handled as a plain request. (ADR 0017 rolled out log-only, 11.2b-11.7; fields dropped 11.8-13.4.)
  *
  * Header: x-ac-engine-signature: t=<unix seconds>,v1=<hex HMAC-SHA256(key, `${t}.${rawBody}`)>
  * The HMAC covers the exact request body; the timestamp bounds replay of a captured request.
@@ -45,19 +45,15 @@ function verify(event, rawBody, key, nowS = Math.floor(Date.now() / 1000)) {
 }
 
 /**
- * Decide what the engine may read from this request. Returns the body to use and a record for the request metric
- * (field names and the signature result only; never values or the key).
+ * Decide whether the engine may serve this request. Returns the body and a record for the request metric (field names
+ * and the signature result only; never values or the key). `rejected`: internal fields without a valid signature (a
+ * missing key fails closed); the caller refuses the request.
  */
 function gateInternalFields(body, event, rawBody, opts = {}) {
   const env = opts.env || process.env;
   const present = INTERNAL_FIELDS.filter((f) => body && body[f] !== undefined);
   const signature = verify(event, rawBody, opts.key !== undefined ? opts.key : signingKey(env), opts.nowS);
-  const record = { signature, present };
-  if (!present.length || signature === 'valid') return { body, record: { ...record, dropped: false } };
-  // Enforced unconditionally (Phase 11 stage 4): the log-only rollout mode is gone; a missing key fails closed.
-  const plain = { ...body };
-  for (const f of present) delete plain[f];
-  return { body: plain, record: { ...record, dropped: true } };
+  return { body, record: { signature, present, rejected: present.length > 0 && signature !== 'valid' } };
 }
 
 /** The host of an Origin header, for the auth log (never the full header or any body content). */

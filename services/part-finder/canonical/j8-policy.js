@@ -10,7 +10,7 @@ const kit = require('./policy-kit.js');
 const TIMING = ['onFill', 'onWash', 'onDrain', 'onSpin', 'always'];
 const TYPES = ['grind', 'hum', 'scrape', 'knock', 'rattle', 'squeal', 'click'];
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-noisy', P: 'N', journeys: ['noisy'], codeFaults: [], drainOwned: true,
+  JOURNEY: 'wm-noisy', declineUnsafe: kit.UNSAFE_WET, P: 'N', journeys: ['noisy'], codeFaults: [], drainOwned: true,
   CHECKS: ['drain-filter', 'pump-impeller', 'drum-foreign-object', 'transit-bolts', 'load-check', 'drum-by-hand', 'drum-play', 'drive-belt'],
   OBS_TARGETS: {
     noiseTiming: ['noiseOnFill', 'noiseOnWash', 'noiseOnDrain', 'noiseOnSpin', 'noiseThroughout'],

@@ -8,7 +8,7 @@
 const kit = require('./policy-kit.js');
 
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-not-heating', P: 'H', journeys: ['no-heat'], codeFaults: ['heater', 'temperature-sensor'], drainOwned: false,
+  JOURNEY: 'wm-not-heating', declineUnsafe: kit.UNSAFE_WET, P: 'H', journeys: ['no-heat'], codeFaults: ['heater', 'temperature-sensor'], drainOwned: false,
   CHECKS: ['hot-wash-test', 'programme-setting'],
   OBS_TARGETS: { hotProgrammeUsed: ['hotProgrammeUsed'], longCycle: ['longCycle'] },
   outcomeObs: { 'hot-wash-test': 'noHeat' },

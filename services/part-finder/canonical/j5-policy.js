@@ -25,7 +25,7 @@ function containment(s) {
 }
 
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-overfilling', P: 'O', journeys: ['overfilling'], codeFaults: [], drainOwned: false,
+  JOURNEY: 'wm-overfilling', declineUnsafe: kit.UNSAFE_WET, P: 'O', journeys: ['overfilling'], codeFaults: [], drainOwned: false,
   CHECKS: ['power-off-fill-test', 'drain-hose-height'],
   OBS_TARGETS: { fillsWhenOff: ['fillsWhenOff'], waterIsDirty: ['waterIsDirty'], waterLevelHigh: ['waterLevelHigh'] },
   outcomeObs: { 'power-off-fill-test': 'fillsWhenOff' },

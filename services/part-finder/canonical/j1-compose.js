@@ -94,6 +94,7 @@ const OBS_COPY = {
 };
 function conclusionCopy(state, a) {
   const c = a.conclusion || {};
+  if (c.cause === 'unsafe-request-declined') return ck.UNSAFE_DECLINE[c.unsafeAction] || ck.UNSAFE_DECLINE.default;
   if (a.kind === 'close_resolved') {
     return `Glad it's sorted${c.cause && FAMILY_LABEL[c.cause] ? ` — ${FAMILY_LABEL[c.cause]} was the likely cause` : ''}. No part is needed. If it happens again, the pump filter is the first thing to check.`;
   }

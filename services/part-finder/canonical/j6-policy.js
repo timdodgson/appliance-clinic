@@ -9,7 +9,7 @@ const kit = require('./policy-kit.js');
 
 const DOOR = ['wontOpen', 'noLock', 'wontClose', 'handleBroken', 'clicking'];
 const P = kit.makeStepPolicy({
-  JOURNEY: 'wm-door', P: 'D', journeys: ['door-problem'], codeFaults: ['door-lock'], drainOwned: true,
+  JOURNEY: 'wm-door', declineUnsafe: kit.UNSAFE_WET, P: 'D', journeys: ['door-problem'], codeFaults: ['door-lock'], drainOwned: true,
   CHECKS: ['door-release-wait', 'child-lock', 'door-closed-latched', 'door-catch'],
   OBS_TARGETS: { doorSymptom: ['doorOpens', 'doorLocks', 'doorCloses', 'handleBroken', 'lockClicking'], waterRemaining: ['waterRemaining'] },
   outcomeObs: { 'door-release-wait': 'doorOpens', 'door-closed-latched': 'doorLocks' },

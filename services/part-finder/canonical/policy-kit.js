@@ -119,6 +119,18 @@ const SAFETY_REQUIRES = {
  * leaking). ownedElsewhere(h): the mirror exclusion, so exactly one journey owns a turn (a handoff happens once, no bounce).
  * Reads ONLY cs/1, the journey diagnostics and the typed part lookup. No prose.
  */
+/** The unsafe request (cs/1 safety.unsafeActions, merge M15) the customer made THIS turn, among `list`; else null. */
+function unsafeThisTurn(s, list) {
+  return ((s.safety && s.safety.unsafeActions) || []).filter((u) => u.turn === s.version && list.includes(u.action)).pop() || null;
+}
+/** The unsafe requests a washing machine / dishwasher journey declines (no refrigerant, gas or microwave HV work there). */
+const UNSAFE_WET = Object.freeze(['live_electrical_test', 'open_while_powered', 'bypass_safety_device', 'repeated_reset_after_trip']);
+/** The fixed decline (no part, engineer handoff); the next turn carries on with the journey. */
+function unsafeDeclineConclusion(unsafe) {
+  return { conclusion: { cause: 'unsafe-request-declined', level: 'cause_family', confidence: 'likely', handoff: 'engineer', alternatives: [],
+    noPart: true, unsafeAction: unsafe.action } };
+}
+
 function makeStepPolicy(cfg) {
   const { JOURNEY, P } = cfg;
   const APPLIANCE = cfg.appliance || 'washing-machine';
@@ -340,10 +352,9 @@ function makeStepPolicy(cfg) {
     const h = helpers(s, d);
     // P8 (opt-in, cfg.declineUnsafe): the customer asks how to do something unsafe THIS turn (re-gas, bypass an interlock,
     // live testing) → decline with the fixed copy, no part; the next turn carries on with the journey.
-    const unsafe = cfg.declineUnsafe ? ((s.safety && s.safety.unsafeActions) || []).filter((u) => u.turn === s.version && cfg.declineUnsafe.includes(u.action)).pop() : null;
+    const unsafe = cfg.declineUnsafe ? unsafeThisTurn(s, cfg.declineUnsafe) : null;
     if (unsafe) {
-      return action('conclude', 'unsafe-request-declined', 'unsafe-action-requested', R(8), { conclusion: { cause: 'unsafe-request-declined', level: 'cause_family', confidence: 'likely',
-        handoff: 'engineer', alternatives: [], noPart: true, unsafeAction: unsafe.action } });
+      return action('conclude', 'unsafe-request-declined', 'unsafe-action-requested', R(8), unsafeDeclineConclusion(unsafe));
     }
     const early = cfg.early ? cfg.early(h, L) : null;
     if (early) {
@@ -386,4 +397,4 @@ function makeStepPolicy(cfg) {
 }
 
 module.exports = { STICKY, REOFFERABLE, HARD_BLOCK, SAFETY_REQUIRES, makeKit, effectiveSafety, effectiveHazards,
-  obs, obsTurn, chk, res, modelKnown, problemOf, makeStepPolicy };
+  obs, obsTurn, chk, res, modelKnown, problemOf, makeStepPolicy, unsafeThisTurn, unsafeDeclineConclusion, UNSAFE_WET };

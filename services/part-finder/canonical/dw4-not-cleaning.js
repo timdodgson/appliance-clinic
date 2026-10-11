@@ -49,7 +49,7 @@ function diagnose(state, ctx = {}) {
 }
 const AREA = ['upper', 'lower', 'all'];
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-not-cleaning', P: 'C', appliance: 'dishwasher', journeys: ['poor-results'], codeFaults: [],
+  JOURNEY: 'dw-not-cleaning', declineUnsafe: kit.UNSAFE_WET, P: 'C', appliance: 'dishwasher', journeys: ['poor-results'], codeFaults: [],
   ownedElsewhere: (h) => F.flood(h) || F.fillIssue(h) || F.heatIssue(h),
   CHECKS: ['dishwasher-filter', 'spray-arms', 'loading-clearance', 'dw-dispenser', 'programme-setting'],
   OBS_TARGETS: { cleanArea: ['poorUpperRack', 'poorLowerRack', 'poorAllRacks'], tabletUndissolved: ['tabletUndissolved'], heatState: ['noHeat', 'heatPresent'],

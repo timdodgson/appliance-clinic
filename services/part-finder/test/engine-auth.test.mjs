@@ -1,6 +1,7 @@
 /**
  * ADR 0017: orchestrator-only engine fields are honoured only with a valid AC signature over the exact body.
  * S4R's /part-finder page sends a plain {messages} request with no signature; that path must be unchanged.
+ * ADR 0018: internal fields without a valid signature are refused, never dropped into a plain request.
  */
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
@@ -37,32 +38,29 @@ describe('signature', () => {
   });
 });
 
-describe('enforcement', () => {
+describe('enforcement (ADR 0018: refused, never stripped into a plain request)', () => {
   it('a valid signed request keeps its internal fields', () => {
     const g = gate(internalBody, raw, A.sign(KEY, raw, NOW));
     expect(g.body).toEqual(internalBody);
-    expect(g.record).toMatchObject({ signature: 'valid', dropped: false, present: ['mode'] });
+    expect(g.record).toMatchObject({ signature: 'valid', rejected: false, present: ['mode'] });
   });
-  it('unsigned internal fields are dropped and the request becomes a plain {messages} request', () => {
+  it('unsigned internal fields mark the request rejected (the handler refuses it)', () => {
     const forged = { messages: internalBody.messages, mode: 'understand', understand: { _requestClass: 'appliance_request' }, canonical: { schema: 'cs/1' }, established: { applianceFamily: 'oven' }, seed: 7 };
     const g = gate(forged, JSON.stringify(forged), null);
-    expect(g.body).toEqual({ messages: internalBody.messages });
-    expect(g.record).toMatchObject({ signature: 'missing', dropped: true });
+    expect(g.record).toMatchObject({ signature: 'missing', rejected: true });
     expect(g.record.present.sort()).toEqual(['canonical', 'established', 'mode', 'seed', 'understand']);
   });
   it('an invalid signature is treated like no signature', () => {
     const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW));
-    expect(g.body).toEqual({ messages: internalBody.messages });
-    expect(g.record.signature).toBe('invalid');
+    expect(g.record).toMatchObject({ signature: 'invalid', rejected: true });
   });
-  it('unsigned feedback is dropped (the request then has no messages and is refused as before)', () => {
+  it('unsigned feedback is rejected', () => {
     const fb = { feedback: { traceId: 't', rating: 1 } };
-    expect(gate(fb, JSON.stringify(fb), null, 'enforce').body).toEqual({});
+    expect(gate(fb, JSON.stringify(fb), null).record.rejected).toBe(true);
   });
-  it('without a signing key every internal field is dropped (fails closed)', () => {
+  it('without a signing key any internal field is rejected (fails closed)', () => {
     const g = A.gateInternalFields(internalBody, ev(A.sign(KEY, raw, NOW)), raw, { key: null, nowS: NOW });
-    expect(g.body).toEqual({ messages: internalBody.messages });
-    expect(g.record.signature).toBe('no_key');
+    expect(g.record).toMatchObject({ signature: 'no_key', rejected: true });
   });
 });
 
@@ -71,7 +69,7 @@ describe('S4R compatibility', () => {
     const s4r = { messages: [{ role: 'user', content: "My washing machine won't drain, it's a Bosch" }] };
     const g = A.gateInternalFields(s4r, ev(null, 'https://spares4repairs.co.uk'), JSON.stringify(s4r), { key: KEY, nowS: NOW });
     expect(g.body).toBe(s4r);
-    expect(g.record).toMatchObject({ present: [], dropped: false });
+    expect(g.record).toMatchObject({ present: [], rejected: false });
   });
   it('a signing key shorter than 32 characters is no key', () => {
     expect(A.signingKey({ ENGINE_SIGNING_TOKEN: 'short' })).toBeNull();

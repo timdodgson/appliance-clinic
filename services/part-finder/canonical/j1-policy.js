@@ -186,6 +186,9 @@ function policy(s, diag, ctx = {}) {
   }
   // R4 appliance unknown
   if (!appliance) return askIdentity(s, 'appliance', 'appliance-unknown', 'R4');
+  // R4u (ADR 0018, as policy-kit P8): an unsafe request THIS turn -> the fixed decline, no part; the next turn carries on.
+  const unsafe = kit.unsafeThisTurn(s, kit.UNSAFE_WET);
+  if (unsafe) return action('conclude', 'unsafe-request-declined', 'unsafe-action-requested', 'R4u', kit.unsafeDeclineConclusion(unsafe));
   // R5 water state decides the journey
   if (!en.E2 && obs(s, 'waterRemaining') == null && askable(s, 'waterRemaining')) {
     return askObservation(s, 'waterRemaining', 'water-state-decides-journey', 'R5');

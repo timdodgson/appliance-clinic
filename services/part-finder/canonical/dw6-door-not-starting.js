@@ -53,7 +53,7 @@ function diagnose(state, ctx = {}) {
 }
 const DOOR = ['notRecog', 'noLatch', 'pushed'];
 const P = kit.makeStepPolicy({
-  JOURNEY: 'dw-door-not-starting', P: 'G', appliance: 'dishwasher', journeys: ['door-problem', 'wont-start', 'controls-unresponsive'], codeFaults: ['door'],
+  JOURNEY: 'dw-door-not-starting', declineUnsafe: kit.UNSAFE_WET, P: 'G', appliance: 'dishwasher', journeys: ['door-problem', 'wont-start', 'controls-unresponsive'], codeFaults: ['door'],
   ownedElsewhere: (h) => F.flood(h),
   CHECKS: ['power-supply', 'door-start-test', 'door-catch', 'child-lock', 'programme-setting'],
   OBS_TARGETS: { noPower: ['noPower'], doorRecognised: ['doorRecognised'] },

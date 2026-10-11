@@ -30,7 +30,13 @@ function lmSafeMessages(messages) {
   return list.slice(i);
 }
 
+// Test seam (in-process only, never reachable from a request): a stand-in for the Jev pass, so tests can drive the S4R
+// {messages} path without Jev credentials.
+let _understandForTest = null;
+function _setUnderstandForTest(fn) { _understandForTest = typeof fn === 'function' ? fn : null; }
+
 async function understand(messages, knowledgeDocs = [], seed, established = null) {
+  if (_understandForTest) return _understandForTest(messages, established);
   // Knowledge docs remain retrieved for COMPOSE / evidence. Jev does not
   // generate a diagnosis from them — that stays in resolveFault / evidence.
   void knowledgeDocs;
@@ -202,5 +208,6 @@ function reviveInjectedIntent(o) {
 }
 
 module.exports = {
+  _setUnderstandForTest,
   retrievedFamilyNote, lmSafeMessages, understand, degradedIntent, normaliseIntent, reviveInjectedIntent,
 };

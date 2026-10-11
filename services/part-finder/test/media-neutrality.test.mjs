@@ -131,29 +131,32 @@ const original = readFileSync(MEDIA_PATH, 'utf8');
   globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
   process.env.ENGINE_SIGNING_TOKEN = process.env.ENGINE_SIGNING_TOKEN || 'test-engine-signing-key-0123456789abcdef';
   const handlerModule = require('../part-finder-lambda.js');
-  const { sign, SIGNATURE_HEADER } = require('../engine-auth.js');
+  const U = require('../engine/understand.js');
   let REPLY = 'Check the pump filter at the bottom front of the machine. What is the model number?';
   handlerModule._internal._setProvidersForTest({ compose: { infer: async (_r, { onDelta }) => onDelta(REPLY) } });
-  const done = async (msg, understand, established) => {
-    const w = []; const raw = JSON.stringify({ messages: [{ role: 'user', content: msg }], understand, established });
-    await handlerModule.handler({ body: raw, headers: { [SIGNATURE_HEADER]: sign(process.env.ENGINE_SIGNING_TOKEN, raw) },
+  // ADR 0018: the legacy pipeline serves only S4R's plain unsigned {messages} request, so it is driven exactly that way;
+  // the Jev pass is stood in for in-process (the typed intent it would return), never through the request.
+  const done = async (msg, understand) => {
+    U._setUnderstandForTest(() => U.reviveInjectedIntent(understand));
+    const w = []; const raw = JSON.stringify({ messages: [{ role: 'user', content: msg }] });
+    await handlerModule.handler({ body: raw, headers: { origin: 'https://spares4repairs.co.uk' },
       requestContext: { requestId: 'mn', http: { method: 'POST', path: '/' } } }, { write: (x) => w.push(String(x)), end: () => {} });
+    U._setUnderstandForTest(null);
     return w.join('').split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((l) => l.type === 'done');
   };
   const WM = { onTopic: true, userIntent: 'DIAGNOSE', applianceType: 'washing machine', make: 'bosch', faultId: 'not-draining',
     fault: 'not draining', confidence: 0.9, _applianceFamilyProvenance: 'stated', _requestClass: 'appliance_request' };
-  const EST = { applianceFamily: 'washing-machine', familyState: 'ESTABLISHED' };
   const drain = "my bosch washing machine won't drain, water left in the drum";
   const shock = "my bosch washing machine won't drain and water is leaking onto the plug socket, there are sparks";
-  const safe = await done(drain, WM, EST);
+  const safe = await done(drain, WM);
   ok('D media is emitted in the done event on a grounded, safe turn', safe.safetyStop === null && Array.isArray(safe.media) && safe.media.length > 0);
-  const stopped = await done(shock, { ...WM, _safetyClassification: handlerModule._internal.classifySafetyStop(shock) }, EST);
+  const stopped = await done(shock, { ...WM, _safetyClassification: handlerModule._internal.classifySafetyStop(shock) });
   ok('D no media on a deterministic safety stop', stopped.safetyStop === 'shock' && eq(stopped.media, []));
-  ok('D (control) the same turn without the stop carries media', (await done(shock, WM, EST)).media.length > 0);
+  ok('D (control) the same turn without the stop carries media', (await done(shock, WM)).media.length > 0);
   REPLY = '| a | b |\n| c | d |\n| e | f |';
-  ok('D no media when the output tripwire blocks the reply', eq((await done(drain, WM, EST)).media, []));
+  ok('D no media when the output tripwire blocks the reply', eq((await done(drain, WM)).media, []));
   ok('D no media without an established family / grounded node',
-    eq((await done('something is wrong with it', { onTopic: true, userIntent: 'DIAGNOSE' }, null)).media, []));
+    eq((await done('something is wrong with it', { onTopic: true, userIntent: 'DIAGNOSE' })).media, []));
   handlerModule._internal._setProvidersForTest(null);
 }
 
