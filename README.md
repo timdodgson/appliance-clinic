@@ -103,7 +103,7 @@ Retrieval never supplies safety rules, error-code meanings, compatibility or sto
 | **GOLD-v2.4** | 56 whole-conversation scenarios, judged by Jev on a 10-dimension rubric (`gold-v2-rubric-v3`) with critical failures |
 | Production transcript review | A scheduled judge over real conversations; read by a person alongside GOLD |
 
-**The final Phase 11 gate was 56/56 in two consecutive runs on the final build** ([results](docs/evaluation/phase-11-results.md#gold)). That number is not the claim on its own. What matters is how it was reached:
+**The latest gate (Phase 12) was 56/56 in two consecutive runs on the final build** ([results](docs/evaluation/phase-12-results.md#gold)), as was Phase 11's ([results](docs/evaluation/phase-11-results.md#gold)). That number is not the claim on its own. What matters is how it was reached:
 - GOLD-v2.2 had passed 49/49 in four consecutive runs. Real conversations were still visibly poor.
 - Reviewing production transcripts found failures the benchmark could not see. A model instruction was leaking into replies in scenarios that passed, and the suite had no error-code scenario at all, so a code mistaken for a model number went unseen.
 - The benchmark was audited against those failures. Scenarios and rubric-wide fidelity checks were added from real evidence; nothing was removed or weakened ([audit](docs/evaluation/phase-10-gold-audit.md)).

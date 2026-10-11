@@ -30,6 +30,6 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0012](0012-legacy-diagnosis-pipeline-retained.md) | The legacy diagnosis pipeline is retained | Accepted |
 | [0013](0013-prompt-registry-and-contract-types.md) | Prompt registry and contract types | Accepted |
 | [0014](0014-cs1-is-the-only-conversation-state.md) | cs/1 is the only conversation state | Implemented (Phase 11) |
-| [0015](0015-one-owner-per-decision.md) | One owner per decision | Accepted; partly implemented |
+| [0015](0015-one-owner-per-decision.md) | One owner per decision | Accepted; partly implemented (state and token commit Phase 11; cause label and token decision single-owned Phase 12) |
 | [0016](0016-degraded-turns-are-errors.md) | Degraded turns are errors, not normal replies | Implemented (Phase 10) |
 | [0017](0017-authenticate-orchestrator-only-engine-fields.md) | Authenticate the orchestrator-only engine fields | Implemented (Phase 11) |
