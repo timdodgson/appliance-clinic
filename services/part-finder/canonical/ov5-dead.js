@@ -4,6 +4,8 @@
  * Design: docs/diagnostics/final-migration-evidence.md §OV5. Separate states:
  *   DISPLAY DEAD     → cooker switch (isolator) / fuse / supply (look only, no electrical testing) → mains input or control (engineer)
  *   CLOCK WORKS, NO HEAT / NO RESPONSE → clock / auto mode or a key lock → selector / control (engineer)
+ *   A FLASHING CLOCK / AUTO SYMBOL is a display that works: the oven has power, so it takes the clock-works path,
+ *   never the supply path, even when the customer also calls it "dead" (powerView, below).
  *   a BREAKER / RCD trip → oven-tripping (ov-family; the safety journey).
  */
 const engine = require('./evidence-engine.js');
@@ -32,9 +34,18 @@ const SPEC = {
   DECISIVE_PART: {},
   eligible: (k, has) => (k === 'PW' || k === 'MP' ? has('dead') || has('powerFixed') : true),
 };
+// The journey's reading of the display: a flashing clock / AUTO symbol (typed clockFlashing) means the display has
+// power, so for this journey it outranks a "completely dead" description of the same turn. The state is not changed.
+function powerView(state) {
+  const o = (state && state.evidence && state.evidence.observations) || {};
+  const clock = o.clockFlashing;
+  if (!clock || clock.value !== true || (o.noPower && o.noPower.value === false)) return state;
+  const noPower = { ...(o.noPower || {}), value: false, turn: (o.noPower && o.noPower.turn) || clock.turn, basis: 'derived' };
+  return { ...state, evidence: { ...state.evidence, observations: { ...o, noPower } } };
+}
 function diagnose(state, ctx = {}) {
   const codeFault = ctx.codeFault !== undefined ? ctx.codeFault : F.ovCodeFault(state, ctx.errorCodes || null);
-  return engine.diagnoseSpec(SPEC, state, { ...ctx, codeFault });
+  return engine.diagnoseSpec(SPEC, powerView(state), { ...ctx, codeFault });
 }
 const P = kit.makeStepPolicy({
   JOURNEY: KEY, P: 'OD', appliance: 'oven-cooker', journeys: ['wont-start', 'controls-unresponsive'], ...F.owns(KEY), declineUnsafe: F.UNSAFE,

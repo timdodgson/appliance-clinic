@@ -327,7 +327,7 @@ const OBS = [
     options: { known_good_fails: ['failsKnownGoodPan', true, 'Known-good pan also fails'], known_good_works: ['worksWithKnownGoodPan', true, 'Known-good pan works'] } },
   { key: 'mcObsMicrowave', instructions: `Only for a MICROWAVE (never a tumble dryer, dishwasher, washing machine or other appliance), does ${LATEST} say it runs normally (light, turntable) but does not heat, or that it will not start / has a door-start problem?`,
     options: { runs_normally: ['runsNormally', true, 'Runs normally, no heat'], door_start_problem: ['doorStartProblem', true, 'Will not start / door problem'] } },
-  { key: 'mcObsClockFlashing', noul: ['clockFlashing', 'The clock / display is flashing', 'Not stated'], instructions: `Does ${LATEST} say the clock or display is flashing (not an error code)?` },
+  { key: 'mcObsClockFlashing', noul: ['clockFlashing', 'The clock / display is flashing or shows AUTO', 'Not stated'], instructions: `Does ${LATEST} say the clock or display is flashing, or shows an AUTO / "A" symbol (not an error code)?` },
 ];
 
 // Plain description of each observation key, used ONLY when pendingRequest targets it.

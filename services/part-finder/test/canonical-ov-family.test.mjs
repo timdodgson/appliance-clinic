@@ -32,6 +32,11 @@ const SEQ = {
   'oven-dead-no-power': {
     supply: [[OV('wont-start', [O('noPower')]), ck('power-supply', 'found_and_cleared'), ob(O('faultPersists', false))], 'OD11:power-supply OD6:retest OD7:supply-or-cooker-switch'],
     clock: [[OV('wont-start', [O('noPower', false)]), ck('oven-clock-mode', 'found_and_cleared'), ob(O('faultPersists', false))], 'OD12:oven-clock-mode OD6:retest OD7:clock-or-auto-mode'],
+    // "completely dead, just the clock flashing": a flashing clock / AUTO is a working display, so it is the clock check,
+    // never the supply path, and the display question is not asked again
+    deadButClockFlashing: [[OV('wont-start', [O('noPower'), O('clockFlashing')]), ck('oven-clock-mode', 'found_and_cleared'), ob(O('faultPersists', false))], 'OD12:oven-clock-mode OD6:retest OD7:clock-or-auto-mode'],
+    clockFlashingOnly: [[OV('wont-start', [O('clockFlashing')]), ck('oven-clock-mode', 'found_and_cleared'), ob(O('faultPersists', false))], 'OD12:oven-clock-mode OD6:retest OD7:clock-or-auto-mode'],
+    clockFlashingNotFixed: [[OV('wont-start', [O('noPower'), O('clockFlashing')]), ck('oven-clock-mode'), ck('child-lock')], 'OD12:oven-clock-mode OD13:child-lock OD22:selector-or-control'],
   },
   'oven-door': {
     glass: [[OV('door-problem', [O('doorGlassCracked')])], 'OR5:door-glass-cracked'],
