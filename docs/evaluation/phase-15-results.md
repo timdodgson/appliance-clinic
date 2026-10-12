@@ -99,11 +99,18 @@ The old engine still runs in AC's AWS account with `ac-diagnosis-role`, AC's sec
 
 ## GOLD
 
-<!-- P15: GOLD -->
+Exactly two runs, 20 minutes apart, on the exact deployed build (`main` at `10ab5ff`, overrides equal to production). No other GOLD run was made in this phase.
+
+| Run | Build | Window (UTC) | Result |
+|---|---|---|---|
+| 1 | `10ab5ff` | 07:59 to 08:03 | **56/56**, no critical failure, no error or judge error |
+| 2 | `10ab5ff` | 08:23 to 08:27 | **56/56**, no critical failure, no error or judge error |
+
+**The gate is met.**
 
 ## Production checks
 
-AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted); live AC journeys (gas stop, intake, washing-machine drain journey, code meaning, unsafe decline); engine health; stack drift IN_SYNC; overrides equal to `runtime-overrides.json`; build equivalence of the engine zip, the whichpart-api zip and the orchestrator image with the deployed builds.
+After both GOLD runs: the new engine had served 585 signed AC requests since the cutover (304 understand, 281 diagnose), every one ok; the old engine had received **0** signed requests. Alarms: FailedTurns, RefusedRequests and Errors OK. Throttles went to ALARM for one throttled invocation at 08:20, as GOLD run 2 started: the account's Lambda concurrency limit is 10 (a known constraint since Phase 7). The orchestrator's single 429 retry absorbed it and no turn failed. AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted); AcRuntimeStack UPDATE_COMPLETE; live AC journeys (gas stop, intake, washing-machine drain journey, code meaning, unsafe decline); engine health; stack drift IN_SYNC; overrides equal to `runtime-overrides.json`; build equivalence of the engine zip, the whichpart-api zip and the orchestrator image with the deployed builds.
 
 ## Releases
 
@@ -116,3 +123,5 @@ AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted
 | 15.2 | orchestrator, whichpart-api | Cutover |
 | 15.3 | AcRuntimeStack | Shared engine released (Retain, no physical change) |
 | 15.4 | orchestrator | Dead legacy code removed |
+
+Pull request #121, merged as `10ab5ff`.
