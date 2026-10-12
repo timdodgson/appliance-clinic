@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sitemap index (the entry point in robots.txt). Owned by the static deploy.
+     - sitemap-core.xml  : stable URLs (homepage, Help Hubs, /recalls/) — static deploy owns it.
+     - sitemap-recalls.xml: dynamic OPSS recall notice URLs — the recall ingest owns it.
+     Neither writer touches the other's file, so a deploy can never drop recall URLs
+     and an ingest can never drop core URLs. The recall child may be absent until the
+     first ingest publish on brand-new infrastructure; the core sitemap is always valid. -->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://applianceclinic.ai/sitemap-core.xml</loc>
+    <lastmod>2026-09-22</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://applianceclinic.ai/sitemap-recalls.xml</loc>
+  </sitemap>
+</sitemapindex>
