@@ -19,6 +19,16 @@ search. It is plain HTML, CSS and browser JavaScript with no framework or bundle
 | `scripts/deploy.mjs` | Deploy to the AC web bucket, and roll back |
 | `test/` | Vitest + jsdom tests |
 
+## What the bucket holds that is not built from here
+
+| Bucket keys | Owner | Why it is not in `public/` |
+|---|---|---|
+| `media/*` (help images and diagrams, about 40 files) | Admin → Media (`/api/admin/media*` writes `media/<name>`) | Content managed at run time. Uploads, replacements and retirements happen in the admin; the baseline set was seeded by the original site deploy and is in the Phase 0 backup. The shipped catalogue that describes them is `services/whichpart-api/media-catalogue.json` |
+| `recalls/<slug>/index.html`, `sitemap-recalls.xml` | The API's daily recall ingest (`services/whichpart-api/recalls`) | Generated from official product-safety data |
+| `media/catalogue.json` | None (a leftover copy of the API's bundled catalogue) | Nothing reads it |
+
+`deploy.mjs` never writes or deletes any of these.
+
 ## Run it locally
 
 ```sh
