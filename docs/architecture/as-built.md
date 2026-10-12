@@ -1,6 +1,6 @@
 # As-built architecture (Phase 10 truth audit)
 
-> **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113), and the current system is described in the [overview](overview.md).
+> **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113) and [After Phase 13](#after-phase-13-releases-131136), and the current system is described in the [overview](overview.md).
 
 This describes what the code at `ec48371` does, as traced from source, from the live Lambda configuration, and from production logs and transcripts. Where the earlier [overview](overview.md) disagrees, this document is the evidence. The overview has been corrected to match it.
 
@@ -136,3 +136,19 @@ flowchart TB
 | mc/1 check results | (11.11) a check Jev is sure was done but whose result it cannot settle is recorded as done with no result, never dropped (a dropped check was asked again) |
 | Requests and refusals | (11.12) a cannot-answer in a message that says the model is unavailable never declines a different pending question; that question stays unsettled and is re-offered once (11.13: the frame and the question, not the explanation again) |
 | Failures explicit | Unchanged from Phase 10 (ADR 0016), plus: an invalid signature is logged (`evt: engine-auth`) and the fields are dropped; a missing key fails closed; drift fails `change.sh` |
+
+## After Phase 13 (releases 13.1–13.6)
+
+[ADR 0018](../adr/0018-no-ac-legacy-fallback.md): no AC turn reaches the legacy pipeline.
+
+- **BFF (13.3).** In control mode a turn whose canonical state could not be prepared, or whose canonical result degraded or
+  was not recorded, is an explicit error (`canonical_unavailable` with the reason). A bad or expired token starts a fresh
+  canonical session.
+- **Orchestrator (13.4).** Every canonical degradation is `SERVICE_UNAVAILABLE` with the canonical result marked degraded.
+  A controlled reply needs the engine's `canonicalControl` proof. With no journey owning the turn: cs/1 hazard → safety
+  stop, unsafe request → fixed decline, displayed code → error-code MCP only, typed problem → `UNSUPPORTED`, otherwise
+  intake. Hop 8b ("Legacy: orch flows") and the legacy symptom/combined/reconciliation flows are deleted.
+- **Engine (13.5).** Internal fields without a valid signature are refused (401); a signed diagnose call that no journey
+  controls is refused (409). Hop S1–S8 (the S4R turn) is unchanged. The washing-machine and dishwasher journeys decline
+  unsafe requests like every other family.
+

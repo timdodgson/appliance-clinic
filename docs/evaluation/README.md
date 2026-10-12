@@ -7,9 +7,9 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Check | Status |
 |---|---|
-| **GOLD-v2.4** | 56 whole-conversation scenarios, rubric `gold-v2-rubric-v3`, Jev as the fixed judge. **56/56 in two consecutive runs on the final Phase 12 build** ([results](phase-12-results.md#gold), [per-run evidence](phase-12/gold-runs.json)); Phase 11 likewise ([results](phase-11-results.md#gold)) |
+| **GOLD-v2.4** | 56 whole-conversation scenarios, rubric `gold-v2-rubric-v3`, Jev as the fixed judge. **56/56 in two consecutive runs on the final Phase 13 build** (13.6; [results](phase-13-results.md#gold-on-the-final-build)). GOLD shares Jev credit with production: runs are rationed and spaced ([finding](phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)) |
 | Live transcript review | Realistic journeys through the public site, reviewed by the production transcript judge and read by a person ([Phase 12](phase-12-results.md#transcript-review-live-final-build), [Phase 11](phase-11-results.md#transcript-review-live-final-build)) |
-| Runtime suites, typecheck, build equivalence | Every pull request (CI) |
+| Runtime suites, typecheck, build equivalence | Every pull request (CI). Every runtime test must pass: no accepted-failure list since [Phase 13](phase-13-results.md) |
 | `/part-finder` contract and smoke | Before and after every production release |
 
 **Two independent views.**
@@ -27,6 +27,7 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Round | Document | What it shows |
 |---|---|---|
+| Phase 13 | [phase-13-results.md](phase-13-results.md) | ADR 0018: no AC legacy fallback, explicit errors and `UNSUPPORTED`; the four S4R defects; OV5; every former failing test and its disposition; every GOLD run |
 | Phase 12 | [phase-12-results.md](phase-12-results.md) | The engine owns the cause label and the token decision; the unplaced-token commit; three COMPOSE defects found by the final gate; every GOLD run |
 | Phase 11 | [phase-11-results.md](phase-11-results.md) | One conversation state, signed engine fields, the F15 fix; every GOLD run with the defect each failure exposed; live transcript review |
 | | [phase-11-gold-audit.md](phase-11-gold-audit.md) | Why the suite grew by exactly one scenario (G2-MW-06) |

@@ -1,6 +1,6 @@
 # 0012. The legacy diagnosis pipeline is retained
 
-- **Status:** Accepted
+- **Status:** Accepted; its current-use parts (legacy as the AC fallback) are superseded by [0018](0018-no-ac-legacy-fallback.md), which keeps legacy for the S4R contract only
 - **Date:** 2026-10-09
 
 ## Context

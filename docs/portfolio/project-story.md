@@ -35,7 +35,7 @@ One security gap was found and closed straight away (Phase 1). The deployed back
 
 - **Extraction.** The production code was imported unchanged, with a per-file SHA-256 manifest against the source commit, after a secret and PII scan.
 - **Proof of the build.** The build was made reproducible before anything was changed: CI rebuilds both Lambda zips and both container images and compares them file by file with references taken from the deployed artefacts.
-- **Recorded test baseline.** Known test failures were recorded, so CI fails on a *new* failure, not on history.
+- **Recorded test baseline.** Known test failures were recorded, so CI fails on a *new* failure, not on history. (Phase 13 retired it: every former failure became a product fix, a rewrite or a removal, and any failure now fails CI.)
 
 This made "the repository is what runs in production" a checked claim, not an assumption.
 
@@ -145,6 +145,15 @@ The final build passed **56/56 twice in a row** on GOLD-v2.4.
 
 **GOLD is not the only judge.** Six live journeys through the public site were ended so that the production transcript judge reviewed them. Both the judge's verdict and the conversation were read, and a three-turn journey the judge rated `insufficient_evidence` was accepted only after reading it. Production transcript review stays a separate check from the benchmark.
 
+### 10. No hidden fallback, no accepted failures (Phase 13)
+
+The Phase 12 suite still carried 15 accepted failures, and fixing some of them meant extending the legacy pipeline that
+quietly answered any AC turn the canonical path could not. An audit showed that every canonical degradation fell back to
+legacy and looked like a normal answer. [ADR 0018](../adr/0018-no-ac-legacy-fallback.md) closed that: legacy now serves
+only S4R, every degradation is an explicit error, and turns no journey owns get an explicit outcome. Every former failure
+became a product fix, a rewrite or a removal, and the accepted-failure list was deleted
+([results](../evaluation/phase-13-results.md)).
+
 ## Trade-offs, honestly
 
 | Decision | Bought | Cost |
@@ -166,8 +175,11 @@ Checked against the code, the live configuration and the Phase 11 results. Solve
 |---|---|
 | **Account Lambda concurrency is 10**, shared with S4R | The pool sat at 10 for 383 minutes in 14 days. The recommended quota is 100, and only the account owner can request it ([analysis](../evaluation/phase-11-concurrency.md)) |
 | **The static site** is still published from the original monorepo | Not in this repository |
-| **The orchestrator** is one large Python module (about 2,300 lines) | Reviewed and deliberately kept as one module: a quarter of it is documentation, and most of the rest is the legacy path's composition ([review](../architecture/orchestrator-review.md)). The two facts it duplicated from the engine, the cause-label table and the token commit rule, were removed in Phase 12; the engine owns both ([results](../evaluation/phase-12-results.md)). Hygiene items remain (undeclared request-local attributes, dead code, repeated call boilerplate, the densest function `_load`), and it still writes customer prose on legacy turns, from typed state |
-| **Two diagnosis paths** stay in the engine | The legacy pipeline serves every S4R request ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md)). Some of its behaviour is still produced by regular expressions (safety cues, brand lists) |
+| **The orchestrator** is one Python module (about 1,400 lines since Phase 13) | The legacy composition that made up most of it was deleted with the AC legacy fallback ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); what remains is the canonical branch, the non-journey outcomes (hazard, unsafe, code, unsupported, intake) and their documentation |
+| **Two diagnosis paths** stay in the engine | The legacy pipeline serves only S4R's plain `{messages}` request ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md), [ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); no AC turn reaches it. Some of its behaviour is still produced by regular expressions (safety cues, brand lists) |
+| **Canonical coverage** | 63 journeys own most AC turns; a typed problem no journey owns gets an explicit `UNSUPPORTED` reply, and an appliance outside the typed families gets the repeated appliance clarify ([Phase 13](../evaluation/phase-13-results.md)) |
+| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and both S4R `/part-finder` and AC were down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion |
+| **Evaluation shares production's Jev credit** | GOLD runs, the GOLD judge and the transcript judge use the same Jev account as AC and S4R, so evaluation load can exhaust production. Needed where possible: a separate evaluation key or account, or a budget cap for evaluation traffic; until then GOLD runs are rationed and spaced |
 | **Engine signing key in the Lambda environment** | The same pattern as the service bearers (dynamic references). A runtime secret fetch would keep it out of `lambda:GetFunctionConfiguration` |
 | **The GOLD judge is not independent** | GOLD and transcript review are judged by Jev, the same service that does the understanding. The rubric and pass rule are fixed and verdicts are checked by reading the conversations, but an independent judge would be stronger evidence |
 | **Planned target steps** | Error codes opening the matching canonical journey (T8); one safety-copy source shared by Python and JavaScript (T9); complete cause sentences in the error-code enrichment (T10) ([target](../architecture/target.md)) |
