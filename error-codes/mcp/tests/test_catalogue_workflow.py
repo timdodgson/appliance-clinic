@@ -100,7 +100,7 @@ check("draft is not resolvable by the live engine", resolve(tools, "Hotpoint", "
 st, lst = call(api, "GET", "/catalogue")
 row = [r for r in lst["records"] if r["mappingId"] == NEW_ID]
 check("draft listed for Admin with status draft", row and row[0]["status"] == "draft", row)
-check("drafts excluded from effective active count", lst["effectiveActiveCount"] == 783, lst["effectiveActiveCount"])
+check("drafts excluded from effective active count", lst["effectiveActiveCount"] == 847, lst["effectiveActiveCount"])
 st, dup = call(api, "POST", "/catalogue", NEW)
 check("duplicate identity rejected (draft exists)", st == 409 and dup["error"] == "duplicate", (st, dup))
 bad = dict(NEW, code="")

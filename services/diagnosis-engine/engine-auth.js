@@ -9,7 +9,7 @@
  */
 const crypto = require('node:crypto');
 
-const INTERNAL_FIELDS = Object.freeze(['mode', 'understand', 'canonical', 'established', 'seed', 'feedback']);
+const INTERNAL_FIELDS = Object.freeze(['mode', 'understand', 'canonical', 'established', 'seed', 'feedback', 'ac2', 'image']);
 const SIGNATURE_HEADER = 'x-ac-engine-signature';
 const MAX_SKEW_S = 300;
 

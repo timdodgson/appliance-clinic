@@ -59,8 +59,11 @@ ri = rec("AEG", "dishwasher", "i20"); ra = rec("AEG", "dishwasher", "AL6")
 check("9 Electrolux i20/AL6 scheme-scoped notation both drain",
       ri["status"] == "RESOLVED" and ra["status"] == "RESOLVED" and ri["meaning"] == ra["meaning"], f"{ri.get('meaning')} / {ra.get('meaning')}")
 # 10 Candy DW generation/scheme ambiguity -> NEEDS_CONTEXT (resolvable by scheme)
+# Dataset V1.1 restored the candy-hoover-dishwasher E2 record (previously overwritten by a shared mappingId);
+# its source marks the drain/fill generation split as unresolved, so the honest answer is AMBIGUOUS.
 r = rec("Candy", "dishwasher", "E2")
-check("10 Candy DW E2 NEEDS_CONTEXT (scheme-resolvable)", r["status"] == "NEEDS_CONTEXT", str(r.get("status")))
+check("10 Candy DW E2 generation split ambiguous (source-unresolved)", r["status"] == "AMBIGUOUS" and r.get("reason") == "SOURCE_UNRESOLVED"
+      and {c.get("faultId") for c in r.get("candidates", [])} == {"drain", "fill"}, str(r.get("status")))
 # 11 Hoover WM architecture ambiguity -> AMBIGUOUS (source-unresolved)
 r = rec("Hoover", "washing-machine", "E16")
 check("11 Hoover WM E16 AMBIGUOUS", r["status"] == "AMBIGUOUS" and "architecture" in r["ambiguityDimensions"], str(r.get("status")))

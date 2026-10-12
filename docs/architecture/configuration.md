@@ -54,6 +54,8 @@ search), and `EMBED_URL`, `EMBED_MODEL`, `EMBED_TIMEOUT_MS` (retrieval embedding
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
 | `ORCH_TIMEOUT_MS` | Optional | 120000 | No | `config.js` |
+| `AC2_MODE` | Optional | `off` | Yes (`benchmark` before cut-over) | `ac2-turn.js`: `off`, `benchmark` (authenticated benchmark and live-test turns that send `engine: 'ac2'`) or `all` |
+| `AC2_ENGINE_TIMEOUT_MS` | Optional | 28000 | No | `ac2-turn.js` (engine call timeout on the ac2 path) |
 | `ENGINE_SIGNING_TOKEN` | Required for feedback (ADR 0017) | none (feedback is sent unsigned, and the engine refuses it with 401) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-signature.js` |
 | `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `AC_ADMIN_GROUP` | Required for sign-in (empty refuses every session) | empty, empty, `admin` | Yes | `config.js` |
 | `LEARNING_BUCKET` | Optional | `whichpart-learning-800960611664` | Yes | `config.js` |

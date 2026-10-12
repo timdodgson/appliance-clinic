@@ -158,7 +158,7 @@ class CatalogueApi:
         return 200, {
             "ok": True,
             "terminology": {
-                "sourceCodeRecords": "Shipped Dataset V1 source-code records (manifest count 847). Duplicate mappingIds are collapsed last-wins for lookup, matching Resolver.",
+                "sourceCodeRecords": "Shipped Dataset V1 source-code records (manifest count 847). Every record has a unique mappingId since Dataset V1.1 (colliding V1 ids suffixed @<sourceFile>).",
                 "uniqueLookupKeys": "Unique mappingId keys in the Resolver lookup table.",
                 "effectiveActiveCount": "Unique mapping keys that MCP will actively resolve after overlay merge (retired and drafts excluded).",
                 "displayTokens": "Distinct displayed code tokens among active unique lookup keys. Not the same as 847.",

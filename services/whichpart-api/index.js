@@ -19,6 +19,8 @@
 const settingsAdmin = require('./settings-admin.js');
 const transcripts = require('./transcripts');
 const conversationState = require('./conversation-state');
+const ac2State = require('./ac2-state');
+const ac2Turn = require('./ac2-turn');
 const liveTest = require('./live-test.js');
 const benchmarkAuth = require('./benchmark-auth.js');
 const stateTokenMod = require('./state-token');
@@ -593,6 +595,12 @@ async function handleEvent(event) {
     if (limitedTurn) return limitedTurn;
   }
 
+  // ac2: LLM-led diagnosis inside the deterministic guardrail kernel (services/diagnosis-engine/ac2). Selected by
+  // AC2_MODE (ac2-turn.js); on this path the engine's turn pipeline is the whole decision path.
+  if (ac2Turn.selected(body, { live, bench })) {
+    return ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn });
+  }
+
   // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. The signed token is verified,
   // state is loaded and sent to the orchestrator, and the returned state is persisted. ADR 0018: in `control` an AC
   // turn is canonical or an explicit error. A turn whose state could not be prepared is never sent on to be answered
@@ -760,6 +768,61 @@ async function handleEvent(event) {
   await persistTranscriptTurn(obs, messages, view, orch, rid, canonAudit);
   return respond(200, view);
 };
+
+// ---- ac2 turn ------------------------------------------------------------------------------------------
+let _ac2Store = null;
+function ac2Store() {
+  if (!_ac2Store) _ac2Store = ac2State.createStore();
+  return _ac2Store;
+}
+function setAc2DepsForTests({ store, callEngine } = {}) {
+  if (store !== undefined) _ac2Store = store;
+  if (callEngine !== undefined) _ac2CallEngine = callEngine;
+}
+let _ac2CallEngine = async (raw, timeoutMs) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(raw, ENGINE_URL), body: raw, signal: controller.signal });
+    let json = null;
+    try { json = await res.json(); } catch { json = null; }
+    return { status: res.status, json };
+  } finally {
+    clearTimeout(timer);
+  }
+};
+async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }) {
+  const t0 = Date.now();
+  const ctx = deriveContext(messages);
+  const r = await ac2Turn.handle({ body, messages, image: ctx.latestImage || null }, {
+    callEngine: (raw, timeoutMs) => _ac2CallEngine(raw, timeoutMs), secretsLoader: () => _canonicalSecretsLoader(), store: ac2Store(),
+  });
+  if (r.error) {
+    log({ evt: 'whichpart-api', rid, ok: false, ac2: { error: r.error }, ms: Date.now() - t0 });
+    const failed = aiUnavailableView(rid);
+    failed.error = true;
+    failed.degraded = r.error;
+    if (r.token) failed.stateToken = r.token;
+    if (live) failed.liveTest = { schema: 'ac2-live/1', ok: false, reason: r.error, stateIn: Boolean(liveStateIn) };
+    if (bench) failed.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: false, reason: r.error, session: benchmarkAuth.sessionRef(bench.sessionId) };
+    await persistTranscriptTurn(obs, messages, failed, null, rid, { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: r.error });
+    return respond(200, failed);
+  }
+  let overlay = null;
+  try { overlay = await loadOverlayCached(); } catch { overlay = null; }
+  const view = toWhichPartView(r.orch, rid, overlay);
+  view.stateToken = r.token;
+  if (live) view.liveTest = { schema: 'ac2-live/1', ok: true, audit: r.audit };
+  if (bench) view.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: true, session: benchmarkAuth.sessionRef(bench.sessionId), audit: r.audit };
+  log({ evt: 'whichpart-api', rid, client: CLIENT_ID, route: 'AC2', outcome: r.orch.outcome,
+    benchmark: bench ? { auth: true, session: benchmarkAuth.sessionRef(bench.sessionId) } : undefined, liveTest: live ? true : undefined,
+    ac2: { turn: r.audit.turn, status: r.audit.status, hazards: r.audit.safety && r.audit.safety.hazards, gates: ((r.audit.safety && r.audit.safety.gates) || []).map((g) => g.gate),
+      claimsRejected: r.audit.claimsRejected.length, regenerated: r.audit.regenerated, partGate: r.audit.partGate && r.audit.partGate.outcome,
+      engineMs: r.ms, timings: r.audit.timings, provider: r.audit.provider },
+    safetyStopUse: Boolean(r.orch.safety && r.orch.safety.stopUse), partCount: view.parts.length, ms: Date.now() - t0 });
+  await persistTranscriptTurn(obs, messages, view, r.orch, rid, r.audit);
+  return respond(200, view);
+}
 
 // ---- orchestrator call --------------------------------------------------------
 // Pick the orchestrator session key. The client's stable per-conversation id (observability
@@ -1094,3 +1157,4 @@ module.exports.errorCodesAdmin = errorCodesAdmin;
 module.exports.recallAdmin = recallAdmin;
 module.exports.setRecallStore = setRecallStore;
 module.exports.recallStoreMod = recallStoreMod;
+module.exports.setAc2DepsForTests = setAc2DepsForTests;

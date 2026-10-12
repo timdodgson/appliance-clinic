@@ -42,8 +42,8 @@ def check(name, cond, detail=""):
 # --- baseline ---
 snap = merge(BASE, ENRICH, empty_overlay(), SOURCES)
 check("847 is shipped source-code records", snap["sourceCodeRecordCount"] == 847, snap["sourceCodeRecordCount"])
-check("unique lookup keys last-wins mappingId", snap["baselineCount"] == 783, snap["baselineCount"])
-check("baseline active unique keys", snap["effectiveActiveCount"] == 783, snap["effectiveActiveCount"])
+check("unique lookup keys == source records (V1.1 unique mappingIds)", snap["baselineCount"] == 847, snap["baselineCount"])
+check("baseline active unique keys", snap["effectiveActiveCount"] == 847, snap["effectiveActiveCount"])
 check("baseline overlay none", snap["overlay"]["state"] == "none")
 check("338 distinct display tokens among unique keys", len({r["code"] for r in snap["inspect"]}) == 338, len({r["code"] for r in snap["inspect"]}))
 
@@ -57,7 +57,7 @@ body = {
 mapping, enr = validate_create(body, {r["appliances"][0] for r in snap["inspect"] if r["appliances"]}, snap)
 ov = apply_create(empty_overlay(), mapping, enr)
 snap2 = merge(BASE, ENRICH, ov, SOURCES)
-check("admin create increases effective active", snap2["effectiveActiveCount"] == 784, snap2["effectiveActiveCount"])
+check("admin create increases effective active", snap2["effectiveActiveCount"] == 848, snap2["effectiveActiveCount"])
 check("admin mapping is active", any(r["mappingId"] == mapping["mappingId"] and r["status"] == "active" for r in snap2["inspect"]))
 
 # duplicate
@@ -106,7 +106,7 @@ r3 = T.resolve_error_code({"make": "Bosch", "appliance": "washing-machine", "cod
 check("admin record is brand-scoped not global", r3["status"] == "NOT_FOUND", r3.get("status"))
 
 # --- edit content, not identity ---
-shipped_id = "INDESIT_WM_F::default::F05"
+shipped_id = "INDESIT_WM_F::default::F05@hotpoint-indesit-washing-machine"
 shipped = [m for m in BASE if m["mappingId"] == shipped_id][0]
 try:
     validate_patch({"mapping": shipped, "origin": "shipped", "status": "active"}, {"code": "E99"}, snap)
@@ -146,11 +146,11 @@ except CatalogueError as e:
 
 ov6 = apply_delete(ov, mapping["mappingId"], "admin", "active")
 snap6 = merge(BASE, ENRICH, ov6, SOURCES)
-check("admin delete removes record", mapping["mappingId"] not in snap6["all_mappings"] and snap6["effectiveActiveCount"] == 783)
+check("admin delete removes record", mapping["mappingId"] not in snap6["all_mappings"] and snap6["effectiveActiveCount"] == 847)
 
 # --- overlay absent vs malformed vs last-good ---
 st_none = CatalogueStore(BASE, ENRICH, SOURCES, loader=lambda: (empty_overlay(), "none"), saver=lambda o: None, bucket="", ttl_ms=0)
-check("overlay absent = baseline", st_none.reload(True)["effectiveActiveCount"] == 783)
+check("overlay absent = baseline", st_none.reload(True)["effectiveActiveCount"] == 847)
 
 def boom():
     raise RuntimeError("s3-down")
@@ -164,7 +164,7 @@ def bad():
     raise ValueError("malformed-overlay")
 st_bad = CatalogueStore(BASE, ENRICH, SOURCES, loader=bad, saver=lambda o: None, bucket="x", ttl_ms=0)
 snap_bad = st_bad.reload(True)
-check("malformed overlay without last-good is baseline", snap_bad["effectiveActiveCount"] == 783 and snap_bad["overlay"]["state"] in ("malformed", "unavailable"))
+check("malformed overlay without last-good is baseline", snap_bad["effectiveActiveCount"] == 847 and snap_bad["overlay"]["state"] in ("malformed", "unavailable"))
 
 # --- same normalisation as MCP ---
 check("tok F05", tok("F05") == "F05")
@@ -177,6 +177,34 @@ check("resolver injection does not change predicates", R._tok("F 05") == tok("F 
 T0 = ErrorCodeTools(store=CatalogueStore(BASE, ENRICH, SOURCES, loader=lambda: (empty_overlay(), "none"), saver=lambda o: None, bucket="", ttl_ms=0))
 rb = T0.resolve_error_code({"make": "Bosch", "appliance": "dishwasher", "code": "E15"})
 check("shipped Bosch E15 unchanged with empty overlay", rb["status"] == "RESOLVED" and "water" in (rb.get("meaning") or "").lower(), rb.get("meaning"))
+
+# --- Dataset V1.1: unique mappingIds, duplicate guard, legacy overlay ids ---
+check("baseline mappingIds unique", len({m["mappingId"] for m in BASE}) == len(BASE))
+try:
+    merge(BASE + [copy.deepcopy(BASE[0])], ENRICH, empty_overlay(), SOURCES)
+    check("duplicate baseline mappingId refused", False, "no error")
+except ValueError:
+    check("duplicate baseline mappingId refused", True)
+# an overlay written against the V1 id retires the record that id used to resolve to (last wins)
+ov_legacy = apply_retire(empty_overlay(), "INDESIT_WM_F::default::F05@scholtes-washing-machine", "shipped", "test")
+ov_legacy["records"] = {"INDESIT_WM_F::default::F05": ov_legacy["records"]["INDESIT_WM_F::default::F05@scholtes-washing-machine"]}
+snap_legacy = merge(BASE, ENRICH, ov_legacy, SOURCES)
+check("legacy V1 overlay id maps to the last-wins record",
+      "INDESIT_WM_F::default::F05@scholtes-washing-machine" not in snap_legacy["active_mappings"]
+      and shipped_id in snap_legacy["active_mappings"])
+
+# shipped records that overlap other shipped schemes (Hotpoint WM F05: Indesit + Whirlpool schemes) stay editable,
+# but a NEW alias that hits another active record is still a collision
+try:
+    validate_patch({"mapping": shipped, "origin": "shipped", "status": "active"}, {"meaning": "Edited F05."}, snap)
+    check("pre-existing shipped overlap does not block a content edit", True)
+except CatalogueError as e:
+    check("pre-existing shipped overlap does not block a content edit", False, e.code)
+try:
+    validate_patch({"mapping": shipped, "origin": "shipped", "status": "active"}, {"aliases": ["F08"]}, snap)
+    check("new shipped alias colliding with another record rejected", False, "no error")
+except CatalogueError as e:
+    check("new shipped alias colliding with another record rejected", e.code == "collision", e.code)
 
 print(f"\ncatalogue_effective: {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

@@ -79,7 +79,7 @@ class ErrorCodeTools:
             "get-error-code-evidence": self._schema("get-error-code-evidence"),
         }
         from catalogue_store import CatalogueStore  # noqa: E402  (overlay is additive; tests inject a store)
-        # Raw mappings.json list (847 source-code records). Resolver dict last-wins to 783 keys.
+        # Raw mappings.json list (847 source-code records, unique mappingIds since Dataset V1.1).
         baseline_mappings = json.load(open(os.path.join(RT, "mappings.json")))
         self.store = store if store is not None else CatalogueStore(
             baseline_mappings, recs, self.R.sources,

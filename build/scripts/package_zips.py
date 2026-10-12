@@ -35,6 +35,15 @@ def diagnosis_engine_entries():
     canonical = sorted(f'canonical/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'canonical', '*.js'))) + ['canonical/journeys.json']
     entries = {name: os.path.join(DE, name) for name in top + engine + canonical}
     entries['knowledge/media-information.json'] = os.path.join(DE, 'knowledge', 'media-information.json')
+    # ac2: the LLM-led turn and its guardrail kernel, and the knowledge the reasoner reads.
+    for p in sorted(glob.glob(os.path.join(DE, 'ac2', '*.js'))):
+        name = os.path.basename(p)
+        if not name.startswith('build-'):
+            entries[f'ac2/{name}'] = p
+    for p in sorted(glob.glob(os.path.join(DE, 'ac2', 'data', '*.json'))):
+        entries[f'ac2/data/{os.path.basename(p)}'] = p
+    for n in ('knowledge-docs.json', 'journey-knowledge.json', 'normal-operation.json', 'safety-information.json'):
+        entries[f'knowledge/{n}'] = os.path.join(DE, 'knowledge', n)
     return entries
 
 
@@ -60,7 +69,7 @@ def whichpart_api_entries(generated):
     subprocess.run(['node', os.path.join(WP, 'scripts', 'build-media-canonical-refs.cjs'), '--check'], check=True, cwd=ROOT)
     # Phase 8: fit-evidence.js (never required) and benchmark/acq-simulator.js (test-only) are no longer shipped.
     files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js',
-             'package.json', 'transcripts.js', 'ddb.js', 'conversation-state.js', 'canonical-audit.js', 'state-token.js',
+             'package.json', 'transcripts.js', 'ddb.js', 'conversation-state.js', 'ac2-state.js', 'ac2-turn.js', 'canonical-audit.js', 'state-token.js',
              'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js',
              'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js',
              'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js',

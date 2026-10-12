@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from catalogue_effective import (
     ALLOWED_CONFIDENCE, ALLOWED_RECORD_TYPES, ALLOWED_SAFETY, CONTENT_FIELDS, CatalogueError,
-    _overlay_content, clone, collide, record_action, utcnow, validate_create, validate_patch,
+    _overlay_content, clone, collide, new_collisions, record_action, utcnow, validate_create, validate_patch,
     validate_url,
 )
 
@@ -257,7 +257,8 @@ def _go_live(overlay, snap, rec, mapping_id, origin, mapping_part, enrichment, m
     if mapping_part is None and origin == "shipped":
         eff = clone(base_m)
     _validate_publishable(origin, eff, enrichment if mapping_part is not None or origin == "admin" else None)
-    hits = collide(snap.get("active_mappings") or {}, eff, ignore_id=mapping_id)
+    hits = new_collisions(snap.get("active_mappings") or {}, eff, ignore_id=mapping_id,
+                          before=base_m if origin == "shipped" else None)
     if hits:
         raise CatalogueError("collision", "Publishing would collide with another active record for that brand and appliance.",
                              {"conflicts": hits})

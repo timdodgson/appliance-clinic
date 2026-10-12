@@ -191,11 +191,8 @@ class CatalogueStore:
         return parsed, res.get("ETag")
 
     def baseline_by_id(self):
-        out = {}
-        for m in self.baseline_mappings or []:
-            if m.get("mappingId"):
-                out[m["mappingId"]] = m  # last-wins, like merge()
-        return out
+        from catalogue_effective import unique_baseline  # noqa: E402
+        return unique_baseline(self.baseline_mappings)
 
     def snapshot_of(self, overlay):
         snap = merge(self.baseline_mappings, self.baseline_enrichment, overlay, self.sources)

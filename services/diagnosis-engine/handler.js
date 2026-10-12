@@ -35,6 +35,7 @@ const { logFeedback, log, rand } = require('./engine/learning-log.js');
 const { understand, degradedIntent } = require('./engine/understand.js');
 const tokenGate = require('./canonical/token-gate.js');
 const canonicalRuntimeMod = require('./canonical-runtime.js');
+const ac2 = require('./ac2/runtime.js');
 
 const json = (statusCode, obj) => ({ statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 const lines = (events) => ({ statusCode: 200, headers: { 'Content-Type': 'application/x-ndjson' },
@@ -125,6 +126,23 @@ exports.handler = async (event) => {
   const metric = { evt: 'diagnosis-engine', requestId, msgCount: messages.length };
 
   try {
+    if (body.mode === 'turn') {
+      // ac2: LLM-led diagnosis inside the deterministic guardrail kernel (ac2/turn.js).
+      try {
+        const out = await ac2.turn({ messages, state: body.ac2 && body.ac2.state, image: body.image || null });
+        metric.mode = 'turn';
+        metric.ac2 = out.audit;
+        metric.totalMs = Date.now() - started; metric.ok = true; log(metric);
+        return json(200, { type: 'ac2', response: out.response, state: out.state, audit: out.audit });
+      } catch (e) {
+        if (e && e.name === 'ProviderUnavailableError') {
+          metric.ok = false; metric.mode = 'turn'; metric.error = `provider_unavailable:${e.category}`;
+          metric.totalMs = Date.now() - started; log(metric);
+          return json(503, { error: 'Diagnosis is temporarily unavailable.', errorCode: 'reasoner_unavailable' });
+        }
+        throw e;
+      }
+    }
     if (body.mode === 'understand') {
       const res = await understandTurn(body, messages, requestId, metric);
       metric.totalMs = Date.now() - started; metric.ok = true; log(metric);
