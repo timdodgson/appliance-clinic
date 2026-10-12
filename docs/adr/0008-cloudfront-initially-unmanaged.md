@@ -25,6 +25,10 @@ replacement site deployment that:
 
 ## Consequences
 
+- The site deployment described above is `apps/web/scripts/deploy.mjs`. It uploads changed files only, backs up what
+  it replaces, and never deletes. Its Cache-Control (60 s for HTML, 5 min for content-versioned scripts) makes an
+  invalidation unnecessary.
+
 - The highest-blast-radius import is avoided, at the cost of the distribution staying outside
   infrastructure-as-code for now.
 - The inventory still captures the full distribution configuration, so drift can be detected and an

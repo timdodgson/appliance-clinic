@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ApplianceClinic — Admin Centre</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" type="image/svg+xml" href="assets/applianceclinic-mark.svg?v=1" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/applianceclinic-icon-192.png?v=1" />
+  <link rel="apple-touch-icon" href="assets/applianceclinic-icon-180.png?v=1" />
+  <link rel="stylesheet" href="styles.css?v=51" />
+  <link rel="stylesheet" href="styles-admin.css?v=18" />
+</head>
+<body class="admin-body">
+  <header class="topbar" id="topbar">
+    <div class="topbar__inner">
+      <button class="admin__burger" id="adminBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="shell">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <a class="topbar__brand" href="/" aria-label="ApplianceClinic home">
+        <img class="topbar__logo-img" src="assets/applianceclinic-logo.svg?v=3" alt="ApplianceClinic" width="200" height="32" decoding="async" />
+        <span class="topbar__badge">Admin Centre</span>
+      </a>
+      <nav class="topbar__nav" aria-label="Main">
+        <a class="topbar__link" href="/">Back to site</a>
+        <div class="usermenu" id="userMenu" hidden>
+          <button class="usermenu__btn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="avatar" id="avatar" aria-hidden="true">--</span>
+            <span class="usermenu__name" id="userName"></span>
+            <svg class="usermenu__caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="usermenu__dropdown" id="userDropdown" role="menu" hidden>
+            <a class="usermenu__item" href="/" role="menuitem">Customer site</a>
+            <button class="usermenu__item usermenu__item--btn" id="logoutBtn" type="button" role="menuitem">Sign out</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Access gate: shown until a valid admin session is confirmed server-side. -->
+  <div class="admin-gate" id="gate" hidden>
+    <div class="admin-gate__card">
+      <h1 class="admin-gate__title" id="gateTitle">Admin access</h1>
+      <p class="admin-gate__sub" id="gateSub">Please sign in with your staff account to continue.</p>
+      <form id="gateForm" class="loginform" autocomplete="on">
+        <label class="loginform__label" for="gEmail">Email</label>
+        <input class="loginform__input" id="gEmail" type="email" autocomplete="username" required />
+        <label class="loginform__label" for="gPassword">Password</label>
+        <input class="loginform__input" id="gPassword" type="password" autocomplete="current-password" required />
+        <p class="loginform__error" id="gError" hidden></p>
+        <button class="btn btn--primary loginform__submit" id="gSubmit" type="submit">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin shell: revealed only after a verified admin session. -->
+  <div class="admin" id="shell" hidden>
+    <aside class="admin__side">
+      <nav class="admin__nav" aria-label="Admin sections">
+        <button class="admin__navitem is-active" aria-current="page" data-section="dashboard" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-dashboard"/></svg><span class="admin__navlabel">Dashboard</span></button>
+        <button class="admin__navitem" data-section="transcripts" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-conversations"/></svg><span class="admin__navlabel">Conversations</span></button>
+        <button class="admin__navitem" data-section="test" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-test"/></svg><span class="admin__navlabel">Test</span></button>
+        <span class="admin__navgroup">Reference</span>
+        <button class="admin__navitem" data-section="knowledge" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-knowledge"/></svg><span class="admin__navlabel">Knowledge</span></button>
+        <button class="admin__navitem" data-section="mcp" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-codes"/></svg><span class="admin__navlabel">Error Codes</span></button>
+        <button class="admin__navitem" data-section="media" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-media"/></svg><span class="admin__navlabel">Media</span></button>
+        <button class="admin__navitem" data-section="safety" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-safety"/></svg><span class="admin__navlabel">Safety</span></button>
+        <span class="admin__navgroup">System</span>
+        <button class="admin__navitem" data-section="diagnostics" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-diagnostics"/></svg><span class="admin__navlabel">Diagnostics</span></button>
+        <button class="admin__navitem" data-section="settings" type="button"><svg class="admin__navicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-settings"/></svg><span class="admin__navlabel">Settings</span></button>
+      </nav>
+    </aside>
+
+    <main class="admin__main" id="adminMain">
+      <!-- Dashboard -->
+      <section class="admin__section" data-section="dashboard">
+        <header class="ac-pagehead"><div class="ac-pagehead__copy">
+        <h1 class="admin__h1">Dashboard</h1>
+        <p class="admin__lead">Is ApplianceClinic working, what is happening in production, and what needs your attention?</p>
+        </div></header>
+
+        <div class="dash-health" id="dashHealth" aria-live="polite">
+          <div class="health__loading">Checking system health…</div>
+        </div>
+
+        <div class="admin__panel dash-panel" id="dashState">
+          <h2 class="admin__h2">Production state</h2>
+          <p class="dash-note">Read-only. What customers are being served right now; change it in the linked section.</p>
+          <div id="dashStateBody"><div class="tac__muted">Loading…</div></div>
+        </div>
+
+        <div class="admin__panel dash-panel" id="dashAttention">
+          <h2 class="admin__h2">Needs attention</h2>
+          <div id="dashAttentionBody"><div class="tac__muted">Loading…</div></div>
+        </div>
+
+        <div class="admin__panel dash-panel" id="dashProduction">
+          <div class="dash-panelhead">
+            <div>
+              <h2 class="admin__h2">Production</h2>
+              <p class="dash-note" id="dashPeriodNote">Counts are for conversations in this period, not when they were reviewed.</p>
+            </div>
+            <div class="dash-periods" role="group" aria-label="Time period">
+              <button type="button" class="dash-period" data-period="today" aria-pressed="false">Today</button>
+              <button type="button" class="dash-period is-on" data-period="7d" aria-pressed="true">7 days</button>
+              <button type="button" class="dash-period" data-period="30d" aria-pressed="false">30 days</button>
+            </div>
+          </div>
+          <div id="dashProductionBody"><div class="tac__muted">Loading…</div></div>
+        </div>
+
+        <div class="admin__panel dash-panel" id="dashAreas">
+          <h2 class="admin__h2">Recurring areas</h2>
+          <div id="dashAreasBody"><div class="tac__muted">Loading…</div></div>
+        </div>
+      </section>
+
+      <section class="admin__section tx" data-section="transcripts" hidden>
+        <div id="txListView">
+        <header class="ac-pagehead"><div class="ac-pagehead__copy">
+        <h1 class="admin__h1">Conversations</h1>
+        <!-- LIST PAGE (#transcripts?…). A row is a link to the detail page (#transcripts/<sessionId>?…). -->
+        <p class="admin__lead">See what customers experienced and investigate conversations that need attention.</p>
+        <p class="tx__policy" id="txPolicy"></p>
+        </div></header>
+
+        <div class="tx-views" role="radiogroup" aria-label="Conversation views">
+          <button type="button" class="tx-view is-on" role="radio" id="txViewAll" data-view="all" aria-checked="true">All</button>
+          <button type="button" class="tx-view" role="radio" id="txViewAttention" data-view="attention" aria-checked="false">Needs attention <span class="tx-view__count" id="txCountAttention" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewPoor" data-view="poor" aria-checked="false">Poor <span class="tx-view__count" id="txCountPoor" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewSafety" data-view="safety" aria-checked="false">Safety <span class="tx-view__count" id="txCountSafety" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewLoops" data-view="loops" aria-checked="false">Loops <span class="tx-view__count" id="txCountLoops" hidden></span></button>
+        </div>
+
+        <!-- Primary filter row: the few controls needed for everyday triage. -->
+        <div class="tx-primary">
+          <label class="tx-primary__field tx-primary__field--search">Search
+            <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="txSearch" type="search" placeholder="Customer or reply text…" /></span>
+          </label>
+          <label class="tx-primary__field">From <input id="txFrom" type="date" /></label>
+          <label class="tx-primary__field">To <input id="txTo" type="date" /></label>
+          <label class="tx-primary__field">Appliance
+            <select id="txFamily">
+              <option value="">All</option>
+              <option value="washing machine">Washing machine</option>
+              <option value="washer-dryer">Washer dryer</option>
+              <option value="tumble-dryer">Tumble dryer</option>
+              <option value="dishwasher">Dishwasher</option>
+              <option value="fridge-freezer">Fridge freezer</option>
+              <option value="oven-cooker">Oven / cooker</option>
+              <option value="hobs">Hob</option>
+              <option value="microwave">Microwave</option>
+              <option value="vacuum">Vacuum</option>
+            </select>
+          </label>
+          <label class="tx-primary__field">Review status
+            <select id="txReviewStatus">
+              <option value="">All</option>
+              <option value="awaiting">Awaiting review</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="failed">Review failed</option>
+              <option value="none">Not eligible yet</option>
+            </select>
+          </label>
+          <div class="tx-primary__actions">
+            <button class="btn btn--primary" id="txApply" type="button">Apply</button>
+            <button class="btn btn--ghost" id="txReset" type="button">Clear filters</button>
+          </div>
+        </div>
+
+        <!-- Needs-attention is driven by the quick view above; this input backs that
+             view and Dashboard deep-links, so it stays in the DOM but hidden to avoid a
+             duplicate visible control. -->
+        <input type="checkbox" id="txAttention" class="tx-hiddenfield" tabindex="-1" aria-hidden="true" />
+
+        <!-- One deliberate specialist surface. Not nested; no second accordion. -->
+        <details class="tx-more" id="txMore">
+          <summary class="tx-more__summary">
+            <span class="tx-more__label">More filters</span>
+            <span class="tx-more__count" id="txMoreCount" hidden></span>
+          </summary>
+          <div class="tx__filters">
+            <label class="tx__filter">Make <input id="txMake" type="text" placeholder="e.g. Bosch" /></label>
+            <label class="tx__filter">Route
+              <select id="txRoute">
+                <option value="">All</option>
+                <option value="SYMPTOMS">Symptom / RAG</option>
+                <option value="ERROR_CODE">Error code / MCP</option>
+                <option value="ERROR_CODE_AND_SYMPTOMS">Error code + symptoms</option>
+              </select>
+            </label>
+            <label class="tx__filter">Lifecycle
+              <select id="txLifecycle">
+                <option value="">All</option>
+                <option value="active">Active / recent</option>
+                <option value="ended">Ended (New Chat)</option>
+                <option value="inactive">Inactive / abandoned</option>
+              </select>
+            </label>
+            <label class="tx__filter">Overall
+              <select id="txOverall">
+                <option value="">All</option>
+                <option value="good">Good</option>
+                <option value="mixed">Mixed</option>
+                <option value="poor">Poor</option>
+                <option value="insufficient_evidence">Insufficient evidence</option>
+              </select>
+            </label>
+            <label class="tx__filter">Progression
+              <select id="txStateProgression">
+                <option value="">All</option>
+                <option value="poor">Poor</option>
+                <option value="mixed">Mixed</option>
+                <option value="good">Good</option>
+                <option value="insufficient_evidence">Insufficient evidence</option>
+              </select>
+            </label>
+            <label class="tx__filter">Conversation flow
+              <select id="txLooping">
+                <option value="">All</option>
+                <option value="significant">Significant looping</option>
+                <option value="minor">Minor looping</option>
+              </select>
+            </label>
+            <label class="tx__filter">Safety handling
+              <select id="txSafetyHandling">
+                <option value="">All</option>
+                <option value="concern">Safety concern</option>
+                <option value="appropriate">Appropriate</option>
+                <option value="not_applicable">Not applicable</option>
+                <option value="insufficient_evidence">Insufficient evidence</option>
+              </select>
+            </label>
+            <label class="tx__filter">Priority
+              <select id="txPriority">
+                <option value="">All</option>
+                <option value="important">Important</option>
+                <option value="worth_reviewing">Worth reviewing</option>
+                <option value="normal">Normal</option>
+              </select>
+            </label>
+            <label class="tx__filter">Outcome
+              <select id="txReviewOutcome">
+                <option value="">All</option>
+                <option value="useful_outcome">Useful</option>
+                <option value="partial_outcome">Partial</option>
+                <option value="no_useful_outcome">No useful outcome</option>
+                <option value="abandoned">Abandoned</option>
+                <option value="insufficient_evidence">Insufficient evidence</option>
+              </select>
+            </label>
+            <label class="tx__filter">Product area
+              <select id="txProductArea">
+                <option value="">All</option>
+                <option value="understanding">Understanding</option>
+                <option value="clarification">Clarification</option>
+                <option value="diagnostic_reasoning">Diagnostic reasoning</option>
+                <option value="knowledge">Knowledge</option>
+                <option value="parts">Parts</option>
+                <option value="media">Media</option>
+                <option value="safety">Safety</option>
+                <option value="conversation_flow">Conversation flow</option>
+                <option value="identification">Identification</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label class="tx__filter">Journey <input id="txJourney" type="text" placeholder="e.g. wm-not-draining" autocomplete="off" spellcheck="false" /></label>
+            <label class="tx__filter">Path
+              <select id="txCanonical">
+                <option value="">All</option>
+                <option value="control">Canonical control</option>
+                <option value="mixed">Mixed (control + legacy)</option>
+                <option value="shadow">Shadow / not controlled</option>
+                <option value="legacy">Legacy</option>
+                <option value="degraded">Degraded</option>
+              </select>
+            </label>
+            <label class="tx__filter">Part recommended
+              <select id="txPartRecommended">
+                <option value="">Any</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+              </select>
+            </label>
+            <label class="tx__chk"><input type="checkbox" id="txSafety" /> Safety cases (stop-use)</label>
+            <label class="tx__chk"><input type="checkbox" id="txErrors" /> Sessions with API errors</label>
+            <label class="tx__chk"><input type="checkbox" id="txDegraded" /> Sessions with degraded canonical turns</label>
+          </div>
+          <div class="tx__toolbaracts">
+            <button class="btn btn--primary" id="txApplyMore" type="button">Apply</button>
+            <button class="btn btn--ghost" id="txResetMore" type="button">Clear filters</button>
+          </div>
+        </details>
+
+        <div class="tx-context" id="txActiveContext" hidden></div>
+        <div class="tx-activefilters" id="txFilterChips" hidden></div>
+
+        <div class="tx-list" id="txTableWrap">
+          <div class="tac__muted" id="txEmpty">Loading…</div>
+        </div>
+        <div class="tx__pager" id="txPager" hidden>
+          <button class="btn btn--ghost" id="txPrev" type="button" disabled>Previous</button>
+          <span class="tx__pageinfo" id="txPageInfo"></span>
+          <button class="btn btn--ghost" id="txNext" type="button" disabled>Next</button>
+        </div>
+        </div>
+
+        <!-- DETAIL PAGE (#transcripts/<sessionId>?<list params>): its own page, not an expansion of the list.
+             Direct links and refresh work (hash route); Back returns to the list with its filters. -->
+        <div class="tx-page" id="txDetailPage" hidden>
+          <a class="tx-back" id="txBack" href="#transcripts">← Back to conversations</a>
+          <div class="admin__panel tx__detail" id="txDetail" hidden></div>
+        </div>
+      </section>
+
+      <section class="admin__section kn" data-section="knowledge" hidden>
+        <!-- LIST PAGE (#knowledge?q&family). Each card links to its own detail page (#knowledge/<id>?q&family). -->
+        <div id="knListView">
+        <div class="kn-pagehead ac-pagehead">
+          <div class="kn-pagehead__copy">
+            <h1 class="admin__h1">Knowledge</h1>
+            <p class="admin__lead">Explore the diagnostic knowledge ApplianceClinic uses.</p>
+            <p class="kn-pagehead__note">Search a symptom, fault or component to see what ApplianceClinic currently knows, where that knowledge came from, and what evidence it contains. Records ship with the diagnosis engine and are read-only here.</p>
+          </div>
+        </div>
+
+        <div class="kn__toolbar" role="search">
+          <label class="kn__filter kn__filter--search" for="knSearch">Search
+            <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="knSearch" class="kn__search" type="search" inputmode="search" placeholder="Symptoms, faults, components…" autocomplete="off" /></span>
+          </label>
+          <label class="kn__filter" for="knFamily">Appliance
+            <select id="knFamily"><option value="">All appliances</option></select>
+          </label>
+          <button class="btn btn--ghost kn__clear" id="knClear" type="button" hidden>Clear</button>
+        </div>
+
+        <p class="kn__status" id="knStatus" aria-live="polite"></p>
+        <div class="kn__list" id="knList"><div class="tac__muted">Loading…</div></div>
+        <details class="admin__panel kn__related" id="knRelated">
+          <summary>Related public help</summary>
+          <p class="tac__note">Help Hubs are public reference pages. They are not the diagnostic knowledge used during a conversation.</p>
+          <ul class="tx__hubs" id="knHubs"></ul>
+        </details>
+        </div>
+
+        <!-- DETAIL PAGE (#knowledge/<id>?q&family): its own page, not an expansion of the list. Direct links and
+             refresh work; Back returns to the list with its search / appliance filter. -->
+        <div class="kn-page" id="knDetailPage" hidden>
+          <a class="tx-back" id="knBackLink" href="#knowledge">← Back to Knowledge</a>
+          <div class="admin__panel kn__detail" id="knDetail" hidden></div>
+        </div>
+      </section>
+      <section class="admin__section" data-section="media" hidden>
+        <div id="mdListView">
+        <div class="md-pagehead ac-pagehead">
+          <div class="md-pagehead__copy">
+            <h1 class="admin__h1">Media</h1>
+            <p class="admin__lead">Inspect the help images and videos ApplianceClinic can show customers.</p>
+            <p class="md-pagehead__note">Inspect each asset, then add, edit customer presentation, map to Knowledge, or archive. Presentation edits are separate from diagnostic mappings and are saved as drafts until published.</p>
+          </div>
+          <div class="md-pagehead__actions">
+            <a class="btn btn--primary" id="mdAdd" href="#media/new"><svg class="ac-btnicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-plus"/></svg>Add media</a>
+          </div>
+        </div>
+
+        <div class="md__toolbar" role="search">
+          <label class="md__filter md__filter--search" for="mdSearch">Search
+            <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="mdSearch" class="md__search" type="search" inputmode="search" placeholder="Titles, symptoms, faults, media ids…" autocomplete="off" /></span>
+          </label>
+          <label class="md__filter" for="mdFamily">Appliance
+            <select id="mdFamily"><option value="">All appliances</option></select>
+          </label>
+          <label class="md__filter" for="mdType">Type
+            <select id="mdType">
+              <option value="">All types</option>
+              <option value="IMAGE">Image</option>
+              <option value="DIAGRAM">Diagram</option>
+              <option value="VIDEO">Video</option>
+            </select>
+          </label>
+          <label class="md__filter" for="mdUsage">Usage
+            <select id="mdUsage">
+              <option value="">All usage</option>
+              <option value="used">Used by diagnostic knowledge</option>
+              <option value="unused">Not linked to diagnostic knowledge</option>
+              <option value="unavailable">Referenced file unavailable</option>
+              <option value="draft">Draft changes pending</option>
+              <option value="retired">Archived</option>
+            </select>
+          </label>
+          <button class="btn btn--ghost md__clear" id="mdClear" type="button" hidden>Clear</button>
+        </div>
+
+        <p class="md__status" id="mdStatus" aria-live="polite"></p>
+        <div class="md__list" id="mdList"><div class="tac__muted">Loading…</div></div>
+        </div>
+        <div class="kn-page" id="mdDetailPage" hidden>
+          <a class="tx-back" id="mdBackLink" href="#media">← Back to Media</a>
+          <div class="admin__panel md__detail" id="mdDetail" hidden></div>
+        </div>
+        <div id="mdDialogs"></div>
+      </section>
+      <section class="admin__section" data-section="diagnostics" hidden>
+        <div class="dg">
+        <div class="dg-pagehead ac-pagehead">
+          <div class="dg-pagehead__copy">
+            <h1 class="admin__h1">Diagnostics</h1>
+            <p class="admin__lead">Inspect the deployed ApplianceClinic diagnostic system.</p>
+          </div>
+          <div class="dg-pagehead__actions">
+            <a class="btn btn--ghost" href="#test">Open Test</a>
+            <button class="btn btn--primary" id="dgRefresh" type="button" aria-label="Refresh diagnostics probes">Refresh</button>
+          </div>
+        </div>
+
+        <p class="dg__status" id="dgStatus" aria-live="polite">Loading deployed diagnostic evidence…</p>
+
+        <h2 class="admin__h2">System path</h2>
+        <ol class="dg-path">
+          <li>Customer request</li>
+          <li>WhichPart API — customer boundary</li>
+          <li>Orchestrator — routes the turn
+            <ul>
+              <li>Error-code identity or cue → Error Code MCP</li>
+              <li>Symptoms → Part Finder → RAG → Compose</li>
+              <li>Error code and symptoms → Error Code MCP and Part Finder together</li>
+            </ul>
+          </li>
+          <li>Customer view — reply, media and parts</li>
+        </ol>
+        <p class="dg-path__note">The browser never calls Part Finder or Error Code MCP directly.</p>
+
+        <h2 class="admin__h2">Deployed components</h2>
+        <div id="dgComponents" aria-busy="true"><div class="tac__muted">Loading…</div></div>
+
+        <details class="admin__panel dg-details">
+          <summary>Runtime configuration</summary>
+          <div id="dgRuntime"><div class="tac__muted">Loading…</div></div>
+        </details>
+        <details class="admin__panel dg-details">
+          <summary>Technical details</summary>
+          <div id="dgTechnical"><div class="tac__muted">Loading…</div></div>
+        </details>
+        </div>
+      </section>
+      <section class="admin__section" data-section="mcp" hidden>
+        <div id="ecListView">
+        <div class="ec-pagehead ac-pagehead">
+          <div class="ec-pagehead__copy">
+            <h1 class="admin__h1">Error Codes</h1>
+            <p class="admin__lead">Inspect and manage the error-code knowledge used by ApplianceClinic.</p>
+            <p class="ec-pagehead__note">This is the Error Code catalogue. Diagnostics reports whether the error-code service is running. Knowledge holds symptom/fault topics. Test runs live customer journeys.</p>
+          </div>
+          <div class="ec-pagehead__actions">
+            <a class="btn btn--primary" id="ecAdd" href="#error-codes/new"><svg class="ac-btnicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-plus"/></svg>Add error code</a>
+          </div>
+        </div>
+
+        <p class="ec__counts" id="ecCounts" aria-live="polite"></p>
+
+        <div class="ec__toolbar" role="search">
+          <label class="ec__filter ec__filter--search" for="ecSearch">Search
+            <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="ecSearch" class="ec__search" type="search" inputmode="search" placeholder="Codes, aliases, brands, meanings, sources…" autocomplete="off" /></span>
+          </label>
+          <label class="ec__filter" for="ecFamily">Appliance
+            <select id="ecFamily"><option value="">All appliances</option></select>
+          </label>
+          <label class="ec__filter" for="ecBrand">Brand
+            <select id="ecBrand"><option value="">All brands</option></select>
+          </label>
+          <label class="ec__filter" for="ecStatus">Status
+            <select id="ecStatus">
+              <option value="">All statuses</option>
+              <option value="active">Active (live)</option>
+              <option value="draft">Draft (not live)</option>
+              <option value="retired">Archived</option>
+            </select>
+          </label>
+          <label class="ec__filter" for="ecSource">Source
+            <select id="ecSource"><option value="">All sources</option></select>
+          </label>
+          <button class="btn btn--ghost ec__clear" id="ecClear" type="button" hidden>Clear</button>
+        </div>
+
+        <p class="ec__status" id="ecStatusLine" aria-live="polite"></p>
+        <div class="ec__list" id="ecList"><div class="tac__muted">Loading…</div></div>
+        </div>
+        <div class="kn-page" id="ecDetailPage" hidden>
+          <a class="tx-back" id="ecBackLink" href="#error-codes">← Back to Error Codes</a>
+          <div class="admin__panel ec__detail" id="ecDetail" hidden></div>
+        </div>
+        <div id="ecDialogs"></div>
+      </section>
+      <!-- Test — one coherent testing area: Live diagnostics, Scenarios, Batch -->
+      <section class="admin__section test" data-section="test" hidden>
+        <div class="test-pagehead ac-pagehead">
+          <h1 class="admin__h1">Test</h1>
+          <p class="admin__lead">Run ApplianceClinic manually, manage curated scenarios, and run them as a batch.</p>
+        </div>
+
+        <div class="test-tabs" role="tablist" aria-label="Testing tools">
+          <button type="button" role="tab" class="test-tab is-active" data-testtab="live" aria-selected="true" tabindex="0">Live test</button>
+          <button type="button" role="tab" class="test-tab" data-testtab="scenarios" aria-selected="false" tabindex="-1">Scenarios</button>
+          <button type="button" role="tab" class="test-tab" data-testtab="batch" aria-selected="false" tabindex="-1">Batch</button>
+        </div>
+
+        <!-- LIVE TEST — the modern live diagnostic workbench -->
+        <div class="test-panel tac" data-testtab="live" role="tabpanel">
+        <div class="wb-pagehead">
+          <div class="wb-pagehead__copy">
+            <h2 class="admin__h2">Live diagnostic test</h2>
+            <p class="admin__lead">Run a conversation through the live diagnostic system and inspect the result.</p>
+          </div>
+          <div class="wb-pagehead__actions">
+            <p class="wb-live"><span class="wb-live__dot" aria-hidden="true"></span><span>Live diagnostic system · production</span></p>
+            <button class="btn btn--ghost" id="wbNewTest" type="button" aria-describedby="wbState">New conversation</button>
+          </div>
+        </div>
+        <div class="test-impact" id="wbImpact">
+          <p class="test-impact__title">What a live test touches</p>
+          <ul class="test-impact__list">
+            <li>Each message goes to the <strong>production</strong> diagnostic system — the orchestrator, Part Finder, Error Code MCP and RAG — exactly as a customer message would, using the AI routing currently set in Settings.</li>
+            <li>Turns belong to one conversation: like a customer’s browser, the Live Test sends back the signed conversation-state token the API returned, so retained facts, identity and journey progress carry from turn to turn. The token stays in this browser tab only and is never shown. <strong>New conversation</strong> discards it.</li>
+            <li>No conversation transcript is saved and nothing in Knowledge, Error Codes, Media or Safety changes. The diagnostic engine keeps its usual time-limited conversation state, as it does for every caller.</li>
+          </ul>
+        </div>
+
+        <div class="wb" id="tacWorkbench">
+          <div class="wb-canvas">
+            <p class="wb-state" id="wbState" aria-live="polite" data-state="idle">Conversation state: Not started</p>
+            <div class="wb-thread" id="wbThread" role="log" aria-live="polite" aria-relevant="additions" aria-label="Test conversation"></div>
+            <div class="wb-error" id="wbError" hidden role="alert">
+              <p class="wb-error__title">The live diagnostic request failed</p>
+              <p class="wb-error__text" id="wbErrorText"></p>
+              <p class="wb-error__tech" id="wbErrorTech"></p>
+              <button class="btn btn--primary" id="wbRetry" type="button">Retry last message</button>
+            </div>
+            <div class="wb-stateproblem" id="wbStateProblem" role="alert" tabindex="-1" hidden>
+              <p class="wb-stateproblem__title">Conversation state problem</p>
+              <p class="wb-stateproblem__text" id="wbStateProblemText"></p>
+              <div class="wb-stateproblem__actions">
+                <button class="btn btn--primary" id="wbStateNew" type="button">Start new conversation</button>
+                <button class="btn btn--ghost" id="wbStateContinue" type="button">Continue on the new session</button>
+              </div>
+            </div>
+            <div class="wb-summary" id="wbSummary" hidden></div>
+            <div class="wb-preview" id="wbPreview" hidden>
+              <img id="wbPreviewImg" alt="Photo ready to send" />
+              <button class="btn btn--ghost" id="wbPreviewRemove" type="button">Remove photo</button>
+            </div>
+            <form class="wb-composer" id="wbForm">
+              <label class="wb-composer__label" for="wbInput">Customer message</label>
+              <textarea class="wb-composer__input" id="wbInput" name="customer-message" rows="2" placeholder="my bosch washer wont drain" autocomplete="off"></textarea>
+              <div class="wb-composer__actions">
+                <input id="wbFile" type="file" accept="image/*" hidden />
+                <button class="btn btn--ghost" id="wbPhoto" type="button">Attach photo</button>
+                <button class="btn btn--ghost" id="wbLoadScenario" type="button">Load test scenario</button>
+                <button class="btn btn--primary" id="wbSend" type="submit">Send</button>
+              </div>
+              <p class="wb-scenario" id="wbScenarioChip" hidden></p>
+              <div class="wb-nextturns" id="wbNextTurns" hidden></div>
+            </form>
+          </div>
+        </div>
+
+        <details class="admin__panel wb-inspect" id="wbInspect">
+          <summary>Diagnostic details</summary>
+          <div class="wb-inspect__body" id="wbInspectBody">
+            <p class="tac__muted">Send a message to inspect what the live system returned.</p>
+          </div>
+        </details>
+
+        <details class="admin__panel wb-raw" id="wbRaw">
+          <summary>Technical payload</summary>
+          <div class="wb-raw__body" id="wbRawBody">
+            <p class="tac__muted">Request and response payloads appear here after a turn. Image bytes are redacted.</p>
+          </div>
+        </details>
+
+        <div class="wb-dialog" id="wbScenarioDlg" hidden>
+          <div class="wb-dialogcard" role="dialog" aria-modal="true" aria-labelledby="wbScenarioTitle">
+            <h2 class="admin__h2" id="wbScenarioTitle">Load test scenario</h2>
+            <p class="tac__note">This fills the composer with the scenario opening. You still send it as a manual test. Later customer turns appear as suggested next messages — they are not submitted automatically.</p>
+            <label class="wb-field" for="wbScenarioQ">Search scenarios</label>
+            <input class="wb-field__input" id="wbScenarioQ" type="search" />
+            <div class="wb-scenariolist" id="wbScenarioList"><div class="tac__muted">Loading…</div></div>
+            <div class="tac__dialogactions">
+              <button class="btn btn--ghost" id="wbScenarioCancel" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- /Live test panel -->
+
+        <!-- SCENARIOS — curated customer situations for deliberate probing -->
+        <div class="test-panel cts" data-testtab="scenarios" role="tabpanel" hidden>
+          <div id="libListView">
+          <div class="cts-pagehead">
+            <div class="cts-pagehead__copy">
+              <h2 class="admin__h2">Scenarios</h2>
+              <p class="admin__lead">Curated customer situations for probing ApplianceClinic.</p>
+            </div>
+            <div class="cts-pagehead__actions">
+              <button class="btn btn--primary cts__new" id="libNew" type="button">+ New scenario</button>
+            </div>
+          </div>
+
+          <div class="cts__toolbar">
+            <label class="cts__filter cts__filter--search" for="libSearch">Search
+              <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="libSearch" class="cts__search" type="search" inputmode="search" placeholder="Name, appliance, or what the customer says" autocomplete="off" /></span>
+            </label>
+            <label class="cts__filter" for="libFamily">Appliance
+              <select id="libFamily"><option value="">All appliances</option></select>
+            </label>
+            <label class="cts__filter" for="libCategory">Coverage
+              <select id="libCategory"><option value="">All coverage</option></select>
+            </label>
+            <label class="cts__chk" for="libArchived"><input type="checkbox" id="libArchived"> Include retired</label>
+          </div>
+
+          <p class="test-status" id="libStatus" role="status" aria-live="polite" hidden></p>
+          <p class="cts__count" id="libCount" aria-live="polite"></p>
+          <div class="cts__list" id="libTableBody"><div class="tac__muted">Loading…</div></div>
+          </div><!-- /libListView -->
+
+          <!-- Scenario detail / editor: its own page (#test/scenario/<id>, ?view=edit, #test/scenario/new) -->
+          <div class="test-page" id="libDetailPage" hidden>
+            <a class="tx-back" id="libBackLink" href="#test?tab=scenarios">← Back to scenarios</a>
+            <p class="test-status" id="libDetailStatus" role="status" aria-live="polite" hidden></p>
+            <div class="admin__panel cts__detail" id="libDetail" hidden></div>
+            <div class="admin__panel lib__editor" id="libEditor" hidden></div>
+          </div>
+        </div><!-- /Scenarios panel -->
+
+        <!-- BATCH — one authoritative batch surface over the shared runner -->
+        <div class="test-panel tac" data-testtab="batch" role="tabpanel" hidden>
+          <div id="tacListView">
+          <p class="admin__lead">Run curated scenarios as a batch through the shared test runner, then review the results. This is not GOLD and does not admit scenarios to GOLD.</p>
+
+          <!-- Production routing override: which batch run (if any) owns live AI routing right now. -->
+          <div class="tac-override" id="tacOverride" role="status" aria-live="polite" hidden></div>
+
+          <div class="test-impact test-impact--warn" id="tacImpact">
+            <p class="test-impact__title">Batch runs affect production while they run</p>
+            <ul class="test-impact__list">
+              <li>The test runner sends every scenario to the <strong>production</strong> ApplianceClinic API.</li>
+              <li>For the whole run it switches the <strong>live AI routing</strong> (Settings → AI configuration) to the run's setup. Real customer conversations during the run use that same routing — including OpenAI for a frontier experiment.</li>
+              <li>Only the fields the run needs are changed (COMPOSE routing / model). The exact pre-run configuration is saved first and restored — and verified — when the run completes, fails, times out or is cancelled. If the configuration was changed by someone else meanwhile, it is not overwritten: the run reports a restore conflict for an admin to resolve.</li>
+              <li>One run at a time may own live routing. Settings blocks diagnostic-inference changes while a run owns it. Both the temporary change and the restore appear in Settings change history.</li>
+              <li>Runs never save customer conversation transcripts. Results and engineer reviews are stored with the test history only.</li>
+            </ul>
+          </div>
+
+          <div class="test-batchbar">
+            <p class="cts__batchcount" id="libBatchCount">No scenarios selected.</p>
+            <button class="btn btn--primary" id="libRunSelected" type="button">Run selected scenarios</button>
+            <span class="test-batchbar__hint">Tick scenarios in the Scenarios tab, then run them here.</span>
+          </div>
+          <p class="test-status" id="tacStatusMsg" role="status" aria-live="polite" hidden></p>
+
+          <div class="tac__status" id="tacStatus">
+            <div class="tac__statuscard" id="tacSetup">
+              <div class="tac__statustitle">Current AI setup</div>
+              <div class="tac__setuprows" id="tacSetupRows"><div class="tac__muted">Loading…</div></div>
+            </div>
+          </div>
+
+          <div class="tac__ready-banner" id="tacReady" role="status">
+            <span class="tac__readyicon" aria-hidden="true">✓</span>
+            <span class="tac__readytext"><b id="tacReadyTitle">Ready to test</b><span id="tacReadyMsg">Private AI is configured. Choose a test below to get started.</span></span>
+          </div>
+
+          <div class="tac__actions" id="tacActions">
+            <button class="tac__task" id="taskQuick" type="button">
+              <span class="tac__taskname">Quick check</span>
+              <span class="tac__taskdesc">10 representative customer scenarios. Use after a small change.</span>
+              <span class="tac__taskmeta">Private AI · Fast Check</span>
+              <span class="tac__taskcta">Set up quick check →</span>
+            </button>
+            <button class="tac__task" id="taskFocused" type="button">
+              <span class="tac__taskname">Focused test</span>
+              <span class="tac__taskdesc">Concentrate on one area — Safety, Error Codes, Normal Behaviour or an appliance.</span>
+              <span class="tac__taskmeta">25 scenarios · Private AI</span>
+              <span class="tac__taskcta">Choose focus →</span>
+            </button>
+            <button class="tac__task" id="taskFull" type="button">
+              <span class="tac__taskname">Full local test</span>
+              <span class="tac__taskdesc">All approved scenarios. Use before a significant release.</span>
+              <span class="tac__taskmeta">Private AI · Fast Check</span>
+              <span class="tac__taskcta">Set up full test →</span>
+            </button>
+            <button class="tac__task" id="taskCustom" type="button">
+              <span class="tac__taskname">Custom test</span>
+              <span class="tac__taskdesc">Build your own test set — choose areas, appliances, size and checking.</span>
+              <span class="tac__taskmeta">You choose</span>
+              <span class="tac__taskcta">Build custom test →</span>
+            </button>
+          </div>
+
+          <div class="admin__panel tac__builder" id="tacBuilder" hidden></div>
+          <div class="admin__panel tac__summary" id="tacSummary" hidden></div>
+          <div class="admin__panel tac__running" id="tacRunning" hidden></div>
+
+          <details class="admin__panel tac__adv" id="tacAdvanced">
+            <summary>Advanced &amp; technical</summary>
+            <div class="tac__advbody" id="tacAdvBody">
+              <button class="btn btn--ghost" id="tacFrontierStart" type="button">Compare with Frontier AI (new experiment)</button>
+              <div class="tac__frontier" id="tacFrontier" hidden></div>
+              <div class="tac__techdetails" id="tacTechDetails"></div>
+            </div>
+          </details>
+
+          <div class="admin__panel tac__history">
+            <div class="tac__sectionhead"><h2 class="admin__h2">Past tests</h2><span class="tac__hint" id="tacHistHint">Pick two to compare.</span></div>
+            <div class="tac__historylist" id="tacHistoryList"><div class="tac__muted">Loading…</div></div>
+            <div class="tac__historyactions"><button class="btn btn--primary" id="tacCompareBtn" type="button" disabled>Compare selected</button></div>
+          </div>
+
+          <div class="admin__panel tac__compare" id="tacCompare" hidden></div>
+
+          <div class="tac__dialog" id="tacConfirm" hidden>
+            <div class="tac__dialogcard" role="dialog" aria-modal="true" aria-labelledby="tacConfirmTitle">
+              <h2 class="admin__h2" id="tacConfirmTitle">Confirm paid experiment</h2>
+              <div id="tacConfirmBody"></div>
+              <div class="tac__dialogactions">
+                <button class="btn btn--ghost" id="tacConfirmCancel" type="button">Cancel</button>
+                <button class="btn btn--primary" id="tacConfirmGo" type="button">Confirm paid experiment</button>
+              </div>
+            </div>
+          </div>
+          </div><!-- /tacListView -->
+
+          <!-- Run result / scenario conversation: its own page (#test/run/<runId>, ?journey=<scenarioId>) -->
+          <div class="test-page" id="tacDetailPage" hidden>
+            <a class="tx-back" id="tacBackLink" href="#test?tab=batch">← Back to batch</a>
+            <p class="test-status" id="tacDetailStatus" role="status" aria-live="polite" hidden></p>
+            <div class="admin__panel tac__result" id="tacResult" hidden></div>
+            <div class="admin__panel tac__conversation" id="tacConversation" hidden></div>
+          </div>
+        </div><!-- /Batch panel -->
+      </section>
+
+      <section class="admin__section" data-section="safety" hidden>
+        <div class="si">
+        <div id="siListView">
+        <div class="si-pagehead ac-pagehead">
+          <div class="si-pagehead__copy">
+            <h1 class="admin__h1">Safety</h1>
+            <p class="admin__lead">Show where ApplianceClinic’s official product-safety data comes from, whether ingestion is healthy, what the latest ingest did, and run the same production ingest as the daily schedule.</p>
+            <p class="si-pagehead__note">This is not the public Recall Centre and not diagnosis. Official notice content is never edited here: Admin only decides whether a notice is listed and under which appliance family, and that decision reaches customers only when published. Matching and eligibility stay as shipped.</p>
+          </div>
+          <div class="si-pagehead__actions">
+            <a class="btn btn--ghost" href="/recalls/" target="_blank" rel="noopener noreferrer">Open Recall Centre</a>
+            <button class="btn btn--ghost" id="siRefresh" type="button">Refresh</button>
+            <button class="btn btn--primary" id="siRun" type="button">Run ingest</button>
+          </div>
+        </div>
+
+        <div class="test-tabs si-tabs" role="tablist" aria-label="Safety area">
+          <button type="button" role="tab" class="test-tab is-active" id="siTabIngest" data-sitab="ingest" aria-selected="true" aria-controls="siIngestTab">Ingest</button>
+          <button type="button" role="tab" class="test-tab" id="siTabNotices" data-sitab="notices" aria-selected="false" aria-controls="siNoticesTab">Recall notices</button>
+        </div>
+        <div id="siNoticesTab" role="tabpanel" aria-labelledby="siTabNotices" hidden>
+          <div class="si-toolbar" role="search">
+            <label class="si-filter si-filter--search" for="rcSearch">Search
+              <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="rcSearch" type="search" inputmode="search" placeholder="Title, brand, model, PSD number…" autocomplete="off" /></span>
+            </label>
+            <label class="si-filter" for="rcState">Status
+              <select id="rcState">
+                <option value="published">Listed (customer-facing)</option>
+                <option value="draft">Draft decision pending</option>
+                <option value="review">Held for review</option>
+                <option value="archived">Archived</option>
+                <option value="withdrawn">Withdrawn by OPSS</option>
+                <option value="excluded">Out of scope</option>
+                <option value="all">All notices</option>
+              </select>
+            </label>
+            <label class="si-filter" for="rcFamily">Appliance
+              <select id="rcFamily"><option value="">All appliances</option></select>
+            </label>
+            <label class="si-filter" for="rcSourceType">Notice type
+              <select id="rcSourceType">
+                <option value="">All types</option>
+                <option value="recall">Product recall</option>
+                <option value="safety_report">Product safety report</option>
+                <option value="safety_alert">Product safety alert</option>
+              </select>
+            </label>
+            <button class="btn btn--ghost" id="rcClear" type="button" hidden>Clear</button>
+          </div>
+          <p class="si__status" id="rcStatusLine" aria-live="polite"></p>
+          <div class="si-notices" id="rcList"><div class="tac__muted">Loading…</div></div>
+        </div>
+        <div id="siIngestTab" role="tabpanel" aria-labelledby="siTabIngest">
+        <p class="si__status" id="siLive" aria-live="polite">Loading ingest status…</p>
+
+        <section class="admin__panel si-section" aria-labelledby="siStatusTitle">
+          <h2 class="admin__h2" id="siStatusTitle">Current status</h2>
+          <div id="siStatusBody"><div class="tac__muted">Loading…</div></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siSourceTitle">
+          <h2 class="admin__h2" id="siSourceTitle">Official source</h2>
+          <p class="admin__lead">ApplianceClinic does not issue recalls. Notices come from the UK Office for Product Safety and Standards via GOV.UK.</p>
+          <div id="siSourceBody"></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siLatestTitle">
+          <h2 class="admin__h2" id="siLatestTitle">Latest ingest</h2>
+          <div id="siLatestBody"><div class="tac__muted">Loading…</div></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siPipeTitle">
+          <h2 class="admin__h2" id="siPipeTitle">Pipeline this run</h2>
+          <p class="admin__lead">Counts are from the ingest implementation. Empty daily windows are normal when OPSS has no new candidates.</p>
+          <div id="siPipeBody"></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siRejTitle">
+          <h2 class="admin__h2" id="siRejTitle">Filtered / rejected</h2>
+          <div id="siRejBody"></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siPubTitle">
+          <h2 class="admin__h2" id="siPubTitle">Published dataset</h2>
+          <p class="admin__lead">What customers currently use on the Recall Centre and <code>/api/recalls</code>.</p>
+          <div id="siPubBody"></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siMatchTitle">
+          <h2 class="admin__h2" id="siMatchTitle">Matching contract</h2>
+          <p class="admin__lead">Read-only. This page cannot change lookup behaviour.</p>
+          <div id="siMatchBody"></div>
+        </section>
+
+        <section class="admin__panel si-section" aria-labelledby="siHistTitle">
+          <h2 class="admin__h2" id="siHistTitle">Ingest history</h2>
+          <div id="siHistBody"></div>
+        </section>
+
+        <details class="admin__panel si-section si-tech">
+          <summary>Technical details</summary>
+          <div id="siTechBody"></div>
+        </details>
+        </div>
+        </div>
+        <div class="kn-page" id="siDetailPage" hidden>
+          <a class="tx-back" id="siBackLink" href="#safety?tab=notices">← Back to recall notices</a>
+          <div class="admin__panel si__detail" id="siDetail" hidden></div>
+        </div>
+
+        <dialog class="si-dlg" id="siConfirmDlg" aria-labelledby="siConfirmTitle">
+          <form method="dialog" class="si-dlg__form">
+            <h2 class="admin__h2" id="siConfirmTitle">Confirm production ingest</h2>
+            <p id="siConfirmBody"></p>
+            <div class="si-dlg__actions">
+              <button class="btn btn--ghost" id="siConfirmNo" value="cancel" type="submit">Cancel</button>
+              <button class="btn btn--primary" id="siConfirmYes" type="button">Run ingest</button>
+            </div>
+          </form>
+        </dialog>
+        </div>
+      </section>
+
+      <section class="admin__section" data-section="settings" hidden>
+        <div class="st">
+        <div class="st-pagehead ac-pagehead">
+          <div class="st-pagehead__copy">
+            <h1 class="admin__h1">Settings</h1>
+            <p class="admin__lead">Show the configurable behaviour ApplianceClinic is actually using, where each value comes from, and change only the settings that are meant to be administrator-controlled.</p>
+            <p class="st-pagehead__note">General settings are shown first. Controls that affect live diagnosis are fenced under Advanced at the bottom. Datasets stay on their own pages. Credentials are never shown.</p>
+          </div>
+          <div class="st-pagehead__actions">
+            <a class="btn btn--ghost" href="#diagnostics">Open Diagnostics</a>
+            <button class="btn btn--primary" id="stRefresh" type="button">Refresh</button>
+          </div>
+        </div>
+
+        <p class="st__status" id="stStatus" aria-live="polite">Loading configuration…</p>
+
+        <!-- GENERAL — calm, operator-safe operational settings -->
+        <div class="st-group" id="stGeneral">
+          <h2 class="st-group__h">General</h2>
+
+          <section class="admin__panel st-section" id="txRetentionPanel" aria-labelledby="stTxTitle">
+            <h2 class="admin__h2" id="stTxTitle">Conversations</h2>
+            <p class="admin__lead">Anonymous production conversations are kept only long enough to review product quality. This is read-only operational policy — not a compliance console.</p>
+            <div id="txRetentionBody"><div class="tac__muted">Loading…</div></div>
+          </section>
+
+          <section class="admin__panel st-section" aria-labelledby="stConvTitle">
+            <h2 class="admin__h2" id="stConvTitle">Conversation</h2>
+            <div id="stConversationBody"></div>
+          </section>
+
+          <section class="admin__panel st-section" aria-labelledby="stElseTitle">
+            <h2 class="admin__h2" id="stElseTitle">Managed elsewhere</h2>
+            <ul class="st-else" id="stElsewhere"></ul>
+          </section>
+        </div>
+
+        <!-- AI & RUNTIME — read-only model/runtime information, not dangerous -->
+        <div class="st-group" id="stAiRuntime">
+          <h2 class="st-group__h">AI &amp; runtime</h2>
+
+          <section class="admin__panel st-section" aria-labelledby="stRtTitle">
+            <h2 class="admin__h2" id="stRtTitle">Runtime status</h2>
+            <p class="admin__lead">Deployment-managed values that shape every conversation. Read only — they change only with a deployment.</p>
+            <div id="stRuntimeStatus"><div class="tac__muted">Loading…</div></div>
+          </section>
+
+          <section class="admin__panel st-section" aria-labelledby="stInvTitle">
+            <h2 class="admin__h2" id="stInvTitle">What each setting does</h2>
+            <p class="admin__lead">Every value Settings manages, traced to the code that reads it: current and default value, when a change takes effect, and whether it changes live customer diagnosis. Editing happens under Advanced.</p>
+            <div id="stInventory"><div class="tac__muted">Loading…</div></div>
+          </section>
+
+          <section class="admin__panel st-section" aria-labelledby="stRevTitle">
+            <h2 class="admin__h2" id="stRevTitle">Production review</h2>
+            <p class="admin__lead">How ApplianceClinic reviews production conversations. These values are read-only and set at deployment.</p>
+            <div id="stReviewBody"></div>
+          </section>
+
+          <details class="admin__panel st-details">
+            <summary>Read-only system configuration</summary>
+            <div id="stTechnical"></div>
+          </details>
+        </div>
+
+        <!-- ADVANCED — fenced, collapsed; high-impact live-runtime controls -->
+        <details class="st-advanced" id="stAdvanced">
+          <summary class="st-advanced__summary">
+            <span class="st-advanced__title">Advanced — affects live diagnosis</span>
+            <span class="st-advanced__tag">Developer / live runtime</span>
+          </summary>
+          <p class="st-advanced__warn" role="note">Changes here affect live ApplianceClinic diagnostic traffic. Existing confirmations, write-only credentials and version checks still apply.</p>
+
+          <section class="admin__panel st-section" aria-labelledby="stInfTitle">
+            <div class="st-section__head">
+              <div>
+                <h2 class="admin__h2" id="stInfTitle">Diagnostic inference</h2>
+                <p class="admin__lead">UNDERSTAND and COMPOSE for new customer diagnoses. Saved values become live within about one minute.</p>
+              </div>
+              <button class="btn btn--primary" id="stEditInference" type="button">Edit</button>
+            </div>
+            <p class="st-meta" id="stInfMeta"></p>
+            <p class="st-note" id="stInfStore" hidden></p>
+            <div class="st-override" id="stOverride" role="status" aria-live="polite" hidden></div>
+            <p class="kn-notice" id="stApplyNotice" tabindex="-1" role="status" aria-live="polite" hidden></p>
+            <div class="st-cards" id="stInfCards"></div>
+            <dl class="st-dl st-dl--compact" id="stInfExtras"></dl>
+            <div class="st-actions">
+              <button class="btn btn--ghost" id="stTestLocal" type="button">Check Private AI connection</button>
+              <button class="btn btn--ghost" id="stTestFrontier" type="button">Check OpenAI connection</button>
+              <button class="btn btn--ghost" id="stOpenKey" type="button">Add OpenAI credential</button>
+              <span class="st-result" id="stTestResult" role="status"></span>
+            </div>
+            <p class="st-hint">Connection checks are read-only: they use the saved configuration and never change it.</p>
+            <details class="st-details st-history" id="stHistory">
+              <summary>Change history — diagnostic inference</summary>
+              <p class="st-note" id="stUnaudited"></p>
+              <div id="stHistoryBody"></div>
+              <h3 class="st-row__title">OpenAI credential</h3>
+              <div id="stKeyHistoryBody"></div>
+            </details>
+          </section>
+
+          <section class="admin__panel st-section" aria-labelledby="stJevTitle">
+            <div class="st-section__head">
+              <div>
+                <h2 class="admin__h2" id="stJevTitle">Jev UNDERSTAND</h2>
+                <p class="admin__lead">TypeSafe Jev via Cloudflare interprets customer meaning before retrieval. The API token is write-only and is never shown.</p>
+              </div>
+              <button class="btn btn--primary" id="stEditJev" type="button">Configure Jev</button>
+            </div>
+            <p class="st-note" id="stJevStore" hidden></p>
+            <div id="stJevBody"></div>
+            <div class="st-actions">
+              <button class="btn btn--ghost" id="stTestJev" type="button">Test Jev connection</button>
+              <span class="st-result" id="stJevTestResult" role="status"></span>
+            </div>
+            <details class="st-details st-history" id="stJevHistory">
+              <summary>Change history — Jev UNDERSTAND</summary>
+              <div id="stJevHistoryBody"></div>
+            </details>
+          </section>
+        </details>
+
+        <dialog class="st-dlg" id="stEditDlg" aria-labelledby="stEditTitle">
+          <form method="dialog" class="st-dlg__form" id="stEditForm">
+            <h2 class="admin__h2" id="stEditTitle">Edit diagnostic inference</h2>
+            <p class="admin__lead">Edit locally, then review. Nothing is written until you apply the change on the review step. This changes the COMPOSE model used for new ApplianceClinic diagnoses. UNDERSTAND is TypeSafe Jev and is configured in the Jev UNDERSTAND section. In-flight conversations keep their current providers.</p>
+            <p class="st-note">UNDERSTAND is TypeSafe Jev via Cloudflare (model typesafe/jev). Configure the Cloudflare account and write-only token in Jev UNDERSTAND.</p>
+            <fieldset class="st-fieldset">
+              <legend>COMPOSE</legend>
+              <div class="st-choices" role="radiogroup" aria-label="COMPOSE provider">
+                <label><input type="radio" name="stCompose" value="local" /> Private AI</label>
+                <label id="stComposeFrontierLabel"><input type="radio" name="stCompose" value="frontier" /> OpenAI</label>
+              </div>
+            </fieldset>
+            <p class="st-lock" id="stFrontierLock" hidden>OpenAI routing needs a saved API key.</p>
+            <label class="st-field" for="stLocalModel">Private AI model
+              <input id="stLocalModel" type="text" list="stLocalModelsList" placeholder="Leave blank to use the loaded model" />
+              <datalist id="stLocalModelsList"></datalist>
+              <span class="st-hint">Blank uses whichever model is loaded in LM Studio.</span>
+            </label>
+            <label class="st-field" for="stFrontierModel">OpenAI model
+              <input id="stFrontierModel" type="text" list="stFrontierModelsList" placeholder="Required if a step uses OpenAI" />
+              <datalist id="stFrontierModelsList"></datalist>
+            </label>
+            <details class="st-adv">
+              <summary>Advanced Private AI endpoint</summary>
+              <label class="st-field" for="stLocalEndpoint">Custom address
+                <input id="stLocalEndpoint" type="text" placeholder="Leave blank to use the deployed default" />
+                <span class="st-hint">Only if Private AI runs at a custom address. The deployed default is not shown here.</span>
+              </label>
+            </details>
+            <p class="st-result" id="stEditErr" role="alert"></p>
+            <div class="st-dlg__actions">
+              <button class="btn btn--ghost" id="stEditCancel" value="cancel" type="submit">Cancel</button>
+              <button class="btn btn--primary" id="stEditSave" type="button">Review change…</button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog class="st-dlg" id="stConfirmDlg" aria-labelledby="stConfirmTitle">
+          <form method="dialog" class="st-dlg__form">
+            <h2 class="admin__h2" id="stConfirmTitle">Review and apply diagnostic change</h2>
+            <div id="stConfirmBody"></div>
+            <label class="st-field" for="stChangeNote">Change reason <span id="stChangeNoteReq">(required — this changes live diagnosis)</span>
+              <textarea id="stChangeNote" rows="2" maxlength="300" aria-describedby="stChangeNoteHelp"></textarea>
+              <span class="st-hint" id="stChangeNoteHelp">5–300 characters. Stored in the change history with your name; never shown to customers.</span>
+            </label>
+            <p class="st-result" id="stConfirmErr" role="alert"></p>
+            <div class="st-dlg__actions">
+              <button class="btn btn--ghost" id="stConfirmNo" value="cancel" type="submit">Back to edit</button>
+              <button class="btn btn--ghost" id="stConflictReload" type="button" hidden>Reload settings</button>
+              <button class="btn btn--primary" id="stConfirmYes" type="button">Apply change</button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog class="st-dlg" id="stKeyDlg" aria-labelledby="stKeyTitle">
+          <form method="dialog" class="st-dlg__form" id="stKeyForm">
+            <h2 class="admin__h2" id="stKeyTitle">OpenAI credential</h2>
+            <p class="admin__lead">The key is stored securely and is never shown again. Leave this closed unless you need to add or replace it.</p>
+            <p class="st-note" id="stKeyImpact"></p>
+            <label class="st-field" for="stFrontierKey">API key
+              <input id="stFrontierKey" type="password" autocomplete="new-password" data-1p-ignore="" placeholder="Paste a new key to replace the stored one" />
+            </label>
+            <p class="st-result" id="stKeyResult" role="status"></p>
+            <div class="st-dlg__actions">
+              <button class="btn btn--ghost" value="cancel" type="submit">Cancel</button>
+              <button class="btn btn--primary" id="stSaveKey" type="button">Save key</button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog class="st-dlg" id="stJevDlg" aria-labelledby="stJevDlgTitle">
+          <form method="dialog" class="st-dlg__form" id="stJevForm" autocomplete="off">
+            <h2 class="admin__h2" id="stJevDlgTitle">Jev UNDERSTAND</h2>
+            <p class="admin__lead">Provider TypeSafe Jev via Cloudflare, model typesafe/jev. The API token is stored securely and is never shown again. Leave the token blank to keep the stored credential.</p>
+            <label class="st-field" for="stJevAccountId">Cloudflare Account ID
+              <input id="stJevAccountId" type="text" autocomplete="off" placeholder="Cloudflare account ID" />
+            </label>
+            <label class="st-field" for="stJevToken">API token
+              <input id="stJevToken" type="password" autocomplete="new-password" data-1p-ignore="" placeholder="Paste a new token to replace the stored one" />
+              <span class="st-hint">Blank keeps the existing credential. A replacement token is never shown again.</span>
+            </label>
+            <label class="st-field" for="stJevGatewayId">Gateway ID (optional)
+              <input id="stJevGatewayId" type="text" autocomplete="off" placeholder="Leave blank if you are not using AI Gateway" />
+            </label>
+            <p class="st-note st-warn" role="note">High impact: Jev interprets every live customer message. A wrong account, gateway or token makes new customer turns fail UNDERSTAND. Takes effect within about 1 minute.</p>
+            <label class="st-field" for="stJevNote">Change reason (required)
+              <textarea id="stJevNote" rows="2" maxlength="300"></textarea>
+              <span class="st-hint">5–300 characters. Stored in the Jev change history with your name.</span>
+            </label>
+            <p class="st-result" id="stJevSaveResult" role="status"></p>
+            <div class="st-dlg__actions">
+              <button class="btn btn--ghost" value="cancel" type="submit">Cancel</button>
+              <button class="btn btn--primary" id="stSaveJev" type="button">Save Jev configuration</button>
+            </div>
+          </form>
+        </dialog>
+        </div>
+      </section>
+    </main>
+    <div class="admin__scrim" id="adminScrim" aria-hidden="true"></div>
+    <!-- Unsaved Knowledge edits: shown when leaving the Knowledge editor from inside Admin. -->
+    <dialog class="st-dlg kn-leave-dlg" id="knLeaveDlg" aria-labelledby="knLeaveTitle" aria-describedby="knLeaveBody">
+      <div class="st-dlg__form">
+        <h2 class="admin__h2" id="knLeaveTitle">Leave without saving?</h2>
+        <p id="knLeaveBody">You have unsaved changes. If you leave now they will be lost. Your saved draft and the live content are not affected.</p>
+        <div class="st-dlg__actions">
+          <button class="btn btn--ghost kn-danger" id="knLeaveGo" type="button">Leave without saving</button>
+          <button class="btn btn--primary" id="knLeaveStay" type="button">Stay on this page</button>
+        </div>
+      </div>
+    </dialog>
+  </div>
+
+  <script src="chat-session.js?v=3"></script>
+  <script src="tac-logic.js?v=1"></script>
+  <script src="tac-workbench.js?v=2"></script>
+  <script src="cts-logic.js?v=1"></script>
+  <script src="kn-logic.js?v=5"></script>
+  <script src="md-logic.js?v=3"></script>
+  <script src="dg-logic.js?v=1"></script>
+  <script src="ec-logic.js?v=3"></script>
+  <script src="st-logic.js?v=5"></script>
+  <script src="si-logic.js?v=1"></script>
+  <script src="admin.js?v=57"></script>
+</body>
+</html>

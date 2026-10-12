@@ -65,7 +65,7 @@ lines into an orange box are the only places a model is used.
 
 | Component | Code | Runs as | Owns |
 |---|---|---|---|
-| **AC site** | Not in this repository: the static site is still published from the original monorepo (`apps/whichpart`) | Static files in S3 `whichpart-web-<account>` behind CloudFront | Customer chat UI, admin UI |
+| **AC site** | `apps/web` (plain HTML/CSS/JS; [README](../../apps/web/README.md)) | Static files in S3 `whichpart-web-<account>` behind CloudFront, deployed by `apps/web/scripts/deploy.mjs` | Customer chat UI, admin UI, help pages, recall search. Talks only to the same-origin `/api`; admin sign-in goes through the BFF to the AC Cognito pool |
 | **BFF** (`whichpart-api`) | `services/whichpart-api` | Lambda zip, Function URL, CloudFront `/api*` origin | Customer turns, AC sign-in, admin, scheduled jobs, canonical session state, transcripts, shop links |
 | **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` (arm64) | Turn control: scope, routing, canonical control, non-journey outcomes, safety, identity. No language model. No conversation state of its own: each turn is built from the request and seeded from the cs/1 block ([ADR 0014](../adr/0014-cs1-is-the-only-conversation-state.md)). Reviewed in [orchestrator-review.md](orchestrator-review.md) |
 | **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` (arm64) | Error-code tools (MCP over HTTP), error-code admin catalogue |

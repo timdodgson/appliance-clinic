@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- WebMCP Chrome Origin Trial token for https://applianceclinic.ai. scripts/build.mjs substitutes the
+       placeholder below with WEBMCP_ORIGIN_TRIAL_TOKEN (scripts/deploy.mjs carries over the token already live),
+       and removes the line when no token is given, so browsers never see an invalid token. The token is public by
+       design (served in the page) but is not committed. -->
+  <meta http-equiv="origin-trial" content="__WEBMCP_ORIGIN_TRIAL_TOKEN__" />
+  <!-- Narrow CSP: only trusted, privacy-enhanced YouTube may be framed (embedded instructional
+       video). No arbitrary iframes. Other resource types are unaffected (no default-src). -->
+  <meta http-equiv="Content-Security-Policy" content="frame-src https://www.youtube-nocookie.com;" />
+  <title>ApplianceClinic — UK appliance fault diagnosis</title>
+  <meta name="description" content="Describe your appliance problem in your own words. Independent UK diagnosis: likely cause, simple safe checks, and a replacement part only if one is justified." />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ApplianceClinic" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="canonical" href="https://applianceclinic.ai/" />
+
+  <!-- Favicons / app icons (SVG favicon is production-grade; PNG maskable icons for installability) -->
+  <link rel="icon" type="image/svg+xml" href="assets/applianceclinic-mark.svg?v=3" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/applianceclinic-icon-192.png?v=2" />
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/applianceclinic-icon-512.png?v=2" />
+  <link rel="apple-touch-icon" href="assets/applianceclinic-icon-180.png?v=2" />
+  <link rel="mask-icon" href="assets/applianceclinic-mark.svg?v=3" color="#3d5c47" />
+  <link rel="manifest" href="site.webmanifest?v=5" />
+
+  <!-- Social / sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:url" content="https://applianceclinic.ai/" />
+  <meta property="og:site_name" content="ApplianceClinic" />
+  <meta property="og:title" content="ApplianceClinic — UK appliance fault diagnosis" />
+  <meta property="og:description" content="Describe your appliance problem in your own words. Independent UK diagnosis, simple safe checks, and a replacement part only if one is justified." />
+  <meta property="og:image" content="https://applianceclinic.ai/assets/applianceclinic-og.png?v=1" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ApplianceClinic — independent UK appliance fault diagnosis" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ApplianceClinic — UK appliance fault diagnosis" />
+  <meta name="twitter:description" content="Independent UK appliance diagnosis. Describe the problem in your own words. Parts only if needed." />
+  <meta name="twitter:image" content="https://applianceclinic.ai/assets/applianceclinic-og.png?v=1" />
+  <meta name="twitter:image:alt" content="ApplianceClinic — independent UK appliance fault diagnosis" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://applianceclinic.ai/#website",
+        "url": "https://applianceclinic.ai/",
+        "name": "ApplianceClinic",
+        "alternateName": "Appliance Clinic",
+        "inLanguage": "en-GB",
+        "description": "Independent UK consumer service for household appliance fault diagnosis.",
+        "publisher": { "@id": "https://applianceclinic.ai/#organization" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://applianceclinic.ai/#organization",
+        "name": "ApplianceClinic",
+        "url": "https://applianceclinic.ai/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://applianceclinic.ai/assets/applianceclinic-icon-512.png?v=1"
+        },
+        "description": "Independent UK consumer appliance diagnosis. Diagnose first; suggest a replacement part only if one is justified."
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css?v=33" />
+</head>
+<body class="ac">
+  <a class="skip-link" href="#ask">Skip to diagnosis</a>
+  <!-- Persistent header (shown on landing and in chat). Compact — not a marketing masthead. -->
+  <header class="topbar" id="topbar">
+    <div class="topbar__inner">
+      <a class="topbar__brand" href="/" aria-label="ApplianceClinic home">
+        <img class="topbar__logo-img" src="assets/applianceclinic-logo.svg?v=3" alt="ApplianceClinic" width="200" height="32" decoding="async" />
+      </a>
+
+      <div class="topbar__cluster">
+        <span class="topbar__wm" id="wmBadgeSlot"></span>
+        <button class="btn btn--ghost topbar__newchat" id="newChatBtn" type="button" hidden>New chat</button>
+        <button class="btn btn--ghost topbar__install" id="installAppBtn" type="button" hidden>Install</button>
+
+        <nav class="topbar__nav" aria-label="Main">
+          <a class="topbar__link" href="#ask">Diagnose</a>
+          <a class="topbar__link" href="#appliances">Appliance help</a>
+          <a class="topbar__link" href="/recalls/">Safety &amp; recalls</a>
+          <a class="topbar__link" href="#" id="helpLink">About</a>
+          <button class="btn btn--ghost" id="loginBtn" type="button">Log in</button>
+          <div class="usermenu" id="userMenu" hidden>
+            <button class="usermenu__btn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">
+              <span class="avatar" id="avatar" aria-hidden="true">--</span>
+              <span class="usermenu__name" id="userName"></span>
+              <svg class="usermenu__caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="usermenu__dropdown" id="userDropdown" role="menu" hidden>
+              <a class="usermenu__item" href="#" id="acctLink" role="menuitem">My account</a>
+              <a class="usermenu__item" href="/admin.html" id="adminLink" role="menuitem" hidden>Admin</a>
+              <button class="usermenu__item usermenu__item--btn" id="logoutBtn" type="button" role="menuitem">Sign out</button>
+            </div>
+          </div>
+        </nav>
+
+        <button class="topbar__burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu panel -->
+    <div class="mobilemenu" id="mobileMenu" hidden>
+      <button class="mobilemenu__item" id="mNewChat" type="button" hidden>New chat</button>
+      <button class="mobilemenu__item" id="mInstallApp" type="button" hidden>Install</button>
+      <a class="mobilemenu__item" href="#ask" id="mDiagnose">Diagnose</a>
+      <a class="mobilemenu__item" href="#appliances" id="mHelpHubs">Appliance help</a>
+      <a class="mobilemenu__item" href="/recalls/" id="mRecalls">Safety &amp; recalls</a>
+      <a class="mobilemenu__item" href="#" id="mHelp">About</a>
+      <button class="mobilemenu__item" id="mLogin" type="button">Log in</button>
+      <a class="mobilemenu__item" href="#" id="mAcct" hidden>My account</a>
+      <a class="mobilemenu__item" href="/admin.html" id="mAdmin" hidden>Admin</a>
+      <button class="mobilemenu__item" id="mLogout" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <div class="app-banner app-banner--update" id="appUpdate" hidden>
+    <p class="app-banner__text">An update is available. Your conversation will stay in this browser.</p>
+    <button class="btn btn--ghost app-banner__btn" id="appUpdateBtn" type="button">Update</button>
+  </div>
+  <div class="app-banner app-banner--offline" id="appOffline" hidden role="status">
+    <p class="app-banner__text">You’re offline. Diagnosis needs an internet connection. Your conversation stays on this device.</p>
+  </div>
+
+  <main class="wrap" id="app">
+    <!-- Compact proposition — collapses once the conversation starts. The real
+         composer below is the primary action; this is not a marketing gate. -->
+    <section class="hero" id="hero">
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <p class="hero__eyebrow">Independent UK appliance fault help</p>
+          <h1 class="hero__headline" id="assistantTitle">Understand what’s wrong with your appliance</h1>
+          <p class="hero__sub">Describe what it’s doing. We’ll help you narrow the likely cause, the safe checks worth making, and whether a component may need replacing — independently, and only as far as the evidence supports.</p>
+        </div>
+        <!-- Desktop-only summary of what the conversation does. Static statements, never example results. -->
+        <ul class="hero__value" aria-label="What a conversation gives you">
+          <li class="hero__point"><svg class="hero__point-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-narrow"/></svg><span><b>Narrow the likely cause</b>From what you describe and the checks you make.</span></li>
+          <li class="hero__point"><svg class="hero__point-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-check"/></svg><span><b>Safe checks first</b>Simple consumer checks, and a clear stop when it isn’t safe.</span></li>
+          <li class="hero__point"><svg class="hero__point-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-decide"/></svg><span><b>A part only when the evidence supports it</b>Usually confirmed against your model number.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Real diagnostic composer — above the fold. Same #ask used after chat starts. -->
+    <section class="assistant" id="assistant" aria-labelledby="assistantTitle">
+      <div class="chat" id="chat">
+        <div class="thread" id="thread" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
+
+        <div class="composer" id="composer">
+          <div class="ask-status" id="askStatus" role="alert" hidden>
+            <p class="ask-status__text" id="askStatusText">Couldn’t reach the diagnosis service. Your conversation is unchanged.</p>
+            <button class="btn btn--ghost ask-status__retry" id="retryBtn" type="button">Try again</button>
+          </div>
+
+          <div class="ask-preview" id="preview" hidden>
+            <img id="previewImg" alt="Selected photo" />
+            <button type="button" id="previewRemove" aria-label="Remove photo">&times;</button>
+          </div>
+
+          <form class="ask" id="ask" autocomplete="off">
+            <input id="file" class="ask__file" type="file" accept="image/*" capture="environment" aria-hidden="true" tabindex="-1" />
+            <button class="ask__cam" id="cam" type="button" aria-label="Add a photo of the rating plate" title="Add a photo of the rating plate">
+              <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+            <textarea
+              class="ask__input"
+              id="input"
+              name="q"
+              rows="2"
+              enterkeyhint="send"
+              placeholder="What’s wrong with your appliance?"
+              aria-label="What’s wrong with your appliance?"
+            ></textarea>
+            <button class="ask__send" id="send" type="submit" aria-label="Send">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <p class="hint" id="hint">Not sure of the model? Photograph the rating plate — usually inside the door, around the frame, or on the back — or search by model.</p>
+
+      <!-- Secondary actions, subordinate to describing the fault. -->
+      <div class="entries" id="entries">
+        <button class="entry" id="scanCard" type="button"><svg class="entry__svg" width="18" height="18" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-camera"/></svg>Photograph the rating plate</button>
+        <button class="entry" id="modelCard" type="button"><svg class="entry__svg" width="18" height="18" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-search"/></svg>Search by model</button>
+      </div>
+    </section>
+
+    <section class="howto" id="howto" aria-labelledby="howtoTitle">
+      <h2 class="howto__title" id="howtoTitle">How it works</h2>
+      <ol class="howto__steps">
+        <li class="howstep"><span class="howstep__top"><span class="howstep__badge"><svg class="howstep__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-describe"/></svg></span><span class="howstep__num" aria-hidden="true">1</span></span><span class="howstep__k">Describe the fault</span><span class="howstep__text">Tell us what the appliance is doing, in your own words.</span></li>
+        <li class="howstep"><span class="howstep__top"><span class="howstep__badge"><svg class="howstep__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-narrow"/></svg></span><span class="howstep__num" aria-hidden="true">2</span></span><span class="howstep__k">Narrow the cause</span><span class="howstep__text">A few focused questions rule likely causes in or out.</span></li>
+        <li class="howstep"><span class="howstep__top"><span class="howstep__badge"><svg class="howstep__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-check"/></svg></span><span class="howstep__num" aria-hidden="true">3</span></span><span class="howstep__k">Check safely</span><span class="howstep__text">Simple checks you can make, with safety guidance first.</span></li>
+        <li class="howstep"><span class="howstep__top"><span class="howstep__badge"><svg class="howstep__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-decide"/></svg></span><span class="howstep__num" aria-hidden="true">4</span></span><span class="howstep__k">Decide what to do</span><span class="howstep__text">Fix it, call an engineer, or a part if the evidence supports it.</span></li>
+      </ol>
+      <p class="howto__note">A component only if the evidence supports it.</p>
+    </section>
+
+    <section class="scope" id="appliances" aria-labelledby="scopeTitle">
+      <h2 class="scope__title" id="scopeTitle">Household appliances we can help diagnose</h2>
+      <p class="scope__lead">Open a Help Hub for safe checks and what a symptom usually means — or skip the reading and describe the problem in the box above.</p>
+      <ul class="scope__list fam-grid">
+        <li><a class="fam-card" href="/washing-machines/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-washing-machine"/></svg></span><span class="fam-card__name">Washing machines</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/washer-dryers/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-washer-dryer"/></svg></span><span class="fam-card__name">Washer dryers</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/tumble-dryers/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-tumble-dryer"/></svg></span><span class="fam-card__name">Tumble dryers</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/dishwashers/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-dishwasher"/></svg></span><span class="fam-card__name">Dishwashers</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/fridge-freezers/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-fridge-freezer"/></svg></span><span class="fam-card__name">Fridge-freezers</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/ovens-cookers/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-oven-cooker"/></svg></span><span class="fam-card__name">Ovens and cookers</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/hobs/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-hob"/></svg></span><span class="fam-card__name">Hobs</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/microwaves/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-microwave"/></svg></span><span class="fam-card__name">Microwaves</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+        <li><a class="fam-card" href="/vacuum-cleaners/"><span class="fam-card__badge"><svg class="fam-card__svg" width="26" height="26" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-vacuum"/></svg></span><span class="fam-card__name">Vacuum cleaners</span><span class="fam-card__go" aria-hidden="true">→</span></a></li>
+      </ul>
+      <p class="scope__note">Error codes and “which part is faulty” questions belong in the same conversation. We do not publish your chat, and we do not create a public page per symptom.</p>
+    </section>
+
+    <!-- Reassurance — independent, safe, recalls. Factual positioning, not social proof. -->
+    <div class="assure">
+      <section class="trust assure__panel" id="trust" aria-labelledby="trustTitle">
+        <span class="assure__badge"><svg class="assure__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-independent"/></svg></span>
+        <div class="trust__body">
+          <h2 class="trust__head" id="trustTitle">Independent, retailer-neutral guidance</h2>
+          <p class="trust__text">We help you understand the fault first. A replacement part is suggested only if the evidence justifies one, and we do not sell parts ourselves. ApplianceClinic is not a manufacturer, not a repair company, and not authorised by any brand.</p>
+        </div>
+      </section>
+
+      <section class="safety-pos assure__panel" id="safety" aria-labelledby="safetyTitle">
+        <span class="assure__badge"><svg class="assure__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-safety"/></svg></span>
+        <div>
+          <h2 class="safety-pos__title" id="safetyTitle">Safe checks, not unsafe DIY</h2>
+          <p>ApplianceClinic may suggest simple consumer checks. It will stop or tell you to use a qualified engineer when the situation involves mains electricity, gas, microwave high voltage, or water and electrics together. Follow any safety guidance shown in the conversation. A part suggestion depends on the evidence you give, and often on the model number.</p>
+        </div>
+      </section>
+
+      <section class="recall-route assure__panel" id="recalls" aria-labelledby="recallsTitle">
+        <span class="assure__badge"><svg class="assure__svg" width="22" height="22" aria-hidden="true" focusable="false"><use href="assets/applianceclinic-icons.svg?v=1#ac-i-recall"/></svg></span>
+        <div>
+          <h2 class="recall-route__title" id="recallsTitle">Safety &amp; recalls</h2>
+          <p><a href="/recalls/">UK appliance safety recalls</a> — official OPSS notices for the nine household appliances we cover. Separate from fault diagnosis; we do not issue recalls.</p>
+          <a class="recall-route__cta" href="/recalls/">Check for recalls <span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer" id="footer">
+      <p class="site-footer__brand">ApplianceClinic</p>
+      <p class="site-footer__about">Independent UK appliance fault guidance. Retailer-neutral. Not a repair call-out service.</p>
+      <nav class="site-footer__nav" aria-label="Site">
+        <a href="#ask">Diagnose</a>
+        <a href="#howto">How it works</a>
+        <a href="#appliances">Appliance help</a>
+        <a href="#safety">Safety</a>
+        <a href="/recalls/">Safety &amp; recalls</a>
+      </nav>
+      <p class="site-footer__line">Conversations stay in this browser and are not published as web pages.</p>
+    </footer>
+  </main>
+
+  <!-- Login modal (reused by the header + admin gate). Cognito sign-in is server-side; the token
+       is set as an httpOnly cookie by /api/auth/login and never exposed to this page's JS. -->
+  <div class="modal" id="loginModal" hidden>
+    <div class="modal__backdrop" id="loginBackdrop"></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button class="modal__close" id="loginClose" type="button" aria-label="Close">&times;</button>
+      <h2 class="modal__title" id="loginTitle">Log in</h2>
+      <p class="modal__sub">Staff sign-in for the ApplianceClinic console.</p>
+      <form id="loginForm" class="loginform" autocomplete="on">
+        <label class="loginform__label" for="loginEmail">Email</label>
+        <input class="loginform__input" id="loginEmail" type="email" autocomplete="username" required />
+        <label class="loginform__label" for="loginPassword">Password</label>
+        <input class="loginform__input" id="loginPassword" type="password" autocomplete="current-password" required />
+        <p class="loginform__error" id="loginError" hidden></p>
+        <button class="btn btn--primary loginform__submit" id="loginSubmit" type="submit">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="newChatModal" hidden>
+    <div class="modal__backdrop" id="newChatBackdrop"></div>
+    <div class="modal__card" role="alertdialog" aria-modal="true" aria-labelledby="newChatTitle" aria-describedby="newChatDesc">
+      <button class="modal__close" id="newChatClose" type="button" aria-label="Cancel">&times;</button>
+      <h2 class="modal__title" id="newChatTitle">Start a new chat?</h2>
+      <p class="modal__sub" id="newChatDesc">This conversation will be cleared from this browser. The next diagnosis starts fresh.</p>
+      <div class="newchat-actions">
+        <button class="btn btn--ghost" id="newChatCancel" type="button">Cancel</button>
+        <button class="btn btn--primary" id="newChatConfirm" type="button">New chat</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="hubIntentModal" hidden>
+    <div class="modal__backdrop" id="hubIntentBackdrop"></div>
+    <div class="modal__card" role="alertdialog" aria-modal="true" aria-labelledby="hubIntentTitle" aria-describedby="hubIntentDesc">
+      <button class="modal__close" id="hubIntentClose" type="button" aria-label="Keep this chat">&times;</button>
+      <h2 class="modal__title" id="hubIntentTitle">Replace this conversation?</h2>
+      <p class="modal__sub" id="hubIntentDesc">You already have a diagnosis in progress. Starting from the help page will clear it and put a new description in the box. You still choose when to send.</p>
+      <div class="newchat-actions">
+        <button class="btn btn--ghost" id="hubIntentCancel" type="button">Keep this chat</button>
+        <button class="btn btn--primary" id="hubIntentConfirm" type="button">Start this diagnosis</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="chat-session.js?v=3" defer></script>
+  <script src="webmcp.js?v=2" defer></script>
+  <script src="app.js?v=19" defer></script>
+  <script src="webmcp-badge.js?v=3" defer></script>
+</body>
+</html>

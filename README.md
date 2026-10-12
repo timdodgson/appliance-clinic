@@ -10,7 +10,7 @@ An owner describes a fault in their own words ("it's making a grinding noise whe
 - explains the likely cause;
 - points to the right part, or to an engineer.
 
-It covers nine appliance families (washing machines, washer-dryers, tumble dryers, dishwashers, fridge-freezers, ovens, hobs, microwaves and vacuums) through 63 canonical diagnostic journeys. A journey is one fault on one appliance family (for example "washing machine not draining"), with its own evidence model, check order, safety requirements and part gate. It runs on AWS Lambda behind a CloudFront site. This repository holds the production runtime, its infrastructure as code (AWS CDK), the evaluation suites, and the full record of how the service was moved out of the monorepo and AWS account it was born in, with production stable throughout.
+It covers nine appliance families (washing machines, washer-dryers, tumble dryers, dishwashers, fridge-freezers, ovens, hobs, microwaves and vacuums) through 63 canonical diagnostic journeys. A journey is one fault on one appliance family (for example "washing machine not draining"), with its own evidence model, check order, safety requirements and part gate. It runs on AWS Lambda behind a CloudFront site. This repository holds the production runtime, the web front end, the infrastructure as code (AWS CDK), the evaluation suites, and the full record of how the service was moved out of the monorepo and AWS account it was born in, with production stable throughout.
 
 ## What this project demonstrates
 
@@ -73,6 +73,7 @@ The full component, flow and ownership picture is in [docs/architecture/overview
 
 | Service | Code | Runs as | Job |
 |---|---|---|---|
+| **Web front end** | `apps/web` | Static files in S3 `whichpart-web-<account>`, behind CloudFront at applianceclinic.ai | Customer chat, admin console, help pages, recall search ([apps/web/README.md](apps/web/README.md)) |
 | **whichpart-api** (BFF) | `services/whichpart-api` | Lambda zip `whichpart-api`, behind CloudFront `/api*` | Customer turns, sessions and `cs/1` storage, transcripts, admin, scheduled jobs |
 | **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` | Deterministic turn control and routing; no language model, no state of its own |
 | **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | Understanding, the canonical journeys, policy, safety, part gate and COMPOSE |
@@ -164,7 +165,6 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Nothing alerts on Jev credit or quota.** Running out of Jev credit caused a real outage on 2026-10-11 ([finding](docs/evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
 - **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
-- The static site is still published from the original monorepo.
 
 ## Working on it
 
@@ -179,6 +179,8 @@ npm run typecheck
 npm run lint              # migration tooling (ESLint)
 npm run test:tooling      # migration tooling tests
 npm run build:zips        # build both Lambda zips and compare them with build/reference/
+(cd apps/web && npm ci && npm run check)   # web front end: lint, typecheck, tests, reproducible build
+(cd apps/web && npm run serve)            # run the site locally against the live API (http://localhost:8080)
 ```
 
 - **No credentials needed.** None of these commands needs AWS or model credentials.
@@ -189,6 +191,7 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 | Topic | Where |
 |---|---|
 | Current architecture | [docs/architecture/overview.md](docs/architecture/overview.md) |
+| Web front end: run, build, deploy, admin auth | [apps/web/README.md](apps/web/README.md) |
 | How it got there: audit, target, state ownership | [as-built](docs/architecture/as-built.md), [target](docs/architecture/target.md), [state ownership](docs/architecture/phase-11-state-ownership.md) |
 | Configuration, error contracts | [configuration.md](docs/architecture/configuration.md), [error-handling.md](docs/architecture/error-handling.md) |
 | Decisions | [docs/adr/](docs/adr/README.md) |
