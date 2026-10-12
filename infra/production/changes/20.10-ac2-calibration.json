@@ -1,0 +1,64 @@
+{
+  "id": "20.10-ac2-calibration",
+  "description": "ac2: differential and calibrated conclusions, complete safe steps, appliance confirmation, deterministic step precaution, negation inside hazard matches, unsafe requests detected with appliance hints, no catalogue caveats in headings. Code only (applianceclinic-diagnosis-engine). Previous code: {\"applianceclinic-diagnosis-engine\": \"phase8/applianceclinic-diagnosis-engine-XQsTJYwvEWgjli7CG4QXw2UvLGt3zVAbUNuCCfL8K1U.zip\"}; rollback = restore those s3Keys.",
+  "classification": "SAFE AC CHANGE (code of AC functions only)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code updates of AC functions from staged phase8 artefacts in the AC assets bucket. No PassRole: no role or configuration changes.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

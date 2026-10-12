@@ -1,0 +1,55 @@
+{
+ "id": "HO-TD-02.ac",
+ "case": "HO-TD-02",
+ "system": "ac",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 2,
+  "fidelity": 1,
+  "noFabrication": 4,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 1,
+  "calibration": 1,
+  "noRepetition": 1,
+  "escalation": 3,
+  "partQuality": 2,
+  "languageUnderstanding": 3,
+  "overall": 2
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": true,
+   "evidence": "'Your findings point to an issue with the door interlock mechanism rather than the latch itself' - directly contradicted by the snapped tongue and the dryer starting when the door is held shut"
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "Third assistant turn repeats the second almost verbatim ('I have located the correct replacement part for your Hotpoint TVFM70BGP model below') without answering 'is that £12 door catch the right part' or giving a part number"
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": true,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The customer stated clearly from the start that the plastic tongue had snapped off, yet the first reply told them to check the seal and shut the door until it clicks, and the second reply asserted the interlock was at fault 'rather than the latch itself' despite the dryer running when the door is held shut. The part card (a door catch fitting on the door, for the established model) is the right type and the unplug/engineer advice is sensible, so the part itself is justified, but the text contradicts the card and the assistant never confirmed the part or gave the requested part number. The final turn is a near-verbatim repeat, the green-dot recall status was never checked, and the customer left with a plausible link but no clear confirmation.",
+ "costUsd": 0.17391979999999999
+}

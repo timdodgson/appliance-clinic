@@ -29,7 +29,7 @@ const COPY = {
   bypass: 'I can\'t help with getting round a door lock, thermal cut-out or any other safety device — they stop the appliance running when it isn\'t safe.',
 };
 
-const NEG = /\b(no|not|never|isn'?t|wasn'?t|aren'?t|don'?t|doesn'?t|didn'?t|can'?t|cannot|without|nothing|none)\b/;
+const NEG = /\b(no|not|never|nowhere|isn'?t|wasn'?t|aren'?t|don'?t|doesn'?t|didn'?t|can'?t|cannot|without|nothing|none|away from)\b/;
 
 /** Split text into clauses so a negation only covers its own clause. */
 function clauses(text) {
@@ -43,7 +43,8 @@ function affirmed(text, re, scope = 'clause') {
     const m = c.match(re);
     if (!m) continue;
     const before = c.slice(Math.max(0, m.index - 28), m.index);
-    if (!NEG.test(before)) return { clause: c, match: m[0] };
+    // A negation before the match, or inside a multi-word match ("water ... nowhere near the plug"), negates it.
+    if (!NEG.test(before) && !(m[0].includes(' ') && NEG.test(m[0]))) return { clause: c, match: m[0] };
   }
   return null;
 }
