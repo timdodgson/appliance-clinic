@@ -58,7 +58,7 @@ async function gate(proposal, state, hazard, { lookup, appliance }) {
   if (!cited.length) failed.push('G1-no-recorded-evidence');
   const a = proposal.assessment;
   if (!['narrowed', 'needs_engineer', 'resolved'].includes(a.status) || a.confidence === 'low') failed.push('G2-not-narrowed');
-  if (hazard && (hazard.policy.terminate || ['burning', 'fire', 'gas', 'battery', 'electric_shock', 'electrical_water', 'microwave_arcing'].includes(hazard.type))) failed.push('G3-active-hazard');
+  if (hazard && (hazard.policy.terminate || ['burning', 'fire', 'gas', 'battery', 'electric_shock', 'microwave_arcing', 'supply_trip'].includes(hazard.type))) failed.push('G3-active-hazard');
   const base = { component: p.component, cited, failed };
   if (failed.length) return { outcome: 'not_justified', ...base };
 
@@ -67,7 +67,8 @@ async function gate(proposal, state, hazard, { lookup, appliance }) {
   let res;
   try { res = await lookup(model); } catch { res = { parts: [], model: null }; }
   const parts = Array.isArray(res && res.parts) ? res.parts : [];
-  if (!parts.length) return { outcome: 'model_needed', reason: 'catalogue-does-not-recognise-model', ...base, failed: ['G4-model-not-in-catalogue'] };
+  // The model is known but the catalogue has nothing for it: asking for the model again would not help.
+  if (!parts.length) return { outcome: 'no_catalogue_part', reason: 'catalogue-does-not-recognise-model', ...base, failed: ['G4-model-not-in-catalogue'] };
   const m = matchParts(parts, appliance, p.component);
   if (!m.parts.length) return { outcome: 'no_catalogue_part', ...base, failed: ['G5-no-matching-part'], matcher: m.matcher };
   return { outcome: 'verified', ...base, parts: m.parts, catalogueModel: res.model || model, matcher: m.matcher };

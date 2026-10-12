@@ -21,10 +21,11 @@ function transcriptStore() {
 }
 function setTranscriptStore(store) { _transcriptStore = store; }
 
-async function persistTranscriptTurn(obs, messages, view, orch, rid, canonical) {
+/** `canonical` is the legacy canonical-audit/1 object; `ac2` the ac2-transcript-audit/1 object (ac2 turns only). */
+async function persistTranscriptTurn(obs, messages, view, orch, rid, canonical, ac2) {
   if (!obs) return;
   await transcripts.persistSafely(transcriptStore(), () =>
-    transcripts.persistTurn(transcriptStore(), obs, { messages, view, orch, requestId: rid, canonical: canonical || null }), log);
+    transcripts.persistTurn(transcriptStore(), obs, { messages, view, orch, requestId: rid, canonical: canonical || null, ac2: ac2 || null }), log);
 }
 /** Idempotent duplicate answered from the cached view: mark the original transcript turn (nothing else changes). */
 async function persistTranscriptReplay(obs) {

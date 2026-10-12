@@ -37,8 +37,9 @@ function clauses(text) {
 }
 
 /** True when `re` matches a clause of `text` that does not negate it before the match. */
-function affirmed(text, re) {
-  for (const c of clauses(text)) {
+function affirmed(text, re, scope = 'clause') {
+  const parts = scope === 'sentence' ? String(text || '').toLowerCase().replace(/[’]/g, "'").split(/[.!?\n]+/).map((x) => x.trim()).filter(Boolean) : clauses(text);
+  for (const c of parts) {
     const m = c.match(re);
     if (!m) continue;
     const before = c.slice(Math.max(0, m.index - 28), m.index);
@@ -55,7 +56,7 @@ const DETECT = [
   { type: 'microwave_arcing', re: /\b(spark(?:s|ing|ed)?|arc(?:s|ing|ed)?|flash(?:es|ing)? inside|blue flash)\b/, appliance: ['microwave'] },
   { type: 'burning', re: /\b(burning smell|(?:smell(?:s|ed|ing)?|smelt) (?:of |like )?(?:burning|something burning)|smel(?:ls?|t) burnt|burnt smell|burning plastic|smoke|smoking|smoked|scorch\w*|melted|melting|fishy smell|electrical smell|hot plastic smell)\b/ },
   { type: 'electric_shock', re: /\b(electric shock|got a shock|gave me a shock|shocked me|tingl\w+|zapped me|small shock)\b/ },
-  { type: 'electrical_water', re: /\b(water|wet|leak\w*|puddle|flood\w*)\b[^.]{0,50}\b(plug|socket|wiring|wires|extension|fuse ?box|consumer unit)\b|\b(plug|socket|wiring|extension)\b[^.]{0,40}\b(wet|water|damp|soaked)\b/ },
+  { type: 'electrical_water', scope: 'sentence', re: /\b(water|wet|leak\w*|puddle|flood\w*)\b[^.!?]{0,140}\b(plug|socket|wiring|wires|extension|fuse ?box|consumer unit)\b|\b(plug|socket|wiring|extension)\b[^.!?]{0,80}\b(wet|water|damp|soaked)\b/ },
   { type: 'supply_trip', re: /\b(trips? (?:the|my|our)? ?(?:electrics?|power|fuse|rcd|breaker|switch)|tripping (?:the )?(?:electrics?|power|rcd|breaker)|keeps tripping|blew the fuse|blows the fuse)\b/ },
 ];
 
@@ -90,6 +91,7 @@ const PROHIBITED_ADVICE = [
   { id: 'gas-dismantle', when: '*', re: /\b(replace|remove|adjust|unscrew|disconnect)\b[^.]{0,30}\b(thermocouple|gas valve|regulator|gas pipe|gas fitting|injector)\b/ },
   { id: 'tv-open', when: '*', re: /\b(open|remove)\b[^.]{0,20}\b(back (?:panel|cover) of (?:the|your) tv|tv'?s back)\b|\bbacklight strips?\b[^.]{0,40}\b(replace|swap|solder|install)\b/ },
   { id: 'run-after-burning', when: ['burning', 'fire', 'microwave_arcing', 'supply_trip', 'electric_shock', 'electrical_water', 'battery'], re: /\b(run|try|test|switch|turn|power|plug)\b[^.]{0,30}\b(it )?(again|back on|on again|a (?:short |quick |test )?(?:cycle|programme|program|run)|an empty|empty cycle|test run|in again)\b/ },
+  { id: 'touch-plug-near-water', when: ['electrical_water'], re: /\b(unplug|pull (?:out )?the plug|switch (?:it )?off at the (?:wall|socket|plug)|turn (?:it )?off at the (?:wall|socket|plug)|touch the (?:plug|socket))\b/ },
   { id: 'ignite-gas', when: ['gas'], re: /\b(light|ignite|spark|switch|turn)\b[^.]{0,30}\b(burner|hob|oven|on|off|ignition|match|lighter)\b/ },
   { id: 'charge-battery', when: ['battery'], re: /\b(charge|charging|plug (?:it|the charger) (?:back )?in|recharge)\b(?![^.]{0,20}\b(don'?t|never|stop)\b)/ },
   { id: 'reset-trip', when: ['supply_trip'], re: /\breset (?:the )?(?:rcd|breaker|trip|switch)\b(?![^.]{0,20}\b(once|don'?t)\b)/ },
@@ -109,7 +111,7 @@ function detectHazards(messages, appliance) {
   texts.forEach((text, i) => {
     for (const d of DETECT) {
       if (d.appliance && !(appliance && d.appliance.includes(appliance))) continue;
-      const hit = affirmed(text, d.re);
+      const hit = affirmed(text, d.re, d.scope);
       if (hit && !found.some((f) => f.type === d.type)) found.push({ type: d.type, clause: hit.clause, customerTurn: i + 1 });
     }
   });

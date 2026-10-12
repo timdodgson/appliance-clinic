@@ -625,6 +625,8 @@ function buildSnapshot(input) {
     // Canonical conversation mode as resolved by the deployed API (read-only; allow-list keys
     // themselves are not exposed, only how many are enabled).
     canonical: canonicalRuntime(runtimeIn.canonical),
+    // AC2 (LLM-led turn inside the guardrail kernel) mode as resolved by the deployed API (read-only, env-driven).
+    ac2: ac2Runtime(runtimeIn.ac2),
     note: 'Read-only. Settings owns writable AI configuration. Secrets are not included.',
   };
 
@@ -708,6 +710,13 @@ function canonicalRuntime(c) {
     invalid: !!c.invalid,
     unknownKeyCount: Number.isFinite(c.unknownKeyCount) ? c.unknownKeyCount : null,
   };
+}
+
+const AC2_MODE_LABELS = { off: 'Off', benchmark: 'Benchmark only (authenticated test turns that request it)', all: 'All customer turns', unknown: 'Unknown' };
+function ac2Runtime(c) {
+  if (!c || typeof c !== 'object' || typeof c.mode !== 'string') return null;
+  const mode = Object.prototype.hasOwnProperty.call(AC2_MODE_LABELS, c.mode) ? c.mode : 'unknown';
+  return { mode, modeLabel: AC2_MODE_LABELS[mode], invalid: !!c.invalid };
 }
 
 function failureSnapshot(err, runtime) {
@@ -806,6 +815,7 @@ module.exports = {
   mediaRuntime,
   modelsRuntime,
   canonicalRuntime,
+  ac2Runtime,
   buildSnapshot,
   failureSnapshot,
   collect,

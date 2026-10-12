@@ -31,6 +31,8 @@ class ProviderUnavailableError extends Error {
     super(message);
     this.name = 'ProviderUnavailableError';
     this.category = (cause && (cause.category || cause.name)) || 'UNAVAILABLE';
+    this.status = (cause && cause.status) || null;
+    this.detail = cause && cause.detail ? String(cause.detail).slice(0, 300) : null;
   }
 }
 
@@ -202,6 +204,7 @@ async function runTurn(input, deps) {
 
   // 4. The ledger takes what is grounded.
   applyUnderstanding(st, proposal, ctx);
+  recordToolFacts(st, tl, ctx);
   hazard = hazardState(st, messages); // appliance-specific detectors (microwave arcing) may now apply
 
   // 5. Scope.
@@ -222,7 +225,9 @@ async function runTurn(input, deps) {
   // 6. Kernel checks, with one regeneration if the proposal breaks a rule.
   let reply = proposal.reply;
   let check = await kernelChecks(reply, proposal, st, hazard, texts, deps, audit);
-  if (check.issues.length) {
+  // Regenerate only when the deterministic clean-up would leave a damaged reply: a safety violation or a repeated
+  // question always; unsupported claims only when removing them loses much of the reply or its question.
+  if (needsRegeneration(proposal.reply, check)) {
     audit.regenerated = true;
     const feedback = check.issues.map((i) => i.text);
     try {
@@ -289,6 +294,15 @@ async function runTurn(input, deps) {
   return { state: st, response, audit };
 }
 
+/** Deterministic tool results become tool facts: the meaning of a code the customer reported, from the catalogue. */
+function recordToolFacts(st, tl, ctx) {
+  for (const r of tl.errorCodes) {
+    if (r.status !== 'RESOLVED' || !r.candidates || !r.candidates[0]) continue;
+    if (!st.codes.some((c) => c.code === String(r.code).toUpperCase())) continue;
+    L.recordFact(st, { field: `error_code_${String(r.code).toLowerCase().replace(/[^a-z0-9]+/g, '_')}_meaning`, value: r.candidates[0].meaning, source: 'tool', status: 'observed' }, { ...ctx, fromTool: true });
+  }
+}
+
 function applyUnderstanding(st, proposal, ctx) {
   const u = proposal.understanding;
   if (u.appliance && u.appliance.value && u.appliance.value !== 'unknown') L.setIdentity(st, 'appliance', u.appliance, ctx);
@@ -297,6 +311,31 @@ function applyUnderstanding(st, proposal, ctx) {
   for (const c of u.codes) L.addCode(st, c.code, c.quote, ctx);
   for (const f of u.newFacts) L.recordFact(st, { field: f.field, value: f.value, quote: f.quote, source: 'customer', status: f.status === 'uncertain' ? 'uncertain' : 'stated' }, ctx);
   L.resolveAsked(st, u.lastQuestionAnswer);
+}
+
+function needsRegeneration(original, check) {
+  if (!check.issues.length) return false;
+  if (check.issues.some((i) => i.kind !== 'claim')) return true;
+  const before = String(original || '').trim();
+  const after = String(check.reply || '').trim();
+  if (!after) return true;
+  if (before.includes('?') && !after.includes('?')) return true;
+  return after.length < before.length * 0.65;
+}
+
+// Identifiers the kernel cannot verify: part numbers and prices may only come from the parts catalogue (tool) or the
+// customer's own words.
+const IDENT = /\b(?=[A-Z0-9-]*\d)(?=[A-Z0-9-]*[A-Z0-9]{6,})[A-Z0-9][A-Z0-9-]{5,}\b|£\s?\d+(?:\.\d{2})?/g;
+function unverifiedIdentifiers(reply, texts, st) {
+  const known = `${texts.join(' ')} ${(st.model && st.model.value) || ''} ${(st.codes || []).map((c) => c.code).join(' ')}`.toUpperCase().replace(/\s+/g, '');
+  const sents = V.sentences(reply);
+  const bad = [];
+  const kept = sents.filter((x) => {
+    const ids = (x.toUpperCase().match(IDENT) || []).filter((id) => !known.includes(id.replace(/\s+/g, '')));
+    if (ids.length) { bad.push({ sentence: x.trim().slice(0, 200), ids }); return false; }
+    return true;
+  });
+  return { text: kept.join('').replace(/\s{2,}/g, ' ').trim(), bad };
 }
 
 /** Safety gate, claim verification and the repeated-question guard. Returns { reply (cleaned), issues }. */
@@ -308,9 +347,15 @@ async function kernelChecks(reply, proposal, st, hazard, texts, deps, audit) {
     issues.push({ kind: 'safety', text: `Do not advise this (unsafe): "${v.sentence}"` });
   }
   let cleaned = gate.text;
+  const ids = unverifiedIdentifiers(cleaned, texts, st);
+  for (const b of ids.bad) {
+    audit.safety.gates.push({ gate: 'unverified-identifier', ids: b.ids.slice(0, 3) });
+    issues.push({ kind: 'identifier', text: `Do not give part numbers or prices (${b.ids.join(', ')}): they are not verified. Name the component type; the system checks the catalogue.` });
+  }
+  cleaned = ids.text;
   const extract = deps.extractor ? async (system, user) => {
-    const res = await deps.extractor.infer({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens: 700, temperature: 0, timeoutMs: 30000, responseFormat: { type: 'json_object' }, stream: false });
-    if (res.status !== 200) { const e = new Error(`extractor http ${res.status}`); e.category = 'HTTP'; throw e; }
+    const res = await deps.extractor.infer({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens: 700, temperature: 0, timeoutMs: 30000, responseFormat: V.EXTRACT_FORMAT, stream: false });
+    if (res.status !== 200) { const e = new Error(`extractor http ${res.status}`); e.category = 'HTTP'; e.status = res.status; e.detail = res.errorDetail || null; throw e; }
     return { json: R.parseJson(res.text), usage: res.usage };
   } : null;
   let verdict;

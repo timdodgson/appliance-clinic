@@ -251,6 +251,110 @@ function normaliseDiagnosticTrace(raw) {
 
 // Slim a single turn's trace: keep id/label/evidence/summary, drop heavy stage `detail`, and reduce
 // progression to path+change only. Deterministic; preserves the shape (evidence labels stay honest).
+// ---- ac2-transcript-audit/1 (ac2-turn.js auditOf) ------------------------------------------------------
+// Stored on the turn as `ac2` (never `canonical`). Bounded here regardless of what the engine sent: lists are
+// capped, strings clipped, and only known fields are kept. The audit carries no model chain-of-thought and this
+// projection never adds any. Older turns are reduced to the summary form (no ledger) by boundTraceHistory.
+const AC2_SCHEMA = 'ac2-transcript-audit/1';
+const AC2_MAX_FACTS = 40;
+const AC2_MAX_LIST = 20;
+const AC2_MAX_QUOTE = 160;
+function ac2Str(v, n) { return v == null ? null : clip(String(v), n || 120); }
+function ac2Scalar(v, n) {
+  if (v == null) return null;
+  if (typeof v === 'number' || typeof v === 'boolean') return v;
+  if (typeof v === 'string') return clip(v, n || 120);
+  try { return clip(JSON.stringify(v), n || 120); } catch { return null; }
+}
+function ac2List(v, n) { return Array.isArray(v) ? v.slice(0, n || AC2_MAX_LIST) : []; }
+function ac2Num(v) { return typeof v === 'number' && Number.isFinite(v) ? v : null; }
+function ac2NumMap(o) {
+  if (!o || typeof o !== 'object') return null;
+  const out = {};
+  for (const k of Object.keys(o).slice(0, 12)) { if (ac2Num(o[k]) != null) out[clip(k, 40)] = o[k]; }
+  return out;
+}
+function ac2Entity(e) {
+  if (e == null) return null;
+  if (typeof e !== 'object') return { value: ac2Scalar(e, 80) };
+  return { value: ac2Scalar(e.value, 80), status: ac2Str(e.status, 24), turn: ac2Num(e.turn), quote: ac2Str(e.quote, AC2_MAX_QUOTE) };
+}
+function ac2Ledger(l) {
+  if (!l || typeof l !== 'object') return null;
+  const facts = Array.isArray(l.facts) ? l.facts : [];
+  return {
+    appliance: ac2Entity(l.appliance), brand: ac2Entity(l.brand), model: ac2Entity(l.model),
+    codes: ac2List(l.codes).map((c) => (c && typeof c === 'object' ? { code: ac2Str(c.code, 24), turn: ac2Num(c.turn), quote: ac2Str(c.quote, AC2_MAX_QUOTE) } : { code: ac2Str(c, 24) })),
+    facts: facts.slice(-AC2_MAX_FACTS).map((f) => ({
+      id: ac2Str(f && f.id, 24), field: ac2Str(f && f.field, 80), value: ac2Scalar(f && f.value, 160), source: ac2Str(f && f.source, 24),
+      status: ac2Str(f && f.status, 24), turn: ac2Num(f && f.turn), quote: ac2Str(f && f.quote, AC2_MAX_QUOTE),
+    })),
+    factsTotal: facts.length,
+    asked: ac2List(l.asked).map((a) => (a && typeof a === 'object'
+      ? { key: ac2Str(a.key, 60), turn: ac2Num(a.turn), times: ac2Num(a.times), resolution: ac2Str(a.resolution, 24) } : { key: ac2Str(a, 60) })),
+    hazards: ac2List(l.hazards).map((h) => (h && typeof h === 'object' ? ac2Str(h.type || h.value, 40) : ac2Str(h, 40))),
+  };
+}
+function ac2PartGate(g) {
+  if (!g || typeof g !== 'object') return null;
+  return { outcome: ac2Str(g.outcome, 40), component: ac2Str(g.component, 80), failed: ac2List(g.failed).map((x) => ac2Scalar(x, 120)),
+    matcher: ac2Scalar(g.matcher, 80), cited: ac2List(g.cited).map((x) => ac2Str(x, 24)) };
+}
+function ac2Safety(sf) {
+  if (!sf || typeof sf !== 'object') return null;
+  return {
+    hazards: ac2List(sf.hazards).map((h) => ac2Str(h, 40)),
+    terminated: ac2Str(sf.terminated, 40),
+    gates: ac2List(sf.gates).map((g) => (g && typeof g === 'object'
+      ? { gate: ac2Str(g.gate, 40), rule: ac2Str(g.rule, 80), type: ac2Str(g.type, 40), key: ac2Str(g.key, 60), why: ac2Str(g.why, 160) } : { gate: ac2Str(g, 40) })),
+  };
+}
+function ac2Status(st) {
+  if (st == null) return null;
+  if (typeof st === 'object') return ac2Str(st.value || st.status, 40);
+  return ac2Str(st, 40);
+}
+/** Bounded ac2 audit for the transcript turn (or null when the input is not an ac2-transcript-audit/1 object). */
+function slimAc2Audit(a, opts) {
+  if (!a || typeof a !== 'object' || a.schemaVersion !== AC2_SCHEMA) return null;
+  const summaryOnly = Boolean(opts && opts.summary) || Boolean(a.slim);
+  const pv = a.provider && typeof a.provider === 'object' ? { name: ac2Str(a.provider.name, 40), model: ac2Str(a.provider.model, 80) } : null;
+  const out = {
+    schemaVersion: AC2_SCHEMA,
+    path: 'ac2',
+    turn: ac2Num(a.turn),
+    error: a.error ? ac2Str(a.error, 80) : null,
+    provider: pv,
+    timings: ac2NumMap(a.timings),
+    ms: ac2Num(a.ms),
+    usage: ac2NumMap(a.usage),
+    status: ac2Status(a.status),
+    regenerated: Boolean(a.regenerated),
+    claimsChecked: ac2Num(a.claimsChecked) || 0,
+    partGate: ac2PartGate(a.partGate),
+    escalation: a.escalation && typeof a.escalation === 'object'
+      ? { to: ac2Str(a.escalation.to, 40), reason: ac2Str(a.escalation.reason, 200), forced: Boolean(a.escalation.forced) } : null,
+    safety: ac2Safety(a.safety),
+    scope: a.scope && typeof a.scope === 'object' ? { status: ac2Str(a.scope.status, 16), appliance: ac2Str(a.scope.appliance, 40) } : null,
+    appliance: a.ledger && a.ledger.appliance ? ac2Scalar(a.ledger.appliance.value != null ? a.ledger.appliance.value : a.ledger.appliance, 40) : null,
+  };
+  if (summaryOnly) {
+    out.slim = true;
+    out.claimsRejectedCount = Array.isArray(a.claimsRejected) ? a.claimsRejected.length : (ac2Num(a.claimsRejectedCount) || 0);
+    return out;
+  }
+  out.toolCalls = ac2List(a.toolCalls).map((c) => ({
+    tool: ac2Str(c && c.tool, 40),
+    results: ac2List(c && c.results).map((r) => ac2Scalar(r, 120)),
+  }));
+  out.claimsRejected = ac2List(a.claimsRejected).map((c) => ({ claim: ac2Str(c && c.claim, 200), source: ac2Str(c && c.source, 60) }));
+  out.candidates = ac2List(a.candidates).map((c) => ({
+    cause: ac2Str(c && c.cause, 120), likelihood: ac2Str(c && c.likelihood, 16), evidence: ac2List(c && c.evidence).map((x) => ac2Str(x, 24)),
+  }));
+  out.ledger = ac2Ledger(a.ledger);
+  return out;
+}
+
 function slimTrace(trace) {
   if (!trace || trace.bounded || !Array.isArray(trace.stages)) return trace;
   for (const s of trace.stages) { if (s && s.detail != null) s.detail = null; }
@@ -270,6 +374,7 @@ function boundTraceHistory(turns, keep) {
     const t = turns[i];
     if (t && t.diagnosticTrace) slimTrace(t.diagnosticTrace);
     if (t && t.canonical) t.canonical = canonicalAudit.slim(t.canonical);
+    if (t && t.ac2 && !t.ac2.slim) t.ac2 = slimAc2Audit(t.ac2, { summary: true });
   }
 }
 
@@ -283,15 +388,32 @@ function enforcePayloadBudget(rec) {
 
 /**
  * Session-level canonical summary for the list (derived from the stored per-turn audits; old transcripts with no
- * audit are 'legacy'). Computed on read, so historical records need no migration.
+ * audit are 'legacy'). Computed on read, so historical records need no migration. ac2 turns (turn.ac2) count as
+ * path 'ac2' and carry the latest appliance / status / part-gate outcome.
  */
 function canonicalSummary(rec) {
   const turns = (rec && rec.turns) || [];
-  const counts = { control: 0, shadow: 0, legacy: 0, degraded: 0 };
+  const counts = { control: 0, shadow: 0, legacy: 0, degraded: 0, ac2: 0 };
   let journey = null; let appliance = null; let ref = null; let audited = 0; let partRecommended = false;
+  let ac2 = null;
   for (const t of turns) {
     const c = t && t.canonical;
     if (t && t.customerVisible && Array.isArray(t.customerVisible.parts) && t.customerVisible.parts.length) partRecommended = true;
+    const x = t && t.ac2;
+    if (x && x.schemaVersion === AC2_SCHEMA) {
+      audited += 1;
+      counts.ac2 += 1;
+      ac2 = ac2 || { turns: 0, errors: 0, status: null, partGate: null, hazards: [], escalation: null };
+      ac2.turns += 1;
+      if (x.error) { ac2.errors += 1; continue; }
+      if (x.appliance) appliance = x.appliance;
+      if (x.status) ac2.status = x.status;
+      if (x.partGate && x.partGate.outcome) ac2.partGate = x.partGate.outcome;
+      if (x.partGate && x.partGate.outcome === 'verified') partRecommended = true;
+      if (x.escalation && x.escalation.to) ac2.escalation = x.escalation.to;
+      for (const h of (x.safety && x.safety.hazards) || []) { if (h && !ac2.hazards.includes(h)) ac2.hazards.push(h); }
+      continue;
+    }
     if (!c || c.schemaVersion !== 'canonical-audit/1') { counts.legacy += 1; continue; }
     audited += 1;
     counts[c.path] = (counts[c.path] || 0) + 1;
@@ -301,11 +423,14 @@ function canonicalSummary(rec) {
     if (c.nextAction && c.nextAction.kind === 'recommend_part') partRecommended = true;
   }
   let path = 'legacy';
-  if (counts.control && (counts.legacy || counts.shadow || counts.degraded)) path = 'mixed';
+  if (counts.ac2 && counts.control) path = 'mixed';
+  else if (counts.ac2) path = 'ac2';
+  else if (counts.control && (counts.legacy || counts.shadow || counts.degraded)) path = 'mixed';
   else if (counts.control) path = 'control';
   else if (counts.shadow) path = 'shadow';
   else if (counts.degraded && !counts.legacy) path = 'degraded';
-  return { path, counts, audited, journey, appliance, ref, degraded: counts.degraded > 0, partRecommended };
+  const degraded = counts.degraded > 0 || Boolean(ac2 && ac2.errors);
+  return { path, counts, audited, journey, appliance, ref, degraded, partRecommended, ac2 };
 }
 
 function traceState(trace) {
@@ -361,6 +486,9 @@ function buildTurn(input) {
     // never read back into runtime; canonical state lives in STATE# / STATETURN#. Absent on legacy-only BFFs.
     canonical: input.canonical && typeof input.canonical === 'object' ? input.canonical : null,
   });
+  // ac2-transcript-audit/1: the ac2 turn's bounded decision audit (own field; only present on ac2 turns).
+  const ac2 = input.ac2 ? slimAc2Audit(stripSecrets(input.ac2)) : null;
+  if (ac2) turn.ac2 = ac2;
   return turn;
 }
 
@@ -539,7 +667,7 @@ function overviewRow(rec, now) {
     mediaCount: rec.mediaCount || 0,
     openingPreview: openingPreview(rec),
     canonical: (() => { const c = canonicalSummary(rec); return { path: c.path, journey: c.journey, appliance: c.appliance, ref: c.ref,
-      degraded: c.degraded, counts: c.counts }; })(),
+      degraded: c.degraded, counts: c.counts, ac2: c.ac2 }; })(),
     partRecommended: canonicalSummary(rec).partRecommended,
     needsAttention: reviewDashboard.needsAttention(rec),
     reviewStatus: review.status,
@@ -563,6 +691,7 @@ function drillDown(rec, now) {
     applianceClinic: t.customerVisible || { reply: '' },
     diagnosticTrace: t.diagnosticTrace || null,
     canonical: t.canonical || null,
+    ac2: t.ac2 || null,
     runtime: t.metadata ? { route: t.metadata.route || null, outcome: t.metadata.outcome || null, requestId: t.metadata.requestId || null,
       safetyStop: Boolean(t.metadata.safetyStop), safetyClass: t.metadata.safetyClass || null, apiError: Boolean(t.metadata.apiError) } : null,
   }));
@@ -720,7 +849,7 @@ function parseListQuery(qs) {
     attention: q.attention === '1' || q.attention === 'true',
     // canonical filters (evaluated in JS on the same GSI page as family / route; no extra scan)
     journey: q.journey && /^[a-z][a-z0-9-]{1,60}$/.test(String(q.journey)) ? String(q.journey) : '',
-    canonical: ['control', 'shadow', 'legacy', 'mixed', 'degraded'].includes(q.canonical) ? q.canonical : '',
+    canonical: ['control', 'shadow', 'legacy', 'mixed', 'degraded', 'ac2'].includes(q.canonical) ? q.canonical : '',
     degraded: q.degraded === '1' || q.degraded === 'true',
     partRecommended: q.partRecommended === '1' || q.partRecommended === 'true' ? true : (q.partRecommended === '0' || q.partRecommended === 'false' ? false : null),
   };
@@ -1056,6 +1185,7 @@ async function persistTurn(store, obs, input) {
     clientTurnId: obs.clientTurnId,
     now: input.now,
     canonical: input.canonical || null,
+    ac2: input.ac2 || null,
   });
   let rec = await store.get(obs.sessionId);
   if (!rec) rec = emptyRecord(obs.sessionId, input.now);
@@ -1101,6 +1231,8 @@ async function persistSafely(store, fn, log) {
 
 module.exports = {
   canonicalSummary,
+  slimAc2Audit,
+  AC2_SCHEMA,
   enforcePayloadBudget,
   PAYLOAD_BUDGET_BYTES,
   HELP_HUBS,

@@ -74,3 +74,63 @@ describe('knowledge is read-only (ADR 0019)', () => {
     expect(a.calls.filter((c) => removed.test(c.url))).toEqual([]);
   });
 });
+
+describe('transcript detail: AC2 decision panel', () => {
+  const EVIL = '<img src=x onerror="window.__pwned=1">';
+  const AC2 = {
+    schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', turn: 2,
+    provider: { name: 'bedrock', model: 'test-model' }, timings: { reasonMs: 900, verifyMs: 120, totalMs: 1100 }, ms: 1300,
+    toolCalls: [{ tool: 'error-codes', results: ['{"code":"F05","status":"RESOLVED"}'] }],
+    safety: { hazards: ['electrical'], gates: [{ gate: 'prohibited-advice', rule: 'no-live-testing' }] },
+    claimsRejected: [{ claim: 'The motor is burnt out', source: 'reply' }], claimsChecked: 3, regenerated: true,
+    partGate: { outcome: 'model_needed', component: 'drain pump', failed: ['model_confirmed'], matcher: null, cited: ['f1'] },
+    escalation: { to: 'electrician', reason: 'burning smell', forced: true },
+    status: 'narrowing', appliance: 'washing-machine',
+    candidates: [{ cause: 'Blocked pump filter', likelihood: 'high', evidence: ['f1', 'f2'] }],
+    ledger: {
+      appliance: { value: 'washing-machine', status: 'stated', turn: 1, quote: 'my washer' }, brand: null, model: null, codes: [], asked: [], hazards: ['electrical'],
+      facts: [
+        { id: 'f1', field: 'water_left_in_drum', value: true, source: 'customer', status: 'observed', turn: 1, quote: EVIL },
+        { id: 'f2', field: 'pump_noise', value: 'none', source: 'customer', status: 'contradicted', turn: 2, quote: 'no hum at all' },
+      ],
+      factsTotal: 2,
+    },
+  };
+  const DETAIL = {
+    overview: { sessionId: 's-ac2-observe-01', lifecycle: 'active', canonical: { path: 'ac2', appliance: 'washing-machine', counts: { ac2: 1 }, ac2: { turns: 1, errors: 0, status: 'narrowing', partGate: 'model_needed', hazards: ['electrical'] } } },
+    customerVisible: { turns: [{ seq: 1, at: '2026-10-12T10:00:00.000Z', customer: { text: 'it will not drain', photo: false }, applianceClinic: { reply: 'Check the filter.' }, canonical: null, ac2: AC2, runtime: { route: 'AC2', outcome: 'ANSWER' } }] },
+    diagnosticMetadata: {},
+  };
+
+  it('renders the decision, ledger, contradictions, safety and part gate from turn.ac2, escaping customer quotes', async () => {
+    const a = admin(ADMIN, { hash: '#transcripts/s-ac2-observe-01', extra: (url) => {
+      if (url.includes('/admin/transcripts/session?')) return { status: 200, body: DETAIL };
+      if (url.includes('/admin/transcripts')) return { status: 200, body: { items: [] } };
+      return null;
+    } });
+    await settle(a.window, 16);
+    expect(a.errors).toEqual([]);
+    const detail = a.document.getElementById('txDetail');
+    const panel = detail.querySelector('.tx-tp');
+    expect(panel).not.toBeNull();
+    const tabs = Array.from(panel.querySelectorAll('[data-tptab]')).map((b) => b.textContent);
+    expect(tabs.slice(0, 4)).toEqual(['AC2 decision', 'Evidence ledger', 'Safety & verifier', 'Tool calls']);
+    const text = panel.textContent;
+    expect(panel.querySelector('.tx-tp__chips').textContent).toMatch(/AC2.*NARROWING.*HAZARD · electrical.*MODEL NEEDED.*1 CLAIM REJECTED.*REGENERATED.*ESCALATE · electrician/);
+    expect(text).toMatch(/bedrock · test-model/);
+    expect(text).toMatch(/reason 900 ms · verify 120 ms · total 1100 ms/);
+    expect(text).toMatch(/Blocked pump filter/);
+    expect(text).toMatch(/evidence f1, f2/);
+    expect(text).toMatch(/model_confirmed/);
+    expect(text).toMatch(/The motor is burnt out/);
+    expect(text).toMatch(/prohibited-advice · no-live-testing/);
+    expect(panel.querySelectorAll('.tx-ac2tbl tbody tr')).toHaveLength(2);
+    expect(panel.querySelector('.tx-ac2tbl__bad').textContent).toMatch(/pump_noise/);
+    // The malicious quote is shown as text, never parsed as markup.
+    expect(panel.querySelector('img')).toBeNull();
+    expect(text).toContain(EVIL);
+    expect(a.window.__pwned).toBeUndefined();
+    // Session header badges use the AC2 path.
+    expect(detail.textContent).toMatch(/AC2/);
+  });
+});

@@ -33,6 +33,12 @@ function diagnosticsCanonicalMode() {
     return { mode: 'unknown', controlJourneyCount: null, demoted: false, invalid: false, unknownKeyCount: null };
   }
 }
+/** AC2_MODE as ac2-turn.selected() reads it: off (default) | benchmark | all. Anything else runs as off. */
+function diagnosticsAc2Mode(env = process.env) {
+  const raw = String(env.AC2_MODE || 'off').toLowerCase();
+  const valid = ['off', 'benchmark', 'all'].includes(raw);
+  return { mode: valid ? raw : 'off', invalid: !valid };
+}
 async function adminDiagnostics(event) {
   if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
   const runtime = {
@@ -45,6 +51,7 @@ async function adminDiagnostics(event) {
     engineHost: diagnosticsInspect.hostOf(ENGINE_URL),
     // Read-only canonical conversation mode as THIS runtime resolves it (env-driven; no writes).
     canonical: diagnosticsCanonicalMode(),
+    ac2: diagnosticsAc2Mode(),
   };
   const testDeps = _diagnosticsTestDeps || {};
   try {
@@ -81,4 +88,4 @@ async function adminDiagnostics(event) {
   }
 }
 
-module.exports = { setDiagnosticsDepsForTests, diagnosticsCanonicalMode, adminDiagnostics };
+module.exports = { setDiagnosticsDepsForTests, diagnosticsCanonicalMode, diagnosticsAc2Mode, adminDiagnostics };

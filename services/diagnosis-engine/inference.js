@@ -225,7 +225,9 @@ class OpenAICompatibleProvider {
     // Non-200 is returned (not thrown) so the engine keeps its existing
     // status-check + graceful-degrade behaviour rather than retrying a 4xx/5xx.
     if (res.status !== 200) {
-      return { status: res.status, text: '', usage: null };
+      // The provider's own error message (e.g. a context-length or schema error), bounded; never a credential.
+      const detail = String(res.body || '').replace(/\s+/g, ' ').slice(0, 300);
+      return { status: res.status, text: '', usage: null, errorDetail: detail };
     }
     let text = '';
     let usage = null;

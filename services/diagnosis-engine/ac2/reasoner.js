@@ -22,7 +22,8 @@ How to respond each turn:
 5. When the evidence points clearly to a cause, say so with the right confidence, explain why in one sentence, and say what to do next. Don't keep asking once you know enough. If a replaceable part is clearly indicated, name the component in "part" (the system checks the model and the parts catalogue).
 6. If the fault needs an engineer (sealed refrigerant system, gas parts, mains wiring, internal microwave work, a part that needs dismantling beyond basic owner checks), say so plainly.
 7. Use error-code results from the tool when they match the brand and appliance; if a code could mean different things, say what it most likely means and what would confirm it. A short token like "V6", "WW90" or "S7" may be a model or series rather than an error code: decide from context.
-8. Model numbers: a model-series hint is provisional. Never claim an exact model identity, part compatibility, price or availability.
+8. Model numbers: a model-series hint is provisional. Never claim an exact model identity, part compatibility, price or availability. Never give part numbers, and never describe how a specific model is built ("on your model the pump is…"); say what is typical and how to check.
+9. If the customer is unsure, can't check, won't do something or has already done it, accept that, use what you have, and choose a different useful step or give your best assessment with its uncertainty. Never ask the same thing twice.
 
 Evidence rules (strict, checked by the system):
 - Only state something as a fact about THIS customer's appliance, situation or actions if it is in ledger.facts with source "customer" or "tool" (or is in their message this turn). Otherwise hedge it ("if the filter is clear…", "it may be…").
@@ -61,7 +62,46 @@ Return ONLY a JSON object with exactly these keys:
  "reply": the message to the customer
 }`;
 
-const RESPONSE_FORMAT = { type: 'json_object' };
+// Structured output: a JSON schema (LM Studio and OpenAI both accept `json_schema`; LM Studio rejects `json_object`).
+const str = { type: 'string' };
+const nstr = { type: ['string', 'null'] };
+const quoted = (extra = {}) => ({ type: ['object', 'null'], properties: { value: str, quote: nstr, ...extra }, required: ['value', 'quote', ...Object.keys(extra)] });
+const SCHEMA = {
+  type: 'object',
+  properties: {
+    understanding: {
+      type: 'object',
+      properties: {
+        appliance: quoted({ basis: { type: 'string', enum: ['stated', 'inferred'] } }),
+        brand: quoted(),
+        model: quoted(),
+        codes: { type: 'array', items: { type: 'object', properties: { code: str, quote: str }, required: ['code', 'quote'] } },
+        newFacts: { type: 'array', items: { type: 'object', properties: { field: str, value: str, quote: str, status: { type: 'string', enum: ['stated', 'uncertain'] } }, required: ['field', 'value', 'quote', 'status'] } },
+        lastQuestionAnswer: { type: 'string', enum: ['answered', 'unknown', 'declined', 'not_applicable'] },
+        customerQuestion: nstr,
+        outOfScope: { type: 'object', properties: { is: { type: 'boolean' }, what: nstr }, required: ['is', 'what'] },
+      },
+      required: ['appliance', 'brand', 'model', 'codes', 'newFacts', 'lastQuestionAnswer', 'customerQuestion', 'outOfScope'],
+    },
+    assessment: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', enum: ['gathering', 'narrowed', 'probably_normal', 'needs_engineer', 'resolved'] },
+        candidates: { type: 'array', items: { type: 'object', properties: { cause: str, likelihood: { type: 'string', enum: ['high', 'medium', 'low'] }, evidence: { type: 'array', items: str } }, required: ['cause', 'likelihood', 'evidence'] } },
+        confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+        knowledgeIds: { type: 'array', items: str },
+        summary: nstr,
+      },
+      required: ['status', 'candidates', 'confidence', 'knowledgeIds', 'summary'],
+    },
+    next: { type: ['object', 'null'], properties: { key: str, question: str }, required: ['key', 'question'] },
+    part: { type: ['object', 'null'], properties: { component: str, evidence: { type: 'array', items: str } }, required: ['component', 'evidence'] },
+    escalation: { type: ['object', 'null'], properties: { to: { type: 'string', enum: ['engineer', 'gas_safe', 'electrician', 'manufacturer', 'refrigeration_engineer'] }, reason: str }, required: ['to', 'reason'] },
+    reply: str,
+  },
+  required: ['understanding', 'assessment', 'next', 'part', 'escalation', 'reply'],
+};
+const RESPONSE_FORMAT = { type: 'json_schema', json_schema: { name: 'ac2_turn', strict: true, schema: SCHEMA } };
 
 function stripThinking(text) {
   return String(text || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
@@ -118,6 +158,7 @@ async function reason(provider, context, { maxTokens = 1800, temperature = 0.3, 
     err.name = 'ReasonerError';
     err.category = res.status === 200 ? 'MALFORMED' : 'HTTP';
     err.status = res.status;
+    err.detail = res.errorDetail || (res.status === 200 ? String(res.text || '').slice(0, 200) : null);
     throw err;
   }
   return { proposal: normalise(proposal), usage, ms, attempts };
@@ -165,4 +206,4 @@ function normalise(p) {
   };
 }
 
-module.exports = { reason, parseJson, SYSTEM, APPLIANCE_ENUM, stripThinking, textOf };
+module.exports = { reason, parseJson, SYSTEM, APPLIANCE_ENUM, stripThinking, textOf, RESPONSE_FORMAT };

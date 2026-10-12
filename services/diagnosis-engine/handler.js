@@ -136,7 +136,7 @@ exports.handler = async (event) => {
         return json(200, { type: 'ac2', response: out.response, state: out.state, audit: out.audit });
       } catch (e) {
         if (e && e.name === 'ProviderUnavailableError') {
-          metric.ok = false; metric.mode = 'turn'; metric.error = `provider_unavailable:${e.category}`;
+          metric.ok = false; metric.mode = 'turn'; metric.error = `provider_unavailable:${e.category}`; metric.providerStatus = e.status; metric.providerDetail = e.detail;
           metric.totalMs = Date.now() - started; log(metric);
           return json(503, { error: 'Diagnosis is temporarily unavailable.', errorCode: 'reasoner_unavailable' });
         }

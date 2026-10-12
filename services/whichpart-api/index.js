@@ -805,7 +805,7 @@ async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }
     if (r.token) failed.stateToken = r.token;
     if (live) failed.liveTest = { schema: 'ac2-live/1', ok: false, reason: r.error, stateIn: Boolean(liveStateIn) };
     if (bench) failed.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: false, reason: r.error, session: benchmarkAuth.sessionRef(bench.sessionId) };
-    await persistTranscriptTurn(obs, messages, failed, null, rid, { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: r.error });
+    await persistTranscriptTurn(obs, messages, failed, null, rid, null, { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: r.error, ms: Date.now() - t0 });
     return respond(200, failed);
   }
   let overlay = null;
@@ -820,7 +820,7 @@ async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }
       claimsRejected: r.audit.claimsRejected.length, regenerated: r.audit.regenerated, partGate: r.audit.partGate && r.audit.partGate.outcome,
       engineMs: r.ms, timings: r.audit.timings, provider: r.audit.provider },
     safetyStopUse: Boolean(r.orch.safety && r.orch.safety.stopUse), partCount: view.parts.length, ms: Date.now() - t0 });
-  await persistTranscriptTurn(obs, messages, view, r.orch, rid, r.audit);
+  await persistTranscriptTurn(obs, messages, view, r.orch, rid, null, r.audit);
   return respond(200, view);
 }
 

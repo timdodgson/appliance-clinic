@@ -13,12 +13,23 @@
  */
 const L = require('./ledger.js');
 
-const EXTRACT_SYSTEM = `You check a draft reply from an appliance-repair assistant. List every sentence-level claim the draft makes that asserts a FACT ABOUT THIS PARTICULAR CUSTOMER: what they said, saw, heard, did, tried or checked, or the current state of their appliance (e.g. "your pump is humming", "you've cleaned the filter", "the door seal is torn", "it's draining normally").
-Do NOT list: general knowledge ("pumps can block"), advice or instructions, questions, conditional or hedged statements ("if the filter is clear…", "it may be…", "it sounds like…" when clearly an opinion), or statements about what the assistant will do.
-For each claim, give the ids of the evidence facts that support it (only if a listed fact states the same thing), or [] if none does.
-Return ONLY JSON: {"claims":[{"sentence": number, "claim": string, "supportedBy": [ids]}]}`;
+const EXTRACT_SYSTEM = `You check a draft reply from an appliance-repair assistant against what the customer actually said. List every claim in the draft that states, as a fact, something about THIS customer: what they said, saw, heard, smelled, did, tried, checked or measured, or the current state of their appliance (e.g. "your pump is humming", "you've cleaned the filter", "the door seal is torn", "it's draining normally", "the impeller spins freely").
+Do NOT list: general knowledge ("pumps can block", "E24 on Bosch dishwashers means a drain fault"), the assistant's own reasoning, conclusions or diagnoses ("so the pump has failed", "this confirms the motor is fine", "the most likely cause is…"), advice or instructions, questions, conditional or hedged statements ("if the filter is clear…", "it may be…"), or what the assistant will do.
+For each claim listed, show where the customer said it: copy the customer's own words exactly into "customerQuote" (from customerMessages), and/or give the ids of evidence facts that state the same thing. If the customer never said it, use null and [].
+Return ONLY JSON: {"claims":[{"sentence": number, "claim": string, "customerQuote": string or null, "supportedBy": [ids]}]}`;
+
+const EXTRACT_FORMAT = { type: 'json_schema', json_schema: { name: 'ac2_claims', strict: true, schema: { type: 'object', properties: { claims: { type: 'array', items: { type: 'object', properties: { sentence: { type: 'integer' }, claim: { type: 'string' }, customerQuote: { type: ['string', 'null'] }, supportedBy: { type: 'array', items: { type: 'string' } } }, required: ['sentence', 'claim', 'customerQuote', 'supportedBy'] } } }, required: ['claims'] } } };
 
 const ATTRIBUTION = /\b(you(?:'ve| have)?|you'd|you've) (?:already )?(said|mentioned|told me|confirmed|checked|tried|noticed|found|cleaned|cleared|replaced|reset|described|tested|seen|heard|removed|emptied|unblocked|descaled)\b|\bas you (?:said|mentioned|described|noted)\b|\bsince you(?:'ve| have)? (?:said|mentioned|checked|cleaned|tried|confirmed)\b|\byou (?:can|could) (?:see|hear|smell)\b(?![^.?!]*\?)|\b(?:i've|i have) noted\b|\bthanks for (?:checking|confirming|cleaning|clearing|trying|testing|looking)\b|\bgood (?:that|to hear) (?:you|it|the)\b/i;
+
+// A sentence asserting the current state of the customer's appliance ("your fan is running", "the filter is clear").
+// It is a customer-specific claim unless it is general, conditional, hedged or a question.
+const STATE = /\b(?:your|the|its)\s+(?:[a-z-]+\s+){0,3}(?:is|are|was|were|has been|have been|isn't|aren't|wasn't|weren't|hasn't|haven't|seems|looks)\s+(?:now\s+|still\s+|definitely\s+|clearly\s+|completely\s+|fully\s+|not\s+)*(?:clear|clean|cleaned|blocked|unblocked|working|running|fine|ok|okay|broken|faulty|failed|damaged|torn|split|turning|spinning|draining|heating|hot|warm|cold|empty|full|tripping|leaking|dry|wet|level|seated|connected|disconnected|kinked|free|stuck|jammed|intact|cracked|burnt|burned|on|off)\b|\b(?:your|the|its)\s+(?:[a-z-]+\s+){0,3}(?:has|have)\s+(?:now\s+|already\s+|definitely\s+)?(?:failed|broken|burnt|burned|blown|gone|stopped|seized|cracked|split|worn|perished|tripped|leaked)\b|\b(?:your|the)\s+(?:[a-z-]+\s+){0,2}(?:works|turns|spins|drains|heats|runs|lights|fills|cools|hums|clicks|beeps|leaks|trips)\b(?!\s*\?)/i;
+const GENERAL = /\b(if|when|whether|unless|usually|typically|generally|often|sometimes|most|many|some|can|could|may|might|should|would|check|make sure|ensure|see if|look for|tends?|common|likely|probably|possibly|perhaps|sounds like|suggests|means)\b/i;
+function stateClaim(sentence) {
+  const t = String(sentence || '').trim();
+  return !t.endsWith('?') && STATE.test(t) && !GENERAL.test(t);
+}
 
 const STOP = new Set('the a an and or but if is are was were be been it its it\'s this that there your you you\'ve i we to of in on at for with from so as not no do does did has have had can could would should will just still also now then when which what about into out up very really'.split(' '));
 function content(s) {
@@ -27,42 +38,68 @@ function content(s) {
 function stem(w) {
   return w.replace(/'s$/, '').replace(/(ing|ed|es|s)$/, '');
 }
+const NEGATION = /\b(no|not|none|never|nothing|nobody|without|n't|cannot|can't|won't|doesn't|isn't|hasn't|haven't|didn't|wasn't|aren't)\b|n't\b/i;
+/** A fact supports a claim only with the same polarity ("not checked anything" never supports "you checked …"). */
+function samePolarity(claim, f) {
+  const factText = `${f.value} ${f.quote || ''}`;
+  const factNeg = NEGATION.test(factText) || /^(no|false|none|0)$/i.test(String(f.value).trim());
+  return NEGATION.test(claim) === factNeg;
+}
 function overlap(a, b) {
   let n = 0;
   for (const w of a) if (b.has(w)) n += 1;
   return n;
 }
 
-/** Split into sentences, keeping the separators so the reply can be rebuilt. */
+/** Split into sentences, keeping the separators so the reply can be rebuilt. Abbreviations and decimals do not end a
+ * sentence ("e.g. a coin", "approx. 2.5 kg"). */
+const ABBREV = /\b(e\.g|i\.e|etc|approx|vs|no|mr|mrs|ms|dr|st|min|max|incl)\.$/i;
 function sentences(text) {
-  return String(text || '').match(/[^.!?\n]+(?:[.!?]+|$)\s*|\n+/g) || [];
+  const raw = String(text || '').match(/[^.!?\n]+(?:[.!?]+|$)\s*|\n+/g) || [];
+  const out = [];
+  for (const piece of raw) {
+    const prev = out[out.length - 1];
+    // Re-join when the previous piece ended in an abbreviation or a digit-dot followed by a digit.
+    if (prev && (ABBREV.test(prev.trim()) || (/\d\.$/.test(prev.trim()) && /^\d/.test(piece)) || /^[a-z]/.test(piece.trim()) && /\b[a-z]\.$/i.test(prev.trim()))) out[out.length - 1] = prev + piece;
+    else out.push(piece);
+  }
+  return out;
 }
 
 /**
  * Deterministic support check for one claim.
  * facts: supporting ledger facts; customerTexts: the customer's messages.
  */
-function supported(claimText, citedIds, facts, customerTexts) {
+function supported(claimText, citedIds, facts, customerTexts, customerQuote = null) {
   const c = content(claimText);
   if (!c.size) return { ok: true, basis: 'empty' };
+  // The customer's own words, located by the extractor and checked here: the quote must really be in the customer's
+  // messages, carry the same polarity, and share a real part of the claim's content.
+  if (customerQuote && L.grounded(customerQuote, customerTexts)) {
+    const qc = content(customerQuote);
+    const n = overlap(c, qc);
+    if (n >= 1 && n >= Math.ceil(c.size * 0.4) && NEGATION.test(claimText) === NEGATION.test(customerQuote)) return { ok: true, basis: 'customer-quote' };
+  }
   const byId = new Map(facts.map((f) => [f.id, f]));
   for (const id of citedIds || []) {
     const f = byId.get(id);
     if (!f) continue;
     const fc = content(`${f.field.replace(/_/g, ' ')} ${f.value} ${f.quote || ''}`);
-    if (overlap(c, fc) >= 1) return { ok: true, basis: `fact:${f.id}` };
+    const n = overlap(c, fc);
+    // The cited fact must cover most of what the claim asserts, with the same polarity.
+    if (n >= 1 && n / c.size > 0.5 && samePolarity(claimText, f)) return { ok: true, basis: `fact:${f.id}` };
   }
   // Restating the customer's own words is supported: most of the claim's content words appear in one message.
   for (const t of customerTexts) {
     const tc = content(t);
     const n = overlap(c, tc);
-    if (n >= 2 && n / c.size >= 0.6) return { ok: true, basis: 'customer-words' };
+    if (n >= 2 && n / c.size >= 0.5 && NEGATION.test(claimText) === NEGATION.test(t)) return { ok: true, basis: 'customer-words' };
   }
   // Any supporting fact that strongly matches the claim (the extractor may have failed to cite it).
   for (const f of facts) {
     const fc = content(`${f.field.replace(/_/g, ' ')} ${f.value} ${f.quote || ''}`);
     const n = overlap(c, fc);
-    if (n >= 2 && n / c.size >= 0.5) return { ok: true, basis: `fact:${f.id}` };
+    if (n >= 2 && n / c.size > 0.5 && samePolarity(claimText, f)) return { ok: true, basis: `fact:${f.id}` };
   }
   return { ok: false };
 }
@@ -81,7 +118,7 @@ async function verify(reply, state, customerTexts, { extract = null } = {}) {
     const user = JSON.stringify({
       draft: numbered,
       evidenceFacts: facts.map((f) => ({ id: f.id, field: f.field, value: f.value, ...(f.quote ? { quote: f.quote } : {}) })),
-      customerLatestMessage: customerTexts[customerTexts.length - 1] || '',
+      customerMessages: customerTexts,
     });
     const t0 = Date.now();
     try {
@@ -93,7 +130,7 @@ async function verify(reply, state, customerTexts, { extract = null } = {}) {
         for (const c of out.json.claims) {
           const n = Number(c.sentence);
           if (!Number.isInteger(n) || n < 1 || n > sents.length || !c.claim) continue;
-          claims.push({ sentence: n, claim: String(c.claim).slice(0, 200), cited: Array.isArray(c.supportedBy) ? c.supportedBy.map(String) : [], source: 'extractor' });
+          claims.push({ sentence: n, claim: String(c.claim).slice(0, 200), cited: Array.isArray(c.supportedBy) ? c.supportedBy.map(String) : [], quote: typeof c.customerQuote === 'string' ? c.customerQuote.slice(0, 300) : null, source: 'extractor' });
         }
       }
     } catch (e) {
@@ -105,14 +142,14 @@ async function verify(reply, state, customerTexts, { extract = null } = {}) {
   }
   // Deterministic backstop: every sentence attributing something to the customer is a claim.
   sents.forEach((s, i) => {
-    if (ATTRIBUTION.test(s) && !claims.some((c) => c.sentence === i + 1)) claims.push({ sentence: i + 1, claim: s.trim(), cited: [], source: 'detector' });
+    if ((ATTRIBUTION.test(s) || stateClaim(s)) && !claims.some((c) => c.sentence === i + 1)) claims.push({ sentence: i + 1, claim: s.trim(), cited: [], source: 'detector' });
   });
   const rejected = [];
   for (const c of claims) {
     // Hedged sentences are opinions, not claims of fact.
     // (judged on the claim itself: a hedge elsewhere in the sentence does not excuse an asserted fact).
     if (c.source === 'extractor' && /^(?:if|it may|it might|it could|possibly|perhaps|it sounds like|this suggests|probably|it seems)\b/i.test(c.claim.trim()) && !ATTRIBUTION.test(c.claim)) continue;
-    const r = supported(c.claim, c.cited, facts, customerTexts);
+    const r = supported(c.claim, c.cited, facts, customerTexts, c.quote || null);
     if (!r.ok) rejected.push({ sentence: c.sentence, claim: c.claim, reason: 'no supporting evidence', source: c.source });
     else c.basis = r.basis;
   }
@@ -125,4 +162,4 @@ function neutralise(verdict) {
   return verdict.sentences.filter((_, i) => !drop.has(i + 1)).join('').replace(/\s{2,}/g, ' ').trim();
 }
 
-module.exports = { verify, neutralise, sentences, supported, EXTRACT_SYSTEM, ATTRIBUTION };
+module.exports = { verify, neutralise, sentences, supported, stateClaim, EXTRACT_SYSTEM, EXTRACT_FORMAT, ATTRIBUTION };

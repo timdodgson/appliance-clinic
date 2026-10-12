@@ -726,7 +726,7 @@
     if (key === 'family') return familyLabel(value) || value;
     if (key === 'productArea') return TX_AREA_LABELS[value] || titleEnum(value);
     if (key === 'attention' || key === 'safety' || key === 'errors' || key === 'degraded') return '';
-    if (key === 'canonical') return ({ control: 'Canonical control', shadow: 'Shadow', legacy: 'Legacy', mixed: 'Mixed', degraded: 'Degraded' })[value] || value;
+    if (key === 'canonical') return ({ control: 'Canonical control', shadow: 'Shadow', legacy: 'Legacy', mixed: 'Mixed', degraded: 'Degraded', ac2: 'AC2' })[value] || value;
     if (key === 'partRecommended') return value === '1' ? 'yes' : 'no';
     if (key === 'journey') return value;
     if (key === 'route') return routeLabel(value);
@@ -1317,7 +1317,8 @@
     shadow: { text: 'SHADOW / NOT CONTROLLED', cls: 'tx-badge tx-badge--shadow' },
     legacy: { text: 'LEGACY PATH', cls: 'tx-badge tx-badge--legacy' },
     degraded: { text: 'DEGRADED', cls: 'tx-badge tx-badge--warn' },
-    mixed: { text: 'MIXED', cls: 'tx-badge tx-badge--shadow' }
+    mixed: { text: 'MIXED', cls: 'tx-badge tx-badge--shadow' },
+    ac2: { text: 'AC2', cls: 'tx-badge tx-badge--control' }
   };
   var TP_COMPOSE = {
     llm: { text: 'LLM COMPOSE', cls: 'tx-badge tx-badge--ok' },
@@ -1348,6 +1349,7 @@
   function tpPathOf(c) { return c && c.schemaVersion === 'canonical-audit/1' ? (c.path || 'legacy') : 'legacy'; }
   // Summary chips: always visible on the collapsed panel, so a turn can be scanned without opening it.
   function turnChips(t) {
+    if (ac2Of(t)) return ac2Chips(ac2Of(t));
     var c = t.canonical;
     var p = TP_PATH[tpPathOf(c)] || TP_PATH.legacy;
     var degradedPath = tpPathOf(c) === 'degraded';
@@ -1375,6 +1377,102 @@
     if (c.version && c.version.after != null) bits.push(tpBadge('v' + (c.version.before == null ? '—' : c.version.before) + ' → v' + c.version.after, 'tx-badge tx-badge--muted'));
     if (c.slim) bits.push(tpBadge('SUMMARY ONLY', 'tx-badge tx-badge--muted'));
     return bits.join('');
+  }
+  // ---- Per-turn AC2 decision panel (ac2-transcript-audit/1, stored as turn.ac2) -------------------------
+  // The LLM-led turn's bounded decision audit: provider, timings, evidence ledger, candidate causes, tool calls,
+  // safety gates, verifier rejections, part gate and escalation. Structured fields only — the audit holds no model
+  // reasoning text. Every value goes through esc().
+  var AC2_PART = {
+    verified: { text: 'PART VERIFIED', cls: 'tx-badge tx-badge--ok' },
+    model_needed: { text: 'MODEL NEEDED', cls: 'tx-badge tx-badge--warn' }
+  };
+  function ac2Of(t) { return t && t.ac2 && t.ac2.schemaVersion === 'ac2-transcript-audit/1' ? t.ac2 : null; }
+  function ac2Chips(a) {
+    var bits = [tpBadge('AC2', 'tx-badge tx-badge--control')];
+    if (a.error) { bits.push(tpBadge('ERROR · ' + a.error, 'tx-badge tx-badge--warn')); return bits.join(''); }
+    if (a.status) bits.push(tpBadge(tpUpper(a.status), 'tx-badge'));
+    var hz = (a.safety && a.safety.hazards) || [];
+    if (hz.length) bits.push(tpBadge('HAZARD · ' + hz.join(', '), 'tx-badge tx-badge--safety'));
+    var pg = a.partGate;
+    if (pg && pg.outcome) { var pp = AC2_PART[pg.outcome] || { text: 'PART · ' + tpUpper(pg.outcome), cls: 'tx-badge tx-badge--muted' }; bits.push(tpBadge(pp.text, pp.cls)); }
+    var rej = a.claimsRejected ? a.claimsRejected.length : (a.claimsRejectedCount || 0);
+    if (rej) bits.push(tpBadge(rej + ' CLAIM' + (rej === 1 ? '' : 'S') + ' REJECTED', 'tx-badge tx-badge--warn'));
+    if (a.regenerated) bits.push(tpBadge('REGENERATED', 'tx-badge tx-badge--warn'));
+    if (a.escalation && a.escalation.to) bits.push(tpBadge('ESCALATE · ' + a.escalation.to, 'tx-badge tx-badge--safety'));
+    if (a.slim) bits.push(tpBadge('SUMMARY ONLY', 'tx-badge tx-badge--muted'));
+    return bits.join('');
+  }
+  function ac2List(items) {
+    return items && items.length ? '<ul class="tx-evlist">' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="tac__muted">none</p>';
+  }
+  function ac2Timings(tm) {
+    if (!tm) return '';
+    return Object.keys(tm).map(function (k) { return k.replace(/Ms$/, '') + ' ' + tm[k] + ' ms'; }).join(' · ');
+  }
+  function ac2DecisionHtml(a) {
+    if (a.error) return tpRow('Path', 'AC2') + tpRow('Error', a.error) + tpRow('Elapsed ms', a.ms)
+      + '<p class="tx-tp__note">The engine could not answer this turn; the customer saw the temporarily-unavailable reply and the state was not advanced.</p>';
+    var pv = a.provider || {}; var pg = a.partGate || null; var es = a.escalation || null;
+    var cands = (a.candidates || []).map(function (c, i) {
+      return '<li class="tx-rank' + (i === 0 ? ' tx-rank--lead' : '') + '"><span class="tx-rank__n">' + (i + 1) + '.</span>'
+        + '<span class="tx-rank__cause">' + esc(c.cause) + '</span><span class="tx-rank__score">' + esc(c.likelihood || '—') + '</span>'
+        + '<span class="tx-ac2__cite">' + esc((c.evidence || []).length ? 'evidence ' + c.evidence.join(', ') : 'no evidence cited') + '</span></li>';
+    }).join('');
+    return tpRow('Path', 'AC2 (LLM-led turn, guardrail kernel)')
+      + tpRow('Provider', pv.name ? pv.name + (pv.model ? ' · ' + pv.model : '') : null)
+      + tpRow('Engine turn', a.turn)
+      + tpRow('Latency', ac2Timings(a.timings) || null)
+      + tpRow('BFF round trip ms', a.ms)
+      + tpRow('Tokens', a.usage ? Object.keys(a.usage).map(function (k) { return k + ' ' + a.usage[k]; }).join(' · ') : null)
+      + tpRow('Status', a.status)
+      + tpRow('Appliance', a.appliance)
+      + tpRow('Scope', a.scope ? [a.scope.status, a.scope.appliance].filter(Boolean).join(' · ') : null)
+      + tpRow('Regenerated', a.regenerated)
+      + '<div class="tx-tp__sub">Candidate causes</div>'
+      + (cands ? '<ol class="tx-ranklist">' + cands + '</ol>' : '<p class="tac__muted">' + (a.slim ? 'Not retained (older turn).' : 'none') + '</p>')
+      + '<div class="tx-tp__sub">Part gate</div>'
+      + (pg ? tpRow('Outcome', pg.outcome) + tpRow('Component', pg.component) + tpRow('Matcher', pg.matcher) + tpRow('Cited evidence', pg.cited)
+        + ((pg.failed || []).length ? '<div class="tx-tp__sub">Failed conditions</div>' + ac2List(pg.failed) : '')
+        : '<p class="tac__muted">No part decision this turn.</p>')
+      + '<div class="tx-tp__sub">Escalation</div>'
+      + (es ? tpRow('To', es.to) + tpRow('Reason', es.reason) + tpRow('Forced by hazard', es.forced) : '<p class="tac__muted">none</p>')
+      + (a.slim ? '<p class="tx-tp__note">Older turn: only the summary is retained to keep the transcript record bounded.</p>' : '');
+  }
+  function ac2LedgerHtml(a) {
+    var l = a.ledger;
+    if (!l) return '<p class="tac__muted">' + (a.slim ? 'Ledger not retained for this older turn.' : 'No evidence ledger recorded.') + '</p>';
+    function ent(e) { return e ? [e.value, e.status, e.turn != null ? 'turn ' + e.turn : null].filter(function (x) { return x != null && x !== ''; }).join(' · ') + (e.quote ? ' — “' + e.quote + '”' : '') : null; }
+    var facts = l.facts || [];
+    var rows = facts.map(function (f) {
+      var bad = f.status === 'contradicted';
+      return '<tr' + (bad ? ' class="tx-ac2tbl__bad"' : '') + '><td><code>' + esc(f.id) + '</code></td><td>' + esc(f.field) + '</td><td>' + esc(tpVal(f.value)) + '</td>'
+        + '<td>' + esc(f.source) + '</td><td>' + esc(f.status) + '</td><td>' + esc(f.turn == null ? '—' : String(f.turn)) + '</td>'
+        + '<td>' + (f.quote ? '“' + esc(f.quote) + '”' : '<span class="tac__muted">—</span>') + '</td></tr>';
+    }).join('');
+    var contra = facts.filter(function (f) { return f.status === 'contradicted'; });
+    return tpRow('Appliance', ent(l.appliance)) + tpRow('Brand', ent(l.brand)) + tpRow('Model', ent(l.model))
+      + tpRow('Error codes', (l.codes || []).map(function (c) { return c.code + (c.turn != null ? ' (turn ' + c.turn + ')' : ''); }))
+      + tpRow('Hazards', l.hazards)
+      + tpRow('Questions asked', (l.asked || []).map(function (q) { return q.key + (q.times > 1 ? ' ×' + q.times : '') + (q.resolution ? ' · ' + q.resolution : ''); }))
+      + '<div class="tx-tp__sub">Facts' + (l.factsTotal > facts.length ? ' (latest ' + facts.length + ' of ' + l.factsTotal + ')' : '') + '</div>'
+      + (rows ? '<div class="tx-ac2tbl__wrap"><table class="tx-ac2tbl"><thead><tr><th>Id</th><th>Field</th><th>Value</th><th>Source</th><th>Status</th><th>Turn</th><th>Customer quote</th></tr></thead><tbody>'
+        + rows + '</tbody></table></div>' : '<p class="tac__muted">No facts recorded yet.</p>')
+      + '<div class="tx-tp__sub">Contradictions</div>'
+      + (contra.length ? ac2List(contra.map(function (f) { return f.id + ' · ' + f.field + ' = ' + tpVal(f.value) + (f.quote ? ' (“' + f.quote + '”)' : ''); })) : '<p class="tac__muted">none</p>');
+  }
+  function ac2SafetyHtml(a) {
+    var sf = a.safety || {};
+    var gates = (sf.gates || []).map(function (g) { return [g.gate, g.rule, g.type, g.key, g.why].filter(Boolean).join(' · '); });
+    var rej = (a.claimsRejected || []).map(function (c) { return c.claim + (c.source ? ' [' + c.source + ']' : ''); });
+    return tpRow('Hazards', sf.hazards) + tpRow('Terminated by', sf.terminated)
+      + '<div class="tx-tp__sub">Gates fired</div>' + ac2List(gates)
+      + '<div class="tx-tp__sub">Verifier</div>' + tpRow('Claims checked', a.claimsChecked) + tpRow('Regenerated', a.regenerated)
+      + '<div class="tx-tp__sub">Claims rejected</div>' + (a.slim ? tpRow('Count', a.claimsRejectedCount) : ac2List(rej));
+  }
+  function ac2ToolsHtml(a) {
+    var calls = a.toolCalls || [];
+    if (!calls.length) return '<p class="tac__muted">' + (a.slim ? 'Not retained for this older turn.' : 'No tool calls this turn.') + '</p>';
+    return calls.map(function (c) { return '<div class="tx-tp__sub">' + esc(c.tool) + '</div>' + ac2List((c.results || []).map(tpVal)); }).join('');
   }
   function tpSummaryHtml(c) {
     var na = c.nextAction || {}; var pr = c.pendingRequest || {}; var pg = c.partGate || null;
@@ -1483,11 +1581,21 @@
         + (c.compose ? '<div class="tx-tp__sub">COMPOSE</div>' + tpRow('Mode', (TP_COMPOSE[cm.mode] || {}).text || cm.mode)
           + tpRow('Contract valid', cm.valid) + tpRow('Violations', cm.violations) + tpRow('Fallback reason', cm.fallbackReason)
           + tpRow('Latency ms', cm.latencyMs) + tpRow('Output chars', cm.outputChars) : '')
-        : '<p class="tx-tp__note">LEGACY PATH — no canonical audit was recorded for this turn' + (t.diagnosticTrace ? '; see the Trace tab.' : '.') + '</p>');
+        : (ac2Of(t) ? '<p class="tac__muted">AC2 path — see the AC2 decision tab.</p>'
+          : '<p class="tx-tp__note">LEGACY PATH — no canonical audit was recorded for this turn' + (t.diagnosticTrace ? '; see the Trace tab.' : '.') + '</p>'));
   }
   function turnPanelHtml(t, ti, turns) {
     var c = t.canonical && t.canonical.schemaVersion === 'canonical-audit/1' ? t.canonical : null;
     var tabs = [];
+    var a2 = ac2Of(t);
+    if (a2) {
+      tabs.push(['ac2', 'AC2 decision', ac2DecisionHtml(a2)]);
+      if (!a2.error) {
+        tabs.push(['ac2ledger', 'Evidence ledger', ac2LedgerHtml(a2)]);
+        tabs.push(['ac2safety', 'Safety & verifier', ac2SafetyHtml(a2)]);
+        tabs.push(['ac2tools', 'Tool calls', ac2ToolsHtml(a2)]);
+      }
+    }
     if (c) {
       tabs.push(['summary', 'Summary', tpSummaryHtml(c)]);
       if (c.classification) tabs.push(['classification', 'Classification', tpClassificationHtml(c.classification)]);
@@ -1505,7 +1613,8 @@
     var panels = tabs.map(function (x, i) {
       return '<div class="tx-tp__panel" data-tppanel="' + x[0] + '" role="tabpanel"' + (i === 0 ? '' : ' hidden') + '>' + x[2] + '</div>';
     }).join('');
-    var raw = c ? '<details class="tx-tp__raw"><summary>Raw audit JSON (developer)</summary><pre>' + esc(JSON.stringify(c, null, 2)) + '</pre></details>' : '';
+    var rawObj = c || a2;
+    var raw = rawObj ? '<details class="tx-tp__raw"><summary>Raw audit JSON (developer)</summary><pre>' + esc(JSON.stringify(rawObj, null, 2)) + '</pre></details>' : '';
     return '<details class="tx-tp" data-seq="' + esc(String(seq)) + '"><summary class="tx-tp__sum"><span class="tx-tp__label">Technical · turn ' + esc(String(seq)) + '</span>'
       + '<span class="tx-tp__chips">' + turnChips(t) + '</span></summary>'
       + '<div class="tx-tp__body">' + head + panels + raw + '</div></details>';
@@ -1516,7 +1625,15 @@
     var p = TP_PATH[cs.path] || TP_PATH.legacy;
     var bits = [tpBadge(p.text === 'SHADOW / NOT CONTROLLED' ? 'SHADOW' : p.text, p.cls)];
     if (cs.journey) bits.push(tpBadge(cs.journey, 'tx-badge tx-badge--journey'));
-    if (cs.degraded) bits.push(tpBadge('DEGRADED', 'tx-badge tx-badge--warn'));
+    var x = cs.ac2;
+    if (x) {
+      if (cs.appliance) bits.push(tpBadge(cs.appliance, 'tx-badge tx-badge--journey'));
+      if (x.status) bits.push(tpBadge(tpUpper(x.status), 'tx-badge'));
+      if (x.partGate) bits.push(tpBadge((AC2_PART[x.partGate] || { text: 'PART · ' + tpUpper(x.partGate) }).text, (AC2_PART[x.partGate] || { cls: 'tx-badge tx-badge--muted' }).cls));
+      if (x.hazards && x.hazards.length) bits.push(tpBadge('HAZARD', 'tx-badge tx-badge--safety'));
+      if (x.errors) bits.push(tpBadge(x.errors + ' AC2 ERROR' + (x.errors === 1 ? '' : 'S'), 'tx-badge tx-badge--warn'));
+    }
+    if (cs.degraded && !(x && x.errors)) bits.push(tpBadge('DEGRADED', 'tx-badge tx-badge--warn'));
     return bits.join('');
   }
 
@@ -3569,6 +3686,10 @@
         html += dgKv('Canonical conversation mode', (cm.modeLabel || cm.mode) + (cm.demoted ? ' — demoted to shadow (empty allow-list)' : '') + (cm.invalid ? ' — invalid setting, treated as off' : ''));
         if (cm.mode === 'control') html += dgKv('Canonical control journeys', cm.controlJourneyCount != null ? String(cm.controlJourneyCount) + ' enabled' : null);
         if (cm.unknownKeyCount) html += dgKv('Ignored allow-list keys', String(cm.unknownKeyCount) + ' not in the journey registry');
+      }
+      if (rt.ac2) {
+        // Read-only: AC2_MODE is deploy configuration, never changed from Admin.
+        html += dgKv('AC2 mode (LLM-led turn)', (rt.ac2.modeLabel || rt.ac2.mode) + (rt.ac2.invalid ? ' — invalid setting, treated as off' : ''));
       }
       html += '</dl>';
       if (rt.note) html += '<p class="dg-path__note">' + esc(rt.note) + '</p>';
