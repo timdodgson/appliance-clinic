@@ -55,9 +55,18 @@
       "Resource": [
         "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
       ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
     }
   ],
-  "grantNotes": "Code and configuration of the two AC consumer functions only; image and artefact reads. No PassRole (roles unchanged).",
+  "grantNotes": "Code and configuration of the two AC consumer functions only; image and artefact reads; PassRole of their own (unchanged) roles, which a configuration update requires.",
   "writes": {
     "types": [
       "AWS::Lambda::Function"
