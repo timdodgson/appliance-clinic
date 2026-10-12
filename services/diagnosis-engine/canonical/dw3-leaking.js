@@ -110,17 +110,36 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'foam-or-wrong-detergent': 'Washing-up liquid makes far more foam than a dishwasher can hold, and it pushes water out past the door. Mop up, run a rinse (or two) with the door shut and nothing added, and only use dishwasher detergent — no part is needed.',
-  'K7:door-seal': 'Clearing the seal very likely stopped it, so no part is needed.',
+  'K7:door-seal': { requires: { checks: { 'door-seal': FOUND } },
+    text: 'Clearing the seal very likely stopped it, so no part is needed.',
+    otherwise: 'The door seal area was very likely the cause, so no part is needed.' },
   'K7:loading-or-spray-escape': 'That was the spray being deflected out of the door, so no part is needed. Keep tall items clear of the spray arms.',
-  'K7:inlet-connection': 'The loose inlet connection was very likely the cause, so no part is needed.',
-  'K7:drain-connection': 'The loose drain connection was very likely the cause, so no part is needed.',
+  'K7:inlet-connection': { requires: { checks: { 'inlet-connection': FOUND } },
+    text: 'The loose inlet connection was very likely the cause, so no part is needed.',
+    otherwise: 'The inlet hose connection was very likely the cause, so no part is needed.' },
+  'K7:drain-connection': { requires: { checks: { 'drain-connection': FOUND } },
+    text: 'The loose drain connection was very likely the cause, so no part is needed.',
+    otherwise: 'The drain hose connection was very likely the cause, so no part is needed.' },
+  // each clause only when cs/1 records it: water in the base / non-stop pumping, and the hoses and door checked fine
   'internal-leak': (state) => {
     const o = state.evidence && state.evidence.observations; const base = o && ((o.waterInBase && o.waterInBase.value) || (o.pumpRunsContinuously && o.pumpRunsContinuously.value));
-    return base
-      ? 'Water in the base tray has set off the flood protection — that\'s why it won\'t fill (or keeps pumping): it\'s doing its job. With the hoses and door fine, the water is coming from inside (the sump, pump seal or an internal hose). Switch it off at the socket, leave the tap off and don\'t tip it to empty the tray; an appliance engineer needs to find the leak — I\'m not recommending a part (an inlet valve won\'t fix this).'
-      : 'With the hoses and door fine, the water is most likely coming from inside the dishwasher (the sump, pump seal or an internal hose). An appliance engineer needs to find it safely — I\'m not recommending a part from this.';
+    const fine = ck.evidenceHolds(state, { checks: { 'inlet-connection': FINE, 'drain-connection': FINE, 'door-seal': FINE } });
+    const inBase = ck.evidenceHolds(state, { obs: { waterInBase: true } });
+    if (base && fine && inBase) {
+      return 'Water in the base tray has set off the flood protection — that\'s why it won\'t fill (or keeps pumping): it\'s doing its job. With the hoses and door fine, the water is coming from inside (the sump, pump seal or an internal hose). Switch it off at the socket, leave the tap off and don\'t tip it to empty the tray; an appliance engineer needs to find the leak — I\'m not recommending a part (an inlet valve won\'t fix this).';
+    }
+    if (base) {
+      const lead = inBase ? 'Water in the base tray has set off the flood protection — that\'s why it won\'t fill (or keeps pumping): it\'s doing its job.'
+        : 'Pumping non-stop usually means the flood protection has been set off by water in the base tray — it\'s doing its job.';
+      return `${lead} The water is most likely coming from inside (the sump, pump seal or an internal hose), but I can't confirm where from what we know. Switch it off at the socket, leave the tap off and don't tip it to empty the tray; an appliance engineer needs to find the leak — I'm not recommending a part (an inlet valve won't fix this).`;
+    }
+    return fine
+      ? 'With the hoses and door fine, the water is most likely coming from inside the dishwasher (the sump, pump seal or an internal hose). An appliance engineer needs to find it safely — I\'m not recommending a part from this.'
+      : 'From what you\'ve described, a leak inside the dishwasher (the sump, pump seal or an internal hose) is the most likely area, but I can\'t confirm it from what we know. An appliance engineer needs to find it safely — I\'m not recommending a part from this.';
   },
 };
 const compose = ck.createCompose({

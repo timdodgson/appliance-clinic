@@ -77,13 +77,25 @@ const TASK = {
   'ask_check:retest': { say: 'Leave it running with the doors shut for a few hours.', ask: 'Is it running and getting cold now, or still not?' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'FP7:power-supply': 'That was the power supply, so no part is needed. Give it a few hours to get cold again.',
-  'FP7:condenser-coils-or-clearance': 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
-  'mains-or-control-dead': `With the socket working but no lights at all, the fault is in the fridge freezer's mains input or control. Please don't open it up — an appliance engineer is the next step, and I'm not recommending a part from this. ${FOOD}`,
-  'lights-on-not-running': `It has power but the motor at the back never runs, so the control or start side isn't starting the compressor. That needs an appliance engineer to test safely — please don't take covers off at the back. I'm not recommending a part from this. ${FOOD}`,
-  'click-start-relay-or-compressor': `Clicking every few minutes without starting is the compressor trying to start and its protector cutting it out — usually the start device (relay) or the compressor itself. Only live testing tells them apart, so this needs a refrigeration engineer; please don't take the cover off at the back. I'm not recommending a part from this. ${FOOD}`,
-  'running-not-cooling': `It runs but doesn't get cold, so the fault is most likely in the sealed cooling system (or the airflow inside). Please don't open any pipes; a refrigeration engineer is the next step — I'm not recommending a part from this. ${FOOD}`,
+  'FP7:condenser-coils-or-clearance': { requires: { checks: { 'condenser-coil-clear': FOUND } },
+    text: 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
+    otherwise: 'Dusty coils or too little space round it were very likely the cause, so no part is needed.' },
+  'mains-or-control-dead': { requires: { obs: { noPower: true }, checks: { 'power-supply': FINE } },
+    text: `With the socket working but no lights at all, the fault is in the fridge freezer's mains input or control. Please don't open it up — an appliance engineer is the next step, and I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, the fridge freezer's mains input or control is the most likely area, but I can't confirm it from what we know. Please don't open it up — an appliance engineer is the next step, and I'm not recommending a part from this. ${FOOD}` },
+  'lights-on-not-running': { requires: { obs: { noPower: false, compressorRuns: false } },
+    text: `It has power but the motor at the back never runs, so the control or start side isn't starting the compressor. That needs an appliance engineer to test safely — please don't take covers off at the back. I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, the control or start side not starting the compressor is the most likely area, but I can't confirm it from what we know. That needs an appliance engineer to test safely — please don't take covers off at the back. I'm not recommending a part from this. ${FOOD}` },
+  'click-start-relay-or-compressor': { requires: { obs: { clicksNoStart: true } },
+    text: `Clicking every few minutes without starting is the compressor trying to start and its protector cutting it out — usually the start device (relay) or the compressor itself. Only live testing tells them apart, so this needs a refrigeration engineer; please don't take the cover off at the back. I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, the compressor start device (relay) or the compressor itself is the most likely area, but I can't confirm it from what we know. Only live testing tells them apart, so this needs a refrigeration engineer; please don't take the cover off at the back. I'm not recommending a part from this. ${FOOD}` },
+  'running-not-cooling': { requires: { obs: { compressorRuns: true } },
+    text: `It runs but doesn't get cold, so the fault is most likely in the sealed cooling system (or the airflow inside). Please don't open any pipes; a refrigeration engineer is the next step — I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, the sealed cooling system (or the airflow inside) is the most likely area, but I can't confirm it from what we know. Please don't open any pipes; a refrigeration engineer is the next step — I'm not recommending a part from this. ${FOOD}` },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it running and getting cold now?',

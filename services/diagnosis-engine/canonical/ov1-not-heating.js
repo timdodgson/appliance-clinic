@@ -83,9 +83,16 @@ const TASK = {
 const CONCLUSION = {
   'OH7:clock-or-auto-mode': 'That was the clock / auto mode, so no part is needed. If you lose power again, set the clock first.',
   'OH7:function-or-setting': 'That was the setting, so no part is needed.',
-  'fan-oven-element': 'With the fan running and the grill working but the main oven cold, the fan-oven (circular) element behind the back panel is the usual cause. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
-  'thermostat-or-sensor': 'Heating only slowly with the fan and grill working points to the thermostat / temperature sensor (or a weak element). That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
-  'selector-or-control': 'With the clock working but nothing heating, the function selector or the control is the likely area. That needs an appliance engineer — please don\'t take any panels off. I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'fan-oven-element': { requires: { obs: { ovenFanTurns: true, grillWorks: true, mainOvenWorks: false } },
+    text: 'With the fan running and the grill working but the main oven cold, the fan-oven (circular) element behind the back panel is the usual cause. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the fan-oven (circular) element behind the back panel is the most likely area, but I can\'t confirm it from what we know. An appliance engineer can check it safely — I\'m not recommending a part from this.' },
+  'thermostat-or-sensor': { requires: { obs: { heatsSlowly: true, ovenFanTurns: true, grillWorks: true } },
+    text: 'Heating only slowly with the fan and grill working points to the thermostat / temperature sensor (or a weak element). That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the thermostat / temperature sensor (or a weak element) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.' },
+  'selector-or-control': { requires: { obs: { mainOvenWorks: false, grillWorks: false }, checks: { 'oven-clock-mode': 'clear' } },
+    text: 'With the clock working but nothing heating, the function selector or the control is the likely area. That needs an appliance engineer — please don\'t take any panels off. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the function selector or the control is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — please don\'t take any panels off. I\'m not recommending a part from this.' },
 };
 // Why the evidence points at a component (used when no part can be matched): the grill has its own element.
 const ovObs = (s, k) => { const o = s.evidence && s.evidence.observations && s.evidence.observations[k]; return o ? o.value : null; };

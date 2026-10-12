@@ -106,14 +106,28 @@ const TASK = {
   'ask_check:retest': { say: 'Try it with a cup of water for a minute.', ask: 'Has the noise gone, or is it still there?' },
   'ask_identity:model': F.MW_MODEL_ASK, 'ask_identity:appliance': F.MW_APPLIANCE_ASK,
 };
+const sparkSeen = (s) => ((s.safety && s.safety.hazards) || []).some((x) => x.hazard === 'microwave_arcing') || sparkingReport(s);
+// premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure"). SAFETY: "fine to use
+// again" only when the metal was seen AND removed, with no burnt cover / paint reported.
 const CONCLUSION = {
-  'metal-or-foil-inside': 'The sparks came from the metal / foil — microwaves bounce off metal and arc. With it removed and nothing inside burnt or damaged, it\'s fine to use again; if it ever sparks with nothing metal inside, stop and tell me. No part is needed.',
-  'cavity-paint-burnt': `Burnt or chipped paint inside can keep arcing. Please don't use it again — ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical); I'm not recommending a part from this.`,
-  'arcing-high-voltage-side': `Sparking with no metal inside and nothing visibly burnt points to the high-voltage side. Please don't use it again. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
-  'waveguide-cover': 'A burnt or holed waveguide cover is a common cause of sparking. Please don\'t use the microwave until it\'s replaced. With your model number I can check for the cover; I\'m not recommending a part without it.',
+  'metal-or-foil-inside': (s) => (ck.evidenceHolds(s, { obs: { metalInside: true }, checks: { 'mw-cavity-check': 'found_and_cleared' } })
+    && engine.obsVal(s, 'waveguideCoverDamaged') !== true && engine.obsVal(s, 'cavityBurnt') !== true
+    ? 'The sparks came from the metal / foil — microwaves bounce off metal and arc. With it removed and nothing inside burnt or damaged, it\'s fine to use again; if it ever sparks with nothing metal inside, stop and tell me. No part is needed.'
+    : 'From what you\'ve described, metal or foil inside is the most likely cause, but I can\'t confirm it from what we know. Please don\'t use it until anything metal is out and you\'ve checked (unplugged, door open) that the small cover panel on the inside wall and the paint inside aren\'t burnt or damaged; if it sparks with nothing metal inside, stop using it and tell me. I\'m not recommending a part from this.'),
+  'cavity-paint-burnt': { requires: { obs: { cavityBurnt: true } },
+    text: `Burnt or chipped paint inside can keep arcing. Please don't use it again — ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical); I'm not recommending a part from this.`,
+    otherwise: `From what you've described, burnt or chipped paint inside is the most likely area, but I can't confirm it from what we know. Please don't use it again — ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical); I'm not recommending a part from this.` },
+  'arcing-high-voltage-side': (s) => (sparkSeen(s) && ck.evidenceHolds(s, { checks: { 'mw-cavity-check': 'clear' } })
+    ? `Sparking with no metal inside and nothing visibly burnt points to the high-voltage side. Please don't use it again. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`
+    : `From what you've described, the high-voltage side is the most likely area, but I can't confirm it from what we know. Please don't use it again. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`),
+  'waveguide-cover': { requires: { anyOf: [{ obs: { waveguideCoverDamaged: true } }, { checks: { 'mw-cavity-check': 'fault_seen' } }] },
+    text: 'A burnt or holed waveguide cover is a common cause of sparking. Please don\'t use the microwave until it\'s replaced. With your model number I can check for the cover; I\'m not recommending a part without it.',
+    otherwise: 'From what you\'ve described, a burnt or holed waveguide cover (the small panel on the inside wall) is the most likely area, but I can\'t confirm it from what we know. Please don\'t use the microwave until it\'s been checked; I\'m not recommending a part from this.' },
   'MN7:turntable-noise': 'That was the turntable parts, so no part is needed.',
   'normal-operating-hum': 'A steady hum while it runs is normal — it\'s the magnetron, transformer and cooling fan working. As it heats food normally with no sparks, burning smell or smoke, nothing needs fixing and no part is needed. If the hum turns into a loud buzz, it stops heating, or you see sparks or smell burning, stop using it and let me know.',
-  'high-voltage-noise': `A loud buzz or hum from inside (rather than the turntable) points to the high-voltage parts. Please don't keep using it. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+  'high-voltage-noise': { requires: { obs: { humNoise: true } },
+    text: `A loud buzz or hum from inside (rather than the turntable) points to the high-voltage parts. Please don't keep using it. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the high-voltage parts are the most likely area, but I can't confirm it from what we know. Please don't keep using it. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is that clear?',

@@ -64,11 +64,15 @@ const TASK = {
   'ask_check:retest': { say: 'Give it a day with the doors shut to settle at the new setting.', ask: 'Is the food still freezing in the fridge, or is it normal now?' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'FX7:temperature-setting': 'That was the setting, so no part is needed. Give it a day to settle.',
   'FX7:food-against-back-wall': 'Food touching the cold back wall is the usual reason for odd items freezing, so no part is needed — keep things a little away from it.',
   'room-temperature-location': 'In a very cold room a fridge freezer can\'t regulate properly (the climate class on its rating label gives the room range it was designed for). Moving it to a normal room is the fix — no part is needed.',
-  'thermostat-sensor-or-damper': 'With the settings normal and nothing touching the back wall, the thermostat, temperature sensor or air damper is the likely area. That needs an appliance engineer to test — I\'m not recommending a part from this.',
+  'thermostat-sensor-or-damper': { requires: { checks: { 'temp-setting': FINE, 'vents-clear': FINE } },
+    text: 'With the settings normal and nothing touching the back wall, the thermostat, temperature sensor or air damper is the likely area. That needs an appliance engineer to test — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the thermostat, temperature sensor or air damper is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it at a normal temperature now?',

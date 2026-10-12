@@ -20,14 +20,19 @@ const TASK = {
 const CONCLUSION = {
   'O7:drain-hose-siphon': 'The drain hose fitting was very likely letting the water siphon away (so it kept refilling), so no part is needed. Keep the hose hooked up high.',
   'drain-hose-siphon': 'This points to the drain hose installation: if it sits too low or too far down the waste, water siphons out as it fills (or dirty water runs back in). Refitting it high is an installation fix, not a part — a plumber or installer can sort it if needed.',
-  'foam-level': 'Too much foam can upset the level sensing and make it take extra water. Use the recommended dose of a low-foam (HE) detergent and run a rinse to clear the suds — no part is needed.',
+  'foam-level': { requires: { committed: true }, text: 'Too much foam can upset the level sensing and make it take extra water. Use the recommended dose of a low-foam (HE) detergent and run a rinse to clear the suds — no part is needed.', otherwise: 'Too much foam can upset the level sensing and make it take extra water, so it\'s worth using the recommended dose of a low-foam (HE) detergent and running a rinse — but I can\'t confirm that\'s the cause from what we know. If it still overfills, turn the water off at the tap and have an appliance engineer check it.' },
   'level-sensing-or-control': (state) => {
     const f = state.evidence && state.evidence.observations && state.evidence.observations.fillsWhenOff;
     const lead = f && f.value === false ? 'As the water stops once the machine is switched off, the valve is closing properly — the machine is being told to keep filling. That' : 'This';
     return `${lead} points to the water-level (pressure) sensing or the control side, which needs an appliance engineer to diagnose safely. Keep the tap off between washes until then; I'm not recommending a part from this.`;
   },
-  'waste-backflow': 'Dirty water appearing in the drum with the drain hose fitted correctly means waste water is backing up from the household plumbing (a blocked sink waste, trap or standpipe). Clearing that, or a plumber, is the next step — no machine part is needed.',
-  'inlet-valve-stuck-open': 'Water coming in with the machine switched off points to the inlet valve sticking open. Keep the tap turned off whenever the machine isn\'t in use until it\'s repaired; an appliance engineer can confirm and replace it.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'waste-backflow': { requires: { obs: { waterIsDirty: true }, checks: { 'drain-hose-height': 'clear' } },
+    text: 'Dirty water appearing in the drum with the drain hose fitted correctly means waste water is backing up from the household plumbing (a blocked sink waste, trap or standpipe). Clearing that, or a plumber, is the next step — no machine part is needed.',
+    otherwise: 'From what you\'ve described, waste water backing up from the household plumbing (a blocked sink waste, trap or standpipe) is the most likely cause, but I can\'t confirm it from what we know — the drain hose installation can do the same. Clearing that, or a plumber, is the next step — I\'m not recommending a machine part from this.' },
+  'inlet-valve-stuck-open': { requires: { obs: { fillsWhenOff: true } },
+    text: 'Water coming in with the machine switched off points to the inlet valve sticking open. Keep the tap turned off whenever the machine isn\'t in use until it\'s repaired; an appliance engineer can confirm and replace it.',
+    otherwise: 'From what you\'ve described, the inlet valve sticking open is the most likely area, but I can\'t confirm it from what we know. Keep the tap turned off whenever the machine isn\'t in use until it\'s checked; an appliance engineer can confirm it — I\'m not recommending a part from this.' },
 };
 const OBS_COPY = {
   fillsWhenOff: ['water still enters with the machine off', 'water stops when it is switched off'], waterLevelHigh: ['water level too high', 'level stays normal while it keeps taking water'],

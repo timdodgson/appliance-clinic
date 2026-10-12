@@ -80,9 +80,17 @@ const TASK = {
 };
 const CONCLUSION = {
   'DT7:overload-or-bulky-item': 'That was the load, so no part is needed. Keep loads to about two-thirds of the drum.',
-  'drum-seized-rollers-or-bearing': 'A drum that feels stiff or stuck by hand points to the rollers, the bearing or something jammed behind the drum. Please don\'t force it; an appliance engineer is the next step — I\'m not recommending a part from this.',
-  'motor-or-control': 'With no motor sound and the drum turning normally by hand, the motor or its control is the likely area. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
-  'drive-belt': 'A motor that runs with a drum that spins freely usually means the drive belt has snapped or come off. An appliance engineer can confirm it — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  // stiff by hand = drum-by-hand fault_seen WITHOUT "spins very easily" (that combination is the free drum — SPEC.extra)
+  'drum-seized-rollers-or-bearing': (s) => (engine.checkResult(s, 'drum-by-hand') === 'fault_seen' && engine.obsVal(s, 'drumUnusuallyFree') !== true
+    ? 'A drum that feels stiff or stuck by hand points to the rollers, the bearing or something jammed behind the drum. Please don\'t force it; an appliance engineer is the next step — I\'m not recommending a part from this.'
+    : 'From what you\'ve described, the drum rollers, the bearing or something jammed behind the drum is the most likely area, but I can\'t confirm it from what we know. Please don\'t force the drum; an appliance engineer is the next step — I\'m not recommending a part from this.'),
+  'motor-or-control': { requires: { obs: { motorAudible: false }, checks: { 'drum-by-hand': 'clear' } },
+    text: 'With no motor sound and the drum turning normally by hand, the motor or its control is the likely area. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the motor or its control is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.' },
+  'drive-belt': { requires: { obs: { motorAudible: true, drumUnusuallyFree: true } },
+    text: 'A motor that runs with a drum that spins freely usually means the drive belt has snapped or come off. An appliance engineer can confirm it — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the drive belt (snapped or come off) is the most likely area, but I can\'t confirm it from what we know. An appliance engineer can check it — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is the drum turning normally now?',

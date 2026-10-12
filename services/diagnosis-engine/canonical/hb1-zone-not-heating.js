@@ -72,10 +72,25 @@ const TASK = {
 };
 const CONCLUSION = {
   'HZ7:key-or-child-lock': 'That was the lock, so no part is needed.',
-  'pan-compatibility': 'The zone works with a suitable pan, so it\'s the pan: induction needs a flat, magnetic base big enough for the zone (a fridge magnet should stick firmly). No part is needed.',
-  'induction-zone-or-power-board': 'A known-good pan failing on that zone points to its induction coil or power board. Please don\'t take the hob out or test it live — an appliance engineer is the next step. I\'m not recommending a part from this.',
-  'element-or-zone-control': 'One zone not heating on a ceramic or solid-plate hob is usually that zone\'s element or its control switch. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
-  'control-or-power-side': 'With nothing locked but the zones not heating, the hob control or its power side is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'pan-compatibility': { requires: { obs: { worksWithKnownGoodPan: true } },
+    text: 'The zone works with a suitable pan, so it\'s the pan: induction needs a flat, magnetic base big enough for the zone (a fridge magnet should stick firmly). No part is needed.',
+    otherwise: 'From what you\'ve described, the pan not suiting induction is the most likely cause, but I can\'t confirm it from what we know: induction needs a flat, magnetic base big enough for the zone (a fridge magnet should stick firmly). If a pan that works on another zone also fails on this one, let me know.' },
+  'induction-zone-or-power-board': { requires: { obs: { failsKnownGoodPan: true } },
+    text: 'A known-good pan failing on that zone points to its induction coil or power board. Please don\'t take the hob out or test it live — an appliance engineer is the next step. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, that zone\'s induction coil or power board is the most likely area, but I can\'t confirm it from what we know. Please don\'t take the hob out or test it live — an appliance engineer is the next step. I\'m not recommending a part from this.' },
+  // "one zone" is the problem scope (not an observation), so this entry reads it from state itself
+  'element-or-zone-control': (state) => {
+    const p = kit.problemOf(state);
+    const oneZone = Boolean(p && p.scope && p.scope.value === 'one_zone');
+    const radiant = ck.evidenceHolds(state, { anyOf: [{ obs: { ceramicHob: true } }, { obs: { solidPlateHob: true } }] });
+    return oneZone && radiant
+      ? 'One zone not heating on a ceramic or solid-plate hob is usually that zone\'s element or its control switch. That needs an appliance engineer to test safely — I\'m not recommending a part from this.'
+      : 'From what you\'ve described, the zone\'s element or its control switch is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.';
+  },
+  'control-or-power-side': { requires: { checks: { 'child-lock': 'clear' } },
+    text: 'With nothing locked but the zones not heating, the hob control or its power side is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the hob control or its power side is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the zone heating now?',

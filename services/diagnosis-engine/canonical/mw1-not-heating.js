@@ -58,8 +58,13 @@ const TASK = {
 };
 const CONCLUSION = {
   'MH7:power-level-or-mode': 'That was the power level / mode, so no part is needed.',
-  'high-voltage-heating-system': `Running normally with no heat means a fault in the high-voltage heating system (the magnetron, diode, capacitor or its power supply) — I can't tell which from the outside, and I'm not recommending a part. ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical).`,
-  'overheat-cut-out-or-control': `Stopping part way usually means its overheat cut-out or the control is cutting in — check the vents on the sides / back aren't blocked. ${F.HV} If it keeps happening, an appliance engineer should check it; I'm not recommending a part from this.`,
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors, an error code or a "not sure")
+  'high-voltage-heating-system': { requires: { obs: { runsNormally: true } },
+    text: `Running normally with no heat means a fault in the high-voltage heating system (the magnetron, diode, capacitor or its power supply) — I can't tell which from the outside, and I'm not recommending a part. ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical).`,
+    otherwise: `From what you've described, the high-voltage heating system (the magnetron, diode, capacitor or its power supply) is the most likely area, but I can't confirm it from what we know — and I can't tell which part from the outside, so I'm not recommending a part. ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical).` },
+  'overheat-cut-out-or-control': { requires: { obs: { cutsOut: true } },
+    text: `Stopping part way usually means its overheat cut-out or the control is cutting in — check the vents on the sides / back aren't blocked. ${F.HV} If it keeps happening, an appliance engineer should check it; I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the overheat cut-out or the control is the most likely area, but I can't confirm it from what we know — check the vents on the sides / back aren't blocked. ${F.HV} If the problem keeps happening, an appliance engineer should check it; I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it heating properly now?',

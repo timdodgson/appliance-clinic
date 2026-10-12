@@ -103,7 +103,10 @@ const CONCLUSION = {
   'DD7:vent-hose-restricted': 'Clearing the vent hose very likely fixed it, so no part is needed.',
   'DD7:moisture-sensor-strips': 'Cleaning the sensor strips very likely fixed it, so no part is needed.',
   'DD7:programme-or-dryness-level': 'That was the programme, so no part is needed.',
-  'drying-airflow-system': 'It heats and the filters, load and settings are all fine, so the problem is the dryer\'s internal airflow (the fan or ducting) — not the heater. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches DS on priors or a "not sure")
+  'drying-airflow-system': { requires: { obs: { heatPresent: true }, checks: { 'lint-filter': 'clear', 'load-check': 'clear', 'programme-setting': 'clear' } },
+    text: 'It heats and the filters, load and settings are all fine, so the problem is the dryer\'s internal airflow (the fan or ducting) — not the heater. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the dryer\'s internal airflow (the fan or ducting) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it drying properly now?',

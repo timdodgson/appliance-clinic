@@ -86,9 +86,17 @@ const TASK = {
 const CONCLUSION = {
   'DN7:foreign-object': 'That was the loose item, so no part is needed. Checking pockets before drying helps.',
   'object-out-of-reach': 'Something is stuck where you can\'t reach it. Please don\'t take the dryer apart; an appliance engineer can remove it — I\'m not recommending a part from this.',
-  'drum-rollers-or-idler': 'A squeal or rumble that you can also feel as roughness by hand points to the drum support rollers or the idler (jockey) wheel. An appliance engineer can confirm it — I\'m not recommending a part from this.',
-  'drive-area': 'With nothing loose and the drum smooth by hand, the noise is from the belt / drive area. That needs an appliance engineer to check — I\'m not recommending a part from this.',
-  'normal-pump-or-compressor-hum': 'A steady hum on a condenser or heat-pump dryer is normally the water pump or the heat-pump compressor working — that\'s expected and no part is needed. If it turns into a grind or squeal, let me know.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'drum-rollers-or-idler': { requires: { checks: { 'drum-by-hand': 'fault_seen' }, anyOf: [{ obs: { squealNoise: true } }, { obs: { grindingNoise: true } }] },
+    text: 'A squeal or rumble that you can also feel as roughness by hand points to the drum support rollers or the idler (jockey) wheel. An appliance engineer can confirm it — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the drum support rollers or the idler (jockey) wheel are the most likely area, but I can\'t confirm it from what we know. An appliance engineer can check them — I\'m not recommending a part from this.' },
+  'drive-area': { requires: { checks: { 'drum-foreign-object': 'clear', 'drum-by-hand': 'clear' } },
+    text: 'With nothing loose and the drum smooth by hand, the noise is from the belt / drive area. That needs an appliance engineer to check — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the belt / drive area is the most likely source of the noise, but I can\'t confirm it from what we know. That needs an appliance engineer to check — I\'m not recommending a part from this.' },
+  // NN is only ranked with a hum (eligible()); the dryer type must be stated (latest wins — td-family tdArchitecture)
+  'normal-pump-or-compressor-hum': (s) => (['condenser', 'heat-pump'].includes(F.tdArchitecture(s).type)
+    ? 'A steady hum on a condenser or heat-pump dryer is normally the water pump or the heat-pump compressor working — that\'s expected and no part is needed. If it turns into a grind or squeal, let me know.'
+    : 'A steady hum is often just the water pump or, on a heat-pump dryer, the compressor working — that\'s expected on a condenser or heat-pump dryer, but I can\'t confirm that\'s what you\'re hearing from what we know. If it turns into a grind or squeal, let me know.'),
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Has the noise gone now?',

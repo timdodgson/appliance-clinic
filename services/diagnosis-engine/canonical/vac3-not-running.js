@@ -75,14 +75,24 @@ const TASK = {
   'ask_check:retest': { say: 'Try switching it on again.', ask: 'Does it run now, or is it still dead?' },
   'ask_identity:model': F.VAC_MODEL_ASK, 'ask_identity:appliance': F.VAC_APPLIANCE_ASK,
 };
+const CC = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'VN7:mains-supply-or-fuse': 'That was the supply, so no part is needed.',
   'VN7:charger-or-dock': 'That was the charging connection, so no part is needed.',
   'VN7:thermal-cut-out-after-blockage': 'It had cut out to protect itself after a blockage, so no part is needed. Keep the filters clean to stop it happening again.',
   'damaged-cable-stop-use': 'Please don\'t use it with a damaged cable or plug — unplug it and don\'t tape it up. A repairer can replace the cable safely.',
-  'thermal-cut-out-after-blockage': 'There\'s a blockage that won\'t shift, which will keep tripping its cut-out. A repairer can clear it — please don\'t open the main body.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'thermal-cut-out-after-blockage': { requires: { checks: { 'vacuum-blockage': 'found_not_cleared' } },
+    text: 'There\'s a blockage that won\'t shift, which will keep tripping its cut-out. A repairer can clear it — please don\'t open the main body.',
+    otherwise: 'From what you\'ve described, the thermal cut-out after a blockage is the most likely cause, but I can\'t confirm it from what we know. Leave it switched off to cool and check the hose, wand, floorhead and filters are clear; if it still won\'t run, a repairer can check it — please don\'t open the main body.' },
   'battery-or-charger-fault': 'From what you\'ve described, it\'s most likely the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
-  'switch-cable-or-motor': 'The supply and airflow are fine but it\'s still dead, so it\'s the switch, an internal connection, the battery or the motor. That needs a repairer — please don\'t open it or test inside. I\'m not recommending a part from this.',
+  // "supply fine": the socket (corded) or the charger (cordless / robot) clear; "airflow fine": no blockage — or either sorted
+  // with it still dead afterwards (one that fixed it is VN7)
+  'switch-cable-or-motor': { requires: { obs: { noPower: true }, checks: { 'vacuum-blockage': CC }, anyOf: [
+    { checks: { 'power-supply': 'clear', 'vacuum-blockage': 'clear' } }, { checks: { 'vacuum-charger-check': 'clear', 'vacuum-blockage': 'clear' } },
+    { obs: { faultPersists: true }, checks: { 'power-supply': CC } }, { obs: { faultPersists: true }, checks: { 'vacuum-charger-check': CC } }] },
+    text: 'The supply and airflow are fine but it\'s still dead, so it\'s the switch, an internal connection, the battery or the motor. That needs a repairer — please don\'t open it or test inside. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the switch, an internal connection, the battery or the motor is the most likely area, but I can\'t confirm it from what we know. That needs a repairer — please don\'t open it or test inside. I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running normally now?',

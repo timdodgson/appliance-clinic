@@ -57,7 +57,11 @@ const TASK = {
 };
 const CONCLUSION = {
   'MT7:tray-seating-or-obstruction': 'That was the tray seating / something catching, so no part is needed.',
-  'turntable-motor': `With the tray, coupler and roller ring fine but the turntable still not turning, the turntable motor underneath is the likely cause. ${F.HV} An appliance engineer is the next step — I'm not recommending a part from this.`,
+  // premise copy only when cs/1 records the premise: parts fine = clear, or sorted with it still not turning (fixed is MT7)
+  'turntable-motor': { requires: { obs: { turntableTurns: false }, checks: { 'turntable-parts': ['clear', 'found_and_cleared'] },
+    anyOf: [{ checks: { 'turntable-parts': 'clear' } }, { obs: { faultPersists: true } }] },
+    text: `With the tray, coupler and roller ring fine but the turntable still not turning, the turntable motor underneath is the likely cause. ${F.HV} An appliance engineer is the next step — I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the turntable motor underneath is the most likely area, but I can't confirm it from what we know. ${F.HV} An appliance engineer is the next step — I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the turntable turning now?',

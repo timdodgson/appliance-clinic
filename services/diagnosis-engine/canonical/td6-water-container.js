@@ -94,11 +94,20 @@ const TASK = {
 };
 const CONCLUSION = {
   'vented-no-container': 'A vented dryer doesn\'t collect water — the damp air goes out through the vent hose, so there\'s no container to empty or fail. Water from a vented dryer is usually condensation in the hose: keep the hose short, straight and running down to the outside vent. No part is needed.',
-  'DW7:container-full-or-not-seated': 'That was the container, so no part is needed — empty it after every load (the warning is just doing its job).',
+  // DW7 guarantees the container check fixed it, not that a warning was ever on
+  'DW7:container-full-or-not-seated': { requires: { obs: { tankWarning: true } },
+    text: 'That was the container, so no part is needed — empty it after every load (the warning is just doing its job).',
+    otherwise: 'That was the container, so no part is needed — empty it after every load and push it fully home.' },
   'DW7:condenser-blocked': 'Cleaning the condenser very likely fixed it, so no part is needed. Rinse it every month or so.',
   'drain-kit-fitted': 'With a drain hose fitted, the water goes straight to the waste, so an empty container is normal — no part is needed.',
-  'condensate-pump-or-float': 'The water isn\'t reaching the container even with the condenser clean, which points to the condensate pump, its hose or the float. That needs an appliance engineer — I\'m not recommending a part from this.',
-  'internal-hose-or-seal-leak': 'With the container and condenser fine, the leak is most likely from an internal hose or seal. Please don\'t use it on a wet floor; an appliance engineer is the next step — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'condensate-pump-or-float': { requires: { obs: { tankStaysEmpty: true }, checks: { condenser: ['clear', 'found_and_cleared'] },
+    anyOf: [{ checks: { condenser: 'clear' } }, { obs: { faultPersists: true } }] },
+    text: 'The water isn\'t reaching the container even with the condenser clean, which points to the condensate pump, its hose or the float. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the condensate pump, its hose or the float is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
+  'internal-hose-or-seal-leak': { requires: { obs: { leakUnderneath: true }, checks: { 'water-container': 'clear', condenser: 'clear' } },
+    text: 'With the container and condenser fine, the leak is most likely from an internal hose or seal. Please don\'t use it on a wet floor; an appliance engineer is the next step — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, an internal hose or seal is the most likely area, but I can\'t confirm it from what we know. If there\'s water on the floor, please don\'t use it until it\'s dry; an appliance engineer is the next step — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it collecting the water normally now?',

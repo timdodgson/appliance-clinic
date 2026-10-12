@@ -103,12 +103,22 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'household-supply': 'If your other taps are weak or off too, the problem is the household water supply rather than the dishwasher. Check the stopcock and whether your water supplier has reported an outage; a plumber can help if it\'s a house problem. No dishwasher part is needed.',
-  'B7:tap-hose-or-aquastop': 'The tap or a kinked hose was very likely stopping the water, so no part is needed.',
-  'B7:inlet-mesh-filter': 'The blocked inlet mesh was very likely the cause, so no part is needed.',
-  'inlet-valve': 'With the supply, hose and mesh fine but no water coming in, the fill side inside the dishwasher (the inlet valve or its control) is the most likely area. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.',
-  'fill-sensing-or-control': 'With the supply, tap, hose and mesh all fine, the fault is inside the dishwasher — the fill valve, the fill sensing or the control side. An appliance engineer is the best next step; I\'m not recommending a part from this.',
+  'B7:tap-hose-or-aquastop': { requires: { checks: { 'inlet-hose-tap': FOUND } },
+    text: 'The tap or a kinked hose was very likely stopping the water, so no part is needed.',
+    otherwise: 'The tap or the inlet hose was very likely what was stopping the water, so no part is needed.' },
+  'B7:inlet-mesh-filter': { requires: { checks: { 'inlet-filter': FOUND } },
+    text: 'The blocked inlet mesh was very likely the cause, so no part is needed.',
+    otherwise: 'A blocked inlet mesh filter was very likely the cause, so no part is needed.' },
+  'inlet-valve': { requires: { obs: { supplyOk: true, waterEntering: false }, checks: { 'inlet-hose-tap': FINE, 'inlet-filter': FINE } },
+    text: 'With the supply, hose and mesh fine but no water coming in, the fill side inside the dishwasher (the inlet valve or its control) is the most likely area. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the fill side inside the dishwasher (the inlet valve or its control) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.' },
+  'fill-sensing-or-control': { requires: { obs: { supplyOk: true }, checks: { 'inlet-hose-tap': FINE, 'inlet-filter': FINE } },
+    text: 'With the supply, tap, hose and mesh all fine, the fault is inside the dishwasher — the fill valve, the fill sensing or the control side. An appliance engineer is the best next step; I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the fault is most likely inside the dishwasher — the fill valve, the fill sensing or the control side — but I can\'t confirm it from what we know. An appliance engineer is the best next step; I\'m not recommending a part from this.' },
   // only what the customer reported is stated: a red AquaStop window is said only when they saw one
   'tap-hose-or-aquastop': (state) => (engine.checkResult(state, 'inlet-hose-tap') === 'fault_seen'
     ? 'A red AquaStop window means its safety valve has shut off the water, usually after a leak in the hose. The inlet hose needs replacing — with the tap off until then.'

@@ -69,12 +69,20 @@ const TASK = {
   'ask_check:retest': { say: 'Try it on a hard floor with the filters fully dry.', ask: 'Is the suction back to normal now, or still weak?' },
   'ask_identity:model': F.VAC_MODEL_ASK, 'ask_identity:appliance': F.VAC_APPLIANCE_ASK,
 };
+const CC = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'VS7:bin-or-filters': 'That was the bin / filters, so no part is needed. Wash the filters about once a month and always let them dry fully.',
   'VS7:airflow-blockage': 'Clearing the blockage very likely fixed it, so no part is needed.',
   'VS7:brush-bar-tangled': 'Clearing the brush bar very likely fixed it, so no part is needed.',
-  'airflow-blockage': 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into the hose — a blunt flexible rod can help; if it\'s stuck inside the main body, a repairer can clear it. I\'m not recommending a part from this.',
-  'internal-seal-or-motor-area': 'With the bin, filters, hose and brush bar all clear but the suction still weak, the problem is inside — usually a leaking seal or the motor area. That needs a repairer to look at — I\'m not recommending a motor or any part from weak suction alone.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'airflow-blockage': { requires: { checks: { 'vacuum-blockage': 'found_not_cleared' } },
+    text: 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into the hose — a blunt flexible rod can help; if it\'s stuck inside the main body, a repairer can clear it. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a blockage in the hose, wand or floorhead is the most likely area, but I can\'t confirm it from what we know. Don\'t poke anything sharp into the hose — a blunt flexible rod can help; if a blockage is inside the main body, a repairer can clear it. I\'m not recommending a part from this.' },
+  // "all clear": each check clear, or sorted with the weak suction still there afterwards (one that fixed it is VS7)
+  'internal-seal-or-motor-area': { requires: { obs: { weakSuction: true }, checks: { 'vacuum-bin-filters': CC, 'vacuum-blockage': CC, 'brush-bar-clear': CC },
+    anyOf: [{ checks: { 'vacuum-bin-filters': 'clear', 'vacuum-blockage': 'clear', 'brush-bar-clear': 'clear' } }, { obs: { faultPersists: true } }] },
+    text: 'With the bin, filters, hose and brush bar all clear but the suction still weak, the problem is inside — usually a leaking seal or the motor area. That needs a repairer to look at — I\'m not recommending a motor or any part from weak suction alone.',
+    otherwise: 'From what you\'ve described, an internal seal or the motor area is the most likely area, but I can\'t confirm it from what we know. That needs a repairer to look at — I\'m not recommending a motor or any part from weak suction alone.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the suction back to normal now?',

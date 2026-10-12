@@ -71,10 +71,17 @@ const CONCLUSION = {
   'R9:hose-or-waste-restriction': 'The hose restriction was very likely the cause, and it\'s draining again, so no part is needed.',
   'R9a:excess-suds': 'Too much foam was very likely the cause — the rinse and spin clearing it supports that — so no part is needed. Use a little less detergent next time and make sure it\'s a low-foam (HE) one.',
   'obstruction-beyond-reach': 'There\'s a blockage at the pump that can\'t be cleared from the filter opening. Please don\'t force it or take the machine apart — an appliance engineer can remove the pump and clear it. No part is needed at this stage.',
-  'hose-or-waste-restriction': 'The restriction is in the drain hose or the household waste it empties into. Clearing the standpipe or sink trap, or calling a plumber, is the next step — no machine part is needed.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'hose-or-waste-restriction': { requires: { checks: { 'drain-hose': 'found_not_cleared' } },
+    text: 'The restriction is in the drain hose or the household waste it empties into. Clearing the standpipe or sink trap, or calling a plumber, is the next step — no machine part is needed.',
+    otherwise: 'From what you\'ve described, a kink or blockage in the drain hose or the household waste it empties into is the most likely area, but I can\'t confirm it from what we know. Clearing the standpipe or sink trap, or calling a plumber, is the next step; if that doesn\'t sort it, an appliance engineer can check it safely — I\'m not recommending a part from this.' },
   'household-waste-backflow': 'If the machine pumps out but the water comes back or the sink backs up, the blockage is usually in the household waste plumbing — the standpipe, sink waste or U-bend — not the machine itself. Clearing that, or a plumber, is the next step; no machine part is needed.',
-  'pressure-or-level': 'Because it pumps out when you run a drain or spin on its own, the pump and hose are working. That points to the water-level (pressure) sensing system — a small hose and switch that an appliance engineer needs to test. I\'m not recommending a part for that.',
-  'control': 'With the pump silent and the drain path clear, the pump isn\'t being driven — that needs an appliance engineer to test the pump and its control circuit before any part is bought.',
+  'pressure-or-level': { requires: { obs: { commandedDrain: true } },
+    text: 'Because it pumps out when you run a drain or spin on its own, the pump and hose are working. That points to the water-level (pressure) sensing system — a small hose and switch that an appliance engineer needs to test. I\'m not recommending a part for that.',
+    otherwise: 'From what you\'ve described, the water-level (pressure) sensing system — a small hose and switch — is the most likely area, but I can\'t confirm it from what we know. An appliance engineer needs to test it. I\'m not recommending a part for that.' },
+  'control': { requires: { obs: { pumpHumming: false }, checks: { 'drain-filter': 'clear', 'pump-impeller': 'clear' } },
+    text: 'With the pump silent and the drain path clear, the pump isn\'t being driven — that needs an appliance engineer to test the pump and its control circuit before any part is bought.',
+    otherwise: 'From what you\'ve described, the control circuit that drives the pump is the most likely area, but I can\'t confirm it from what we know — that needs an appliance engineer to test the pump and its control circuit before any part is bought.' },
 };
 const CONFIRM_ASK = 'Is it all working normally now?';
 
@@ -92,6 +99,9 @@ const OBS_COPY = {
   excessiveFoam: ['excess foam seen', null],
   waterReturnsAfterDrain: ['water comes back after draining / the sink backs up', null],
 };
+// recommend_part lead-in premises: filter, impeller and hose checked clear, pump humming, drain/spin not pumping out
+const PART_PREMISE = { obs: { pumpHumming: true, commandedDrain: false }, checks: { 'drain-filter': 'clear', 'pump-impeller': 'clear', 'drain-hose': 'clear' } };
+const anyCheckDone = (state) => Object.values((state.evidence && state.evidence.checks) || {}).some((k) => k && k.status === 'done');
 function conclusionCopy(state, a) {
   const c = a.conclusion || {};
   if (c.cause === 'unsafe-request-declined') return ck.UNSAFE_DECLINE[c.unsafeAction] || ck.UNSAFE_DECLINE.default;
@@ -101,9 +111,14 @@ function conclusionCopy(state, a) {
   if (a.kind === 'recommend_part') {
     const comp = COMPONENT_LABEL[c.component] || 'part';
     const model = state.identity.model && state.identity.model.value;
+    // the premise lead-in only when cs/1 records it (a damaged filter / impeller / hose also passes the part gate)
+    if (!ck.evidenceHolds(state, PART_PREMISE)) {
+      return `From what you've found, the ${comp} itself is the likely fault${model ? ` on your ${model}` : ''}. I've shown the matching ${comp} below. Fitting it means unplugging and draining the machine first; if you'd rather not, an appliance engineer can fit it.`;
+    }
     return `With the filter, impeller and hose all checked clear and the pump humming but not moving water, the ${comp} itself is the likely fault${model ? ` on your ${model}` : ''}. I've shown the matching ${comp} below. Fitting it means unplugging and draining the machine first; if you'd rather not, an appliance engineer can fit it.`;
   }
-  if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
+  const byRule = ck.evidenceCopy(CONCLUSION[`${a.rule}:${c.cause}`], state, a);
+  if (byRule) return byRule;
   if (c.cause === 'drain-pump') {
     const unavailable = state.identity.modelStatus === 'unavailable';
     if (c.level === 'component') {
@@ -112,11 +127,15 @@ function conclusionCopy(state, a) {
     const alts = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
     return `The most likely remaining cause is the drain pump${alts.length ? `, but ${naturalList(alts)} can't be ruled out without testing` : ''}. An appliance engineer should confirm it before any part is bought.`;
   }
-  if (CONCLUSION[c.cause]) return CONCLUSION[c.cause];
+  const byCause = ck.evidenceCopy(CONCLUSION[c.cause], state, a);
+  if (byCause) return byCause;
   const label = FAMILY_LABEL[c.cause] || 'a drainage fault';
+  // "what we've been able to check" only when a check was actually completed
+  if (!anyCheckDone(state)) return `From what you've described, the most likely area is ${label}. ${c.handoff === 'engineer' ? 'An appliance engineer is the best next step to confirm it.' : ''}`.trim();
   return `From what we've been able to check, the most likely cause is ${label}. ${c.handoff === 'engineer' ? 'An appliance engineer is the best next step to confirm it.' : ''}`.trim();
 }
 
+conclusionCopy.CONCLUSION = CONCLUSION;
 const compose = ck.createCompose({
   TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, CONFIRM_ASK,
   statusChecks: [['drain-command', 'drain/spin test']],

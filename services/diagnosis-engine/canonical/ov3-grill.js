@@ -73,7 +73,10 @@ const TASK = {
 const CONCLUSION = {
   'OG7:clock-or-auto-mode': 'That was the clock / auto mode, so no part is needed.',
   'OG7:grill-setting-or-door-position': 'That was the setting / door position, so no part is needed.',
-  'grill-element': 'With the main oven working and the grill set correctly but staying cold, the grill element is the usual cause — the grill has its own element, separate from the fan oven. An appliance engineer can confirm it safely; I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records it (the grill being cold is the journey's own ownership condition, ov-family)
+  'grill-element': { requires: { obs: { mainOvenWorks: true }, checks: { 'programme-setting': 'clear' } },
+    text: 'With the main oven working and the grill set correctly but staying cold, the grill element is the usual cause — the grill has its own element, separate from the fan oven. An appliance engineer can confirm it safely; I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the grill element is the most likely area — the grill has its own element, separate from the fan oven — but I can\'t confirm it from what we know. An appliance engineer can check it safely; I\'m not recommending a part from this.' },
   'grill-control-or-selector': 'The grill control or selector is the likely area. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

@@ -103,13 +103,26 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
+// detergent fine: the tablet dissolves, or the dispenser was checked fine
+const DET_OK = [{ obs: { tabletUndissolved: false } }, { checks: { 'dw-dispenser': FINE } }];
 const CONCLUSION = {
-  'C7:dirty-filter': 'The clogged filter was very likely the cause, so no part is needed. Rinsing it every week or two keeps the cleaning up.',
-  'C7:spray-arm-jets': 'Clearing the spray arms very likely fixed it, so no part is needed.',
+  'C7:dirty-filter': { requires: { checks: { 'dishwasher-filter': FOUND } },
+    text: 'The clogged filter was very likely the cause, so no part is needed. Rinsing it every week or two keeps the cleaning up.',
+    otherwise: 'A dirty filter was very likely the cause, so no part is needed. Rinsing it every week or two keeps the cleaning up.' },
+  'C7:spray-arm-jets': { requires: { checks: { 'spray-arms': FOUND } },
+    text: 'Clearing the spray arms very likely fixed it, so no part is needed.',
+    otherwise: 'Blocked spray-arm jets or a stuck arm were very likely the cause, so no part is needed.' },
   'C7:loading': 'That was the loading blocking the spray, so no part is needed.',
-  'C7:detergent-or-dispenser': 'Sorting the dispenser very likely fixed it, so no part is needed.',
+  'C7:detergent-or-dispenser': { requires: { checks: { 'dw-dispenser': FOUND } },
+    text: 'Sorting the dispenser very likely fixed it, so no part is needed.',
+    otherwise: 'The detergent or its dispenser was very likely the cause, so no part is needed.' },
   'C7:programme-choice': 'The programme was the reason, so no part is needed — use normal or intensive for heavily soiled loads.',
-  'circulation-or-distribution': 'With the filter, spray arms, loading, detergent, heat and fill all fine, the wash circulation or water distribution inside the machine (the wash pump or the valve that feeds the top arm) is the likely area. That needs an appliance engineer to confirm — I\'m not recommending a part from this.',
+  'circulation-or-distribution': { requires: { obs: { waterEntering: true }, checks: { 'dishwasher-filter': FINE, 'spray-arms': FINE, 'loading-clearance': FINE },
+    anyOf: [{ obs: { heatPresent: true }, anyOf: DET_OK }, { obs: { noHeat: false }, anyOf: DET_OK }] },
+    text: 'With the filter, spray arms, loading, detergent, heat and fill all fine, the wash circulation or water distribution inside the machine (the wash pump or the valve that feeds the top arm) is the likely area. That needs an appliance engineer to confirm — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the wash circulation or water distribution inside the machine (the wash pump or the valve that feeds the top arm) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to confirm — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Are the dishes coming out clean now?',

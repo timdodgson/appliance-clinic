@@ -64,8 +64,13 @@ const TASK = {
 const CONCLUSION = {
   'control-stuck-on': 'An oven that keeps heating when it is turned down or off has a control or relay stuck on. Switch it off at the wall or its cooker switch (isolator) now and leave it off — don\'t use it until an appliance engineer has checked it. I\'m not recommending a part from this.',
   'OT7:setting-or-function': 'That was the setting, so no part is needed.',
-  'circulation-fan': 'With the fan not turning, the heat isn\'t being spread round, so parts of the oven run very hot. That needs an appliance engineer — I\'m not recommending a part from this.',
-  'cooling-fan-or-overheat-cut-out': 'Cutting out when it gets hot usually means the cooling fan or the overheat cut-out is acting. Let it cool and don\'t keep restarting it; an appliance engineer should check it — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'circulation-fan': { requires: { obs: { ovenFanTurns: false } },
+    text: 'With the fan not turning, the heat isn\'t being spread round, so parts of the oven run very hot. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the oven fan not spreading the heat round is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
+  'cooling-fan-or-overheat-cut-out': { requires: { anyOf: [{ obs: { cutsOut: true } }, { obs: { overheatsThenCuts: true } }] },
+    text: 'Cutting out when it gets hot usually means the cooling fan or the overheat cut-out is acting. Let it cool and don\'t keep restarting it; an appliance engineer should check it — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the cooling fan or the overheat cut-out is the most likely area, but I can\'t confirm it from what we know. If it cuts out, let it cool and don\'t keep restarting it; an appliance engineer should check it — I\'m not recommending a part from this.' },
   // wording follows the evidence: only what the customer confirmed is stated as confirmed
   'thermostat-sensor-or-control': (state) => {
     const setOk = engine.checkResult(state, 'programme-setting') === 'clear';

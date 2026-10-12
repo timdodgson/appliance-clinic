@@ -100,10 +100,15 @@ const TASK = {
   'ask_identity:appliance': { say: '', ask: 'Is it a tumble dryer or a washer-dryer?' },
 };
 const CONCLUSION = {
-  'mains-or-control-dead': 'With the socket working but no lights at all, the fault is in the dryer\'s mains input or control board. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'mains-or-control-dead': { requires: { obs: { noPower: true }, checks: { 'power-supply': 'clear' } },
+    text: 'With the socket working but no lights at all, the fault is in the dryer\'s mains input or control board. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the dryer\'s mains input or control board is the most likely area, but I can\'t confirm it from what we know. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.' },
   'DG7:power-supply': 'That was the power supply, so no part is needed.', 'DG7:child-lock': 'The child lock was on, so no part is needed.',
   'DG7:delay-start-or-programme': 'That was the delay start / programme setting, so no part is needed.', 'DG7:door-obstruction-or-alignment': 'Clearing what was stopping the door very likely fixed it, so no part is needed.',
-  'start-control': 'It has power and knows the door is shut, with no lock or delay set, so the fault is on the start control side. That needs an appliance engineer — I\'m not recommending a part from this.',
+  'start-control': { requires: { obs: { noPower: false, doorRecognised: true }, checks: { 'child-lock': 'clear', 'programme-setting': 'clear' } },
+    text: 'It has power and knows the door is shut, with no lock or delay set, so the fault is on the start control side. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the start control side is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
   'door-latch': 'This points to the door catch or its door switch. Please don\'t try to force or bypass it — an appliance engineer can confirm it safely; I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

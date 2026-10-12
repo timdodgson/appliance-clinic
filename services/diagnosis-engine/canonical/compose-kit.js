@@ -344,7 +344,8 @@ function createCompose(pack) {
   }
   
   
-  return { brief, prompt, template, checkReply };
+  // the journey's fixed conclusion entries, so a test can check every evidence-gated entry against cs/1
+  return { brief, prompt, template, checkReply, CONCLUSION: conclusionCopy.CONCLUSION || {} };
 }
 /**
  * Standard conclusion wording for step-policy journeys (same structure as Journey 3's conclusionCopy).
@@ -381,8 +382,40 @@ function followUpCopy(a) {
     : HANDOFF_COPY[c.handoff].replace(/^./, (x) => x.toLowerCase());
   return `No problem — nothing changes from what I said above. ${next}${next ? tail : tail.replace(/^./, (x) => x.toUpperCase())}`;
 }
+/**
+ * Evidence-gated fixed copy. A conclusion sentence that states an observation, a completed check or a state ("with the
+ * fan running", "the filter is clear") is only true when cs/1 records it, whichever rule reached the conclusion (a
+ * customer who couldn't answer reaches the same cause with none of it). Such copy is declared as
+ *   { text, requires: { obs: { key: value }, checks: { check: result | [results] | 'done' }, anyOf: [requires, ...],
+ *     committed: true }, otherwise? }
+ * and `text` is used only when every requirement holds in recorded evidence; else `otherwise` (premise-free copy) or
+ * null, which falls through to the neutral wording. `committed: true` is for copy that settles the outcome ("it's normal",
+ * "no part is needed"): only when the engine committed to the cause (confidence 'likely'), never for a best guess. A plain string asserts no evidence; a function derives its
+ * premises from state itself.
+ */
+const factValue = (s, k) => { const f = s.evidence && s.evidence.observations && s.evidence.observations[k]; return f && f.value != null ? f.value : null; };
+function evidenceHolds(state, req = {}) {
+  for (const [k, v] of Object.entries(req.obs || {})) if (factValue(state, k) !== v) return false;
+  for (const [c, want] of Object.entries(req.checks || {})) {
+    const k = state.evidence && state.evidence.checks && state.evidence.checks[c];
+    if (!k || k.status !== 'done') return false;
+    if (want !== 'done' && !(Array.isArray(want) ? want : [want]).includes(k.result)) return false;
+  }
+  if (req.anyOf && !req.anyOf.some((r) => evidenceHolds(state, r))) return false;
+  return true;
+}
+function evidenceCopy(entry, state, a) {
+  if (entry == null) return null;
+  if (typeof entry === 'string') return entry;
+  if (typeof entry === 'function') return entry(state, a);
+  const committed = !(entry.requires && entry.requires.committed) || Boolean(a && a.conclusion && a.conclusion.confidence === 'likely');
+  if (committed && evidenceHolds(state, entry.requires)) return entry.text;
+  return entry.otherwise || null;
+}
+/** Whether any owner check has been completed (neutral wording says "the checks so far" only then). */
+const anyCheckDone = (state) => Object.values((state.evidence && state.evidence.checks) || {}).some((k) => k && k.status === 'done');
 function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, REASON = {}, fitNote = 'Switch the machine off and unplug it before fitting it; if you\'d rather not, an appliance engineer can fit it.' }) {
-  return function conclusionCopy(state, a) {
+  return Object.assign(function conclusionCopy(state, a) {
     const c = a.conclusion || {};
     const model = state.identity.model && state.identity.model.confirmed ? state.identity.model.value : null;
     const unavailable = state.identity.modelStatus === 'unavailable';
@@ -392,7 +425,8 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, RE
       return `What you've found points to the ${comp}. I've shown the matching ${comp} for your ${model || 'machine'} below. ${fitNote}`;
     }
     if (c.cause === 'unsafe-request-declined') return UNSAFE_DECLINE[c.unsafeAction] || UNSAFE_DECLINE.default;
-    if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
+    const byRule = evidenceCopy(CONCLUSION[`${a.rule}:${c.cause}`], state, a);
+    if (byRule) return byRule;
     if (c.level === 'component' && COMPONENT_LABEL[c.component]) {
       const noMatch = unavailable ? 'Without the model number I can\'t match the exact part' : 'I can\'t match a compatible part for your model from here';
       // a component is the leading candidate from what the customer described, never a certain cause (nothing was tested);
@@ -401,7 +435,8 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, RE
       if (why) return `${why} That makes the ${COMPONENT_LABEL[c.component]} the most likely cause — it would need testing to be certain. ${noMatch}, so an appliance engineer is the best next step.`;
       return `From what you've described, the ${COMPONENT_LABEL[c.component]} is the most likely cause — it would need testing to be certain. ${noMatch}, so an appliance engineer is the best next step.`;
     }
-    if (CONCLUSION[c.cause]) return typeof CONCLUSION[c.cause] === 'function' ? CONCLUSION[c.cause](state, a) : CONCLUSION[c.cause];
+    const byCause = evidenceCopy(CONCLUSION[c.cause], state, a);
+    if (byCause) return byCause;
     if (c.cause === 'likely-causes') {
       const ls = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
       if (ls.length) return `That's fine — I can't narrow it down further from what we know, so here are the usual causes, most likely first: ${naturalListFn(ls).replace(/ or ([^,]+)$/, ' and $1')}. ${HANDOFF_COPY[c.handoff] || HANDOFF_COPY.engineer}`;
@@ -411,8 +446,11 @@ function makeConclusionCopy({ FAMILY_LABEL, COMPONENT_LABEL, CONCLUSION = {}, RE
     const label = FAMILY_LABEL[c.cause] || 'a fault we haven\'t been able to pin down';
     // an owner-fixable cause that is only "possible" is not confirmed: no "no part is needed" claim until it is
     const tail = c.handoff === 'none' && c.confidence !== 'likely' ? 'The check for it is simple; if it doesn\'t sort it, let me know what you find.' : (HANDOFF_COPY[c.handoff] || HANDOFF_COPY.engineer);
-    return `From the checks so far, the most likely cause is ${label}${alts.length ? ` (${naturalListFn(alts)} is also possible)` : ''}. ${tail}`;
-  };
+    // "the checks so far" only when a check was actually completed; an uncommitted leader is the likely area, not the cause
+    const basis = anyCheckDone(state) ? 'From the checks so far' : 'From what you\'ve described';
+    const what = c.confidence === 'likely' ? 'the most likely cause is' : 'the most likely area is';
+    return `${basis}, ${what} ${label}${alts.length ? ` (${naturalListFn(alts)} is also possible)` : ''}. ${tail}`;
+  }, { CONCLUSION });
 }
 /** Fixed decline copy for an unsafe request (policy P8, opt-in per journey). */
 const UNSAFE_DECLINE = {
@@ -431,4 +469,4 @@ const RETEST_TASK = { say: 'Now run a normal programme again and see whether the
 const naturalListFn = (xs) => (xs.length <= 1 ? (xs[0] || '') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
 
 module.exports = { REQUIREMENT, SAFETY_COPY, REOFFER, reofferFrame, factLine, createCompose, naturalList: naturalListFn,
-  makeConclusionCopy, HANDOFF_COPY, RETEST_TASK, UNSAFE_DECLINE };
+  makeConclusionCopy, evidenceCopy, evidenceHolds, HANDOFF_COPY, RETEST_TASK, UNSAFE_DECLINE };

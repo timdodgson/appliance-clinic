@@ -38,7 +38,7 @@ const CONCLUSION = {
   'L15:inlet-connection': 'The loose fill-hose connection was very likely the cause, so no part is needed.',
   'L15:drain-connection': 'The loose drain-hose connection was very likely the cause, so no part is needed.',
   'household-backflow': 'If the sink or waste backs up when the machine drains, the blockage is in the household waste plumbing (the standpipe, sink waste or U-bend), not the washing machine. Clearing that, or a plumber, is the next step — no machine part is needed.',
-  oversudsing: 'This looks like too much detergent foaming over. Use the recommended dose of a low-foam (HE) washing-machine detergent and run a rinse to clear the suds — no part is needed.',
+  oversudsing: { requires: { committed: true }, text: 'This looks like too much detergent foaming over. Use the recommended dose of a low-foam (HE) washing-machine detergent and run a rinse to clear the suds — no part is needed.', otherwise: 'Too much detergent foaming over is a common cause, so use the recommended dose of a low-foam (HE) washing-machine detergent and run a rinse to clear the suds — but I can\'t confirm that\'s the cause from what we know. If it still leaks, an appliance engineer can find where the water is coming from.' },
 };
 // Internal (engineer) conclusions: the lead-in states ONLY the owner checks that actually came back clear.
 const INTERNAL = {
@@ -47,7 +47,10 @@ const INTERNAL = {
     : 'the leak is most likely on the fill side inside the machine (the inlet valve or its hoses). That needs the casing off, so an appliance engineer is the next step — I\'m not recommending a part from this.'),
   'pump-body': () => 'the water is most likely coming from inside the base of the machine (around the drain pump or its hoses). That needs an appliance engineer to find safely — I\'m not recommending a part from this.',
   'internal-hose': () => 'the leak is most likely inside the machine (a sump or tub hose, or the pump). That needs an appliance engineer to trace safely — I\'m not recommending a part from this.',
-  'tub-or-major-internal': () => 'with this much water the leak is most likely internal — a hose, the pump or the tub itself. Please don\'t take the machine apart; an appliance engineer is the next step. I\'m not recommending a part from this.',
+  // "this much water" only when cs/1 records a major leak (the tub family is also reached by two clear owner checks)
+  'tub-or-major-internal': (drawer, major) => (major
+    ? 'with this much water the leak is most likely internal — a hose, the pump or the tub itself. Please don\'t take the machine apart; an appliance engineer is the next step. I\'m not recommending a part from this.'
+    : 'the leak is most likely internal — a hose, the pump or the tub itself. Please don\'t take the machine apart; an appliance engineer is the next step. I\'m not recommending a part from this.'),
 };
 const RULED_OUT = [['door-seal', 'the door seal'], ['detergent-drawer', 'the detergent drawer'], ['detergent-dose', 'the detergent dose'],
   ['filter-seal', 'the filter cap'], ['inlet-connection', 'the fill-hose connections'], ['drain-connection', 'the drain hose']];
@@ -59,7 +62,8 @@ function internalCopy(state, cause) {
   const o = (state.evidence && state.evidence.observations) || {};
   const drawer = Boolean(o.drawerOverflowing && o.drawerOverflowing.value === true);
   const out = ruledOut(state);
-  const body = INTERNAL[cause](drawer);
+  const major = Boolean(o.majorLeak && o.majorLeak.value === true);
+  const body = INTERNAL[cause](drawer, major);
   const and = out.length > 1 ? `${out.slice(0, -1).join(', ')} and ${out[out.length - 1]}` : out[0];
   const lead = out.length ? `With ${and} checked and fine, ` : 'From what you\'ve described, ';
   return lead + body;
@@ -76,19 +80,23 @@ function conclusionCopy(state, a) {
     const comp = COMPONENT_LABEL[c.component] || 'part';
     return `The damaged ${comp} you found would explain the leak. I've shown the matching ${comp} for your ${model || 'machine'} below. Turn the water off at the tap and unplug the machine before fitting it; if you'd rather not, an appliance engineer can fit it.`;
   }
-  if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
+  const byRule = ck.evidenceCopy(CONCLUSION[`${a.rule}:${c.cause}`], state, a);
+  if (byRule) return byRule;
   const noMatch = unavailable ? 'Without the model number I can\'t match the exact part' : 'I can\'t match a compatible part for your model from here';
   if (c.level === 'component' && COMPONENT_LABEL[c.component]) {
     return `The ${COMPONENT_LABEL[c.component]} looks damaged and is the likely source of the leak. ${noMatch}, so ${c.component === 'inlet-hose' || c.component === 'drain-hose' ? 'a plumber or appliance engineer' : 'an appliance engineer'} is the best next step.`;
   }
-  if (CONCLUSION[c.cause]) return CONCLUSION[c.cause];
+  const byCause = ck.evidenceCopy(CONCLUSION[c.cause], state, a);
+  if (byCause) return byCause;
   if (INTERNAL[c.cause]) return internalCopy(state, c.cause);
   if (c.cause === 'leak-source-unconfirmed') {
     return 'From what we have so far I can\'t pin down where the water is coming from. An appliance engineer is the best next step to find it safely — I\'m not recommending a part from this.';
   }
   const alts = (c.alternatives || []).map((x) => FAMILY_LABEL[x]).filter(Boolean);
   const label = FAMILY_LABEL[c.cause] || 'a leak we haven\'t been able to pin down';
-  return `From the checks so far, the most likely source is ${label}${alts.length ? ` (${naturalList(alts)} is also possible)` : ''}. ${c.handoff === 'plumbing' ? 'A plumber or the installer can sort the connection.' : 'An appliance engineer is the best next step to confirm it safely.'}`;
+  // "the checks so far" only when an owner check was actually completed
+  const basis = Object.values((state.evidence && state.evidence.checks) || {}).some((k) => k && k.status === 'done') ? 'From the checks so far' : 'From what you\'ve described';
+  return `${basis}, the most likely source is ${label}${alts.length ? ` (${naturalList(alts)} is also possible)` : ''}. ${c.handoff === 'plumbing' ? 'A plumber or the installer can sort the connection.' : 'An appliance engineer is the best next step to confirm it safely.'}`;
 }
 
 const OBS_COPY = {
@@ -109,6 +117,7 @@ const CHECK_RESULT_COPY = {
   'drain-connection': { clear: 'drain hose and standpipe sound', found_and_cleared: 'drain hose connection refitted', found_not_cleared: 'drain hose connection loose', fault_seen: 'drain hose split' },
 };
 
+conclusionCopy.CONCLUSION = CONCLUSION;
 const compose = ck.createCompose({
   TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, CONFIRM_ASK,
   statusChecks: [['leak-retest', 'leak retest']],

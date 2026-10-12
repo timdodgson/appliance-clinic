@@ -82,13 +82,28 @@ const TASK = {
   'ask_check:retest': { say: 'Try it again with the filters fully dry.', ask: 'Is it running steadily now, or still pulsing / cutting out?' },
   'ask_identity:model': F.VAC_MODEL_ASK, 'ask_identity:appliance': F.VAC_APPLIANCE_ASK,
 };
+const CC = ['clear', 'found_and_cleared'];
+// "filters and airflow clear": each check clear, or sorted with the pulsing still there afterwards (one that fixed it is VP7)
+const AIRFLOW_CLEAR = { checks: { 'vacuum-bin-filters': CC, 'vacuum-blockage': CC },
+  anyOf: [{ checks: { 'vacuum-bin-filters': 'clear', 'vacuum-blockage': 'clear' } }, { obs: { faultPersists: true } }] };
 const CONCLUSION = {
   'VP7:bin-or-filters': 'That was the filters, so no part is needed. Always let them dry fully before refitting — a damp filter is the most common cause of pulsing.',
   'VP7:airflow-blockage': 'Clearing the blockage very likely fixed it, so no part is needed.',
   'VP7:brush-bar-jammed': 'Clearing the brush bar very likely fixed it, so no part is needed.',
-  'airflow-blockage': 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into it — a blunt flexible rod can help; if it\'s inside the main body, a repairer can clear it. I\'m not recommending a part from this.',
-  'battery-or-charging': 'With the filters and airflow clear and it running only briefly (or not charging), the battery or charger is the next suspect. It\'s only worth changing the battery once the runtime has been checked from a full charge — I\'m not recommending a part from the pulsing alone.',
-  'internal-motor-or-electronics': 'The filters, airflow and brush bar are clear and there\'s no sign of a battery problem, so the cause is inside — the motor or its electronics. That needs a repairer (or the manufacturer if it\'s under guarantee) — please don\'t open it up. I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'airflow-blockage': { requires: { checks: { 'vacuum-blockage': 'found_not_cleared' } },
+    text: 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into it — a blunt flexible rod can help; if it\'s inside the main body, a repairer can clear it. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a blockage in the hose, wand or floorhead is the most likely area, but I can\'t confirm it from what we know. Don\'t poke anything sharp into it — a blunt flexible rod can help; if a blockage is inside the main body, a repairer can clear it. I\'m not recommending a part from this.' },
+  'battery-or-charging': { requires: { checks: AIRFLOW_CLEAR.checks,
+    anyOf: [{ obs: { shortRuntime: true }, anyOf: AIRFLOW_CLEAR.anyOf }, { obs: { wontCharge: true }, anyOf: AIRFLOW_CLEAR.anyOf }] },
+    text: 'With the filters and airflow clear and it running only briefly (or not charging), the battery or charger is the next suspect. It\'s only worth changing the battery once the runtime has been checked from a full charge — I\'m not recommending a part from the pulsing alone.',
+    otherwise: 'From what you\'ve described, the battery or charger is the most likely area, but I can\'t confirm it from what we know. It\'s only worth changing the battery once the runtime has been checked from a full charge — I\'m not recommending a part from the pulsing alone.' },
+  // "no sign of a battery problem": a corded vacuum (no battery), or a normal runtime and no charging fault stated
+  'internal-motor-or-electronics': (s) => (ck.evidenceHolds(s, { checks: { ...AIRFLOW_CLEAR.checks, 'brush-bar-clear': CC },
+      anyOf: [{ checks: { 'vacuum-bin-filters': 'clear', 'vacuum-blockage': 'clear', 'brush-bar-clear': 'clear' } }, { obs: { faultPersists: true } }] })
+    && (F.vacType(s).type === 'corded' || (engine.obsVal(s, 'shortRuntime') === false && engine.obsVal(s, 'wontCharge') !== true))
+    ? 'The filters, airflow and brush bar are clear and there\'s no sign of a battery problem, so the cause is inside — the motor or its electronics. That needs a repairer (or the manufacturer if it\'s under guarantee) — please don\'t open it up. I\'m not recommending a part from this.'
+    : 'From what you\'ve described, the motor or its electronics inside is the most likely area, but I can\'t confirm it from what we know. That needs a repairer (or the manufacturer if it\'s under guarantee) — please don\'t open it up. I\'m not recommending a part from this.'),
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running steadily now?',

@@ -68,9 +68,16 @@ const TASK = {
 const CONCLUSION = {
   'MS7:supply-or-plug-fuse': 'That was the supply, so no part is needed.', 'MS7:control-or-child-lock': 'The control lock was on, so no part is needed.',
   'MS7:clock-or-programme-not-set': 'That was the clock / programme, so no part is needed.',
-  'supply-or-plug-fuse': `With the display completely dead, the supply is the first suspect: the socket, the plug or the fuse in the plug. If another appliance works in that socket and a new 13A plug fuse doesn't bring it back, the fault is inside (an internal fuse or the control). ${F.HV} At that point an appliance engineer is the next step.`,
-  'internal-fuse-cut-out-or-control': `With the socket working but the display dead, the internal fuse, a thermal cut-out or the control has gone — and a blown internal fuse usually means another fault. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
-  control: `It has power and nothing is locked, so the control (or the door switch side) is the likely area. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'supply-or-plug-fuse': { requires: { obs: { noPower: true } },
+    text: `With the display completely dead, the supply is the first suspect: the socket, the plug or the fuse in the plug. If another appliance works in that socket and a new 13A plug fuse doesn't bring it back, the fault is inside (an internal fuse or the control). ${F.HV} At that point an appliance engineer is the next step.`,
+    otherwise: `From what you've described, the supply is the most likely area — the socket, the plug or the fuse in the plug — but I can't confirm it from what we know. If another appliance works in that socket and a new 13A plug fuse doesn't bring it back, the fault is inside (an internal fuse or the control). ${F.HV} At that point an appliance engineer is the next step.` },
+  'internal-fuse-cut-out-or-control': { requires: { obs: { noPower: true }, checks: { 'power-supply': 'clear' } },
+    text: `With the socket working but the display dead, the internal fuse, a thermal cut-out or the control has gone — and a blown internal fuse usually means another fault. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the internal fuse, a thermal cut-out or the control is the most likely area, but I can't confirm it from what we know. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.` },
+  control: { requires: { obs: { noPower: false }, checks: { 'child-lock': 'clear' } },
+    text: `It has power and nothing is locked, so the control (or the door switch side) is the likely area. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the control (or the door switch side) is the most likely area, but I can't confirm it from what we know. ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it working now?',

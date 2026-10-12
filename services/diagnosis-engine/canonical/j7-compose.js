@@ -24,8 +24,11 @@ const CONCLUSION = {
   'V7:load-imbalance': 'That was the load being out of balance, so no part is needed. Wash heavy items with a few towels to even them out.',
   'transit-bolts': 'If the machine was recently installed, transit bolts still being fitted would explain this — please check the back panel before anything else. No part is needed for that.',
   'levelling-or-floor': 'This points to how the machine stands: it needs to be level, with all four feet locked, on a solid floor (suspended wooden floors can bounce). That\'s an installation fix rather than a part.',
-  'load-imbalance': 'This points to the load being out of balance. Wash heavy single items with a few towels and avoid very small loads — no part is needed.',
-  'suspension-dampers': 'With the bolts out, the machine level and the drum still shaking when empty, the suspension (shock absorbers or springs) is the most likely area. That needs an appliance engineer to check with the panels off — I\'m not recommending a part from this.',
+  'load-imbalance': { requires: { committed: true }, text: 'This points to the load being out of balance. Wash heavy single items with a few towels and avoid very small loads — no part is needed.', otherwise: 'From what you\'ve described, an out-of-balance load is the most likely cause, but I can\'t confirm it from what we know. Wash heavy single items with a few towels and avoid very small loads; if it still shakes violently with normal mixed loads, an appliance engineer should check it.' },
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches this cause with none of it)
+  'suspension-dampers': { requires: { obs: { shakesWhenEmpty: true }, checks: { 'transit-bolts': ['clear', 'found_and_cleared'], levelling: ['clear', 'found_and_cleared'] } },
+    text: 'With the bolts out, the machine level and the drum still shaking when empty, the suspension (shock absorbers or springs) is the most likely area. That needs an appliance engineer to check with the panels off — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the suspension (shock absorbers or springs) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to check with the panels off — I\'m not recommending a part from this.' },
   'drum-support-or-bearings': 'A loose or rumbling drum points to the drum support or bearings. Please stop using it on fast spins and have an appliance engineer check it — I\'m not recommending a part from this.',
 };
 const OBS_COPY = {

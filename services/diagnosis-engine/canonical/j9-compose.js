@@ -1,6 +1,7 @@
 'use strict';
 /** Journey 9 COMPOSE pack — washing machine · not heating. WORDING ONLY. PURE. */
 const ck = require('./compose-kit.js');
+const D = require('./j9-diagnostics.js');
 
 const FAMILY_LABEL = {
   'normal-low-temperature': 'normal low-temperature washing', 'programme-setting': 'the temperature setting', 'heater-element': 'the heater element',
@@ -21,11 +22,17 @@ const CONCLUSION = {
   'H7:programme-setting': 'The temperature setting was very likely the reason, so no part is needed.',
   'normal-low-temperature': (state) => {
     const o = state.evidence && state.evidence.observations;
-    return o && o.hotProgrammeUsed && o.hotProgrammeUsed.value === false && !(o.heatPresent && o.heatPresent.value)
-      ? 'Eco, quick and low-temperature programmes heat very little (or not at all), so cool washing on those is normal. If you want to be sure, try a 60°C cottons wash and see whether the washing comes out warm — no part is needed for this.'
-      : 'Warm washing on the 60°C test means the heater is working. Eco and low-temperature programmes heating very little — and a cool door glass — are normal. No part is needed.';
+    if (o && o.hotProgrammeUsed && o.hotProgrammeUsed.value === false && !(o.heatPresent && o.heatPresent.value)) {
+      return 'Eco, quick and low-temperature programmes heat very little (or not at all), so cool washing on those is normal. If you want to be sure, try a 60°C cottons wash and see whether the washing comes out warm — no part is needed for this.';
+    }
+    // "warm on the 60°C test" only when cs/1 records that test result (the journey's own projection decides it)
+    return D.diagnose(state, { codeFault: null }).facts.includes('warmOnHotTest')
+      ? 'Warm washing on the 60°C test means the heater is working. Eco and low-temperature programmes heating very little — and a cool door glass — are normal. No part is needed.'
+      : 'Eco and low-temperature programmes heating very little — and a cool door glass — are normal, so this is most likely normal low-temperature washing, but I can\'t confirm it from what we know. If you want to be sure, try a 60°C cottons wash and see whether the washing comes out warm — I\'m not recommending a part from this.';
   },
-  'heater-element': 'Cold washing on a programme that should heat points to the heating side — most often the heater element, but the temperature sensor, wiring or control can do the same. That needs an appliance engineer to test safely; I\'m not recommending a part from this.',
+  'heater-element': { requires: { obs: { noHeat: true }, anyOf: [{ obs: { hotProgrammeUsed: true } }, { checks: { 'hot-wash-test': 'done' } }] },
+    text: 'Cold washing on a programme that should heat points to the heating side — most often the heater element, but the temperature sensor, wiring or control can do the same. That needs an appliance engineer to test safely; I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the heating side is the most likely area — most often the heater element, but the temperature sensor, wiring or control can do the same — but I can\'t confirm it from what we know. That needs an appliance engineer to test safely; I\'m not recommending a part from this.' },
   'temperature-sensor': 'This points to the temperature sensor or its wiring. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
   'heating-control': 'The heating control or wiring is the most likely area. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
   'fill-or-level': 'The heater only switches on once the machine has filled to the right level, so a fill or level problem can stop it heating. An appliance engineer is the best next step — I\'m not recommending a part from this.',
