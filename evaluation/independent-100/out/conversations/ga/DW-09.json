@@ -1,0 +1,43 @@
+{
+ "id": "DW-09",
+ "system": "ga",
+ "sessionId": "cfd49af4-3b4b-43e0-89e4-1699def77119",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Zanussi dishwasher keeps tripping the electrics, not every time though. Usually about 15 mins in. Model ZDT21006FA"
+  },
+  {
+   "role": "assistant",
+   "text": "Tripping about 15 minutes in, but not every time, most likely points to the **heating element**. That's roughly when the dishwasher has filled, started the main wash, and switched on the heater. Elements often develop a small earth leakage that only shows up once they're hot and wet, which is why it's intermittent.\n\n## First, check what's tripping\n\nLook at the consumer unit when it happens:\n\n- **RCD trips** (the switch with a \"T\" test button): This means current is leaking to earth. It's by far the most common case, and it points to the heater or water getting onto electrics.\n- **MCB trips** (the individual circuit breaker): This means overload or a short. It's less common, and could be a failing motor or wiring fault.\n\n## Likely causes, most probable first\n\n1. **Heating element / heat pump.** On many Electrolux-group machines (Zanussi, AEG, Electrolux) of this era, the heater is built into the circulation pump housing, so you'd replace that whole unit. It's a common failure.\n2. **Water leak onto electrics.** Check the base tray. If there's water in it, find the leak (pump seals, hoses, door seal, sump). Leaks often start mid-cycle once the pump is running.\n3. **Circulation or drain pump motor** breaking down when warm.\n4. **Wiring or connectors** near the pump or heater that are corroded or chafed.\n5. **Not the dishwasher alone.** If several appliances share one RCD, their small leakages add up, and the dishwasher's heater can just tip it over the limit. Try running it with other things on that circuit unplugged.\n\n## What you can safely check yourself\n\n- **Unplug it**, then tilt it back slightly (with someone helping) and look underneath for water, rust, or scorch marks.\n- **Run a cold rinse-only programme.** If it never trips without heat but does on hot washes, that strongly suggests the heater.\n- **Try a different socket or circuit** if one is practical, to rule out the house wiring.\n\n## Confirming it\n\nThe definitive test is an **insulation resistance test** (500V \"megger\") between the live/neutral and earth on the heater. Ordinary multimeters often won't catch the fault, because it only appears under voltage and heat. An appliance engineer can do this in a few minutes.\n\n## Safety\n\n- Don't keep resetting it and running it. The RCD is doing its job, and an earth fault in a metal, wet appliance is a genuine shock risk.\n- Keep it unplugged when not in use until it's sorted.\n\nThe heater/pump part typically costs around £60–£120. Whether that's worth it depends on the machine's age, but it's a reasonably straightforward swap for a competent DIYer or an engineer.\n\nIf you can tell me whether it's the RCD or MCB going, and whether it ever trips on a cold programme, I can narrow it down further."
+  },
+  {
+   "role": "customer",
+   "text": "It's the RCD in the consumer unit, a whole bank of circuits went off, including the fridge one. A quick cold rinse has never tripped it, only the hotter washes like the 65C. No burning smell. I'm not comfortable taking covers off though."
+  },
+  {
+   "role": "assistant",
+   "text": "That pretty much confirms it: **an earth leakage from the heating element**. An RCD trip, only on hot washes, and never on cold is the classic pattern. No burning smell fits too, since this kind of fault is a slow insulation breakdown rather than something overheating.\n\n## What to do now\n\n- **Stop using the hot programmes.** Each trip stresses the element further, and the leakage usually gets worse over time.\n- **Ideally leave it unplugged until it's fixed.** Cold rinses haven't tripped it, but you're running a machine with a known earth fault. It's your call, but I wouldn't rely on it.\n- **Check the fridge each time the power has gone off.** Make sure it's restarted and the food's been kept cold. That's arguably the bigger nuisance of this fault.\n\n## Getting it fixed (no DIY needed)\n\nBook an **appliance repair engineer**. Tell them what you've told me: \"RCD trips about 15 minutes in on hot washes only, never on cold.\" That points them straight at the heater, which saves diagnostic time.\n\nOn this type of Zanussi, the heater is usually integrated into the **circulation pump/heat pump assembly**, so the whole unit gets replaced.\n\n**Rough cost:** £60–£120 for the part, plus labour. All in, typically **£120–£200**, depending on your area and whether it's an independent or the manufacturer's service.\n\n## Repair or replace?\n\n- **Repair** is usually worth it if the machine is under about 6–7 years old and otherwise working well.\n- **Replace** if it's older, or has other issues like poor cleaning, noisy pumps, or rust. A basic new dishwasher starts around £250–£300.\n\nIf you'd like, I can help you work out the model's age from the serial number on the door rating plate. That might help you decide which way to go."
+  }
+ ],
+ "meta": [
+  {
+   "turn": 1,
+   "status": 200,
+   "ms": 21876,
+   "costUsd": 0.036933600000000004,
+   "error": null
+  },
+  {
+   "turn": 2,
+   "status": 200,
+   "ms": 16566,
+   "costUsd": 0.0651308,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.026866,
+ "finishedAt": "2026-10-12T13:38:24.738Z"
+}

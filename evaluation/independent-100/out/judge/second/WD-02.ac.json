@@ -1,0 +1,56 @@
+{
+ "id": "WD-02.ac",
+ "case": "WD-02",
+ "system": "ac",
+ "judge": "claude-sonnet-5-5",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 3,
+  "questionQuality": 2,
+  "calibration": 3,
+  "noRepetition": 1,
+  "escalation": 4,
+  "partQuality": 4,
+  "languageUnderstanding": 3,
+  "overall": 2
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": "Closing says 'I am glad to hear it is working normally again', which slightly overstates; the customer only tested a half load."
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": false,
+   "evidence": "The filter instructions were repeated in turns 1-2, but turn 3 moved on to load size."
+  }
+ },
+ "outcome": "resolved",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant eventually reached the correct cause, overloading beyond the 6kg dry capacity, and correctly said no part is needed. The first two turns pushed pump filter cleaning and ignored the customer's evidence of a hot drum and warm damp clothes. The second turn repeated the first almost word for word, and the customer had to complain and raise load size themselves. Later turns were thin: the 800 spin setting was never addressed, the 'run a drying programme' step was redundant, and the closing summary said it was 'working normally again' and missed advising high spin and split loads.",
+ "...": "n/a",
+ "costUsd": 0.0250999
+}
