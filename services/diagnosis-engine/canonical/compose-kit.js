@@ -162,23 +162,30 @@ function makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks) {
     }
     return out;
   }
+  // "can't find the model" is THIS turn's news only when a request was settled by it this turn (modelStatus has no turn)
+  function modelUnavailableNow(state) {
+    const id = state.identity || {};
+    if (id.modelStatus !== 'unavailable' || (id.model && id.model.value)) return false;
+    return ((state && state.requests) || []).some((r) => r.resolvedTurn === state.version
+      && ((r.target === 'model' && r.outcome !== 'answered') || r.reason === 'model_unavailable'));
+  }
   function latestIdentity(state) {
     const id = state.identity || {}; const out = [];
     if (id.model && id.model.value && id.model.turn === state.version) out.push(`gave the model ${id.model.value}`);
-    if (id.modelStatus === 'unavailable' && !(id.model && id.model.value)) out.push('cannot find the model number');
+    if (modelUnavailableNow(state)) out.push('cannot find the model number');
     return out;
   }
   const naturalList = (xs) => (xs.length <= 1 ? (xs[0] || '') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
   
   
-  return { evidenceLines, latestIdentity, naturalList };
+  return { evidenceLines, latestIdentity, modelUnavailableNow, naturalList };
 }
 
 const DEFAULT_PURCHASE_RE = /\b(buy|order|purchase|price|£\s?\d)|\b(new|replacement|replace the)\s+(drain\s+)?(pump|pressure switch|pcb|control board|motor)\b/i;
 function createCompose(pack) {
   const { TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, statusChecks = [], retestKey = () => null, extraFacts = () => [], CONFIRM_ASK = 'Is it all working normally now?', PURCHASE_RE = DEFAULT_PURCHASE_RE,
     ASK_GUARD = false } = pack;
-  const { evidenceLines, latestIdentity } = makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks);
+  const { evidenceLines, latestIdentity, modelUnavailableNow } = makeEvidenceLines(OBS_COPY, CHECK_RESULT_COPY, statusChecks);
   // An owner check the customer moved past (policy ownerCheck) is the first thing to do, said once with the conclusion.
   // One already asked was explained then: it is referred to, not explained again (repeating it read as a loop, GOLD
   // G2-OC-03; the same rule as a re-offered question, 11.13).
@@ -191,6 +198,13 @@ function createCompose(pack) {
     return explained ? `${text} If you haven't had a chance yet, the check I described earlier comes first.`
       : `${text} If you haven't had a chance yet, this check comes first: ${task.say}`;
   }
+  // "Can't find the model" answered while another question was pending, and the engine moved on to a new step: the
+  // fixed model frame is the acknowledgement. A free one ("thanks for letting us know about the model number") read as
+  // if the customer had given it (GOLD G2-FF-06; G2-DW-06 for the re-offered question).
+  function modelFrame(t, state) {
+    if (t.reoffer || !modelUnavailableNow(state)) return t;
+    return { ...t, reoffer: REOFFER_MODEL };
+  }
   function brief(state, a, diag, { partLookup = null, media = [] } = {}) {
     const key = retestKey(a, state) || `${a.kind}:${a.target}`;
     const task = TASK[key] || null;
@@ -201,7 +215,7 @@ function createCompose(pack) {
     return {
       kind: a.kind, rule: a.rule, target: a.target,
       facts: [...factLine(state), ...extraFacts(state, a)], evidence: evidenceLines(state), latest: (state.version > 1 ? [...latestIdentity(state), ...evidenceLines(state, true)] : []),
-      task: task ? reofferTask(task, a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote) : null,
+      task: task ? modelFrame(reofferTask(task, a.requestKind === 'reoffer' ? reofferFrame(state, a.target) : '', codeNote), state) : null,
       conclusion: !isAsk && a.kind !== 'safety_stop' ? (withOwnerCheck(conclusionCopy(state, a), a, state) || followUpCopy(a)) : null,
       confirm: a.pending && a.pending.purpose === 'CONFIRM' ? CONFIRM_ASK : null,
       safety: (a.requires || []).map((t) => (REQUIREMENT[t] ? { token: t, copy: REQUIREMENT[t].copy } : null)).filter(Boolean),

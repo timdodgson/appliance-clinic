@@ -3,7 +3,7 @@
   "prompts": [
     {
       "id": "diagnosis.canonical.compose",
-      "version": 12,
+      "version": 13,
       "purpose": "Canonical COMPOSE: words one already-chosen NextAction from a typed brief. The output is checked; failures fall back to fixed templates.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
@@ -91,6 +91,12 @@
           "date": "2026-10-12",
           "fingerprint": "953e2fcd7772443e75aade3803d05635b3a018b4896562e56d128b12857321b3",
           "change": "Evidence-gated conclusion copy: fixed conclusion text that states an observation, completed check or settled outcome declares the cs/1 evidence it needs ({ requires, text, otherwise }) and is used only when that evidence is recorded; the neutral wording says \"the checks so far\" only after a completed check and calls an uncommitted leader the most likely area."
+        },
+        {
+          "version": 13,
+          "date": "2026-10-12",
+          "fingerprint": "f82fb4e0cee5d834c49a46fe2e904745e35b5d23e80e88e21ae974a1a37340cd",
+          "change": "\"Cannot find the model number\" is this turn's news only when a request was settled by it this turn (the model status has no turn, so it was handed to COMPOSE on every later turn), and a step asked on that turn opens with the fixed model frame instead of a free acknowledgement (GOLD G2-FF-06: \"Thanks for letting us know about the model number\" read as the model having been given)."
         }
       ]
     },

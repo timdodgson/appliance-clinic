@@ -56,6 +56,29 @@ Regression tests, in `canonical-evidence-premises.test.mjs`:
 
 **Decision: C, targeted regression.** The deterministic sweep covers every journey's disengagement path on every build. One more LLM-judged scenario would cover one journey per run. GOLD is unchanged and not weakened.
 
+## GOLD gate on release 17.1 and follow-up 17.2
+
+Release 17.1 deployed the evidence gate. Two gate runs on that build, `main` at `fbc97be`:
+
+| Run | Result | Not passing |
+|---|---|---|
+| 1 | 55 PASS, 1 ERROR | G2-FF-04: HTTP 429 from an account-level Lambda throttle on `whichpart-api`. This is the shared concurrency quota of 10 (README, operational risks), not the product |
+| 2 | 55 PASS, 1 FAIL | G2-FF-06: critical "tells the customer they said something they did not" |
+
+The G2-FF-06 failure is the same defect class, in the acknowledgement layer:
+
+- The customer replied "no idea on the model sorry, can't find it" while the door question was pending.
+- COMPOSE's free acknowledgement said "Thanks for letting us know about the model number", which reads as the model having been given.
+- Because the model status carries no turn, "cannot find the model number" was handed to COMPOSE as this turn's news on every later turn too.
+- The earlier G2-DW-06 fix covered only the re-offered question.
+
+Release 17.2 (prompt `diagnosis.canonical.compose` v13) fixes both:
+
+- That line is now news only on the turn a request was settled by it.
+- A step asked on that turn opens with the fixed model frame instead of a free acknowledgement.
+
+Regressions for both are in `canonical-evidence-premises.test.mjs`.
+
 ## Per-group audit tables
 
 These are the working tables from the audit, by journey group. Each row gives the premise asserted, the cs/1 facts required, how the entry can be reached, the verdict and the action taken.

@@ -1,0 +1,64 @@
+{
+  "id": "17.2-engine-model-acknowledgement",
+  "description": "GOLD G2-FF-06 (17.1 gate run 2): 'cannot find the model number' is COMPOSE's latest-turn news only on the turn a request was settled by it, and a step asked on that turn opens with the fixed model frame instead of a free acknowledgement ('Thanks for letting us know about the model number' read as the model having been given). canonical/compose-kit.js only; decisions unchanged. Code only. Previous code Ji6iezl9akm5CwQ7afkhrH8a5pK82mT405mY37jodj8= (17.1); rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code update of the AC-owned diagnosis engine only)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the AC diagnosis engine only; read of the staged phase8 build artefact in the AC assets bucket. No PassRole: the role does not change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
