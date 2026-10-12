@@ -112,6 +112,9 @@ describe('safety kernel', () => {
     expect(S.detectHazards([user('I can smell gas near the hob')]).map((h) => h.type)).toEqual(['gas']);
     expect(S.detectHazards([user('The battery is swollen and really hot')]).map((h) => h.type)).toContain('battery');
     expect(S.detectHazards([user('it sparked inside')], 'microwave').map((h) => h.type)).toEqual(['microwave_arcing']);
+    expect(S.detectHazards([user('the water is only inside the fridge by the way, nowhere near the plug')])).toEqual([]);
+    expect(S.detectHazards([user('There\'s water all over the floor and its gone under the units to where the plug is')]).map((h) => h.type)).toEqual(['electrical_water']);
+    expect(S.detectHazards([user('my fridge freezer tripped the electrics')]).map((h) => h.type)).toEqual(['supply_trip']);
   });
   it('removes prohibited advice and keeps warnings not to do it', () => {
     const g = S.gateReply('Discharge the capacitor with a screwdriver. Never remove the outer casing yourself.', { appliance: 'microwave' });
@@ -167,6 +170,14 @@ describe('turn (stub reasoner)', () => {
     const t3 = await runTurn({ messages: msgs3, state: t2.state }, deps(stub([ask, ask])));
     expect(t3.audit.safety.gates.map((g) => g.gate)).toContain('repeated-question');
     expect(t3.response.message).not.toMatch(/pump humming/);
+  });
+
+  it('adds the isolation step to a physical check that lacks it, once', async () => {
+    const p = stub([proposal({ next: null, reply: 'Open the flap at the bottom and unscrew the pump filter to look for a coin.' })]);
+    const out = await runTurn({ messages: [user('dishwasher won\'t drain')] }, deps(p));
+    expect(out.response.message).toMatch(/^Before you start, switch it off and unplug it\./);
+    const already = await runTurn({ messages: [user('it is unplugged and the dishwasher won\'t drain')] }, deps(stub([proposal({ next: null, reply: 'Unscrew the pump filter to look for a coin.' })])));
+    expect(already.response.message).not.toMatch(/Before you start/);
   });
 
   it('answers out-of-scope appliances with the scope reply instead of intake questions', async () => {

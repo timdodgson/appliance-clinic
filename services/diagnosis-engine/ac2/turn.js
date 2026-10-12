@@ -90,6 +90,12 @@ function tools(st, texts) {
       if (out.errorCodes.length >= 4) break;
     }
   }
+  // The catalogue's internal caveat ("meaning disputed across sources") becomes a flag, not customer-facing text.
+  out.errorCodes = out.errorCodes.map((r) => ({ ...r, candidates: (r.candidates || []).map((c) => {
+    const disputed = /meaning disputed/i.test(c.meaning || '') || c.disputed;
+    const { disputed: _d, ...rest } = c;
+    return { ...rest, meaning: String(c.meaning || '').replace(/\s*-?\s*meaning disputed across sources\.?/i, ''), ...(disputed ? { sourcesDisagree: true } : {}) };
+  }) }));
   out.latestHasCode = Boolean(EC && EC.candidateTokens && EC.candidateTokens(latest).length);
   return { ...out, brand, appliance };
 }
@@ -163,7 +169,7 @@ async function runTurn(input, deps) {
     st.hazards = (st.hazards || []).concat({ type: 'recall', clause: String(recalls[0].title || 'recall notice').slice(0, 160), turn: st.turn, shown: false, url: recalls[0].url || null });
   }
   let hazard = hazardState(st, messages);
-  const unsafeRequest = S.detectUnsafeRequest(latest, st.appliance && st.appliance.value);
+  let unsafeRequest = S.detectUnsafeRequest(latest, (st.appliance && st.appliance.value) || K.applianceHints(texts.join(' '))[0] || null);
   const tl = tools(st, texts);
   audit.toolCalls.push({ tool: 'error-codes', results: tl.errorCodes.map((r) => ({ code: r.code, status: r.status })) });
   audit.toolCalls.push({ tool: 'model-hints', results: tl.modelHints.map((m) => ({ token: m.token, families: m.hints.map((h) => h.family) })) });
@@ -211,6 +217,7 @@ async function runTurn(input, deps) {
   applyUnderstanding(st, proposal, ctx);
   recordToolFacts(st, tl, ctx);
   hazard = hazardState(st, messages); // appliance-specific detectors (microwave arcing) may now apply
+  unsafeRequest = unsafeRequest || S.detectUnsafeRequest(latest, st.appliance && st.appliance.value);
 
   // 5. Scope.
   const u = proposal.understanding;
@@ -257,6 +264,8 @@ async function runTurn(input, deps) {
   }
   if (unsafeRequest && S.copyFor(unsafeRequest) && !reply.includes(S.copyFor(unsafeRequest))) prefix.push(S.copyFor(unsafeRequest));
   if (unsafeRequest) audit.safety.gates.push({ gate: 'unsafe-request', type: unsafeRequest });
+  const caution = stepPrecaution(reply, texts, messages, st);
+  if (caution) { prefix.push(caution); audit.safety.gates.push({ gate: 'step-precaution' }); }
   if (prefix.length) reply = `${prefix.join(' ')} ${reply}`;
   audit.safety.hazards = st.hazards.map((h) => h.type);
 
@@ -276,12 +285,12 @@ async function runTurn(input, deps) {
   const a = proposal.assessment;
   const stop = Boolean(hazard);
   const kids = a.knowledgeIds.filter((id) => K.knownKnowledgeId(id));
-  const usedCode = tl.errorCodes.find((e) => e.status === 'RESOLVED' && st.codes.some((c) => c.code === String(e.code).toUpperCase()));
   st.outcome = { status: a.status, confidence: a.confidence, summary: a.summary, candidates: a.candidates, part: partDecision.outcome };
   const response = {
     outcome: 'ANSWER',
     message: reply,
-    diagnosis: a.summary && a.status !== 'gathering' ? { summary: a.summary, likelyArea: a.candidates[0] ? a.candidates[0].cause : null, confidenceBand: a.confidence === 'high' ? 'likely' : 'possible' } : null,
+    // A heading only when the cause is settled with real confidence; a differential is not shown as a verdict.
+    diagnosis: a.summary && ['narrowed', 'resolved', 'probably_normal', 'needs_engineer'].includes(a.status) && a.confidence !== 'low' ? { summary: a.summary, likelyArea: a.candidates[0] ? a.candidates[0].cause : null, confidenceBand: a.confidence === 'high' ? 'likely' : 'possible' } : null,
     suggestedChecks: [],
     parts: partDecision.outcome === 'verified' ? partDecision.parts : null,
     resolvedModel: partDecision.outcome === 'verified' ? partDecision.catalogueModel : null,
@@ -289,7 +298,8 @@ async function runTurn(input, deps) {
     safety: stop ? { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) } : null,
     safetyInformation: !stop && kids.length ? K.safetyInformation(kids[0]) : null,
     media: !stop && kids.length && deps.mediaFor ? await deps.mediaFor(kids, { make: st.brand && st.brand.value, model: st.model && st.model.value, messages }) : null,
-    codeResult: usedCode ? { displayed: usedCode.code, meaning: (usedCode.candidates && usedCode.candidates[0] && usedCode.candidates[0].meaning) || null, recordType: (usedCode.candidates && usedCode.candidates[0] && usedCode.candidates[0].recordType) || null, status: 'RESOLVED' } : null,
+    // The code's meaning is explained in the reply; the catalogue text (with its internal caveats) is not a heading.
+    codeResult: null,
     escalation: escalation || null,
     candidates: a.candidates,
     confidence: a.confidence,
@@ -319,6 +329,23 @@ function applyUnderstanding(st, proposal, ctx) {
   for (const c of u.codes) L.addCode(st, c.code, c.quote, ctx);
   for (const f of u.newFacts) L.recordFact(st, { field: f.field, value: f.value, quote: f.quote, source: 'customer', status: f.status === 'uncertain' ? 'uncertain' : 'stated' }, ctx);
   L.resolveAsked(st, u.lastQuestionAnswer);
+}
+
+// Safety copy that travels with owner checks (the journey engine's step precautions, now applied to any reply that
+// sends the customer to handle the appliance): a physical check without isolation gets the isolation step first.
+const PHYSICAL = /\b(unscrew|remove|take (?:out|off)|pull (?:out|off|back)|open (?:the |up )?(?:filter|flap|panel|cover|back|door seal|pump|sump)|lift (?:out|off)|clean (?:the )?(?:filter|condenser|pump|sump|drain|coils?|brush)|clear (?:the )?(?:filter|drain|hose|pump|blockage)|turn the impeller|reach (?:in|into)|tilt (?:it|the)|pull (?:it|the machine) (?:out|forward)|check inside|flush (?:the|out))\b/i;
+const ISOLATED = /\b(unplug|unplugged|switch(?:ed)? (?:it |the \w+ )?off|isolat\w+|turn(?:ed)? (?:it )?off at|power off|power is off|off at the (?:wall|socket|fuse|consumer|cooker switch)|remove the battery)\b/i;
+function stepPrecaution(reply, texts, messages, st) {
+  if (!PHYSICAL.test(reply) || ISOLATED.test(reply)) return null;
+  // Already isolated in this conversation (the customer said so, or the last reply told them to)?
+  const recent = [...texts.slice(-2), ...messages.filter((m) => m.role === 'assistant').slice(-1).map((m) => R.textOf(m.content))].join(' ');
+  if (ISOLATED.test(recent)) return null;
+  const a = st.appliance && st.appliance.value;
+  if (a === 'microwave') return S.COPY.microwave_arcing.split('. ').slice(-1)[0].replace(/^Never/, 'Unplug it first and never');
+  if (a === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
+  if (a === 'oven-cooker' || a === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
+  if (a === 'fridge-freezer') return 'First switch it off and unplug it.';
+  return 'Before you start, switch it off and unplug it.';
 }
 
 function needsRegeneration(original, check) {
