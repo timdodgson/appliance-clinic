@@ -185,3 +185,35 @@ describe('neutral fallback wording', () => {
     }
   });
 });
+
+// GOLD G2-FF-06 (17.1 gate run 2): "no idea on the model sorry, can't find it" while the door question was pending was
+// acknowledged as "Thanks for letting us know about the model number", read as the customer having given it. The
+// model status carries no turn, so "cannot find the model number" was also handed to COMPOSE as news on every later turn.
+describe('"can\'t find the model" is acknowledged by fixed copy, and only on the turn it was said', () => {
+  const FF1 = mod(PACKS['ff-not-cooling'].pipeline);
+  const op = C({ identity: { appliance: { value: 'fridge-freezer', basis: 'stated' } }, intent: 'report_fault', problem: { journey: 'not-cooling' },
+    observations: [O('majorLeak'), O('waterInsideFridge')] });
+  const user = (x) => FF1.prompt(FF1.brief(x.state, x.action, null, {}))[1].content;
+  it('the G2-FF-06 path (door question superseded, engine moves on): no free acknowledgement about the model', () => {
+    const r = H.play(FF1, [op, C({ observations: [O('bothCompartmentsWarm'), O('fridgeOnlyWarm')] }), C({ identity: { modelStatus: 'unavailable' } })]);
+    expect(r.rules).toEqual(['FC10:ffCompartment', 'FC11:doorLeftOpen', 'FC23:defrost-drain']);
+    expect(user(r.actions[2])).not.toMatch(/LATEST[^\n]*model number/);
+  });
+  it('answered "can\'t find it" to the pending question: the fixed model frame, no free acknowledgement', () => {
+    const r = H.play(FF1, [op, C({ observations: [O('bothCompartmentsWarm')] }), C({ identity: { modelStatus: 'unavailable' }, reply: { toPending: 'cannot_answer' } }), unsure()]);
+    const b = FF1.brief(r.actions[2].state, r.actions[2].action, null, {});
+    expect(b.task.reoffer).toMatch(/^No problem about the model number — we can carry on without it/);
+    expect(user(r.actions[2])).not.toMatch(/Open with one short acknowledgement/);
+    // the next turn is not told the customer just said it again
+    expect(FF1.brief(r.actions[3].state, r.actions[3].action, null, {}).latest).not.toContain('cannot find the model number');
+    expect(user(r.actions[3])).not.toMatch(/LATEST[^\n]*model number/);
+  });
+  it('the engine moving on to a new step on the same turn still gets the fixed frame, with the step\'s own copy', () => {
+    const r = H.play(FF1, [op, C({ observations: [O('bothCompartmentsWarm')] }), C({ identity: { modelStatus: 'unavailable' }, reply: { toPending: 'cannot_answer' } })]);
+    const x = r.actions[2]; const s = JSON.parse(JSON.stringify(x.state));
+    const a = { ...x.action, requestKind: 'new', kind: 'ask_check', target: 'defrost-drain', rule: 'FC23' };
+    const b = FF1.brief(s, a, null, {});
+    expect(b.task.reoffer).toMatch(/^No problem about the model number/);
+    expect(b.task.say).toBe(FF1.TASK['ask_check:defrost-drain'].say);
+  });
+});
