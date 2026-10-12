@@ -78,11 +78,16 @@ describe('ac-cfn-execution', () => {
       secretsmanager: 'secretsmanager:DescribeSecret', ecr: 'ecr:DescribeRepositories', events: 'events:DescribeRule',
     };
     const targets = acArns.filter((a) => !/migration-backup|log-group|:role\/cdk-|s3:::cdk-/.test(a));
-    expect(targets.length).toBeGreaterThanOrEqual(20);
+    // 19 since the shared engine was released from AC (change 15.3).
+    expect(targets.length).toBeGreaterThanOrEqual(19);
     for (const arn of targets) {
       const service = arn.split(':')[2];
       expect(allows(reads[service], arn), arn).toBe(true);
     }
+    // ADR 0019: the dedicated engine, created after the import, is read too; the released shared engine is not.
+    expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine')).toBe(true);
+    expect(allows('iam:GetRole', 'arn:aws:iam::800960611664:role/ac-diagnosis-engine-role')).toBe(true);
+    expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder')).toBe(false);
   });
   it('reads no object in an AC bucket (customer data), and no S4R resource', () => {
     for (const b of AC.buckets) expect(allows('s3:GetObject', `arn:aws:s3:::${b}/any/key`)).toBe(false);

@@ -77,7 +77,7 @@
         ]
       },
       "code": {
-        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:3bcb5f7c2dae991aa083b5dc5866ecc7c39d3308c52ad9f93fcc965004a7b1c0"
+        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:6797e244a6e191e6b9d9250e782c3a9da7dc00affadf34e6a45153cc4d161c65"
       }
     },
     "spares4repairs-error-code-mcp": {
@@ -95,35 +95,6 @@
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}"
         }
-      }
-    },
-    "spares4repairs-part-finder": {
-      "permissions": {
-        "PublicInvoke": {
-          "invokedViaFunctionUrl": true
-        }
-      },
-      "role": "arn:aws:iam::800960611664:role/ac-diagnosis-role",
-      "code": {
-        "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/spares4repairs-part-finder-ddicbVOIrPHVuo6V94c2SZ6_mpHIenObwKl5KK3KelY.zip"
-      },
-      "env": {
-        "set": {
-          "AC_BEARER_VERSIONS": "engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
-          "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
-          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
-          "JEV_SECRET_ID": "applianceclinic/production/jev",
-          "LEARNING_BUCKET": "whichpart-learning-800960611664",
-          "LM_MAX_TOKENS": "900",
-          "OPENAI_SECRET_ID": "applianceclinic/production/openai"
-        },
-        "digests": {
-          "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
-        },
-        "unset": [
-          "ENGINE_SIGNING_MODE"
-        ]
       }
     },
     "applianceclinic-diagnosis-engine": {
@@ -148,13 +119,6 @@
             "Key": "ac:owner",
             "Value": "applianceclinic"
           }
-        ],
-        "carryFrom": "spares4repairs-part-finder",
-        "resources": [
-          "logs",
-          "metrics",
-          "alarms",
-          "function"
         ]
       },
       "code": {
@@ -354,129 +318,6 @@
     "error-code-mcp-role": []
   },
   "roles": {
-    "ac-diagnosis-role": {
-      "description": "Appliance Clinic: execution role of the diagnosis Lambda spares4repairs-part-finder (Phase 7, replaces the shared S4R server role).",
-      "trust": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Principal": {
-              "Service": "lambda.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole",
-            "Condition": {
-              "StringEquals": {
-                "aws:SourceAccount": "800960611664"
-              }
-            }
-          }
-        ]
-      },
-      "managed": [],
-      "inline": {
-        "ac-diagnosis-logs": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "DiagnosisLogs",
-              "Effect": "Allow",
-              "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-              ],
-              "Resource": "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-part-finder:*"
-            }
-          ]
-        },
-        "ac-diagnosis-secrets": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "DiagnosisSecrets",
-              "Effect": "Allow",
-              "Action": "secretsmanager:GetSecretValue",
-              "Resource": [
-                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/ai-config-1amb1V",
-                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/openai-odBgqp",
-                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/jev-TcVn9Y"
-              ]
-            }
-          ]
-        },
-        "WhichpartLearningPut": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": "s3:PutObject",
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/learning/*"
-            }
-          ]
-        },
-        "whichpart-media-overlay-s3": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:GetObject"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/media-admin/*"
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664",
-              "Condition": {
-                "StringLike": {
-                  "s3:prefix": [
-                    "media-admin",
-                    "media-admin/*"
-                  ]
-                }
-              }
-            }
-          ]
-        },
-        "whichpart-knowledge-overlay-s3": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:GetObject"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/knowledge-admin/published.json"
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664",
-              "Condition": {
-                "StringLike": {
-                  "s3:prefix": [
-                    "knowledge-admin",
-                    "knowledge-admin/*"
-                  ]
-                }
-              }
-            }
-          ]
-        }
-      },
-      "tags": [
-        {
-          "Key": "ac:owner",
-          "Value": "applianceclinic"
-        }
-      ]
-    },
     "ac-diagnosis-engine-role": {
       "description": "Appliance Clinic: execution role of the dedicated diagnosis engine applianceclinic-diagnosis-engine (ADR 0019).",
       "trust": {

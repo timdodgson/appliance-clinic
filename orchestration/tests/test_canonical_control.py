@@ -1,6 +1,6 @@
 """Canonical CONTROL route through the orchestrator (every registry journey).
 Proves, with no network:
-  * a turn whose canonical result carries journey.control is answered from the RAG's NextAction wording
+  * a turn whose canonical result carries journey.control is answered from the diagnosis engine's NextAction wording
     only — no legacy overrides (model-acquisition stage, clarify, owner note, MCP code flow)
   * the reply/media/parts/model-ask/safety-stop shapes per NextAction kind
   * ADR 0018: a degraded or absent canonical result is an explicit SERVICE_UNAVAILABLE; a turn no journey owns

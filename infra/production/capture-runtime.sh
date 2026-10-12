@@ -13,10 +13,10 @@ export AWS_REGION=eu-west-1 AWS_DEFAULT_REGION=eu-west-1
 A=800960611664
 if [[ $PROFILE == sandbox ]]; then S=-sbx; else S=; fi
 ROLES=(whichpart-api-role$S diag-orchestrator-role$S error-code-mcp-role$S)
-# Phase 7 (B): the diagnosis Lambda's own role, created by AcRuntimeStack (change 7.15a); skipped until it exists.
-[[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-role ac-diagnosis-engine-role)
-FUNCTIONS=(spares4repairs-error-code-mcp$S spares4repairs-diag-orchestrator$S whichpart-api$S spares4repairs-part-finder$S)
-# ADR 0019: the dedicated diagnosis engine, created by AcRuntimeStack; skipped until it exists.
+# ADR 0019: the dedicated diagnosis engine and its role, created by AcRuntimeStack (changes 15.1a to 15.1d). The shared
+# engine spares4repairs-part-finder and ac-diagnosis-role were released from the stack (change 15.3) and are not captured.
+[[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-engine-role)
+FUNCTIONS=(spares4repairs-error-code-mcp$S spares4repairs-diag-orchestrator$S whichpart-api$S)
 [[ $PROFILE == production ]] && FUNCTIONS+=(applianceclinic-diagnosis-engine)
 RULES=(whichpart-recall-ingest-daily$S whichpart-transcript-review$S)
 umask 077

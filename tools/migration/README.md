@@ -33,8 +33,6 @@ Run from this directory after `npm ci`.
 | `npm run check:changeset -- --changeset <json> --mode import\|update\|sandbox --step <json> [--generated <json>]` | None | READ-ONLY | Gate before executing a change set. `sandbox` (Phase 4) requires every target to be on the sandbox allowlist and on no denylist |
 | `npm run sandbox:guard -- caller\|target\|document\|env ...` | `caller`: sts:GetCallerIdentity only | READ-ONLY | Phase 4 guard, run before every sandbox action: account, region, caller, allowlist, production AC and S4R denylists, Lambda environment overrides. Exit 1 means STOP |
 | `npm run sandbox:approval-a [-- --check]` | None | READ-ONLY | Render the approval point A documents into `docs/migration/sandbox/approval-a/` (`--check`: fail if a committed document is stale) |
-| `npm run baseline -- <s4r-health\|contract capture\|contract verify\|ingress capture\|ingress verify\|smoke> --live` | HTTP only | SAFE AC CHANGE / READ-ONLY | Behavioural baseline, the S4R `/part-finder` contract, and the separate `/ai/chat` ingress check |
-| `npm run traffic -- [--api <id>] [--route "POST /ai/chat"] [--days 30]` | Reads | READ-ONLY | Whether an HTTP API route is actually used (CloudWatch) |
 | `npm run backup -- --inventory <dir> --backup-bucket <name> [--enable-pitr] [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 0 backups |
 | `npm run token:sub` | None | READ-ONLY | Read your Cognito `sub` from your own access token |
 | `npm run hotfix:patch -- --in <deployed.zip> --out <patched.zip>` | None | READ-ONLY | Phase 1: patch the admin check in a copy of the deployed artefact |
@@ -62,5 +60,5 @@ The tests run offline. AWS calls are short-circuited after the guard runs, and H
 - The change-set checker gates every production change: the Phase 5 imports, then every reviewed update through
   `infra/production/steps/change.sh` (Phase 7 onwards), including approved removals (Phase 9). Its rules were finalised
   against real change sets in the Phase 4 sandbox rehearsal; real outputs are kept as test fixtures.
-- The behavioural baseline (`/part-finder` contract, smoke, S4R health) is checked before and after every runtime
-  release.
+- AC no longer calls or gates on the former shared engine `spares4repairs-part-finder` (ADR 0019; released from AC in
+  change 15.3). The only S4R dependency is outbound: the S4R Parts Catalogue API and S4R Shop product links.

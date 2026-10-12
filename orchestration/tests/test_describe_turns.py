@@ -17,18 +17,15 @@ def check(n, cond, detail=""):
 
 o = Orchestrator(FakeErrorCodeService(CANNED), FakeDiagnosticService())
 
-def state(appliance="dishwasher", exclusive=False, establishes=None, answered=None):
+def state(appliance="dishwasher", establishes=None, answered=None):
     st = ConversationState(sessionId="describe")
     st.customer.appliance = appliance
-    st._ragExclusiveClarify = exclusive
     st._jev = {"decisions": {"latestTurnEstablishes": establishes, "answeredPrevious": answered}}
     return st
 
 ask = lambda msg: OrchestratorResponse(route="", outcome=Outcome.ANSWER.value, message=msg)
 
 # owner-safety note
-check("vague-opener clarification (engine exclusive) -> no owner-safety note",
-      o._owner_safety_note(state(exclusive=True), ask("What is the main thing the dishwasher is doing wrong?")) is None)
 check("ordinary diagnostic answer for the same family -> note still carried",
       o._owner_safety_note(state(), ask("Check the filter at the bottom of the tub. Is it blocked?")) is not None)
 desc = OrchestratorResponse(route="", outcome=Outcome.CLARIFICATION_REQUIRED.value, message="What is the main thing the dishwasher is doing wrong?",

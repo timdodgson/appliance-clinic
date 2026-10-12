@@ -30,7 +30,7 @@ def check(n, cond, detail=""):
 
 
 class ScriptedTurnsRag(FakeDiagnosticService):
-    """A RAG double whose Jev UNDERSTAND output is scripted PER TURN (keyed by the exact message),
+    """A diagnosis-engine double whose Jev UNDERSTAND output is scripted PER TURN (keyed by the exact message),
     so we can hand the orchestrator a specific typed family + applianceFamilyProvenance each turn and
     assert the deterministic state precedence. diagnose() reuses the FakeDiagnosticService."""
 

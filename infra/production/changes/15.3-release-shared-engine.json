@@ -1,0 +1,105 @@
+{
+  "id": "15.3-release-shared-engine",
+  "description": "ADR 0019: AC releases the shared engine from AcRuntimeStack with zero physical change. The template no longer declares spares4repairs-part-finder, its Function URL, its two resource-policy statements, ac-diagnosis-role or its five inline policies. Every one has DeletionPolicy Retain in the deployed template, so CloudFormation removes them from the stack only; nothing is deleted, replaced or modified, and the execution role gets no write. AC stopped calling the engine in change 15.2. Proven by a before/after fingerprint of the function configuration, code, URL, resource policy, role and inline policies, and by CloudTrail (no Lambda or IAM write).",
+  "classification": "SAFE AC CHANGE (ownership only; no physical change)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisrole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisroleacdiagnosislogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-diagnosis-logs|ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisroleacdiagnosissecrets",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-diagnosis-secrets|ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisroleWhichpartLearningPut",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "WhichpartLearningPut|ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisrolewhichpartmediaoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-media-overlay-s3|ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "acdiagnosisrolewhichpartknowledgeoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-knowledge-overlay-s3|ac-diagnosis-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairspartfinder",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-part-finder",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairspartfinderUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairspartfinderFnUrlPublic",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FnUrlPublic",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairspartfinderPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "AcRuntimeStack-spares4repairspartfinderPublicInvoke-e62PjlYyZvIz",
+      "replacement": null
+    }
+  ],
+  "grant": [],
+  "grantNotes": "None: removing retained resources makes no API call on them.",
+  "writes": {
+    "types": [],
+    "expected": [],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:UpdateAssumeRolePolicy"
+    ],
+    "resources": [],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

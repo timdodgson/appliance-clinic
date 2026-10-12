@@ -23,11 +23,10 @@ const { applyOverrides, importedSid } = require('./overrides');
 
 /** Import groups by production name. */
 const FUNCTION_STEP = {
-  'spares4repairs-error-code-mcp': '5.7a', 'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c', 'spares4repairs-part-finder': '5.10',
+  'spares4repairs-error-code-mcp': '5.7a', 'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c',
   'applianceclinic-diagnosis-engine': '5.10',
 };
-const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'spares4repairs-part-finder': '5.10',
-  'applianceclinic-diagnosis-engine': '5.10' };
+const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'applianceclinic-diagnosis-engine': '5.10' };
 /** Log metrics of a created function (ApplianceClinic namespace): the text each counted log line contains. */
 const CREATED_METRICS = {
   FailedTurns: '"\\"evt\\":\\"diagnosis-engine\\"" "\\"ok\\":false"',

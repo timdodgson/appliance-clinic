@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Orchestration A-Z test matrix — deterministic (FakeErrorCodeService + FakeDiagnosticService).
-No network, no LLM, no real RAG. Run: python3 -m orchestration.tests.test_orchestration"""
+No network, no LLM, no real diagnosis engine. Run: python3 -m orchestration.tests.test_orchestration"""
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome, Route, Trust
 from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, rag_safety_from_done
@@ -120,9 +120,9 @@ check("M STOP_USE safety", r.outcome == Outcome.SAFETY_STOP.value and r.safety a
       and "stop using" in r.message.lower(), f"{r.outcome}/{r.safety}")
 
 # N. vague -> CLARIFICATION_REQUIRED (contentless goes via orchestrator CLARIFY;
-#    a vague *symptom* routes to SYMPTOMS and the RAG asks — both must end in clarification)
+#    a vague *symptom* routes to SYMPTOMS and the diagnosis engine asks — both must end in clarification)
 # (Deterministic routing cannot perfectly separate chit-chat from a terse symptom; a genuinely
-#  contentless turn routes to CLARIFY, while borderline free-text falls to SYMPTOMS->RAG-asks.
+#  contentless turn routes to CLARIFY, while borderline free-text falls to SYMPTOMS->engine-asks.
 #  Both yield CLARIFICATION_REQUIRED. This is the one documented edge where an LLM classifier helps.)
 r = turn(orch(), "hi there")
 check("N1 contentless -> orchestrator CLARIFY", r.route == Route.CLARIFY.value

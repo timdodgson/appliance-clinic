@@ -27,10 +27,10 @@ export const policyArn = (name) => `arn:aws:iam::${A}:policy/${name}`;
 /** The AC production resources of Phase 5 (ownership.md), by type. */
 export const AC = {
   // applianceclinic-diagnosis-engine: ADR 0019, created by AcRuntimeStack (changes 15.1a to 15.1d).
-  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder',
-    'applianceclinic-diagnosis-engine'],
-  // ac-diagnosis-role: Phase 7 (B), created by AcRuntimeStack (change 7.15a). ac-diagnosis-engine-role: change 15.1a.
-  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role', 'ac-diagnosis-engine-role'],
+  // The shared engine spares4repairs-part-finder and its role ac-diagnosis-role were released from AC (change 15.3).
+  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'applianceclinic-diagnosis-engine'],
+  // ac-diagnosis-engine-role: created by AcRuntimeStack (change 15.1a).
+  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'],
   // ADR 0019: the dedicated engine's log group and alarms (AcRuntimeStack, changes 15.1b and 15.1c).
   logGroups: ['/aws/lambda/applianceclinic-diagnosis-engine'],
   alarmPrefixes: ['applianceclinic-diagnosis-engine-'],
