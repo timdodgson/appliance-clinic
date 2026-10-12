@@ -1,6 +1,6 @@
 /**
  * Effective media mapping resolver — shipped baseline + overlay tombstones.
- *   node --test services/part-finder/test/media-effective.test.mjs
+ *   node --test services/diagnosis-engine/test/media-effective.test.mjs
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';

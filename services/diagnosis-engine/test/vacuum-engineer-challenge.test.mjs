@@ -13,8 +13,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const K = join(HERE, '..', 'knowledge');

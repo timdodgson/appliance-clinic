@@ -58,7 +58,6 @@ const advice = (id) => (doc(id).adviceBeforeReplacement || []).join(' \n ').toLo
 const clarify = (id) => String(doc(id).clarifyingQuestion || '').toLowerCase();
 const secondary = (id) => String(doc(id).secondaryQuestion || '').toLowerCase();
 const safety = (id) => String(doc(id).safety || '').toLowerCase();
-const blob = (id) => `${discr(id)} \n ${conf(id)} \n ${advice(id)} \n ${clarify(id)} \n ${secondary(id)}`;
 // Full node text incl per-component supports/against — used where the evidence lives in FOR/AGAINST.
 const nodeText = (id) => JSON.stringify(doc(id)).toLowerCase();
 

@@ -1,8 +1,8 @@
 # Migration tooling
 
-Phase 0 tooling for the Appliance Clinic migration: inventory, ownership checks, the S4R
-denylist, artefact and configuration comparison, the behavioural baseline, the change-set safety
-checker and the explicit backup tool. See [`docs/migration/PLAN.md`](../../docs/migration/PLAN.md)
+Tooling from the Appliance Clinic migration, still used for production changes: inventory, ownership checks, the S4R
+denylist, artefact and configuration comparison, the change-set safety checker, the runtime overrides
+drift check and the explicit backup tool. See [`docs/migration/PLAN.md`](../../docs/migration/PLAN.md)
 and the [runbooks](../../docs/migration/runbooks/README.md).
 
 ## Safety properties
@@ -15,8 +15,6 @@ and the [runbooks](../../docs/migration/runbooks/README.md).
 - **No customer data.** DynamoDB tables are described, never read.
 - **Mutation is separate.** Only `bin/backup.mjs` and `bin/admin-hotfix.mjs` change AWS. Each prints a plan unless given both
   `--execute` and a matching `--confirm-account`, and only their named commands can run.
-- **Baseline traffic is bounded.** Baseline requests never carry `observability`, never reach admin
-  or benchmark routes, only reach configured hosts, and are capped per run.
 - **Output stays local.** Everything is written to the gitignored `.migration-output/`.
 
 ## Commands
@@ -39,6 +37,7 @@ Run from this directory after `npm ci`.
 | `npm run hotfix:admin -- apply\|rollback ... [--execute --confirm-account <id>]` | Writes | SAFE AC CHANGE | Phase 1: apply or roll back the hotfix on `whichpart-api` only |
 | `npm run production:toolkit [-- --check]` | None | READ-ONLY | Render the production toolkit documents (execution policy, deny-S4R policy, bootstrap template) into `docs/migration/phase-5/toolkit/`. `change.sh` refuses to run while they are stale |
 | `node bin/import-writes.mjs ...` | None | READ-ONLY | Phase 5 import-semantics helpers: the writes each resource type's post-import update makes |
+| `node bin/check-overrides-drift.mjs [--region eu-west-1]` | Reads | READ-ONLY | Compare `runtime-overrides.json` with the live functions; `change.sh` runs it after every runtime change and fails on any difference |
 | `node bin/runtime-changes.mjs [--write]` | None | READ-ONLY | List (or refresh) stale SHA-256s in `docs/migration/runtime-changes.json` after a deliberate runtime change |
 | `node bin/sandbox-image-copy.mjs ...` | Writes (sandbox ECR) | Sandbox only | Phase 4: copy a deployed image into its `-sbx` repository, byte for byte |
 

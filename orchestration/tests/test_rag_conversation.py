@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Role-separated conversation reaches the Diagnostic RAG as real turns.
+"""Role-separated conversation reaches the diagnosis engine as real turns.
 
 The historical adapter sent one concatenated user blob, so UNDERSTAND re-diagnosed
 every follow-up. build_rag_messages must keep user/assistant roles.

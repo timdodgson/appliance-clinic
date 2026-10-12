@@ -43,7 +43,7 @@ check("the same signer the engine verifies (fixed vector)",
 
 del os.environ["ENGINE_SIGNING_TOKEN"]
 fx = FakeHttpx([200]); svc._post(fx, {"messages": []})
-check("without a key the request is unsigned (the engine then treats it as plain {messages})", ENGINE_SIGNATURE_HEADER not in fx.calls[0]["headers"])
+check("without a key the request is unsigned (the engine then refuses it, 401)", ENGINE_SIGNATURE_HEADER not in fx.calls[0]["headers"])
 check("the secret never appears in the request", KEY.encode() not in fx.calls[0]["content"])
 
 print(f"\nEngine signing: {passed} passed / {failed} failed  (total {passed + failed})")

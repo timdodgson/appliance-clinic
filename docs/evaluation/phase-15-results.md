@@ -99,7 +99,7 @@ The old engine still runs in AC's AWS account with `ac-diagnosis-role`, AC's sec
 
 ## GOLD
 
-Exactly two runs, 20 minutes apart, on the exact deployed build (`main` at `10ab5ff`, overrides equal to production). No other GOLD run was made in this phase.
+Exactly two runs on 2026-10-12, 20 minutes apart, on the exact deployed build (`main` at `10ab5ff`, overrides equal to production). No other GOLD run was made in this phase.
 
 | Run | Build | Window (UTC) | Result |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Exactly two runs, 20 minutes apart, on the exact deployed build (`main` at `10ab
 
 ## Production checks
 
-After both GOLD runs: the new engine had served 585 signed AC requests since the cutover (304 understand, 281 diagnose), every one ok; the old engine had received **0** signed requests. Alarms: FailedTurns, RefusedRequests and Errors OK. Throttles went to ALARM for one throttled invocation at 08:20, as GOLD run 2 started: the account's Lambda concurrency limit is 10 (a known constraint since Phase 7). The orchestrator's single 429 retry absorbed it and no turn failed. AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted); AcRuntimeStack UPDATE_COMPLETE; live AC journeys (gas stop, intake, washing-machine drain journey, code meaning, unsafe decline); engine health; stack drift IN_SYNC; overrides equal to `runtime-overrides.json`; build equivalence of the engine zip, the whichpart-api zip and the orchestrator image with the deployed builds.
+After both GOLD runs: the new engine had served 585 signed AC requests since the cutover (304 understand, 281 diagnose), every one ok; the old engine had received **0** signed requests. Alarms: FailedTurns, RefusedRequests and Errors OK. Throttles went to ALARM for one throttled invocation in the 08:20–08:25 UTC period, as GOLD run 2 started at 08:23: the account's Lambda concurrency limit is 10 (a known constraint since Phase 7). The orchestrator's single 429 retry absorbed it and no turn failed. AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted); AcRuntimeStack UPDATE_COMPLETE; live AC journeys (gas stop, intake, washing-machine drain journey, code meaning, unsafe decline); engine health; stack drift IN_SYNC; overrides equal to `runtime-overrides.json`; build equivalence of the engine zip, the whichpart-api zip and the orchestrator image with the deployed builds.
 
 ## Releases
 

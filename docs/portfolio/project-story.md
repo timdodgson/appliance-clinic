@@ -100,7 +100,7 @@ The product was then fixed, not the test, over a series of reviewed releases:
 
 Misses that kept repeating in scenarios that still passed narrowly were treated as defects too. The gate was **49/49 in two consecutive full runs** ([final gate](../evaluation/gold-v2-final-gate.md)). The 28/50 run is kept as the diagnostic run that started the work, not as a baseline.
 
-During the Phase 10 work that followed (section 9) two bearer tokens appeared in an operator session's output, and both were rotated. The rotation exposed a CloudFormation subtlety: pinning a dynamic reference to the new version id changed nothing. CloudFormation re-resolved the old unversioned reference to the same new value, saw no difference and skipped the update. A non-secret version marker in each function's environment now forces the update on every rotation.
+During the Phase 8 work (change 8.10) two bearer tokens appeared in an operator session's output, and both were rotated. The rotation exposed a CloudFormation subtlety: pinning a dynamic reference to the new version id changed nothing. CloudFormation re-resolved the old unversioned reference to the same new value, saw no difference and skipped the update. A non-secret version marker in each function's environment now forces the update on every rotation.
 
 ### 8. Make it readable (Phase 9)
 
@@ -171,8 +171,8 @@ engine instead of changing the shared one:
 | AC release gates | S4R contract, ingress, smoke and health | AC checks only |
 
 The old engine was **not modified**. It keeps serving S4R, which is now an external consumer, and AC sends it no
-traffic. Its CDK ownership is relinquished with zero physical change, or reported blocked if that cannot be proven
-([results](../evaluation/phase-15-results.md)). AC released it from its CloudFormation stack with zero physical change.
+traffic. AC released it from its CloudFormation stack with zero physical change (change 15.3). The final build passed
+GOLD-v2.4 56/56 twice, and all 163 runtime test files pass ([results](../evaluation/phase-15-results.md)).
 
 ## Trade-offs, honestly
 
@@ -190,18 +190,18 @@ traffic. Its CDK ownership is relinquished with zero physical change, or reporte
 
 ## Still open
 
-Checked against the code, the live configuration and the Phase 15 results. Solved items are not carried forward.
+Checked against the code, the live configuration and the Phase 15 results. Solved items are not carried forward. The operational risks among them have a short runbook in [infra/production/README.md](../../infra/production/README.md#operational-risks).
 
 | Item | Evidence or detail |
 |---|---|
-| **Account Lambda concurrency is 10**, shared with every workload in the account, including the old shared engine | The pool sat at 10 for 383 minutes in 14 days. The recommended quota is 100, and only the account owner can request it ([analysis](../evaluation/phase-11-concurrency.md)) |
+| **Account Lambda concurrency is 10**, shared with every workload in the account, including another site and the old shared engine | The pool sat at 10 for 383 minutes in 14 days ([analysis](../evaluation/phase-11-concurrency.md)). A real throttle occurred on 2026-10-12 in the 08:20–08:25 UTC period during the Phase 15 GOLD pair; the orchestrator's single 429 retry absorbed it and no turn failed ([results](../evaluation/phase-15-results.md#production-checks)). Fix: an account-level quota increase (100 recommended), which needs the account owner's approval |
 | **The static site** is still published from the original monorepo | Not in this repository |
 | **The orchestrator** is one Python module (about 1,400 lines since Phase 13) | The legacy composition that made up most of it was deleted with the AC legacy fallback ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); what remains is the canonical branch, the non-journey outcomes (hazard, unsafe, code, unsupported, intake) and their documentation |
 | **The old shared engine is still on AC's account and credit** | `spares4repairs-part-finder` runs in AC's AWS account on `ac-diagnosis-role`, with AC secrets and AC's Jev credit, and serves S4R. Changing that would modify resources it depends on, which Phase 15 deliberately did not do ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)). Moving it is S4R's change |
-| **No alarm notification target** | The new engine's alarms (`FailedTurns`, `RefusedRequests`, `Errors`, `Throttles`) fire, but nothing is notified yet |
+| **No alarm notification target** | The four engine alarms (`applianceclinic-diagnosis-engine-{FailedTurns,RefusedRequests,Errors,Throttles}`) go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription; the recipient is the owner's decision |
 | **Knowledge corpus files in the engine's folder** | `services/diagnosis-engine/knowledge/` is used only by whichpart-api's read-only knowledge view; the engine does not read it at runtime |
 | **Canonical coverage** | 63 journeys own most AC turns; a typed problem no journey owns gets an explicit `UNSUPPORTED` reply, and an appliance outside the typed families gets the repeated appliance clarify ([Phase 13](../evaluation/phase-13-results.md)) |
-| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and AC (and S4R, through the shared engine) was down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion |
+| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and AC (and S4R, through the shared engine) was down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion. Until then a top-up is the recovery ([runbook](../../infra/production/README.md#operational-risks)) |
 | **Evaluation shares production's Jev credit** | GOLD runs, the GOLD judge and the transcript judge use the same Jev account as AC and the old shared engine, so evaluation load can exhaust production. Needed where possible: a separate evaluation key or account, or a budget cap for evaluation traffic; until then GOLD runs are rationed and spaced |
 | **Engine signing key in the Lambda environment** | The same pattern as the service bearers (dynamic references). A runtime secret fetch would keep it out of `lambda:GetFunctionConfiguration` |
 | **The GOLD judge is not independent** | GOLD and transcript review are judged by Jev, the same service that does the understanding. The rubric and pass rule are fixed and verdicts are checked by reading the conversations, but an independent judge would be stronger evidence |

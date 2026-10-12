@@ -20,7 +20,6 @@ const K = join(HERE, '..', 'knowledge');
 const CAT = JSON.parse(readFileSync(join(HERE, '..', 'faults-catalogue.json'), 'utf8'));
 const OV = JSON.parse(readFileSync(process.env.TDE_OVERRIDES || join(K, 'overrides.json'), 'utf8'));
 const TD = CAT.faults['tumble-dryer'] || {};
-const WD = CAT.faults['washer-dryer'] || {};
 const NODES = Object.keys(TD);
 
 let pass = 0, fail = 0; const fails = [];
@@ -37,10 +36,8 @@ const first = (id) => td(id)[0] || '';
 const idx = (id, sub) => td(id).findIndex((c) => c.includes(sub));
 const before = (id, a, b) => { const x = idx(id, a), y = idx(id, b); return x !== -1 && y !== -1 && x < y; };
 const discr = (id) => (doc('tumble-dryer', id).discriminators || []).join(' \n ').toLowerCase();
-const conf = (id) => JSON.stringify(doc('tumble-dryer', id).commonConfusion || []).toLowerCase();
 const advice = (id) => (doc('tumble-dryer', id).adviceBeforeReplacement || []).join(' \n ').toLowerCase();
 const clarify = (id) => String(doc('tumble-dryer', id).clarifyingQuestion || '').toLowerCase();
-const blob = (id) => `${discr(id)} \n ${conf(id)} \n ${advice(id)} \n ${clarify(id)}`;
 
 // ---- 0. COVERAGE: every TD node reviewed + has ordered suspects ------------------------------
 ok('tumble-dryer family present', NODES.length >= 12);

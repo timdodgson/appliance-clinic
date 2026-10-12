@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { evaluateJev, JevError, unwrapCloudflare, redact } = require('../jev-client.js');
+const { evaluateJev, unwrapCloudflare, redact } = require('../jev-client.js');
 
 function fakeTransport({ status = 200, body, throwMsg } = {}) {
   const calls = [];

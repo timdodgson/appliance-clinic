@@ -20,7 +20,7 @@ delete require.cache[handlerPath];
 const api = require(handlerPath);
 const transcripts = require('../transcripts.js');
 const tok = require('../state-token.js');
-const { SECRETS, mockDdb, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, engineUnderstand } = require('./canonical-test-helpers.cjs');
 
 const ORCH_VIEW = {
   route: 'SYMPTOMS', outcome: 'ANSWER', message: 'Let us check the drain filter first.',
@@ -35,7 +35,7 @@ beforeAll(() => {
     sent.push(payload);
     const out = JSON.parse(JSON.stringify(ORCH_VIEW));
     out._diagnosticTrace = { schemaVersion: '1.0', stages: [] };
-    if (payload.canonical) out._canonical = partFinderUnderstand(payload.canonical);
+    if (payload.canonical) out._canonical = engineUnderstand(payload.canonical);
     if (orchMode === 'degraded' && out._canonical) out._canonical = { ...out._canonical, degraded: 'classification_degraded' };
     if (orchMode === 'unavailable') {
       out.outcome = 'SERVICE_UNAVAILABLE'; out.message = 'Sorry, the diagnosis service is unavailable right now.';

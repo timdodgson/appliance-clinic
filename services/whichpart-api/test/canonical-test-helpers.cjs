@@ -5,10 +5,9 @@
  *    conversation-state.js and fails with a ConditionalCheckFailedException-shaped error.
  *  - intentFor(answers): a real Jev-adapted intent (jev-understand.adaptJevToIntent).
  *  - mc1For(intent): an mc/1 classification carrying the same facts (washing machine, not draining, water left).
- *  - partFinderUnderstand(block, intent): exactly what the engine's understand mode returns as `canonical`
+ *  - engineUnderstand(block, intent): exactly what the engine's understand mode returns as `canonical`
  *    (the real canonicalTransportMerge, no handler).
  */
-globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
 const { _internal } = require('../../diagnosis-engine/handler.js');
 const { adaptJevToIntent } = require('../../diagnosis-engine/jev-understand.js');
 const mc1 = require('../../diagnosis-engine/canonical/mc1.js');
@@ -71,8 +70,8 @@ function mc1For(intent = intentFor()) {
     observations: [{ key: 'waterRemaining', value: true }],
   });
 }
-function partFinderUnderstand(block, intent = intentFor()) {
+function engineUnderstand(block, intent = intentFor()) {
   return _internal.canonicalTransportMerge(mc1For(intent), JSON.parse(JSON.stringify(block)));
 }
 
-module.exports = { SECRET, SECRETS, mockDdb, condError, intentFor, mc1For, partFinderUnderstand, internal: _internal };
+module.exports = { SECRET, SECRETS, mockDdb, condError, intentFor, mc1For, engineUnderstand, internal: _internal };

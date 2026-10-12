@@ -15,7 +15,6 @@ const { emptyState } = require('../canonical/cs1.js');
 const { C, O, K } = H;
 const ap = (a) => ({ appliance: { value: a, basis: 'stated' } });
 const open = (a, j, obs = []) => H.opener(j, null, obs, {}, ap(a));
-const ck = (c, r = 'clear') => C({ checks: [K(c, 'done', r)] });
 const ob = (...o) => C({ observations: o });
 const PACK = (k) => L.CANONICAL_JOURNEY_PACKS[k];
 const J = (k) => require(PACK(k).pipeline.replace('./canonical/', '../canonical/'));

@@ -19,7 +19,6 @@ const K = join(HERE, '..', 'knowledge');
 const CAT = JSON.parse(readFileSync(join(HERE, '..', 'faults-catalogue.json'), 'utf8'));
 const OV = JSON.parse(readFileSync(process.env.WDE_OVERRIDES || join(K, 'overrides.json'), 'utf8'));
 const WD = CAT.faults['washer-dryer'] || {};
-const WM = CAT.faults['washing-machine'] || {};
 const NODES = Object.keys(WD);
 
 let pass = 0, fail = 0; const fails = [];
@@ -39,7 +38,6 @@ const discr = (id) => (doc('washer-dryer', id).discriminators || []).join(' \n '
 const conf = (id) => JSON.stringify(doc('washer-dryer', id).commonConfusion || []).toLowerCase();
 const advice = (id) => (doc('washer-dryer', id).adviceBeforeReplacement || []).join(' \n ').toLowerCase();
 const syn = (id) => [...(WD[id]?.synonyms || []), ...(doc('washer-dryer', id).symptoms || [])].join(' ').toLowerCase();
-const blob = (id) => `${discr(id)} \n ${conf(id)} \n ${advice(id)} \n ${syn(id)}`;
 
 // ---- 0. COVERAGE: every WD node reviewed + has ordered suspects ------------------------------
 ok('washer-dryer family present', NODES.length >= 20);

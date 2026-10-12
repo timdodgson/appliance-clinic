@@ -18,7 +18,7 @@ delete require.cache[handlerPath];
 const api = require(handlerPath);
 const transcripts = require('../transcripts.js');
 const tok = require('../state-token.js');
-const { SECRETS, mockDdb, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, engineUnderstand } = require('./canonical-test-helpers.cjs');
 
 const CSID = tok.newCanonicalSessionId(() => Buffer.alloc(24, 3));
 const ORCH_VIEW = {
@@ -36,7 +36,7 @@ function installOrchestrator() {
     const out = JSON.parse(JSON.stringify(ORCH_VIEW));
     out._diagnosticTrace = { schemaVersion: '1.0', stages: [{ id: 'routing', label: 'Routing', evidence: 'OBSERVED', summary: 'SYMPTOMS', detail: null }] };
     // What the real orchestrator does: pass the engine's merged result back as `_canonical`.
-    if (payload.canonical && orchMode !== 'no-canonical') out._canonical = partFinderUnderstand(payload.canonical);
+    if (payload.canonical && orchMode !== 'no-canonical') out._canonical = engineUnderstand(payload.canonical);
     if (out._canonical && orchMode === 'classifier') {
       out._canonical.classifier = { source: 'mc1-questions', degraded: false, recallGap: { type: 'model', roleFilled: false }, questionCount: 64, jevMs: 410,
         comparison: { agree: 18, total: 21, byKind: { newly_populated: 2, removed: 1 }, fields: ['identity.make', 'checks', 'problem.journey'] } };

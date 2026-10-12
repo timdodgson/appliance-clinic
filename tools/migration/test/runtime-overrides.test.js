@@ -68,11 +68,12 @@ describe('runtime overrides', () => {
   });
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
-    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder',
+    // The former shared engine spares4repairs-part-finder and its role ac-diagnosis-role are no longer AC's (change 15.3).
+    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp',
       'applianceclinic-diagnosis-engine'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
-    const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role', 'ac-diagnosis-engine-role'];
-    for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-role', 'ac-diagnosis-engine-role'], k).toContain(k);
+    const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'];
+    for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-engine-role'], k).toContain(k);
     for (const k of Object.keys(o.roleManagedPolicies || {})) expect(AC_ROLES, k).toContain(k);
     for (const k of Object.keys(o.rolePolicies)) expect(AC_ROLES, k).toContain(k.split('/')[0]);
     // Never the S4R role, in any form.

@@ -12,11 +12,6 @@
  *
  * Run: node services/whichpart-api/test/transcript-review-jev.test.cjs
  */
-globalThis.awslambda = globalThis.awslambda || {
-  streamifyResponse: (fn) => fn, HttpResponseStream: { from: (s) => s },
-};
-
-const review = require('../transcript-review');
 const schema = require('../transcript-review/schema');
 const jevReview = require('../transcript-review/jev-review');
 const stateEv = require('../transcript-review/state-evidence');

@@ -10,8 +10,6 @@ const ingest = require('../recalls/ingest');
 const http = require('../recalls/http');
 const fixtures = require('./fixtures/opss-content');
 const api = require('../index.js');
-const fs = require('fs');
-const path = require('path');
 
 let pass = 0, fail = 0;
 function ok(name, cond, detail) {

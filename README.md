@@ -123,7 +123,7 @@ No model supplies safety rules, error-code meanings, compatibility or stock; tho
 | **GOLD-v2.4** | 56 whole-conversation scenarios, judged by Jev on a 10-dimension rubric (`gold-v2-rubric-v3`) with critical failures |
 | Production transcript review | A scheduled judge over real conversations; read by a person alongside GOLD |
 
-**The latest recorded gate (Phase 13) was 56/56 in two consecutive runs on the final build** ([results](docs/evaluation/phase-13-results.md#gold-on-the-final-build)), as were Phase 12's and Phase 11's. The Phase 15 pair is recorded in the [Phase 15 results](docs/evaluation/phase-15-results.md). That number is not the claim on its own. What matters is how it was reached:
+**The latest gate (Phase 15) was 56/56 in two consecutive runs on the deployed build, `main` at `10ab5ff`** ([results](docs/evaluation/phase-15-results.md#gold)), as were the gates of Phases 11 to 13. At the same build the 163 runtime test files all pass, the typecheck and lint are clean, and the migration tooling passes 724/724. That number is not the claim on its own. What matters is how it was reached:
 - GOLD-v2.2 had passed 49/49 in four consecutive runs. Real conversations were still visibly poor.
 - Reviewing production transcripts found failures the benchmark could not see. A model instruction was leaking into replies in scenarios that passed, and the suite had no error-code scenario at all, so a code mistaken for a model number went unseen.
 - The benchmark was audited against those failures. Scenarios and rubric-wide fidelity checks were added from real evidence; nothing was removed or weakened ([audit](docs/evaluation/phase-10-gold-audit.md)).
@@ -156,13 +156,15 @@ Appliance Clinic began inside the Spares4Repairs monorepo and shared its AWS acc
 
 The story, with its decisions and trade-offs, is in [docs/portfolio/project-story.md](docs/portfolio/project-story.md). The phase-by-phase evidence is in [docs/migration/](docs/migration/PLAN.md) and [docs/evaluation/](docs/evaluation/README.md).
 
-## Known limitations
+## Known operational risks and limitations
 
-The list of current open items, each with its evidence, is in [the project story](docs/portfolio/project-story.md#still-open). The largest ones:
-- The AWS account's Lambda concurrency pool (10) is shared with other workloads in the account, and a quota increase is recommended.
+Most of these need the account owner's decision. What each looks like and how to respond is in the [operational risks runbook](infra/production/README.md#operational-risks); the evidence is in [the project story](docs/portfolio/project-story.md#still-open).
+- **Lambda concurrency quota is 10** for the whole AWS account, shared with another site. A real throttle happened on 2026-10-12 in the 08:20–08:25 UTC period during GOLD; the orchestrator's single 429 retry absorbed it and no turn failed. Fix: an account-level quota increase.
+- **The engine alarms notify nobody.** `applianceclinic-diagnosis-engine-{FailedTurns,RefusedRequests,Errors,Throttles}` have no notification target. Fix: an AC-owned SNS topic and subscription.
+- **Nothing alerts on Jev credit or quota.** Running out of Jev credit caused a real outage on 2026-10-11 ([finding](docs/evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
+- **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
+- **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - The static site is still published from the original monorepo.
-- The old shared engine, which another site still uses, runs in AC's AWS account on AC's role, secrets and Jev credit. AC sends it no traffic and does not modify it ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
-- The new engine's alarms have no notification target yet.
 
 ## Working on it
 
@@ -195,7 +197,8 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 | Migration plan, results, runbooks | [docs/migration/PLAN.md](docs/migration/PLAN.md), [runbooks](docs/migration/runbooks/README.md) |
 | Project story | [docs/portfolio/project-story.md](docs/portfolio/project-story.md) |
 | Contributing, security | [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) |
-| Production changes | [`infra/production/steps/change.sh`](infra/production/steps/change.sh), [CONTRIBUTING.md](CONTRIBUTING.md#production-changes) |
+| Production changes and runbook | [infra/production/README.md](infra/production/README.md), [`change.sh`](infra/production/steps/change.sh), [CONTRIBUTING.md](CONTRIBUTING.md#production-changes) |
+| Repository layout | [CONTRIBUTING.md](CONTRIBUTING.md#repository-layout) |
 
 ## Licence
 

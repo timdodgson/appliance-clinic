@@ -558,7 +558,7 @@ Lambda only.
   `update-function-configuration --role <S4R role ARN>`, saved in
   `.migration-output/phase7/7.15b-diagnosis-role-switch/rollback.sh`. `ac-deny-s4r` stops CloudFormation passing the
   S4R role, so CloudFormation could not do this rollback.
-- **After** ([`verify-diagnosis-role.sh`](../../infra/production/verify-diagnosis-role.sh)):
+- **After** (`verify-diagnosis-role.sh` (removed in Phase 15)):
   - `Role` is `ac-diagnosis-role`, and `LastUpdateStatus` is `Successful`
   - the contract turn ran on a new execution environment (cold start logged)
   - no AccessDenied, no learning-trace write failure, no overlay failure
@@ -575,12 +575,12 @@ Lambda only.
 
 ### C1: `/ai/chat` retired (23:24Z)
 
-- **Script:** [`c1-retire-ai-chat.sh`](../../infra/production/steps/c1-retire-ai-chat.sh).
+- **Script:** `c1-retire-ai-chat.sh` (removed in Phase 15).
   - It checked `apigateway-invoke` equalled the reviewed statement exactly.
   - It saved the one-call rollback (`add-permission`, in `.migration-output/phase7/c1-retire-ai-chat/rollback.txt`).
   - It removed only that statement, using the policy's `RevisionId`.
   - Every other statement is identical.
-- **Before and after** ([`verify-ai-chat-ingress.sh`](../../infra/production/verify-ai-chat-ingress.sh)):
+- **Before and after** (`verify-ai-chat-ingress.sh` (removed in Phase 15)):
 
 | Check | Before (`open`) | After (`retired`) |
 |---|---|---|

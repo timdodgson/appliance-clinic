@@ -34,8 +34,6 @@ const comps = (id) => {
 const names = (id) => comps(id).map((c) => (typeof c === 'string' ? c : c.name).toLowerCase());
 const first = (id) => names(id)[0] || '';
 const firstType = (id) => { const c = comps(id)[0]; return c && typeof c === 'object' ? String(c.type || '').toLowerCase() : ''; };
-const idx = (id, sub) => names(id).findIndex((c) => c.includes(sub));
-const last = (id, sub) => { const a = names(id); return a.length > 0 && a[a.length - 1].includes(sub); };
 const discr = (id) => (doc(id).discriminators || []).concat(CAT.faults[FAM][id]?.discriminators || []).join(' \n ').toLowerCase();
 const conf = (id) => JSON.stringify(doc(id).commonConfusion || []).toLowerCase();
 const clarify = (id) => String(doc(id).clarifyingQuestion || '').toLowerCase();
