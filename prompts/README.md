@@ -4,7 +4,7 @@ Every language-model and Jev prompt the runtime sends is registered in [`registr
 
 | Field | Meaning |
 |---|---|
-| `id` | Stable identifier, e.g. `diagnosis.compose.system`. It never changes; a replacement prompt gets a new id |
+| `id` | Stable identifier, e.g. `diagnosis.canonical.compose`. It never changes; a replacement prompt gets a new id |
 | `version` | Integer, the latest changelog entry |
 | `purpose`, `owner`, `consumers` | What it does, which component owns it, and who depends on its output |
 | `source` | The exact declarations (file and names) that make up the prompt. The prompts stay in the runtime code, next to the logic that fills them |
@@ -21,7 +21,7 @@ Every language-model and Jev prompt the runtime sends is registered in [`registr
 3. In `registry.json`, increase `version` and append a changelog entry: the date, the fingerprint and what changed.
 4. If the prompt has a `runtimeVersion`, bump that constant too and record the new value.
 5. Evaluate the change before release, then deploy it as a reviewed runtime release:
-   - **diagnosis prompts:** the `/part-finder` contract, the smoke baseline and the transcript-review judge
+   - **diagnosis prompts:** the engine test suite, the live AC journeys and a GOLD pair on the deployed build
    - **judge prompts:** a comparison run against the previous version
 
 Moving a prompt to another file without changing it keeps the fingerprint. Update `source` only.
@@ -30,10 +30,7 @@ Moving a prompt to another file without changing it keeps the fingerprint. Updat
 
 | Id | Used by |
 |---|---|
-| `diagnosis.compose.system`, `diagnosis.compose.intent-hints`, `diagnosis.compose.turn` | Legacy COMPOSE: every S4R `/part-finder` request, and AC turns not under canonical control |
-| `diagnosis.jev.understand` | Jev UNDERSTAND: every S4R `/part-finder` request, and AC orchestrated turns |
-| `diagnosis.canonical.compose`, `diagnosis.jev.mc1` | Canonical control (AC, allow-listed journeys) |
+| `diagnosis.jev.understand` | Jev UNDERSTAND: every AC orchestrated turn (understand mode) |
+| `diagnosis.canonical.compose`, `diagnosis.jev.mc1` | The canonical diagnosis: mc/1 classification and COMPOSE wording of the journey's NextAction |
 | `review.transcript.llm`, `review.transcript.jev` | The scheduled transcript review and admin re-review |
 | `benchmark.acq.judge`, `benchmark.gold-v2.judge` | Admin test-area benchmarks |
-
-Prompts used by S4R requests are S4R-facing: a change to them changes `/part-finder` replies.

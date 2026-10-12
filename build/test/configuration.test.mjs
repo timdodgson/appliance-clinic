@@ -36,7 +36,7 @@ function read(dir, ext, patterns) {
 
 describe('configuration.md', () => {
   it.each([
-    ['services/part-finder', ['.js', '.cjs'], JS],
+    ['services/diagnosis-engine', ['.js', '.cjs'], JS],
     ['services/whichpart-api', ['.js', '.cjs'], JS],
     ['orchestration', ['.py'], PY],
     ['error-codes/mcp', ['.py'], PY],

@@ -1,7 +1,7 @@
 """STAGE A — deterministic cross-turn appliance-identity precedence, with the prior identity read from cs/1.
 
 ADR 0014: the orchestrator keeps no state; the established identity of earlier turns arrives in the BFF's cs/1 block
-(here carried by the fake BFF, whose fake merge stands in for part-finder's).
+(here carried by the fake BFF, whose fake merge stands in for the engine's).
 
 Proves (no network, no real Jev) that once a family is genuinely ESTABLISHED (Jev provenance
 customer_named) it is preserved across weak / null / uncertain / inferred later turns, and is

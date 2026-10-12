@@ -1,21 +1,22 @@
 # Error handling
 
-Each boundary has its own error contract. The S4R page, the AC site and the admin UI all depend on these shapes, so
-they are documented and pinned by tests rather than unified. Unifying them is a coordinated change with the clients.
+Each boundary has its own error contract. The AC site and the admin UI depend on these shapes, so they are documented
+and pinned by tests rather than unified. Unifying them is a coordinated change with the clients.
 
-## Diagnosis engine (`/part-finder`, the S4R contract)
+## Diagnosis engine (`applianceclinic-diagnosis-engine`, AC-internal)
 
 | When | Response |
 |---|---|
-| Before the stream starts: body too large, invalid JSON, no messages array | JSON `{error}` with 413 / 400 / 400 |
-| Before the stream starts: model provider or Jev failure | JSON `{error}` with 503: "AI service unavailable…", or "The AI took too long…" on a timeout |
-| After the stream started | One NDJSON frame `{"type":"error","error":"…"}`, then the stream ends. The status is already 200 |
-| Out-of-scope request | A normal stream: the fixed refusal as a `delta`, then `done` with `onTopic: false`. Not an error |
+| No valid IAM (SigV4) signature, or a role that may not invoke the URL | 403 from the Function URL; the engine never runs |
+| Body too large, invalid JSON, not an object | JSON `{error}` with 413 / 400 / 400 |
+| Missing or invalid engine signature (`x-ac-engine-signature`) | 401 `{error, errorCode: "engine_signature_required"}`. Logged (`evt: engine-auth`, `rejected: true`); alarm `-RefusedRequests` |
+| No messages array | 400 `{error}` |
+| Diagnose call that no canonical journey controls | 409 `{error, errorCode: "canonical_not_controlled"}` |
+| Jev, COMPOSE provider or engine failure | 503 `{error, errorCode: "engine_unavailable"}`. Logged with `ok: false` (`jev:<category>` for Jev failures); alarm `-FailedTurns` |
+| Success | 200, buffered JSON lines: `{type:'understand', …}` for understand mode; `{type:'delta'}` then `{type:'done'}` for a canonical reply |
 
-**Logging.** The turn is logged with `ok: false` and the error category (`jev:<category>` for Jev failures).
-
-**Pinned by.** The `/part-finder` contract check (`tools/migration` `baseline contract verify`) and the engine tests.
-The frame types are declared in [`types/part-finder.d.ts`](../../types/part-finder.d.ts).
+**Pinned by.** The engine tests. The request and response types are declared in
+[`types/diagnosis-engine.d.ts`](../../types/diagnosis-engine.d.ts).
 
 ## whichpart-api customer path (`POST /api`, the customer turn)
 
@@ -33,20 +34,19 @@ still logged as failed and persisted in the transcript with its reason (`orchest
 ## whichpart-api admin routes
 
 Every admin route answers an unauthenticated or non-admin caller with 401 `{error: "Unauthorized"}`, or with 405 for an
-unsupported method. Pinned by `test/admin-routes.test.mjs` for all 91 routes.
+unsupported method. Pinned by `test/admin-routes.test.mjs` for all 84 routes. The retired knowledge-publish routes return 404 (ADR 0019).
 
 Store errors differ by area:
 
 | Area | Status | Body |
 |---|---|---|
-| Knowledge | from the error, else 500 | `{error, code (default "error"), ...extra}` (merged). 5xx are logged |
 | Media | from the error, else 404 for `not_found`, else 400 | `{error, code, extra}` (nested) |
 | Recalls | from the error, else 500 | `{error, code (default "error"), ...extra}`. 5xx are logged (message truncated) |
 | Error codes | mapped by `error-codes-admin.httpError` from the MCP response | the MCP's `{error, code}` |
 | Test area (library) | 409 `{error: "STALE", message, updatedAt}`, 404 `{error: "not found"}`, else 400 `{error, problems}` | |
 | Settings | per route: 400 validation, 409 revision conflict or a batch owning live routing, 413 body too large, 503 secret store unavailable, 500 `{error}` on unexpected failure | |
 
-The knowledge and media shapes are pinned by `test/admin-error-contracts.test.mjs`.
+The media shapes are pinned by `test/admin-error-contracts.test.mjs`. Knowledge is read-only and has no write errors.
 
 ## Service to service
 
@@ -63,7 +63,7 @@ The knowledge and media shapes are pinned by `test/admin-error-contracts.test.mj
   cannot happen, because creating the client does no I/O.
 - Cognito errors during a session check are treated as signed out.
 
-**The engine's public URL** honours the orchestrator-only fields only with a valid HMAC signature
-([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md), enforced since Phase 11). An unsigned, stale or
-invalid signature is not an error to the caller: the fields are dropped, the drop is logged (`evt: engine-auth`), and
-the request is handled as plain `{messages}`.
+**The engine accepts no unauthenticated request.** Its Function URL is `AWS_IAM`, and every POST must carry a valid
+HMAC signature ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md),
+[ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)). A missing, stale or invalid signature is an explicit
+401, never a silently reduced request.

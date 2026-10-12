@@ -5,7 +5,7 @@
  * This is the WRITE/READ side used by the WhichPart admin console (via the
  * whichpart-api BFF). It persists the non-secret operational config and the
  * write-only OpenAI credential to Secrets Manager, using the SAME secret IDs
- * the part-finder RAG engine reads at runtime (services/part-finder/admin-config.js):
+ * the diagnosis engine reads at runtime (services/diagnosis-engine/admin-config.js):
  *
  *   spares4repairs/<STAGE>/applianceclinic-ai-config   (non-secret: routing/models/history)
  *   spares4repairs/<STAGE>/applianceclinic-openai      (secret: { apiKey } — never returned)
@@ -265,7 +265,7 @@ async function isKeyConfigured() {
 
 /**
  * Replace the OpenAI credential. Non-secret audit metadata (who/when, last 20 replacements) is kept
- * beside it in the same secret; Part Finder reads only `apiKey`. The key is never returned.
+ * beside it in the same secret; the diagnosis engine reads only `apiKey`. The key is never returned.
  */
 async function saveKey(apiKey, byEmail) {
   const prev = await loadKeyMeta();

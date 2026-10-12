@@ -1,11 +1,11 @@
 """Test helpers for ADR 0014: the orchestrator keeps no conversation state, so a multi-turn test carries cs/1 between
-turns the way whichpart-api does (it persists the merged state part-finder returns and sends it back as the next
+turns the way whichpart-api does (it persists the merged state the engine returns and sends it back as the next
 turn's canonical block).
 
   FakeBff(orchestrator)  wraps an orchestrator: handle_turn() adds the session's canonical block and keeps the merged
                          state the (fake) engine returns. Every other attribute is the orchestrator's.
   cs1_state(...)         a cs/1 state with the given identity / safety / problem, for single-turn tests of a prior.
-  fake_merge(...)        a small stand-in for part-finder's merge (canonical/merge.js): identity, displayed codes,
+  fake_merge(...)        a small stand-in for the engine's merge (canonical/merge.js): identity, displayed codes,
                          model status, problems and safety from the fake engine's typed output. Fakes only.
 """
 from orchestration.tests.engine_token import token_decision, with_engine_token_decision
@@ -148,7 +148,7 @@ class FakeBff:
         def understand(**kw):
             canon = kw.pop("canonical", None)
             res = inner_u(canonical=canon, **kw) if (u_takes and canon is not None) else inner_u(**kw)
-            res = with_engine_token_decision(res)   # the engine's own token decision, as part-finder adds it
+            res = with_engine_token_decision(res)   # the engine's own token decision, as the engine adds it
             if isinstance(res, dict) and isinstance(canon, dict) and "canonical" not in res:
                 nxt = (canon.get("version") or 0) + 1
                 res = {**res, "canonical": {"schema": "cs/1", "mode": canon.get("mode", "shadow"),

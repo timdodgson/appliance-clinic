@@ -1,0 +1,117 @@
+{
+  "id": "15.1a-diagnosis-engine-role",
+  "description": "ADR 0019, step 1 of 4: the dedicated diagnosis engine's execution role ac-diagnosis-engine-role (trust lambda.amazonaws.com with aws:SourceAccount; no managed policies; inline: its own log group, GetSecretValue on the three AC AI secrets, PutObject on learning/feedback/*, read of media-admin/*), and an inline policy on diag-orchestrator-role and whichpart-api-role allowing them to invoke only the new engine's AWS_IAM Function URL. Nothing uses them yet. The shared engine spares4repairs-part-finder and its role are not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisenginerole",
+      "type": "AWS::IAM::Role",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisengineroleacdiagnosisenginelogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisengineroleacdiagnosisenginesecrets",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisengineroleacdiagnosisenginefeedbacks3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "acdiagnosisengineroleacdiagnosisenginemediaoverlays3",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "diagorchestratorroleacinvokediagnosisengine",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "whichpartapiroleacinvokediagnosisengine",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "iam:CreateRole",
+        "iam:GetRole",
+        "iam:TagRole",
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/diag-orchestrator-role",
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one new role and its inline policies, and one new inline policy on each of the two AC caller roles. No PassRole, no Lambda writes.",
+  "writes": {
+    "types": [
+      "AWS::IAM::Role",
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "iam:CreateRole",
+      "iam:PutRolePolicy",
+      "iam:TagRole"
+    ],
+    "forbidden": [
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:DeleteRole",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:CreateFunction"
+    ],
+    "resources": [
+      "ac-diagnosis-engine-role",
+      "diag-orchestrator-role",
+      "whichpart-api-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

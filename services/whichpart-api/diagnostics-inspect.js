@@ -1,4 +1,5 @@
 'use strict';
+const { engineGetHeaders } = require('./engine-signature.js');
 /**
  * Read-only Diagnostics snapshot for the ApplianceClinic admin console.
  *
@@ -10,20 +11,20 @@
 const SECRET_KEY = /token|secret|password|api[_-]?key|credential|authorization|bearer|cookie/i;
 const SECRET_VALUE = /sk-[A-Za-z0-9]{8,}|AKIA[0-9A-Z]{8,}|Bearer\s+[A-Za-z0-9._~+/-]+=*/i;
 
-const ORCH_FIELDS = ['status', 'service', 'version', 'errorCodeMcp', 'diagnosticRag'];
+const ORCH_FIELDS = ['status', 'service', 'version', 'errorCodeMcp', 'diagnosisEngine'];
 const MCP_FIELDS = ['status', 'service', 'version', 'datasetVersion', 'mappingCount', 'baselineMappingCount', 'uniqueLookupCount', 'effectiveActiveCount', 'datasetV1Hash', 'enrichmentV1Hash', 'overlay'];
-const PF_FIELDS = ['status', 'health', 'healthReason', 'service', 'version', 'knowledge', 'rag', 'models', 'media'];
-const PF_KNOWLEDGE_FIELDS = ['loaded', 'records', 'faultIds', 'families', 'version'];
-const PF_RAG_FIELDS = ['loaded', 'indexedRecords', 'indexVersion', 'embeddingModel', 'dims', 'builtAt', 'mismatch'];
-const PF_STAGE_FIELDS = ['configured', 'provider', 'model'];
-const PF_MEDIA_FIELDS = [
+const ENGINE_SERVICE = 'diagnosis-engine';
+const ENGINE_FIELDS = ['status', 'health', 'healthReason', 'service', 'version', 'canonical', 'models', 'media'];
+const ENGINE_CANONICAL_FIELDS = ['journeys'];
+const ENGINE_STAGE_FIELDS = ['configured', 'provider', 'model'];
+const ENGINE_MEDIA_FIELDS = [
   'resolverAvailable', 'baselineLoaded', 'overlayState', 'overlayUpdatedAt',
   'overlayVersion', 'effectiveMappingIdentities', 'cacheTtlSeconds',
 ];
 
 const SYSTEM_PATH = {
   title: 'System path',
-  summary: 'A customer request reaches WhichPart API, which calls the orchestrator. The orchestrator sends error-code turns to Error Code MCP and symptom turns to Part Finder (UNDERSTAND, RAG, COMPOSE). The browser never calls those services directly.',
+  summary: 'A customer request reaches WhichPart API, which calls the orchestrator. The orchestrator sends error-code turns to Error Code MCP and appliance turns to the diagnosis engine (Jev understanding, cs/1 state, deterministic journey, COMPOSE). The browser never calls those services directly.',
   steps: [
     { id: 'customer', label: 'Customer request' },
     { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF' },
@@ -33,8 +34,8 @@ const SYSTEM_PATH = {
       kind: 'branch',
       branches: [
         { when: 'Error-code identity or cue', then: 'Error Code MCP' },
-        { when: 'Symptoms', then: 'Part Finder → RAG → Compose' },
-        { when: 'Error code and symptoms', then: 'Error Code MCP and Part Finder together' },
+        { when: 'Appliance symptoms', then: 'Diagnosis engine: Jev understanding → cs/1 → deterministic journey → COMPOSE' },
+        { when: 'Error code and symptoms', then: 'Error Code MCP and the diagnosis engine together' },
       ],
     },
     { id: 'customer-view', label: 'Customer view', role: 'Reply, media and parts' },
@@ -45,8 +46,8 @@ const ROUTING = {
   note: 'High-level routing only. The orchestrator chooses the path from the customer turn; this page does not change it.',
   paths: [
     { cue: 'Error-code identity or cue', destination: 'Error Code MCP' },
-    { cue: 'Symptoms', destination: 'Part Finder (UNDERSTAND → RAG → COMPOSE)' },
-    { cue: 'Error code and symptoms', destination: 'Error Code MCP and Part Finder together' },
+    { cue: 'Appliance symptoms', destination: 'Diagnosis engine (Jev understanding → cs/1 → deterministic journey → COMPOSE)' },
+    { cue: 'Error code and symptoms', destination: 'Error Code MCP and the diagnosis engine together' },
   ],
 };
 
@@ -127,15 +128,14 @@ function classifyProbe(probe, opts) {
   return healthOf('healthy', 'Probe succeeded');
 }
 
-function pickPartFinder(json) {
-  const raw = pick(json, PF_FIELDS);
-  if (raw.knowledge && typeof raw.knowledge === 'object') raw.knowledge = pick(raw.knowledge, PF_KNOWLEDGE_FIELDS);
-  if (raw.rag && typeof raw.rag === 'object') raw.rag = pick(raw.rag, PF_RAG_FIELDS);
-  if (raw.media && typeof raw.media === 'object') raw.media = pick(raw.media, PF_MEDIA_FIELDS);
+function pickEngine(json) {
+  const raw = pick(json, ENGINE_FIELDS);
+  if (raw.canonical && typeof raw.canonical === 'object') raw.canonical = pick(raw.canonical, ENGINE_CANONICAL_FIELDS);
+  if (raw.media && typeof raw.media === 'object') raw.media = pick(raw.media, ENGINE_MEDIA_FIELDS);
   if (raw.models && typeof raw.models === 'object') {
     raw.models = {
-      understand: pick(raw.models.understand, PF_STAGE_FIELDS),
-      compose: pick(raw.models.compose, PF_STAGE_FIELDS),
+      understand: pick(raw.models.understand, ENGINE_STAGE_FIELDS),
+      compose: pick(raw.models.compose, ENGINE_STAGE_FIELDS),
       inferenceTested: raw.models.inferenceTested === true,
       note: typeof raw.models.note === 'string' ? raw.models.note : null,
     };
@@ -143,7 +143,7 @@ function pickPartFinder(json) {
   return raw;
 }
 
-function classifyPartFinderProbe(probe) {
+function classifyEngineProbe(probe) {
   if (!probe || probe.skipped) {
     return healthOf('unknown', (probe && probe.skipReason) || 'No reliable health probe available');
   }
@@ -154,22 +154,19 @@ function classifyPartFinderProbe(probe) {
     return healthOf('degraded', 'Probe succeeded but the response was not usable JSON');
   }
   const j = probe.json;
-  if (j.service && j.service !== 'part-finder') {
-    return healthOf('degraded', 'Probe succeeded but the response was not a Part Finder health payload');
+  if (j.service !== ENGINE_SERVICE) {
+    return healthOf('degraded', 'Probe succeeded but the response was not a diagnosis engine health payload');
   }
   if (j.status === 'degraded' || j.health === 'degraded') {
-    return healthOf('degraded', j.healthReason || 'Part Finder reported incomplete runtime state');
+    return healthOf('degraded', j.healthReason || 'The diagnosis engine reported incomplete runtime state');
   }
-  if ((j.status === 'ok' || j.health === 'healthy') && j.service === 'part-finder') {
+  if (j.status === 'ok' || j.health === 'healthy') {
     return healthOf('healthy', j.healthReason || 'Probe succeeded');
   }
-  if (j.service === 'part-finder') {
-    return healthOf('degraded', 'Probe succeeded but expected health fields were missing');
-  }
-  return healthOf('degraded', 'Probe succeeded but the response was not a Part Finder health payload');
+  return healthOf('degraded', 'Probe succeeded but expected health fields were missing');
 }
 
-async function timedProbe(url, timeoutMs, fetchImpl) {
+async function timedProbe(url, timeoutMs, fetchImpl, headers) {
   if (!url) return { skipped: true, skipReason: 'No reliable health probe available' };
   const fetchFn = fetchImpl || fetch;
   const started = Date.now();
@@ -177,7 +174,7 @@ async function timedProbe(url, timeoutMs, fetchImpl) {
   const ms = timeoutMs || 5000;
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
-    const r = await fetchFn(url, { method: 'GET', signal: ctrl.signal });
+    const r = await fetchFn(url, { method: 'GET', signal: ctrl.signal, ...(headers ? { headers } : {}) });
     const text = await r.text();
     let json = null;
     try { json = JSON.parse(text); } catch { json = null; }
@@ -266,7 +263,7 @@ function knowledgeRuntime(knowledgeInspect) {
     !index
       ? 'Index metadata was not found with the bundled artifacts'
       : (mismatch
-        ? 'Canonical knowledge and the bundled RAG index counts differ'
+        ? 'Canonical knowledge and the bundled knowledge index counts differ'
         : 'Bundled knowledge and index artifacts are loaded'),
   );
   return {
@@ -278,7 +275,7 @@ function knowledgeRuntime(knowledgeInspect) {
     index,
     mismatch,
     mismatchNote: mismatch
-      ? ('Canonical knowledge has ' + docs.length + ' records; the bundled RAG index has ' + indexedCount + '.')
+      ? ('Canonical knowledge has ' + docs.length + ' records; the bundled knowledge index has ' + indexedCount + '.')
       : null,
   };
 }
@@ -377,7 +374,7 @@ function buildSnapshot(input) {
   const now = iso((input && input.now) || new Date());
   const orchProbe = (input && input.probes && input.probes.orchestrator) || { skipped: true, skipReason: 'No reliable health probe available' };
   const mcpProbe = (input && input.probes && input.probes.mcp) || { skipped: true, skipReason: 'No reliable health probe available' };
-  const pfProbe = (input && input.probes && input.probes.partFinder) || { skipped: true, skipReason: 'No reliable health probe available' };
+  const engProbe = (input && input.probes && input.probes.engine) || { skipped: true, skipReason: 'No reliable health probe available' };
   const knowledge = (input && input.knowledge) || knowledgeRuntime(null);
   const media = (input && input.media) || mediaRuntime({ ok: false }, null);
   const models = (input && input.models) || modelsRuntime(null);
@@ -392,7 +389,8 @@ function buildSnapshot(input) {
     complete: (j) => j && (j.status === 'ok' || j.mappingCount != null || j.service),
   });
 
-  const partFinderConfig = orchSafe.diagnosticRag || null;
+  // The orchestrator reports whether its diagnosis-engine URL is configured.
+  const engineConfig = orchSafe.diagnosisEngine || null;
   const mcpConfigured = orchSafe.errorCodeMcp || null;
 
   const apiComp = component(
@@ -419,7 +417,7 @@ function buildSnapshot(input) {
     { label: 'Service', value: orchSafe.service || 'customer-diagnostic-orchestrator' },
     { label: 'Reported version', value: orchSafe.version || 'Version not exposed by runtime' },
     { label: 'Error Code MCP (config)', value: mcpConfigured || 'Not reported by this probe' },
-    { label: 'Part Finder / RAG (config)', value: partFinderConfig || 'Not reported by this probe' },
+    { label: 'Diagnosis engine (config)', value: engineConfig || 'Not reported by this probe' },
   ];
   if (orchProbe.latencyMs != null && !orchProbe.skipped) {
     orchFacts.push({ label: 'Last probe', value: String(orchProbe.latencyMs) + ' ms' });
@@ -427,7 +425,7 @@ function buildSnapshot(input) {
   const orchComp = component(
     'orchestrator',
     'Orchestrator',
-    'Routes each turn to Error Code MCP and/or Part Finder. Does not diagnose itself.',
+    'Routes each turn to Error Code MCP and/or the diagnosis engine. Does not diagnose itself.',
     orchHealth,
     {
       latencyMs: orchProbe.skipped ? null : orchProbe.latencyMs,
@@ -447,165 +445,71 @@ function buildSnapshot(input) {
     },
   );
 
-  const pfSafe = pickPartFinder(pfProbe.json);
-  const pfHealthState = classifyPartFinderProbe(pfProbe);
+  const engSafe = pickEngine(engProbe.json);
+  const engHealthState = classifyEngineProbe(engProbe);
 
-  const pfFacts = [];
-  if (pfSafe.knowledge && pfSafe.knowledge.loaded) {
-    pfFacts.push({ label: 'Knowledge loaded', value: String(pfSafe.knowledge.records) + ' records' });
-    if (pfSafe.knowledge.faultIds != null) pfFacts.push({ label: 'faultIds', value: String(pfSafe.knowledge.faultIds) });
-    if (pfSafe.knowledge.families != null) pfFacts.push({ label: 'Families', value: String(pfSafe.knowledge.families) });
-  } else if (!pfProbe.skipped && pfHealthState.health !== 'unavailable') {
-    pfFacts.push({ label: 'Knowledge loaded', value: 'not loaded' });
+  const engFacts = [];
+  if (engSafe.canonical && engSafe.canonical.journeys != null) {
+    engFacts.push({ label: 'Journeys', value: String(engSafe.canonical.journeys) });
+  } else if (!engProbe.skipped && engHealthState.health !== 'unavailable') {
+    engFacts.push({ label: 'Journeys', value: 'Not reported' });
   }
-  if (pfSafe.rag && pfSafe.rag.loaded) {
-    pfFacts.push({ label: 'RAG', value: String(pfSafe.rag.indexedRecords) + ' indexed' });
-  }
-  if (pfSafe.models && pfSafe.models.understand && pfSafe.models.compose) {
-    const u = pfSafe.models.understand.configured && pfSafe.models.compose.configured;
-    pfFacts.push({ label: 'Models', value: u ? 'Configured' : 'Not configured' });
-    if (pfSafe.models.understand.provider) {
-      pfFacts.push({
+  if (engSafe.models && engSafe.models.understand && engSafe.models.compose) {
+    const u = engSafe.models.understand.configured && engSafe.models.compose.configured;
+    engFacts.push({ label: 'Models', value: u ? 'Configured' : 'Not configured' });
+    if (engSafe.models.understand.provider) {
+      engFacts.push({
         label: 'UNDERSTAND',
-        value: pfSafe.models.understand.provider + (pfSafe.models.understand.model ? ' · ' + pfSafe.models.understand.model : ''),
+        value: engSafe.models.understand.provider + (engSafe.models.understand.model ? ' · ' + engSafe.models.understand.model : ''),
       });
     }
-    if (pfSafe.models.compose.provider) {
-      pfFacts.push({
+    if (engSafe.models.compose.provider) {
+      engFacts.push({
         label: 'COMPOSE',
-        value: pfSafe.models.compose.provider + (pfSafe.models.compose.model ? ' · ' + pfSafe.models.compose.model : ''),
+        value: engSafe.models.compose.provider + (engSafe.models.compose.model ? ' · ' + engSafe.models.compose.model : ''),
       });
     }
-    pfFacts.push({ label: 'Inference tested', value: 'no' });
+    engFacts.push({ label: 'Inference tested', value: engSafe.models.inferenceTested ? 'yes' : 'no' });
   }
-  if (pfSafe.media) {
-    pfFacts.push({
+  if (engSafe.media) {
+    engFacts.push({
       label: 'Media resolver',
-      value: pfSafe.media.resolverAvailable ? 'Available' : 'not loaded',
+      value: engSafe.media.resolverAvailable ? 'Available' : 'not loaded',
     });
-    if (pfSafe.media.overlayState) {
-      pfFacts.push({ label: 'Overlay', value: pfSafe.media.overlayState === 'none' ? 'none (shipped baseline)' : pfSafe.media.overlayState });
+    if (engSafe.media.overlayState) {
+      engFacts.push({ label: 'Overlay', value: engSafe.media.overlayState === 'none' ? 'none (shipped baseline)' : engSafe.media.overlayState });
     }
   }
-  pfFacts.push({
+  engFacts.push({
     label: 'Orchestrator config flag',
-    value: partFinderConfig || 'Not reported (orchestrator probe did not return diagnosticRag)',
+    value: engineConfig || 'Not reported (orchestrator probe did not report the diagnosis engine)',
   });
-  if (pfProbe.skipped) {
-    pfFacts.push({ label: 'Reachability', value: 'No reliable health probe available' });
+  if (engProbe.skipped) {
+    engFacts.push({ label: 'Reachability', value: 'No reliable health probe available' });
   }
-  if (pfProbe.latencyMs != null && !pfProbe.skipped) {
-    pfFacts.push({ label: 'Last probe', value: String(pfProbe.latencyMs) + ' ms' });
+  if (engProbe.latencyMs != null && !engProbe.skipped) {
+    engFacts.push({ label: 'Last probe', value: String(engProbe.latencyMs) + ' ms' });
   }
-  const pfComp = component(
-    'part-finder',
-    'Part Finder',
-    'Live diagnostic reasoning: UNDERSTAND, RAG retrieval, and COMPOSE.',
-    pfHealthState,
+  const engComp = component(
+    'diagnosis-engine',
+    'Diagnosis engine',
+    'Canonical diagnosis: Jev understanding, cs/1 state, deterministic journeys, safety and part gates, COMPOSE wording.',
+    engHealthState,
     {
-      latencyMs: pfProbe.skipped ? null : pfProbe.latencyMs,
-      probedAt: pfProbe.probedAt || null,
-      version: versionField(pfSafe.version || (pfSafe.knowledge && pfSafe.knowledge.version)),
-      facts: pfFacts,
+      latencyMs: engProbe.skipped ? null : engProbe.latencyMs,
+      probedAt: engProbe.probedAt || null,
+      version: versionField(engSafe.version),
+      facts: engFacts,
       technical: {
         engineHost: runtimeIn.engineHost || null,
-        probe: pfProbe.skipped ? { available: false, reason: pfProbe.skipReason || 'No reliable health probe available' } : {
-          httpStatus: pfProbe.status != null ? pfProbe.status : null,
-          latencyMs: pfProbe.latencyMs != null ? pfProbe.latencyMs : null,
-          probedAt: pfProbe.probedAt || null,
-          error: pfProbe.error || null,
+        probe: engProbe.skipped ? { available: false, reason: engProbe.skipReason || 'No reliable health probe available' } : {
+          httpStatus: engProbe.status != null ? engProbe.status : null,
+          latencyMs: engProbe.latencyMs != null ? engProbe.latencyMs : null,
+          probedAt: engProbe.probedAt || null,
+          error: engProbe.error || null,
         },
-        reported: pfSafe,
-        note: 'This probe is GET /health on the Part Finder Function URL (ENGINE_URL). The orchestrator calls the same process via RAG_URL, which is not exposed to this API.',
-      },
-    },
-  );
-
-  const pfKn = pfSafe.knowledge || {};
-  const pfRag = pfSafe.rag || {};
-  const pfReached = !pfProbe.skipped && pfHealthState.health !== 'unavailable';
-  const ragFacts = [];
-  let ragHealth;
-  if (pfHealthState.health === 'unavailable' || pfProbe.skipped) {
-    ragHealth = pfProbe.skipped
-      ? healthOf('unknown', 'Part Finder health was not probed. Bundled WhichPart API artifacts are a reference copy, not proof the running process has loaded them.')
-      : healthOf('unavailable', 'Part Finder health probe failed. Bundled WhichPart API artifacts are not proof the running process is loaded.');
-    ragFacts.push({
-      label: 'Part Finder runtime',
-      value: pfProbe.skipped ? 'Not probed' : 'Unavailable',
-    });
-    ragFacts.push({
-      label: 'Bundled reference artifacts',
-      value: (knowledge.canonicalRecords != null && knowledge.index && knowledge.index.count != null)
-        ? (knowledge.canonicalRecords + ' canonical / ' + knowledge.index.count + ' indexed')
-        : 'Version not exposed by runtime',
-    });
-  } else {
-    ragHealth = {
-      health: pfHealthState.health,
-      healthLabel: pfHealthState.healthLabel,
-      healthReason: pfKn.loaded
-        ? (pfRag.mismatch
-          ? 'Part Finder loaded knowledge and index counts differ'
-          : 'Counts are from the running Part Finder process')
-        : (pfHealthState.healthReason || 'Part Finder knowledge index is not loaded'),
-    };
-    if (pfHealthState.health === 'healthy' && pfRag.mismatch) {
-      ragHealth = healthOf('degraded', 'Part Finder loaded knowledge and index counts differ');
-    }
-    ragFacts.push({
-      label: 'Part Finder runtime knowledge',
-      value: pfKn.records != null ? String(pfKn.records) + ' records' : 'not loaded',
-    });
-    ragFacts.push({
-      label: 'faultIds',
-      value: pfKn.faultIds != null ? String(pfKn.faultIds) : 'Version not exposed by runtime',
-    });
-    ragFacts.push({
-      label: 'Families',
-      value: pfKn.families != null ? String(pfKn.families) : 'Version not exposed by runtime',
-    });
-    ragFacts.push({
-      label: 'Part Finder RAG index',
-      value: pfRag.indexedRecords != null ? String(pfRag.indexedRecords) + ' indexed' : 'not loaded',
-    });
-    ragFacts.push({
-      label: 'Index identifier',
-      value: pfRag.indexVersion || pfKn.version || 'Version not exposed by runtime',
-    });
-    if (pfRag.mismatch) {
-      ragFacts.push({
-        label: 'Mismatch',
-        value: 'Part Finder loaded ' + pfKn.records + ' documents; index count is ' + pfRag.indexedRecords + '.',
-      });
-    }
-    if (knowledge.canonicalRecords != null && pfKn.records != null && knowledge.canonicalRecords !== pfKn.records) {
-      ragFacts.push({
-        label: 'BFF bundled copy',
-        value: knowledge.canonicalRecords + ' canonical / ' + ((knowledge.index && knowledge.index.count) || 'unknown') + ' indexed',
-      });
-    }
-  }
-  const ragComp = component(
-    'rag-index',
-    'Knowledge / RAG index',
-    'Runtime knowledge loaded inside the running Part Finder process. This is not the WhichPart API bundled file copy.',
-    ragHealth,
-    {
-      version: versionField(pfReached
-        ? ((pfRag && pfRag.indexVersion) || (pfKn && pfKn.version))
-        : null),
-      facts: ragFacts,
-      links: [{ href: '#knowledge', label: 'Open Knowledge' }],
-      technical: {
-        partFinder: { knowledge: pfKn, rag: pfRag },
-        bffBundled: {
-          docsVersion: knowledge.docsVersion,
-          canonicalRecords: knowledge.canonicalRecords,
-          index: knowledge.index,
-          mismatch: knowledge.mismatch,
-        },
-        note: 'Primary counts are Part Finder GET /health. BFF bundled artifacts are a reference copy only.',
+        reported: engSafe,
+        note: 'GET /health on the diagnosis engine (ENGINE_URL). The orchestrator calls the same function.',
       },
     },
   );
@@ -704,7 +608,7 @@ function buildSnapshot(input) {
 
   const lastSuccess = [];
   const lastFailed = [];
-  [apiComp, orchComp, pfComp, mcpComp].forEach((c) => {
+  [apiComp, orchComp, engComp, mcpComp].forEach((c) => {
     if (c.health === 'healthy' && c.probedAt) lastSuccess.push({ id: c.id, name: c.name, at: c.probedAt, latencyMs: c.latencyMs });
     if (c.health === 'unavailable' && c.probedAt) lastFailed.push({ id: c.id, name: c.name, at: c.probedAt, latencyMs: c.latencyMs, reason: c.healthReason });
   });
@@ -714,21 +618,6 @@ function buildSnapshot(input) {
     orchestratorTimeoutMs: runtimeIn.orchestratorTimeoutMs != null ? runtimeIn.orchestratorTimeoutMs : null,
     mediaOverlayCacheTtlMs: 10000,
     supportedFamilies: Array.isArray(runtimeIn.families) ? runtimeIn.families.slice() : [],
-    ragIndex: (pfRag && pfRag.embeddingModel)
-      ? {
-        version: pfRag.indexVersion || null,
-        embedModel: pfRag.embeddingModel,
-        dims: pfRag.dims || null,
-        builtAt: pfRag.builtAt || null,
-        source: 'part-finder',
-      }
-      : (knowledge.index ? {
-        version: knowledge.index.version || null,
-        embedModel: knowledge.index.embedModel || null,
-        dims: knowledge.index.dims || null,
-        builtAt: knowledge.index.builtAt || null,
-        source: 'bff-bundled',
-      } : null),
     models: {
       understand: models.understand,
       compose: models.compose,
@@ -745,26 +634,23 @@ function buildSnapshot(input) {
       whichpartApi: 'whichpart-api',
       orchestratorHost: runtimeIn.orchestratorHost || null,
       mcpHealthHost: runtimeIn.mcpHealthHost || null,
-      partFinderFeedbackHost: runtimeIn.engineHost || null,
+      engineHost: runtimeIn.engineHost || null,
       partsCatalogueHost: runtimeIn.s4rProductBaseHost || null,
       knowledgeDocsVersion: knowledge.docsVersion || null,
-      ragIndexVersion: pfReached
-        ? ((pfRag && pfRag.indexVersion) || null)
-        : ((knowledge.index && knowledge.index.version) || null),
       mediaCatalogueVersion: media.catalogueVersion || null,
       mcpDatasetV1Hash: mcpSafe.datasetV1Hash || null,
       mcpEnrichmentV1Hash: mcpSafe.enrichmentV1Hash || null,
     },
     probes: {
       orchestrator: orchComp.technical && orchComp.technical.probe,
-      partFinder: pfComp.technical && pfComp.technical.probe,
+      engine: engComp.technical && engComp.technical.probe,
       mcp: mcpComp.technical && mcpComp.technical.probe,
     },
     models: models,
     notExposed: [
       'Lambda version aliases',
       'Lambda code hashes',
-      'Orchestrator RAG_URL',
+      'Orchestrator diagnosis-engine URL',
       'Bearer tokens',
       'API keys and credentials',
       'System prompts',
@@ -778,7 +664,7 @@ function buildSnapshot(input) {
     readOnly: true,
     systemPath: SYSTEM_PATH,
     routing: ROUTING,
-    components: [apiComp, orchComp, pfComp, ragComp, mcpComp, mediaComp, partsComp],
+    components: [apiComp, orchComp, engComp, mcpComp, mediaComp, partsComp],
     knowledge,
     media,
     mcp: {
@@ -829,7 +715,7 @@ function failureSnapshot(err, runtime) {
     now: new Date(),
     probes: {
       orchestrator: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
-      partFinder: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
+      engine: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
       mcp: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
     },
     knowledge: knowledgeRuntime(null),
@@ -861,15 +747,15 @@ async function collect(deps) {
 
   const orchUrl = deps.orchestratorHealthUrl || '';
   const mcpUrl = deps.mcpHealthUrl || '';
-  const pfUrl = deps.partFinderHealthUrl || '';
+  const engUrl = deps.engineHealthUrl || '';
 
   const orchP = settled(timedProbe(orchUrl, timeoutMs, fetchImpl));
   const mcpP = mcpUrl
     ? settled(timedProbe(mcpUrl, timeoutMs, fetchImpl))
     : Promise.resolve({ ok: true, value: { skipped: true, skipReason: 'MCP health URL is not configured' } });
-  const pfP = pfUrl
-    ? settled(timedProbe(pfUrl, timeoutMs, fetchImpl))
-    : Promise.resolve({ ok: true, value: { skipped: true, skipReason: 'Part Finder health URL is not configured' } });
+  const engP = engUrl
+    ? settled(timedProbe(engUrl, timeoutMs, fetchImpl, engineGetHeaders(engUrl)))
+    : Promise.resolve({ ok: true, value: { skipped: true, skipReason: 'Diagnosis engine health URL is not configured' } });
   const knP = settled(Promise.resolve().then(() => knowledgeRuntime(deps.knowledgeInspect)));
   const mediaP = settled((async () => {
     let overlayLoad = { ok: true, state: null, loadedAt: iso(new Date()) };
@@ -886,14 +772,14 @@ async function collect(deps) {
     return modelsRuntime(await deps.loadModels());
   })());
 
-  const [orch, mcp, pf, kn, media, models] = await Promise.all([orchP, mcpP, pfP, knP, mediaP, modelsP]);
+  const [orch, mcp, eng, kn, media, models] = await Promise.all([orchP, mcpP, engP, knP, mediaP, modelsP]);
 
   return buildSnapshot({
     now: deps.now || new Date(),
     probes: {
       orchestrator: orch.ok ? orch.value : { ok: false, error: String(orch.error && orch.error.message || orch.error || 'probe failed') },
       mcp: mcp.ok ? mcp.value : { ok: false, error: String(mcp.error && mcp.error.message || mcp.error || 'probe failed') },
-      partFinder: pf.ok ? pf.value : { ok: false, error: String(pf.error && pf.error.message || pf.error || 'probe failed') },
+      engine: eng.ok ? eng.value : { ok: false, error: String(eng.error && eng.error.message || eng.error || 'probe failed') },
     },
     knowledge: kn.ok ? kn.value : knowledgeRuntime(null),
     media: media.ok ? media.value : mediaRuntime({ ok: false, state: null }, null),
@@ -907,11 +793,12 @@ module.exports = {
   ROUTING,
   ORCH_FIELDS,
   MCP_FIELDS,
-  PF_FIELDS,
+  ENGINE_FIELDS,
   hostOf,
   pick,
   classifyProbe,
-  classifyPartFinderProbe,
+  classifyEngineProbe,
+  pickEngine,
   timedProbe,
   overlayActive,
   overlaySummary,

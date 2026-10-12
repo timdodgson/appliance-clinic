@@ -4,7 +4,7 @@ The orchestrator used to union Jev's typed problem / checks / facts / declined f
 (per warm container) and re-inject them. That was a second answered-question memory beside cs/1. Now:
 
   * Each turn's forwarded intent carries THIS turn's Jev reading only. Jev reads the whole (windowed) conversation;
-    durable typed evidence is cs/1's (evidence.observations / checks, declined), merged by part-finder.
+    durable typed evidence is cs/1's (evidence.observations / checks, declined), merged by the engine.
   * A problem cs/1 already holds is still the established problem on a sparse later turn (identity / model answer):
     symptomsText is the customer's own words from the transcript the BFF sends, never advisor text.
   * An unmapped symptom (Jev symptomFamily 'other') is carried as reportedSymptoms so COMPOSE never re-asks for it.

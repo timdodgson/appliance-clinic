@@ -14,16 +14,60 @@
  *   roles["<role>"]                        a role this stack creates (absent from the capture until it exists):
  *                                          {trust, managed, inline: {name: document}, description}; the desired state
  *   functions.<name>.role                  the function's execution role ARN
+ *   functions.<name>.create                a function this stack creates (ADR 0019), absent from the capture until it
+ *                                          exists: {role, runtime, handler, architectures, memorySize, timeout,
+ *                                          url: {authType, invokeMode}, logRetentionDays, alarms, tags, carryFrom}. Its
+ *                                          configuration is always the declared one; env.digests values are carried
+ *                                          from its own live environment, or from `carryFrom` until it exists (the
+ *                                          value never appears in git, only its SHA-256)
  */
+const { createHash } = require('node:crypto');
+const sha256 = (v) => `sha256:${createHash('sha256').update(String(v)).digest('hex')}`;
+
+function createdFunction(name, c, existing, out) {
+  for (const k of ['role', 'runtime', 'handler', 'architectures', 'memorySize', 'timeout', 'url']) {
+    if (c[k] == null) throw new Error(`created function ${name} needs ${k}`);
+  }
+  return {
+    configuration: {
+      Role: c.role, PackageType: 'Zip', Runtime: c.runtime, Handler: c.handler, Architectures: c.architectures.slice(),
+      MemorySize: c.memorySize, Timeout: c.timeout, Description: c.description || '',
+      Environment: { Variables: { ...((existing && existing.configuration.Environment && existing.configuration.Environment.Variables) || {}) } },
+    },
+    code: {},
+    tags: Object.fromEntries((c.tags || []).map((t) => [t.Key, t.Value])),
+    url: { AuthType: c.url.authType, InvokeMode: c.url.invokeMode, Cors: null },
+    statements: [],
+    reservedConcurrency: c.reservedConcurrency != null ? c.reservedConcurrency : null,
+    create: c,
+    carrySource: existing ? null : (c.carryFrom ? out.functions[c.carryFrom] : null),
+  };
+}
+
 function applyOverrides(live, overrides) {
   const out = JSON.parse(JSON.stringify(live));
   for (const [name, o] of Object.entries(overrides.functions || {})) {
+    if (o.create) out.functions[name] = createdFunction(name, o.create, out.functions[name], out);
     const f = out.functions[name];
     if (!f) throw new Error(`override for unknown function ${name}`);
     const vars = { ...(f.configuration.Environment?.Variables || {}) };
     // Overrides describe the desired state, so they hold once deployed: unsetting an absent variable is a no-op.
     for (const k of o.env?.unset || []) delete vars[k];
     Object.assign(vars, o.env?.set || {});
+    if (o.create) {
+      // Only declared variables exist on a created function; a digest-declared value is carried, never written here.
+      const declared = new Set([...Object.keys(o.env?.set || {}), ...Object.keys(o.env?.digests || {})]);
+      for (const k of Object.keys(vars)) if (!declared.has(k)) delete vars[k];
+      for (const [k, h] of Object.entries(o.env?.digests || {})) {
+        if (!(k in vars)) {
+          const src = f.carrySource && f.carrySource.configuration.Environment?.Variables;
+          if (!src || !(k in src)) throw new Error(`${name} ${k}: no live value to carry`);
+          vars[k] = src[k];
+        }
+        if (sha256(vars[k]) !== h) throw new Error(`${name} ${k}: the carried value does not match its declared digest`);
+      }
+      delete f.carrySource;
+    }
     f.configuration.Environment = { Variables: vars };
     if (o.code) f.codeOverride = o.code;
     if (o.url && Object.prototype.hasOwnProperty.call(o.url, 'cors')) {

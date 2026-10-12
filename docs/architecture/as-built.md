@@ -1,6 +1,6 @@
 # As-built architecture (Phase 10 truth audit)
 
-> **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113) and [After Phase 13](#after-phase-13-releases-131136), and the current system is described in the [overview](overview.md).
+> **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113), [After Phase 13](#after-phase-13-releases-131136) and [After Phase 15](#after-phase-15-dedicated-canonical-diagnosis-engine), and the current system is described in the [overview](overview.md).
 
 This describes what the code at `ec48371` does, as traced from source, from the live Lambda configuration, and from production logs and transcripts. Where the earlier [overview](overview.md) disagrees, this document is the evidence. The overview has been corrected to match it.
 
@@ -152,3 +152,34 @@ flowchart TB
   controls is refused (409). Hop S1–S8 (the S4R turn) is unchanged. The washing-machine and dishwasher journeys decline
   unsafe requests like every other family.
 
+## After Phase 15 (dedicated canonical diagnosis engine)
+
+[ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md): AC has its own canonical diagnosis engine. Evidence:
+[phase-15-results](../evaluation/phase-15-results.md).
+
+```mermaid
+flowchart TB
+  B[Browser] -->|"POST /api · signed state token"| W["BFF whichpart-api<br/>sole store of cs/1"]
+  W -->|"bearer · cs/1 block"| O["Orchestrator<br/>no conversation state"]
+  O -->|"SigV4 + HMAC · understand, diagnose"| E
+  W -->|"SigV4 + HMAC · feedback; SigV4 · health"| E
+  O -->|bearer| M["Error-code MCP"]
+  subgraph E["applianceclinic-diagnosis-engine (AWS_IAM URL, no CORS)"]
+    EU["understand: Jev + mc/1 → token gate → cs/1 merge → journeys → policy → NA"]
+    ED["diagnose: canonical COMPOSE words the NA (409 if no journey controls the turn)"]
+  end
+  W <--> D[("DynamoDB STATE# cs/1")]
+  classDef det fill:#e8f3e8,stroke:#4a7;
+  classDef state fill:#e6eefb,stroke:#47a;
+  class O,EU,ED,W,M det
+  class D state
+```
+
+| Question | Answer after Phase 15 |
+|---|---|
+| Which Lambda diagnoses an AC turn? | `applianceclinic-diagnosis-engine` (`services/diagnosis-engine/`), created by `AcRuntimeStack`. The orchestrator reaches it through `DIAGNOSIS_ENGINE_URL` (was `RAG_URL`); whichpart-api through `ENGINE_URL` |
+| Engine URL controls | `AWS_IAM` auth, buffered, no CORS. Only `diag-orchestrator-role` and `whichpart-api-role` may invoke it (`ac-invoke-diagnosis-engine`). Every POST must also carry the HMAC signature; otherwise 401 `engine_signature_required`. There is no unsigned `{messages}` path |
+| Legacy pipeline | Deleted from AC: the pipeline, legacy COMPOSE and its three prompts, retrieval and the runtime knowledge index, the legacy evidence, progression, presentation, safety and intent modules, the `/part-finder` contract type and its field gate, 41 legacy-only engine test files, the knowledge-publish admin workflow and the retired deploy scripts |
+| Response shape | Buffered JSON lines, internal to AC; no streaming |
+| Observability | Own log group (90 days), metric filters and alarms (`FailedTurns`, `RefusedRequests`, `Errors`, `Throttles`). No notification target yet |
+| The old shared engine | `spares4repairs-part-finder` is physically untouched and still serves S4R, an external consumer. AC sends it no traffic. It still runs in AC's account on `ac-diagnosis-role`, AC secrets and AC's Jev credit <!-- P15: ownership outcome --> |

@@ -1,12 +1,12 @@
 'use strict';
 /**
- * Real canonical turns for the transcript-audit tests: the REAL part-finder merge + journey runtime + COMPOSE
+ * Real canonical turns for the transcript-audit tests: the real engine merge + journey runtime + COMPOSE
  * (fake LM provider, no network), so the audit is built from exactly the structures production produces.
  */
 globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
-const L = require('../../part-finder/part-finder-lambda.js')._internal;
-const mc1 = require('../../part-finder/canonical/mc1.js');
-const REG = require('../../part-finder/canonical/journey-registry.js');
+const L = require('../../diagnosis-engine/handler.js')._internal;
+const mc1 = require('../../diagnosis-engine/canonical/mc1.js');
+const REG = require('../../diagnosis-engine/canonical/journey-registry.js');
 
 const CSID = 'cs_' + 'A'.repeat(32);
 const C = (f = {}) => mc1.validateClassification({ scope: 'appliance', ...f });

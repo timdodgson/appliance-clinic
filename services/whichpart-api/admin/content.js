@@ -1,15 +1,14 @@
 'use strict';
 
 /**
- * Admin: the knowledge and media libraries. Their overlay stores, the overlay cache the customer path also reads, and
- * their routes. Knowledge Admin shows effective media, so the two share state.
+ * Admin: the knowledge (read-only, shipped records) and media libraries. The Media overlay store, the overlay cache
+ * the customer path also reads, and their routes. The Knowledge view shows effective media, so the two share state.
  */
 const transcripts = require('../transcripts');
 const knowledgeInspect = require('../knowledge-inspect');
 const mediaInspect = require('../media-inspect');
 const mediaAdmin = require('../media-admin');
-const knowledgeAdmin = require('../knowledge-admin');
-const { ORCHESTRATOR_URL, ENGINE_URL, LEARNING_BUCKET } = require('../config.js');
+const { ORCHESTRATOR_URL, LEARNING_BUCKET } = require('../config.js');
 const { log } = require('../log.js');
 const { parseJsonBody, queryParam, fetchHealth, respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
@@ -113,85 +112,11 @@ function mediaAdminError(e) {
   if (e && e.extra) body.extra = e.extra;
   return respond(status, body);
 }
-// ---- Knowledge management (drafts / publish / versions / rollback / archive) ----------------
-// Store: LEARNING_BUCKET knowledge-admin/ (see knowledge-admin.js). Every S3 write is conditional.
-function knowledgeAdminS3() {
-  const isPrecondition = (e) => {
-    const status = e && e.$metadata && e.$metadata.httpStatusCode;
-    const name = e && (e.name || e.Code || e.code);
-    return status === 412 || status === 409 || name === 'PreconditionFailed' || name === 'ConditionalRequestConflict';
-  };
-  return {
-    async get(key) {
-      const { GetObjectCommand } = require('@aws-sdk/client-s3');
-      try {
-        const r = await s3client().send(new GetObjectCommand({ Bucket: LEARNING_BUCKET, Key: key }));
-        return { body: await _streamToString(r.Body), etag: r.ETag || null };
-      } catch (e) {
-        if (e && (e.name === 'NoSuchKey' || (e.$metadata && e.$metadata.httpStatusCode === 404))) return null;
-        throw e;
-      }
-    },
-    async put(key, body, opts) {
-      const { PutObjectCommand } = require('@aws-sdk/client-s3');
-      const params = { Bucket: LEARNING_BUCKET, Key: key, Body: body, ContentType: 'application/json' };
-      if (opts && opts.ifMatch) params.IfMatch = opts.ifMatch;
-      if (opts && opts.ifNoneMatch) params.IfNoneMatch = opts.ifNoneMatch;
-      try {
-        const r = await s3client().send(new PutObjectCommand(params));
-        return { etag: r.ETag || null };
-      } catch (e) {
-        if (isPrecondition(e)) { const pe = new Error('precondition failed'); pe.code = 'precondition'; throw pe; }
-        throw e;
-      }
-    },
-    async del(key) {
-      const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-      await s3client().send(new DeleteObjectCommand({ Bucket: LEARNING_BUCKET, Key: key }));
-    },
-  };
-}
-// Same embedding endpoint + model family part-finder uses for queries and the offline index build.
-async function knowledgeEmbed(text, model) {
-  const base = String(process.env.EMBED_URL || process.env.LM_STUDIO_URL || '').replace(/\/+$/, '');
-  if (!base) throw new Error('embedding endpoint not configured');
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const r = await fetch(base + '/v1/embeddings', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ model, input: text }),
-      signal: ctrl.signal,
-    });
-    if (!r.ok) throw new Error('embed ' + r.status);
-    const data = await r.json();
-    return data && data.data && data.data[0] && data.data[0].embedding;
-  } finally { clearTimeout(timer); }
-}
-async function knowledgeEngineHealth() {
-  const h = await fetchHealth(ENGINE_URL.replace(/\/$/, '') + '/health', 5000);
-  return h && h.json;
-}
-let _knowledgeAdminStore = null;
-function knowledgeStore() {
-  if (_knowledgeAdminStore) return _knowledgeAdminStore;
-  _knowledgeAdminStore = knowledgeAdmin.createStore({
-    s3: knowledgeAdminS3(), embed: knowledgeEmbed, engineHealth: knowledgeEngineHealth, log,
-  });
-  return _knowledgeAdminStore;
-}
-function setKnowledgeAdminStore(store) { _knowledgeAdminStore = store; }
-// Refresh the overlay/draft view knowledge-inspect merges into list/detail (and Media's picker).
+// Refresh the effective-Media view knowledge-inspect merges into list/detail (and Media's picker).
+// Knowledge records themselves are the shipped baseline only (read-only; ADR 0019 removed knowledge publishing).
 async function refreshKnowledgeView() {
   await refreshKnowledgeMediaView();
-  try {
-    knowledgeInspect.setAdminView(await knowledgeStore().inspectView());
-    return { ok: true, mediaUnavailable: _knowledgeMediaUnavailable || undefined };
-  } catch (e) {
-    log({ evt: 'knowledge-view-refresh-failed', error: String(e && e.message || e) });
-    return { ok: false, mediaUnavailable: _knowledgeMediaUnavailable || undefined };
-  }
+  return { mediaUnavailable: _knowledgeMediaUnavailable || undefined };
 }
 // Knowledge Admin shows EFFECTIVE Media (shipped join + Media overlay, merged exactly as live diagnosis
 // merges it). Read through the same 10 s overlay cache the customer boundary uses. Outside Lambda the
@@ -205,32 +130,14 @@ async function refreshKnowledgeMediaView() {
   _knowledgeMediaUnavailable = Boolean(_overlayCache.failed || !_overlayCache.state);
   knowledgeInspect.setMediaView(mediaInspect.knowledgeMediaView(overlay));
 }
-function knowledgeAdminError(e) {
-  const status = (e && e.status) || 500;
-  const body = { error: (e && e.message) || 'Knowledge management failed', code: (e && e.code) || 'error' };
-  if (e && e.extra) Object.assign(body, e.extra);
-  if (status >= 500) log({ evt: 'knowledge-admin-failed', code: body.code, error: body.error });
-  return respond(status, body);
-}
 
 async function adminKnowledge(event) {
   if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
   const qs = (event && event.queryStringParameters) || {};
   const view = await refreshKnowledgeView();
   const list = knowledgeInspect.listKnowledge({ q: qs.q, family: qs.family });
-  if (!view.ok) list.overlayUnavailable = true;
   if (view.mediaUnavailable) list.mediaOverlayUnavailable = true;
-  const orchUrl = ORCHESTRATOR_URL.replace(/\/$/, '') + '/health';
-  let rag = { state: 'unknown' };
-  try {
-    const orch = await fetchHealth(orchUrl, 5000);
-    rag = { ok: !!(orch.json && orch.json.diagnosticRag),
-      state: (orch.json && orch.json.diagnosticRag) || 'unknown',
-      reportedBy: 'orchestrator',
-      orchestratorVersion: (orch.json && orch.json.version) || null };
-  } catch { /* keep unknown */ }
   return respond(200, Object.assign({}, list, {
-    rag,
     helpHubs: transcripts.HELP_HUBS,
   }));
 }
@@ -242,52 +149,7 @@ async function adminKnowledgeRecord(event) {
   const view = await refreshKnowledgeView();
   const rec = knowledgeInspect.getKnowledge(id);
   if (!rec) return respond(404, { error: 'not found' });
-  let admin = null;
-  try { admin = await knowledgeStore().getView(id); } catch (e) { if (!e || e.status !== 404) admin = { unavailable: true }; }
-  return respond(200, Object.assign({}, rec, { admin, overlayUnavailable: !view.ok || undefined, mediaOverlayUnavailable: view.mediaUnavailable }));
-}
-// Every Knowledge mutation: admin session required, JSON body, expectedRevision echoed back.
-async function knowledgeMutation(event, fn) {
-  const actor = await requireAdmin(event);
-  if (!actor) return respond(401, { error: 'Unauthorized' });
-  let body = {};
-  if (event.body) {
-    try { body = JSON.parse(event.body); } catch { return respond(400, { error: 'invalid JSON', code: 'json' }); }
-    if (!body || typeof body !== 'object' || Array.isArray(body)) return respond(400, { error: 'invalid JSON', code: 'json' });
-  }
-  const id = queryParam(event, 'id') || body.id || null;
-  try {
-    const out = await fn({ actor, body, id });
-    await refreshKnowledgeView();
-    return respond(200, out);
-  } catch (e) { return knowledgeAdminError(e); }
-}
-function needId(id) { if (!id) throw knowledgeAdmin.err('validation', 'id required', 400); return id; }
-async function adminKnowledgeDraft(event, method) {
-  if (method === 'POST') {
-    // POST without id = create a new record as a draft; POST ?id= = start a draft from the live content.
-    return knowledgeMutation(event, ({ actor, body, id }) => id
-      ? knowledgeStore().startDraft(id, body.expectedRevision, actor)
-      : knowledgeStore().createDraft(body.content || body, actor, { createdFrom: body.createdFrom || null }));
-  }
-  if (method === 'PUT') {
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().saveDraft(needId(id), body.expectedRevision, body.content, actor));
-  }
-  if (method === 'DELETE') {
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().deleteDraft(needId(id),
-      body.expectedRevision != null ? body.expectedRevision : queryParam(event, 'expectedRevision'), actor));
-  }
-  return respond(405, { error: 'POST, PUT or DELETE' });
-}
-async function adminKnowledgeVersions(event) {
-  if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
-  const id = queryParam(event, 'id');
-  if (!id) return respond(400, { error: 'id required' });
-  const v = queryParam(event, 'v');
-  try {
-    if (v != null && v !== '') return respond(200, await knowledgeStore().getVersion(id, v));
-    return respond(200, await knowledgeStore().listVersions(id));
-  } catch (e) { return knowledgeAdminError(e); }
+  return respond(200, Object.assign({}, rec, { mediaOverlayUnavailable: view.mediaUnavailable }));
 }
 
 async function adminMedia(event) {
@@ -423,8 +285,7 @@ async function adminMediaKnowledge(event) {
 }
 
 module.exports = {
-  mediaStore, setMediaAdminStore, loadOverlayCached, knowledgeStore, setKnowledgeAdminStore, adminKnowledge,
-  adminKnowledgeRecord, knowledgeMutation, needId, adminKnowledgeDraft, adminKnowledgeVersions, adminMedia,
+  mediaStore, setMediaAdminStore, loadOverlayCached, adminKnowledge, adminKnowledgeRecord, adminMedia,
   adminMediaRecord, adminMediaCreate, adminMediaPatch, adminMediaReplace, adminMediaAction, adminMediaVersion,
   adminMediaMap, adminMediaComponent, adminMediaRetire, adminMediaRestore, adminMediaDelete, adminMediaPreview,
   adminMediaKnowledge,

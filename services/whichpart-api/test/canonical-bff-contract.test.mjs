@@ -35,7 +35,7 @@ function installOrchestrator() {
     if (orchMode === 'down') throw new Error('ECONNREFUSED');
     const out = JSON.parse(JSON.stringify(ORCH_VIEW));
     out._diagnosticTrace = { schemaVersion: '1.0', stages: [{ id: 'routing', label: 'Routing', evidence: 'OBSERVED', summary: 'SYMPTOMS', detail: null }] };
-    // What the real orchestrator does: pass part-finder's merged result back as `_canonical`.
+    // What the real orchestrator does: pass the engine's merged result back as `_canonical`.
     if (payload.canonical && orchMode !== 'no-canonical') out._canonical = partFinderUnderstand(payload.canonical);
     if (out._canonical && orchMode === 'classifier') {
       out._canonical.classifier = { source: 'mc1-questions', degraded: false, recallGap: { type: 'model', roleFilled: false }, questionCount: 64, jevMs: 410,

@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 process.env.MCP_HEALTH_URL = 'http://mcp.test/health';
 process.env.ORCHESTRATOR_URL = 'http://orchestrator.test';
 process.env.CANONICAL_MODE = 'control';
-const registry = require('../../part-finder/canonical/journey-registry.js');
+const registry = require('../../diagnosis-engine/canonical/journey-registry.js');
 process.env.CANONICAL_CONTROL_JOURNEYS = registry.KEYS.join('+');
 const handlerPath = require.resolve('../index.js');
 delete require.cache[handlerPath];
@@ -23,7 +23,7 @@ beforeAll(() => {
   realFetch = globalThis.fetch; realLoad = ai.loadConfig;
   globalThis.fetch = async (url) => {
     const u = String(url);
-    const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 783, overlay: { state: 'none' } } : { status: 'ok', diagnosticRag: 'ok' };
+    const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 783, overlay: { state: 'none' } } : { status: 'ok', diagnosisEngine: 'ok' };
     return { ok: true, status: 200, text: async () => JSON.stringify(body), json: async () => body };
   };
   ai.loadConfig = async () => ({ routing: { understand: 'local', compose: 'local' }, local: { model: 'gpt-5.6-terra' }, frontier: { model: 'x', enabled: false }, version: 9 });

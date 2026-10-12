@@ -34,18 +34,18 @@ const MAX_CLASSIFICATION_BYTES = 16 * 1024; // turn-record bound
 const MODES = ['off', 'shadow', 'control'];
 
 function loadCore() {
-  // Deployed bundle: ./canonical/* (copied by deploy.sh). Repo: services/part-finder/canonical/*.
+  // Deployed bundle: ./canonical/* (copied in by build/scripts/package_zips.py). Repo: services/diagnosis-engine/canonical/*.
   /* eslint-disable global-require */
   try {
     return { merge: require('./canonical/merge.js'), cs1: require('./canonical/cs1.js'), requests: require('./canonical/requests.js'),
       registry: require('./canonical/journey-registry.js') };
   } catch {
-    return { merge: require('../part-finder/canonical/merge.js'), cs1: require('../part-finder/canonical/cs1.js'),
-      requests: require('../part-finder/canonical/requests.js'), registry: require('../part-finder/canonical/journey-registry.js') };
+    return { merge: require('../diagnosis-engine/canonical/merge.js'), cs1: require('../diagnosis-engine/canonical/cs1.js'),
+      requests: require('../diagnosis-engine/canonical/requests.js'), registry: require('../diagnosis-engine/canonical/journey-registry.js') };
   }
   /* eslint-enable global-require */
 }
-/** The only journeys canonical CONTROL may own: the shared registry (services/part-finder/canonical/journeys.json). */
+/** The only journeys canonical CONTROL may own: the shared registry (services/diagnosis-engine/canonical/journeys.json). */
 const CONTROL_JOURNEYS = loadCore().registry.KEYS;
 
 const stateKey = (csid) => STATE_PREFIX + csid;

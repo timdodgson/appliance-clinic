@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const CANON = path.join(__dirname, '..', '..', 'part-finder', 'canonical');
+const CANON = path.join(__dirname, '..', '..', 'diagnosis-engine', 'canonical');
 const OUT = path.join(__dirname, '..', 'media-canonical-refs.json');
 
 function build() {
@@ -35,7 +35,7 @@ function build() {
   });
   const sorted = {};
   Object.keys(byMediaId).sort().forEach((id) => { sorted[id] = byMediaId[id]; });
-  return { version: 1, source: 'services/part-finder/canonical/*.js MEDIA_BY_KEY', byMediaId: sorted };
+  return { version: 1, source: 'services/diagnosis-engine/canonical/*.js MEDIA_BY_KEY', byMediaId: sorted };
 }
 
 function main() {

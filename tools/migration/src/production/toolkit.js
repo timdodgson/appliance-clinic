@@ -26,9 +26,14 @@ export const policyArn = (name) => `arn:aws:iam::${A}:policy/${name}`;
 
 /** The AC production resources of Phase 5 (ownership.md), by type. */
 export const AC = {
-  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder'],
-  // ac-diagnosis-role: Phase 7 (B), created by AcRuntimeStack (change 7.15a).
-  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role'],
+  // applianceclinic-diagnosis-engine: ADR 0019, created by AcRuntimeStack (changes 15.1a to 15.1d).
+  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder',
+    'applianceclinic-diagnosis-engine'],
+  // ac-diagnosis-role: Phase 7 (B), created by AcRuntimeStack (change 7.15a). ac-diagnosis-engine-role: change 15.1a.
+  roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role', 'ac-diagnosis-engine-role'],
+  // ADR 0019: the dedicated engine's log group and alarms (AcRuntimeStack, changes 15.1b and 15.1c).
+  logGroups: ['/aws/lambda/applianceclinic-diagnosis-engine'],
+  alarmPrefixes: ['applianceclinic-diagnosis-engine-'],
   // applianceclinic-rate-limits: Phase 7, created by change 7.4-rate-limit-table.
   tables: ['whichpart-transcripts', 'whichpart-recalls', 'applianceclinic-rate-limits'],
   buckets: [`whichpart-web-${A}`, `whichpart-learning-${A}`],
@@ -54,7 +59,10 @@ const tableArns = AC.tables.flatMap((n) => [`arn:aws:dynamodb:${R}:${A}:table/${
 // Phase 11 (ADR 0017): engine-signing reaches the Lambda environments the same way, so it is resolved the same way.
 const AC_BEARER_SECRETS = ['applianceclinic/production/orchestrator-bearer', 'applianceclinic/production/mcp-bearer', 'applianceclinic/production/engine-signing'];
 // A secret's ARN ends in "-" and six random characters.
-const secretArns = AC.secrets.map((n) => `arn:aws:secretsmanager:${R}:${A}:secret:${n}-??????`);
+// Metadata reads by name prefix (keeps the base under the policy size limit). Each prefix names AC secrets only: no S4R
+// secret starts with spares4repairs/dev/applianceclinic- or applianceclinic/.
+const SECRET_METADATA_PATTERNS = ['spares4repairs/dev/applianceclinic-*', 'applianceclinic/production/*']
+  .map((n) => `arn:aws:secretsmanager:${R}:${A}:secret:${n}`);
 
 /** Reads with no resource-level authorisation. None changes anything. */
 const ACCOUNT_READS = [
@@ -62,6 +70,8 @@ const ACCOUNT_READS = [
   'ecr:DescribeRegistry', 'events:ListRules', 'iam:ListRoles', 'tag:GetResources',
   // Takes a domain name, not a pool ARN.
   'cognito-idp:DescribeUserPoolDomain',
+  // List calls without resource-level authorisation (ADR 0019: the engine's log group, metric filters and alarms).
+  'logs:DescribeLogGroups', 'logs:DescribeMetricFilters', 'cloudwatch:DescribeAlarms',
 ];
 
 const doc = (Statement) => ({ Version: '2012-10-17', Statement });
@@ -77,20 +87,23 @@ export function executionPolicy(stepWrites = []) {
     { Sid: 'ReadAcFunctions', Effect: 'Allow', Action: ['lambda:Get*', 'lambda:List*'], Resource: fnArns },
     { Sid: 'ReadAcRoles', Effect: 'Allow', Action: ['iam:Get*', 'iam:List*'], Resource: AC.roles.map((n) => `arn:aws:iam::${A}:role/${n}`) },
     { Sid: 'ReadAcTables', Effect: 'Allow', Action: ['dynamodb:Describe*', 'dynamodb:List*', 'dynamodb:GetResourcePolicy'], Resource: tableArns },
-    // Bucket ARNs only: object reads (customer data) are not granted.
-    { Sid: 'ReadAcBuckets', Effect: 'Allow', Action: ['s3:GetBucket*', 's3:GetEncryptionConfiguration', 's3:GetLifecycleConfiguration', 's3:GetReplicationConfiguration', 's3:GetAccelerateConfiguration', 's3:GetAnalyticsConfiguration', 's3:GetIntelligentTieringConfiguration', 's3:GetInventoryConfiguration', 's3:GetMetricsConfiguration'], Resource: AC.buckets.map((n) => `arn:aws:s3:::${n}`) },
+    // Bucket ARNs only: object reads (customer data) are not granted. (Wildcards keep the base under the 6,144-character
+    // policy limit: every action they match is a read of the bucket's own configuration.)
+    { Sid: 'ReadAcBuckets', Effect: 'Allow', Action: ['s3:GetBucket*', 's3:Get*Configuration'], Resource: AC.buckets.map((n) => `arn:aws:s3:::${n}`) },
     // Never GetSecretValue on a secret that is not resolved into a template: imports read secret metadata only.
-    { Sid: 'ReadAcSecretMetadata', Effect: 'Allow', Action: ['secretsmanager:DescribeSecret', 'secretsmanager:GetResourcePolicy', 'secretsmanager:ListSecretVersionIds'], Resource: secretArns },
+    { Sid: 'ReadAcSecretMetadata', Effect: 'Allow', Action: ['secretsmanager:DescribeSecret', 'secretsmanager:GetResourcePolicy', 'secretsmanager:ListSecretVersionIds'], Resource: SECRET_METADATA_PATTERNS },
     // Phase 7 (7.10c): the service bearer tokens reach the Lambda environments through {{resolve:secretsmanager:...}}
     // dynamic references, which CloudFormation resolves with this role. The same values are already readable by this
     // role in the functions' configuration (lambda:Get* above), so this adds no exposure. These secrets only.
     { Sid: 'ResolveAcBearerReferences', Effect: 'Allow', Action: ['secretsmanager:GetSecretValue'], Resource: AC_BEARER_SECRETS.map((n) => `arn:aws:secretsmanager:${R}:${A}:secret:${n}-??????`) },
-    { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:DescribeRepositories', 'ecr:DescribeImages', 'ecr:GetLifecyclePolicy', 'ecr:GetRepositoryPolicy', 'ecr:ListTagsForResource', 'ecr:DescribeImageScanFindings', 'ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
+    { Sid: 'ReadAcRepositories', Effect: 'Allow', Action: ['ecr:Describe*', 'ecr:Get*', 'ecr:ListTagsForResource', 'ecr:BatchGetImage'], Resource: AC.repositories.map((n) => `arn:aws:ecr:${R}:${A}:repository/${n}`) },
     // Every CDK template's BootstrapVersion parameter resolves this toolkit parameter (Phase 5 finding).
     { Sid: 'ReadToolkitVersion', Effect: 'Allow', Action: ['ssm:GetParameter', 'ssm:GetParameters'], Resource: `arn:aws:ssm:${R}:${A}:parameter/cdk-bootstrap/${QUALIFIER}/version` },
     { Sid: 'ReadAcRules', Effect: 'Allow', Action: ['events:DescribeRule', 'events:ListTargetsByRule', 'events:ListTagsForResource'], Resource: AC.rules.map((n) => `arn:aws:events:${R}:${A}:rule/${n}`) },
     // The configuration reads drift detection makes; never users or their attributes.
     { Sid: 'ReadAcUserPools', Effect: 'Allow', Action: ['cognito-idp:DescribeUserPool', 'cognito-idp:GetUserPoolMfaConfig', 'cognito-idp:DescribeUserPoolClient', 'cognito-idp:GetGroup', 'cognito-idp:ListTagsForResource'], Resource: AC.userPools.map((id) => `arn:aws:cognito-idp:${R}:${A}:userpool/${id}`) },
+    { Sid: 'ReadAcLogsAlarms', Effect: 'Allow', Action: ['logs:Describe*', 'logs:ListTags*', 'logs:GetDataProtectionPolicy', 'cloudwatch:ListTagsForResource'], Resource: [
+      ...AC.logGroups.flatMap((n) => [`arn:aws:logs:${R}:${A}:log-group:${n}`, `arn:aws:logs:${R}:${A}:log-group:${n}:*`]), ...AC.alarmPrefixes.map((n) => `arn:aws:cloudwatch:${R}:${A}:alarm:${n}*`)] },
     ...stepWrites,
   ]);
 }

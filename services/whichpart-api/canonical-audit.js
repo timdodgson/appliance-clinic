@@ -5,9 +5,9 @@
  *
  * buildCanonicalTranscriptAudit({ ctx, out, result, trace }) receives STRUCTURED data only:
  *   ctx     the BFF canonical turn context (conversation-state.prepareTurn): mode, csid, version, priorState, …
- *   out     part-finder's merged transport result (`orch._canonical`): classification, state, journey, rules, …
+ *   out     the engine's merged transport result (`orch._canonical`): classification, state, journey, rules, …
  *   result  canonicalFinish's persistence result: written, recordWritten, degraded
- *   trace   the orchestrator diagnostic trace (only the part-finder `canonical-control` stage is read: COMPOSE)
+ *   trace   the orchestrator diagnostic trace (only the engine `canonical-control` stage is read: COMPOSE)
  *
  * The transcript is an AUDIT copy, never a source of truth: canonical state lives in STATE# / STATETURN#, and
  * nothing reads this block back into runtime. It never contains the state body, the csid (only `ref`), the
@@ -229,7 +229,7 @@ function buildCanonicalTranscriptAudit({ ctx, out, result, trace, error } = {}) 
   const a = j && j.nextAction ? j.nextAction : null;
   const gateWanted = Boolean(j && j.applies && j.control && a);
   const compose = composeSummary(trace, a);
-  // The orchestrator's gate ran the canonical flow only if part-finder's diagnose-time control stage is present.
+  // The orchestrator's gate ran the canonical flow only if the engine's diagnose-time control stage is present.
   const controlled = gateWanted && Boolean(compose);
   const degraded = res.degraded || ctx.degraded || (out && out.degraded) || (error ? s(error, 40) : null);
   let path;

@@ -1,5 +1,5 @@
 /**
- * Knowledge Admin shows EFFECTIVE Media — the same merge live diagnosis uses (part-finder
+ * The read-only Knowledge view shows EFFECTIVE Media — the same merge live diagnosis uses (the engine
  * media-effective.js over the shipped join + the Media overlay) — driven through the real Media store.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -118,11 +118,10 @@ describe('Knowledge HTTP reads use effective Media and never write', () => {
   beforeEach(() => {
     s3 = memS3();
     api.setMediaAdminStore(mediaAdmin.createStore({ s3, web }));
-    api.setKnowledgeAdminStore({ inspectView: async () => ({ overlayVersion: 0, published: {}, archived: [], records: {} }), getView: async () => null });
     api.setSessionForTests(async () => ({ username: 'a', email: 'admin@example.test', isAdmin: true }));
   });
   afterEach(() => {
-    api.setSessionForTests(null); api.setMediaAdminStore(null); api.setKnowledgeAdminStore(null);
+    api.setSessionForTests(null); api.setMediaAdminStore(null);
     knowledgeInspect.setMediaView(null);
   });
 

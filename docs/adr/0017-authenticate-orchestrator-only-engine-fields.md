@@ -1,6 +1,6 @@
 # 0017. Authenticate the orchestrator-only engine fields
 
-- **Status:** Implemented (Phase 11: secret 11.2a, log-only 11.2b–d, enforced 11.7, unconditional 11.8a)
+- **Status:** Implemented (Phase 11: secret 11.2a, log-only 11.2b–d, enforced 11.7, unconditional 11.8a); amended by [ADR 0019](0019-dedicated-canonical-diagnosis-engine.md): the signature is required on every request, on an IAM-authenticated URL
 - **Date:** 2026-10-10
 
 ## Context

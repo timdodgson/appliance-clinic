@@ -11,20 +11,28 @@
  *   - Bearer tokens in Lambda environments: a NoEcho parameter each, whose value the step takes from the live function
  *     at change-set time. A Secrets Manager reference could resolve to a different value, and proving it equal would
  *     mean comparing secret values, so the token is carried over as it is. It never appears in a template or in git.
- *   - The diagnosis Lambda (5.10) references the S4R role unchanged. Its `apigateway-invoke` permission (API
- *     65vnizdmk4) is never declared: it stays unmanaged.
+ *   - A function the stack creates (runtime-overrides.json `create`, ADR 0019: applianceclinic-diagnosis-engine) also
+ *     gets its log group (retention), metric filters on its failed and refused requests, and alarms. Its Function URL
+ *     is AWS_IAM; callers are allowed by their own role policies, so it has no resource-policy statement.
  */
 const fs = require('node:fs');
 const cdk = require('aws-cdk-lib');
-const { aws_iam: iam, aws_lambda: lambda, aws_events: events } = cdk;
+const { aws_iam: iam, aws_lambda: lambda, aws_events: events, aws_logs: logs, aws_cloudwatch: cloudwatch } = cdk;
 const { upTo, retain, shellHandle, logical, SANDBOX_NAMES } = require('./common');
 const { applyOverrides, importedSid } = require('./overrides');
 
 /** Import groups by production name. */
 const FUNCTION_STEP = {
   'spares4repairs-error-code-mcp': '5.7a', 'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c', 'spares4repairs-part-finder': '5.10',
+  'applianceclinic-diagnosis-engine': '5.10',
 };
-const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'spares4repairs-part-finder': '5.10' };
+const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'spares4repairs-part-finder': '5.10',
+  'applianceclinic-diagnosis-engine': '5.10' };
+/** Log metrics of a created function (ApplianceClinic namespace): the text each counted log line contains. */
+const CREATED_METRICS = {
+  FailedTurns: '"\\"evt\\":\\"diagnosis-engine\\"" "\\"ok\\":false"',
+  RefusedRequests: '"\\"evt\\":\\"engine-auth\\"" "\\"rejected\\":true"',
+};
 /** Permissions owned by AC. `apigateway-invoke` on the diagnosis Lambda is S4R-sensitive and never imported. */
 const NEVER_MANAGED_SIDS = new Set(['apigateway-invoke']);
 const isToken = (key) => /TOKEN$/.test(key);
@@ -69,6 +77,11 @@ class RuntimeStack extends cdk.Stack {
       const p = prod(name);
       const c = f.configuration;
       const fid = logical(p);
+      // A created function is introduced in reviewed stages (create.resources): its log group, metrics and alarms can
+      // exist before the function itself.
+      const parts = f.create ? new Set(f.create.resources || ['logs', 'metrics', 'alarms', 'function']) : null;
+      if (parts) this.createdExtras(name, fid, f.create, parts);
+      if (parts && !parts.has('function')) continue;
       if (has(FUNCTION_STEP[p])) {
         const variables = {};
         for (const [k, v] of Object.entries(c.Environment?.Variables || {})) {
@@ -84,7 +97,7 @@ class RuntimeStack extends cdk.Stack {
         if (!zip && f.codeOverride && !/@sha256:[0-9a-f]{64}$/.test(imageUri)) throw new Error(`${name}: an image override must name a digest`);
         const code = zip ? (f.codeOverride || props.codeLocations?.[name]) : { imageUri };
         if (!code) throw new Error(`no code location for ${name}`);
-        retain(new lambda.CfnFunction(this, fid, {
+        const fn = retain(new lambda.CfnFunction(this, fid, {
           functionName: name,
           role: c.Role,
           packageType: c.PackageType,
@@ -101,6 +114,7 @@ class RuntimeStack extends cdk.Stack {
             ? { tags: userTags(Object.entries(f.tags).map(([Key, Value]) => ({ Key, Value }))).map((t) => ({ key: t.Key, value: t.Value })) } : {}),
           ...(f.reservedConcurrency != null ? { reservedConcurrentExecutions: f.reservedConcurrency } : {}),
         }));
+        if (f.create) this.createdDependencies(fn, fid, f.create, prod);
       }
       if (has(URL_STEP[p]) && f.url) {
         const cors = f.url.Cors && {
@@ -111,12 +125,14 @@ class RuntimeStack extends cdk.Stack {
           ...(f.url.Cors.ExposeHeaders ? { exposeHeaders: f.url.Cors.ExposeHeaders } : {}),
           ...(f.url.Cors.MaxAge != null ? { maxAge: f.url.Cors.MaxAge } : {}),
         };
-        retain(new lambda.CfnUrl(this, `${fid}Url`, {
+        const url = retain(new lambda.CfnUrl(this, `${fid}Url`, {
           targetFunctionArn: c.FunctionArn || `arn:aws:lambda:${this.region}:${this.account}:function:${name}`,
           authType: f.url.AuthType,
           invokeMode: f.url.InvokeMode,
           ...(cors ? { cors } : {}),
         }));
+        // A created function's URL names it by a literal ARN.
+        if (f.create) url.node.addDependency(this.node.findChild(fid));
       }
       if (has(URL_STEP[p])) {
         const overridden = f.permissionOverrides || {};
@@ -125,7 +141,7 @@ class RuntimeStack extends cdk.Stack {
           if (NEVER_MANAGED_SIDS.has(s.Sid)) continue;
           const sid = importedSid(s.Sid, this.stackName, fid);
           seen.add(sid);
-          const principal = s.Principal === '*' ? '*' : s.Principal.Service;
+          const principal = s.Principal === '*' ? '*' : (s.Principal.Service || s.Principal.AWS);
           const authType = s.Condition?.StringEquals?.['lambda:FunctionUrlAuthType'];
           const sourceArn = s.Condition?.ArnLike?.['AWS:SourceArn'];
           const viaUrl = s.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'];
@@ -163,6 +179,46 @@ class RuntimeStack extends cdk.Stack {
       }
     }
     this.templateOptions.description = `${id}: Appliance Clinic runtime resources, imported (Phase 5). Retain on every resource.`;
+  }
+
+  /** A created function waits for its role, the role's policies and its log group (named by literals, not references). */
+  createdDependencies(fn, fid, c, prod) {
+    const roleName = c.role.split('/').pop();
+    const role = this.node.tryFindChild(logical(prod(roleName)));
+    if (role) fn.node.addDependency(role);
+    for (const child of this.node.children) {
+      if (child instanceof iam.CfnRolePolicy && child.roleName === roleName) fn.node.addDependency(child);
+    }
+    const lg = this.node.tryFindChild(`${fid}Logs`);
+    if (lg) fn.node.addDependency(lg);
+  }
+
+  /** A created function's log group (retention), log metrics and alarms. */
+  createdExtras(name, fid, c, parts) {
+    const logGroupName = `/aws/lambda/${name}`;
+    if (!parts.has('logs')) return;
+    const lg = retain(new logs.CfnLogGroup(this, `${fid}Logs`, { logGroupName, retentionInDays: c.logRetentionDays || 90 }));
+    const alarm = (aid, props) => retain(new cloudwatch.CfnAlarm(this, `${fid}${aid}Alarm`, {
+      alarmName: `${name}-${aid}`, comparisonOperator: 'GreaterThanOrEqualToThreshold', evaluationPeriods: 1, period: 300,
+      treatMissingData: 'notBreaching', ...props,
+    }));
+    if (!parts.has('metrics')) return;
+    for (const [metric, filterPattern] of Object.entries(CREATED_METRICS)) {
+      const mf = retain(new logs.CfnMetricFilter(this, `${fid}${metric}`, {
+        logGroupName, filterPattern, filterName: `${name}-${metric}`,
+        metricTransformations: [{ metricNamespace: 'ApplianceClinic', metricName: `DiagnosisEngine${metric}`, metricValue: '1', defaultValue: 0 }],
+      }));
+      mf.node.addDependency(lg);
+    }
+    if (!parts.has('alarms') || !c.alarms) return;
+    alarm('FailedTurns', { alarmDescription: 'Diagnosis engine turns that failed (503 engine_unavailable): Jev or COMPOSE provider down, or an engine error.',
+      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineFailedTurns', statistic: 'Sum', threshold: 5 });
+    alarm('RefusedRequests', { alarmDescription: 'Requests refused for a missing or invalid engine signature. AC callers always sign: any refusal is a caller or key fault.',
+      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineRefusedRequests', statistic: 'Sum', threshold: 1 });
+    for (const m of ['Errors', 'Throttles']) {
+      alarm(m, { alarmDescription: `Lambda ${m} on ${name}.`, namespace: 'AWS/Lambda', metricName: m, statistic: 'Sum', threshold: 1,
+        dimensions: [{ name: 'FunctionName', value: name }] });
+    }
   }
 }
 

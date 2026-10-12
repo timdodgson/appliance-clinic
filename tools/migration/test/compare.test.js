@@ -30,7 +30,7 @@ function makeDir(files) {
 describe('deployed vs source', () => {
   it('matches files by content even when the deploy script moved them', () => {
     const artifact = readZipEntries(makeZip({ 'index.js': 'api', 'cs1.js': 'canonical', 'node_modules/@aws-sdk/x/index.js': 'dep', 'node_modules/left-pad/i.js': 'd2' }));
-    const source = readDirEntries(makeDir({ 'services/whichpart-api/index.js': 'api', 'services/part-finder/canonical/cs1.js': 'canonical' }));
+    const source = readDirEntries(makeDir({ 'services/whichpart-api/index.js': 'api', 'services/diagnosis-engine/canonical/cs1.js': 'canonical' }));
     const r = compareDeployedWithSource(artifact, source);
     expect(r.summary.equivalent).toBe(true);
     expect(r.summary.bundledDependencyFiles).toBe(2);

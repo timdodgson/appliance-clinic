@@ -27,7 +27,7 @@ def state(appliance="dishwasher", exclusive=False, establishes=None, answered=No
 ask = lambda msg: OrchestratorResponse(route="", outcome=Outcome.ANSWER.value, message=msg)
 
 # owner-safety note
-check("vague-opener clarification (part-finder exclusive) -> no owner-safety note",
+check("vague-opener clarification (engine exclusive) -> no owner-safety note",
       o._owner_safety_note(state(exclusive=True), ask("What is the main thing the dishwasher is doing wrong?")) is None)
 check("ordinary diagnostic answer for the same family -> note still carried",
       o._owner_safety_note(state(), ask("Check the filter at the bottom of the tub. Is it blocked?")) is not None)

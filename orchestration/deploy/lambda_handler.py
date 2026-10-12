@@ -6,8 +6,9 @@ Thin transport around the deterministic orchestrator. Routes:
   POST /diagnose -> bearer-authenticated; body {message, sessionId?, make?, appliance?,
                     displayedCode?, region?, observed?[], includeEnrichment?}
 
-Downstream: real Error-Code MCP (Streamable HTTP + bearer) and real Diagnostic RAG (Function URL).
-Config via env only (never hard-coded): MCP_URL, MCP_BEARER_TOKEN, RAG_URL, ORCH_BEARER_TOKEN.
+Downstream: the Error-Code MCP (Streamable HTTP + bearer) and the diagnosis engine (AWS_IAM Function URL, ADR 0019).
+Config via env only (never hard-coded): MCP_URL, MCP_BEARER_TOKEN, DIAGNOSIS_ENGINE_URL, ENGINE_SIGNING_TOKEN,
+ORCH_BEARER_TOKEN.
 The orchestrator holds no conversation state (ADR 0014): each turn starts from the request, including the
 BFF's persisted cs/1 block; nothing survives the invocation.
 Downstream bearer tokens are never returned to the client. Structured logs never include tokens.
@@ -93,7 +94,7 @@ def handler(event, context):
     if method == "GET" and path.rstrip("/").endswith("/health") or path == "/health":
         return _resp(200, {"status": "ok", "service": SERVICE, "version": VERSION,
                            "errorCodeMcp": "configured" if os.environ.get("MCP_URL") else "unconfigured",
-                           "diagnosticRag": "configured" if os.environ.get("RAG_URL") else "unconfigured"})
+                           "diagnosisEngine": "configured" if os.environ.get("DIAGNOSIS_ENGINE_URL") else "unconfigured"})
 
     if not _bearer_ok(event.get("headers") or {}):
         return _resp(401, {"error": "unauthorized", "message": "valid bearer token required"})

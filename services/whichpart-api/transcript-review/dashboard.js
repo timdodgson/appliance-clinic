@@ -176,12 +176,12 @@ function compactHealth(services) {
     ok: !!(s.orchestrator && s.orchestrator.ok),
     detail: (s.orchestrator && (s.orchestrator.error || (!s.orchestrator.ok && s.orchestrator.status))) || null,
   });
-  const ragOk = !!(s.rag && s.rag.ok);
+  const engine = s.diagnosisEngine;
   parts.push({
-    id: 'rag',
-    name: 'RAG',
-    ok: ragOk,
-    detail: (s.rag && (s.rag.error || s.rag.state || null)) || null,
+    id: 'diagnosis_engine',
+    name: 'Diagnosis engine',
+    ok: !!(engine && engine.ok),
+    detail: (engine && (engine.error || engine.state || null)) || null,
   });
   if (s.mcp) {
     parts.push({

@@ -1,11 +1,9 @@
-/** The diagnosis engine's configuration module (services/part-finder/engine/config.js). */
+/** The diagnosis engine's configuration module (services/diagnosis-engine/engine/config.js). */
 export interface EngineConfig {
-  /** S4R catalogue search API. Optional; defaults to the production S4R API (docs/architecture/configuration.md). */
-  SEARCH_API: string;
-  /** S4R parts-for-model API. Optional; defaults to the production S4R API. */
+  /** S4R Parts Catalogue parts-for-model API (external). Optional; defaults to the production catalogue
+   *  (docs/architecture/configuration.md). */
   PARTS_FOR_MODEL_API: string;
   LM_TEMPERATURE: number;
-  LM_MAX_TOKENS: number;
   LM_TIMEOUT_MS: number;
   LM_REPEAT_PENALTY: number;
   MAX_MESSAGES: number;

@@ -1,6 +1,6 @@
 # 0012. The legacy diagnosis pipeline is retained
 
-- **Status:** Accepted; its current-use parts (legacy as the AC fallback) are superseded by [0018](0018-no-ac-legacy-fallback.md), which keeps legacy for the S4R contract only
+- **Status:** Superseded by [ADR 0019](0019-dedicated-canonical-diagnosis-engine.md): the legacy pipeline is deleted from Appliance Clinic. (Earlier, its AC-fallback parts were superseded by [0018](0018-no-ac-legacy-fallback.md).)
 - **Date:** 2026-10-09
 
 ## Context

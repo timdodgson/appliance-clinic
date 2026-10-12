@@ -19,13 +19,16 @@ const region = process.argv.includes('--region') ? process.argv[process.argv.ind
 const overrides = JSON.parse(readFileSync(join(REPO_ROOT, 'infra/cdk/config/runtime-overrides.json'), 'utf8'));
 const c = createReadOnlyClients({ region, edgeRegion: "us-east-1", stackRegions: [region] });
 const live = {}; const refs = {};
-for (const fn of Object.keys(overrides.functions)) {
+// A function the stack creates in stages (create.resources) is checked once its function stage is declared.
+const declared = Object.fromEntries(Object.entries(overrides.functions)
+  .filter(([, d]) => !d.create || !d.create.resources || d.create.resources.includes('function')));
+for (const fn of Object.keys(declared)) {
   const r = await c.lambda.send(new GetFunctionCommand({ FunctionName: fn }));
   live[fn] = { env: (r.Configuration.Environment && r.Configuration.Environment.Variables) || {}, codeSha256: r.Configuration.CodeSha256,
     imageDigest: r.Code && r.Code.ResolvedImageUri ? r.Code.ResolvedImageUri.split('@')[1] : null };
   try { refs[fn] = JSON.parse(readFileSync(join(REPO_ROOT, `build/reference/${fn}.zip.json`), 'utf8')).codeSha256; } catch { /* image function */ }
 }
-const result = overridesDrift(overrides.functions, live, refs);
+const result = overridesDrift(declared, live, refs);
 const info = {};
 try {
   const s = await c.secrets.send(new DescribeSecretCommand({ SecretId: 'applianceclinic/production/ai-config' }));

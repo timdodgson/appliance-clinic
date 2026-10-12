@@ -14,7 +14,10 @@
         "events:ListRules",
         "iam:ListRoles",
         "tag:GetResources",
-        "cognito-idp:DescribeUserPoolDomain"
+        "cognito-idp:DescribeUserPoolDomain",
+        "logs:DescribeLogGroups",
+        "logs:DescribeMetricFilters",
+        "cloudwatch:DescribeAlarms"
       ],
       "Resource": "*"
     },
@@ -33,7 +36,9 @@
         "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
         "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp:*",
         "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder",
-        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder:*"
+        "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder:*",
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine:*"
       ]
     },
     {
@@ -47,7 +52,8 @@
         "arn:aws:iam::800960611664:role/whichpart-api-role",
         "arn:aws:iam::800960611664:role/diag-orchestrator-role",
         "arn:aws:iam::800960611664:role/error-code-mcp-role",
-        "arn:aws:iam::800960611664:role/ac-diagnosis-role"
+        "arn:aws:iam::800960611664:role/ac-diagnosis-role",
+        "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role"
       ]
     },
     {
@@ -72,14 +78,7 @@
       "Effect": "Allow",
       "Action": [
         "s3:GetBucket*",
-        "s3:GetEncryptionConfiguration",
-        "s3:GetLifecycleConfiguration",
-        "s3:GetReplicationConfiguration",
-        "s3:GetAccelerateConfiguration",
-        "s3:GetAnalyticsConfiguration",
-        "s3:GetIntelligentTieringConfiguration",
-        "s3:GetInventoryConfiguration",
-        "s3:GetMetricsConfiguration"
+        "s3:Get*Configuration"
       ],
       "Resource": [
         "arn:aws:s3:::whichpart-web-800960611664",
@@ -95,18 +94,8 @@
         "secretsmanager:ListSecretVersionIds"
       ],
       "Resource": [
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-ai-config-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-openai-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-jev-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-canonical-state-token-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-benchmark-service-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/ai-config-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/openai-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/jev-??????",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-??????"
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:spares4repairs/dev/applianceclinic-*",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/*"
       ]
     },
     {
@@ -125,14 +114,10 @@
       "Sid": "ReadAcRepositories",
       "Effect": "Allow",
       "Action": [
-        "ecr:DescribeRepositories",
-        "ecr:DescribeImages",
-        "ecr:GetLifecyclePolicy",
-        "ecr:GetRepositoryPolicy",
+        "ecr:Describe*",
+        "ecr:Get*",
         "ecr:ListTagsForResource",
-        "ecr:DescribeImageScanFindings",
-        "ecr:BatchGetImage",
-        "ecr:GetDownloadUrlForLayer"
+        "ecr:BatchGetImage"
       ],
       "Resource": [
         "arn:aws:ecr:eu-west-1:800960611664:repository/spares4repairs-diag-orchestrator",
@@ -173,6 +158,21 @@
       ],
       "Resource": [
         "arn:aws:cognito-idp:eu-west-1:800960611664:userpool/eu-west-1_r4fXXEdxC"
+      ]
+    },
+    {
+      "Sid": "ReadAcLogsAlarms",
+      "Effect": "Allow",
+      "Action": [
+        "logs:Describe*",
+        "logs:ListTags*",
+        "logs:GetDataProtectionPolicy",
+        "cloudwatch:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-diagnosis-engine",
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-diagnosis-engine:*",
+        "arn:aws:cloudwatch:eu-west-1:800960611664:alarm:applianceclinic-diagnosis-engine-*"
       ]
     }
   ]

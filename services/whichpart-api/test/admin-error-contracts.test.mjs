@@ -1,8 +1,8 @@
 /**
- * Phase 8: the admin error responses are a contract with the admin UI, and they differ by area on purpose:
- *   - Knowledge: status from the error (default 500), body {error, code (default 'error'), ...extra merged}.
+ * Phase 8: the admin error responses are a contract with the admin UI:
  *   - Media: status from the error (default 404 for not_found, else 400), body {error, code, extra nested}.
- * These tests pin both shapes, so a later clean-up cannot change them without a coordinated UI change
+ * (The Knowledge write endpoints and their error shape were removed with the knowledge publish workflow, ADR 0019.)
+ * These tests pin the shape, so a later clean-up cannot change them without a coordinated UI change
  * (docs/architecture/error-handling.md).
  */
 import { describe, it, expect, afterEach } from 'vitest';
@@ -17,26 +17,8 @@ function ev(route, method, body, query = '') {
   return { rawPath: p, rawQueryString: query, requestContext: { http: { method, path: p }, requestId: 'errors' }, headers: {}, cookies: [], body: JSON.stringify(body || {}) };
 }
 const err = (message, props) => Object.assign(new Error(message), props);
-const knowledgeStore = (publish) => ({ publish, inspectView: async () => null });
 
-afterEach(() => { api.setSessionForTests(null); api.setKnowledgeAdminStore(null); api.setMediaAdminStore(null); });
-
-describe('knowledge admin errors', () => {
-  it('a store error with a status keeps it and merges extra into the body', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setKnowledgeAdminStore(knowledgeStore(async () => { throw err('Changed since you opened it', { status: 409, code: 'revision_conflict', extra: { currentRevision: 'r2' } }); }));
-    const res = await api.handler(ev('/admin/knowledge/publish', 'POST', { expectedRevision: 'r1' }, 'id=k1'));
-    expect(res.statusCode).toBe(409);
-    expect(JSON.parse(res.body)).toEqual({ error: 'Changed since you opened it', code: 'revision_conflict', currentRevision: 'r2' });
-  });
-  it('an unexpected store failure is a 500 with code "error"', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setKnowledgeAdminStore(knowledgeStore(async () => { throw new Error('s3 down'); }));
-    const res = await api.handler(ev('/admin/knowledge/publish', 'POST', { expectedRevision: 'r1' }, 'id=k1'));
-    expect(res.statusCode).toBe(500);
-    expect(JSON.parse(res.body)).toEqual({ error: 's3 down', code: 'error' });
-  });
-});
+afterEach(() => { api.setSessionForTests(null); api.setMediaAdminStore(null); });
 
 describe('media admin errors', () => {
   it('not_found without a status is a 404', async () => {

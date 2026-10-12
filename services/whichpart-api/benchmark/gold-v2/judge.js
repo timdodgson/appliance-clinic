@@ -21,7 +21,7 @@
  */
 
 const V = require('./version.js');
-const { evaluateJev } = require('../../../part-finder/jev-client.js');
+const { evaluateJev } = require('../../../diagnosis-engine/jev-client.js');
 
 // ---- identity scrubbing (do not let the judge infer the product/config) -----
 const IDENTITY_TOKENS = [

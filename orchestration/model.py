@@ -100,7 +100,7 @@ class TurnInput:
     latestMessage: Optional[str] = None
     turnIndex: int = 0            # 0-based customer turn number (0 = opening turn)
     # CANONICAL: the BFF-owned cs/1 block {schema, mode, control, sessionId, version, state, degraded}.
-    # Transported VERBATIM to part-finder understand (which merges, routes and decides). The orchestrator
+    # Transported VERBATIM to the engine's understand (which merges, routes and decides). The orchestrator
     # never reads the state or persists it; it only gates on the returned journey (_canonical_control).
     canonical: Optional[dict] = None
     identitySource: Optional[str] = None  # customer | inferred | unresolved — never promote inferred

@@ -15,8 +15,8 @@ COPY orchestration/routing.py             ${LAMBDA_TASK_ROOT}/orchestration/rout
 COPY orchestration/services.py            ${LAMBDA_TASK_ROOT}/orchestration/services.py
 COPY orchestration/orchestrator.py        ${LAMBDA_TASK_ROOT}/orchestration/orchestrator.py
 # the shared canonical journey registry (key -> likely area; the orchestrator's control gate)
-COPY services/part-finder/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json
+COPY services/diagnosis-engine/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json
 COPY orchestration/deploy/lambda_handler.py ${LAMBDA_TASK_ROOT}/lambda_handler.py
 
-# MCP_URL / MCP_BEARER_TOKEN / RAG_URL / ORCH_BEARER_TOKEN injected at deploy time (never baked in).
+# MCP_URL / MCP_BEARER_TOKEN / DIAGNOSIS_ENGINE_URL / ORCH_BEARER_TOKEN injected at deploy time (never baked in).
 CMD ["lambda_handler.handler"]

@@ -68,7 +68,7 @@ class DiagnosticService(Protocol):
     # verbatim. It is passed ONLY when the BFF supplied one, so implementations without it are unaffected.
 
 
-# ---------------- FAKE Diagnostic RAG (deterministic; stands in for services/part-finder) ----------------
+# ---------------- FAKE Diagnostic RAG (deterministic; stands in for services/diagnosis-engine) ----------------
 class FakeDiagnosticService:
     """Deterministic stand-in for the two-pass Diagnostic RAG. Returns a RAG-shaped result.
 
@@ -95,7 +95,7 @@ class FakeDiagnosticService:
          ("evaporator-fan", "Evaporator fan fault", "evaporator-fan", 0.82,
           ["evaporator fan motor", "fan blade", "defrost heater", "defrost thermostat"])),
     ]
-    # Error-code -> fault grounding. Mirrors the REAL part-finder's resolveFault(errorCode), which
+    # Error-code -> fault grounding. Mirrors the real engine's resolveFault(errorCode), which
     # resolves a RECOGNISED code to a fault node independently of symptom prose AND is isolated by
     # make+appliance (Samsung FF 22C -> evaporator-fan; LG 22C / Samsung washing-machine 22C /
     # no-make 22C stay UNRESOLVED). Keyed by (make, appliance-normalised, code) so that isolation is
@@ -124,7 +124,7 @@ class FakeDiagnosticService:
                      "look for the leak with", "while it's plugged in", "while its plugged in")
 
     # ---- Story 3: Jev UNDERSTAND stand-in (test-only deterministic classifier) ----
-    # Mirrors the SINGLE Jev UNDERSTAND the real part-finder runs. Deterministic keyword/shape
+    # Mirrors the SINGLE Jev UNDERSTAND the real engine runs. Deterministic keyword/shape
     # classification is acceptable HERE because this is a test stand-in FOR Jev (the production
     # semantic authority); the orchestrator under test consumes these typed decisions exactly as it
     # consumes the real Jev result. Returns {"jev": {decisions}, "understand": <raw intent>}.
@@ -315,7 +315,7 @@ class FakeDiagnosticService:
                 break
         if not best and make and appliance:
             # no symptom rule matched -> try resolving a recognised error-code token in the text,
-            # ISOLATED by make+appliance (mirrors part-finder resolveFault(errorCode) isolation);
+            # ISOLATED by make+appliance (mirrors the engine's resolveFault(errorCode) isolation);
             # leaves symptom-driven tests untouched.
             mk = str(make).strip().lower()
             ap = str(appliance).strip().lower().replace(" ", "-")
@@ -390,7 +390,7 @@ class FakeErrorCodeService:
         return {"status": "NEEDS_CONTEXT", "resolvedAttributes": {}, "confidence": "LOW"}
 
 
-# ---------------- REAL Diagnostic RAG adapter (banked part-finder Function URL) ----------------
+# ---------------- REAL Diagnostic RAG adapter (diagnosis engine Function URL) ----------------
 def _conversation_window(items, cap=12):
     """Keep the latest turns without starting on an assistant message.
 
@@ -497,8 +497,27 @@ def engine_signature(body: bytes, key: Optional[str] = None, now: Optional[int] 
     return f"t={t},v1={mac}"
 
 
+def aws_iam_headers(url: str, body: bytes, headers: dict) -> dict:
+    """ADR 0019: the diagnosis engine's Function URL is AWS_IAM. Sign the request (SigV4, service `lambda`) with this
+    function's own role credentials; the role is allowed to invoke only that URL. Without credentials (local tests) the
+    headers are returned as they are, and an IAM URL refuses the call (403), which degrades the turn visibly."""
+    try:
+        import botocore.session
+        from botocore.auth import SigV4Auth
+        from botocore.awsrequest import AWSRequest
+    except ImportError:
+        return headers
+    creds = botocore.session.get_session().get_credentials()
+    if creds is None:
+        return headers
+    region = os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "eu-west-1"
+    req = AWSRequest(method="POST", url=url, data=body, headers=dict(headers))
+    SigV4Auth(creds.get_frozen_credentials(), "lambda", region).add_auth(req)
+    return dict(req.headers.items())
+
+
 class RealDiagnosticService:
-    """Adapter over the banked Diagnostic RAG (part-finder Function URL, NDJSON stream).
+    """Adapter over the diagnosis engine (applianceclinic-diagnosis-engine Function URL, JSON lines).
 
     Translates orchestration request -> RAG request ({messages, seed}) and the RAG `done.understood`
     -> DiagnosticService port shape. When the boundary supplies a role-separated conversation,
@@ -508,7 +527,7 @@ class RealDiagnosticService:
     Raises RagUnavailable on transport failure/timeout so the orchestrator can degrade gracefully.
     """
     def __init__(self, url: Optional[str] = None, seed: int = 42, timeout: float = 90.0):
-        self.url = (url or os.environ["RAG_URL"]).rstrip("/") + "/"
+        self.url = (url or os.environ["DIAGNOSIS_ENGINE_URL"]).rstrip("/") + "/"
         self.seed = seed
         self.timeout = timeout
 
@@ -524,6 +543,7 @@ class RealDiagnosticService:
             sig = engine_signature(body)   # ADR 0017: re-signed per attempt so the timestamp is fresh
             if sig:
                 headers[ENGINE_SIGNATURE_HEADER] = sig
+            headers = aws_iam_headers(self.url, body, headers)   # signed last: SigV4 covers the HMAC header too
             r = httpx.post(self.url, content=body, timeout=self.timeout, headers=headers)
             if r.status_code == 429 and attempt == 1:
                 _time.sleep(self.THROTTLE_RETRY_S)
@@ -536,7 +556,7 @@ class RealDiagnosticService:
                    canonical=None) -> dict:
         """Story 3: run the SINGLE Jev UNDERSTAND pass (mode:'understand') and return its typed
         result BEFORE routing. This is the one and only Jev invocation for the turn; the raw typed
-        intent is forwarded verbatim into `diagnose(understand=...)` so part-finder does NOT run Jev
+        intent is forwarded verbatim into `diagnose(understand=...)` so the engine does NOT run Jev
         again. Returns {"jev": <typed decisions/observability>, "understand": <raw intent to inject>}
         or {} on transport failure (the orchestrator then degrades to a clarify, never a prose guess).
 
@@ -548,7 +568,7 @@ class RealDiagnosticService:
         payload = {"messages": msgs, "seed": self.seed, "mode": "understand"}
         if isinstance(established, dict) and established.get("applianceFamily"):
             payload["established"] = established
-        # CANONICAL: forward the BFF's cs/1 block verbatim; part-finder merges, routes and decides.
+        # CANONICAL: forward the BFF's cs/1 block verbatim; the engine merges, routes and decides.
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
@@ -579,14 +599,14 @@ class RealDiagnosticService:
         msgs = build_rag_messages(symptoms=symptoms, image=image, conversation=conversation)
         payload = {"messages": msgs, "seed": self.seed}
         # Story 3: forward the EXACT Jev intent produced by the earlier understand() call so
-        # part-finder consumes it instead of running Jev a second time (one Jev call per turn).
+        # the engine consumes it instead of running Jev a second time (one Jev call per turn).
         if isinstance(understand, dict) and understand:
             payload["understand"] = understand
-        # Stage A: carry the (current) established conversation identity so part-finder preserves a
+        # Stage A: carry the (current) established conversation identity so the engine preserves a
         # genuinely established family into the diagnosis even when this turn's Jev output is weak.
         if isinstance(established, dict) and established.get("applianceFamily"):
             payload["established"] = established
-        # CANONICAL: the merged result from understand; part-finder words its NextAction when it controls.
+        # CANONICAL: the merged result from understand; the engine words its NextAction when it controls.
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
@@ -633,7 +653,7 @@ class RealDiagnosticService:
             "componentMention": done.get("componentMention") or u.get("componentMention") or None,
             "purchaseAppropriate": bool(done.get("purchaseAppropriate") if done.get("purchaseAppropriate") is not None else u.get("purchaseAppropriate")),
             "clarifyingQuestion": u.get("clarifyingQuestion"),
-            # the reply is part-finder's single vague-opener clarification (describe the problem; no physical step)
+            # the reply is the engine's single vague-opener clarification (describe the problem; no physical step)
             "exclusiveClarify": bool(done.get("exclusiveClarify")),
             "safety": {"class": safety_cls, "stopUse": safety_cls in ("STOP_USE", "EMERGENCY_ACTION")},
             "safetyReason": reason,                 # 'gas'|'shock'|'burning'|None — cause-specific guidance

@@ -24,8 +24,7 @@ const ROUTES = [
   '/admin/benchmark/run', '/admin/benchmark/runs', '/admin/benchmark/compare', '/admin/benchmark/config',
   '/admin/transcripts/stats', '/admin/transcripts/policy', '/admin/transcripts/quality',
   '/admin/transcripts/session/review', '/admin/transcripts/session', '/admin/transcripts', '/admin/knowledge/record',
-  '/admin/knowledge/draft', '/admin/knowledge/validate', '/admin/knowledge/versions', '/admin/knowledge/publish',
-  '/admin/knowledge/rollback', '/admin/knowledge/archive', '/admin/knowledge/restore', '/admin/knowledge',
+  '/admin/knowledge',
   '/admin/media/knowledge', '/admin/media/preview', '/admin/media/record/publish', '/admin/media/record/rollback',
   '/admin/media/record/discard', '/admin/media/record/version', '/admin/media/record/replace',
   '/admin/media/record/map', '/admin/media/record/component', '/admin/media/record/retire',
@@ -67,6 +66,31 @@ describe('routes', () => {
       const res = await api.handler(ev(route, 'GET'));
       expect([401, 405]).toContain(res.statusCode);
     });
+});
+
+// ADR 0019: the knowledge publish workflow is gone. Its endpoints are a plain 404 for any caller and method — never
+// routed to a knowledge store and never treated as a diagnose request.
+const RETIRED_KNOWLEDGE_ROUTES = [
+  ['POST', '/admin/knowledge/draft'], ['PUT', '/admin/knowledge/draft'], ['DELETE', '/admin/knowledge/draft'],
+  ['POST', '/admin/knowledge/validate'], ['GET', '/admin/knowledge/versions'], ['POST', '/admin/knowledge/publish'],
+  ['POST', '/admin/knowledge/rollback'], ['POST', '/admin/knowledge/archive'], ['POST', '/admin/knowledge/restore'],
+];
+describe('retired knowledge write routes', () => {
+  it.each(RETIRED_KNOWLEDGE_ROUTES)('%s %s is 404 even for an admin', async (method, route) => {
+    api.setSessionForTests(ADMIN);
+    const res = await api.handler(ev(route, method, { rawQueryString: 'id=vacuum:lost-suction', body: JSON.stringify({ expectedRevision: 0 }) }));
+    expect(res.statusCode).toBe(404);
+    expect(JSON.parse(res.body)).toEqual({ error: 'not found' });
+  });
+  it('the read-only knowledge routes still answer', async () => {
+    api.setSessionForTests(ADMIN);
+    expect((await api.handler(ev('/admin/knowledge', 'GET'))).statusCode).toBe(200);
+    expect((await api.handler(ev('/admin/knowledge/record', 'GET', { rawQueryString: 'id=vacuum:lost-suction', queryStringParameters: { id: 'vacuum:lost-suction' } }))).statusCode).toBe(200);
+  });
+  it('the API no longer exposes a knowledge admin store', () => {
+    expect(api.knowledgeAdmin).toBeUndefined();
+    expect(api.setKnowledgeAdminStore).toBeUndefined();
+  });
 });
 
 describe('/auth/logout', () => {

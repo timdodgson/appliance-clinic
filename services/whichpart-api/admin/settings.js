@@ -130,7 +130,7 @@ async function adminSettingsGet(event) {
   const testDeps = _settingsTestDeps || {};
   const view = await settingsAdmin.buildView({
     fetch: testDeps.fetch,
-    partFinderHealthUrl: testDeps.partFinderHealthUrl !== undefined ? testDeps.partFinderHealthUrl : ENGINE_URL,
+    engineHealthUrl: testDeps.engineHealthUrl !== undefined ? testDeps.engineHealthUrl : ENGINE_URL,
     timeoutMs: testDeps.timeoutMs || 5000,
     judgeModel: ACQ_JUDGE_MODEL,
     loadConfigWithStatus: testDeps.loadConfigWithStatus,
@@ -158,7 +158,7 @@ async function adminSettingsInferencePatch(event) {
     body,
     byEmail: session.email || session.username || 'admin',
     fetch: testDeps.fetch,
-    partFinderHealthUrl: testDeps.partFinderHealthUrl !== undefined ? testDeps.partFinderHealthUrl : ENGINE_URL,
+    engineHealthUrl: testDeps.engineHealthUrl !== undefined ? testDeps.engineHealthUrl : ENGINE_URL,
     timeoutMs: testDeps.timeoutMs || 5000,
     judgeModel: ACQ_JUDGE_MODEL,
     loadConfigWithStatus: testDeps.loadConfigWithStatus,
@@ -197,7 +197,7 @@ async function adminSettingsJevPatch(event) {
     body,
     byEmail: session.email || session.username || 'admin',
     fetch: testDeps.fetch,
-    partFinderHealthUrl: testDeps.partFinderHealthUrl !== undefined ? testDeps.partFinderHealthUrl : ENGINE_URL,
+    engineHealthUrl: testDeps.engineHealthUrl !== undefined ? testDeps.engineHealthUrl : ENGINE_URL,
     timeoutMs: testDeps.timeoutMs || 5000,
     judgeModel: ACQ_JUDGE_MODEL,
     loadConfigWithStatus: testDeps.loadConfigWithStatus,

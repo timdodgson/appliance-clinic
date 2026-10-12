@@ -1,6 +1,6 @@
 # 0003. Spares4Repairs compatibility boundary
 
-- **Status:** Accepted
+- **Status:** Accepted; the `/part-finder` contract parts are superseded by [ADR 0019](0019-dedicated-canonical-diagnosis-engine.md): AC no longer serves S4R, and S4R resources stay external dependencies that AC never modifies
 - **Date:** 2026-10-07
 
 ## Context

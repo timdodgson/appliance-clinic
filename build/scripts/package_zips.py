@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Rebuild the two Lambda zips from this repository (Phase 3, #29).
+"""Build the two Lambda zips from this repository.
 
     python3 build/scripts/package_zips.py [--out-dir build/out]
 
-Reproduces only the packaging steps of the imported deploy scripts:
-  - spares4repairs-part-finder: services/part-finder/deploy.sh, lines 29-48
-  - whichpart-api:              services/whichpart-api/deploy.sh, lines 192-231
-It makes no AWS call. Never run the deploy scripts themselves; they also change AWS.
+  - applianceclinic-diagnosis-engine: services/diagnosis-engine (the canonical diagnosis engine, ADR 0019)
+  - whichpart-api:                    services/whichpart-api, plus the engine files it ships (listed below)
+It makes no AWS call.
 
 The archives are deterministic: entries sorted, a fixed timestamp, mode 0644 and deflate. That makes
 rebuilds byte-stable, but their CodeSha256 differs from the hand-built production zips. Equivalence is
@@ -21,29 +20,26 @@ import sys
 import zipfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-PF = os.path.join(ROOT, 'services', 'part-finder')
+DE = os.path.join(ROOT, 'services', 'diagnosis-engine')
 WP = os.path.join(ROOT, 'services', 'whichpart-api')
 FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
 
-def part_finder_entries():
-    """services/part-finder/deploy.sh lines 29, 39, 44 and 46: the files the zip contains."""
-    top = ['part-finder-lambda.js', 'inference.js', 'admin-config.js', 'jev-client.js', 'jev-understand.js',
-           'faults-catalogue.json', 'retrieval.js', 'security.js', 'identity.js', 'media-effective.js', 'health.js',
-           'canonical-runtime.js', 'jev-mc1.js']
-    knowledge = ['knowledge-index.json', 'safety-information.json', 'media-information.json', 'normal-behaviour.json']
-    canonical = sorted(os.path.basename(p) for p in glob.glob(os.path.join(PF, 'canonical', '*.js'))) + ['journeys.json']
-    # Phase 7 onwards: runtime files added after the import (docs/migration/runtime-changes.json), e.g. engine/.
-    top += sorted(os.path.relpath(f['path'], 'services/part-finder') for f in json.load(open(os.path.join(ROOT, 'docs', 'migration', 'runtime-changes.json')))['added']
-                  if f['role'] == 'runtime' and 'spares4repairs-part-finder' in f['units'])
-    entries = {name: os.path.join(PF, name) for name in top}
-    entries.update({f'knowledge/{n}': os.path.join(PF, 'knowledge', n) for n in knowledge})
-    entries.update({f'canonical/{n}': os.path.join(PF, 'canonical', n) for n in canonical})
+def diagnosis_engine_entries():
+    """The engine's runtime files: the handler and its modules, the canonical journeys, the catalogue and the media
+    mappings. Runtime files added later are registered in docs/migration/runtime-changes.json."""
+    top = ['handler.js', 'canonical-runtime.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js',
+           'security.js', 'identity.js', 'admin-config.js', 'inference.js', 'jev-client.js', 'jev-understand.js',
+           'jev-mc1.js', 'faults-catalogue.json']
+    engine = sorted(f'engine/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'engine', '*.js')))
+    canonical = sorted(f'canonical/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'canonical', '*.js'))) + ['canonical/journeys.json']
+    entries = {name: os.path.join(DE, name) for name in top + engine + canonical}
+    entries['knowledge/media-information.json'] = os.path.join(DE, 'knowledge', 'media-information.json')
     return entries
 
 
-# Verbatim logic of the Python heredoc in services/whichpart-api/deploy.sh (lines 198-211), including
-# json.dump defaults, so the generated file is byte-identical.
+# The knowledge index summary whichpart-api ships (index-meta.json), with json.dump defaults so the generated file is
+# byte-identical across builds.
 def index_meta(knowledge_dir):
     src = os.path.join(knowledge_dir, "knowledge-index.json")
     idx = json.load(open(src))
@@ -59,13 +55,13 @@ def index_meta(knowledge_dir):
 
 
 def whichpart_api_entries(generated):
-    """services/whichpart-api/deploy.sh lines 192-231: the zip list, plus the files it copies in or generates."""
-    # deploy.sh line 214: the packaging check that media-canonical-refs.json is current.
+    """The whichpart-api zip: its own files, plus the files it copies in from the engine or generates."""
+    # The packaging check that media-canonical-refs.json is current.
     subprocess.run(['node', os.path.join(WP, 'scripts', 'build-media-canonical-refs.cjs'), '--check'], check=True, cwd=ROOT)
     # Phase 8: fit-evidence.js (never required) and benchmark/acq-simulator.js (test-only) are no longer shipped.
     files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js',
              'package.json', 'transcripts.js', 'ddb.js', 'conversation-state.js', 'canonical-audit.js', 'state-token.js',
-             'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js', 'knowledge-admin.js',
+             'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js',
              'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js',
              'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js',
              'benchmark/acq-grade.js', 'benchmark/acq-judge.js', 'benchmark/acq-store.js', 'benchmark/acq-library.js',
@@ -79,13 +75,13 @@ def whichpart_api_entries(generated):
         for path in sorted(glob.glob(os.path.join(WP, d, '**', '*'), recursive=True)):
             if os.path.isfile(path) and '__pycache__' not in path:
                 entries[os.path.relpath(path, WP)] = path
-    # Copied in from part-finder (deploy.sh lines 195-197, 213, 215-217).
-    knowledge = os.path.join(PF, 'knowledge')
+    # Copied in from the diagnosis engine: knowledge files for the admin inspectors and the shared canonical core.
+    knowledge = os.path.join(DE, 'knowledge')
     for n in ('knowledge-docs.json', 'safety-information.json', 'media-information.json'):
         entries[f'knowledge-inspect/{n}'] = os.path.join(knowledge, n)
-    entries['media-effective.js'] = os.path.join(PF, 'media-effective.js')
+    entries['media-effective.js'] = os.path.join(DE, 'media-effective.js')
     for n in ('cs1.js', 'merge.js', 'requests.js', 'journey-registry.js', 'journeys.json'):
-        entries[f'canonical/{n}'] = os.path.join(PF, 'canonical', n)
+        entries[f'canonical/{n}'] = os.path.join(DE, 'canonical', n)
     generated['knowledge-inspect/index-meta.json'] = index_meta(knowledge)
     return entries
 
@@ -107,10 +103,10 @@ def main():
     ap.add_argument('--out-dir', default=os.path.join(ROOT, 'build', 'out'))
     out = ap.parse_args().out_dir
     os.makedirs(out, exist_ok=True)
-    pf = write_zip(os.path.join(out, 'spares4repairs-part-finder.zip'), part_finder_entries(), {})
+    de = write_zip(os.path.join(out, 'applianceclinic-diagnosis-engine.zip'), diagnosis_engine_entries(), {})
     gen = {}
     wp = write_zip(os.path.join(out, 'whichpart-api.zip'), whichpart_api_entries(gen), gen)
-    print(f'spares4repairs-part-finder.zip: {len(pf)} files')
+    print(f'applianceclinic-diagnosis-engine.zip: {len(de)} files')
     print(f'whichpart-api.zip: {len(wp)} files')
 
 

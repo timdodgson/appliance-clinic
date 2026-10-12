@@ -7,6 +7,8 @@ The [as-built audit](as-built.md) found that each customer decision has several 
 
 The target keeps what works. It does not replace Jev, the canonical engine, or the S4R contract.
 
+> **Status after Phase 15.** AC now has a dedicated canonical diagnosis engine with no legacy pipeline and no S4R contract ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)). The engine boxes below are that engine; the legacy box and the S4R line are historical. Principle 6 now reads: the engine accepts only IAM-authenticated, HMAC-signed requests from AC services.
+>
 > **Status after Phase 12.** T1–T5 were delivered in Phase 10 and T6–T7 in Phase 11: one conversation state, and signed orchestrator-only engine fields. T8–T10 are still planned. Principles 1, 4, 5 and 6 hold in production. Principle 2 holds for state, the code-versus-model decision and the canonical cause label: Phase 12 removed the orchestrator's copies of the last two. The error-code bridge and one shared safety-copy source are still to come. Principle 3 holds for the appliance family and code versus model, including a token Jev could not place (Phase 12).
 
 ## Principles

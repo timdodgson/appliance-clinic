@@ -1,8 +1,7 @@
 'use strict';
 /**
- * Inspector over the deployed diagnostic knowledge artifacts (the shipped baseline), optionally
- * merged with the Admin knowledge view (published overlay, drafts, archive state) supplied by
- * knowledge-admin.js via setAdminView(). Never mutates docs, indexes, embeddings or retrieval.
+ * Read-only inspector over the deployed diagnostic knowledge artifacts (the shipped records). There is no
+ * knowledge overlay or publish workflow (ADR 0019); only Media attachments are merged in, via setMediaView().
  */
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +14,7 @@ const FAMILIES = [
 function resolveDir() {
   const bundled = path.join(__dirname, 'knowledge-inspect');
   if (fs.existsSync(path.join(bundled, 'knowledge-docs.json'))) return bundled;
-  const source = path.join(__dirname, '..', 'part-finder', 'knowledge');
+  const source = path.join(__dirname, '..', 'diagnosis-engine', 'knowledge');
   if (fs.existsSync(path.join(source, 'knowledge-docs.json'))) return source;
   return bundled;
 }
@@ -63,10 +62,10 @@ function loadCorpus() {
   return _cache;
 }
 
-function resetCache() { _cache = null; _admin = null; _media = null; }
+function resetCache() { _cache = null; _media = null; }
 
 // ---- Effective Media view (what live diagnosis uses) ---------------------------------------------
-// Set by the BFF from the Media overlay through the SAME merge part-finder uses (media-effective.js):
+// Set by the BFF from the Media overlay through the SAME merge the diagnosis engine uses (media-effective.js):
 //   live = mergeJoin(shipped, overlay)                      → active attachments (drafts never included)
 //   all  = mergeJoin(shipped, overlay, {includeRetired})    → also archived items still attached
 // Without a view (unit contexts / overlay never loaded) the shipped join is used, exactly as before.
@@ -87,65 +86,22 @@ function mediaFor(id, doc, corpus) {
     : { status: 'archived', liveForDiagnosis: false }));
 }
 
-// ---- Admin overlay view (published overlay docs, drafts, archive state) ----------------------
-// Shape: { overlayVersion, published: {id: doc}, archived: [id], records: {id: {state, stateLabel,
-// draftPending, archived, currentVersion, liveVersionLabel, revision, draft}} }
-let _admin = null;
-function setAdminView(view) { _admin = view || null; }
-function adminView() { return _admin; }
-
-function statusOf(id) {
-  const rec = _admin && _admin.records && _admin.records[id];
-  if (rec) {
-    return {
-      state: rec.state, stateLabel: rec.stateLabel, draftPending: !!rec.draftPending,
-      archived: !!rec.archived, currentVersion: rec.currentVersion || 0,
-      liveVersionLabel: rec.liveVersionLabel || null, revision: rec.revision || 0,
-    };
-  }
+// Every record is the shipped baseline: published, never drafted or archived here.
+function statusOf() {
   return {
     state: 'published', stateLabel: 'Published', draftPending: false, archived: false,
     currentVersion: 0, liveVersionLabel: 'Baseline (shipped)', revision: 0,
   };
 }
 
-// Effective records: baseline docs (replaced by their published overlay doc where one exists),
-// plus overlay-only published docs, plus never-published drafts (shown from their draft content).
 function effective() {
-  const corpus = loadCorpus();
-  const published = (_admin && _admin.published) || {};
-  const records = (_admin && _admin.records) || {};
-  const out = [];
-  const seen = new Set();
-  for (const d of corpus.docs) {
-    seen.add(d.knowledgeId);
-    const pub = published[d.knowledgeId];
-    out.push(pub ? { doc: pub, source: 'overlay' } : { doc: d, source: 'baseline' });
-  }
-  Object.keys(published).forEach((id) => {
-    if (seen.has(id)) return;
-    seen.add(id);
-    out.push({ doc: published[id], source: 'overlay' });
-  });
-  Object.keys(records).forEach((id) => {
-    if (seen.has(id)) return;
-    const r = records[id];
-    if (!r || !r.draft) return;
-    seen.add(id);
-    out.push({ doc: r.draft, source: 'draft' });
-  });
-  return out;
+  return loadCorpus().docs.map((d) => ({ doc: d, source: 'baseline' }));
 }
 
 function safetyFor(entry, corpus) {
-  if (entry.source === 'baseline') return corpus.safetyById[entry.doc.knowledgeId] || null;
-  return entry.doc.safetyInformation || null;
+  return corpus.safetyById[entry.doc.knowledgeId] || null;
 }
 function indexedFor(entry, corpus) {
-  if (entry.source === 'draft') return false;
-  const st = statusOf(entry.doc.knowledgeId);
-  if (st.archived) return false;
-  if (entry.source === 'overlay') return true;
   return corpus.indexed.size ? corpus.indexed.has(entry.doc.knowledgeId) : null;
 }
 
@@ -282,11 +238,10 @@ function listKnowledge(opts) {
   }
   const families = FAMILIES.filter((f) => byFamily[f]).map((f) => ({ family: f, label: familyLabel(f), count: byFamily[f] }));
   return {
-    frozen: false,
-    managed: true,
-    note: 'Diagnostic knowledge ApplianceClinic uses to understand symptoms, faults and components. Drafts never affect live diagnosis; publishing makes a change active.',
+    frozen: true,
+    managed: false,
+    note: 'Diagnostic knowledge ApplianceClinic ships with to understand symptoms, faults and components. Read-only: records change only with a deployment.',
     baselineTotal: corpus.docs.length,
-    overlayVersion: (_admin && _admin.overlayVersion) || 0,
     stateCounts,
     docsVersion: corpus.docsVersion,
     index: corpus.indexMeta ? {
@@ -388,7 +343,7 @@ function getKnowledge(id) {
       indexed,
       embedModel: corpus.indexMeta && corpus.indexMeta.embedModel,
       indexBuiltAt: corpus.indexMeta && corpus.indexMeta.builtAt,
-      text: entry.source === 'draft' ? null : (doc.text || null),
+      text: doc.text || null,
     },
   };
 }
@@ -396,5 +351,5 @@ function getKnowledge(id) {
 module.exports = {
   FAMILIES, familyLabel, provenanceLabel,
   loadCorpus, resetCache, listKnowledge, getKnowledge, searchHaystack, summarise,
-  setAdminView, adminView, setMediaView, mediaView,
+  setMediaView, mediaView,
 };

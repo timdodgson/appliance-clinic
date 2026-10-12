@@ -11,7 +11,7 @@
  * Live boundary (what customers can see):
  *   - identities[id].catalogue  = the LIVE presentation override (title / caption / alt / file url)
  *   - identities[id].draft      = unpublished edits / replacement file. Never read by live diagnosis
- *                                 (part-finder media-effective.js and applyToCustomerMedia read `catalogue` only).
+ *                                 (the engine's media-effective.js and applyToCustomerMedia read `catalogue` only).
  *   - versions[]                = immutable published presentations (each points at an immutable file);
  *                                 publish / rollback append a version. Shipped items have a virtual v0 baseline.
  *   - byKnowledgeId / byComponent (+ detach tombstones) = diagnostic usage. Attach / detach are explicit,
