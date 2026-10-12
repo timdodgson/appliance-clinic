@@ -88,14 +88,30 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your fridge freezer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating label inside the fridge, usually on a side wall near the salad drawer — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
-  'FL7:blocked-defrost-drain': 'Clearing the defrost drain very likely fixed it, so no part is needed. It can be worth flushing it with a little warm water every few months.',
-  'blocked-defrost-drain': 'The defrost drain is blocked or frozen and it won\'t clear from the front. Please don\'t poke anything sharp into it; an appliance engineer can clear it (and check the defrost) safely — I\'m not recommending a part from this.',
-  'condensation-door-or-warm-food': 'With the drain clear, the water is most likely condensation from the door being open or warm / uncovered food. Keep the door shut, let food cool and cover it, and it should dry up — no part is needed.',
-  'FL7:drip-tray-or-drain-tube': 'Refitting the tray / tube very likely fixed it, so no part is needed.',
-  'FL7:water-supply-line': 'The loose supply connection was very likely the cause, so no part is needed.',
-  'water-supply-line': 'The water supply line itself looks damaged. Leave the isolation tap off; a plumber (or an appliance engineer) should fit a new supply pipe — no fridge part is needed.',
-  'internal-leak': 'With the drain, tray and supply all fine, the water is most likely from an internal water line or the ice maker. An appliance engineer should find it safely — I\'m not recommending a part from this.',
+  'FL7:blocked-defrost-drain': { requires: { checks: { 'defrost-drain': 'found_and_cleared' } },
+    text: 'Clearing the defrost drain very likely fixed it, so no part is needed. It can be worth flushing it with a little warm water every few months.',
+    otherwise: 'A blocked defrost drain hole was very likely the cause, so no part is needed. It can be worth flushing it with a little warm water every few months.' },
+  'blocked-defrost-drain': { requires: { checks: { 'defrost-drain': 'found_not_cleared' } },
+    text: 'The defrost drain is blocked or frozen and it won\'t clear from the front. Please don\'t poke anything sharp into it; an appliance engineer can clear it (and check the defrost) safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a blocked defrost drain hole is the most likely area, but I can\'t confirm it from what we know. Please don\'t poke anything sharp into it; an appliance engineer can clear it (and check the defrost) safely — I\'m not recommending a part from this.' },
+  'condensation-door-or-warm-food': { requires: { checks: { 'defrost-drain': FINE } },
+    text: 'With the drain clear, the water is most likely condensation from the door being open or warm / uncovered food. Keep the door shut, let food cool and cover it, and it should dry up — no part is needed.',
+    otherwise: 'From what you\'ve described, condensation from the door being open or warm / uncovered food is the most likely cause, but I can\'t confirm it from what we know. Keep the door shut, let food cool and cover it, and it should dry up; if it doesn\'t, let me know.' },
+  'FL7:drip-tray-or-drain-tube': { requires: { checks: { 'drip-tray': FOUND } },
+    text: 'Refitting the tray / tube very likely fixed it, so no part is needed.',
+    otherwise: 'The drip tray or drain tube at the back was very likely the cause, so no part is needed.' },
+  'FL7:water-supply-line': { requires: { checks: { 'inlet-connection': FOUND } },
+    text: 'The loose supply connection was very likely the cause, so no part is needed.',
+    otherwise: 'The water supply connection was very likely the cause, so no part is needed.' },
+  'water-supply-line': { requires: { checks: { 'inlet-connection': 'fault_seen' } },
+    text: 'The water supply line itself looks damaged. Leave the isolation tap off; a plumber (or an appliance engineer) should fit a new supply pipe — no fridge part is needed.',
+    otherwise: 'From what you\'ve described, the water supply line is the most likely source, but I can\'t confirm it from what we know. Keep the isolation tap off until it\'s checked; a plumber (or an appliance engineer) can check the supply pipe and its connection — I\'m not recommending a fridge part from this.' },
+  'internal-leak': { requires: { checks: { 'defrost-drain': FINE, 'drip-tray': FINE, 'inlet-connection': FINE } },
+    text: 'With the drain, tray and supply all fine, the water is most likely from an internal water line or the ice maker. An appliance engineer should find it safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, an internal water line or the ice maker is the most likely source, but I can\'t confirm it from what we know. An appliance engineer should find it safely — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it staying dry now?',

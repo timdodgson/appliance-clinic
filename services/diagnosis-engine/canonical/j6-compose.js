@@ -19,10 +19,17 @@ const TASK = {
   'ask_identity:appliance': { say: '', ask: 'Is it a washing machine, a washer-dryer or a dishwasher?' },
 };
 const CONCLUSION = {
-  'normal-release-delay': 'That\'s the door lock\'s normal safety delay — it waits a few minutes after the programme (and until the water has gone) before releasing. No part is needed; just give it a few minutes next time.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'normal-release-delay': { requires: { obs: { doorOpens: true }, checks: { 'door-release-wait': 'done' } },
+    text: 'That\'s the door lock\'s normal safety delay — it waits a few minutes after the programme (and until the water has gone) before releasing. No part is needed; just give it a few minutes next time.',
+    otherwise: 'From what you\'ve described, the door lock\'s normal safety delay is the most likely explanation, but I can\'t confirm it from what we know — it waits a few minutes after the programme (and until the water has gone) before releasing. Leave it switched on for a few minutes and try again; if it still won\'t open, please don\'t force it — an appliance engineer can open it safely. I\'m not recommending a part from this.' },
   'D7:child-lock': 'The child lock was very likely holding it, so no part is needed.',
-  'D7:handle-or-catch': 'Clearing the catch very likely sorted it, so no part is needed.',
-  'level-sensing-or-control': 'With no water inside, the wait and power-off done and the child lock off, the door lock isn\'t being released — the lock itself, or the level sensing / control telling it there\'s still water. Please don\'t force the door; an appliance engineer can open it safely and find which. I\'m not recommending a part from this.',
+  'D7:handle-or-catch': { requires: { checks: { 'door-catch': 'found_and_cleared' } },
+    text: 'Clearing the catch very likely sorted it, so no part is needed.',
+    otherwise: 'The door catch was very likely the cause, so no part is needed.' },
+  'level-sensing-or-control': { requires: { obs: { waterRemaining: false, doorOpens: false }, checks: { 'door-release-wait': 'done', 'child-lock': ['clear', 'found_and_cleared'] } },
+    text: 'With no water inside, the wait and power-off done and the child lock off, the door lock isn\'t being released — the lock itself, or the level sensing / control telling it there\'s still water. Please don\'t force the door; an appliance engineer can open it safely and find which. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the most likely area is the door lock itself, or the level sensing / control telling it there\'s still water, but I can\'t confirm it from what we know. Please don\'t force the door; an appliance engineer can open it safely and find which. I\'m not recommending a part from this.' },
   'door-lock': 'This points to the door lock (interlock) or its release. Please don\'t force it or try to bypass it; an appliance engineer can confirm it safely — I\'m not recommending a part from this.',
 };
 const OBS_COPY = {

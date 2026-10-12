@@ -110,13 +110,24 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your fridge freezer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating label inside the fridge, usually on a side wall near the salad drawer — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'one-off-door-or-loading': `A one-off build-up after a door was left open (or a lot of food went in) is normal, not a fault. ${DEFROST} Keep the doors shut and if the frost comes back within a few days, let me know — no part is needed.`,
   'FI7:one-off-door-or-loading': 'The frost hasn\'t come back since the defrost, so it was a one-off — no part is needed.',
-  'FI7:door-seal-air-leak': 'Sorting the seal very likely fixed it, so no part is needed.',
-  'FI7:blocked-defrost-drain': 'Clearing the defrost drain very likely fixed it, so no part is needed.',
-  'blocked-defrost-drain': 'The defrost drain is blocked or frozen and won\'t clear from the front. Please don\'t chip at it or take panels off; an appliance engineer can clear it and check the defrost safely — I\'m not recommending a part from this.',
-  'defrost-system': 'Frost that keeps building up on the back wall after a full defrost, with the door shut and the seal fine, points to the automatic defrost system (its heater, timer or sensor). Please don\'t take the back panel off inside; an appliance engineer is the next step — I\'m not recommending a part from this.',
+  'FI7:door-seal-air-leak': { requires: { checks: { 'door-seal': FOUND } },
+    text: 'Sorting the seal very likely fixed it, so no part is needed.',
+    otherwise: 'Warm air getting past the door seal was very likely the cause, so no part is needed.' },
+  'FI7:blocked-defrost-drain': { requires: { checks: { 'defrost-drain': 'found_and_cleared' } },
+    text: 'Clearing the defrost drain very likely fixed it, so no part is needed.',
+    otherwise: 'A blocked defrost drain was very likely the cause, so no part is needed.' },
+  'blocked-defrost-drain': { requires: { checks: { 'defrost-drain': 'found_not_cleared' } },
+    text: 'The defrost drain is blocked or frozen and won\'t clear from the front. Please don\'t chip at it or take panels off; an appliance engineer can clear it and check the defrost safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a blocked defrost drain is the most likely area, but I can\'t confirm it from what we know. Please don\'t chip at it or take panels off; an appliance engineer can clear it and check the defrost safely — I\'m not recommending a part from this.' },
+  'defrost-system': { requires: { obs: { frostOnBackWall: true, doorLeftOpen: false }, checks: { 'door-seal': FINE },
+    anyOf: [{ obs: { iceReturns: true } }, { obs: { faultPersists: true }, checks: { defrost: 'done' } }] },
+    text: 'Frost that keeps building up on the back wall after a full defrost, with the door shut and the seal fine, points to the automatic defrost system (its heater, timer or sensor). Please don\'t take the back panel off inside; an appliance engineer is the next step — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the automatic defrost system (its heater, timer or sensor) is the most likely area, but I can\'t confirm it from what we know. Please don\'t take the back panel off inside; an appliance engineer is the next step — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it staying clear of frost now?',

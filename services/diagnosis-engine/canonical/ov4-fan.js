@@ -75,7 +75,10 @@ const TASK = {
 const CONCLUSION = {
   'cooling-fan-run-on': 'That\'s the cooling fan, and it\'s designed to keep running for a while after you switch off to cool the controls and door — it\'s normal and no part is needed.',
   'fan-motor': 'The oven fan motor is the likely cause. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
-  'loose-fan-blade-or-cover': 'A rattle or scrape with the fan turning usually means the fan blade or the back cover has worked loose. Please don\'t run it like that; an appliance engineer can sort it safely — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'loose-fan-blade-or-cover': { requires: { obs: { ovenFanTurns: true }, anyOf: [{ obs: { rattlingNoise: true } }, { obs: { scrapingNoise: true } }] },
+    text: 'A rattle or scrape with the fan turning usually means the fan blade or the back cover has worked loose. Please don\'t run it like that; an appliance engineer can sort it safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a loose fan blade or back cover is the most likely area, but I can\'t confirm it from what we know. If it rattles or scrapes, please don\'t run it like that; an appliance engineer can sort it safely — I\'m not recommending a part from this.' },
   'cooling-fan': 'The noise is most likely the cooling fan above the door. If it\'s loud or grinding, an appliance engineer should check it — I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

@@ -125,18 +125,36 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your fridge freezer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating label inside the fridge, usually on a side wall near the salad drawer — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'FC7:door-left-open': 'Keeping the doors shut let it recover, so no part is needed. Try to keep the doors closed and let warm food cool before it goes in.',
   'door-left-open': `A door left open or a lot of warm food can take up to a day to recover from. Keep the doors shut for 24 hours, and if it's still warm after that, let me know. ${FOOD}`,
-  'FC7:blocked-defrost-drain': 'Clearing the defrost drain very likely fixed both the water and the cooling, so no part is needed. Give it a day to recover, and flush the drain with a little warm water every few months.',
-  'blocked-defrost-drain': `Water inside together with poor cooling points to the defrost drain being blocked or iced up — one fault, not two. As it won't clear from the front, please don't poke anything sharp into it; an appliance engineer can clear it and check the defrost system safely. I'm not recommending a part from this. ${FOOD}`,
+  'FC7:blocked-defrost-drain': { requires: { obs: { waterInsideFridge: true }, checks: { 'defrost-drain': 'found_and_cleared' } },
+    text: 'Clearing the defrost drain very likely fixed both the water and the cooling, so no part is needed. Give it a day to recover, and flush the drain with a little warm water every few months.',
+    otherwise: 'A blocked or iced-up defrost drain was very likely the cause, so no part is needed. Give it a day to recover, and flush the drain with a little warm water every few months.' },
+  'blocked-defrost-drain': { requires: { obs: { waterInsideFridge: true }, checks: { 'defrost-drain': 'found_not_cleared' } },
+    text: `Water inside together with poor cooling points to the defrost drain being blocked or iced up — one fault, not two. As it won't clear from the front, please don't poke anything sharp into it; an appliance engineer can clear it and check the defrost system safely. I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, a blocked or iced-up defrost drain is the most likely area, but I can't confirm it from what we know. Please don't poke anything sharp into it; an appliance engineer can clear it and check the defrost system safely. I'm not recommending a part from this. ${FOOD}` },
   'FC7:temperature-setting': 'That was the setting, so no part is needed. Give it a few hours to reach temperature.',
-  'FC7:blocked-vents-or-overpacking': 'Freeing the vents very likely fixed it, so no part is needed. Keep food a little away from the back wall.',
-  'FC7:door-seal': 'Sorting the seal very likely fixed it, so no part is needed.',
-  'FC7:condenser-coils-or-clearance': 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
+  'FC7:blocked-vents-or-overpacking': { requires: { checks: { 'vents-clear': FOUND } },
+    text: 'Freeing the vents very likely fixed it, so no part is needed. Keep food a little away from the back wall.',
+    otherwise: 'Blocked vents or over-packing were very likely the cause, so no part is needed. Keep food a little away from the back wall.' },
+  'FC7:door-seal': { requires: { checks: { 'door-seal': FOUND } },
+    text: 'Sorting the seal very likely fixed it, so no part is needed.',
+    otherwise: 'The door seal not sealing properly was very likely the cause, so no part is needed.' },
+  'FC7:condenser-coils-or-clearance': { requires: { checks: { 'condenser-coil-clear': FOUND } },
+    text: 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
+    otherwise: 'Dusty coils or too little space round it were very likely the cause, so no part is needed.' },
   'room-temperature-location': 'The room is the likely cause: most fridge freezers are designed for roughly 10–32°C (the climate class on the rating label says exactly). In a cold garage the fridge thermostat rarely calls for cooling, so the freezer warms; in a very hot spot it can\'t keep up. Moving it to a normal room is the fix — no part is needed.',
-  'internal-fan-or-airflow': `With the freezer cold but the fridge warm, cold air isn't getting from the freezer into the fridge — usually the fan, the air damper or an iced-up air channel. That needs an appliance engineer to check safely; I'm not recommending a part from this. ${FOOD}`,
-  'sealed-system-or-compressor': `With the settings, vents, seal and coils all fine and it still running, the fault is most likely in the sealed cooling system or its controls — I can't say it's the compressor from this alone. Please don't open any pipes or covers; a refrigeration engineer is the next step, and I'm not recommending a part from this. ${FOOD}`,
+  // "freezer cold but fridge warm" only when the problem's compartment scope is recorded as fridge only
+  'internal-fan-or-airflow': (state) => { const p = kit.problemOf(state); return p && p.scope && p.scope.value === 'fridge_only'
+    ? `With the freezer cold but the fridge warm, cold air isn't getting from the freezer into the fridge — usually the fan, the air damper or an iced-up air channel. That needs an appliance engineer to check safely; I'm not recommending a part from this. ${FOOD}`
+    : `From what you've described, the fan or air channel that moves cold air into the fridge (the fan, the air damper or an iced-up air channel) is the most likely area, but I can't confirm it from what we know. That needs an appliance engineer to check safely; I'm not recommending a part from this. ${FOOD}`; },
+  'sealed-system-or-compressor': { requires: { checks: { 'temp-setting': FINE, 'vents-clear': FINE, 'door-seal': FINE, 'condenser-coil-clear': FINE },
+    anyOf: [{ obs: { compressorRuns: true } }, { obs: { runsConstantly: true } }] },
+    text: `With the settings, vents, seal and coils all fine and it still running, the fault is most likely in the sealed cooling system or its controls — I can't say it's the compressor from this alone. Please don't open any pipes or covers; a refrigeration engineer is the next step, and I'm not recommending a part from this. ${FOOD}`,
+    otherwise: `From what you've described, the sealed cooling system or its controls is the most likely area, but I can't confirm it from what we know — and I can't say it's the compressor from this alone. Please don't open any pipes or covers; a refrigeration engineer is the next step, and I'm not recommending a part from this. ${FOOD}` },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it staying cold now?',

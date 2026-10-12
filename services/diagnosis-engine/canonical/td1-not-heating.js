@@ -104,12 +104,25 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dryer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate inside the door rim or on the back — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a tumble dryer or a washer-dryer?' },
 };
+// "clear / clean" airflow: each check clear, or cleaned with the fault still there afterwards (a cleared one that fixed it is DH7)
+const CLEAN = ['clear', 'found_and_cleared'];
+const AIRFLOW_CLEAR = { checks: { 'lint-filter': CLEAN }, anyOf: [
+  { checks: { condenser: CLEAN }, anyOf: [{ checks: { 'lint-filter': 'clear', condenser: 'clear' } }, { obs: { faultPersists: true } }] },
+  { checks: { 'vent-duct': CLEAN }, anyOf: [{ checks: { 'lint-filter': 'clear', 'vent-duct': 'clear' } }, { obs: { faultPersists: true } }] }] };
 const CONCLUSION = {
   'DH7:programme-setting': 'That was the programme, so no part is needed.',
   'DH7:airflow-thermal-cut-out': 'Clearing the airflow very likely fixed it — blocked fluff makes the dryer cut its heat to stop overheating. No part is needed; clean the filter after every load.',
-  'heat-pump-runs-cooler': 'Heat-pump dryers dry at a much lower temperature than older dryers, so the air feels warm rather than hot and programmes take longer. That\'s normal — no part is needed (and a heat-pump dryer has no conventional heater to replace).',
-  'heat-pump-system': 'With the filters and the heat exchanger clean but no warmth at all, the heat-pump system itself is the likely area. That needs an appliance engineer — a heat-pump dryer has no conventional heater, and I\'m not recommending a part from this.',
-  'heater-or-thermal-cut-out': 'With the airflow clear but still no heat, the heater, its thermal cut-out or the thermostat is the likely area. These need testing by an appliance engineer (a cut-out that has tripped usually did so for a reason) — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (HN / HS are only ranked for a heat-pump dryer — eligible(); DH5 needs warm)
+  'heat-pump-runs-cooler': { requires: { obs: { heatPresent: true } },
+    text: 'Heat-pump dryers dry at a much lower temperature than older dryers, so the air feels warm rather than hot and programmes take longer. That\'s normal — no part is needed (and a heat-pump dryer has no conventional heater to replace).',
+    otherwise: 'Heat-pump dryers dry at a much lower temperature than older dryers, so warm rather than hot air and longer programmes are normal for them — but I can\'t confirm that\'s all that\'s happening from what we know. If it stays completely cold, an appliance engineer should check it — a heat-pump dryer has no conventional heater to replace, and I\'m not recommending a part from this.' },
+  'heat-pump-system': { requires: { obs: { noHeat: true }, checks: { 'lint-filter': CLEAN, condenser: CLEAN },
+    anyOf: [{ checks: { 'lint-filter': 'clear', condenser: 'clear' } }, { obs: { faultPersists: true } }] },
+    text: 'With the filters and the heat exchanger clean but no warmth at all, the heat-pump system itself is the likely area. That needs an appliance engineer — a heat-pump dryer has no conventional heater, and I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the heat-pump system itself is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — a heat-pump dryer has no conventional heater, and I\'m not recommending a part from this.' },
+  'heater-or-thermal-cut-out': { requires: { obs: { noHeat: true }, ...AIRFLOW_CLEAR },
+    text: 'With the airflow clear but still no heat, the heater, its thermal cut-out or the thermostat is the likely area. These need testing by an appliance engineer (a cut-out that has tripped usually did so for a reason) — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the heater, its thermal cut-out or the thermostat is the most likely area, but I can\'t confirm it from what we know. These need testing by an appliance engineer (a cut-out that has tripped usually did so for a reason) — I\'m not recommending a part from this.' },
   'airflow-thermal-cut-out': 'Blocked airflow making the dryer cut its heat is the likely cause. Keep the filters and hose clear; if it still won\'t heat after that, an appliance engineer should check the cut-out — I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

@@ -87,8 +87,13 @@ const CONCLUSION = {
   'door-glass-cracked': 'Please stop using the oven while the door glass is cracked — it can break further when it heats up. Keep it switched off at the cooker switch; an appliance engineer can replace the glass (the panels are model-specific) — I\'m not recommending a part from this.',
   'OR7:lock-released-after-cooling': 'The lock just hadn\'t released yet — it stays locked until the oven is fully cool after a self-clean or a very hot cook. No part is needed.',
   'OR7:door-obstruction-or-seating': 'That was what was stopping the door, so no part is needed.', 'OR7:door-seal': 'Sorting the seal very likely fixed it, so no part is needed.',
-  'door-lock': 'The door lock hasn\'t released. Please don\'t force it — an appliance engineer can open it safely and check the lock. I\'m not recommending a part from this.',
-  'door-fine': 'The door closes and lines up and the seal is fine, so no door part is needed.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'door-lock': { requires: { obs: { doorOpens: false } },
+    text: 'The door lock hasn\'t released. Please don\'t force it — an appliance engineer can open it safely and check the lock. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the door lock is the most likely area, but I can\'t confirm it from what we know. If the door is stuck, please don\'t force it — an appliance engineer can open it safely and check the lock. I\'m not recommending a part from this.' },
+  'door-fine': { requires: { checks: { 'oven-door-fit': 'clear', 'door-seal': 'clear' } },
+    text: 'The door closes and lines up and the seal is fine, so no door part is needed.',
+    otherwise: 'From what you\'ve described, nothing points to a faulty door part, but I can\'t confirm that from what we know. If it still won\'t close or seal properly, an appliance engineer can check it — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the door working properly now?',

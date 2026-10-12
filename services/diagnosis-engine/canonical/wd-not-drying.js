@@ -132,6 +132,11 @@ const TASK = {
   'ask_check:retest': { say: 'Run a drying programme with a load within the dry capacity, and keep an eye on it.', ask: 'Is it working properly now, or is the problem still there?' },
   'ask_identity:model': W.WD_MODEL_ASK, 'ask_identity:appliance': { say: '', ask: 'Is it a washer-dryer, or a separate tumble dryer?' },
 };
+// evidence readers for the conclusion copy (cs/1 only)
+const anyCheckDone = (state) => Object.values((state.evidence && state.evidence.checks) || {}).some((k) => k && k.status === 'done');
+const washSideFine = (state) => { const p = kit.problemOf(state); return engine.obsVal(state, 'wdDrySide') === true || Boolean(p && p.scope && p.scope.value === 'dry_only'); };
+const activeCode = (state) => ((state.identity && state.identity.displayedCodes) || []).some((f) => f && f.status === 'active' && f.value);
+const OK = ['clear', 'found_and_cleared']; // checked fine, or the fault found and sorted (and it still happens)
 const CONCLUSION = {
   'WY7:drying-load-over-capacity': 'That was the load size, so no part is needed. Dry about half of a full wash load at a time.',
   'WY7:drying-programme-not-set': 'That was the programme, so no part is needed.',
@@ -140,13 +145,29 @@ const CONCLUSION = {
   // leak only while drying, nothing confirmed yet: say why it is the drying side and what comes next (no part claim)
   'pump-filter-fluff': (state) => (dryLeak(state)
     ? 'As it only leaks while drying, the water is coming from the drying side\'s condensed-water path, not the wash side. The most likely place is the pump filter (fluff from drying collects there and the condensed water backs up), then the drain hose, then the condenser\'s water path inside. Most washer-dryers have no water container — the water is pumped away — but if yours has one, empty it and refit it firmly. If the filter and hose are clear and it still leaks when drying, stop using the drying programmes and an appliance engineer is the next step; I\'m not recommending a part until the cause is confirmed.'
-    : 'From the checks so far, the most likely cause is fluff in the pump filter. The check for it is simple; if it doesn\'t sort it, let me know what you find.'),
-  'drying-heater-or-thermostat': 'With the washing side fine but no heat at all on a drying programme, the drying heater or its thermostat / cut-out is the likely cause — it\'s a separate heater from the wash one. That needs an appliance engineer to test safely; I\'m not recommending a part from this.',
+    : `${anyCheckDone(state) ? 'From the checks so far' : 'From what you\'ve described'}, the most likely cause is fluff in the pump filter. The check for it is simple; if it doesn't sort it, let me know what you find.`),
+  // premise copy only when cs/1 records it: no heat by the latest statement (heatState), and the washing side fine only
+  // when the customer put the problem on the drying side (wdDrySide / dry_only scope)
+  'drying-heater-or-thermostat': (state) => {
+    if (heatState(state) !== 'cold') return 'From what you\'ve described, the drying heater or its thermostat / cut-out is the most likely area — it\'s a separate heater from the wash one — but I can\'t confirm it from what we know. That needs an appliance engineer to test safely; I\'m not recommending a part from this.';
+    return washSideFine(state)
+      ? 'With the washing side fine but no heat at all on a drying programme, the drying heater or its thermostat / cut-out is the likely cause — it\'s a separate heater from the wash one. That needs an appliance engineer to test safely; I\'m not recommending a part from this.'
+      : 'With no heat at all on a drying programme, the drying heater or its thermostat / cut-out is the likely cause — it\'s a separate heater from the wash one. That needs an appliance engineer to test safely; I\'m not recommending a part from this.';
+  },
   'water-container-full': 'You mentioned the water container is full. If your washer-dryer has one, a full container can\'t take any more condensed water, so it overflows while drying. Empty it, check its lid and float are clean, and push it fully home, then run a drying programme and keep an eye on it. If it fills right up again in one cycle or it still leaks, the drain path is next: the pump filter at the bottom front and the drain hose. No part is needed for this step.',
   'WY7:drain-hose-or-standpipe': 'That was the drain hose or waste, so no part is needed.',
-  'condenser-water-path': 'With the pump filter and drain hose clear and it leaking only while drying, the water is most likely escaping from the condenser\'s water path inside the machine (the cold-water trickle or a condenser hose / seal). Please don\'t run drying programmes until it\'s checked and keep water away from the plug and socket; that needs an appliance engineer. I\'m not recommending a part from this.',
-  'drying-sensor': 'The code points to the drying sensor or its wiring. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
-  'drying-fan-or-air-duct': 'It heats and the load, programme, water supply and filter are all fine, so the drying fan or the air duct (often clogged with fluff inside) is the likely cause. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // leaking only while drying is this family's eligibility (leakDry); the filter / hose state must be recorded
+  'condenser-water-path': { requires: { checks: { 'drain-filter': ['clear', 'found_and_cleared'], 'drain-hose': ['clear', 'found_and_cleared'] } },
+    text: 'With the pump filter and drain hose clear and it leaking only while drying, the water is most likely escaping from the condenser\'s water path inside the machine (the cold-water trickle or a condenser hose / seal). Please don\'t run drying programmes until it\'s checked and keep water away from the plug and socket; that needs an appliance engineer. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the condenser\'s water path inside the machine (the cold-water trickle or a condenser hose / seal) is the most likely area, but I can\'t confirm it from what we know. Please don\'t run drying programmes until it\'s checked and keep water away from the plug and socket; that needs an appliance engineer. I\'m not recommending a part from this.' },
+  // "the code" only when a code is on record (the code table itself is not available to compose)
+  'drying-sensor': (state) => (activeCode(state)
+    ? 'The code points to the drying sensor or its wiring. That needs an appliance engineer to test safely — I\'m not recommending a part from this.'
+    : 'From what you\'ve described, the drying sensor or its wiring is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.'),
+  'drying-fan-or-air-duct': (state) => (heatState(state) === 'warm' && ck.evidenceHolds(state, { checks: { 'wd-dry-capacity': OK, 'programme-setting': OK, 'inlet-hose-tap': OK },
+    anyOf: [{ checks: { 'drain-filter': OK } }, { checks: { 'lint-filter': OK } }] })
+    ? 'It heats and the load, programme, water supply and filter are all fine, so the drying fan or the air duct (often clogged with fluff inside) is the likely cause. That needs an appliance engineer — I\'m not recommending a part from this.'
+    : 'From what you\'ve described, the drying fan or the air duct (often clogged with fluff inside) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.'),
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it drying properly now?',

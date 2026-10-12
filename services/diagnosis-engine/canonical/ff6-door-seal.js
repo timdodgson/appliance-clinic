@@ -69,11 +69,19 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your fridge freezer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating label inside the fridge, usually on a side wall near the salad drawer — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
-  'FD7:door-obstruction-or-level': 'That was what was stopping the door, so no part is needed.',
-  'FD7:door-seal': 'Sorting the seal very likely fixed it, so no part is needed.',
+  'FD7:door-obstruction-or-level': { requires: { checks: { 'ff-door-fit': FOUND } },
+    text: 'That was what was stopping the door, so no part is needed.',
+    otherwise: 'Something in the way or the fridge not standing right was very likely the cause, so no part is needed.' },
+  'FD7:door-seal': { requires: { checks: { 'door-seal': FOUND } },
+    text: 'Sorting the seal very likely fixed it, so no part is needed.',
+    otherwise: 'The door seal not sealing properly was very likely the cause, so no part is needed.' },
   'door-handle': 'A broken door handle needs the exact part for your model; an appliance engineer can confirm and fit it — I\'m not recommending a part from this.',
-  'door-closes-fine': 'The door shuts, lines up and the seal is fine, so the door isn\'t letting warm air in and no door part is needed. If it\'s still not cold enough, tell me and we\'ll look at the cooling itself.',
+  'door-closes-fine': { requires: { checks: { 'ff-door-fit': FINE, 'door-seal': FINE } },
+    text: 'The door shuts, lines up and the seal is fine, so the door isn\'t letting warm air in and no door part is needed. If it\'s still not cold enough, tell me and we\'ll look at the cooling itself.',
+    otherwise: 'From what you\'ve described, nothing points to a fault with the door itself, but I can\'t confirm that from what we know — I\'m not recommending a door part from this. If it\'s still not cold enough, tell me and we\'ll look at the cooling itself.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is the door shutting and sealing properly now?',

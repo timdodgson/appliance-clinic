@@ -27,6 +27,7 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Round | Document | What it shows |
 |---|---|---|
+| Evidence premises | [evidence-premise-audit.md](evidence-premise-audit.md) | Conclusion copy may state only evidence cs/1 records: the live oven defect, the evidence gate, the audit of all 303 fixed conclusion texts, and why GOLD missed it |
 | Phase 15 | [phase-15-results.md](phase-15-results.md) | ADR 0019: the dedicated canonical diagnosis engine, the legacy code deleted, cutover evidence, the GOLD pair (56/56 twice) and the final production checks |
 | Phase 13 | [phase-13-results.md](phase-13-results.md) | ADR 0018: no AC legacy fallback, explicit errors and `UNSUPPORTED`; the four S4R defects; OV5; every former failing test and its disposition; every GOLD run |
 | Phase 12 | [phase-12-results.md](phase-12-results.md) | The engine owns the cause label and the token decision; the unplaced-token commit; three COMPOSE defects found by the final gate; every GOLD run |

@@ -98,12 +98,21 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
-  'normal-condensation-drying': 'That\'s normal for condensation drying: plastic holds too little heat to dry off. Leaving the door ajar for a few minutes at the end, using rinse aid and putting plastics on the top rack all help — no part is needed.',
+  'normal-condensation-drying': { requires: { obs: { onlyPlasticsWet: true } },
+    text: 'That\'s normal for condensation drying: plastic holds too little heat to dry off. Leaving the door ajar for a few minutes at the end, using rinse aid and putting plastics on the top rack all help — no part is needed.',
+    otherwise: 'If it\'s only plastic items that stay wet, that\'s normal for condensation drying: plastic holds too little heat to dry off. Leaving the door ajar for a few minutes at the end, using rinse aid and putting plastics on the top rack all help — no part is needed for that.' },
   'T7:rinse-aid': 'The rinse aid was very likely the reason, so no part is needed. Keep it topped up (all-in-one tablets often aren\'t enough on their own).',
   'programme-choice': 'Eco and quick programmes run cooler and dry less to save energy, so wetter dishes (and cooler water) are normal on those. Try a normal or intensive programme with rinse aid — no part is needed.',
-  'drying-system': 'With hot dishes, rinse aid in use and a normal programme but everything still wet, the drying system (the fan or vent on models that have one) is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
-  heater: 'Cold water on a programme that should heat points to the heating side — most often the heater, but the temperature sensor or control can do the same. That needs an appliance engineer to test safely; I\'m not recommending a part from this.',
+  'drying-system': { requires: { obs: { hotProgrammeUsed: true, onlyPlasticsWet: false }, checks: { 'rinse-aid': FINE }, anyOf: [{ obs: { heatPresent: true } }, { obs: { noHeat: false } }] },
+    text: 'With hot dishes, rinse aid in use and a normal programme but everything still wet, the drying system (the fan or vent on models that have one) is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the drying system (the fan or vent on models that have one) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
+  // "cold on a programme that should heat" only when the diagnostics recorded it (cold on a hot programme, or a cold supervised test)
+  heater: (state) => (diagnose(state, { codeFault: null }).facts.includes('coldOnHot')
+    ? 'Cold water on a programme that should heat points to the heating side — most often the heater, but the temperature sensor or control can do the same. That needs an appliance engineer to test safely; I\'m not recommending a part from this.'
+    : 'From what you\'ve described, the heating side is the most likely area — most often the heater, but the temperature sensor or control can do the same — but I can\'t confirm it from what we know. That needs an appliance engineer to test safely; I\'m not recommending a part from this.'),
   'temperature-sensor': 'This points to the temperature sensor or its wiring. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
   'heating-control': 'The heating control or wiring is the most likely area. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
 };

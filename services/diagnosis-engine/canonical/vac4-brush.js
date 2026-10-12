@@ -62,7 +62,10 @@ const TASK = {
 };
 const CONCLUSION = {
   'VB7:brush-bar-tangled-or-jammed': 'Clearing it very likely fixed it, so no part is needed. A quick cut-through of tangles every few weeks keeps it turning.',
-  'floorhead-drive': 'The bar is clean and turns freely, so the floorhead\'s own drive (its motor or connection to the wand) is the likely area. A repairer or the manufacturer can confirm it — I\'m not recommending a part from this alone.',
+  // premise copy only when cs/1 records the premise: clean and free = clear, or cleared with it still not spinning (fixed is VB7)
+  'floorhead-drive': { requires: { checks: { 'brush-bar-clear': ['clear', 'found_and_cleared'] }, anyOf: [{ checks: { 'brush-bar-clear': 'clear' } }, { obs: { faultPersists: true } }] },
+    text: 'The bar is clean and turns freely, so the floorhead\'s own drive (its motor or connection to the wand) is the likely area. A repairer or the manufacturer can confirm it — I\'m not recommending a part from this alone.',
+    otherwise: 'From what you\'ve described, the floorhead\'s own drive (its motor or connection to the wand) is the most likely area, but I can\'t confirm it from what we know. A repairer or the manufacturer can check it — I\'m not recommending a part from this alone.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the brush bar spinning now?',

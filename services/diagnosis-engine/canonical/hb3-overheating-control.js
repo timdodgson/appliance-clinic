@@ -53,8 +53,13 @@ const TASK = {
 };
 const CONCLUSION = {
   'zone-stuck-on': 'A zone that stays on full or won\'t turn off is a control fault and a fire risk. Switch the hob off at its isolator switch or the fuse box now, keep the area clear and don\'t use it until an appliance engineer has checked it. I\'m not recommending a part from this.',
-  'cooling-or-ventilation': 'An induction hob switching itself off when hot is usually its overheat protection: check nothing is blocking the gap under the hob (a drawer packed tight, or no ventilation gap above an oven). If it keeps happening, the cooling fan or a sensor needs an appliance engineer — I\'m not recommending a part from this.',
-  'temperature-sensor-or-control': 'Switching off when hot points to the zone\'s temperature sensor or the control. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'cooling-or-ventilation': { requires: { obs: { inductionHob: true }, anyOf: [{ obs: { overheatsThenCuts: true } }, { obs: { cutsOut: true } }] },
+    text: 'An induction hob switching itself off when hot is usually its overheat protection: check nothing is blocking the gap under the hob (a drawer packed tight, or no ventilation gap above an oven). If it keeps happening, the cooling fan or a sensor needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the hob\'s cooling / ventilation is the most likely area, but I can\'t confirm it from what we know. If it switches itself off when hot, check nothing is blocking the gap under the hob (a drawer packed tight, or no ventilation gap above an oven). If it keeps happening, the cooling fan or a sensor needs an appliance engineer — I\'m not recommending a part from this.' },
+  'temperature-sensor-or-control': { requires: { anyOf: [{ obs: { overheatsThenCuts: true } }, { obs: { cutsOut: true } }] },
+    text: 'Switching off when hot points to the zone\'s temperature sensor or the control. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the zone\'s temperature sensor or the control is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is that clear?',

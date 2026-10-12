@@ -82,13 +82,23 @@ const TASK = {
   'ask_check:retest': { say: 'Run a normal drying programme and stay nearby.', ask: 'Does it run right through now, or still stop part way?' },
   'ask_identity:appliance': { say: '', ask: 'Is it a tumble dryer or a washer-dryer?' },
 };
+// "airflow clear": the lint filter and the condenser or vent hose clear, or cleaned with the fault still there afterwards
+const CLEAN = ['clear', 'found_and_cleared'];
+const AIRFLOW_CLEAR = { checks: { 'lint-filter': CLEAN }, anyOf: [
+  { checks: { condenser: CLEAN }, anyOf: [{ checks: { 'lint-filter': 'clear', condenser: 'clear' } }, { obs: { faultPersists: true } }] },
+  { checks: { 'vent-duct': CLEAN }, anyOf: [{ checks: { 'lint-filter': 'clear', 'vent-duct': 'clear' } }, { obs: { faultPersists: true } }] }] };
 const CONCLUSION = {
   'DS7:airflow-overheating': 'Clearing the airflow very likely fixed it — fluff makes it overheat and cut out to protect itself. No part is needed; clean the filter after every load.',
   'DS7:load-size': 'That was the load, so no part is needed.',
   'DS7:sensor-ends-early': 'Cleaning the sensor strips very likely fixed it, so no part is needed.',
   'airflow-overheating': 'Overheating from restricted airflow is the likely cause. Keep the filters and hose clear; if it still cuts out, an appliance engineer should check the overheat protection — I\'m not recommending a part from this.',
-  'thermal-protection-or-thermostat': 'It restarts after cooling with the airflow clear, so its overheat protection or thermostat is cutting in — the motor isn\'t indicated by this. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
-  'control-or-power': 'With the airflow, load and sensors fine and it not restarting, the control or power side is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'thermal-protection-or-thermostat': { requires: { obs: { restartsAfterCooling: true }, ...AIRFLOW_CLEAR },
+    text: 'It restarts after cooling with the airflow clear, so its overheat protection or thermostat is cutting in — the motor isn\'t indicated by this. That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the overheat protection or thermostat is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.' },
+  'control-or-power': { requires: { obs: { restartsAfterCooling: false }, checks: { 'load-check': 'clear', 'sensor-bars': 'clear', ...AIRFLOW_CLEAR.checks }, anyOf: AIRFLOW_CLEAR.anyOf },
+    text: 'With the airflow, load and sensors fine and it not restarting, the control or power side is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the control or power side is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it running right through now?',

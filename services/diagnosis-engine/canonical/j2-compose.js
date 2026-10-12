@@ -36,13 +36,31 @@ const TASK = {
 const CONCLUSION = {
   'S9:load-imbalance': 'That points to an out-of-balance load: the machine was protecting itself rather than failing, so no part is needed. Evenly spread, mixed loads help — wash heavy items such as bath mats or duvets with a few smaller items.',
   'S9:programme-setting': 'That setting was stopping the spin, so there\'s no fault and no part needed.',
-  'load-imbalance': 'Because it spins properly when it\'s empty, the motor and drive are working — the spin is being stopped by the out-of-balance protection, so no part is needed. Try evenly spread, mixed loads; if it keeps refusing with normal loads, an appliance engineer can check the balance sensing and suspension.',
-  'programme-setting': 'It spins on a spin-only programme, so the motor and drive are working; the spin is most likely being limited by the programme or an option such as low spin or rinse hold. No part is needed.',
-  'suspension-or-movement': 'Violent shaking with normal loads points to the suspension (shock absorbers or springs) or the machine not standing level. An appliance engineer should check it — I\'m not recommending a part from this.',
-  'pressure-or-level': 'Because it drains but won\'t go into the fast spin even when empty, the likely cause is the water-level (pressure) sensing telling the machine water is still in it. That needs an appliance engineer to test — I\'m not recommending a part from this.',
-  'mechanical-resistance': 'A drum that\'s stiff, rough, grinding or seized by hand points to the drum bearings or something jammed between the drum and the tub. Please don\'t keep running it — an appliance engineer is the next step. This isn\'t a DIY part.',
-  control: 'Nothing is driving the drum and the drum itself turns normally, which points to the motor control or control board. That needs an appliance engineer with test equipment — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'load-imbalance': { requires: { obs: { spinsEmpty: true } },
+    text: 'Because it spins properly when it\'s empty, the motor and drive are working — the spin is being stopped by the out-of-balance protection, so no part is needed. Try evenly spread, mixed loads; if it keeps refusing with normal loads, an appliance engineer can check the balance sensing and suspension.',
+    otherwise: 'From what you\'ve described, an out-of-balance load is the most likely cause, but I can\'t confirm it from what we know. Try evenly spread, mixed loads; if it keeps refusing with normal loads, an appliance engineer can check the balance sensing and suspension — I\'m not recommending a part from this.' },
+  'programme-setting': { requires: { obs: { commandedSpin: true } },
+    text: 'It spins on a spin-only programme, so the motor and drive are working; the spin is most likely being limited by the programme or an option such as low spin or rinse hold. No part is needed.',
+    otherwise: 'From what you\'ve described, the programme or an option such as low spin or rinse hold is the most likely thing limiting the spin, but I can\'t confirm it from what we know. Try a normal programme with a normal spin speed; if it still won\'t spin, an appliance engineer can check it — I\'m not recommending a part from this.' },
+  'suspension-or-movement': { requires: { obs: { excessiveVibration: true }, checks: { 'load-check': 'clear' } },
+    text: 'Violent shaking with normal loads points to the suspension (shock absorbers or springs) or the machine not standing level. An appliance engineer should check it — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the suspension (shock absorbers or springs) or the machine not standing level is the most likely area, but I can\'t confirm it from what we know. An appliance engineer should check it — I\'m not recommending a part from this.' },
+  'pressure-or-level': { requires: { obs: { spinsEmpty: false }, anyOf: [{ obs: { waterRemaining: false } }, { obs: { drainsNormally: true } }, { obs: { commandedDrain: true } }] },
+    text: 'Because it drains but won\'t go into the fast spin even when empty, the likely cause is the water-level (pressure) sensing telling the machine water is still in it. That needs an appliance engineer to test — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the water-level (pressure) sensing telling the machine water is still in it is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test — I\'m not recommending a part from this.' },
+  'mechanical-resistance': { requires: { anyOf: [{ checks: { 'drum-by-hand': ['fault_seen', 'found_not_cleared'] } }, { obs: { drumTurnsByHand: false } }] },
+    text: 'A drum that\'s stiff, rough, grinding or seized by hand points to the drum bearings or something jammed between the drum and the tub. Please don\'t keep running it — an appliance engineer is the next step. This isn\'t a DIY part.',
+    otherwise: 'From what you\'ve described, the drum bearings or something jammed between the drum and the tub is the most likely area, but I can\'t confirm it from what we know. Please don\'t keep running it — an appliance engineer is the next step. This isn\'t a DIY part.' },
+  control: { requires: { obs: { drumTurns: false, motorAudible: false }, anyOf: [{ checks: { 'drum-by-hand': 'clear' } }, { obs: { drumTurnsByHand: true } }] },
+    text: 'Nothing is driving the drum and the drum itself turns normally, which points to the motor control or control board. That needs an appliance engineer with test equipment — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the motor control or control board is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer with test equipment — I\'m not recommending a part from this.' },
 };
+// inline premise gates (cs/1 facts each sentence states)
+const BELT_PART_PREMISE = { obs: { motorAudible: true, drumTurns: false, drumUnusuallyFree: true } };
+const DOOR_LOCK_PREMISE = { obs: { doorLocks: false } };
+const BELT_PREMISE = { obs: { motorAudible: true, drumTurns: false } };
+const anyCheckDone = (state) => Object.values((state.evidence && state.evidence.checks) || {}).some((k) => k && k.status === 'done');
 const archNote = (arch) => {
   const n = [];
   if (arch && arch.drive === 'direct') n.push('your machine is direct drive, so it has no drive belt');
@@ -63,18 +81,27 @@ function conclusionCopy(state, a) {
       'carbon-brushes': 'The worn carbon brushes you found would explain the motor not driving the drum',
       'door-lock': 'The door lock isn\'t engaging even with the door closed firmly, so the machine can\'t run',
     }[c.component] || `The checks point to the ${comp}`;
+    // a belt seen broken / off also passes the gate: the motor / drum / hand premises only when cs/1 records them
+    if (c.component === 'drive-belt' && !ck.evidenceHolds(state, BELT_PART_PREMISE)) {
+      return `What you've found points to the ${comp}. I've shown the matching ${comp} for your ${model || 'machine'} below. Unplug the machine before any repair; if you'd rather not fit it yourself, an appliance engineer can.`;
+    }
     return `${why}. I've shown the matching ${comp} for your ${model || 'machine'} below. Unplug the machine before any repair; if you'd rather not fit it yourself, an appliance engineer can.`;
   }
-  if (CONCLUSION[`${a.rule}:${c.cause}`]) return CONCLUSION[`${a.rule}:${c.cause}`];
+  const byRule = ck.evidenceCopy(CONCLUSION[`${a.rule}:${c.cause}`], state, a);
+  if (byRule) return byRule;
   const noMatch = unavailable ? 'Without the model number I can\'t match the exact part' : 'I can\'t match a compatible part for your model from here';
+  if (c.cause === 'door-lock' && !ck.evidenceHolds(state, DOOR_LOCK_PREMISE)) return `From what you've described, the door lock (interlock) is the most likely area, but I can't confirm it from what we know. Please don't try to bypass it. ${noMatch}, so an appliance engineer is the best next step.`;
   if (c.cause === 'door-lock') return `The door lock (interlock) isn't confirming the door is shut, so the machine won't run. Please don't try to bypass it. ${noMatch}, so an appliance engineer is the best next step.`;
+  if (c.cause === 'drive-belt' && !ck.evidenceHolds(state, BELT_PREMISE)) return `From what you've described, the drive belt having slipped off or broken is the most likely area, but I can't confirm it from what we know. ${noMatch}; an appliance engineer can check it and refit or replace it.`;
   if (c.cause === 'drive-belt') return `The motor runs but the drum doesn't turn, which points to the drive belt having slipped off or broken. ${noMatch}; an appliance engineer can refit or replace it.`;
   if (c.cause === 'motor-brushes' && c.level === 'component') return `Worn carbon brushes would explain the motor not driving the drum. ${noMatch}, so an appliance engineer is the best next step.`;
   if (c.cause === 'motor-drive' || c.cause === 'motor-brushes') {
     const alts = (c.alternatives || []).filter((x) => x !== c.cause).map((x) => FAMILY_LABEL[x]).filter(Boolean);
     return `The fault is most likely in the motor, motor control or speed-sensing area${archNote(c.architecture)}${alts.length ? ` — ${naturalList(alts)} is also possible` : ''}. Owner checks can't separate these safely, so an appliance engineer with test equipment is the next step. I'm not recommending a part from this alone.`;
   }
-  if (CONCLUSION[c.cause]) return CONCLUSION[c.cause];
+  const byCause = ck.evidenceCopy(CONCLUSION[c.cause], state, a);
+  if (byCause) return byCause;
+  if (!anyCheckDone(state)) return `From what you've described, the most likely area is ${FAMILY_LABEL[c.cause] || 'a drive fault'}. An appliance engineer is the best next step to confirm it.`;
   return `From what we've been able to check, the most likely cause is ${FAMILY_LABEL[c.cause] || 'a drive fault'}. An appliance engineer is the best next step to confirm it.`;
 }
 
@@ -104,6 +131,7 @@ function extraFacts(state, a) {
   return out;
 }
 
+conclusionCopy.CONCLUSION = CONCLUSION;
 const compose = ck.createCompose({
   TASK, conclusionCopy, OBS_COPY, CHECK_RESULT_COPY, extraFacts,
   statusChecks: [['empty-spin-test', 'empty-drum spin test'], ['spin-command', 'spin-only test'], ['door-closed-latched', 'door check']],

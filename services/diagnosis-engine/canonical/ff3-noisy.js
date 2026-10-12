@@ -99,13 +99,23 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your fridge freezer I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating label inside the fridge, usually on a side wall near the salad drawer — a photo is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a fridge freezer, a fridge or a freezer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
-  'normal-operating-noise': 'Gurgling, bubbling, cracking and the odd click are normal: it\'s the refrigerant moving round and the plastics expanding as it cools and defrosts. Nothing needs fixing and no part is needed — if it changes to squealing, grinding or loud rattling, let me know.',
+  'normal-operating-noise': { requires: { committed: true }, text: 'Gurgling, bubbling, cracking and the odd click are normal: it\'s the refrigerant moving round and the plastics expanding as it cools and defrosts. Nothing needs fixing and no part is needed — if it changes to squealing, grinding or loud rattling, let me know.', otherwise: 'Gurgling, bubbling, cracking and the odd click are normal running sounds (the refrigerant moving round and the plastics expanding), but I can\'t confirm that\'s what you\'re hearing from what we know. If it squeals, grinds or rattles loudly, or it stops cooling, an appliance engineer can check it.' },
   'FN7:touching-or-loose-at-back': 'That was something touching or loose at the back, so no part is needed.',
-  'FN7:runs-constantly-coils': 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
-  'internal-fan': 'A squeal or grind from inside that stops when the door opens points to the internal fan. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
-  'condenser-fan-or-compressor-area': 'With nothing touching and the coils clear, the noise is from the condenser fan or compressor area at the back. Please don\'t take any covers off; an appliance engineer is the next step — I\'m not recommending a part from this.',
-  'runs-constantly-coils': 'Running all the time with clean coils and space round it needs an appliance engineer to check — I\'m not recommending a part from this.',
+  'FN7:runs-constantly-coils': { requires: { checks: { 'condenser-coil-clear': FOUND } },
+    text: 'Cleaning the coils and giving it space very likely fixed it, so no part is needed.',
+    otherwise: 'Dusty coils or too little space round it were very likely the cause, so no part is needed.' },
+  'internal-fan': { requires: { obs: { noiseFromInside: true, noiseStopsWhenDoorOpen: true }, anyOf: [{ obs: { squealNoise: true } }, { obs: { grindingNoise: true } }] },
+    text: 'A squeal or grind from inside that stops when the door opens points to the internal fan. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the internal (evaporator) fan is the most likely source, but I can\'t confirm it from what we know. An appliance engineer can check it safely — I\'m not recommending a part from this.' },
+  'condenser-fan-or-compressor-area': { requires: { checks: { 'ff-clearance': FINE, 'condenser-coil-clear': FINE } },
+    text: 'With nothing touching and the coils clear, the noise is from the condenser fan or compressor area at the back. Please don\'t take any covers off; an appliance engineer is the next step — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the condenser fan or compressor area at the back is the most likely source, but I can\'t confirm it from what we know. Please don\'t take any covers off; an appliance engineer is the next step — I\'m not recommending a part from this.' },
+  'runs-constantly-coils': { requires: { obs: { runsConstantly: true }, checks: { 'condenser-coil-clear': FINE } },
+    text: 'Running all the time with clean coils and space round it needs an appliance engineer to check — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, it may be working too hard (the coils or the space round it), but I can\'t confirm the cause from what we know. An appliance engineer can check it — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Has the noise gone now?',

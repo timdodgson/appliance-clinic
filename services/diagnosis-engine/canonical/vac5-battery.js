@@ -81,7 +81,10 @@ const CONCLUSION = {
   'VR7:boost-or-max-mode': 'That was boost mode — it\'s designed to use the battery fast, so no part is needed. Save it for stubborn patches.',
   'VR7:filters-choking-motor': 'Cleaning the filters very likely fixed it, so no part is needed.',
   'battery-or-charger-not-charging': 'From what you\'ve described, it\'s most likely the battery or the charger. Trying a known-good charger tells them apart — I\'m not recommending a part until that\'s clear.',
-  'battery-worn': 'It runs only briefly from a full charge with the charger, power mode and filters all fine, so the battery has very likely worn out.',
+  // premise copy only when cs/1 records the premise (the same facts as SPEC batteryFade; P22 reaches BA without them)
+  'battery-worn': { requires: { obs: { shortRuntime: true }, checks: { 'vacuum-charger-check': 'clear', 'programme-setting': 'clear', 'vacuum-bin-filters': 'clear' } },
+    text: 'It runs only briefly from a full charge with the charger, power mode and filters all fine, so the battery has very likely worn out.',
+    otherwise: 'From what you\'ve described, a worn battery is the most likely cause, but I can\'t confirm it from what we know. I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it running for its normal time now?',

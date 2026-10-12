@@ -71,12 +71,21 @@ const TASK = {
   'ask_check:retest': { say: 'Switch it on and listen.', ask: 'Has the noise gone, or is it still there?' },
   'ask_identity:model': F.VAC_MODEL_ASK, 'ask_identity:appliance': F.VAC_APPLIANCE_ASK,
 };
+const CC = ['clear', 'found_and_cleared'];
+const ALL_CLEAR = [{ checks: { 'vacuum-blockage': 'clear', 'brush-bar-clear': 'clear', 'vacuum-bin-filters': 'clear' } }, { obs: { faultPersists: true } }];
 const CONCLUSION = {
   'VY7:airflow-blockage': 'Clearing the blockage very likely fixed it, so no part is needed.',
   'VY7:brush-bar-or-head': 'Clearing the floorhead very likely fixed it, so no part is needed.',
   'VY7:bin-or-filter-seating': 'That was the bin / filter seating, so no part is needed.',
-  'airflow-blockage': 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into it — a repairer can clear it. I\'m not recommending a part from this.',
-  'motor-bearing-or-fan': 'With the airways, brush bar and filters all clear, a grinding or screech from the main body points to the motor bearing or fan. Please stop using it if it\'s getting worse or smells hot; a repairer is the next step — I\'m not recommending a part from a noise.',
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors or a "not sure")
+  'airflow-blockage': { requires: { checks: { 'vacuum-blockage': 'found_not_cleared' } },
+    text: 'There\'s a blockage that won\'t shift. Don\'t poke anything sharp into it — a repairer can clear it. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, a blockage in the hose, wand or head is the most likely area, but I can\'t confirm it from what we know. Don\'t poke anything sharp into it — a repairer can clear it. I\'m not recommending a part from this.' },
+  // "all clear": each check clear, or sorted with the noise still there afterwards (one that fixed it is VY7)
+  'motor-bearing-or-fan': { requires: { checks: { 'vacuum-blockage': CC, 'brush-bar-clear': CC, 'vacuum-bin-filters': CC }, anyOf: [
+    { obs: { grindingNoise: true }, anyOf: ALL_CLEAR }, { obs: { squealNoise: true }, anyOf: ALL_CLEAR }] },
+    text: 'With the airways, brush bar and filters all clear, a grinding or screech from the main body points to the motor bearing or fan. Please stop using it if it\'s getting worse or smells hot; a repairer is the next step — I\'m not recommending a part from a noise.',
+    otherwise: 'From what you\'ve described, the motor bearing or fan is the most likely area, but I can\'t confirm it from what we know. Please stop using it if it\'s getting worse or smells hot; a repairer is the next step — I\'m not recommending a part from a noise.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Has the noise gone?',

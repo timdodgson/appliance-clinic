@@ -24,17 +24,24 @@ const TASK = {
   'ask_identity:appliance': { say: '', ask: 'Is it a washing machine, a washer-dryer or a dishwasher?' },
 };
 const CONCLUSION = {
-  'N7:pump-obstruction': 'Whatever was caught at the pump was very likely making the noise, so no part is needed.',
-  'N7:foreign-object': 'The object you removed was very likely the noise, so no part is needed. Checking pockets and using a wash bag for underwired bras helps stop it happening again.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'N7:pump-obstruction': { requires: { anyOf: [{ checks: { 'drain-filter': ['found_and_cleared', 'found_not_cleared'] } }, { checks: { 'pump-impeller': ['found_and_cleared', 'found_not_cleared'] } }] },
+    text: 'Whatever was caught at the pump was very likely making the noise, so no part is needed.',
+    otherwise: 'Something at the drain pump was very likely making the noise, so no part is needed.' },
+  'N7:foreign-object': { requires: { checks: { 'drum-foreign-object': 'found_and_cleared' } },
+    text: 'The object you removed was very likely the noise, so no part is needed. Checking pockets and using a wash bag for underwired bras helps stop it happening again.',
+    otherwise: 'Something loose in the drum was very likely the noise, so no part is needed. Checking pockets and using a wash bag for underwired bras helps stop it happening again.' },
   'N7:load-or-installation': 'That was the load or the set-up rather than a fault, so no part is needed.',
-  'normal-operating-noise': 'A hum while it fills (the water valve and water flowing in) or a click as the door locks and unlocks is normal operating noise — no part is needed. If it changes to a grind, scrape or bang, let me know.',
+  'normal-operating-noise': { requires: { committed: true }, text: 'A hum while it fills (the water valve and water flowing in) or a click as the door locks and unlocks is normal operating noise — no part is needed. If it changes to a grind, scrape or bang, let me know.', otherwise: 'A hum while it fills (the water valve and water flowing in) or a click as the door locks and unlocks is normal operating noise, but I can\'t confirm that\'s what you\'re hearing from what we know. If it grinds, scrapes or bangs, or gets louder, let me know — an appliance engineer can check it.' },
   'foreign-object': (state) => {
     const k = state.evidence && state.evidence.checks && state.evidence.checks['drum-foreign-object'];
     return k && k.result === 'found_not_cleared'
       ? 'Something stuck through the drum or trapped between the drum and the outer tub needs the machine opening up to remove. Please don\'t use it until then; an appliance engineer can take it out safely — no new part is usually needed.'
       : 'This sounds like something loose in the drum or between the drum and the tub (often a coin or bra wire). An appliance engineer can find and remove it safely — I\'m not recommending a part from this.';
   },
-  'drum-bearings': 'A rough, grinding drum points to worn drum bearings. On most machines that\'s a major repair, so please have an appliance engineer confirm it before deciding whether repair is worthwhile — I\'m not recommending a part from this.',
+  'drum-bearings': { requires: { anyOf: [{ checks: { 'drum-by-hand': 'fault_seen' } }, { obs: { grindingNoise: true, noiseOnSpin: true, drumPlay: true } }] },
+    text: 'A rough, grinding drum points to worn drum bearings. On most machines that\'s a major repair, so please have an appliance engineer confirm it before deciding whether repair is worthwhile — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, worn drum bearings are the most likely area, but I can\'t confirm it from what we know. On most machines that\'s a major repair, so please have an appliance engineer confirm it before deciding whether repair is worthwhile — I\'m not recommending a part from this.' },
 };
 const OBS_COPY = {
   noiseOnFill: ['noise while filling', null], noiseOnWash: ['noise during the wash', null], noiseOnDrain: ['noise while draining', null], noiseOnSpin: ['noise on spin', null],

@@ -67,9 +67,14 @@ const TASK = {
 const CONCLUSION = {
   'door-glass-cracked': `Please stop using the microwave while the door is cracked or damaged — the door is part of what keeps the microwaves in. ${F.HV} An appliance engineer is the next step (for a low-cost microwave, replacing it is often more economical); I'm not recommending a part from this.`,
   'MD7:dirt-or-obstruction': 'Cleaning the latch very likely fixed it, so no part is needed.',
-  'door-hook-or-latch': `A broken door hook / latch stops the door switches being pressed. ${STOP} With your model number I can check for the latch; otherwise an appliance engineer can fit it. I'm not recommending a part without that.`,
+  // premise copy only when cs/1 records the premise (P22 reaches these causes on priors, a door code or a "not sure")
+  'door-hook-or-latch': { requires: { checks: { 'mw-door-check': 'fault_seen' } },
+    text: `A broken door hook / latch stops the door switches being pressed. ${STOP} With your model number I can check for the latch; otherwise an appliance engineer can fit it. I'm not recommending a part without that.`,
+    otherwise: `From what you've described, a broken door hook / latch is the most likely area, but I can't confirm it from what we know. ${STOP} An appliance engineer can check it; I'm not recommending a part from this.` },
   'door-release-mechanism': `The door release mechanism isn't letting go. Please don't force the door. ${F.HV} An appliance engineer is the next step — I'm not recommending a part from this.`,
-  'interlock-switches': `With the hooks fine but the door not recognised (or only working when pushed), the door interlock switches inside are the likely cause. ${STOP} ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+  'interlock-switches': { requires: { checks: { 'mw-door-check': 'clear' }, anyOf: [{ obs: { doorRecognised: false } }, { obs: { startsWhenPushed: true } }] },
+    text: `With the hooks fine but the door not recognised (or only working when pushed), the door interlock switches inside are the likely cause. ${STOP} ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the door interlock switches inside are the most likely area, but I can't confirm it from what we know. ${STOP} ${F.HV} An appliance engineer is the next step; I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the door working normally now?',

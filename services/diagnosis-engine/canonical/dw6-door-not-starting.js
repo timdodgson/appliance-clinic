@@ -101,11 +101,23 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
-  'mains-or-control-dead': 'With the socket and switch working but no lights at all, the fault is in the dishwasher\'s mains input or control board. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.',
-  'G7:power-supply': 'That was the power supply, so no part is needed.', 'G7:child-or-control-lock': 'The control lock was on, so no part is needed.',
-  'G7:delay-start-or-programme': 'That was the delay start / programme setting, so no part is needed.', 'G7:door-obstruction-or-alignment': 'Clearing what was stopping the door very likely fixed it, so no part is needed.',
-  'start-control': 'It has power and knows the door is shut, with no lock or delay set, so the fault is on the start control side. That needs an appliance engineer — I\'m not recommending a part from this.',
+  'mains-or-control-dead': { requires: { obs: { noPower: true }, checks: { 'power-supply': FINE } },
+    text: 'With the socket and switch working but no lights at all, the fault is in the dishwasher\'s mains input or control board. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the dishwasher\'s mains input or control board is the most likely area, but I can\'t confirm it from what we know. Please don\'t open it up — an appliance engineer is the best next step. I\'m not recommending a part from this.' },
+  'G7:power-supply': 'That was the power supply, so no part is needed.',
+  'G7:child-or-control-lock': { requires: { checks: { 'child-lock': FOUND } },
+    text: 'The control lock was on, so no part is needed.',
+    otherwise: 'The child / control lock was very likely the cause, so no part is needed.' },
+  'G7:delay-start-or-programme': 'That was the delay start / programme setting, so no part is needed.',
+  'G7:door-obstruction-or-alignment': { requires: { checks: { 'door-catch': FOUND } },
+    text: 'Clearing what was stopping the door very likely fixed it, so no part is needed.',
+    otherwise: 'Something stopping the door shutting fully was very likely the cause, so no part is needed.' },
+  'start-control': { requires: { obs: { doorRecognised: true }, checks: { 'child-lock': FINE, 'programme-setting': FINE } },
+    text: 'It has power and knows the door is shut, with no lock or delay set, so the fault is on the start control side. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the start control side is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
   'door-latch': 'This points to the door latch or its door switch. Please don\'t try to force or bypass it — an appliance engineer can confirm it safely; I\'m not recommending a part from this.',
 };
 const compose = ck.createCompose({

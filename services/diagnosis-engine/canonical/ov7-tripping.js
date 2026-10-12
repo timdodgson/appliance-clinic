@@ -54,9 +54,16 @@ const TASK = {
   'ask_identity:appliance': F.OVEN_APPLIANCE_ASK,
 };
 const CONCLUSION = {
-  'moisture-after-cleaning': `Tripping after cleaning is often moisture that has got into an element, but it can also be an element breaking down — only an insulation test tells them apart, and that needs an appliance engineer. ${OFF} I'm not recommending a part from this.`,
-  'element-insulation': `Tripping once it has been heating (or on one function) usually points to an element whose insulation is breaking down. An appliance engineer needs to test it safely — ${OFF} I'm not recommending a part from this.`,
-  'wiring-terminal-or-control': `Tripping straight away points to the wiring, the terminal block or the control. That needs an appliance engineer or electrician to find safely — ${OFF} I'm not recommending a part from this.`,
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'moisture-after-cleaning': { requires: { obs: { recentCleaning: true } },
+    text: `Tripping after cleaning is often moisture that has got into an element, but it can also be an element breaking down — only an insulation test tells them apart, and that needs an appliance engineer. ${OFF} I'm not recommending a part from this.`,
+    otherwise: `From what you've described, moisture in an element is the most likely area, but I can't confirm it from what we know — it can also be an element breaking down, and only an insulation test tells them apart, which needs an appliance engineer. ${OFF} I'm not recommending a part from this.` },
+  'element-insulation': { requires: { obs: { tripsImmediately: false } },
+    text: `Tripping once it has been heating (or on one function) usually points to an element whose insulation is breaking down. An appliance engineer needs to test it safely — ${OFF} I'm not recommending a part from this.`,
+    otherwise: `From what you've described, an element whose insulation is breaking down is the most likely area, but I can't confirm it from what we know. An appliance engineer needs to test it safely — ${OFF} I'm not recommending a part from this.` },
+  'wiring-terminal-or-control': { requires: { obs: { tripsImmediately: true } },
+    text: `Tripping straight away points to the wiring, the terminal block or the control. That needs an appliance engineer or electrician to find safely — ${OFF} I'm not recommending a part from this.`,
+    otherwise: `From what you've described, the wiring, the terminal block or the control is the most likely area, but I can't confirm it from what we know. That needs an appliance engineer or electrician to find safely — ${OFF} I'm not recommending a part from this.` },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is that clear?',

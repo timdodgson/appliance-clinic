@@ -21,9 +21,16 @@ const TASK = {
 const CONCLUSION = {
   'household-supply': 'If your other taps are weak or off too, the problem is the household water supply rather than the machine. Check the stopcock and whether your water supplier has reported an outage or low pressure; a plumber can help if it\'s a house problem. No machine part is needed.',
   'F7:tap-or-fill-hose': 'The tap or a kinked hose was very likely stopping the water, so no part is needed. Keep the hose free of kinks when you push the machine back.',
-  'F7:inlet-mesh-filter': 'The blocked inlet mesh was very likely the cause, so no part is needed. If it blocks again, hard-water scale or debris in the pipes may be worth a plumber\'s look.',
-  'inlet-valve': 'With the supply, hose and mesh fine but water not coming in properly, the fill side inside the machine (the inlet valve or its control) is the most likely area. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.',
-  'pressure-or-control': 'With the supply, tap, hose and mesh all fine, the fault is inside the machine — the fill valve, the water-level sensing or the control side. An appliance engineer is the best next step to confirm it safely; I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'F7:inlet-mesh-filter': { requires: { checks: { 'inlet-filter': ['found_and_cleared', 'found_not_cleared'] } },
+    text: 'The blocked inlet mesh was very likely the cause, so no part is needed. If it blocks again, hard-water scale or debris in the pipes may be worth a plumber\'s look.',
+    otherwise: 'The inlet mesh filter was very likely the cause, so no part is needed. If the problem comes back, hard-water scale or debris in the pipes may be worth a plumber\'s look.' },
+  'inlet-valve': { requires: { obs: { supplyOk: true }, checks: { 'inlet-hose-tap': 'clear', 'inlet-filter': 'clear' } },
+    text: 'With the supply, hose and mesh fine but water not coming in properly, the fill side inside the machine (the inlet valve or its control) is the most likely area. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the fill side inside the machine (the inlet valve or its control) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to confirm safely — I\'m not recommending a part from this.' },
+  'pressure-or-control': { requires: { obs: { supplyOk: true }, checks: { 'inlet-hose-tap': 'clear', 'inlet-filter': 'clear' } },
+    text: 'With the supply, tap, hose and mesh all fine, the fault is inside the machine — the fill valve, the water-level sensing or the control side. An appliance engineer is the best next step to confirm it safely; I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the fault is most likely inside the machine — the fill valve, the water-level sensing or the control side — but I can\'t confirm it from what we know. An appliance engineer is the best next step to confirm it safely; I\'m not recommending a part from this.' },
 };
 const OBS_COPY = {
   waterEntering: ['water comes in', 'no water comes in'], fillsSlowly: ['fills only very slowly', null], supplyOk: ['water supply on', 'household supply off / low'],

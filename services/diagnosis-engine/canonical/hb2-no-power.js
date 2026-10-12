@@ -60,8 +60,13 @@ const TASK = {
 };
 const CONCLUSION = {
   'HP7:supply-or-isolator': 'That was the supply, so no part is needed.', 'HP7:key-or-child-lock': 'That was the lock, so no part is needed.',
-  'mains-connection-or-power-side': 'With the isolator and breaker on but no lights at all, the fault is in the hob\'s mains connection or power side. Please don\'t take it out or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.',
-  'touch-control': 'It has power and nothing is locked, so the touch control is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'mains-connection-or-power-side': { requires: { obs: { noPower: true }, checks: { 'power-supply': 'clear' } },
+    text: 'With the isolator and breaker on but no lights at all, the fault is in the hob\'s mains connection or power side. Please don\'t take it out or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the hob\'s mains connection or power side is the most likely area, but I can\'t confirm it from what we know. Please don\'t take it out or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.' },
+  'touch-control': { requires: { obs: { noPower: false }, checks: { 'child-lock': ['clear', 'found_and_cleared'] } },
+    text: 'It has power and nothing is locked, so the touch control is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the touch control is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is the hob working now?',

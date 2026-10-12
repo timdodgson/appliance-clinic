@@ -78,8 +78,14 @@ const TASK = {
 const CONCLUSION = {
   'OD7:supply-or-cooker-switch': 'That was the supply, so no part is needed.', 'OD7:clock-or-auto-mode': 'That was the clock / auto mode, so no part is needed.',
   'OD7:key-or-child-lock': 'That was the key lock, so no part is needed.',
-  'mains-input-or-control': 'With the cooker switch and breaker on but no display at all, the fault is in the oven\'s mains connection or control. Please don\'t open it up or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.',
-  'selector-or-control': 'It has power and nothing is locked, so the selector or control is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+  // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+  'mains-input-or-control': { requires: { obs: { noPower: true }, checks: { 'power-supply': 'clear' } },
+    text: 'With the cooker switch and breaker on but no display at all, the fault is in the oven\'s mains connection or control. Please don\'t open it up or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the oven\'s mains connection or control is the most likely area, but I can\'t confirm it from what we know. Please don\'t open it up or test it live — an appliance engineer (or electrician for the supply) is the next step. I\'m not recommending a part from this.' },
+  // a flashing clock is a display with power (powerView)
+  'selector-or-control': { requires: { anyOf: [{ obs: { noPower: false } }, { obs: { clockFlashing: true } }], checks: { 'child-lock': ['clear', 'found_and_cleared'] } },
+    text: 'It has power and nothing is locked, so the selector or control is the likely area. That needs an appliance engineer — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the selector or control is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   ASK_GUARD: true, TASK, CONFIRM_ASK: 'Is it working now?',

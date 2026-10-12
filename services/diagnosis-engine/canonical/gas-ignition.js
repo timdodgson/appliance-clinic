@@ -66,8 +66,13 @@ function build({ KEY, P: prefix, appliance, journeys, owns, codeAppliance, appli
   };
   const CONCLUSION = {
     [`${R(7)}:burner-cap-wet-or-misaligned`]: 'That was the burner cap, so no part is needed. After cleaning, let the parts dry fully and make sure the caps sit flat.',
-    'igniter-or-spark-unit': 'With no click at all, the igniter or the spark unit is the likely area (on a mains-ignition cooker, check its plug / switch is on). That needs a Gas Safe registered engineer — please don\'t take any gas parts apart. I\'m not recommending a part from this.',
-    'flame-failure-device': 'Lighting and then going out when you let go points to the flame-failure safety device (the probe beside the burner). Please never try to bypass or adjust it — a Gas Safe registered engineer is the next step. I\'m not recommending a part from this.',
+    // premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+    'igniter-or-spark-unit': { requires: { obs: { sparkClicks: false } },
+      text: 'With no click at all, the igniter or the spark unit is the likely area (on a mains-ignition cooker, check its plug / switch is on). That needs a Gas Safe registered engineer — please don\'t take any gas parts apart. I\'m not recommending a part from this.',
+      otherwise: 'From what you\'ve described, the igniter or the spark unit is the most likely area, but I can\'t confirm it from what we know (on a mains-ignition cooker, check its plug / switch is on). That needs a Gas Safe registered engineer — please don\'t take any gas parts apart. I\'m not recommending a part from this.' },
+    'flame-failure-device': { requires: { obs: { flameGoesOut: true } },
+      text: 'Lighting and then going out when you let go points to the flame-failure safety device (the probe beside the burner). Please never try to bypass or adjust it — a Gas Safe registered engineer is the next step. I\'m not recommending a part from this.',
+      otherwise: 'From what you\'ve described, the flame-failure safety device (the probe beside the burner) is the most likely area, but I can\'t confirm it from what we know. Please never try to bypass or adjust it — a Gas Safe registered engineer is the next step. I\'m not recommending a part from this.' },
     'gas-supply': 'If none of the burners will light even though they click, check whether your other gas appliances work and whether a prepayment meter has credit. If gas isn\'t reaching the appliance, contact your gas supplier or a Gas Safe registered engineer — please don\'t touch the gas pipework. I\'m not recommending a part from this.',
   };
   const compose = ck.createCompose({

@@ -110,14 +110,26 @@ const TASK = {
   'ask_identity:model': { say: 'To match the right part for your dishwasher I need its exact model.', ask: 'Could you send me the model number? It\'s on the rating plate along the edge of the door or the side of the tub — a photo of the label is fine.' },
   'ask_identity:appliance': { say: '', ask: 'Is it a dishwasher, a washing machine or a washer-dryer?' },
 };
+// premise copy only when cs/1 records the premise (a customer who couldn't say reaches these causes with none of it)
+const FOUND = ['found_and_cleared', 'found_not_cleared']; const FINE = ['clear', 'found_and_cleared'];
 const CONCLUSION = {
   'household-waste-or-spigot': 'If the sink or waste backs up when the dishwasher drains, the blockage is in the household waste (the sink trap, waste pipe or spigot), not the dishwasher. Clearing that, or a plumber, is the next step — no dishwasher part is needed.',
-  'A7:filter-or-sump-blockage': 'The blocked filter was very likely the cause, so no part is needed. Rinsing it every week or two stops it happening again.',
-  'A7:pump-obstruction': 'Whatever was caught at the pump was very likely the cause, so no part is needed.',
-  'A7:drain-hose-restriction': 'The kinked or blocked hose was very likely the cause, so no part is needed. Keep it free of kinks when the machine is pushed back.',
+  'A7:filter-or-sump-blockage': { requires: { checks: { 'dishwasher-filter': FOUND } },
+    text: 'The blocked filter was very likely the cause, so no part is needed. Rinsing it every week or two stops it happening again.',
+    otherwise: 'A blocked filter / sump was very likely the cause, so no part is needed. Rinsing the filter every week or two stops it happening again.' },
+  'A7:pump-obstruction': { requires: { checks: { 'pump-impeller': FOUND } },
+    text: 'Whatever was caught at the pump was very likely the cause, so no part is needed.',
+    otherwise: 'Something caught at the drain pump was very likely the cause, so no part is needed.' },
+  'A7:drain-hose-restriction': { requires: { checks: { 'drain-hose': FOUND } },
+    text: 'The kinked or blocked hose was very likely the cause, so no part is needed. Keep it free of kinks when the machine is pushed back.',
+    otherwise: 'A kinked or blocked drain hose was very likely the cause, so no part is needed. Keep the hose free of kinks when the machine is pushed back.' },
   'A7:household-waste-or-spigot': 'The sink waste connection was very likely the cause, so no dishwasher part is needed.',
-  'drain-pump': 'With the filter, pump cover and hoses clear but the water still not pumping away, the drain pump is the likely area. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
-  'level-or-control': 'With the filter, pump cover and hoses clear and no sound from the pump, the fault is on the drain control side (the pump\'s supply, wiring or control). That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+  'drain-pump': { requires: { checks: { 'dishwasher-filter': FINE, 'pump-impeller': FINE, 'drain-hose': FINE }, anyOf: [{ obs: { commandedDrain: false } }, { obs: { faultPersists: true } }] },
+    text: 'With the filter, pump cover and hoses clear but the water still not pumping away, the drain pump is the likely area. An appliance engineer can confirm it safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the drain pump is the most likely area, but I can\'t confirm it from what we know. An appliance engineer can check it safely — I\'m not recommending a part from this.' },
+  'level-or-control': { requires: { obs: { pumpHumming: false }, checks: { 'dishwasher-filter': FINE, 'pump-impeller': FINE, 'drain-hose': FINE } },
+    text: 'With the filter, pump cover and hoses clear and no sound from the pump, the fault is on the drain control side (the pump\'s supply, wiring or control). That needs an appliance engineer to test safely — I\'m not recommending a part from this.',
+    otherwise: 'From what you\'ve described, the drain control side (the pump\'s supply, wiring or control) is the most likely area, but I can\'t confirm it from what we know. That needs an appliance engineer to test safely — I\'m not recommending a part from this.' },
 };
 const compose = ck.createCompose({
   TASK, CONFIRM_ASK: 'Is it draining normally now?',
