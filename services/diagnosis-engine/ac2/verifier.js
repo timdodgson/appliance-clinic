@@ -20,12 +20,17 @@ Return ONLY JSON: {"claims":[{"sentence": number, "claim": string, "kind": strin
 
 const EXTRACT_FORMAT = { type: 'json_schema', json_schema: { name: 'ac2_claims', strict: true, schema: { type: 'object', properties: { claims: { type: 'array', items: { type: 'object', properties: { sentence: { type: 'integer' }, claim: { type: 'string' }, kind: { type: 'string', enum: ['customer_report', 'appliance_state', 'conclusion'] }, customerQuote: { type: ['string', 'null'] }, supportedBy: { type: 'array', items: { type: 'string' } } }, required: ['sentence', 'claim', 'kind', 'customerQuote', 'supportedBy'] } } }, required: ['claims'] } } };
 
-const ATTRIBUTION = /\b(you(?:'ve| have)?|you'd|you've) (?:already )?(said|mentioned|told me|confirmed|checked|tried|noticed|found|cleaned|cleared|replaced|reset|described|tested|seen|heard|removed|emptied|unblocked|descaled)\b|\bas you (?:said|mentioned|described|noted)\b|\bsince you(?:'ve| have)? (?:said|mentioned|checked|cleaned|tried|confirmed)\b|\byou (?:can|could) (?:see|hear|smell)\b(?![^.?!]*\?)|\b(?:i've|i have) noted\b|\bthanks for (?:checking|confirming|cleaning|clearing|trying|testing|looking)\b|\bgood (?:that|to hear) (?:you|it|the)\b/i;
+const ATTRIBUTION = /\b(?:you've|you have|you had|you'd) (?:already |now |just |since |also )?(?!to\b|got to\b)(?:[a-z]+(?:ed|en|wn|ght|ung|ept|elt|ound|one|ade|aid|ld|nt)|reset|put|cut|set|shut|run|let|read|got|swapped|fit)\b|\byou (?:already |just |also )?(?:said|mentioned|told me|confirmed|checked|tried|noticed|found|cleaned|cleared|replaced|reset|described|tested|saw|heard|removed|emptied|unblocked|descaled|straightened|unplugged|did)\b|\bas you (?:said|mentioned|described|noted)\b|\bsince you(?:'ve| have)? (?:said|mentioned|checked|cleaned|tried|confirmed)\b|\byou (?:can|could) (?:see|hear|smell)\b(?![^.?!]*\?)|\b(?:i've|i have) noted\b|\bthanks for (?:checking|confirming|cleaning|clearing|trying|testing|looking)\b|\bgood (?:that|to hear) (?:you|it|the)\b/i;
 
 // A sentence asserting the current state of the customer's appliance ("your fan is running", "the filter is clear").
 // It is a customer-specific claim unless it is general, conditional, hedged or a question.
 const STATE = /\b(?:your|the|its)\s+(?:[a-z-]+\s+){0,3}(?:is|are|was|were|has been|have been|isn't|aren't|wasn't|weren't|hasn't|haven't|seems|looks)\s+(?:now\s+|still\s+|definitely\s+|clearly\s+|completely\s+|fully\s+|not\s+)*(?:clear|clean|cleaned|blocked|unblocked|working|running|fine|ok|okay|broken|faulty|failed|damaged|torn|split|turning|spinning|draining|heating|hot|warm|cold|empty|full|tripping|leaking|dry|wet|level|seated|connected|disconnected|kinked|free|stuck|jammed|intact|cracked|burnt|burned|on|off)\b|\b(?:your|the|its)\s+(?:[a-z-]+\s+){0,3}(?:has|have)\s+(?:now\s+|already\s+|definitely\s+)?(?:failed|broken|burnt|burned|blown|gone|stopped|seized|cracked|split|worn|perished|tripped|leaked)\b|\b(?:your|the)\s+(?:[a-z-]+\s+){0,2}(?:works|turns|spins|drains|heats|runs|lights|fills|cools|hums|clicks|beeps|leaks|trips)\b(?!\s*\?)/i;
 const GENERAL = /\b(if|when|whether|unless|usually|typically|generally|often|sometimes|most|many|some|can|could|may|might|should|would|check|make sure|ensure|see if|look for|tends?|common|likely|probably|possibly|perhaps|sounds like|suggests|means)\b/i;
+// "If you've cleaned the filter…", "Once you have checked…": conditional, not an attribution.
+const CONDITIONAL_ATTRIBUTION = /\b(if|once|when|after|before|until|unless|whether)\s+(?:\w+\s+){0,2}you(?:'ve| have| had)?\b/i;
+function attributes(sentence) {
+  return ATTRIBUTION.test(sentence) && !CONDITIONAL_ATTRIBUTION.test(sentence);
+}
 function stateClaim(sentence) {
   const t = String(sentence || '').trim();
   return !t.endsWith('?') && STATE.test(t) && !GENERAL.test(t);
@@ -167,7 +172,7 @@ async function verify(reply, state, customerTexts, { extract = null } = {}) {
   // appliance, is a claim checked by the strict rule, whatever the extractor said about it. The extractor's quote for
   // that sentence (if any) may still support it, but only with majority coverage.
   sents.forEach((s, i) => {
-    if (ATTRIBUTION.test(s) || stateClaim(s)) {
+    if (attributes(s) || stateClaim(s)) {
       const ex = claims.find((c) => c.sentence === i + 1 && c.quote);
       claims.push({ sentence: i + 1, claim: s.trim(), cited: [], quote: ex ? ex.quote : null, source: 'detector' });
     }
