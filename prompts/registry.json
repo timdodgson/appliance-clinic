@@ -103,6 +103,64 @@
           "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
         }
       ]
+    },
+    {
+      "id": "diagnosis.ac2.reason",
+      "version": 1,
+      "purpose": "The diagnostic reasoner: understanding, candidate causes, next question or check, part proposal and the customer reply for one turn (ADR 0020).",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Diagnosis engine turn (ac2/turn.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/reasoner.js",
+          "declarations": [
+            "APPLIANCE_ENUM",
+            "SYSTEM",
+            "SCHEMA",
+            "RESPONSE_FORMAT"
+          ]
+        }
+      ],
+      "input": "The conversation window, the evidence ledger view, tool results (error codes, model hints, recalls), retrieved knowledge, normal-operation notes, safety constraints and, on a regeneration, the kernel's objections.",
+      "output": "JSON (json_schema ac2_turn): understanding, assessment, next, part, escalation, reply. Every field is checked by the kernel before anything reaches the customer.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "4d7298bccd4e1593852f7a4380aec072e3705de06295f918dd98b412792f58ce",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.ac2.claims",
+      "version": 1,
+      "purpose": "Claim extraction for the mandatory claim verifier: lists the reply's customer-specific claims with their kind and the customer's words or ledger facts that support them. It decides nothing; deterministic checks do.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Claim verifier (ac2/verifier.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/verifier.js",
+          "declarations": [
+            "EXTRACT_SYSTEM",
+            "EXTRACT_FORMAT"
+          ]
+        }
+      ],
+      "input": "The draft reply split into numbered sentences, the supporting ledger facts and the customer's messages.",
+      "output": "JSON (json_schema ac2_claims): claims[{sentence, claim, kind, customerQuote, supportedBy}].",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "5985f555bd0cc43c3d4c1e83e5dfa6c8c417a25f6d4ef5c31512520bef56b347",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
+        }
+      ]
     }
   ]
 }

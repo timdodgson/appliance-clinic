@@ -30,5 +30,7 @@ Moving a prompt to another file without changing it keeps the fingerprint. Updat
 
 | Id | Used by |
 |---|---|
+| `diagnosis.ac2.reason` | The diagnostic reasoner, every customer turn (ADR 0020) |
+| `diagnosis.ac2.claims` | The claim verifier's extraction step, every customer turn |
 | `review.transcript.llm`, `review.transcript.jev` | The scheduled transcript review and admin re-review |
 | `benchmark.acq.judge` | Admin test-area benchmark (ACQ-100, legacy) |
