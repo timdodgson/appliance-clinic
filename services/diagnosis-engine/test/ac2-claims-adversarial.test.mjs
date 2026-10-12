@@ -68,6 +68,8 @@ const INJECTED = [
   'The door lock has failed.',
   'You said it is a Bosch.',
   'Your pump is running fine.',
+  'Even though you\'ve straightened the hose, it still will not drain.',
+  'You\'ve swapped the plug fuse already.',
 ];
 
 const PREFIX = 'Let\'s work through this. ';
@@ -111,6 +113,7 @@ describe('supported claims, general knowledge, hedges and questions pass', () =>
     ['A humming pump with no water leaving usually means a blockage.', []],
     ['If the filter is clear, the pump itself may be at fault.', []],
     ['Is the drain hose kinked behind the machine?', []],
+    ['If you have already checked the filter, look at the drain hose next.', []],
     ['Pump filters often collect coins and hair clips.', []],
     ['The filter is usually behind a flap at the bottom front.', []],
   ];
