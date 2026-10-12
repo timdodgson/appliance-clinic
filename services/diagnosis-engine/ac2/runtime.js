@@ -26,7 +26,7 @@ async function mediaFor(knowledgeIds, { make, model, messages }) {
   }
 }
 
-async function turn({ messages, state, image }) {
+async function turn({ messages, state, image, tools }) {
   let providers;
   try {
     providers = await getProviders();
@@ -35,7 +35,7 @@ async function turn({ messages, state, image }) {
   }
   // One provider serves reasoning and claim extraction: the admin AI configuration's COMPOSE route.
   const p = providers.compose;
-  return runTurn({ messages, state, image }, { reasoner: p, extractor: p, lookupParts: (model) => getPartsForModel(model), mediaFor });
+  return runTurn({ messages, state, image, tools }, { reasoner: p, extractor: p, lookupParts: (model) => getPartsForModel(model), mediaFor });
 }
 
 module.exports = { turn, ProviderUnavailableError };

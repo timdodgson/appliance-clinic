@@ -83,7 +83,9 @@ async function handle({ body, messages, image }, deps) {
   const prior = loaded.status === 'ok' ? loaded.state : null;
   const priorVersion = prior ? prior.turn : 0;
 
-  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior }, ...(image ? { image } : {}) });
+  let recalls = [];
+  try { recalls = deps.recallLookup ? await deps.recallLookup(messages) : []; } catch { recalls = []; }
+  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior, tools: { recalls } }, ...(image ? { image } : {}) });
   const t0 = Date.now();
   let res;
   try {

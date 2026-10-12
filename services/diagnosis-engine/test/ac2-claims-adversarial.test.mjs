@@ -84,9 +84,10 @@ describe('injected unsupported customer-specific claims are always rejected', ()
     expect(v.rejected.map((r) => r.sentence)).toContain(2);
   });
   it.each(INJECTED.map((c) => [c]))('extractor invents or misattributes a customer quote: %s', async (claim) => {
+    const asConclusion = async () => ({ json: { claims: [{ sentence: 2, claim, kind: 'conclusion', customerQuote: null, supportedBy: [] }] } });
     const invented = async () => ({ json: { claims: [{ sentence: 2, claim, customerQuote: claim, supportedBy: [] }] } });
     const unrelated = async () => ({ json: { claims: [{ sentence: 2, claim, customerQuote: 'there is water left in the drum', supportedBy: [] }] } });
-    for (const extract of [invented, unrelated]) {
+    for (const extract of [asConclusion, invented, unrelated]) {
       const v = await V.verify(`${PREFIX}${claim}${SUFFIX}`, ledger(), CUSTOMER, { extract });
       expect(v.rejected.map((r) => r.sentence)).toContain(2);
     }

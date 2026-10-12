@@ -9,7 +9,7 @@ import { DIMENSIONS, CRITICAL } from '../independent-100/lib/rubric.mjs';
 const DIR = new URL('.', import.meta.url).pathname;
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const SET = arg('--set', 'independent-100');
-const OUT = `${DIR}out/${SET}`;
+const OUT = arg('--out', `${DIR}out/${SET}`);
 const ORIG = `${DIR}../independent-100/out`;
 const SYS = arg('--systems', 'ac2,ac,ga').split(',');
 const PAIRS = arg('--pairs', 'ac2-ga,ac-ga,ac2-ac').split(',');
@@ -81,6 +81,6 @@ function pairs(sel) {
 const summary = (sel) => ({ ...Object.fromEntries(SYS.map((s) => [s, sys(s, sel)])), pairwise: pairs(sel) });
 const families = [...new Set(CASES.map((k) => k.family))];
 const result = { set: SET, systems: SYS, all: summary(rows), byFamily: Object.fromEntries(families.map((f) => [f, summary(rows.filter((r) => r.family === f))])), cases: rows };
-writeFileSync(`${DIR}results-${SET}${ONLY ? '-subset' : ''}.json`, `${JSON.stringify(result, null, 1)}\n`);
+writeFileSync(arg('--results', `${DIR}results-${SET}${ONLY ? '-subset' : ''}.json`), `${JSON.stringify(result, null, 1)}\n`);
 const brief = Object.fromEntries(SYS.map((s) => { const x = result.all[s]; return [s, { n: x.n, overall: x.overall, completion: x.completionRate, crit: x.conversationsWithAnyCritical, unsafeDiy: x.unsafeDiy, harmful: x.harmful, fabricated: x.fabricatedEvidenceRate, loop: x.loopRate, partRec: x.partRecommendedRate, unnecessaryPart: x.unnecessaryPartRate, medianMs: x.medianTurnMs }]; }));
 console.log(JSON.stringify({ ...brief, pairwise: result.all.pairwise }, null, 1));

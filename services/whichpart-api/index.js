@@ -27,6 +27,7 @@ const stateTokenMod = require('./state-token');
 const transcriptReview = require('./transcript-review');
 const recallStoreMod = require('./recalls/store');
 const recallIngest = require('./recalls/ingest');
+const recallMatch = require('./recalls/match');
 const mediaAdmin = require('./media-admin');
 const diagnosticsInspect = require('./diagnostics-inspect');
 const errorCodesAdmin = require('./error-codes-admin');
@@ -791,11 +792,32 @@ let _ac2CallEngine = async (raw, timeoutMs) => {
     clearTimeout(timer);
   }
 };
+// Recall tool for the ac2 turn: strong matches only (an exact model identifier in a published notice), never a fuzzy
+// resemblance. Published records are cached per container for five minutes.
+let _recallCache = { at: 0, rows: [] };
+async function ac2RecallLookup(messages) {
+  const text = (messages || []).filter((m) => m && m.role === 'user').map((m) => (typeof m.content === 'string' ? m.content : '')).join(' ');
+  const tokens = [...new Set((text.toUpperCase().match(/\b[A-Z0-9][A-Z0-9-]{4,19}\b/g) || []).filter((t) => /\d/.test(t) && /[A-Z]/.test(t)))].slice(0, 6);
+  if (!tokens.length) return [];
+  if (Date.now() - _recallCache.at > 300000) _recallCache = { at: Date.now(), rows: await recallStore().listPublished() };
+  const out = [];
+  for (const r of _recallCache.rows) {
+    for (const t of tokens) {
+      let m;
+      try { m = recallMatch.matchQuery({ brand: r.brand, models: r.models, modelText: r.modelText, productName: r.productName, title: r.title, family: r.family, searchBlob: recallStoreMod.searchBlob(r) }, t); } catch { m = null; }
+      if (m && m.strength === 'strong') { out.push({ title: String(r.title || '').slice(0, 160), url: r.slug ? `/recalls/${r.slug}/` : null, brand: r.brand || null }); break; }
+    }
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
 async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }) {
   const t0 = Date.now();
   const ctx = deriveContext(messages);
   const r = await ac2Turn.handle({ body, messages, image: ctx.latestImage || null }, {
     callEngine: (raw, timeoutMs) => _ac2CallEngine(raw, timeoutMs), secretsLoader: () => _canonicalSecretsLoader(), store: ac2Store(),
+    recallLookup: (msgs) => ac2RecallLookup(msgs),
   });
   if (r.error) {
     log({ evt: 'whichpart-api', rid, ok: false, ac2: { error: r.error }, ms: Date.now() - t0 });

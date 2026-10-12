@@ -14,7 +14,7 @@ import { DIMENSIONS, CRITICAL } from '../independent-100/lib/rubric.mjs';
 const DIR = new URL('.', import.meta.url).pathname;
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const SET = arg('--set', 'independent-100');
-const OUT = `${DIR}out/${SET}`;
+const OUT = arg('--out', `${DIR}out/${SET}`);
 const A = arg('--a', 'ac2'); const B = arg('--b', 'ga');
 const SYSTEMS = arg('--systems', `${A},${B}`).split(',');
 const convPath = (sys, id) => { const p = `${OUT}/conversations/${sys}/${id}.json`; if (existsSync(p) || SET !== 'independent-100') return p; return `${DIR}../independent-100/out/conversations/${sys}/${id}.json`; };

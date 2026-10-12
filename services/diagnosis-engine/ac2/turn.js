@@ -157,6 +157,11 @@ async function runTurn(input, deps) {
   const audit = { schema: 'ac2-audit/1', turn: st.turn, timings: {}, toolCalls: [], safety: { hazards: [], gates: [] }, claims: { rejected: [], checked: 0 }, regenerated: false, provider: null };
 
   // 1. Deterministic pre-pass.
+  // Product-safety recalls: strong matches from the recall store (a BFF tool), passed in with the turn.
+  const recalls = Array.isArray(input.tools && input.tools.recalls) ? input.tools.recalls.slice(0, 3) : [];
+  if (recalls.length && !(st.hazards || []).some((h) => h.type === 'recall')) {
+    st.hazards = (st.hazards || []).concat({ type: 'recall', clause: String(recalls[0].title || 'recall notice').slice(0, 160), turn: st.turn, shown: false, url: recalls[0].url || null });
+  }
   let hazard = hazardState(st, messages);
   const unsafeRequest = S.detectUnsafeRequest(latest, st.appliance && st.appliance.value);
   const tl = tools(st, texts);
@@ -186,7 +191,7 @@ async function runTurn(input, deps) {
     turn: st.turn,
     messages,
     ledger: L.promptView(st),
-    tools: { errorCodes: tl.errorCodes, modelHints: tl.modelHints, brandsMentioned: tl.brandsSeen },
+    tools: { errorCodes: tl.errorCodes, modelHints: tl.modelHints, brandsMentioned: tl.brandsSeen, recalls },
     knowledge,
     normal,
     safety: safetyContext(st, hazard, unsafeRequest),
@@ -241,12 +246,14 @@ async function runTurn(input, deps) {
     check = await kernelChecks(reply, proposal, st, hazard, texts, deps, audit);
   }
   reply = check.reply; // deterministic clean-up of anything still unsupported or prohibited
-  if (!reply.trim()) reply = 'Sorry — I need a bit more to go on. What is the appliance doing (or not doing) at the moment?';
+  if (!reply.trim()) reply = proposal.next && proposal.next.question && !check.repeated ? proposal.next.question : 'Could you tell me a little more about what the appliance is doing at the moment?';
 
+  // The part card is decided after the reasoner wrote its reply: say so when one is shown.
+  // (Computed below; appended once the gate has run.)
   // 7. Fixed safety wording: shown once when a hazard first appears, and on any unsafe request.
   const prefix = [];
   for (const h of st.hazards) {
-    if (!h.shown) { prefix.push(S.copyFor(h.type)); h.shown = true; }
+    if (!h.shown) { prefix.push(h.type === 'recall' ? `${S.copyFor('recall')} Notice: ${h.clause}${h.url ? ` (https://applianceclinic.ai${h.url})` : ''}.` : S.copyFor(h.type)); h.shown = true; }
   }
   if (unsafeRequest && S.copyFor(unsafeRequest) && !reply.includes(S.copyFor(unsafeRequest))) prefix.push(S.copyFor(unsafeRequest));
   if (unsafeRequest) audit.safety.gates.push({ gate: 'unsafe-request', type: unsafeRequest });
@@ -258,6 +265,7 @@ async function runTurn(input, deps) {
 
   // 9. Part gate.
   const partDecision = await P.gate(proposal, st, hazard, { lookup: deps.lookupParts, appliance: st.appliance && st.appliance.value });
+  if (partDecision.outcome === 'verified') reply = `${reply} I've found a matching part for model ${partDecision.catalogueModel} — it's shown below; check the listing matches before ordering.`;
   audit.partGate = { outcome: partDecision.outcome, component: partDecision.component || null, failed: partDecision.failed || [], matcher: partDecision.matcher || null, cited: partDecision.cited || [] };
 
   // 10. Escalation policy: hazards force their escalation; otherwise the reasoner's.
@@ -320,7 +328,7 @@ function needsRegeneration(original, check) {
   const after = String(check.reply || '').trim();
   if (!after) return true;
   if (before.includes('?') && !after.includes('?')) return true;
-  return after.length < before.length * 0.65;
+  return after.length < before.length * 0.4;
 }
 
 // Identifiers the kernel cannot verify: part numbers and prices may only come from the parts catalogue (tool) or the
@@ -377,7 +385,7 @@ async function kernelChecks(reply, proposal, st, hazard, texts, deps, audit) {
     issues.push({ kind: 'repeat', text: `Do not ask "${proposal.next.question}" again: the customer could not or would not answer it, or it was already asked twice. Reason around it, answer what you can, or take a different route.` });
     cleaned = stripQuestion(cleaned, proposal.next.question);
   }
-  return { reply: cleaned, issues };
+  return { reply: cleaned, issues, repeated: Boolean(rep) };
 }
 
 module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY };

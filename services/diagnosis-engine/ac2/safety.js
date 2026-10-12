@@ -54,10 +54,10 @@ const DETECT = [
   { type: 'fire', re: /\b(on fire|caught fire|flames? (?:coming|inside|came|from)|still smoking|smoke (?:is )?(?:still )?(?:coming|pouring|billowing))\b/ },
   { type: 'battery', re: /\b(battery|batteries)\b[^.]{0,40}\b(swollen|swelling|bulg\w*|puff\w*|expand\w*|melt\w*|leak\w*|hiss\w*|smok\w*|really hot|very hot|too hot to touch|overheat\w*)\b|\b(swollen|bulg\w*|puffed up|expanded)\b[^.]{0,30}\bbattery\b|\bbattery\b[^.]{0,40}\bchemical smell\b|\bchemical smell\b[^.]{0,40}\bbattery\b/ },
   { type: 'microwave_arcing', re: /\b(spark(?:s|ing|ed)?|arc(?:s|ing|ed)?|flash(?:es|ing)? inside|blue flash)\b/, appliance: ['microwave'] },
-  { type: 'burning', re: /\b(burning smell|(?:smell(?:s|ed|ing)?|smelt) (?:of |like )?(?:burning|something burning)|smel(?:ls?|t) burnt|burnt smell|burning plastic|smoke|smoking|smoked|scorch\w*|melted|melting|fishy smell|electrical smell|hot plastic smell)\b/ },
+  { type: 'burning', re: /\b(burning (?:rubber |plastic |electrical |hot )?smell|smell of burning (?:rubber|plastic)|(?:smell(?:s|ed|ing)?|smelt) (?:of |like )?(?:burning|something burning)|smel(?:ls?|t) burnt|burnt smell|burning plastic|smoke|smoking|smoked|scorch\w*|melted|melting|fishy smell|electrical smell|hot plastic smell)\b/ },
   { type: 'electric_shock', re: /\b(electric shock|got a shock|gave me a shock|shocked me|tingl\w+|zapped me|small shock)\b/ },
   { type: 'electrical_water', scope: 'sentence', re: /\b(water|wet|leak\w*|puddle|flood\w*)\b[^.!?]{0,140}\b(plug|socket|wiring|wires|extension|fuse ?box|consumer unit)\b|\b(plug|socket|wiring|extension)\b[^.!?]{0,80}\b(wet|water|damp|soaked)\b/ },
-  { type: 'supply_trip', re: /\b(trips? (?:the|my|our)? ?(?:electrics?|power|fuse|rcd|breaker|switch)|tripping (?:the )?(?:electrics?|power|rcd|breaker)|keeps tripping|blew the fuse|blows the fuse)\b/ },
+  { type: 'supply_trip', re: /\b(trip(?:s|ped|ping)? (?:out )?(?:the |my |our )?(?:electrics?|power|fuse|rcd|breaker|switch|trip switch)|keeps tripping|blew the fuse|blows the fuse|blown the fuse)\b/ },
 ];
 
 // Unsafe things the customer may ask to do. These are declined whatever the hazard state.
@@ -85,6 +85,7 @@ const POLICY = {
 // Prohibited advice in a proposed reply. `when` = the hazard types (or '*' = always) under which it is prohibited.
 const PROHIBITED_ADVICE = [
   { id: 'hv-microwave', when: '*', appliance: ['microwave'], re: /\b(discharg\w+|capacitor|magnetron|hv diode|high[- ]voltage (?:diode|transformer|fuse))\b[^.]{0,60}\b(test|check|replace|remov\w*|short|screwdriver|meter|discharg\w*)\b|\b(remove|take off|unscrew|open)\b[^.]{0,25}\b(outer )?(casing|cover|case)\b/ },
+  { id: 'capacitor-discharge', when: '*', re: /\bdischarg\w*\b[^.]{0,40}\bcapacitor\b|\bcapacitor\b[^.]{0,40}\b(discharg\w*|short\w*|screwdriver)\b/ },
   { id: 'live-test', when: '*', re: /\b(with (?:the )?power (?:on|connected)|while (?:it'?s |it is )?(?:plugged in|switched on|powered|live|running))\b[^.]{0,50}\b(test|measure|probe|meter|check (?:the )?voltage)\b|\b(measure|test|check) (?:the )?(?:mains )?voltage\b/ },
   { id: 'bypass', when: '*', re: /\b(bypass|by-pass|bridge|jump(?:er)? out|link out|override)\b[^.]{0,40}\b(thermal fuse|cut-?out|door lock|interlock|thermostat|safety (?:switch|device))\b/ },
   { id: 'refrigerant', when: '*', re: /\b(re-?gas|top up (?:the )?refrigerant|recharge (?:the )?(?:gas|refrigerant)|cut (?:the )?(?:pipe|capillary))\b/ },
