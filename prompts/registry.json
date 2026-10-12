@@ -2,118 +2,16 @@
   "description": "Every language-model and Jev prompt in the runtime: a stable id, a version, its purpose, input and output contract, and a changelog. A prompt is the exact source of the declarations listed. Its fingerprint (prompts/fingerprint.mjs) must equal the latest changelog entry, so any change to a prompt needs a new version and changelog entry. runtimeVersion names the constant the runtime records with its output, where one exists.",
   "prompts": [
     {
-      "id": "diagnosis.compose.system",
-      "version": 2,
-      "purpose": "System prompt of the legacy COMPOSE pass: how to word the reply to the customer from the decision already made (diagnosis, catalogue data, safety, presentation grain).",
-      "owner": "diagnosis engine",
-      "consumers": [
-        "S4R /part-finder (every request)",
-        "AC turns not under canonical control"
-      ],
-      "source": [
-        {
-          "file": "services/part-finder/engine/compose.js",
-          "declarations": [
-            "buildComposeSystem"
-          ]
-        }
-      ],
-      "input": "Parts, model info, the normalised intent, the resolved fault, knowledge documents, safety stop, unsafe intent, normal behaviour, diagnose stop, committed diagnosis, presentation grain, conversation progress.",
-      "output": "A system message (string). The model streams free text; the engine post-processes it (tripwire, identity and replacement-language constraints, safety copy).",
-      "changelog": [
-        {
-          "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "e0caf02c292ba4aa639c2f98dee772e0ddeda792712cb2ed2c91b0c2260cbbaf",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
-        },
-        {
-          "version": 2,
-          "date": "2026-10-11",
-          "fingerprint": "a1e32c40b1d1d6a831d20e3224e29c5c25d288538a776ff2c88c8952aeb1013d",
-          "change": "ADR 0018 approved S4R fix: model-confirmed (stocked) parts no longer lead the reply; the evidence order is kept and a stocked part is linked only if it is the leading cause. The remote-action class in the prompt now reads the same typed inputs as the handler (gas part request, electrical-leakage finding are competent-person)."
-        }
-      ]
-    },
-    {
-      "id": "diagnosis.compose.intent-hints",
-      "version": 1,
-      "purpose": "Per-intent nudges appended to the COMPOSE turn instruction, keyed by the validated userIntent enum.",
-      "owner": "diagnosis engine",
-      "consumers": [
-        "S4R /part-finder (every request)",
-        "AC turns not under canonical control"
-      ],
-      "source": [
-        {
-          "file": "services/part-finder/engine/compose.js",
-          "declarations": [
-            "COMPOSE_INTENT_HINTS"
-          ]
-        }
-      ],
-      "input": "userIntent (USER_INTENTS).",
-      "output": "One sentence of guidance, or none.",
-      "changelog": [
-        {
-          "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "7efa736f7199976f6a1010cae10112f893a8ce95812d0874294da2d50e7266ca",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
-        }
-      ]
-    },
-    {
-      "id": "diagnosis.compose.turn",
-      "version": 2,
-      "purpose": "The COMPOSE conversation and final user-turn instruction: the customer conversation as the model sees it, and what to reply about now.",
-      "owner": "diagnosis engine",
-      "consumers": [
-        "S4R /part-finder (every request)",
-        "AC turns not under canonical control"
-      ],
-      "source": [
-        {
-          "file": "services/part-finder/engine/compose.js",
-          "declarations": [
-            "buildComposeContext"
-          ]
-        },
-        {
-          "file": "services/part-finder/engine/presentation.js",
-          "declarations": [
-            "formatTrustedCustomerEvidence"
-          ]
-        }
-      ],
-      "input": "Intent, fault, safety stop, unsafe intent, normal behaviour, the conversation messages, presentation.",
-      "output": "An array of chat messages that follows the system prompt.",
-      "changelog": [
-        {
-          "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "6201b881b7db5a7ed2300c4b60b9c8ff1a6ccfab0f77e73b8f729faf9188a4d2",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
-        },
-        {
-          "version": 2,
-          "date": "2026-10-10",
-          "fingerprint": "23b49c35e408b6068a90cb701950e3e068c8cf1a3522b4a4dd1c72f6ba46aa95",
-          "change": "F15: the trusted state block (formatTrustedCustomerEvidence, now registered) gives the customer-facing next check and the model-only guidance as separate lines; guidance is never presented as the check."
-        }
-      ]
-    },
-    {
       "id": "diagnosis.canonical.compose",
       "version": 11,
       "purpose": "Canonical COMPOSE: words one already-chosen NextAction from a typed brief. The output is checked; failures fall back to fixed templates.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
-        "AC turns under canonical control (allow-listed journeys)"
+        "AC diagnosis: every turn a canonical journey controls"
       ],
       "source": [
         {
-          "file": "services/part-finder/canonical/compose-kit.js",
+          "file": "services/diagnosis-engine/canonical/compose-kit.js",
           "declarations": [
             "createCompose"
           ]
@@ -196,12 +94,11 @@
       "purpose": "The Jev UNDERSTAND question set: typed classification of the conversation (intent, family, identity, safety, symptom, customer evidence).",
       "owner": "diagnosis engine",
       "consumers": [
-        "S4R /part-finder (every request)",
         "AC orchestrated turns (mode: understand)"
       ],
       "source": [
         {
-          "file": "services/part-finder/jev-understand.js",
+          "file": "services/diagnosis-engine/jev-understand.js",
           "declarations": [
             "CUSTOMER_EVIDENCE_SPEC",
             "buildCustomerEvidenceQuestions",
@@ -226,11 +123,11 @@
       "purpose": "The canonical mc/1 question set: what the latest customer message alone says, resolved against the prior assistant message, the pending request and a cs/1 summary.",
       "owner": "diagnosis engine (canonical)",
       "consumers": [
-        "AC turns under canonical control"
+        "AC canonical understanding (every turn with a cs/1 block)"
       ],
       "source": [
         {
-          "file": "services/part-finder/canonical/mc1-questions.js",
+          "file": "services/diagnosis-engine/canonical/mc1-questions.js",
           "declarations": [
             "LATEST",
             "ONLY",

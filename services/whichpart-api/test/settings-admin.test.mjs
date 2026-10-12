@@ -94,7 +94,7 @@ describe('view model', () => {
     expect(s).not.toContain('process.env');
   });
 
-  it('marks running value unverifiable when Part Finder is silent', async () => {
+  it('marks running value unverifiable when the diagnosis engine is silent', async () => {
     const view = await settings.buildView({
       loadConfigWithStatus: async () => ({ cfg: ai.defaultConfig(), status: 'ok' }),
       isKeyConfigured: async () => false,
@@ -104,7 +104,7 @@ describe('view model', () => {
     expect(view.diagnosticInference.understand.running.available).toBe(false);
   });
 
-  it('reports in-sync vs mismatch from Part Finder health', async () => {
+  it('reports in-sync vs mismatch from diagnosis engine health', async () => {
     const cfg = ai.normalise({
       local: { enabled: true, model: 'qwen-local' },
       routing: { understand: 'local', compose: 'local' },
@@ -342,7 +342,7 @@ describe('HTTP auth', () => {
       isKeyConfigured: async () => false,
       loadJevWithStatus: absentJev.loadJevWithStatus,
       runningModels: runningLocal,
-      partFinderHealthUrl: '',
+      engineHealthUrl: '',
     });
     const res = await api.handler(event('/api/admin/settings', 'GET'));
     expect(res.statusCode).toBe(200);
@@ -359,7 +359,7 @@ describe('HTTP auth', () => {
       saveConfig: store.saveConfig,
       isKeyConfigured: async () => false,
       runningModels: runningLocal,
-      partFinderHealthUrl: '',
+      engineHealthUrl: '',
     });
     const okRes = await api.handler(event('/api/admin/settings/diagnostic-inference', 'PATCH', {
       expectedVersion: 1,
@@ -396,7 +396,7 @@ describe('HTTP auth', () => {
       },
       probeJev: async () => ({ status: 'ONLINE', connected: true, model: 'typesafe/jev', latencyMs: 42, errorCategory: null }),
       runningModels: runningLocal,
-      partFinderHealthUrl: '',
+      engineHealthUrl: '',
     });
     const saved = await api.handler(event('/api/admin/settings/jev', 'PATCH', {
       expectedVersion: 1,

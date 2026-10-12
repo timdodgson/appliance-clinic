@@ -5,8 +5,8 @@
 import type { ConversationState } from '../canonical';
 import type { EngineConfig } from '../engine-config';
 import type { PromptRegistry } from '../prompts';
-import cs1 = require('../../services/part-finder/canonical/cs1.js');
-import engineConfig = require('../../services/part-finder/engine/config.js');
+import cs1 = require('../../services/diagnosis-engine/canonical/cs1.js');
+import engineConfig = require('../../services/diagnosis-engine/engine/config.js');
 import registry = require('../../prompts/registry.json');
 
 /** True only when A and B have exactly the same keys. */

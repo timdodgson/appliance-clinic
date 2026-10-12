@@ -404,7 +404,7 @@ describe('customer boundary overlay', () => {
 });
 
 // ------------------------------------------------------------------ hardening (draft / versions / safety)
-const mediaEffective = require('../../part-finder/media-effective.js');
+const mediaEffective = require('../../diagnosis-engine/media-effective.js');
 const liveJoin = (state) => mediaEffective.mergeJoin(
   JSON.parse(require('node:fs').readFileSync(require('node:path').join(require('../knowledge-inspect.js').loadCorpus().dir, 'media-information.json'), 'utf8')),
   state,

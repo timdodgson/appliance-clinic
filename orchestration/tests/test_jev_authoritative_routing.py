@@ -25,7 +25,7 @@ def check(n, cond, detail=""):
 
 
 class CountingRag(FakeDiagnosticService):
-    """Wraps the fake RAG to COUNT Jev-understand calls and CAPTURE what diagnose received."""
+    """Wraps the fake diagnosis engine to COUNT Jev-understand calls and CAPTURE what diagnose received."""
     def __init__(self):
         self.understand_calls = 0
         self.diagnose_calls = 0
@@ -58,11 +58,11 @@ check("symptom turn: Jev understand called exactly once", rag.understand_calls =
 check("symptom turn no journey owns: never sent to the legacy diagnosis", rag.diagnose_calls == 0, rag.diagnose_calls)
 check("symptom-only route is intake / unsupported", r.route in (Route.CLARIFY.value, Route.UNSUPPORTED.value), r.route)
 
-# a pure error-code turn still runs Jev exactly once (then MCP, no RAG diagnose)
+# a pure error-code turn still runs Jev exactly once (then MCP, no engine diagnose)
 o, rag = build()
 r = turn(o, "My Bosch dishwasher is showing E15")
 check("code turn: Jev understand called exactly once", rag.understand_calls == 1, rag.understand_calls)
-check("code turn goes to MCP, not the RAG (no diagnose)", rag.diagnose_calls == 0, rag.diagnose_calls)
+check("code turn goes to MCP, not the diagnosis engine (no diagnose)", rag.diagnose_calls == 0, rag.diagnose_calls)
 check("code turn routes ERROR_CODE", r.route == Route.ERROR_CODE.value and r.outcome == Outcome.ANSWER.value, r.route)
 
 # ---- MODEL vs ERROR-CODE by Jev MEANING, not token shape ---------------------------------------

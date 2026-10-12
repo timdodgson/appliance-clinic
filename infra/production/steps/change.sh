@@ -89,8 +89,9 @@ fi
 
 # --- 3. The change set ----------------------------------------------------------------------------------------
 SF=$W/step.json
-# AcRuntimeStack's template still holds the S4R references every earlier step acknowledged (the diagnosis Lambda's
-# S4R role, ...): they carry over from the last import step unless the spec lists its own.
+# Unless the spec lists its own, an AcRuntimeStack change carries over the S4R references acknowledged at the last
+# import step (steps/5.10.json), such as the S4R Shop product link (S4R_PRODUCT_BASE_URL). Entries that no longer
+# occur in the template (the former shared engine's S4R role, released in change 15.3) match nothing and are inert.
 ACK=$(jq -c '.acknowledgedReferences // empty' "$SPEC")
 [[ -z $ACK && $STACK == AcRuntimeStack ]] && ACK=$(jq -c .acknowledgedReferences "$P5_ROOT/infra/production/steps/5.10.json")
 jq --argjson ack "${ACK:-[]}" '{step: .id, stack, allowedPhysicalIds: [.expectedChanges[] | .physicalId | select(. != null)], acknowledgedReferences: $ack,

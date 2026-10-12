@@ -55,8 +55,8 @@ async function adminDiagnostics(event) {
         ? testDeps.orchestratorHealthUrl
         : (ORCHESTRATOR_URL.replace(/\/$/, '') + '/health'),
       mcpHealthUrl: testDeps.mcpHealthUrl !== undefined ? testDeps.mcpHealthUrl : (MCP_HEALTH_URL || ''),
-      partFinderHealthUrl: testDeps.partFinderHealthUrl !== undefined
-        ? testDeps.partFinderHealthUrl
+      engineHealthUrl: testDeps.engineHealthUrl !== undefined
+        ? testDeps.engineHealthUrl
         : (ENGINE_URL.replace(/\/$/, '') + '/health'),
       knowledgeInspect,
       mediaInspect,

@@ -1,0 +1,73 @@
+{
+  "id": "15.1b-diagnosis-engine-logs",
+  "description": "ADR 0019, step 2 of 4: the dedicated diagnosis engine's own log group /aws/lambda/applianceclinic-diagnosis-engine (90-day retention, Retain) and two metric filters (ApplianceClinic/DiagnosisEngineFailedTurns, DiagnosisEngineRefusedRequests). Also the first execution of the read-only base that can read the new role, log group and alarms (drift detection of 15.1a). The shared engine and its log group are not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineLogs",
+      "type": "AWS::Logs::LogGroup",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineFailedTurns",
+      "type": "AWS::Logs::MetricFilter",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineRefusedRequests",
+      "type": "AWS::Logs::MetricFilter",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:TagResource",
+        "logs:TagLogGroup",
+        "logs:PutMetricFilter"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-diagnosis-engine",
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-diagnosis-engine:*"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one log group, its retention and its metric filters only.",
+  "writes": {
+    "types": [
+      "AWS::Logs::LogGroup",
+      "AWS::Logs::MetricFilter"
+    ],
+    "expected": [
+      "logs:CreateLogGroup",
+      "logs:PutRetentionPolicy",
+      "logs:PutMetricFilter"
+    ],
+    "forbidden": [
+      "logs:DeleteLogGroup",
+      "logs:DeleteMetricFilter",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "/aws/lambda/applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

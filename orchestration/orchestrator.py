@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Customer Diagnostic Orchestrator V1 — deterministic control flow.
 
-Authority rule: the Error-Code MCP owns error-code MEANING; the Diagnostic RAG owns SYMPTOM
+Authority rule: the Error-Code MCP owns error-code MEANING; the diagnosis engine owns SYMPTOM
 diagnosis. For code+symptom turns the MCP runs FIRST; its deterministic result becomes a
-TrustedDiagnosticContext that the RAG may refine but never contradict. Safety is monotonic.
+TrustedDiagnosticContext that the diagnosis engine may refine but never contradict. Safety is monotonic.
 recordType is respected (a STATUS/MAINTENANCE code is never promoted to a component fault).
 No LLM at the orchestration layer. All customer text is untrusted data.
 """
@@ -30,7 +30,7 @@ def _facing_code(st: ConversationState, mcp: Optional[dict] = None) -> Optional[
 
 
 # Fixed, safe in-scope redirect for an input Jev typed as a prompt attack or an
-# unrelated (non-appliance) request. Mirrors the part-finder REFUSAL_TEXT so the
+# unrelated (non-appliance) request. Mirrors the engine's REFUSAL_TEXT so the
 # customer sees one consistent redirect regardless of which boundary refuses.
 # Jev decides the MEANING (requestClass); this is only the deterministic reply.
 SCOPE_REFUSAL_TEXT = (
@@ -42,13 +42,13 @@ SCOPE_REFUSAL_TEXT = (
 
 def _load_canonical_journeys() -> dict:
     """Canonical journey key -> likely area (faultId), from the ONE shared registry
-    (services/part-finder/canonical/journeys.json; copied next to this module in the Lambda image).
+    (services/diagnosis-engine/canonical/journeys.json; copied next to this module in the Lambda image).
     Fails closed: no readable registry -> no key is recognised -> no journey owns any turn (ADR 0018: never another
     diagnosis path)."""
     import json, logging, os
     here = os.path.dirname(os.path.abspath(__file__))
     for path in (os.path.join(here, "canonical_journeys.json"),
-                 os.path.join(here, "..", "services", "part-finder", "canonical", "journeys.json")):
+                 os.path.join(here, "..", "services", "diagnosis-engine", "canonical", "journeys.json")):
         try:
             with open(path, encoding="utf-8") as f:
                 rows = json.load(f).get("journeys") or []
@@ -71,7 +71,7 @@ class Orchestrator:
     # ---------------- canonical transport (canonical-architecture.md §1) ----------------
     @staticmethod
     def _canonical_result(block: dict, res) -> dict:
-        """Pass part-finder's merged canonical result through unchanged, or a degraded envelope (that turn
+        """Pass the engine's merged canonical result through unchanged, or a degraded envelope (that turn
         is an explicit error, ADR 0018). Only the session binding is checked; the state itself is never read here."""
         def degraded(reason):
             mode = "control" if block.get("mode") == "control" else "shadow"
@@ -86,13 +86,6 @@ class Orchestrator:
         if out.get("sessionId") != block.get("sessionId"):
             return degraded("session_mismatch")
         return out
-
-    def _rag_diagnose(self, st: ConversationState, **kw) -> dict:
-        """The diagnostic RAG call. Records whether its reply is part-finder's single vague-opener clarification
-        (describe the problem): that turn asks for no physical step, so it carries no owner-safety note."""
-        rag = self.rag.diagnose(**kw)
-        st._ragExclusiveClarify = bool(isinstance(rag, dict) and rag.get("exclusiveClarify"))
-        return rag
 
     @staticmethod
     def _canon_kw(st) -> dict:
@@ -110,7 +103,7 @@ class Orchestrator:
 
     @classmethod
     def _seed_from_cs1(cls, st: ConversationState, state) -> None:
-        """ADR 0014: what earlier turns established comes from cs/1 — the state part-finder merged on the previous
+        """ADR 0014: what earlier turns established comes from cs/1 — the state the engine merged on the previous
         turn and the BFF persisted — never from process memory. Identity, the displayed code, model status and the
         active safety level are read here; this turn's Jev reading then applies on top, exactly as before."""
         st._priorProblem = False
@@ -158,10 +151,10 @@ class Orchestrator:
         _MODEL_ID_TYPES = ("MODEL", "E_NR", "PNC", "12NC")
 
         # ---- SINGLE Jev UNDERSTAND (Story 3): run ONCE, BEFORE routing ----
-        # Jev is the sole semantic authority. We run the one Jev UNDERSTAND pass here (part-finder
+        # Jev is the sole semantic authority. We run the one Jev UNDERSTAND pass here (the engine
         # understand-only mode) and route on its TYPED decisions — routing NO LONGER re-reads the
         # customer's prose to infer appliance family, symptom presence or model-vs-error-code. The
-        # exact typed intent is stored and forwarded verbatim to the RAG diagnose call so part-finder
+        # exact typed intent is stored and forwarded verbatim to the engine's diagnose call so the engine
         # does NOT run Jev again (one Jev call per turn). On a Jev transport failure we degrade to a
         # clarify (never a regex/prose guess); there is no second semantic authority.
         jev, raw = {}, {}
@@ -173,7 +166,7 @@ class Orchestrator:
         prior_established = {"applianceFamily": c.appliance, "familyState": c.applianceState} \
             if (c.appliance and c.applianceState) else None
         # CANONICAL: the BFF-owned cs/1 block is TRANSPORTED, never interpreted. It is forwarded to
-        # understand only when present (part-finder merges and decides), and the merged result is handed
+        # understand only when present (the engine merges and decides), and the merged result is handed
         # back to the BFF untouched. The only reader is _canonical_control (the journey gate below).
         canon_in = getattr(turn, "canonical", None)
         canon_kw = {"canonical": canon_in} if isinstance(canon_in, dict) else {}
@@ -210,7 +203,7 @@ class Orchestrator:
             st._uncertainToken = uncertain_token
             jev_model = None
         establishes = decisions.get("latestTurnEstablishes")
-        # A turn goes to the RAG (which owns diagnosis AND the deterministic safety stop) when Jev
+        # A turn goes to the diagnosis engine (which owns diagnosis AND the deterministic safety stop) when Jev
         # classified a diagnosable symptom (raw.fault) OR flagged a safety significance (gas / shock /
         # burning / supply-trip / microwave-arcing). Safety is NOT a symptomFamily, so it must be read
         # from Jev's safetySignificance or a hazard turn would clarify instead of stopping use.
@@ -219,7 +212,7 @@ class Orchestrator:
             or establishes == "hazard"
         # SYMPTOM PRESENCE for routing is Jev's typed decision, NOT just a crisp `fault` string. Jev
         # leaves `fault` empty for real diagnosable problems it can't label as one component
-        # (oversudsing foam, "hot but not dry"); those still belong to the RAG (which owns diagnosis
+        # (oversudsing foam, "hot but not dry"); those still belong to the diagnosis engine (which owns diagnosis
         # and grounded advice), never the orchestrator's generic "tell me more" clarify. A turn is a
         # diagnosable symptom when Jev typed it as a NEW_PROBLEM / EVIDENCE_UPDATE that is
         # diagnosis-ready — UNLESS it is a code-lookup turn (a code token, present or uncertain, or a
@@ -230,7 +223,7 @@ class Orchestrator:
                      or symptom_family == "error_display"
                      or bool(jev_code)
                      or bool(st._uncertainToken))   # a token our commit rule held is a code-or-model question, every time
-        # FITTING_HELP (customer asking HOW to do a repair/test) also belongs to the RAG: it owns
+        # FITTING_HELP (customer asking HOW to do a repair/test) also belongs to the diagnosis engine: it owns
         # fitting guidance AND the deterministic unsafe-intent refusal (e.g. microwave HV capacitor
         # discharge). Left on the orchestrator's generic clarify, an unsafe DIY request would get a
         # bland question instead of the mandated professional-only refusal.
@@ -264,7 +257,7 @@ class Orchestrator:
         # second semantic authority). Retention across turns is state (c.appliance below). We DEFER
         # to Jev's own confidence: when Jev says the family is not established (identitySufficiency ==
         # need_appliance) or is only a low-confidence guess, we DO NOT commit the guess — the turn is
-        # treated as family-unknown so the RAG/clarify asks, rather than inventing a family the
+        # treated as family-unknown so the engine or a clarify asks, rather than inventing a family the
         # customer never stated. This is Jev's uncertainty signal, not a second parser.
         fam_conf = (jev.get("confidence") or {}).get("applianceFamily") if isinstance(jev, dict) else None
         fam_probs = (jev.get("probabilities") or {}).get("applianceFamily") if isinstance(jev, dict) else None
@@ -340,7 +333,6 @@ class Orchestrator:
         # PENDING-SLOT STATE remains deterministic (what the assistant asked for last turn); the
         # SEMANTIC "did this turn answer it / is it a model or a code" is now Jev's job, so there is
         # no prose fill/correction here.
-        st._ragExclusiveClarify = False  # set by _rag_diagnose for this turn only
         st._codeOnlyAnswer = False       # set by _compose_code_only for this turn only
         st._pendingModelTokens = [jev_model] if jev_model else []
         # "Code present but no usable value" is now a Jev decision (symptomFamily == error_display
@@ -443,7 +435,7 @@ class Orchestrator:
 
         st._sympt = sympt  # transient
         st._includeEnrichment = turn.includeEnrichment
-        # Clean latest-turn customer text for RAG context: prefer the boundary's latestMessage (the
+        # Clean latest-turn customer text for engine context: prefer the boundary's latestMessage (the
         # latest customer utterance alone); fall back to advisor-stripped customer speech. Never the
         # full labelled transcript, which would feed our own advisor prose back as customer evidence.
         st._lastMessage = (turn.latestMessage or routing.customer_speech(turn.message)
@@ -511,7 +503,7 @@ class Orchestrator:
 
     @staticmethod
     def _established_identity(c):
-        """Stage A: the established conversation identity handed to part-finder (understand +
+        """Stage A: the established conversation identity handed to the engine (understand +
         diagnose) so a genuinely established family is preserved into the diagnosis even when this
         turn's Jev output is weak. None unless an established/working family is actually held."""
         if c.appliance and c.applianceState:
@@ -618,12 +610,10 @@ class Orchestrator:
             resp.provenance = {**(resp.provenance or {}), "safety": Trust.L1_DETERMINISTIC.value}
 
         # FAMILY-STANDING OWNER-SAFETY NOTE (single choke point). When the orchestrator itself
-        # composed a diagnostic (symptom) clarify for a hazardous family, the part-finder's owner
+        # composed a diagnostic (symptom) clarify for a hazardous family, the engine's owner
         # precaution never reached the customer (that branch uses only the short question). Carry it
         # here so safe framing is reliable on those turns too — narrow and additive (see
         # _owner_safety_note); never on identity asks, safety stops, reassurance or grounded answers.
-        if getattr(st, "_ragExclusiveClarify", False) and resp.message and resp.message.strip() == (self._last_assistant_text(st) or ""):
-            resp.message = self._DESCRIBE_AGAIN
         note = self._owner_safety_note(st, resp)
         if note and note not in (resp.message or ""):
             resp.message = (note + " " + (resp.message or "")).strip()
@@ -707,7 +697,7 @@ class Orchestrator:
             return j
         return None
 
-    # key -> likely area, from the shared journey registry (services/part-finder/canonical/journeys.json).
+    # key -> likely area, from the shared journey registry (services/diagnosis-engine/canonical/journeys.json).
     _CANONICAL_JOURNEYS = _load_canonical_journeys()
 
     # ---------------- ADR 0018: canonical or explicit ----------------
@@ -813,7 +803,7 @@ class Orchestrator:
         c = st.customer
         t = time.perf_counter()
         try:
-            rag = self._rag_diagnose(st, **self._canon_kw(st), understand=getattr(st, "_understand", None),
+            rag = self.rag.diagnose(**self._canon_kw(st), understand=getattr(st, "_understand", None),
                                     symptoms=self._rag_symptoms(st) or c.symptomsText or "",
                                     appliance=c.appliance, make=c.make, image=getattr(st, "_image", None),
                                     established=self._established_identity(c),
@@ -942,15 +932,15 @@ class Orchestrator:
 
 
     def _rag_symptoms(self, st: ConversationState) -> str:
-        """Assemble the symptom text handed to the RAG so its OWN staged conversation contract can
-        execute. We DO NOT diagnose here — we simply stop starving the RAG of context:
+        """Assemble the symptom text handed to the diagnosis engine so its OWN staged conversation contract can
+        execute. We DO NOT diagnose here — we simply stop starving the diagnosis engine of context:
           - the accumulated symptom (persists across turns),
           - the latest turn's raw text (e.g. a model number, or "I can't find the model"),
-          - any model/identifier the customer has provided (so the RAG can resolve model-specific
+          - any model/identifier the customer has provided (so the diagnosis engine can resolve model-specific
             parts — Stage 2 — even when the model arrived on a later turn).
-        Non-manufacturer-specific; no RAG knowledge duplicated; the RAG remains the authority."""
+        Non-manufacturer-specific; no engine knowledge duplicated; the diagnosis engine remains the authority."""
         c = st.customer
-        # Strip any code-shaped token the pending MODEL slot reclaimed as a model answer, so the RAG
+        # Strip any code-shaped token the pending MODEL slot reclaimed as a model answer, so the diagnosis engine
         # never sees a bare "E18" it could read as an error code; it is re-added as an explicit MODEL
         # line below. No-op when nothing was reclaimed (normal flows unchanged).
         suppress = getattr(st, "_pendingModelTokens", None) or []
@@ -1048,7 +1038,7 @@ class Orchestrator:
                 q = ("Could you tell me a bit more — what kind of appliance is it, what is it doing, "
                      "and is anything showing on the display or control panel?")
             else:
-                # ONE open question (GOLD v2), the same one part-finder asks; a display code can come later, so
+                # ONE open question (GOLD v2), the same one the engine asks; a display code can come later, so
                 # it is not asked in the same breath, and no menu of faults is offered.
                 fam = str(c.appliance).replace("-", " ")
                 q = f"What is the main thing the {fam} is doing wrong?"
@@ -1069,7 +1059,7 @@ class Orchestrator:
         return OrchestratorResponse(route="", outcome=Outcome.SERVICE_UNAVAILABLE.value,
                                     message=message, debug={"unavailable": which})
 
-    # ---------------- RAG safety ----------------
+    # ---------------- diagnosis engine safety ----------------
     def _apply_rag_safety(self, st: ConversationState, rag: dict) -> None:
         rs = (rag.get("safety") or {}).get("class")
         st.safetyState = strongest_safety(st.safetyState, rs)
@@ -1089,7 +1079,7 @@ class Orchestrator:
         inf.candidateComponents = rag.get("candidateComponents") or []
 
     # ---------------- composers (deterministic, no LLM) ----------------
-    # Bespoke gas-escape emergency guidance (matches the RAG's gas card / safety-information EMERGENCY
+    # Bespoke gas-escape emergency guidance (matches the diagnosis engine's gas card / safety-information EMERGENCY
     # card): no switches/flames, turn off at the meter, ventilate/leave, National Gas Emergency line,
     # Gas Safe engineer. Owns its own text so it can never be diluted to a generic electrical stop.
     GAS_EMERGENCY_MSG = (
@@ -1124,7 +1114,7 @@ class Orchestrator:
         if cls == "EMERGENCY_ACTION":
             return {"class": cls, "stopUse": True, "message": self.GAS_EMERGENCY_MSG}
         if cls == "STOP_USE":
-            # Cause-specific stop wording, keyed off the latched reason from the RAG detector.
+            # Cause-specific stop wording, keyed off the latched reason from the diagnosis engine's detector.
             reason = st.safetyReason
             if reason == "gas":
                 return {"class": cls, "stopUse": True, "message": self.GAS_EMERGENCY_MSG}
@@ -1153,12 +1143,12 @@ class Orchestrator:
     )
 
     # Family-standing owner-safety note — the standing precaution/boundary a competent advisor states
-    # for a risky appliance family. The part-finder carries this on the diagnostic replies IT
+    # for a risky appliance family. The engine carries this on the diagnostic replies IT
     # composes (ensureOwnerCheckSafety); but the orchestrator composes some diagnostic CLARIFY turns
     # itself (the conf>=0.7 "narrow it down" branch and the generic symptom clarify) from only the
-    # short question field, discarding the part-finder's note. This mirrors that note so an
+    # short question field, discarding the engine's note. This mirrors that note so an
     # orchestrator-owned diagnostic clarify for a hazardous family still carries safe framing. Keyed
-    # on the canonical family (st.customer.appliance). Verbatim-consistent with part-finder's map.
+    # on the canonical family (st.customer.appliance). Verbatim-consistent with the engine's map.
     OWNER_SAFETY_NOTE = {
         "vacuum": "Switch it off and unplug it (or take the battery out) before reaching into the bin, filters, hose or brush bar.",
         "tumble-dryer": "Switch it off and unplug it before clearing the filter or condenser, and keep the lint filter clear — trapped lint is a fire risk.",
@@ -1170,7 +1160,7 @@ class Orchestrator:
         "hob": "Switch it off at the wall or its spur before any access, and never lift or prise off a bonded glass top.",
         "hobs": "Switch it off at the wall or its spur before any access, and never lift or prise off a bonded glass top.",
     }
-    # Isolation/precaution cues already present → do not double the note (mirrors part-finder regex).
+    # Isolation/precaution cues already present → do not double the note (mirrors the engine's regex).
     _ISOLATION_CUE_RE = _re.compile(
         r"\b(unplug|unplugg|switch(?:ed)?\s+(?:it\s+)?off|turn(?:ed)?\s+(?:it\s+)?off|isolate|isolat|"
         r"power(?:ed)?\s+off|disconnect|take the battery out|remove the battery|at the wall|at the spur)\b",
@@ -1183,13 +1173,13 @@ class Orchestrator:
         'narrow it down' branch) and a grounded diagnostic ANSWER that carries a diagnosis. Returns
         None otherwise. Deliberately excludes identity/model asks, safety stops and normal-behaviour /
         recovery reassurance (no diagnosis). The isolation-cue presence check means that when the
-        part-finder already framed the reply we never double it."""
+        the engine already framed the reply we never double it."""
         if resp is None:
             return None
         if getattr(resp, "safety", None) and (resp.safety or {}).get("stopUse"):
             return None
-        # A describe-the-problem question, or a code meaning, asks for no physical step, so it carries no precaution.
-        if getattr(st, "_ragExclusiveClarify", False) or getattr(st, "_codeOnlyAnswer", False):
+        # A code meaning asks for no physical step, so it carries no precaution.
+        if getattr(st, "_codeOnlyAnswer", False):
             return None
         outcome = resp.outcome
         applies = False
@@ -1331,13 +1321,13 @@ class Orchestrator:
         code but never named the appliance type; Jev could not classify the family from the model
         alone), NOT a malformed code. In that case NEVER question or rewrite the customer's displayed
         code (that is a CUSTOMER_CODE_CHANGED violation and blocks progression) and NEVER hand the
-        code to the RAG compose, which will second-guess it ("might be F05?"). PRESERVE the code and
+        code to the diagnosis engine compose, which will second-guess it ("might be F05?"). PRESERVE the code and
         ask only for the appliance type. Returns None when the code itself is genuinely the problem."""
         errors = mcp.get("errors") or []
         shown = _facing_code(st, mcp)
         # If the customer ALREADY gave a model number, the appliance family is derivable from it —
         # asking "which appliance is it?" then reads as discarding their stated identity (the judge
-        # flags FAMILY_INVENTED). Fall through (return None) so the flow uses the RAG, which resolves
+        # flags FAMILY_INVENTED). Fall through (return None) so the flow uses the diagnosis engine, which resolves
         # the family from the model and diagnoses. Only ask for the appliance type when NO model is
         # available to derive it from.
         has_model = any(o.type in ("MODEL", "E_NR", "PNC", "12NC") and o.value

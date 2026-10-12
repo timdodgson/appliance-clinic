@@ -2,7 +2,7 @@
 
 Proves, with no network and no real Jev:
   * the BFF's canonical block is forwarded verbatim to understand()
-  * part-finder's canonical result is returned unchanged (same sessionId) in debug["canonical"]
+  * the engine's canonical result is returned unchanged (same sessionId) in debug["canonical"]
   * a missing / mismatched result degrades the envelope, and (ADR 0018) the turn is an explicit error
   * a turn with no block is an explicit error (canonical_block_missing), never answered another way
   * a turn no journey owns is never sent to diagnose()
@@ -168,7 +168,7 @@ def test_orchestrator_keeps_no_state_between_turns():
 
 def _load_handler():
     os.environ.setdefault("ORCH_BEARER_TOKEN", "test-token")
-    os.environ.setdefault("RAG_URL", "http://localhost/")
+    os.environ.setdefault("DIAGNOSIS_ENGINE_URL", "http://localhost/")
     os.environ.setdefault("MCP_URL", "http://localhost/")
     os.environ.setdefault("MCP_BEARER_TOKEN", "test-mcp-token")
     sys.modules.pop("orchestration.deploy.lambda_handler", None)

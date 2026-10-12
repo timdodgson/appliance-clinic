@@ -2,13 +2,13 @@
 """Customer Diagnostic Orchestrator V1 — data contracts.
 
 Deterministic orchestration layer that puts the (deterministic) Error-Code MCP and the
-(probabilistic) Diagnostic RAG behind one customer conversation WITHOUT merging the two
+(probabilistic) diagnosis engine behind one customer conversation WITHOUT merging the two
 knowledge assets. This module defines the input, state, trusted-context, and response contracts.
 
 Trust tiers (provenance) — NEVER interchangeable:
   L1_DETERMINISTIC     resolved error-code meaning / recordType / scheme / V1-backed safety
   L2_EVIDENCE_BACKED   enrichment possibilities (components, likely causes, suggested checks)
-  L3_PROBABILISTIC     RAG symptom diagnosis / inferred fault / candidate component
+  L3_PROBABILISTIC     engine symptom diagnosis / inferred fault / candidate component
 
 All customer-provided strings are UNTRUSTED DATA. Nothing here interprets instructions embedded
 in customer text; fields carry values verbatim to downstream services.
@@ -86,7 +86,7 @@ class TurnInput:
     region: Optional[str] = None
     observed: list[ObservedIdentifier] = field(default_factory=list)
     includeEnrichment: bool = True
-    image: Optional[str] = None   # rating-plate image (data URL / URL), UNTRUSTED. Passed to the RAG vision pass; extraction is offered for confirmation, never auto-trusted.
+    image: Optional[str] = None   # rating-plate image (data URL / URL), UNTRUSTED. Passed to the diagnosis engine vision pass; extraction is offered for confirmation, never auto-trusted.
     # ---- cross-turn semantic state (client-carried; all OPTIONAL & backward-compatible) ----
     # `pendingRequest` is the STRUCTURED semantic request the assistant made on the PREVIOUS turn:
     # {slot, purpose, status}. It is what lets a bare answer this turn fill the RIGHT slot
@@ -100,7 +100,7 @@ class TurnInput:
     latestMessage: Optional[str] = None
     turnIndex: int = 0            # 0-based customer turn number (0 = opening turn)
     # CANONICAL: the BFF-owned cs/1 block {schema, mode, control, sessionId, version, state, degraded}.
-    # Transported VERBATIM to part-finder understand (which merges, routes and decides). The orchestrator
+    # Transported VERBATIM to the engine's understand (which merges, routes and decides). The orchestrator
     # never reads the state or persists it; it only gates on the returned journey (_canonical_control).
     canonical: Optional[dict] = None
     identitySource: Optional[str] = None  # customer | inferred | unresolved — never promote inferred
@@ -110,8 +110,8 @@ class TurnInput:
     # regex (a model series like V6 is not an error code). Absent -> lexical fallback.
     # Shape: {source, make, appliance, model, errorCode, hasSymptoms, codeAbsent}
     intent: Optional[dict] = None
-    # Role-separated conversation (user/assistant turns) for the Diagnostic RAG.
-    # When present the RAG sees a real multi-turn thread instead of one concatenated user blob.
+    # Role-separated conversation (user/assistant turns) for the diagnosis engine.
+    # When present the diagnosis engine sees a real multi-turn thread instead of one concatenated user blob.
     conversation: Optional[list] = None
 
 
@@ -163,7 +163,7 @@ class DeterministicResolved:
 
 @dataclass
 class ProbabilisticInferred:
-    """L3 from the RAG. Explicitly NOT facts."""
+    """L3 from the diagnosis engine. Explicitly NOT facts."""
     faultId: Optional[str] = None
     faultLabel: Optional[str] = None
     system: Optional[str] = None
@@ -179,25 +179,25 @@ class ConversationState:
     resolved: DeterministicResolved = field(default_factory=DeterministicResolved)
     inferred: ProbabilisticInferred = field(default_factory=ProbabilisticInferred)
     clarificationRequested: Optional[str] = None
-    safetyState: str = "NORMAL_DIAGNOSTIC"     # cs/1 safety.activeLevel, raised by this turn's MCP / RAG classes
-    # The CAUSE behind the current safetyState, carried from the RAG's deterministic detector
+    safetyState: str = "NORMAL_DIAGNOSTIC"     # cs/1 safety.activeLevel, raised by this turn's MCP / engine classes
+    # The CAUSE behind the current safetyState, carried from the diagnosis engine's deterministic detector
     # ('gas' | 'shock' | 'burning' | None). Lets _safety_block select cause-specific customer
     # guidance instead of one generic electrical stop. Latched to the most recent non-null reason.
     safetyReason: Optional[str] = None
     # The customer has asked to PERFORM a dangerous action (bypass a safety device, test live,
     # keep resetting the trip, discharge a capacitor, re-gas a sealed system, hunt a gas leak with a
     # flame, …). Distinct from reporting a hazard: we actively WARN and refuse, but do not stop the
-    # whole diagnosis. This turn only (the RAG's per-turn detector); cs/1 keeps the history.
+    # whole diagnosis. This turn only (the diagnosis engine's per-turn detector); cs/1 keeps the history.
     unsafeIntent: bool = False
     turns: int = 0
 
 
-# ---------------- trusted context handed to the RAG ----------------
+# ---------------- trusted context handed to the diagnosis engine ----------------
 @dataclass
 class TrustedDiagnosticContext:
-    """The ONLY thing the orchestrator hands the RAG from the deterministic side.
+    """The ONLY thing the orchestrator hands the diagnosis engine from the deterministic side.
 
-    `facts` are L1 (deterministic, authoritative — the RAG must not contradict them).
+    `facts` are L1 (deterministic, authoritative — the diagnosis engine must not contradict them).
     `possibilities` are L2 (evidence-backed but NOT facts — components/causes remain candidates).
     `suggestedChecks` are L2 advisory. `safety` is L1 and monotonic.
     """
@@ -210,7 +210,7 @@ class TrustedDiagnosticContext:
     safety: dict = field(default_factory=dict)         # class, stopUse  (L1)
 
     def to_prompt_facts(self) -> dict:
-        """Compact, safe dict a RAG port may inject as trusted context (no internal ids leaked
+        """Compact, safe dict a diagnosis-engine port may inject as trusted context (no internal ids leaked
         to the customer; schemeId stays internal to the port)."""
         return {"facts": self.facts, "possibilities": self.possibilities,
                 "suggestedChecks": self.suggestedChecks, "safety": self.safety}
@@ -241,11 +241,11 @@ class OrchestratorResponse:
     diagnosis: Optional[DiagnosisView] = None
     suggestedChecks: list[str] = field(default_factory=list)
     componentMention: Optional[str] = None  # none | discuss | purchase — diagnosis grain vs catalogue presentation
-    parts: Optional[list] = None                # RAG part cards passed through (L3), suppressed for safety/status/maintenance/conflict
+    parts: Optional[list] = None                # engine part cards passed through (L3), suppressed for safety/status/maintenance/conflict
     resolvedModel: Optional[str] = None         # customer/OCR model string for staging; NOT by itself a confirmed-fit signal
     catalogueResolvedModel: Optional[str] = None  # unique catalogue model after deterministic lookup
     catalogueMatchType: Optional[str] = None  # exact | unique_suffix | incomplete | ambiguous | make_conflict | not_found | none
-    traceId: Optional[str] = None               # RAG feedback token; customer-safe
+    traceId: Optional[str] = None               # engine feedback token; customer-safe
     safetyInformation: Optional[dict] = None    # pre-written evidence-backed customer safety info for the grounded node; passed through verbatim (NOT a safety-stop, NOT LLM-generated)
     media: Optional[list] = None                # customer instructional media (image/diagram/video) supporting a check on the grounded node; customer-safe fields only; suppressed on stop/status/conflict
     modelRequired: bool = False                 # Stage-1: a fault is grounded BUT the model is needed before parts. Coexists with a populated diagnosis (grounded != ready to sell a part).

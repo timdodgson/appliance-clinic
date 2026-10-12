@@ -94,7 +94,7 @@ export function checkChangeSet({ changeSet, denylist, mode, allowedPhysicalIds =
       if (IAM_TYPES.test(rc.ResourceType || '')) warn('iam-change', id);
     }
     if (rc.PhysicalResourceId && s4rConsumedPhysicalIds.includes(rc.PhysicalResourceId) && S4R_CONSUMED_TYPES.test(rc.ResourceType || '')) {
-      warn('potentially-impacts-s4r', { ...id, note: 'Requires explicit sign-off and the /part-finder contract test before and after.' });
+      warn('potentially-impacts-s4r', { ...id, note: 'Requires explicit owner sign-off.' });
     }
   }
 

@@ -62,13 +62,13 @@ function invoke(method, rawPath, opts) {
   {
     const healthy = dash.compactHealth({
       whichpartApi: { ok: true, service: 'whichpart-api' },
-      orchestrator: { ok: true, status: 'ok', version: 'x', diagnosticRag: 'ok' },
-      rag: { ok: true, state: 'ok', reportedBy: 'orchestrator' },
+      orchestrator: { ok: true, status: 'ok', version: 'x', diagnosisEngine: 'ok' },
+      diagnosisEngine: { ok: true, state: 'ok', reportedBy: 'orchestrator' },
       mcp: { ok: true, status: 'ok', datasetV1Hash: 'deadbeef', enrichmentV1Hash: 'cafebabe', mappingCount: 12, version: 'v1' },
     });
     check('healthy aggregate is ok', healthy.ok === true && healthy.label === 'Healthy' && healthy.failed.length === 0);
-    check('healthy names API · Diagnostics · RAG · Error codes',
-      healthy.summaryLine === 'API · Diagnostics · RAG · Error codes');
+    check('healthy names API · Diagnostics · Diagnosis engine · Error codes',
+      healthy.summaryLine === 'API · Diagnostics · Diagnosis engine · Error codes');
     check('healthy compact payload has four parts', healthy.parts.length === 4 && healthy.parts.every((p) => p.ok));
     const blob = JSON.stringify(healthy);
     check('compact health does not leak dataset hashes', !/deadbeef|cafebabe|datasetV1Hash|enrichment/.test(blob));
@@ -78,19 +78,19 @@ function invoke(method, rawPath, opts) {
     const degraded = dash.compactHealth({
       whichpartApi: { ok: true },
       orchestrator: { ok: false, error: 'connect timeout', status: 'unreachable' },
-      rag: { ok: false, state: 'unknown' },
+      diagnosisEngine: { ok: false, state: 'unknown' },
       mcp: { ok: true, status: 'ok' },
     });
     check('degraded aggregate is not ok', degraded.ok === false && degraded.label === 'Problems');
-    check('degraded lists Diagnostics and RAG',
-      degraded.failed.map((p) => p.id).join(',') === 'diagnostics,rag');
+    check('degraded lists Diagnostics and the diagnosis engine',
+      degraded.failed.map((p) => p.id).join(',') === 'diagnostics,diagnosis_engine');
     check('healthy Error codes is not in failed', degraded.failed.every((p) => p.id !== 'error_codes' && p.id !== 'api'));
     check('failed Diagnostics carries existing detail',
       /timeout|unreachable/.test(String(degraded.failed[0].detail)));
     const single = dash.compactHealth({
       whichpartApi: { ok: true },
       orchestrator: { ok: true, status: 'ok' },
-      rag: { ok: true, state: 'ok' },
+      diagnosisEngine: { ok: true, state: 'ok' },
       mcp: { ok: false, error: 'http 503', status: 'down' },
     });
     check('single failure is labelled Problem and names Error codes',

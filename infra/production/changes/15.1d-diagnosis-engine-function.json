@@ -1,0 +1,79 @@
+{
+  "id": "15.1d-diagnosis-engine-function",
+  "description": "ADR 0019, step 4 of 4: the dedicated diagnosis engine Lambda applianceclinic-diagnosis-engine (nodejs22.x, handler.handler, role ac-diagnosis-engine-role, code built from services/diagnosis-engine) and its AWS_IAM, BUFFERED Function URL with no CORS. No resource-policy statement: only the orchestrator and whichpart-api roles may invoke it (15.1a). Nothing calls it until the consumers are cut over. The shared engine spares4repairs-part-finder is not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:CreateFunctionUrlConfig",
+        "lambda:TagResource"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one function and its URL, passing only its own role; read of the staged phase8 artefacts.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function",
+      "AWS::Lambda::Url"
+    ],
+    "expected": [
+      "lambda:CreateFunction",
+      "lambda:CreateFunctionUrlConfig"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:DeleteFunction",
+      "lambda:UpdateFunctionUrlConfig"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

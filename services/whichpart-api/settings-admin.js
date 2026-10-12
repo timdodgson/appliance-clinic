@@ -1,10 +1,11 @@
 'use strict';
+const { engineGetHeaders } = require('./engine-signature.js');
 /**
  * ApplianceClinic Settings — admin view-model over the real configuration.
  *
  * Settings is not an environment editor. It exposes the small set of product
  * configuration an administrator should understand, plus the existing
- * diagnostic-inference control plane (Secrets Manager) that Part Finder already
+ * diagnostic-inference control plane (Secrets Manager) that the diagnosis engine already
  * consumes. Secrets, prompts, GOLD harness knobs, and dataset editors stay out.
  */
 
@@ -14,10 +15,10 @@ const transcripts = require('./transcripts');
 const reviewConfig = require('./transcript-review/config');
 const { readBackAfterWrite } = require('./config-readback');
 
-// Part Finder caches the admin config secret for 60 s (admin-config.js CACHE_TTL_MS) and, separately,
-// the resolved COMPOSE provider for 60 s (part-finder engine/config.js PROVIDERS_TTL_MS). Because UNDERSTAND
+// The diagnosis engine caches the admin config secret for 60 s (admin-config.js CACHE_TTL_MS) and, separately,
+// the resolved COMPOSE provider for 60 s (diagnosis engine engine/config.js PROVIDERS_TTL_MS). Because UNDERSTAND
 // refreshes the shared secret cache on its own schedule, a COMPOSE change can take up to ~2 minutes
-// to reach a warm Part Finder instance; Jev UNDERSTAND credentials up to ~1 minute. Cold instances
+// to reach a warm the diagnosis engine instance; Jev UNDERSTAND credentials up to ~1 minute. Cold instances
 // read on their first request.
 const PROPAGATION_TTL_MS = 60 * 1000;
 const COMPOSE_PROPAGATION_MAX_MS = 2 * PROPAGATION_TTL_MS;
@@ -277,23 +278,23 @@ function applyInferencePatch(prev, patch) {
   return aiConfig.normalise(merged);
 }
 
-async function probePartFinderModels(opts) {
+async function probeEngineModels(opts) {
   const fetchFn = opts.fetch || fetch;
-  const url = String(opts.partFinderHealthUrl || '').replace(/\/$/, '');
-  if (!url) return { available: false, reason: 'No Part Finder health URL' };
+  const url = String(opts.engineHealthUrl || '').replace(/\/$/, '');
+  if (!url) return { available: false, reason: 'No diagnosis engine health URL is configured' };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs || 5000);
   try {
-    const res = await fetchFn(url + '/health', { signal: ctrl.signal, headers: { accept: 'application/json' } });
+    const res = await fetchFn(url + '/health', { signal: ctrl.signal, headers: { accept: 'application/json', ...engineGetHeaders(url + '/health') } });
     const json = await res.json().catch(() => null);
-    if (!res.ok || !json || !json.models) return { available: false, reason: 'Part Finder health did not report models' };
+    if (!res.ok || !json || !json.models) return { available: false, reason: 'The diagnosis engine health did not report models' };
     return {
       available: true,
       understand: parseRunningStage(json.models.understand),
       compose: parseRunningStage(json.models.compose),
     };
   } catch {
-    return { available: false, reason: 'Part Finder health unreachable' };
+    return { available: false, reason: 'The diagnosis engine health unreachable' };
   } finally {
     clearTimeout(timer);
   }
@@ -316,7 +317,7 @@ function stageView(name, cfg, setupStage, runningStage) {
   const route = cfg.routing[name];
   const configured = routeProvider(route, cfg);
   const setup = setupStage || {};
-  // Show the model id Part Finder ACTUALLY sends (resolveProvidersFromAdminConfig passes local.model
+  // Show the model id the diagnosis engine ACTUALLY sends (resolveProvidersFromAdminConfig passes local.model
   // verbatim to LM Studio). describeSetup hides an OpenAI-looking pinned id as "managed by LM Studio"
   // for the Test page; Settings must not hide it, so it is shown with an explicit warning instead.
   const pinnedLocal = route === 'local' ? String((cfg.local && cfg.local.model) || '').trim() : '';
@@ -329,7 +330,7 @@ function stageView(name, cfg, setupStage, runningStage) {
     modelLabel: route === 'local' ? (pinnedLocal ? pinnedLocal + ' (pinned)' : 'Model managed by LM Studio') : ((setupStage && setup.modelLabel) || configured.modelLabel),
     route: configured.route,
     warning: suspicious
-      ? 'The pinned Private AI model id "' + pinnedLocal + '" looks like an OpenAI model name. Part Finder sends exactly this id to Private AI (LM Studio) for every COMPOSE request. It was most likely left behind by a batch test run. Review it before relying on it.'
+      ? 'The pinned Private AI model id "' + pinnedLocal + '" looks like an OpenAI model name. the diagnosis engine sends exactly this id to Private AI (LM Studio) for every COMPOSE request. It was most likely left behind by a batch test run. Review it before relying on it.'
       : null,
   };
   return {
@@ -402,7 +403,7 @@ function jevView(jevLoaded, runningStage) {
     updatedAt: pub.updatedAt || null,
     updatedByEmail: pub.updatedByEmail || null,
     history: (pub.history || []).slice(0, HISTORY_VIEW),
-    propagation: { maxMs: JEV_PROPAGATION_MAX_MS, note: 'Each warm Part Finder instance uses a saved Jev change within about 1 minute.' },
+    propagation: { maxMs: JEV_PROPAGATION_MAX_MS, note: 'Each warm the diagnosis engine instance uses a saved Jev change within about 1 minute.' },
     store: { status: (jevLoaded && jevLoaded.status) || 'absent', note: jevStoreNote(jevLoaded && jevLoaded.status) },
     running,
     sync: compareStage(
@@ -507,14 +508,14 @@ function historyView(history) {
 function settingsInventory(cfg, ctx) {
   const d = aiConfig.defaultConfig();
   const route = cfg.routing.compose;
-  const composeTiming = 'Within about 2 minutes (Part Finder caches config and provider, 60 s each)';
+  const composeTiming = 'Within about 2 minutes (the diagnosis engine caches config and provider, 60 s each)';
   const row = (o) => Object.assign({ differsFromDefault: String(o.current) !== String(o.default) }, o);
   return [
     row({
       id: 'routing.compose', label: 'COMPOSE provider', group: 'ai-routing', editable: true, impact: 'high', reasonRequired: true,
       current: route, currentLabel: providerLabel(route === 'frontier' ? 'openai' : 'lmstudio'),
       default: d.routing.compose, defaultLabel: 'Private AI',
-      consumer: 'Part Finder resolveProvidersFromAdminConfig → COMPOSE writes every customer reply',
+      consumer: 'The diagnosis engine resolveProvidersFromAdminConfig → COMPOSE writes every customer reply',
       effect: composeTiming,
       impactText: 'Changes which AI writes the reply for every new customer diagnosis.' + (route === 'frontier' ? '' : ' Switching to OpenAI sends customer conversations to OpenAI.'),
     }),
@@ -523,7 +524,7 @@ function settingsInventory(cfg, ctx) {
       impact: route === 'local' ? 'high' : 'production', reasonRequired: route === 'local',
       current: cfg.local.model || '', currentLabel: cfg.local.model || 'Not pinned — LM Studio\u2019s loaded model',
       default: d.local.model, defaultLabel: 'Not pinned',
-      consumer: 'Part Finder LMStudioProvider model id (sent verbatim)',
+      consumer: 'The diagnosis engine LMStudioProvider model id (sent verbatim)',
       effect: composeTiming,
       impactText: route === 'local' ? 'COMPOSE runs on Private AI now, so this id is sent with every live customer reply.' : 'Used only when COMPOSE is routed to Private AI (it is not now).',
       warning: (ctx.compose && ctx.compose.configured && ctx.compose.configured.warning) || null,
@@ -533,7 +534,7 @@ function settingsInventory(cfg, ctx) {
       impact: route === 'frontier' ? 'high' : 'production', reasonRequired: route === 'frontier',
       current: cfg.frontier.model || '', currentLabel: cfg.frontier.model || 'Not set',
       default: d.frontier.model, defaultLabel: 'Not set',
-      consumer: 'Part Finder OpenAIProvider model id; also Test → Batch frontier experiments',
+      consumer: 'The diagnosis engine OpenAIProvider model id; also Test → Batch frontier experiments',
       effect: composeTiming,
       impactText: route === 'frontier' ? 'COMPOSE runs on OpenAI now, so this model writes every live customer reply.' : 'Used only when COMPOSE is routed to OpenAI (it is not now).',
     }),
@@ -541,7 +542,7 @@ function settingsInventory(cfg, ctx) {
       id: 'local.endpoint', label: 'Private AI endpoint override', group: 'ai-routing', editable: true, impact: 'high', reasonRequired: true,
       current: cfg.local.endpoint ? 'set' : 'unset', currentLabel: cfg.local.endpoint ? 'Custom address (' + endpointDisplay(cfg.local.endpoint) + ')' : 'Deployed default',
       default: 'unset', defaultLabel: 'Deployed default (LM_STUDIO_URL)',
-      consumer: 'Part Finder LMStudioProvider base URL (overrides LM_STUDIO_URL)',
+      consumer: 'The diagnosis engine LMStudioProvider base URL (overrides LM_STUDIO_URL)',
       effect: composeTiming,
       impactText: 'Points Private AI COMPOSE (and Settings connection checks) at a different server.',
     }),
@@ -550,36 +551,36 @@ function settingsInventory(cfg, ctx) {
       current: ctx.jev && ctx.jev.credentialConfigured ? 'configured' : 'missing',
       currentLabel: ctx.jev && ctx.jev.credentialConfigured ? 'Configured' + (ctx.jev.gatewayId ? ' · via AI Gateway' : '') : 'Not configured',
       default: 'missing', defaultLabel: 'Not configured (env fallback only)',
-      consumer: 'Part Finder understand() → Jev interprets every customer message',
-      effect: 'Within about 1 minute (Part Finder caches it for 60 s)',
+      consumer: 'The diagnosis engine understand() → Jev interprets every customer message',
+      effect: 'Within about 1 minute (the diagnosis engine caches it for 60 s)',
       impactText: 'A wrong account or token makes every new customer turn fail UNDERSTAND.',
     }),
     row({
       id: 'openai.credential', label: 'OpenAI credential', group: 'credentials', editable: true, impact: route === 'frontier' ? 'high' : 'production', reasonRequired: false,
       current: ctx.keyConfigured ? 'configured' : 'missing', currentLabel: ctx.keyConfigured ? 'Configured' : 'Not configured',
       default: 'missing', defaultLabel: 'Not configured',
-      consumer: 'Part Finder OpenAIProvider (only fetched while a stage routes to OpenAI); BFF quality reviewer and batch runs',
-      effect: 'Part Finder: within about 1 minute while routed to OpenAI. Reviewer / batch: next use.',
+      consumer: 'The diagnosis engine OpenAIProvider (only fetched while a stage routes to OpenAI); BFF quality reviewer and batch runs',
+      effect: 'The diagnosis engine: within about 1 minute while routed to OpenAI. Reviewer / batch: next use.',
       impactText: route === 'frontier' ? 'COMPOSE is routed to OpenAI: replacing the key affects live customer replies.' : 'No live customer effect while COMPOSE uses Private AI.',
     }),
     row({
       id: 'routing.understand', label: 'Legacy UNDERSTAND routing', group: 'legacy', editable: false, impact: 'none', deprecated: true,
       current: cfg.routing.understand, currentLabel: cfg.routing.understand === 'frontier' ? 'OpenAI' : 'Private AI',
       default: d.routing.understand, defaultLabel: 'Private AI',
-      consumer: 'None for customers — UNDERSTAND is TypeSafe Jev. Still resolved (not used) by Part Finder and written by the batch runner.',
+      consumer: 'None for customers — UNDERSTAND is TypeSafe Jev. Still resolved (not used) by the diagnosis engine and written by the batch runner.',
       effect: 'No customer effect',
       impactText: 'Deprecated. Not editable: a frontier value without a key would still break COMPOSE resolution.',
     }),
     row({
       id: 'local.enabled', label: 'Private AI enabled flag', group: 'legacy', editable: false, impact: 'none', deprecated: true,
       current: cfg.local.enabled, currentLabel: cfg.local.enabled ? 'On' : 'Off', default: d.local.enabled, defaultLabel: 'On',
-      consumer: 'Not read by Part Finder. Only gates which routings Settings accepts.',
+      consumer: 'Not read by the diagnosis engine. Only gates which routings Settings accepts.',
       effect: 'No runtime effect', impactText: 'Validation-only flag.',
     }),
     row({
       id: 'frontier.enabled', label: 'OpenAI enabled flag', group: 'legacy', editable: false, impact: 'none', deprecated: true,
       current: cfg.frontier.enabled, currentLabel: cfg.frontier.enabled ? 'On' : 'Off', default: d.frontier.enabled, defaultLabel: 'Off',
-      consumer: 'Not read by Part Finder. Set automatically when COMPOSE routes to OpenAI; gates Settings validation.',
+      consumer: 'Not read by the diagnosis engine. Set automatically when COMPOSE routes to OpenAI; gates Settings validation.',
       effect: 'No runtime effect', impactText: 'Validation-only flag.',
     }),
   ];
@@ -604,9 +605,9 @@ async function buildView(opts) {
     jevConfigured: Boolean(jevLoaded && jevLoaded.public && jevLoaded.public.credentialConfigured),
   });
   const running = opts.runningModels
-    || await probePartFinderModels({
+    || await probeEngineModels({
       fetch: opts.fetch,
-      partFinderHealthUrl: opts.partFinderHealthUrl,
+      engineHealthUrl: opts.engineHealthUrl,
       timeoutMs: opts.timeoutMs,
     });
   const review = reviewConfig.resolveReviewConfig(opts.env || process.env);
@@ -642,7 +643,7 @@ async function buildView(opts) {
       propagation: {
         ttlMs: PROPAGATION_TTL_MS,
         maxMs: COMPOSE_PROPAGATION_MAX_MS,
-        note: 'New diagnoses use a saved COMPOSE change within about 2 minutes (each warm Part Finder instance caches the configuration and the provider for up to 60 s each). In-flight turns keep the provider they already loaded.',
+        note: 'New diagnoses use a saved COMPOSE change within about 2 minutes (each warm the diagnosis engine instance caches the configuration and the provider for up to 60 s each). In-flight turns keep the provider they already loaded.',
       },
       understand,
       compose,
@@ -728,8 +729,8 @@ async function buildView(opts) {
       errorCodeOverlayCacheTtlSeconds: ERROR_CODE_OVERLAY_TTL_MS / 1000,
       conversationWindowTurns: CONVERSATION_WINDOW,
       configurationStore: 'Admin runtime configuration (durable, not an environment-variable dump)',
-      coldStart: 'A cold Part Finder process reads configuration on first request, then caches it for about one minute.',
-      lastGood: 'If the configuration store is missing or unreadable, Part Finder uses its deployed local default rather than failing closed on every request.',
+      coldStart: 'A cold the diagnosis engine process reads configuration on first request, then caches it for about one minute.',
+      lastGood: 'If the configuration store is missing or unreadable, the diagnosis engine uses its deployed local default rather than failing closed on every request.',
     },
   };
 }
@@ -774,7 +775,7 @@ async function saveInferencePatch(opts) {
   const proposed = applyInferencePatch(prev, parsed.patch);
   const changes = diffConfigs(prev, proposed);
   // UNDERSTAND is TypeSafe Jev: the legacy routing.understand field has no customer effect, but a
-  // frontier value without a key would still break COMPOSE resolution in Part Finder. Not editable here.
+  // frontier value without a key would still break COMPOSE resolution in the diagnosis engine. Not editable here.
   if (changes.some((c) => c.field === 'routing.understand')) {
     return { ok: false, status: 400, error: 'UNDERSTAND is TypeSafe Jev. The legacy UNDERSTAND routing value cannot be changed here.', details: ['routing.understand'] };
   }
@@ -829,7 +830,7 @@ async function saveInferencePatch(opts) {
         ? 'The store accepted the change, but reads still returned the previous version for ' + rb.reads + ' attempts. Reload Settings to confirm what is stored before changing anything else.'
         : 'The store accepted the change, but it could not be read back to confirm it. Reload Settings to confirm what is stored.' }),
       revision: expectRev, version: next.version,
-      propagation: 'Stored. Each warm Part Finder instance picks this up within about ' + Math.round(COMPOSE_PROPAGATION_MAX_MS / 60000) + ' minutes (cached twice for up to 60 s); the running value below updates after that.',
+      propagation: 'Stored. Each warm the diagnosis engine instance picks this up within about ' + Math.round(COMPOSE_PROPAGATION_MAX_MS / 60000) + ' minutes (cached twice for up to 60 s); the running value below updates after that.',
     },
   };
 }
@@ -890,7 +891,7 @@ async function saveJevPatch(opts) {
   const view = await buildView(Object.assign({}, opts, { loadJevWithStatus: async () => effective }));
   return {
     ok: true, status: 200, view,
-    apply: { written: true, verified, verification: rb.status, version: next.version, propagation: 'Stored. Each warm Part Finder instance uses it within about 1 minute.' },
+    apply: { written: true, verified, verification: rb.status, version: next.version, propagation: 'Stored. Each warm the diagnosis engine instance uses it within about 1 minute.' },
   };
 }
 
@@ -929,7 +930,7 @@ module.exports = {
   parseJevPatch,
   applyJevPatch,
   parseRunningStage,
-  probePartFinderModels,
+  probeEngineModels,
   buildView,
   saveInferencePatch,
   saveJevPatch,

@@ -1,6 +1,6 @@
 # 0013. Prompt registry and contract types
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR 0019](0019-dedicated-canonical-diagnosis-engine.md): the `/part-finder` contract types, their field-coverage gate and the legacy COMPOSE prompts are removed
 - **Date:** 2026-10-09
 
 ## Context

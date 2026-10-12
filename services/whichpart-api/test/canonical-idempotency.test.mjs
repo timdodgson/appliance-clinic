@@ -24,7 +24,7 @@ function setup() {
   const store = cs.createStateStore({ table: 'whichpart-transcripts', call: db.call, env: {} });
   return { db, store };
 }
-/** What part-finder understand returns: merge + Journey 1 pipeline (real code). */
+/** What the engine's understand mode returns: merge + Journey 1 pipeline (real code). */
 async function partFinder(block, intent = intentFor()) {
   return internal.canonicalJourneys(partFinderUnderstand(block, intent), block);
 }

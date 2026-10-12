@@ -1,6 +1,6 @@
 """Canonical CONTROL route through the orchestrator (every registry journey).
 Proves, with no network:
-  * a turn whose canonical result carries journey.control is answered from the RAG's NextAction wording
+  * a turn whose canonical result carries journey.control is answered from the diagnosis engine's NextAction wording
     only — no legacy overrides (model-acquisition stage, clarify, owner note, MCP code flow)
   * the reply/media/parts/model-ask/safety-stop shapes per NextAction kind
   * ADR 0018: a degraded or absent canonical result is an explicit SERVICE_UNAVAILABLE; a turn no journey owns
@@ -202,7 +202,7 @@ def test_missing_key_or_retired_journey1_field_owns_nothing():
 
 
 def test_journey_map_is_the_shared_registry():
-    reg = json.loads((pathlib.Path(__file__).resolve().parents[2] / "services/part-finder/canonical/journeys.json").read_text())
+    reg = json.loads((pathlib.Path(__file__).resolve().parents[2] / "services/diagnosis-engine/canonical/journeys.json").read_text())
     want = {j["key"]: j["faultId"] for j in reg["journeys"]}
     assert len(want) == 63
     assert Orchestrator._CANONICAL_JOURNEYS == want
@@ -210,7 +210,7 @@ def test_journey_map_is_the_shared_registry():
 
 def test_dockerfile_ships_the_registry():
     df = (pathlib.Path(__file__).resolve().parents[1] / "deploy/Dockerfile").read_text()
-    assert "COPY services/part-finder/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json" in df
+    assert "COPY services/diagnosis-engine/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json" in df
 
 
 def test_journey3_control_ask_uses_nextaction_wording_only():

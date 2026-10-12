@@ -1,7 +1,7 @@
 """GOLD v2: the open 'describe the problem' request is ONE question.
 
 When the appliance is known but there is no code and no usable symptom yet, the orchestrator asks one open question
-(the same one part-finder asks). It does not ask for a display code in the same breath or offer a menu of faults
+(the same one the engine asks). It does not ask for a display code in the same breath or offer a menu of faults
 (both scored as a generic form). The no-appliance variant is unchanged.
 """
 import sys

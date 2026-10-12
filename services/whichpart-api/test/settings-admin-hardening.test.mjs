@@ -57,7 +57,7 @@ function memStore(initial) {
 }
 const runningNone = { available: false };
 function deps(store, extra) {
-  return Object.assign({ loadConfigWithStatus: store.loadConfigWithStatus, saveConfig: store.saveConfig, isKeyConfigured: async () => true, loadJevWithStatus: async () => ({ status: 'absent', stored: null, public: ai.defaultJevPublic() }), runningModels: runningNone, partFinderHealthUrl: '' }, extra || {});
+  return Object.assign({ loadConfigWithStatus: store.loadConfigWithStatus, saveConfig: store.saveConfig, isKeyConfigured: async () => true, loadJevWithStatus: async () => ({ status: 'absent', stored: null, public: ai.defaultJevPublic() }), runningModels: runningNone, engineHealthUrl: '' }, extra || {});
 }
 
 afterEach(() => { restore(); api.setSessionForTests(null); api.setSettingsDepsForTests(null); });

@@ -7,8 +7,8 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const cs = require('../conversation-state.js');
 const tok = require('../state-token.js');
-const cs1 = require('../../part-finder/canonical/cs1.js');
-const { merge } = require('../../part-finder/canonical/merge.js');
+const cs1 = require('../../diagnosis-engine/canonical/cs1.js');
+const { merge } = require('../../diagnosis-engine/canonical/merge.js');
 const { SECRETS, mockDdb, intentFor, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
 
 const NOW_MS = 1_800_000_000_000;
@@ -22,7 +22,7 @@ function setup() {
   const store = cs.createStateStore({ table: 'whichpart-transcripts', call: db.call, env: {} });
   return { db, store };
 }
-/** One full shadow turn: prepare → "orchestrator" (real part-finder merge) → finish. */
+/** One full shadow turn: prepare → "orchestrator" (real engine merge) → finish. */
 async function turn({ store, token, intent, newId = bytes24(1), env = SHADOW, out } = {}) {
   const ctx = await cs.prepareTurn({ body: token ? { stateToken: token } : {}, store, secrets: SECRETS, env, nowMs: NOW_MS, newId });
   const result = ctx.block ? (out !== undefined ? out(ctx) : partFinderUnderstand(ctx.block, intent)) : undefined;
@@ -311,7 +311,7 @@ describe('one-step replay (missed state write)', () => {
     db.items.set(k, { ...db.items.get(k), classificationJson: { S: '{' } });
     expect((await turn({ store, token: t2.ctx.token })).ctx.degraded).toBe('replay_record_malformed');
   });
-  it('replay is the same pure merge part-finder ran (deterministic)', () => {
+  it('replay is the same pure merge the engine ran (deterministic)', () => {
     const block = { schema: 'cs/1', mode: 'shadow', sessionId: CSID, version: 0, state: null, degraded: null };
     const out = partFinderUnderstand(block);
     const again = merge(cs1.emptyState(CSID), out.classification, { turn: 1 }).state;

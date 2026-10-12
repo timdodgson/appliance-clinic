@@ -18,14 +18,22 @@ Closes #
 
 ## AWS impact
 
-<!-- READ-ONLY | SAFE AC CHANGE | POTENTIALLY IMPACTS S4R | none.
-     List every AWS resource this change can create, modify or remove when executed. -->
+<!-- READ-ONLY | SAFE AC CHANGE | none.
+     List every AWS resource this change can create, modify or remove when executed.
+     AC changes nothing Spares4Repairs owns; its only S4R relationship is outbound
+     (the S4R Parts Catalogue API and S4R Shop product links). -->
 
-## S4R impact
+## AC checks
 
-<!-- Does this touch anything Spares4Repairs owns, shares or consumes?
-     Anything touching the diagnosis Lambda, its Function URL, permissions, role or
-     runtime behaviour must include the /part-finder contract test result before and after. -->
+<!-- Results of each, or why it does not apply:
+     - runtime tests (zero failures)
+     - typecheck
+     - migration tooling tests
+     - lint
+     - build equivalence of the diagnosis engine and whichpart-api zips
+     - AC customer journeys on the deployed build
+     - GOLD: the pair rule only, exactly two runs 20 minutes apart on the deployed build;
+       no exploratory GOLD runs -->
 
 ## Rollback
 

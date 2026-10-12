@@ -23,8 +23,8 @@ async function gatherHealthServices() {
   ]);
   results.orchestrator = orch.json ? { ok: orch.ok, ...orch.json } : { ok: false, error: orch.error || ('http ' + orch.status) };
   if (mcp) results.mcp = mcp.json ? { ok: mcp.ok, ...mcp.json } : { ok: false, error: mcp.error || ('http ' + mcp.status) };
-  results.rag = { ok: !!(orch.json && orch.json.diagnosticRag), reportedBy: 'orchestrator',
-    state: (orch.json && orch.json.diagnosticRag) || 'unknown' };
+  results.diagnosisEngine = { ok: !!(orch.json && orch.json.diagnosisEngine), reportedBy: 'orchestrator',
+    state: (orch.json && orch.json.diagnosisEngine) || 'unknown' };
   return results;
 }
 
@@ -51,7 +51,7 @@ async function adminDashboard(event) {
   try {
     services = await gatherHealthServices();
   } catch (e) {
-    services = { whichpartApi: { ok: true, service: 'whichpart-api' }, orchestrator: { ok: false, error: String(e && e.message || e) }, rag: { ok: false, state: 'unknown' } };
+    services = { whichpartApi: { ok: true, service: 'whichpart-api' }, orchestrator: { ok: false, error: String(e && e.message || e) }, diagnosisEngine: { ok: false, state: 'unknown' } };
   }
   let production;
   try {

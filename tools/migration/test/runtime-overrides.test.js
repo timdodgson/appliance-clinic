@@ -68,14 +68,36 @@ describe('runtime overrides', () => {
   });
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
-    // The diagnosis Lambda only for the owner-approved S4R-sensitive items of Phase 7 (A1, B, D).
-    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder'];
+    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'spares4repairs-part-finder',
+      'applianceclinic-diagnosis-engine'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
-    const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role'];
-    for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-role'], k).toContain(k);
+    const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-role', 'ac-diagnosis-engine-role'];
+    for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-role', 'ac-diagnosis-engine-role'], k).toContain(k);
     for (const k of Object.keys(o.roleManagedPolicies || {})) expect(AC_ROLES, k).toContain(k);
     for (const k of Object.keys(o.rolePolicies)) expect(AC_ROLES, k).toContain(k.split('/')[0]);
     // Never the S4R role, in any form.
     expect(JSON.stringify(o.roles || {}) + JSON.stringify(o.rolePolicies) + JSON.stringify(o.roleManagedPolicies || {})).not.toMatch(/SparesSite/);
+  });
+  it('builds a function the stack creates from its declaration, carrying a digest-declared value (ADR 0019)', () => {
+    const { createHash } = require('node:crypto');
+    const h = (v) => `sha256:${createHash('sha256').update(v).digest('hex')}`;
+    const l = live(); l.functions.f.configuration.Environment.Variables.PRIVATE = 'tunnel';
+    const create = { role: 'arn:aws:iam::1:role/r', runtime: 'nodejs22.x', handler: 'handler.handler', architectures: ['x86_64'],
+      memorySize: 256, timeout: 300, url: { authType: 'AWS_IAM', invokeMode: 'BUFFERED' }, carryFrom: 'f' };
+    const o = { functions: { g: { create, code: { s3Bucket: 'b', s3Key: 'k' }, env: { set: { A: 'x' }, digests: { PRIVATE: h('tunnel') } } } } };
+    const g = applyOverrides(l, o).functions.g;
+    expect(g.configuration).toMatchObject({ Role: create.role, Runtime: 'nodejs22.x', Handler: 'handler.handler', PackageType: 'Zip' });
+    expect(g.configuration.Environment.Variables).toEqual({ A: 'x', PRIVATE: 'tunnel' });
+    expect(g.url).toEqual({ AuthType: 'AWS_IAM', InvokeMode: 'BUFFERED', Cors: null });
+    expect(g.statements).toEqual([]);
+    expect(g.codeOverride).toEqual({ s3Bucket: 'b', s3Key: 'k' });
+    // once it exists, its own live values are carried and undeclared live variables do not survive
+    const l2 = applyOverrides(l, o); l2.functions.g.configuration.Environment.Variables.EXTRA = '1';
+    expect(applyOverrides(l2, o).functions.g.configuration.Environment.Variables).toEqual({ A: 'x', PRIVATE: 'tunnel' });
+    const bad = { functions: { g: { ...o.functions.g, env: { set: {}, digests: { PRIVATE: h('other') } } } } };
+    expect(() => applyOverrides(l, bad)).toThrow(/does not match its declared digest/);
+    const none = { functions: { g: { ...o.functions.g, create: { ...create, carryFrom: undefined } } } };
+    expect(() => applyOverrides(l, none)).toThrow(/no live value to carry/);
+    expect(() => applyOverrides(l, { functions: { g: { create: { role: 'r' } } } })).toThrow(/needs runtime/);
   });
 });

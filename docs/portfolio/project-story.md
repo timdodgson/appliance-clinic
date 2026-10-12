@@ -154,32 +154,55 @@ only S4R, every degradation is an explicit error, and turns no journey owns get 
 became a product fix, a rewrite or a removal, and the accepted-failure list was deleted
 ([results](../evaluation/phase-13-results.md)).
 
+### 11. A dedicated canonical engine (Phase 15)
+
+After Phase 13 no AC turn reached the legacy pipeline, yet AC still shipped it. The canonical runtime lived in the same
+Lambda that S4R's page called anonymously, so the URL stayed public, the legacy code went out in every AC release, and
+every AC release carried S4R gates. [ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md) gave AC its own
+engine instead of changing the shared one:
+
+| | Before | After |
+|---|---|---|
+| Lambda | `spares4repairs-part-finder`, shared | `applianceclinic-diagnosis-engine`, AC only (`services/diagnosis-engine/`) |
+| Function URL | Auth `NONE`, CORS `*`, response streaming | `AWS_IAM`, buffered, no CORS; only the orchestrator and BFF roles may invoke it |
+| Request authentication | HMAC for internal fields; plain `{messages}` served unsigned | SigV4 on every request and HMAC on every POST; anything unsigned is a 401 |
+| Code | Canonical runtime plus the legacy pipeline, retrieval and legacy COMPOSE | Canonical runtime only; engine test files 137 → 90 |
+| Observability | Shared log group | Own role, log group, metric filters and alarms |
+| AC release gates | S4R contract, ingress, smoke and health | AC checks only |
+
+The old engine was **not modified**. It keeps serving S4R, which is now an external consumer, and AC sends it no
+traffic. Its CDK ownership is relinquished with zero physical change, or reported blocked if that cannot be proven
+([results](../evaluation/phase-15-results.md)). AC released it from its CloudFormation stack with zero physical change.
+
 ## Trade-offs, honestly
 
 | Decision | Bought | Cost |
 |---|---|---|
 | Import, don't recreate | No downtime, no data migration | Import semantics had to be learned the hard way, in a sandbox and with a read-only role |
 | Language models only classify and word ([ADR 0010](../adr/0010-deterministic-policy-around-llm.md)) | Safety and part logic that can be unit-tested and doesn't change with the model | Each appliance journey is code (diagnostics, policy, copy), which is slower to add than a prompt |
-| Keep the legacy pipeline for S4R | The S4R contract never changed | Two diagnosis paths stay in the engine |
+| Keep the legacy pipeline for S4R (Phases 8–13) | The S4R contract never changed | Two diagnosis paths in one engine until Phase 15 |
+| A new engine instead of changing the shared one (Phase 15) | AC has one canonical path and a private, IAM-authenticated engine; S4R is untouched | The old engine still runs in AC's account, on AC's role, secrets and Jev credit |
 | CloudFront left unmanaged ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)) | No risk to the shared distribution during the migration | One AC resource is still outside CDK |
 | No automatic deployment | Every production change is reviewed, scoped and audited | Releases are manual and slower |
 | Required approvals set to 0 | A single maintainer can merge through PRs and checks | No second reviewer; the PR record and CI are the review |
 | Fix the product, then restart the gate | Every GOLD pass is evidence, not a lucky run | More releases and a slower gate: Phase 11 needed four extra releases and ten runs |
-| Sign internal fields instead of moving S4R | S4R's contract and URL never changed | The signing key is handled like the service bearers, through the Lambda environment |
+| Sign internal fields instead of moving S4R (Phase 11) | S4R's contract and URL never changed | The signing key is handled like the service bearers, through the Lambda environment |
 
 ## Still open
 
-Checked against the code, the live configuration and the Phase 11 results. Solved items are not carried forward.
+Checked against the code, the live configuration and the Phase 15 results. Solved items are not carried forward.
 
 | Item | Evidence or detail |
 |---|---|
-| **Account Lambda concurrency is 10**, shared with S4R | The pool sat at 10 for 383 minutes in 14 days. The recommended quota is 100, and only the account owner can request it ([analysis](../evaluation/phase-11-concurrency.md)) |
+| **Account Lambda concurrency is 10**, shared with every workload in the account, including the old shared engine | The pool sat at 10 for 383 minutes in 14 days. The recommended quota is 100, and only the account owner can request it ([analysis](../evaluation/phase-11-concurrency.md)) |
 | **The static site** is still published from the original monorepo | Not in this repository |
 | **The orchestrator** is one Python module (about 1,400 lines since Phase 13) | The legacy composition that made up most of it was deleted with the AC legacy fallback ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); what remains is the canonical branch, the non-journey outcomes (hazard, unsafe, code, unsupported, intake) and their documentation |
-| **Two diagnosis paths** stay in the engine | The legacy pipeline serves only S4R's plain `{messages}` request ([ADR 0012](../adr/0012-legacy-diagnosis-pipeline-retained.md), [ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); no AC turn reaches it. Some of its behaviour is still produced by regular expressions (safety cues, brand lists) |
+| **The old shared engine is still on AC's account and credit** | `spares4repairs-part-finder` runs in AC's AWS account on `ac-diagnosis-role`, with AC secrets and AC's Jev credit, and serves S4R. Changing that would modify resources it depends on, which Phase 15 deliberately did not do ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)). Moving it is S4R's change |
+| **No alarm notification target** | The new engine's alarms (`FailedTurns`, `RefusedRequests`, `Errors`, `Throttles`) fire, but nothing is notified yet |
+| **Knowledge corpus files in the engine's folder** | `services/diagnosis-engine/knowledge/` is used only by whichpart-api's read-only knowledge view; the engine does not read it at runtime |
 | **Canonical coverage** | 63 journeys own most AC turns; a typed problem no journey owns gets an explicit `UNSUPPORTED` reply, and an appliance outside the typed families gets the repeated appliance clarify ([Phase 13](../evaluation/phase-13-results.md)) |
-| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and both S4R `/part-finder` and AC were down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion |
-| **Evaluation shares production's Jev credit** | GOLD runs, the GOLD judge and the transcript judge use the same Jev account as AC and S4R, so evaluation load can exhaust production. Needed where possible: a separate evaluation key or account, or a budget cap for evaluation traffic; until then GOLD runs are rationed and spaced |
+| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and AC (and S4R, through the shared engine) was down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion |
+| **Evaluation shares production's Jev credit** | GOLD runs, the GOLD judge and the transcript judge use the same Jev account as AC and the old shared engine, so evaluation load can exhaust production. Needed where possible: a separate evaluation key or account, or a budget cap for evaluation traffic; until then GOLD runs are rationed and spaced |
 | **Engine signing key in the Lambda environment** | The same pattern as the service bearers (dynamic references). A runtime secret fetch would keep it out of `lambda:GetFunctionConfiguration` |
 | **The GOLD judge is not independent** | GOLD and transcript review are judged by Jev, the same service that does the understanding. The rubric and pass rule are fixed and verdicts are checked by reading the conversations, but an independent judge would be stronger evidence |
 | **Planned target steps** | Error codes opening the matching canonical journey (T8); one safety-copy source shared by Python and JavaScript (T9); complete cause sentences in the error-code enrichment (T10) ([target](../architecture/target.md)) |

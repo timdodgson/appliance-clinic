@@ -5,13 +5,13 @@
  *    conversation-state.js and fails with a ConditionalCheckFailedException-shaped error.
  *  - intentFor(answers): a real Jev-adapted intent (jev-understand.adaptJevToIntent).
  *  - mc1For(intent): an mc/1 classification carrying the same facts (washing machine, not draining, water left).
- *  - partFinderUnderstand(block, intent): exactly what part-finder understand mode returns as `canonical`
+ *  - partFinderUnderstand(block, intent): exactly what the engine's understand mode returns as `canonical`
  *    (the real canonicalTransportMerge, no handler).
  */
 globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
-const { _internal } = require('../../part-finder/part-finder-lambda.js');
-const { adaptJevToIntent } = require('../../part-finder/jev-understand.js');
-const mc1 = require('../../part-finder/canonical/mc1.js');
+const { _internal } = require('../../diagnosis-engine/handler.js');
+const { adaptJevToIntent } = require('../../diagnosis-engine/jev-understand.js');
+const mc1 = require('../../diagnosis-engine/canonical/mc1.js');
 
 const SECRET = 'stage-c-test-secret-0123456789abcdef0123'; // deterministic, test only
 const SECRETS = { current: SECRET, previous: null };

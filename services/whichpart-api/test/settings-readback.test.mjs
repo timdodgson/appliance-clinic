@@ -44,7 +44,7 @@ function ecStore({ stale = 0, afterSave = null, readFail = 0 } = {}) {
 function deps(store, extra) {
   return Object.assign({
     loadConfigWithStatus: store.loadConfigWithStatus.bind(store), saveConfig: store.saveConfig.bind(store),
-    isKeyConfigured: async () => true, runningModels: { available: false }, partFinderHealthUrl: '',
+    isKeyConfigured: async () => true, runningModels: { available: false }, engineHealthUrl: '',
     loadJevWithStatus: async () => ({ status: 'absent', stored: null, public: ai.defaultJevPublic() }),
     readBack: NOSLEEP, byEmail: 'admin@example.test',
   }, extra || {});
@@ -87,8 +87,8 @@ describe('shared rule (config-readback.js)', () => {
     const sa = fs.readFileSync(path.join(here, '..', 'settings-admin.js'), 'utf8');
     expect(ro).toContain("require('../config-readback.js')");
     expect(sa).toContain("require('./config-readback')");
-    const deploy = fs.readFileSync(path.join(here, '..', 'deploy.sh'), 'utf8');
-    expect(deploy).toMatch(/zip -qr \/tmp\/whichpart-api\.zip[^\n]*config-readback\.js/);
+    const pkg = fs.readFileSync(path.join(here, '..', '..', '..', 'build', 'scripts', 'package_zips.py'), 'utf8');
+    expect(pkg).toContain("'config-readback.js'");
   });
 });
 

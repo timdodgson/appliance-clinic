@@ -6,7 +6,7 @@
 const path = require('path');
 const knowledgeInspect = require('./knowledge-inspect');
 let mediaEffective;
-try { mediaEffective = require('../part-finder/media-effective'); }
+try { mediaEffective = require('../diagnosis-engine/media-effective'); }
 catch { mediaEffective = require('./media-effective'); }
 
 const FAMILIES = knowledgeInspect.FAMILIES;
@@ -653,7 +653,7 @@ function getMedia(id, overlay) {
 
 /**
  * Effective Media joins for Knowledge Admin, computed with the SAME merge live diagnosis uses
- * (part-finder media-effective.js mergeJoin over the shipped join + the Media overlay):
+ * (diagnosis engine media-effective.js mergeJoin over the shipped join + the Media overlay):
  *   live — what diagnosis can show now: published presentation/file, attachments, no archived/deleted ids.
  *   all  — live plus archived items that are still attached (so Knowledge can flag them, never hide them).
  * Drafts are never part of either: the merge reads only identities[id].catalogue, never .draft.

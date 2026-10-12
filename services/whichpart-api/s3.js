@@ -3,7 +3,7 @@
 /** S3 access to the learning bucket shared by the admin stores and the test area. */
 // ---- ApplianceClinic AI provider configuration (admin control plane) --------
 // Persists routing/model config + the write-only OpenAI credential to Secrets
-// Manager (the SAME ids the part-finder RAG engine reads at runtime). The key
+// Manager (the SAME ids the diagnosis engine reads at runtime). The key
 // is never returned to the browser. All handlers are admin-guarded.
 const crypto = require('crypto');
 const { AUTH_REGION, LEARNING_BUCKET } = require('./config.js');

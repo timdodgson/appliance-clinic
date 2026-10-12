@@ -2,7 +2,7 @@
 
 [![Build and test](https://github.com/timdodgson/appliance-clinic/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/timdodgson/appliance-clinic/actions/workflows/build-and-test.yml)
 
-**Appliance Clinic is a production, AI-assisted diagnosis service for household appliances. Language models understand the customer and word the replies. Deterministic code owns the conversation state, the diagnosis, safety and part recommendations.**
+**Appliance Clinic is a standalone production AI diagnostic system with deterministic control around models. Language models understand the customer and word the replies. Deterministic code owns the conversation state, the diagnosis, safety and part recommendations.**
 
 An owner describes a fault in their own words ("it's making a grinding noise when it tries to empty"). The service then:
 - asks one useful question at a time;
@@ -17,49 +17,49 @@ It covers nine appliance families (washing machines, washer-dryers, tumble dryer
 - **Models with fixed jobs.** The models classify and word replies; code decides. Safety stops and part recommendations never depend on model prose ([ADR 0010](docs/adr/0010-deterministic-policy-around-llm.md)).
 - **Typed model output as control input.** The understanding model answers multiple-choice questions with scored choices, so code can validate it. An answer below its commit threshold is not committed as a fact; where it matters, the customer is asked one disambiguating question.
 - **One authoritative conversation state.** `cs/1` is the only state, with explicit, tested transitions ([ADR 0014](docs/adr/0014-cs1-is-the-only-conversation-state.md), [field map](docs/architecture/phase-11-state-ownership.md)).
+- **One decision path.** Every turn is canonical, an explicit non-diagnostic outcome (safety stop, decline, error code, unsupported, intake), or an explicit error. There is no hidden second path ([ADR 0018](docs/adr/0018-no-ac-legacy-fallback.md), [ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - **Evaluation driven by production transcripts.** Real conversations exposed failures that green tests missed, and those failures were turned into benchmark scenarios and regression tests ([findings](docs/evaluation/phase-10-transcript-findings.md)).
 - **A benchmark that is audited, not trusted.** GOLD whole-conversation scenarios are judged by a fixed model on a rubric with critical failures. The suite itself was checked against real failures.
 - **Root-cause fixes, not test gaming.** No threshold was lowered. A scenario was changed only when an audit showed the test itself was wrong. Each failing GOLD run was traced to a product defect and fixed at its layer ([Phase 11 results](docs/evaluation/phase-11-results.md#gold)).
 - **Imported, not recreated.** Live AWS resources were imported into CDK without recreation or downtime, after a sandbox rehearsal of every resource type ([ADR 0004](docs/adr/0004-import-existing-resources-into-cdk.md)).
-- **A live external consumer preserved.** A sister site's endpoint is served by the same engine. Its contract was frozen and checked before and after every release ([ADR 0003](docs/adr/0003-s4r-compatibility-boundary.md)).
-- **Security as a contract.** Least-privilege IAM, rotated secrets, and HMAC-signed internal fields on a public endpoint ([ADR 0017](docs/adr/0017-authenticate-orchestrator-only-engine-fields.md), [SECURITY.md](SECURITY.md)).
+- **Separated without breaking anyone.** The service left a shared engine for a dedicated one, and the old engine, which another site still uses, was not modified ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
+- **Security as a contract.** Least-privilege IAM, rotated secrets, and an engine that accepts only IAM-authenticated, HMAC-signed requests ([ADR 0017](docs/adr/0017-authenticate-orchestrator-only-engine-fields.md), [SECURITY.md](SECURITY.md)).
 - **Reviewed production releases.** Every change is a checked change set with a temporary least-privilege grant, drift detection, a no-op check and a CloudTrail audit ([`change.sh`](infra/production/steps/change.sh)).
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  B["AC browser"] -->|"POST /api<br/>signed state token"| W["whichpart-api (BFF)<br/>stores cs/1 and transcripts"]
+  B["Browser"] -->|"POST /api<br/>signed state token"| W["whichpart-api (BFF)<br/>stores cs/1 and transcripts"]
   W <--> D[("DynamoDB<br/>cs/1 state · transcripts")]
   W -->|"bearer + cs/1 block"| O["Orchestrator<br/>deterministic routing<br/>no state of its own"]
   O -->|"error codes"| M["Error-code MCP"]
-  O -->|"HMAC-signed call"| U
-  subgraph ENG["Diagnosis engine (one Lambda)"]
+  O -->|"IAM (SigV4) + HMAC"| U
+  subgraph ENG["Canonical diagnosis engine"]
     direction TB
-    U["UNDERSTAND<br/>typed mc/1"] --> G["Deterministic decision<br/>merge into cs/1 · evidence · policy<br/>safety · part gate → one NextAction"]
-    G --> C["COMPOSE<br/>+ reply checks"]
-    X["Legacy pipeline<br/>(frozen)"]
+    U["UNDERSTAND<br/>Jev typed understanding + mc/1"] --> G["Deterministic decision<br/>cs/1 merge · diagnostics<br/>safety · policy · part gate → one NextAction"]
+    G --> C["COMPOSE<br/>words the NextAction · output checks<br/>template fallback"]
   end
   U -.->|"typed choices"| J[("Jev")]
   C -.->|"wording only"| L[("Chat model")]
+  G -.->|"parts for a model"| P[("S4R Parts Catalogue<br/>(external)")]
   D -.->|"scheduled<br/>transcript review"| J
-  S["S4R browser"] -.->|"frozen /part-finder<br/>{messages} only"| X
   classDef det fill:#e8f3e8,stroke:#4a7;
   classDef model fill:#fdeee0,stroke:#c73;
   classDef state fill:#e6eefb,stroke:#47a;
-  classDef s4r fill:#f3e6f3,stroke:#a4a,stroke-dasharray: 4 3;
+  classDef ext fill:#f3f3f3,stroke:#888,stroke-dasharray: 4 3;
   class W,O,M,U,G,C det
   class J,L model
   class D state
-  class S,X s4r
+  class P ext
 ```
 
-Green boxes are deterministic code, orange are models, blue is persistent state, and dashed purple is the S4R compatibility path. A dotted arrow is a model call or the frozen legacy route. (The legacy pipeline also uses Jev and a chat model; the [overview](docs/architecture/overview.md) has the full picture.)
+Green boxes are deterministic code, orange are models, blue is persistent state, and dashed grey is an external service. A dotted arrow is a call out of the deterministic core.
 
 **One customer turn:**
 1. The browser posts the latest message with a signed state token. The BFF rate-limits it and loads the `cs/1` state.
-2. The orchestrator routes the turn. It keeps no conversation state: everything it needs comes from the request and the `cs/1` block. It calls the engine with HMAC-signed internal fields, and calls the error-code MCP when a code is involved.
-3. The engine asks **Jev** to classify the latest message into the typed `mc/1` vocabulary. Deterministic code then:
+2. The orchestrator routes the turn. It keeps no conversation state: everything it needs comes from the request and the `cs/1` block. It calls the engine over an IAM-authenticated URL, with every request also HMAC-signed, and calls the error-code MCP when a code is involved.
+3. The engine asks **Jev** for a typed understanding of the latest message, and classifies it into the `mc/1` vocabulary. Deterministic code then:
    - merges the result into `cs/1`;
    - scores evidence for the owning journey;
    - chooses exactly one next action, with safety first;
@@ -67,9 +67,29 @@ Green boxes are deterministic code, orange are models, blue is persistent state,
 4. COMPOSE has a chat model word that action. The reply is checked (one question, no invented parts, required safety lines, no instruction echo) and falls back to fixed copy if it fails.
 5. The BFF stores the new `cs/1` and the transcript. A scheduled judge reviews production transcripts.
 
-**Naming.** Several production names predate the separation: `whichpart-api`, `spares4repairs-part-finder`, `spares4repairs-diag-orchestrator`. They were kept on purpose, because renaming a Lambda function or a table means recreating it, and the migration imported resources rather than recreating them.
+The full component, flow and ownership picture is in [docs/architecture/overview.md](docs/architecture/overview.md).
 
-The same engine still serves the sister site Spares4Repairs (S4R) through a frozen legacy `/part-finder` contract. S4R sends only `{messages}` and never reaches the canonical path's internal fields. The full component, flow and ownership picture is in [docs/architecture/overview.md](docs/architecture/overview.md).
+### Services
+
+| Service | Code | Runs as | Job |
+|---|---|---|---|
+| **whichpart-api** (BFF) | `services/whichpart-api` | Lambda zip `whichpart-api`, behind CloudFront `/api*` | Customer turns, sessions and `cs/1` storage, transcripts, admin, scheduled jobs |
+| **Orchestrator** | `orchestration/` (Python) | Lambda image `spares4repairs-diag-orchestrator` | Deterministic turn control and routing; no language model, no state of its own |
+| **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | Understanding, the canonical journeys, policy, safety, part gate and COMPOSE |
+| **Error-code MCP** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` | Error-code meanings (MCP over HTTP) and the error-code admin catalogue |
+
+### External services
+
+| Service | Used for | Called from |
+|---|---|---|
+| **S4R Parts Catalogue API** | Compatible parts for a confirmed model (`PARTS_FOR_MODEL_API`) | Diagnosis engine |
+| **S4R Shop** | Product links (`S4R_PRODUCT_BASE_URL`) | whichpart-api |
+| **Jev** (`typesafe/jev`, through Cloudflare AI Gateway) | Typed understanding, the GOLD judge, transcript review | Diagnosis engine, whichpart-api |
+| **Inference providers** | COMPOSE wording: LM Studio (local) or, optionally, OpenAI | Diagnosis engine |
+
+The Spares4Repairs (S4R) parts catalogue and shop are third-party services to Appliance Clinic. The only relationship is outbound: AC calls them as a client.
+
+**Naming.** Several production names predate the separation: `whichpart-api`, `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp`. They were kept on purpose, because renaming a Lambda function or a table means replacing it, and the migration imported resources rather than recreating them.
 
 ## Where the models are, and are not
 
@@ -83,7 +103,7 @@ The same engine still serves the sister site Spares4Repairs (S4R) through a froz
 
 **Jev** (`typesafe/jev`, through Cloudflare AI Gateway) answers multiple-choice questions with typed, scored choices instead of free text. When it isn't sure, the consequence is deterministic. For example, a token that might be a code or a model number is held as unconfirmed, and the customer is asked one question.
 
-Retrieval never supplies safety rules, error-code meanings, compatibility or stock; those come from typed sources. Every prompt is registered and versioned, with a CI guard ([prompts/README.md](prompts/README.md)).
+No model supplies safety rules, error-code meanings, compatibility or stock; those come from typed sources. Every prompt is registered and versioned, with a CI guard ([prompts/README.md](prompts/README.md)).
 
 ## Safety model
 
@@ -97,13 +117,13 @@ Retrieval never supplies safety rules, error-code meanings, compatibility or sto
 | Layer | What it shows |
 |---|---|
 | Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites for every runtime, all of which must pass (no accepted-failure list) |
-| Typecheck (`npm run typecheck`) | Strict TypeScript declarations for the `/part-finder` frames, `cs/1`, engine configuration and the prompt registry |
-| Build equivalence (CI) | Rebuilt Lambda zips and container images equal the recorded references, file by file |
-| `/part-finder` contract and smoke | Checked before and after every production release |
+| Typecheck (`npm run typecheck`) | Strict TypeScript declarations for the diagnosis-engine request and response lines, `cs/1`, engine configuration and the prompt registry |
+| Build equivalence (CI) | Rebuilt Lambda zips (`applianceclinic-diagnosis-engine`, `whichpart-api`) and container images equal the recorded references, file by file |
+| Live AC journeys and production checks | Run before and after every production release |
 | **GOLD-v2.4** | 56 whole-conversation scenarios, judged by Jev on a 10-dimension rubric (`gold-v2-rubric-v3`) with critical failures |
 | Production transcript review | A scheduled judge over real conversations; read by a person alongside GOLD |
 
-**The latest gate (Phase 12) was 56/56 in two consecutive runs on the final build** ([results](docs/evaluation/phase-12-results.md#gold)), as was Phase 11's ([results](docs/evaluation/phase-11-results.md#gold)). That number is not the claim on its own. What matters is how it was reached:
+**The latest recorded gate (Phase 13) was 56/56 in two consecutive runs on the final build** ([results](docs/evaluation/phase-13-results.md#gold-on-the-final-build)), as were Phase 12's and Phase 11's. The Phase 15 pair is recorded in the [Phase 15 results](docs/evaluation/phase-15-results.md). That number is not the claim on its own. What matters is how it was reached:
 - GOLD-v2.2 had passed 49/49 in four consecutive runs. Real conversations were still visibly poor.
 - Reviewing production transcripts found failures the benchmark could not see. A model instruction was leaking into replies in scenarios that passed, and the suite had no error-code scenario at all, so a code mistaken for a model number went unseen.
 - The benchmark was audited against those failures. Scenarios and rubric-wide fidelity checks were added from real evidence; nothing was removed or weakened ([audit](docs/evaluation/phase-10-gold-audit.md)).
@@ -131,15 +151,18 @@ Appliance Clinic began inside the Spares4Repairs monorepo and shared its AWS acc
 | 7 | Dedicated auth, secrets and least-privilege IAM |
 | 8–9 | Architecture cleanup; first GOLD-driven product fixes; public-repository readiness |
 | 10–11 | A production truth audit, then one conversation state, signed internal fields and evaluation from real transcripts |
+| 12–13 | Single owners for the remaining decisions; no hidden fallback path and no accepted test failures |
+| 15 | A dedicated canonical diagnosis engine, IAM-authenticated and signed; the legacy diagnosis code deleted |
 
 The story, with its decisions and trade-offs, is in [docs/portfolio/project-story.md](docs/portfolio/project-story.md). The phase-by-phase evidence is in [docs/migration/](docs/migration/PLAN.md) and [docs/evaluation/](docs/evaluation/README.md).
 
 ## Known limitations
 
 The list of current open items, each with its evidence, is in [the project story](docs/portfolio/project-story.md#still-open). The largest ones:
-- The AWS account's Lambda concurrency pool (10) is shared with S4R, and a quota increase is recommended.
+- The AWS account's Lambda concurrency pool (10) is shared with other workloads in the account, and a quota increase is recommended.
 - The static site is still published from the original monorepo.
-- Two diagnosis paths stay in the engine for S4R's sake.
+- The old shared engine, which another site still uses, runs in AC's AWS account on AC's role, secrets and Jev credit. AC sends it no traffic and does not modify it ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
+- The new engine's alarms have no notification target yet.
 
 ## Working on it
 
@@ -172,6 +195,7 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 | Migration plan, results, runbooks | [docs/migration/PLAN.md](docs/migration/PLAN.md), [runbooks](docs/migration/runbooks/README.md) |
 | Project story | [docs/portfolio/project-story.md](docs/portfolio/project-story.md) |
 | Contributing, security | [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) |
+| Production changes | [`infra/production/steps/change.sh`](infra/production/steps/change.sh), [CONTRIBUTING.md](CONTRIBUTING.md#production-changes) |
 
 ## Licence
 

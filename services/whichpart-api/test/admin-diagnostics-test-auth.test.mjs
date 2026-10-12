@@ -18,7 +18,7 @@ const require = createRequire(import.meta.url);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const api = require('../index.js');
 const aiConfig = require('../ai-config.js');
-const registry = require('../../part-finder/canonical/journey-registry.js');
+const registry = require('../../diagnosis-engine/canonical/journey-registry.js');
 const mediaAdmin = require('../media-admin.js');
 const src = require('./api-source.cjs')();
 
@@ -320,7 +320,7 @@ describe('CANONICAL — Diagnostics exposes the canonical mode read-only', () =>
     api.setSessionForTests(ADMIN);
     api.setDiagnosticsDepsForTests({
       fetch: async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => '{}' }),
-      orchestratorHealthUrl: '', mcpHealthUrl: '', partFinderHealthUrl: '',
+      orchestratorHealthUrl: '', mcpHealthUrl: '', engineHealthUrl: '',
       loadOverlay: async () => mediaAdmin.emptyState(),
       loadModels: async () => null,
     });

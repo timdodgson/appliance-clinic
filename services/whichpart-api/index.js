@@ -26,7 +26,6 @@ const transcriptReview = require('./transcript-review');
 const recallStoreMod = require('./recalls/store');
 const recallIngest = require('./recalls/ingest');
 const mediaAdmin = require('./media-admin');
-const knowledgeAdmin = require('./knowledge-admin');
 const diagnosticsInspect = require('./diagnostics-inspect');
 const errorCodesAdmin = require('./error-codes-admin');
 const httpHeaders = require('./http-headers.js');
@@ -47,8 +46,7 @@ const {
   persistTranscriptEnd,
 } = require('./transcript-store.js');
 const {
-  setMediaAdminStore, loadOverlayCached, knowledgeStore, setKnowledgeAdminStore, adminKnowledge,
-  adminKnowledgeRecord, knowledgeMutation, needId, adminKnowledgeDraft, adminKnowledgeVersions, adminMedia,
+  setMediaAdminStore, loadOverlayCached, adminKnowledge, adminKnowledgeRecord, adminMedia,
   adminMediaRecord, adminMediaCreate, adminMediaPatch, adminMediaReplace, adminMediaAction, adminMediaVersion,
   adminMediaMap, adminMediaComponent, adminMediaRetire, adminMediaRestore, adminMediaDelete, adminMediaPreview,
   adminMediaKnowledge,
@@ -330,32 +328,9 @@ async function handleEvent(event) {
     if (method !== 'GET') return respond(405, { error: 'GET only' });
     return adminKnowledgeRecord(event);
   }
-  if (path.endsWith('/admin/knowledge/draft')) return adminKnowledgeDraft(event, method);
-  if (path.endsWith('/admin/knowledge/validate')) {
-    // Read-only: runs publish validation over unsaved editor content. No writes.
-    if (method !== 'POST') return respond(405, { error: 'POST only' });
-    return knowledgeMutation(event, ({ body, id }) => knowledgeStore().checkDraft(body.content, id));
-  }
-  if (path.endsWith('/admin/knowledge/versions')) {
-    if (method !== 'GET') return respond(405, { error: 'GET only' });
-    return adminKnowledgeVersions(event);
-  }
-  if (path.endsWith('/admin/knowledge/publish')) {
-    if (method !== 'POST') return respond(405, { error: 'POST only' });
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().publish(needId(id), body.expectedRevision, body.note, actor));
-  }
-  if (path.endsWith('/admin/knowledge/rollback')) {
-    if (method !== 'POST') return respond(405, { error: 'POST only' });
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().rollback(needId(id), body.expectedRevision, body.toVersion, body.note, actor));
-  }
-  if (path.endsWith('/admin/knowledge/archive')) {
-    if (method !== 'POST') return respond(405, { error: 'POST only' });
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().archive(needId(id), body.expectedRevision, actor));
-  }
-  if (path.endsWith('/admin/knowledge/restore')) {
-    if (method !== 'POST') return respond(405, { error: 'POST only' });
-    return knowledgeMutation(event, ({ actor, body, id }) => knowledgeStore().restore(needId(id), body.expectedRevision, actor));
-  }
+  // Knowledge is read-only (ADR 0019 removed the publish workflow). Any other /admin/knowledge/* path, including the
+  // retired draft/validate/versions/publish/rollback/archive/restore endpoints, is a 404, never the diagnose path below.
+  if (path.includes('/admin/knowledge/')) return respond(404, { error: 'not found' });
   if (path.endsWith('/admin/knowledge')) {
     if (method !== 'GET') return respond(405, { error: 'GET only' });
     return adminKnowledge(event);
@@ -591,7 +566,7 @@ async function handleEvent(event) {
   if (body.feedback) {
     try {
       const feedbackBody = JSON.stringify({ feedback: body.feedback });
-      await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(feedbackBody), body: feedbackBody });
+      await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(feedbackBody, ENGINE_URL), body: feedbackBody });
     } catch (e) {
       log({ evt: 'whichpart-api', rid, feedbackError: e.message });
     }
@@ -1104,8 +1079,6 @@ module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
 module.exports.composeProviderFailed = composeProviderFailed;
 module.exports.composeOf = composeOf;
 module.exports.setMediaAdminStore = setMediaAdminStore;
-module.exports.setKnowledgeAdminStore = setKnowledgeAdminStore;
-module.exports.knowledgeAdmin = knowledgeAdmin;
 module.exports.setDiagnosticsDepsForTests = setDiagnosticsDepsForTests;
 module.exports.setSettingsDepsForTests = setSettingsDepsForTests;
 module.exports.setSessionForTests = setSessionForTests;

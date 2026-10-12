@@ -1,6 +1,6 @@
 # 0018. No Appliance Clinic turn falls back to the legacy pipeline
 
-- **Status:** Implemented (Phase 13, releases 13.3, 13.4, 13.4b, 13.5, 13.5b, 13.5c and 13.6; [results](../evaluation/phase-13-results.md))
+- **Status:** Implemented (Phase 13, releases 13.3, 13.4, 13.4b, 13.5, 13.5b, 13.5c and 13.6; [results](../evaluation/phase-13-results.md)); amended by [ADR 0019](0019-dedicated-canonical-diagnosis-engine.md): legacy is deleted from AC and there is no unsigned path
 - **Date:** 2026-10-11
 - **Supersedes:** the current-use parts of [0012](0012-legacy-diagnosis-pipeline-retained.md): legacy as the "AC fallback"
   and "AC turns that no canonical journey owns, or whose canonical path degrades, also use the legacy pipeline". 0012

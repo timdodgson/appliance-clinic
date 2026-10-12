@@ -1,6 +1,6 @@
 /**
  * Transcript enrichment + Admin transcript API, against the REAL BFF handler. The orchestrator is mocked (fetch) but
- * runs the REAL part-finder canonical runtime for the turn (merge → journey → policy → COMPOSE with a fake LM), so the
+ * runs the real engine canonical runtime for the turn (merge → journey → policy → COMPOSE with a fake LM), so the
  * stored canonical-audit/1 block is what production writes. Proves:
  *   - a controlled turn writes the audit; the browser view is unchanged by it (and by an audit failure)
  *   - idempotent duplicate marks the original turn as replayed

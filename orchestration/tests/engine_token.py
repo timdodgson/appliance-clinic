@@ -8,7 +8,7 @@ import json
 import os
 import subprocess
 
-_GATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "services", "part-finder", "canonical", "token-gate.js")
+_GATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "services", "diagnosis-engine", "canonical", "token-gate.js")
 
 
 @functools.lru_cache(maxsize=None)
@@ -28,7 +28,7 @@ def token_decision(meaning, probabilities):
 
 def with_engine_token_decision(res):
     """An understand result as the engine returns it: the intent carries the engine's tokenDecision
-    (part-finder-lambda.js, understand mode, sets it on the intent object). One that already carries it is left alone."""
+    (services/diagnosis-engine/handler.js, understand mode, sets it on the intent object). One that already carries it is left alone."""
     if not isinstance(res, dict) or not isinstance(res.get("understand"), dict) or "tokenDecision" in res["understand"]:
         return res
     raw, jev = res["understand"], res.get("jev") or {}

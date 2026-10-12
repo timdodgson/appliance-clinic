@@ -15,7 +15,7 @@
           "COGNITO_CLIENT_ID": "2hgmm8m02n78agi46kae4p2eja",
           "COGNITO_USER_POOL_ID": "eu-west-1_r4fXXEdxC",
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
-          "ENGINE_URL": "https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/",
+          "ENGINE_URL": "https://le2kq7wvkhtgsrzsqwqutz3aau0xqkhi.lambda-url.eu-west-1.on.aws/",
           "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
@@ -46,7 +46,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/whichpart-api-k0nlQUsMpzbNmAdLDAySOoaP9D-hN2px4kSAUILIUTA.zip"
+        "s3Key": "phase8/whichpart-api-TfyJTEqJeGbeOzQTd8DITduVlGGh-gjPr0Zveazdrq8.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -70,11 +70,14 @@
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
           "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/",
           "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
-          "RAG_URL": "https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/"
-        }
+          "DIAGNOSIS_ENGINE_URL": "https://le2kq7wvkhtgsrzsqwqutz3aau0xqkhi.lambda-url.eu-west-1.on.aws/"
+        },
+        "unset": [
+          "RAG_URL"
+        ]
       },
       "code": {
-        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:d21eb344218d62c26302112253f8a394732d0cf9e3c7c090ae998a9c399c5960"
+        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:6797e244a6e191e6b9d9250e782c3a9da7dc00affadf34e6a45153cc4d161c65"
       }
     },
     "spares4repairs-error-code-mcp": {
@@ -94,16 +97,33 @@
         }
       }
     },
-    "spares4repairs-part-finder": {
-      "permissions": {
-        "PublicInvoke": {
-          "invokedViaFunctionUrl": true
-        }
+    "applianceclinic-diagnosis-engine": {
+      "create": {
+        "description": "Appliance Clinic dedicated canonical diagnosis engine (ADR 0019).",
+        "role": "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role",
+        "runtime": "nodejs22.x",
+        "handler": "handler.handler",
+        "architectures": [
+          "x86_64"
+        ],
+        "memorySize": 256,
+        "timeout": 300,
+        "url": {
+          "authType": "AWS_IAM",
+          "invokeMode": "BUFFERED"
+        },
+        "logRetentionDays": 90,
+        "alarms": true,
+        "tags": [
+          {
+            "Key": "ac:owner",
+            "Value": "applianceclinic"
+          }
+        ]
       },
-      "role": "arn:aws:iam::800960611664:role/ac-diagnosis-role",
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/spares4repairs-part-finder-ddicbVOIrPHVuo6V94c2SZ6_mpHIenObwKl5KK3KelY.zip"
+        "s3Key": "phase8/applianceclinic-diagnosis-engine-alagHdzdHKAG8tVNg-dDvDbCa94JLsEABrrAHGpAuKw.zip"
       },
       "env": {
         "set": {
@@ -112,15 +132,11 @@
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
           "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
-          "LM_MAX_TOKENS": "900",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai"
         },
         "digests": {
           "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
-        },
-        "unset": [
-          "ENGINE_SIGNING_MODE"
-        ]
+        }
       }
     }
   },
@@ -240,6 +256,60 @@
           ]
         }
       ]
+    },
+    "diag-orchestrator-role/ac-invoke-diagnosis-engine": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "InvokeDiagnosisEngineUrl",
+          "Effect": "Allow",
+          "Action": "lambda:InvokeFunctionUrl",
+          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+          "Condition": {
+            "StringEquals": {
+              "lambda:FunctionUrlAuthType": "AWS_IAM"
+            }
+          }
+        },
+        {
+          "Sid": "InvokeDiagnosisEngineViaUrl",
+          "Effect": "Allow",
+          "Action": "lambda:InvokeFunction",
+          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+          "Condition": {
+            "Bool": {
+              "lambda:InvokedViaFunctionUrl": "true"
+            }
+          }
+        }
+      ]
+    },
+    "whichpart-api-role/ac-invoke-diagnosis-engine": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "InvokeDiagnosisEngineUrl",
+          "Effect": "Allow",
+          "Action": "lambda:InvokeFunctionUrl",
+          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+          "Condition": {
+            "StringEquals": {
+              "lambda:FunctionUrlAuthType": "AWS_IAM"
+            }
+          }
+        },
+        {
+          "Sid": "InvokeDiagnosisEngineViaUrl",
+          "Effect": "Allow",
+          "Action": "lambda:InvokeFunction",
+          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+          "Condition": {
+            "Bool": {
+              "lambda:InvokedViaFunctionUrl": "true"
+            }
+          }
+        }
+      ]
     }
   },
   "roleManagedPolicies": {
@@ -248,8 +318,8 @@
     "error-code-mcp-role": []
   },
   "roles": {
-    "ac-diagnosis-role": {
-      "description": "Appliance Clinic: execution role of the diagnosis Lambda spares4repairs-part-finder (Phase 7, replaces the shared S4R server role).",
+    "ac-diagnosis-engine-role": {
+      "description": "Appliance Clinic: execution role of the dedicated diagnosis engine applianceclinic-diagnosis-engine (ADR 0019).",
       "trust": {
         "Version": "2012-10-17",
         "Statement": [
@@ -269,26 +339,25 @@
       },
       "managed": [],
       "inline": {
-        "ac-diagnosis-logs": {
+        "ac-diagnosis-engine-logs": {
           "Version": "2012-10-17",
           "Statement": [
             {
-              "Sid": "DiagnosisLogs",
+              "Sid": "DiagnosisEngineLogs",
               "Effect": "Allow",
               "Action": [
-                "logs:CreateLogGroup",
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
               ],
-              "Resource": "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-part-finder:*"
+              "Resource": "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-diagnosis-engine:*"
             }
           ]
         },
-        "ac-diagnosis-secrets": {
+        "ac-diagnosis-engine-secrets": {
           "Version": "2012-10-17",
           "Statement": [
             {
-              "Sid": "DiagnosisSecrets",
+              "Sid": "DiagnosisEngineSecrets",
               "Effect": "Allow",
               "Action": "secretsmanager:GetSecretValue",
               "Resource": [
@@ -299,17 +368,18 @@
             }
           ]
         },
-        "WhichpartLearningPut": {
+        "ac-diagnosis-engine-feedback-s3": {
           "Version": "2012-10-17",
           "Statement": [
             {
+              "Sid": "FeedbackPut",
               "Effect": "Allow",
               "Action": "s3:PutObject",
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/learning/*"
+              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/learning/feedback/*"
             }
           ]
         },
-        "whichpart-media-overlay-s3": {
+        "ac-diagnosis-engine-media-overlay-s3": {
           "Version": "2012-10-17",
           "Statement": [
             {
@@ -330,33 +400,6 @@
                   "s3:prefix": [
                     "media-admin",
                     "media-admin/*"
-                  ]
-                }
-              }
-            }
-          ]
-        },
-        "whichpart-knowledge-overlay-s3": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:GetObject"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664/knowledge-admin/published.json"
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
-              "Resource": "arn:aws:s3:::whichpart-learning-800960611664",
-              "Condition": {
-                "StringLike": {
-                  "s3:prefix": [
-                    "knowledge-admin",
-                    "knowledge-admin/*"
                   ]
                 }
               }

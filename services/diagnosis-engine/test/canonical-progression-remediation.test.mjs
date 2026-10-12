@@ -1,0 +1,155 @@
+/**
+ * GOLD v2 remediation, progression and classification (typed turns, no scenario text): new facts supersede a question
+ * (judged against the pre-merge state); an ignored request is not re-asked; an owner check the customer moved past is
+ * carried into the conclusion; a repeated conclusion is a short follow-up; a stated dryer type narrows the classifier's
+ * check choices; the check-result question is self-contained.
+ */
+import { describe, it, expect } from 'vitest';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const H = require('./helpers/b2-journey.cjs');
+const L = require('../handler.js')._internal;
+const rq = require('../canonical/requests.js');
+const Q = require('../canonical/mc1-questions.js');
+const { emptyState } = require('../canonical/cs1.js');
+const { C, O, K } = H;
+const ap = (a) => ({ appliance: { value: a, basis: 'stated' } });
+const open = (a, j, obs = []) => H.opener(j, null, obs, {}, ap(a));
+const ck = (c, r = 'clear') => C({ checks: [K(c, 'done', r)] });
+const ob = (...o) => C({ observations: o });
+const PACK = (k) => L.CANONICAL_JOURNEY_PACKS[k];
+const J = (k) => require(PACK(k).pipeline.replace('./canonical/', '../canonical/'));
+const compose = (k) => require(PACK(k).compose.replace('./canonical/', '../canonical/'));
+const text = (k, r) => { const JC = compose(k); return JC.template(JC.brief(r.state, r.last, null, {})); };
+
+describe('progression: new facts, ignored requests, owner checks, repeated conclusions', () => {
+  const withPending = () => rq.issueRequest(emptyState('cs_x'), { slot: 'OBSERVATION', target: 'leakLocation', purpose: 'DIAGNOSIS' }, 1).state;
+  it('a restated known fact is not new: the unanswered question is cannot_answer, not superseded', () => {
+    const before = { ...withPending(), evidence: { observations: { noHeat: { value: true, turn: 1 } }, checks: {}, replacedParts: [], customerTheories: [] } };
+    expect(rq.recordOutcome(before, C({ observations: [O('noHeat')] }), 2, before).outcome).toBe('cannot_answer');
+    expect(rq.recordOutcome(before, C({ observations: [O('leaksOnDrain')] }), 2, before).outcome).toBe('superseded');
+  });
+  it('a model given instead of an answer supersedes the request (identity is judged against the pre-merge state)', () => {
+    const r = H.play(J('dw-not-draining'), [open('dishwasher', 'not-draining', [O('waterRemaining')]), H.model('SMS25AW00G', 'bosch')]);
+    expect(r.state.requests[0]).toMatchObject({ target: 'dishwasher-filter', outcome: 'superseded' });
+  });
+  it('an ignored owner check is not re-asked; the conclusion carries it once, with its safety requirements', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ intent: 'price_or_availability' })]);
+    expect(r.state.requests[0].outcome).toBe('ignored');
+    expect(r.rules).toEqual(['MS11:power-supply', 'MS22:supply-or-plug-fuse']);
+    expect(r.last.conclusion.ownerCheck).toBe('power-supply');
+    expect(r.last.requires).toEqual(['no_live_electrical_checks']);
+    // it was explained when asked: the conclusion refers to it rather than explaining it again (GOLD G2-OC-03)
+    const t = text('mw-not-starting', r);
+    expect(t).toMatch(/the check I described earlier comes first/);
+    expect(t).not.toContain(compose('mw-not-starting').TASK['ask_check:power-supply'].say);
+  });
+  it('an owner check that was never explained is given in full with the conclusion', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ intent: 'price_or_availability' })]);
+    const state = { ...r.state, requests: r.state.requests.filter((q) => q.target !== 'power-supply') };
+    const JC = compose('mw-not-starting');
+    expect(JC.template(JC.brief(state, r.last, null, {}))).toContain(`this check comes first: ${JC.TASK['ask_check:power-supply'].say}`);
+  });
+  it('a conclusion does not claim an owner check passed (tumble dryer heater with the programme check outstanding, GOLD G2-TD-06)', () => {
+    const turns = [H.tdOpener('no-heat', 'heat', [O('noHeat'), O('dryerVented')]), C({ checks: [K('lint-filter', 'done', 'clear'), K('vent-duct', 'done', 'clear')] }), ob(O('restartsAfterCooling', false))];
+    const r = H.play(J('td-not-heating'), turns);
+    expect(r.last.conclusion).toMatchObject({ cause: 'heater-or-thermal-cut-out', ownerCheck: 'programme-setting' });
+    const t = text('td-not-heating', r);
+    expect(t).toMatch(/airflow clear/);
+    expect(t).not.toMatch(/programme right|programme set correctly/);
+  });
+  it('a check the customer said they cannot tell about is not repeated in the conclusion', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(r.last.conclusion.ownerCheck).toBeUndefined();
+  });
+  it('"not sure" twice → no further question of the same kind: the usual causes, most likely first, plus the next open check', () => {
+    const turns = [H.tdOpener('cuts-out', null, [O('cutsOut'), O('dryerHeatPump')]), C({ reply: { toPending: 'cannot_answer' } }), C({ reply: { toPending: 'cannot_answer' } })];
+    const r = H.play(J('td-stops-mid-cycle'), turns);
+    expect(r.last.conclusion).toMatchObject({ cause: 'likely-causes', ownerCheck: 'condenser' });
+    expect(r.last.conclusion.alternatives.length).toBeGreaterThan(1);
+    expect(r.last.requires.length).toBeGreaterThan(0);
+    expect(text('td-stops-mid-cycle', r)).toMatch(/usual causes, most likely first/);
+    // and it stays concluded while nothing new arrives
+    const r2 = H.play(J('td-stops-mid-cycle'), [...turns, C({ reply: { toPending: 'cannot_answer' } })]);
+    expect(r2.last.kind).toBe('conclude');
+  });
+  it('a check the customer brought up but has not finished (dirt seen, not cleaned) comes before the other steps', () => {
+    const r = H.play(J('ff-not-cooling'), [H.ffOpener('not-cooling', null, [O('bothCompartmentsWarm'), O('doorLeftOpen', false)]), C({ checks: [K('condenser-coil-clear', 'not_done')] })]);
+    expect(r.rules.slice(-1)).toEqual(['FC16:condenser-coil-clear']);
+  });
+  it('the same conclusion with nothing new since is a short follow-up, not a repeat', () => {
+    const r = H.play(J('mw-not-starting'), [open('microwave', 'wont-start', [O('noPower')]), C({ reply: { toPending: 'cannot_answer' } }), C({})]);
+    expect(r.rules.slice(-1)).toEqual(['MS22:supply-or-plug-fuse']);
+    expect(r.last.conclusion.repeat).toBe(true);
+    const t = text('mw-not-starting', r);
+    expect(t).toMatch(/nothing changes from what I said/);
+    expect(t).not.toMatch(/try another appliance/);
+  });
+});
+
+describe('classifier: dryer type narrows the check choices; check result is self-contained', () => {
+  const state = (obs) => {
+    const s = emptyState('cs_x');
+    s.identity.appliance = { value: 'tumble-dryer', basis: 'stated', turn: 1 };
+    for (const [k, v] of Object.entries(obs)) s.evidence.observations[k] = { value: v, basis: 'stated', turn: 1 };
+    return s;
+  };
+  const crit = (obs) => Object.keys(Q.buildMc1Request({ latestMessage: 'x', state: state(obs), candidates: { identifiers: [], brands: [], components: [] } }).questions.mcCheckA.criteria);
+  it('vented → no condenser / water container; condenser → no vent duct', () => {
+    expect(crit({ dryerVented: true })).not.toEqual(expect.arrayContaining(['condenser']));
+    expect(crit({ dryerVented: true })).toEqual(expect.arrayContaining(['lint-filter', 'vent-duct']));
+    expect(crit({ dryerCondenser: true })).not.toEqual(expect.arrayContaining(['vent-duct']));
+  });
+  it('the result question never refers to another question\'s answer', () => {
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcCheckAResult.instructions).not.toMatch(/mcCheck/);
+    expect(q.mcCheckBResult.instructions).not.toMatch(/mcCheck/);
+  });
+
+  it('the check result is Jev\'s own top answer: an unsure / none result records no check (no probability override)', () => {
+    const plan = { checks: [['mcCheckA', 'mcCheckAResult']], questionKeys: [], candidates: { identifiers: [], brands: [], components: [] }, roles: {} };
+    const out = Q.adaptMc1Answers({
+      mcCheckA: { type: 'choice', choice: 'lint-filter', probabilities: { 'lint-filter': 0.98, none: 0.02 }, confidence: 0.98 },
+      mcCheckAResult: { type: 'choice', choice: 'unsure', probabilities: { done_clear: 0.3, unsure: 0.6, none: 0.1 }, confidence: 0.6 },
+    }, plan, {});
+    expect(out.classification.checks).toEqual([]);
+  });
+  it('hedged reports are covered by the question wording, not by code', () => {
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: null, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    expect(q.mcCheckAResult.instructions).toMatch(/hedged report/);
+  });
+  it('"found dirt but did not say it is dealt with" leaves the owner fix to do, and keeps what they found', () => {
+    expect(Q.CHECK_STATUS.done_found_unspecified).toEqual(['not_done', 'found_unspecified']);
+  });
+  it('a found-but-not-cleared check survives mc/1 validation and the merge', () => {
+    const mc1 = require('../canonical/mc1.js');
+    const { merge } = require('../canonical/merge.js');
+    const { emptyState } = require('../canonical/cs1.js');
+    const c = mc1.validateClassification({ scope: 'appliance', checks: [{ check: 'dishwasher-filter', status: 'not_done', result: 'found_unspecified' }] });
+    expect(c.checks[0]).toMatchObject({ status: 'not_done', result: 'found_unspecified' });
+    expect(merge(emptyState('s'), c).state.evidence.checks['dishwasher-filter']).toMatchObject({ status: 'not_done', result: 'found_unspecified' });
+  });
+  it('the pending-check question reads a hedged finding as found-but-not-cleared, never as not done', () => {
+    const src = require('node:fs').readFileSync(require.resolve('../canonical/mc1-questions.js'), 'utf8');
+    expect(src).toMatch(/"it looked a bit clogged".*= done_found_unspecified/);
+  });
+
+  it('a check reported "not done yet" after its request was closed is re-offered once, with the not-yet frame', () => {
+    const P = require('../canonical/policy-kit.js');
+    const K = P.makeKit({ checks: ['drain-filter'] });
+    const s = emptyState('cs_x'); s.version = 3;
+    s.requests.push({ id: 'q1', slot: 'CHECK', target: 'drain-filter', purpose: 'DIAGNOSIS', kind: 'ask', askedTurn: 1, journey: null, rule: null, outcome: 'superseded', resolvedTurn: 2 });
+    expect(K.askable(s, 'drain-filter')).toBe(false);
+    s.evidence.checks['drain-filter'] = { status: 'not_done', result: null, turn: 3, history: [] };
+    expect(K.lastOf(s, 'drain-filter')).toBe('not_done');
+    expect(K.askable(s, 'drain-filter')).toBe(true);
+    expect(require('../canonical/compose-kit.js').reofferFrame(s, 'drain-filter')).toMatch(/haven't had a chance/);
+  });
+  it('the pending-check question is told that a message about a different check is not about this one', () => {
+    const s = emptyState('cs_x');
+    const r = rq.issueRequest(s, { slot: 'CHECK', target: 'drain-command', purpose: 'DIAGNOSIS' }, 1).state;
+    const q = Q.buildMc1Request({ latestMessage: 'x', state: r, candidates: { identifiers: [], brands: [], components: [] } }).questions;
+    const pend = Object.values(q).find((x) => /pendingRequest: we asked the customer to do this check/.test(x.instructions || ''));
+    expect(pend.instructions).toMatch(/DIFFERENT check/);
+  });
+});

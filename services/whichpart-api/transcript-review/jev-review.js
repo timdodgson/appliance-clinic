@@ -368,7 +368,7 @@ function buildSummary(d) {
   return schema.clip(s, 600);
 }
 
-// ---- Jev transport (self-contained; whichpart-api does not bundle part-finder) ------------------
+// ---- Jev transport (self-contained; whichpart-api does not bundle the diagnosis engine) ------------------
 
 function unwrapAnswers(parsed) {
   if (!parsed || typeof parsed !== 'object') return null;

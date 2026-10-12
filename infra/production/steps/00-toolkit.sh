@@ -54,8 +54,8 @@ S4R_ROLE=arn:aws:iam::$A:role/SparesSite-dev-ServerFunctionRoleC337EDB9-7aUzUc2q
 for check in "iam:PutRolePolicy $S4R_ROLE explicitDeny" "iam:PassRole $S4R_ROLE explicitDeny" \
   "cloudformation:UpdateStack arn:aws:cloudformation:$P5_REGION:$A:stack/SparesSite-dev/* explicitDeny" \
   "apigateway:PATCH arn:aws:apigateway:$P5_REGION::/apis/65vnizdmk4 explicitDeny" \
-  "lambda:UpdateFunctionConfiguration arn:aws:lambda:$P5_REGION:$A:function:spares4repairs-part-finder implicitDeny" \
-  "lambda:GetFunction arn:aws:lambda:$P5_REGION:$A:function:spares4repairs-part-finder allowed" \
+  "lambda:UpdateFunctionConfiguration arn:aws:lambda:$P5_REGION:$A:function:applianceclinic-diagnosis-engine implicitDeny" \
+  "lambda:GetFunction arn:aws:lambda:$P5_REGION:$A:function:applianceclinic-diagnosis-engine allowed" \
   "dynamodb:UpdateTable arn:aws:dynamodb:$P5_REGION:$A:table/whichpart-transcripts implicitDeny" \
   "dynamodb:DescribeTable arn:aws:dynamodb:$P5_REGION:$A:table/whichpart-transcripts allowed" \
   "s3:GetObject arn:aws:s3:::whichpart-learning-$A/any implicitDeny" \

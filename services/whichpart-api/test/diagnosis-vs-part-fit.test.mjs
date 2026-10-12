@@ -8,8 +8,6 @@
  * (100->20) and was scored as an unnecessary clarification. These tests lock the corrected contract:
  * a part-fit model request (diagnosis already delivered) is NOT a diagnostic clarification, while a
  * real diagnostic question, or a model request WITHOUT a delivered diagnosis, still is.
- *
- * Also source-guards the part-finder COMPOSE change (diagnosis-first, model-for-exact-part framing).
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -115,7 +113,6 @@ describe('safety precedence (unchanged)', () => {
 // ---------------------------------------------------------------------------
 describe('source guards', () => {
   const scoringSrc = readFileSync(join(HERE, '..', 'benchmark', 'acq-scoring.js'), 'utf8');
-  const composeSrc = require('../../part-finder/test/engine-source.cjs')();
 
   it('scoring: modelOnlyRequest requires a delivered diagnosis (cannot exempt a bare model ask)', () => {
     expect(/function modelOnlyRequest\(view\)\s*\{[\s\S]*?diagnosisDelivered\(view\)/.test(scoringSrc)).toBe(true);
@@ -125,17 +122,5 @@ describe('source guards', () => {
   });
   it('scoring: efficiency exempts a part-fit model request only on immediate/no-followup golds', () => {
     expect(/\(gold\.immediateDiagnosis \|\| !followUpAppropriate\) && modelOnlyRequest\(transcript\[i\]\.view\)\) continue;/.test(scoringSrc)).toBe(true);
-  });
-  it('COMPOSE: separates diagnosis from exact part fit (model NOT needed to diagnose)', () => {
-    expect(/is NOT needed to give a useful DIAGNOSIS/.test(composeSrc)).toBe(true);
-    // the model number is asked to check part fit, never promised as the exact part (an overclaim presentation.js rewrites)
-    expect(/check whether a suitable replacement is available/.test(composeSrc)).toBe(true);
-    expect(/identify the exact replacement part/i.test(composeSrc)).toBe(false);
-  });
-  it('COMPOSE: sparse-catalogue steer no longer gates the diagnosis behind the model', () => {
-    // The old wording "ASK for the model number ... BEFORE offering parts" (which withheld the
-    // diagnosis) must be gone; the diagnosis-first framing must be present.
-    expect(/ASK for the model number \(using the locations above\) BEFORE offering parts/.test(composeSrc)).toBe(false);
-    expect(/Still give the DIAGNOSIS first/.test(composeSrc)).toBe(true);
   });
 });

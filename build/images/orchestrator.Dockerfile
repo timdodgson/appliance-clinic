@@ -20,7 +20,7 @@ COPY orchestration/model.py               ${LAMBDA_TASK_ROOT}/orchestration/mode
 COPY orchestration/routing.py             ${LAMBDA_TASK_ROOT}/orchestration/routing.py
 COPY orchestration/services.py            ${LAMBDA_TASK_ROOT}/orchestration/services.py
 COPY orchestration/orchestrator.py        ${LAMBDA_TASK_ROOT}/orchestration/orchestrator.py
-COPY services/part-finder/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json
+COPY services/diagnosis-engine/canonical/journeys.json ${LAMBDA_TASK_ROOT}/orchestration/canonical_journeys.json
 COPY orchestration/deploy/lambda_handler.py ${LAMBDA_TASK_ROOT}/lambda_handler.py
 
 CMD ["lambda_handler.handler"]

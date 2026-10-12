@@ -1,6 +1,6 @@
 /**
  * canonical-audit/1 — the bounded per-turn canonical snapshot stored on transcript turns.
- * Built from REAL part-finder merge / journey / COMPOSE output (canonical-audit-fixtures.cjs), then stored through the
+ * Built from real engine merge / journey / COMPOSE output (canonical-audit-fixtures.cjs), then stored through the
  * real transcript module (memory store). No network.
  */
 import { describe, it, expect } from 'vitest';

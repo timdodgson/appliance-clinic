@@ -3,13 +3,13 @@
 
 Ports:
   ErrorCodeService       -> resolve_error_code / resolve_appliance_context (deterministic MCP)
-  DiagnosticService      -> diagnose (probabilistic RAG) — FAKE in this prototype
+  DiagnosticService      -> diagnose (probabilistic diagnosis engine) — FAKE in this prototype
   ResponseComposer       -> deterministic customer-facing text (lives in orchestrator.py)
 
 Implementations here:
   FakeErrorCodeService   -> canned MCP-shaped responses (deterministic core tests)
   McpErrorCodeService    -> calls the REAL deployed Error-Code MCP over Streamable HTTP + bearer
-  FakeDiagnosticService  -> deterministic stand-in for the Diagnostic RAG (NEVER the real RAG here)
+  FakeDiagnosticService  -> deterministic stand-in for the diagnosis engine (NEVER the real engine here)
 
 All inputs are treated as data. No implementation interprets instructions embedded in strings.
 """
@@ -21,7 +21,7 @@ import re as _re
 
 
 def rag_safety_from_done(done: dict, reason=None):
-    """Map a RAG done-event onto orchestrator safety class.
+    """Map an engine done event onto orchestrator safety class.
 
     Isolation before proposed physical access is a SYSTEM_SAFETY_RULE on that
     action, not a customer-reported hazard. It must never become STOP_USE and
@@ -68,63 +68,15 @@ class DiagnosticService(Protocol):
     # verbatim. It is passed ONLY when the BFF supplied one, so implementations without it are unaffected.
 
 
-# ---------------- FAKE Diagnostic RAG (deterministic; stands in for services/part-finder) ----------------
+# ---------------- FAKE diagnosis engine (deterministic; stands in for services/diagnosis-engine) ----------------
 class FakeDiagnosticService:
-    """Deterministic stand-in for the two-pass Diagnostic RAG. Returns a RAG-shaped result.
+    """Deterministic stand-in for the diagnosis engine (services/diagnosis-engine).
 
-    Rules are keyword-based ONLY so orchestration tests are reproducible. It intentionally does
-    NOT know error-code meanings; when given `trusted` context it may align/refine but never
-    fabricates certainty. Mirrors the real RAG's contract: {grounded, faultId, faultLabel,
-    system, confidence, candidateComponents, clarifyingQuestion, safety}.
+    understand() is a keyword-based stand-in for Jev UNDERSTAND so orchestration tests are reproducible.
+    diagnose() never proves canonical control; a test that needs a journey's answer scripts one.
     """
-    RULES = [
-        (("lost suction", "no suction", "pulsing", "pulsating", "surges", "cuts out then starts"),
-         ("lost-suction", "Lost suction / airflow blockage", "airflow", 0.88,
-          ["filter", "hose blockage", "bin"])),
-        (("won't drain", "wont drain", "not draining", "water left in the drum", "won't empty"),
-         ("not-draining", "Not draining / won't empty", "drain", 0.86, ["drain pump", "pump filter", "drain hose"])),
-        (("leaking underneath", "water underneath", "puddle", "water on the floor", "leaking water", "leak"),
-         ("leak-flood", "Leak", "leak", 0.85, ["door seal", "sump hose", "drain pump"])),
-        (("won't spin", "wont spin", "not spinning"),
-         ("motor-drum", "Motor / drum", "motor", 0.72, ["carbon brushes", "drive belt", "motor"])),
-        (("no heat", "not heating", "stays cold", "cold wash", "won't heat"),
-         ("heater", "Heater / heating fault", "heating", 0.8, ["heating element", "thermostat", "ntc"])),
-        (("won't fill", "not filling", "no water", "trickles in"),
-         ("inlet-valve", "Fill / water inlet fault", "fill", 0.8, ["inlet valve", "inlet filter"])),
-        (("fridge fan", "evaporator fan", "fan not spinning", "fan isn't spinning", "fan not running"),
-         ("evaporator-fan", "Evaporator fan fault", "evaporator-fan", 0.82,
-          ["evaporator fan motor", "fan blade", "defrost heater", "defrost thermostat"])),
-    ]
-    # Error-code -> fault grounding. Mirrors the REAL part-finder's resolveFault(errorCode), which
-    # resolves a RECOGNISED code to a fault node independently of symptom prose AND is isolated by
-    # make+appliance (Samsung FF 22C -> evaporator-fan; LG 22C / Samsung washing-machine 22C /
-    # no-make 22C stay UNRESOLVED). Keyed by (make, appliance-normalised, code) so that isolation is
-    # preserved. Consulted ONLY when no symptom rule matched, so the symptom-driven tests above are
-    # unaffected. (The FakeErrorCodeService owns code MEANING/ambiguity; this owns the runtime
-    # diagnostic resolution the orchestrator reconciles against — the two are deliberately separate.)
-    _FAN = ("evaporator-fan", "Evaporator fan fault", "evaporator-fan", 0.82,
-            ["evaporator fan motor", "fan blade", "defrost heater", "defrost thermostat"])
-    CODE_FAULTS = {
-        ("samsung", "fridge-freezer", "22c"): _FAN,
-        ("samsung", "fridge-freezer", "22e"): _FAN,
-        ("samsung", "fridge-freezer", "23e"): _FAN,
-        # runtime grounds a FAN fault for 40E too; the MCP's meanings for 40E diverge (fan vs
-        # compressor), so the orchestrator must still clarify — this exercises that conflict gate.
-        ("samsung", "fridge-freezer", "40e"): ("evaporator-fan", "Evaporator fan fault",
-                                               "evaporator-fan", 0.80, ["evaporator fan motor", "fan blade"]),
-    }
-    # Mirror the real RAG's deterministic categories: (cue, reason). Gas is an EMERGENCY_ACTION
-    # (bespoke gas guidance); shock/burning are STOP_USE with cause-specific wording downstream.
-    SAFETY_HINTS = (("smell of gas", "gas"), ("gas leak", "gas"),
-                    ("burning", "burning"), ("burnt smell", "burning"), ("smells electrical", "burning"),
-                    ("shock", "shock"))
-    _REASON_CLASS = {"gas": "EMERGENCY_ACTION", "shock": "STOP_USE", "burning": "STOP_USE"}
-    _UNSAFE_HINTS = ("test the element live", "test it live", "live terminals", "bypass the",
-                     "keep resetting the rcd", "discharge the capacitor", "re-gas", "regas",
-                     "look for the leak with", "while it's plugged in", "while its plugged in")
-
     # ---- Story 3: Jev UNDERSTAND stand-in (test-only deterministic classifier) ----
-    # Mirrors the SINGLE Jev UNDERSTAND the real part-finder runs. Deterministic keyword/shape
+    # Mirrors the SINGLE Jev UNDERSTAND the real engine runs. Deterministic keyword/shape
     # classification is acceptable HERE because this is a test stand-in FOR Jev (the production
     # semantic authority); the orchestrator under test consumes these typed decisions exactly as it
     # consumes the real Jev result. Returns {"jev": {decisions}, "understand": <raw intent>}.
@@ -210,9 +162,9 @@ class FakeDiagnosticService:
             model, token_meaning = m_model.group(1), "model"
         if code_cued and not code and symptom_family == "none":
             symptom_family = "error_display"
-        # ON-TOPIC, NOT a pure identity/code turn -> the RAG is the understanding authority (it
+        # ON-TOPIC, NOT a pure identity/code turn -> the diagnosis engine is the understanding authority (it
         # reassures / advises / diagnoses). Mirror that by treating such a turn as a symptom so it
-        # routes to the RAG rather than a bare clarify. A lone identifier/code answer is NOT this.
+        # routes to the diagnosis engine rather than a bare clarify. A lone identifier/code answer is NOT this.
         if not fault and not code and not m_code and symptom_family == "none":
             content = [w for w in _re.split(r"[^a-z0-9]+", low)
                        if w and w not in self._FAKE_IDENTITY_STOP and not _re.fullmatch(r"[a-z0-9]*\d[a-z0-9]*", w)]
@@ -220,7 +172,7 @@ class FakeDiagnosticService:
                 symptom_family, fault = "other", "general appliance issue"
         establishes = "symptom" if fault else ("identity" if (model or code) else "none")
         # Safety significance (Jev classifies this separately from symptomFamily). The orchestrator
-        # routes any safety-significant turn to the RAG, which owns the deterministic safety stop.
+        # routes any safety-significant turn to the diagnosis engine, which owns the deterministic safety stop.
         safety_sig = "none"
         if _re.search(r"smell\w*\s+(of\s+)?gas|gas\s+(smell|leak|hiss|escap)|leak\w*\s+gas", low):
             safety_sig, establishes = "gas_smell", "hazard"
@@ -269,78 +221,10 @@ class FakeDiagnosticService:
 
     def diagnose(self, *, symptoms: str, appliance=None, make=None, trusted=None, image=None,
                  conversation=None, understand=None, established=None, canonical=None) -> dict:
-        s = (symptoms or "").lower()
-        # Simulate vision extraction for offline tests: an image yields an extracted make/model.
-        _extracted = {"make": "Beko", "model": "WMB71442W"} if image else {"make": None, "model": None}
-        unsafe = any(h in s for h in self._UNSAFE_HINTS)
-        isolation = (
-            not any(x in s for x in ("already replaced", "i replaced", "i've replaced", "i have replaced"))
-            and any(x in s for x in ("going to", "i'll", "i will", "about to", "how do i", "can i", "should i"))
-            and any(x in s for x in ("take the", "take it", "remove", "check the plug", "open the panel", "take apart"))
-        )
-        safety_normal = (
-            {"class": "ISOLATE_IF_SAFE", "stopUse": False} if isolation
-            else {"class": "NORMAL_DIAGNOSTIC", "stopUse": False}
-        )
-        # Gas requires "gas" + a smell/leak cue (so "gas oven won't heat" is not an emergency).
-        if ("gas" in s and any(c in s for c in ("smell", "leak"))):
-            return {"grounded": False, "faultId": None, "faultLabel": None, "system": "safety",
-                    "confidence": 0.0, "candidateComponents": [], "clarifyingQuestion": None,
-                    "safety": {"class": "EMERGENCY_ACTION", "stopUse": True},
-                    "safetyReason": "gas", "unsafeIntent": unsafe}
-        for needle, reason in self.SAFETY_HINTS:
-            if needle in s:
-                cls = self._REASON_CLASS[reason]
-                return {"grounded": False, "faultId": None, "faultLabel": None, "system": "safety",
-                        "confidence": 0.0, "candidateComponents": [], "clarifyingQuestion": None,
-                        "safety": {"class": cls, "stopUse": True},
-                        "safetyReason": reason, "unsafeIntent": unsafe}
-        # Normal-behaviour reassurance (mirrors the RAG's deterministic backstop for offline tests):
-        # an "is it normal?" question about a long eco/cycle with NO failure symptom -> reassure.
-        if (("is it normal" in s or "is this normal" in s) and ("eco" in s or "long" in s or "hours" in s)
-                and not any(k in s for k in ("cold", "not heat", "won't heat", "wont heat", "drain",
-                                             "not filling", "won't fill", "error", "leak", "stall"))):
-            return {"grounded": False, "faultId": None, "faultLabel": None, "system": None,
-                    "confidence": 0.0, "candidateComponents": [], "clarifyingQuestion": None,
-                    "safety": {"class": "NORMAL_DIAGNOSTIC", "stopUse": False},
-                    "safetyReason": None, "unsafeIntent": unsafe, "normalBehaviour": True,
-                    "reply": ("That's normal for an eco programme — it runs long to save energy by "
-                              "heating slowly and soaking, so there's nothing to replace.")}
-        # if a trusted deterministic code system is present, prefer aligning to it
-        trusted_system = ((trusted or {}).get("facts") or {}).get("system") if trusted else None
-        best = None
-        for needles, res in self.RULES:
-            if any(n in s for n in needles):
-                best = res
-                break
-        if not best and make and appliance:
-            # no symptom rule matched -> try resolving a recognised error-code token in the text,
-            # ISOLATED by make+appliance (mirrors part-finder resolveFault(errorCode) isolation);
-            # leaves symptom-driven tests untouched.
-            mk = str(make).strip().lower()
-            ap = str(appliance).strip().lower().replace(" ", "-")
-            toks = set(_re.split(r"[^a-z0-9]+", s))
-            for (fmk, fap, code_key), res in self.CODE_FAULTS.items():
-                if fmk == mk and fap == ap and code_key in toks:
-                    best = res
-                    break
-        if not best:
-            # vague -> ask (mirrors RAG calibrated clarification)
-            return {"grounded": False, "faultId": None, "faultLabel": None, "system": None,
-                    "confidence": 0.0, "candidateComponents": [], "parts": [],
-                    "resolvedModel": _extracted["model"], "extractedMake": _extracted["make"],
-                    "traceId": None, "safetyInformation": None, "media": [],
-                    "clarifyingQuestion": "Can you describe what the appliance is doing in a bit more detail?",
-                    "safety": safety_normal,
-                    "safetyReason": None, "unsafeIntent": unsafe}
-        fid, label, system, conf, comps = best
-        return {"grounded": True, "faultId": fid, "faultLabel": label, "system": system,
-                "confidence": conf, "candidateComponents": comps, "clarifyingQuestion": None,
-                "parts": [], "resolvedModel": _extracted["model"], "extractedMake": _extracted["make"],
-                "traceId": None, "safetyInformation": None, "media": [],
-                "safety": safety_normal,
-                "safetyReason": None, "unsafeIntent": unsafe,
-                "alignedToTrustedSystem": (trusted_system == system) if trusted_system else None}
+        """A reply without `canonicalControl`: the orchestrator never presents it as a journey's answer
+        (diagnose_not_canonical). Tests that need a canonical reply script one in a subclass."""
+        return {"reply": "", "parts": [], "media": [], "traceId": None, "safetyInformation": None,
+                "safety": {"class": "NORMAL_DIAGNOSTIC", "stopUse": False}}
 
 
 # ---------------- FAKE Error-Code service (canned; for deterministic core tests) ----------------
@@ -390,7 +274,7 @@ class FakeErrorCodeService:
         return {"status": "NEEDS_CONTEXT", "resolvedAttributes": {}, "confidence": "LOW"}
 
 
-# ---------------- REAL Diagnostic RAG adapter (banked part-finder Function URL) ----------------
+# ---------------- REAL diagnosis engine adapter (its Function URL) ----------------
 def _conversation_window(items, cap=12):
     """Keep the latest turns without starting on an assistant message.
 
@@ -413,7 +297,7 @@ def _conversation_window(items, cap=12):
 
 
 def build_rag_messages(*, symptoms="", image=None, conversation=None):
-    """Build the Diagnostic RAG `messages` array.
+    """Build the diagnosis engine `messages` array.
 
     When a role-separated conversation is supplied, send it as a real multi-turn thread
     (user/assistant) so UNDERSTAND can distinguish established facts from the latest evidence.
@@ -497,18 +381,37 @@ def engine_signature(body: bytes, key: Optional[str] = None, now: Optional[int] 
     return f"t={t},v1={mac}"
 
 
-class RealDiagnosticService:
-    """Adapter over the banked Diagnostic RAG (part-finder Function URL, NDJSON stream).
+def aws_iam_headers(url: str, body: bytes, headers: dict) -> dict:
+    """ADR 0019: the diagnosis engine's Function URL is AWS_IAM. Sign the request (SigV4, service `lambda`) with this
+    function's own role credentials; the role is allowed to invoke only that URL. Without credentials (local tests) the
+    headers are returned as they are, and an IAM URL refuses the call (403), which degrades the turn visibly."""
+    try:
+        import botocore.session
+        from botocore.auth import SigV4Auth
+        from botocore.awsrequest import AWSRequest
+    except ImportError:
+        return headers
+    creds = botocore.session.get_session().get_credentials()
+    if creds is None:
+        return headers
+    region = os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "eu-west-1"
+    req = AWSRequest(method="POST", url=url, data=body, headers=dict(headers))
+    SigV4Auth(creds.get_frozen_credentials(), "lambda", region).add_auth(req)
+    return dict(req.headers.items())
 
-    Translates orchestration request -> RAG request ({messages, seed}) and the RAG `done.understood`
+
+class RealDiagnosticService:
+    """Adapter over the diagnosis engine (applianceclinic-diagnosis-engine Function URL, JSON lines).
+
+    Translates orchestration request -> engine request ({messages, seed}) and the diagnosis engine `done.understood`
     -> DiagnosticService port shape. When the boundary supplies a role-separated conversation,
     that thread is forwarded so UNDERSTAND sees prior advisor turns and the latest evidence
     separately. Trusted deterministic facts are enforced by the ORCHESTRATOR
-    (authority + conflict + composer), never by asking the RAG to own code meaning.
+    (authority + conflict + composer), never by asking the diagnosis engine to own code meaning.
     Raises RagUnavailable on transport failure/timeout so the orchestrator can degrade gracefully.
     """
     def __init__(self, url: Optional[str] = None, seed: int = 42, timeout: float = 90.0):
-        self.url = (url or os.environ["RAG_URL"]).rstrip("/") + "/"
+        self.url = (url or os.environ["DIAGNOSIS_ENGINE_URL"]).rstrip("/") + "/"
         self.seed = seed
         self.timeout = timeout
 
@@ -524,6 +427,7 @@ class RealDiagnosticService:
             sig = engine_signature(body)   # ADR 0017: re-signed per attempt so the timestamp is fresh
             if sig:
                 headers[ENGINE_SIGNATURE_HEADER] = sig
+            headers = aws_iam_headers(self.url, body, headers)   # signed last: SigV4 covers the HMAC header too
             r = httpx.post(self.url, content=body, timeout=self.timeout, headers=headers)
             if r.status_code == 429 and attempt == 1:
                 _time.sleep(self.THROTTLE_RETRY_S)
@@ -536,7 +440,7 @@ class RealDiagnosticService:
                    canonical=None) -> dict:
         """Story 3: run the SINGLE Jev UNDERSTAND pass (mode:'understand') and return its typed
         result BEFORE routing. This is the one and only Jev invocation for the turn; the raw typed
-        intent is forwarded verbatim into `diagnose(understand=...)` so part-finder does NOT run Jev
+        intent is forwarded verbatim into `diagnose(understand=...)` so the engine does NOT run Jev
         again. Returns {"jev": <typed decisions/observability>, "understand": <raw intent to inject>}
         or {} on transport failure (the orchestrator then degrades to a clarify, never a prose guess).
 
@@ -548,7 +452,7 @@ class RealDiagnosticService:
         payload = {"messages": msgs, "seed": self.seed, "mode": "understand"}
         if isinstance(established, dict) and established.get("applianceFamily"):
             payload["established"] = established
-        # CANONICAL: forward the BFF's cs/1 block verbatim; part-finder merges, routes and decides.
+        # CANONICAL: forward the BFF's cs/1 block verbatim; the engine merges, routes and decides.
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
@@ -573,20 +477,20 @@ class RealDiagnosticService:
     def diagnose(self, *, symptoms: str, appliance=None, make=None, trusted=None, image=None,
                  conversation=None, understand=None, established=None, canonical=None) -> dict:
         import httpx
-        # When a rating-plate image is supplied, send OpenAI-style multimodal content so the RAG's
-        # existing vision UNDERSTAND pass can read the plate. The RAG contract already supports this
-        # (images in the messages array) and already returns understood.make/model — no RAG change.
+        # When a rating-plate image is supplied, send OpenAI-style multimodal content so the diagnosis engine's
+        # existing vision UNDERSTAND pass can read the plate. The diagnosis engine contract already supports this
+        # (images in the messages array) and already returns understood.make/model — no engine change.
         msgs = build_rag_messages(symptoms=symptoms, image=image, conversation=conversation)
         payload = {"messages": msgs, "seed": self.seed}
         # Story 3: forward the EXACT Jev intent produced by the earlier understand() call so
-        # part-finder consumes it instead of running Jev a second time (one Jev call per turn).
+        # the engine consumes it instead of running Jev a second time (one Jev call per turn).
         if isinstance(understand, dict) and understand:
             payload["understand"] = understand
-        # Stage A: carry the (current) established conversation identity so part-finder preserves a
+        # Stage A: carry the (current) established conversation identity so the engine preserves a
         # genuinely established family into the diagnosis even when this turn's Jev output is weak.
         if isinstance(established, dict) and established.get("applianceFamily"):
             payload["established"] = established
-        # CANONICAL: the merged result from understand; part-finder words its NextAction when it controls.
+        # CANONICAL: the merged result from understand; the engine words its NextAction when it controls.
         if isinstance(canonical, dict):
             payload["canonical"] = canonical
         try:
@@ -609,13 +513,13 @@ class RealDiagnosticService:
         if done is None:
             raise RagUnavailable("no done event in RAG response")
         u = done.get("understood") or {}
-        # SAFETY CLASS from the RAG's AUTHORITATIVE deterministic gas/shock stop signal
+        # SAFETY CLASS from the diagnosis engine's AUTHORITATIVE deterministic gas/shock stop signal
         # (done.safetyStop), NOT from reply wording. The old reply-keyword heuristic falsely
         # tripped STOP_USE on benign advice ("unplug it", "get a qualified engineer"), collapsing a
         # normal grounded diagnosis into a safety-stop nondeterministically. Electrical/thermal
         # stop guidance is delivered by the (evidence-backed) safetyInformation block, not by
         # collapsing the whole answer. Genuine gas/shock emergencies still stop deterministically.
-        # Map the RAG's deterministic safety CATEGORY to a class, PRESERVING the cause so the
+        # Map the diagnosis engine's deterministic safety CATEGORY to a class, PRESERVING the cause so the
         # orchestrator can give cause-specific guidance: a suspected gas escape is an EMERGENCY_ACTION
         # (bespoke: no switches/flames, ventilate, National Gas Emergency line) — it must NOT be
         # flattened into a generic electrical stop. Shock/burning are STOP_USE with cause-specific
@@ -633,25 +537,23 @@ class RealDiagnosticService:
             "componentMention": done.get("componentMention") or u.get("componentMention") or None,
             "purchaseAppropriate": bool(done.get("purchaseAppropriate") if done.get("purchaseAppropriate") is not None else u.get("purchaseAppropriate")),
             "clarifyingQuestion": u.get("clarifyingQuestion"),
-            # the reply is part-finder's single vague-opener clarification (describe the problem; no physical step)
-            "exclusiveClarify": bool(done.get("exclusiveClarify")),
             "safety": {"class": safety_cls, "stopUse": safety_cls in ("STOP_USE", "EMERGENCY_ACTION")},
             "safetyReason": reason,                 # 'gas'|'shock'|'burning'|None — cause-specific guidance
             "unsafeIntent": bool(done.get("unsafeIntent")),  # customer asked to DO something dangerous
             "normalBehaviour": bool(done.get("normalBehaviour")),  # asked "is this normal?" + plausibly-normal -> reassure (not a fault)
             # passthrough for the retailer boundary (NOT interpreted by the orchestrator):
-            "parts": done.get("parts") or [],       # raw RAG part cards (L3)
+            "parts": done.get("parts") or [],       # raw engine part cards (L3)
             "resolvedModel": u.get("model"),         # customer/OCR model string (staging + plate confirm)
             "catalogueResolvedModel": done.get("catalogueResolvedModel"),  # unique catalogue model or None
             "catalogueMatchType": done.get("catalogueMatchType") or "none",
             "extractedMake": u.get("make"),          # vision-read make (for image-plate conflict checks)
             "extractedAppliance": u.get("appliance"),  # vision-read appliance (conflict checks)
-            "reply": reply,                          # RAG prose — combined compose does not paste this
+            "reply": reply,                          # engine prose — combined compose does not paste this
             "traceId": done.get("traceId"),          # feedback token
             "checksReported": u.get("checksReported") or [],
             "userIntent": u.get("userIntent"),
             # Pre-written, evidence-backed customer SAFETY INFORMATION for the grounded node
-            # (node-identity lookup done inside the RAG). Passed through verbatim; NOT interpreted,
+            # (node-identity lookup done inside the diagnosis engine). Passed through verbatim; NOT interpreted,
             # merged, rewritten or safety-state-transitioned by the orchestrator.
             "safetyInformation": done.get("safetyInformation") or None,
             # Customer instructional media (customer-safe subset) for the grounded node; passed

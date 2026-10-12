@@ -1,5 +1,5 @@
 /**
- * cs/1: the canonical cumulative conversation state (services/part-finder/canonical/cs1.js). Persisted by
+ * cs/1: the canonical cumulative conversation state (services/diagnosis-engine/canonical/cs1.js). Persisted by
  * whichpart-api, carried between turns as an opaque signed token, merged by a pure function, never written by the
  * language model.
  */

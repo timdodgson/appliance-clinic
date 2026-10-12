@@ -32,7 +32,7 @@ const orchOk = {
   service: 'customer-diagnostic-orchestrator',
   version: '1',
   errorCodeMcp: 'configured',
-  diagnosticRag: 'configured',
+  diagnosisEngine: 'configured',
   apiKey: 'sk-this-must-never-leak',
   ORCHESTRATOR_TOKEN: 'secret-token',
 };
@@ -48,24 +48,20 @@ const mcpOk = {
   bearerToken: 'abc',
 };
 
-const pfOk = {
+// Exactly the diagnosis engine GET /health shape (services/diagnosis-engine/health.js) plus planted extras.
+const engineOk = {
   status: 'ok',
   health: 'healthy',
-  healthReason: 'Part Finder is running and essential diagnostic artifacts are loaded',
-  service: 'part-finder',
+  healthReason: 'The diagnosis engine is running; journeys, models and media are available',
+  service: 'diagnosis-engine',
   version: '1',
-  knowledge: { loaded: true, records: 171, faultIds: 103, families: 9, version: '1.0.0' },
-  rag: {
-    loaded: true, indexedRecords: 171, indexVersion: '1.0.0',
-    embeddingModel: 'text-embedding-nomic-embed-text-v1.5', dims: 768,
-    builtAt: '2026-09-15T17:03:01.989Z', mismatch: false,
-  },
+  canonical: { journeys: 31, packSecret: 'sk-canonical-must-never-leak' },
   models: {
-    understand: { configured: true, provider: 'lmstudio', model: null },
-    compose: { configured: true, provider: 'lmstudio', model: null },
+    understand: { configured: true, provider: 'jev', model: 'typesafe/jev' },
+    compose: { configured: true, provider: 'lmstudio', model: 'qwen3' },
     inferenceTested: false,
-    note: 'Configured means routing and model identifiers are present. Inference was not tested.',
-    apiKey: 'sk-pf-must-never-leak',
+    note: 'UNDERSTAND is TypeSafe Jev. COMPOSE is a separate generative provider. Inference was not tested.',
+    apiKey: 'sk-engine-must-never-leak',
   },
   media: {
     resolverAvailable: true, baselineLoaded: true, overlayState: 'none',
@@ -75,7 +71,7 @@ const pfOk = {
   prompt: 'you are a helpful assistant',
 };
 
-function pfProbe(json, extra) {
+function engineProbe(json, extra) {
   return Object.assign({
     ok: true, status: 200, json, latencyMs: 123, probedAt: '2026-09-20T12:00:00.000Z',
   }, extra || {});
@@ -152,19 +148,32 @@ describe('snapshot whitelist and honesty', () => {
       'customer', 'whichpart-api', 'orchestrator', 'routing', 'customer-view',
     ]);
     expect(snap.components.map((c) => c.id)).toEqual([
-      'whichpart-api', 'orchestrator', 'part-finder', 'rag-index', 'error-code-mcp', 'media-resolver', 'parts-catalogue',
+      'whichpart-api', 'orchestrator', 'diagnosis-engine', 'error-code-mcp', 'media-resolver', 'parts-catalogue',
     ]);
+    const eng = byId(snap, 'diagnosis-engine');
+    expect(eng.name).toBe('Diagnosis engine');
+    expect(eng.role).toMatch(/Jev understanding, cs\/1 state, deterministic journeys, safety and part gates, COMPOSE wording/);
   });
 
-  it('does not treat Part Finder config as healthy when the health probe is skipped', () => {
+  it('describes the route without Part Finder or a RAG index', () => {
     const snap = dg.buildSnapshot(setup());
-    const pf = byId(snap, 'part-finder');
-    expect(pf.health).toBe('unknown');
-    expect(pf.healthReason).toMatch(/No reliable health probe available/i);
-    expect(pf.facts.some((f) => /configured/.test(f.value))).toBe(true);
-    expect(byId(snap, 'rag-index').health).toBe('unknown');
-    expect(byId(snap, 'rag-index').facts.some((f) => f.label === 'Bundled reference artifacts')).toBe(true);
-    expect(byId(snap, 'rag-index').role).toMatch(/running Part Finder process/);
+    const text = JSON.stringify({ systemPath: snap.systemPath, routing: snap.routing });
+    expect(text).toMatch(/diagnosis engine/i);
+    expect(text).toMatch(/Jev understanding → cs\/1 → deterministic journey → COMPOSE/);
+    expect(text).not.toMatch(/Part Finder|RAG/);
+    expect(snap.runtime.ragIndex).toBeUndefined();
+    expect(snap.technical.identifiers.ragIndexVersion).toBeUndefined();
+    expect(JSON.stringify(snap.components)).not.toMatch(/Part Finder|RAG/);
+  });
+
+  it('does not treat diagnosis engine config as healthy when the health probe is skipped', () => {
+    const snap = dg.buildSnapshot(setup());
+    const eng = byId(snap, 'diagnosis-engine');
+    expect(eng.health).toBe('unknown');
+    expect(eng.healthReason).toMatch(/No reliable health probe available/i);
+    expect(eng.facts.some((f) => /configured/.test(f.value))).toBe(true);
+    expect(eng.facts.some((f) => f.label === 'Reachability')).toBe(true);
+    expect(eng.facts.some((f) => f.label === 'Journeys')).toBe(false);
   });
 
   it('keeps MCP unavailable from hiding a healthy orchestrator', () => {
@@ -189,7 +198,7 @@ describe('snapshot whitelist and honesty', () => {
     expect(raw).not.toMatch(/ORCHESTRATOR_TOKEN/);
     expect(raw).not.toMatch(/process\.env/);
     expect(Object.keys(byId(snap, 'orchestrator').technical.reported).sort()).toEqual(
-      ['diagnosticRag', 'errorCodeMcp', 'service', 'status', 'version'],
+      ['diagnosisEngine', 'errorCodeMcp', 'service', 'status', 'version'],
     );
   });
 
@@ -205,17 +214,15 @@ describe('snapshot whitelist and honesty', () => {
     expect(byId(snap, 'error-code-mcp').facts.some((f) => /Not reported|Version not exposed|No reliable/.test(f.value))).toBe(true);
   });
 
-  it('keeps BFF bundled knowledge as a labelled reference copy, not Part Finder runtime', () => {
+  it('keeps BFF bundled knowledge data without attributing an index to the engine', () => {
     const snap = dg.buildSnapshot(setup());
     expect(snap.knowledge.canonicalRecords).toBe(171);
     expect(snap.knowledge.index.count).toBe(171);
     expect(snap.knowledge.families).toBeGreaterThan(0);
     expect(snap.knowledge.faultIds).toBeGreaterThan(0);
     expect(snap.knowledge.mismatch).toBe(false);
-    expect(byId(snap, 'rag-index').health).toBe('unknown');
-    expect(byId(snap, 'rag-index').healthReason).toMatch(/Bundled WhichPart API artifacts are a reference copy/);
-    expect(byId(snap, 'rag-index').links.some((l) => l.href === '#knowledge')).toBe(true);
-    expect(snap.runtime.ragIndex.source).toBe('bff-bundled');
+    expect(snap.links.knowledge).toBe('#knowledge');
+    expect(byId(snap, 'diagnosis-engine').facts.some((f) => /Knowledge|RAG/.test(f.label))).toBe(false);
   });
 
   it('records a canonical/index mismatch as degraded data', () => {
@@ -280,95 +287,102 @@ describe('snapshot whitelist and honesty', () => {
   });
 });
 
-describe('Part Finder health probe', () => {
-  it('marks Part Finder Healthy from a real health payload and uses those counts for Knowledge/RAG', () => {
-    const snap = dg.buildSnapshot(setup({
-      probes: {
-        orchestrator: { ok: true, status: 200, json: orchOk, latencyMs: 214, probedAt: '2026-09-20T12:00:00.000Z' },
-        mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 90, probedAt: '2026-09-20T12:00:00.000Z' },
-        partFinder: pfProbe(pfOk),
-      },
-    }));
-    const pf = byId(snap, 'part-finder');
-    expect(pf.health).toBe('healthy');
-    expect(pf.healthLabel).toBe('Healthy');
-    expect(pf.latencyMs).toBe(123);
-    expect(pf.probedAt).toBe('2026-09-20T12:00:00.000Z');
-    expect(pf.facts.some((f) => f.label === 'Knowledge loaded' && f.value === '171 records')).toBe(true);
-    expect(pf.facts.some((f) => f.label === 'RAG' && f.value === '171 indexed')).toBe(true);
-    expect(pf.facts.some((f) => f.label === 'Models' && f.value === 'Configured')).toBe(true);
-    expect(pf.facts.some((f) => f.label === 'Media resolver' && f.value === 'Available')).toBe(true);
-    const rag = byId(snap, 'rag-index');
-    expect(rag.health).toBe('healthy');
-    expect(rag.healthReason).toMatch(/running Part Finder process/);
-    expect(rag.facts.some((f) => f.label === 'Part Finder runtime knowledge' && f.value === '171 records')).toBe(true);
-    expect(rag.facts.some((f) => f.label === 'Part Finder RAG index' && f.value === '171 indexed')).toBe(true);
-    expect(rag.facts.some((f) => f.label === 'BFF bundled copy')).toBe(false);
-    expect(snap.runtime.ragIndex.source).toBe('part-finder');
-    expect(snap.runtime.ragIndex.embedModel).toBe('text-embedding-nomic-embed-text-v1.5');
+describe('diagnosis engine health probe', () => {
+  const okProbes = () => ({
+    orchestrator: { ok: true, status: 200, json: orchOk, latencyMs: 214, probedAt: '2026-09-20T12:00:00.000Z' },
+    mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 90, probedAt: '2026-09-20T12:00:00.000Z' },
+  });
+
+  it('marks the engine Healthy from a real health payload and shows journeys, models and media', () => {
+    const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(engineOk) } }));
+    const eng = byId(snap, 'diagnosis-engine');
+    expect(eng.health).toBe('healthy');
+    expect(eng.healthLabel).toBe('Healthy');
+    expect(eng.healthReason).toMatch(/diagnosis engine is running/);
+    expect(eng.latencyMs).toBe(123);
+    expect(eng.probedAt).toBe('2026-09-20T12:00:00.000Z');
+    expect(eng.version.value).toBe('1');
+    const fact = (label) => (eng.facts.find((f) => f.label === label) || {}).value;
+    expect(fact('Journeys')).toBe('31');
+    expect(fact('Models')).toBe('Configured');
+    expect(fact('UNDERSTAND')).toBe('jev · typesafe/jev');
+    expect(fact('COMPOSE')).toBe('lmstudio · qwen3');
+    expect(fact('Inference tested')).toBe('no');
+    expect(fact('Media resolver')).toBe('Available');
+    expect(fact('Overlay')).toBe('none (shipped baseline)');
+    expect(fact('Last probe')).toBe('123 ms');
+    expect(eng.facts.some((f) => /Knowledge|RAG|faultIds|Families/.test(f.label))).toBe(false);
+    expect(eng.technical.note).toBe('GET /health on the diagnosis engine (ENGINE_URL). The orchestrator calls the same function.');
+    expect(Object.keys(eng.technical.reported).sort()).toEqual(
+      ['canonical', 'health', 'healthReason', 'media', 'models', 'service', 'status', 'version'],
+    );
+    expect(eng.technical.reported.canonical).toEqual({ journeys: 31 });
+    expect(snap.technical.probes.engine.httpStatus).toBe(200);
+    expect(snap.technical.identifiers.engineHost).toBe('engine.example');
+    expect(snap.evidence.lastSuccessfulProbes.some((p) => p.id === 'diagnosis-engine')).toBe(true);
     const raw = JSON.stringify(snap);
-    expect(raw).not.toMatch(/sk-pf-must-never-leak/);
+    expect(raw).not.toMatch(/sk-engine-must-never-leak/);
+    expect(raw).not.toMatch(/sk-canonical-must-never-leak/);
     expect(raw).not.toMatch(/sk-process-env-leak/);
     expect(raw).not.toMatch(/you are a helpful assistant/);
   });
 
-  it('marks Part Finder Degraded from an internal mismatch and shows the factual reason', () => {
-    const json = JSON.parse(JSON.stringify(pfOk));
+  it('ignores legacy knowledge/rag fields even if a payload still carries them', () => {
+    const json = { ...engineOk, knowledge: { loaded: true, records: 171 }, rag: { loaded: true, indexedRecords: 171 } };
+    const picked = dg.pickEngine(json);
+    expect(picked.knowledge).toBeUndefined();
+    expect(picked.rag).toBeUndefined();
+  });
+
+  it('marks the engine Degraded and shows its factual reason', () => {
+    const json = JSON.parse(JSON.stringify(engineOk));
     json.status = 'degraded';
     json.health = 'degraded';
-    json.healthReason = 'Loaded document count and index count differ';
-    json.knowledge.records = 10;
-    json.rag.indexedRecords = 171;
-    json.rag.mismatch = true;
-    const snap = dg.buildSnapshot(setup({
-      probes: {
-        orchestrator: { ok: true, status: 200, json: orchOk, latencyMs: 50, probedAt: '2026-09-20T12:00:00.000Z' },
-        mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 90, probedAt: '2026-09-20T12:00:00.000Z' },
-        partFinder: pfProbe(json),
-      },
-    }));
-    expect(byId(snap, 'part-finder').health).toBe('degraded');
-    expect(byId(snap, 'part-finder').healthReason).toMatch(/differ/i);
-    expect(byId(snap, 'rag-index').health).toBe('degraded');
-    expect(byId(snap, 'rag-index').facts.some((f) => f.label === 'Mismatch')).toBe(true);
-    expect(byId(snap, 'rag-index').facts.some((f) => f.label === 'BFF bundled copy' && /171 canonical/.test(f.value))).toBe(true);
+    json.healthReason = 'UNDERSTAND or COMPOSE is not configured';
+    json.models.compose = { configured: false, provider: null, model: null };
+    const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(json) } }));
+    const eng = byId(snap, 'diagnosis-engine');
+    expect(eng.health).toBe('degraded');
+    expect(eng.healthReason).toMatch(/not configured/);
+    expect(eng.facts.some((f) => f.label === 'Models' && f.value === 'Not configured')).toBe(true);
     expect(byId(snap, 'orchestrator').health).toBe('healthy');
   });
 
-  it('marks Part Finder Unavailable when the probe fails and does not present BFF artifacts as runtime RAG', () => {
+  it('marks the engine Unavailable when the probe fails', () => {
     const snap = dg.buildSnapshot(setup({
-      probes: {
-        orchestrator: { ok: true, status: 200, json: orchOk, latencyMs: 50, probedAt: '2026-09-20T12:00:00.000Z' },
-        mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 90, probedAt: '2026-09-20T12:00:00.000Z' },
-        partFinder: { ok: false, error: 'timeout', latencyMs: 5000, probedAt: '2026-09-20T12:00:00.000Z' },
-      },
+      probes: { ...okProbes(), engine: { ok: false, error: 'timeout', latencyMs: 5000, probedAt: '2026-09-20T12:00:00.000Z' } },
     }));
-    expect(byId(snap, 'part-finder').health).toBe('unavailable');
-    expect(byId(snap, 'part-finder').latencyMs).toBe(5000);
-    expect(byId(snap, 'rag-index').health).toBe('unavailable');
-    expect(byId(snap, 'rag-index').healthReason).toMatch(/not proof the running process is loaded/);
-    expect(byId(snap, 'rag-index').facts.some((f) => f.label === 'Bundled reference artifacts' && /171 canonical/.test(f.value))).toBe(true);
-    expect(byId(snap, 'rag-index').version.value).toBe(null);
+    const eng = byId(snap, 'diagnosis-engine');
+    expect(eng.health).toBe('unavailable');
+    expect(eng.latencyMs).toBe(5000);
+    expect(eng.version.value).toBe(null);
+    expect(snap.evidence.lastFailedProbes.some((p) => p.id === 'diagnosis-engine')).toBe(true);
     expect(byId(snap, 'orchestrator').health).toBe('healthy');
     expect(byId(snap, 'error-code-mcp').health).toBe('healthy');
     expect(snap.ok).toBe(true);
   });
 
-  it('does not treat an orchestrator or MCP payload as Part Finder healthy', () => {
-    const snap = dg.buildSnapshot(setup({
-      probes: {
-        orchestrator: { ok: true, status: 200, json: orchOk, latencyMs: 10, probedAt: '2026-09-20T12:00:00.000Z' },
-        mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 10, probedAt: '2026-09-20T12:00:00.000Z' },
-        partFinder: pfProbe(mcpOk),
-      },
-    }));
-    expect(byId(snap, 'part-finder').health).toBe('degraded');
-    expect(byId(snap, 'part-finder').healthReason).toMatch(/not a Part Finder health payload/);
+  it('rejects a legacy part-finder payload as not a diagnosis engine health payload', () => {
+    const legacy = { ...engineOk, service: 'part-finder' };
+    const h = dg.classifyEngineProbe(engineProbe(legacy));
+    expect(h.health).toBe('degraded');
+    expect(h.healthReason).toMatch(/not a diagnosis engine health payload/);
+    const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(legacy) } }));
+    expect(byId(snap, 'diagnosis-engine').health).toBe('degraded');
+    expect(byId(snap, 'diagnosis-engine').healthReason).toMatch(/not a diagnosis engine health payload/);
+  });
+
+  it('does not treat an orchestrator, MCP or service-less payload as the engine', () => {
+    for (const json of [mcpOk, orchOk, { status: 'ok', health: 'healthy' }]) {
+      const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(json) } }));
+      expect(byId(snap, 'diagnosis-engine').health).toBe('degraded');
+      expect(byId(snap, 'diagnosis-engine').healthReason).toMatch(/not a diagnosis engine health payload/);
+    }
   });
 });
 
 describe('collect probes with isolation', () => {
-  it('survives a timed-out dependency and a malformed one without treating BFF artifacts as Part Finder runtime', async () => {
+  it('survives a timed-out dependency and a malformed one, leaving an unconfigured engine Unknown', async () => {
     const fetchImpl = async (url) => {
       if (String(url).includes('orch')) {
         const err = new Error('The operation was aborted');
@@ -391,26 +405,26 @@ describe('collect probes with isolation', () => {
     expect(snap.ok).toBe(true);
     expect(byId(snap, 'orchestrator').health).toBe('unavailable');
     expect(byId(snap, 'error-code-mcp').health).toBe('degraded');
-    expect(byId(snap, 'part-finder').health).toBe('unknown');
-    expect(byId(snap, 'rag-index').health).toBe('unknown');
+    expect(byId(snap, 'diagnosis-engine').health).toBe('unknown');
+    expect(byId(snap, 'diagnosis-engine').healthReason).toMatch(/Diagnosis engine health URL is not configured/);
     expect(byId(snap, 'whichpart-api').health).toBe('healthy');
   });
 
-  it('keeps Part Finder healthy when the orchestrator probe fails', async () => {
+  it('keeps the diagnosis engine healthy when the orchestrator probe fails', async () => {
     const fetchImpl = async (url) => {
       if (String(url).includes('orch')) {
         const err = new Error('The operation was aborted');
         err.name = 'AbortError';
         throw err;
       }
-      if (String(url).includes('engine')) return jsonRes(pfOk);
+      if (String(url).includes('engine')) return jsonRes(engineOk);
       return jsonRes(mcpOk);
     };
     const snap = await dg.collect({
       fetch: fetchImpl,
       orchestratorHealthUrl: 'https://orch.example/health',
       mcpHealthUrl: 'https://mcp.example/health',
-      partFinderHealthUrl: 'https://engine.example/health',
+      engineHealthUrl: 'https://engine.example/health',
       knowledgeInspect,
       mediaInspect,
       loadOverlay: async () => mediaAdmin.emptyState(),
@@ -419,10 +433,9 @@ describe('collect probes with isolation', () => {
     });
     expect(snap.ok).toBe(true);
     expect(byId(snap, 'orchestrator').health).toBe('unavailable');
-    expect(byId(snap, 'part-finder').health).toBe('healthy');
+    expect(byId(snap, 'diagnosis-engine').health).toBe('healthy');
+    expect(byId(snap, 'diagnosis-engine').facts.some((f) => f.label === 'Journeys' && f.value === '31')).toBe(true);
     expect(byId(snap, 'error-code-mcp').health).toBe('healthy');
-    expect(byId(snap, 'rag-index').health).toBe('healthy');
-    expect(byId(snap, 'rag-index').facts.some((f) => f.label === 'Part Finder RAG index')).toBe(true);
   });
 
   it('does not fail the snapshot if overlay loading throws', async () => {
@@ -470,12 +483,12 @@ describe('HTTP auth and method', () => {
       fetch: async (url) => {
         const u = String(url);
         if (u.includes('orch')) return jsonRes(orchOk);
-        if (u.includes('engine')) return jsonRes(pfOk);
+        if (u.includes('engine')) return jsonRes(engineOk);
         return jsonRes(mcpOk);
       },
       orchestratorHealthUrl: 'https://orch.example/health',
       mcpHealthUrl: 'https://mcp.example/health',
-      partFinderHealthUrl: 'https://engine.example/health',
+      engineHealthUrl: 'https://engine.example/health',
       loadOverlay: async () => mediaAdmin.emptyState(),
       loadModels: async () => ({
         understand: { provider: 'lmstudio', providerLabel: 'Private AI', model: null, modelLabel: 'Model managed by LM Studio' },
@@ -487,13 +500,13 @@ describe('HTTP auth and method', () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.ok).toBe(true);
-    expect(body.components.length).toBe(7);
+    expect(body.components.length).toBe(6);
     expect(JSON.stringify(body)).not.toMatch(/sk-/);
     expect(JSON.stringify(body)).not.toMatch(/AWS_SECRET/);
     expect(body.runtime.conversationWindowTurns).toBe(12);
-    expect(byId(body, 'part-finder').health).toBe('healthy');
-    expect(byId(body, 'rag-index').health).toBe('healthy');
-    expect(JSON.stringify(body)).not.toMatch(/sk-pf-must-never-leak/);
+    expect(byId(body, 'diagnosis-engine').health).toBe('healthy');
+    expect(body.components.some((c) => c.id === 'rag-index')).toBe(false);
+    expect(JSON.stringify(body)).not.toMatch(/sk-engine-must-never-leak/);
     api.setDiagnosticsDepsForTests(null);
     api.setSessionForTests(null);
   });

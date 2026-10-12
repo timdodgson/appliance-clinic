@@ -1,0 +1,71 @@
+{
+  "id": "15.1c-diagnosis-engine-alarms",
+  "description": "ADR 0019, step 3 of 4: alarms on the dedicated diagnosis engine: FailedTurns (>=5 in 5 min), RefusedRequests (>=1 unsigned or invalid-signature request in 5 min), Lambda Errors and Throttles (>=1 in 5 min). No notification target yet (recorded follow-up).",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineFailedTurnsAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineRefusedRequestsAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineErrorsAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicdiagnosisengineThrottlesAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:TagResource"
+      ],
+      "Resource": [
+        "arn:aws:cloudwatch:eu-west-1:800960611664:alarm:applianceclinic-diagnosis-engine-*"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the engine's four alarms only.",
+  "writes": {
+    "types": [
+      "AWS::CloudWatch::Alarm"
+    ],
+    "expected": [
+      "monitoring:PutMetricAlarm"
+    ],
+    "forbidden": [
+      "monitoring:DeleteAlarms",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine-"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

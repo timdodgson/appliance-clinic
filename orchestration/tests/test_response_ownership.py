@@ -8,7 +8,7 @@ Who authors each AC reply when no canonical journey owns the turn:
   - safety leads every reply it applies to;
   - more context (the model) advances the MCP lookup.
 
-No network / no LLM / no real RAG. Run: python3 -m orchestration.tests.test_response_ownership
+No network / no LLM / no real diagnosis engine. Run: python3 -m orchestration.tests.test_response_ownership
 """
 import sys
 from orchestration.model import TurnInput, ObservedIdentifier, Outcome, Route, Trust
