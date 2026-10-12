@@ -32,9 +32,20 @@ export async function claudeOnce(o) {
   try { return await claude(o); } catch (e) { await new Promise((r) => setTimeout(r, 5000)); return claude(o); }
 }
 
-/** First JSON object in a model reply. */
+/** First complete JSON object in a model reply (balanced braces, strings respected). */
 export function parseJson(text) {
-  const s = text.indexOf('{'); const e = text.lastIndexOf('}');
-  if (s < 0 || e < s) throw new Error(`no JSON in: ${text.slice(0, 200)}`);
-  return JSON.parse(text.slice(s, e + 1));
+  const s = text.indexOf('{');
+  if (s < 0) throw new Error(`no JSON in: ${text.slice(0, 200)}`);
+  let depth = 0; let inStr = false; let esc = false;
+  for (let i = s; i < text.length; i += 1) {
+    const ch = text[i];
+    if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
+    if (ch === '"') inStr = true;
+    else if (ch === '{') depth += 1;
+    else if (ch === '}') { depth -= 1; if (depth === 0) return JSON.parse(text.slice(s, i + 1)); }
+  }
+  // fall back to the outermost braces (a reply that is complete but has an unescaped quote inside a string)
+  const e = text.lastIndexOf('}');
+  if (e > s) { try { return JSON.parse(text.slice(s, e + 1)); } catch { /* below */ } }
+  throw new Error(`unbalanced JSON in: ${text.slice(0, 200)}`);
 }
