@@ -79,6 +79,8 @@ Release 17.2 (prompt `diagnosis.canonical.compose` v13) fixes both:
 
 Regressions for both are in `canonical-evidence-premises.test.mjs`.
 
+**Final gate (release 17.2, `main` at `30fb461`): 56/56 in two consecutive runs**, with no critical failures. CloudTrail for 17.1 and 17.2 shows one write each: `lambda:UpdateFunctionCode` on `applianceclinic-diagnosis-engine`.
+
 ## Per-group audit tables
 
 These are the working tables from the audit, by journey group. Each row gives the premise asserted, the cs/1 facts required, how the entry can be reached, the verdict and the action taken.
