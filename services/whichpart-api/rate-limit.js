@@ -7,7 +7,7 @@
  *   login     per email (hashed): sign-in guessing against one account; and globally (the AC pool has a handful of
  *             users, so sign-in is rare); per client IP as an extra signal only (see below)
  *   diagnose  per network source, per conversation (the validated client session id), and globally: a cost guard,
- *             since a customer turn calls the orchestrator and paid models; per client IP as an extra signal only
+ *             since a customer turn calls the diagnosis engine and paid models; per client IP as an extra signal only
  * Not counted: OPTIONS, health, admin routes (already authenticated), EventBridge invocations, and benchmark
  * turns whose HMAC signature has been verified (service-authenticated, bounded by their own runner).
  *

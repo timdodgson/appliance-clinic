@@ -1,5 +1,5 @@
 /**
- * The ac2 turn at the BFF (ac2-turn.js, ac2-state.js): path selection, the engine call, state persistence with a
+ * The ac2 turn at the BFF (ac2-turn.js, ac2-state.js): the only diagnose path. The engine call, state persistence with a
  * version condition, the projection to the customer view, and explicit failures (no fallback answer, state not
  * advanced).
  */
@@ -30,16 +30,6 @@ function engineReturning(response, stateTurn = 1) {
   return { calls, fn: async (raw) => { calls.push(JSON.parse(raw)); return { status: 200, json: { type: 'ac2', response, state: { schema: 'ac2/1', turn: (calls[calls.length - 1].ac2.state ? calls[calls.length - 1].ac2.state.turn : 0) + stateTurn, facts: [] }, audit: { turn: 1, safety: { hazards: [], gates: [] }, claims: { rejected: [], checked: 0 } } } }; } };
 }
 const deps = (engine, store) => ({ callEngine: engine.fn, secretsLoader: async () => SECRETS, store });
-
-describe('selection', () => {
-  it('is off by default and never selects a customer turn in benchmark mode', () => {
-    expect(T.selected({ engine: 'ac2' }, { live: null, bench: { ok: true } }, {})).toBe(false);
-    expect(T.selected({ engine: 'ac2' }, { live: null, bench: null }, { AC2_MODE: 'benchmark' })).toBe(false);
-    expect(T.selected({}, { live: null, bench: { ok: true } }, { AC2_MODE: 'benchmark' })).toBe(false);
-    expect(T.selected({ engine: 'ac2' }, { live: null, bench: { ok: true } }, { AC2_MODE: 'benchmark' })).toBe(true);
-    expect(T.selected({}, { live: null, bench: null }, { AC2_MODE: 'all' })).toBe(true);
-  });
-});
 
 describe('turn', () => {
   it('sends the signed turn with the prior ledger, persists the new one and keeps the session token', async () => {
@@ -87,6 +77,38 @@ describe('turn', () => {
   it('no session secret: explicit error', async () => {
     const r = await T.handle({ body: {}, messages: [] }, { callEngine: async () => ({}), secretsLoader: async () => null, store: memStore() });
     expect(r.error).toBe('state_secret_unavailable');
+  });
+});
+
+describe('session continuity (the Live Test status)', () => {
+  const L = require('../live-test.js');
+  it('reports a new session, then a continued one, never the token', async () => {
+    const store = memStore();
+    const engine = engineReturning({ outcome: 'ANSWER', message: 'Is there water left in the drum?' });
+    const first = await T.handle({ body: {}, messages: [{ role: 'user', content: 'x' }] }, deps(engine, store));
+    expect(first.session).toEqual({ fresh: true, rejected: null });
+    const s1 = L.status({ stateIn: 'absent', result: first });
+    expect(s1).toMatchObject({ schema: 'live-test/2', engine: 'ac2', ok: true, stateIn: 'absent', stateOut: 'issued', continuity: 'new', reason: null });
+    const second = await T.handle({ body: { stateToken: first.token }, messages: [{ role: 'user', content: 'yes' }] }, deps(engine, store));
+    const s2 = L.status({ stateIn: 'present', result: second });
+    expect(s2).toMatchObject({ stateOut: 'refreshed', continuity: 'continued' });
+    expect(JSON.stringify([s1, s2])).not.toContain(first.token);
+  });
+  it('a rejected token restarts the session and says why; a failed turn is reported as failed', async () => {
+    const store = memStore();
+    const engine = engineReturning({ outcome: 'ANSWER', message: 'ok' });
+    const r = await T.handle({ body: { stateToken: 'cst1.cs_' + 'a'.repeat(32) + '.9999999999.' + 'b'.repeat(43) }, messages: [{ role: 'user', content: 'x' }] }, deps(engine, store));
+    expect(L.status({ stateIn: 'present', result: r })).toMatchObject({ continuity: 'restarted', reason: 'bad_signature', stateOut: 'issued' });
+    const fail = { fn: async () => ({ status: 503, json: { errorCode: 'reasoner_unavailable' } }) };
+    const f = await T.handle({ body: {}, messages: [{ role: 'user', content: 'x' }] }, deps(fail, store));
+    expect(L.status({ stateIn: 'absent', result: f })).toMatchObject({ ok: false, continuity: 'failed', reason: 'reasoner_unavailable' });
+    expect(L.status({ stateIn: 'absent', result: { error: 'state_secret_unavailable' } })).toMatchObject({ continuity: 'unavailable', stateOut: 'none' });
+  });
+  it('a live test request carries only its conversation id', () => {
+    const body = { messages: [], liveTest: { sessionId: 'lt-abcdef0123456789', clientTurnId: 'ignored' } };
+    expect(L.takeLiveTest(body)).toEqual({ ok: true, sessionId: 'lt-abcdef0123456789' });
+    expect(body.liveTest).toBeUndefined();
+    expect(L.takeLiveTest({ liveTest: { sessionId: 'nope' } })).toMatchObject({ ok: false });
   });
 });
 

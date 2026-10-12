@@ -2,15 +2,17 @@
 /**
  * Read-only diagnosis engine health.
  *
- * Reports the canonical journey registry, the media mappings, and whether UNDERSTAND (Jev) / COMPOSE routing can be
- * resolved. Does not diagnose, call a model, mutate mappings, or return secrets.
+ * Reports the diagnosis architecture (ac2: the LLM-led turn inside the deterministic guardrail kernel), whether the
+ * reasoner's provider (the admin AI configuration's COMPOSE route) can be resolved, and the media mappings. Does not
+ * diagnose, call a model, mutate mappings, or return secrets.
  */
 
 const { resolveProvidersFromAdminConfig } = require('./inference.js');
 const mediaEffective = require('./media-effective.js');
 
 const SERVICE = 'diagnosis-engine';
-const VERSION = '1';
+const VERSION = '2';
+const ARCHITECTURE = 'ac2';
 
 const STAGE_FIELDS = ['configured', 'provider', 'model'];
 const MEDIA_FIELDS = [
@@ -44,18 +46,11 @@ function overlayStateOf(cache) {
   return 'none';
 }
 
+const NOTE = 'One inference provider serves the ac2 reasoner and its claim extractor (the AI configuration\'s COMPOSE route). Inference was not tested.';
+const NOT_CONFIGURED = { configured: false, provider: null, model: null };
+
 function describeModels(opts) {
-  const note = 'UNDERSTAND is TypeSafe Jev. COMPOSE is a separate generative provider. Inference was not tested.';
-  const blank = {
-    understand: { configured: false, provider: null, model: null },
-    compose: { configured: false, provider: null, model: null },
-    inferenceTested: false,
-    note,
-  };
-  const admin = (opts && opts.admin) || { config: null, openaiKey: null, jevConfigured: false };
-  const understand = admin.jevConfigured
-    ? { configured: true, provider: 'jev', model: 'typesafe/jev' }
-    : { configured: false, provider: null, model: null };
+  const admin = (opts && opts.admin) || { config: null, openaiKey: null };
   try {
     const resolve = (opts && opts.resolveProvidersFromAdminConfig) || resolveProvidersFromAdminConfig;
     const env = (opts && opts.env) || process.env;
@@ -63,37 +58,20 @@ function describeModels(opts) {
       request() { return Promise.reject(new Error('health-does-not-infer')); },
       stream() { return Promise.reject(new Error('health-does-not-infer')); },
     };
-    const providers = resolve(admin.config, admin.openaiKey, env, { transport: noInfer });
-    function stage(p) {
-      if (!p) return { configured: false, provider: null, model: null };
-      return {
-        configured: true,
-        provider: p.name || null,
-        model: p.model || null,
-      };
-    }
+    const p = resolve(admin.config, admin.openaiKey, env, { transport: noInfer }).compose;
     return {
-      understand,
-      compose: stage(providers.compose),
+      reasoner: p ? { configured: true, provider: p.name || null, model: p.model || null } : { ...NOT_CONFIGURED },
       inferenceTested: false,
-      note,
+      note: NOTE,
     };
   } catch {
-    return {
-      understand,
-      compose: blank.compose,
-      inferenceTested: false,
-      note,
-    };
+    return { reasoner: { ...NOT_CONFIGURED }, inferenceTested: false, note: NOTE };
   }
 }
 
-function overall(canonical, models, media) {
+function overall(models, media) {
   const issues = [];
-  if (!canonical.journeys) issues.push('No canonical journey is registered');
-  if (!(models.understand && models.understand.configured) || !(models.compose && models.compose.configured)) {
-    issues.push('UNDERSTAND or COMPOSE is not configured');
-  }
+  if (!(models.reasoner && models.reasoner.configured)) issues.push('The reasoner\'s inference provider is not configured');
   if (!media.baselineLoaded) issues.push('Media baseline mappings are not loaded');
   if (media.overlayState === 'unavailable') {
     issues.push('Media overlay store could not be read; shipped baseline is in use');
@@ -101,18 +79,17 @@ function overall(canonical, models, media) {
   if (issues.length) {
     return { status: 'degraded', health: 'degraded', healthReason: issues.join('. ') };
   }
-  return { status: 'ok', health: 'healthy', healthReason: 'The diagnosis engine is running; journeys, models and media are available' };
+  return { status: 'ok', health: 'healthy', healthReason: 'The diagnosis engine is running; the reasoner provider and media are available' };
 }
 
 async function build(deps) {
   deps = deps || {};
   const describeBaseline = deps.describeMediaBaseline || (() => ({ loaded: false, identityCount: 0 }));
   const baseline = describeBaseline() || {};
-  const canonical = { journeys: Object.keys(require('./canonical-runtime.js').PACKS || {}).length };
 
-  let admin = { config: null, openaiKey: null, jevConfigured: false };
+  let admin = { config: null, openaiKey: null };
   if (typeof deps.loadAdminInference === 'function') {
-    try { admin = await deps.loadAdminInference(deps.adminOpts || {}); } catch { admin = { config: null, openaiKey: null, jevConfigured: false }; }
+    try { admin = await deps.loadAdminInference(deps.adminOpts || {}); } catch { admin = { config: null, openaiKey: null }; }
   }
   const models = describeModels({
     admin,
@@ -138,17 +115,16 @@ async function build(deps) {
     cacheTtlSeconds: Math.round(((deps.overlayTtlMs != null ? deps.overlayTtlMs : mediaEffective.OVERLAY_TTL_MS) || 10000) / 1000),
   };
 
-  const head = overall(canonical, models, media);
+  const head = overall(models, media);
   return {
     status: head.status,
     health: head.health,
     healthReason: head.healthReason,
     service: SERVICE,
     version: VERSION,
-    canonical,
+    diagnosis: { architecture: ARCHITECTURE },
     models: {
-      understand: pick(models.understand, STAGE_FIELDS),
-      compose: pick(models.compose, STAGE_FIELDS),
+      reasoner: pick(models.reasoner, STAGE_FIELDS),
       inferenceTested: false,
       note: models.note,
     },
@@ -163,13 +139,8 @@ function degradedFromError() {
     healthReason: 'Health collector hit an unexpected error',
     service: SERVICE,
     version: VERSION,
-    canonical: { journeys: 0 },
-    models: {
-      understand: { configured: false, provider: null, model: null },
-      compose: { configured: false, provider: null, model: null },
-      inferenceTested: false,
-      note: 'Configured means routing and model identifiers are present. Inference was not tested.',
-    },
+    diagnosis: { architecture: ARCHITECTURE },
+    models: { reasoner: { ...NOT_CONFIGURED }, inferenceTested: false, note: NOTE },
     media: {
       resolverAvailable: false, baselineLoaded: false, overlayState: 'unavailable',
       overlayUpdatedAt: null, overlayVersion: null, effectiveMappingIdentities: null, cacheTtlSeconds: 10,
@@ -191,6 +162,7 @@ async function handle(event, deps) {
 module.exports = {
   SERVICE,
   VERSION,
+  ARCHITECTURE,
   STAGE_FIELDS,
   MEDIA_FIELDS,
   isHealthPath,

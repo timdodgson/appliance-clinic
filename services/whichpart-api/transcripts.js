@@ -482,9 +482,6 @@ function buildTurn(input) {
     customerVisible: visible,
     metadata: meta,
     diagnosticTrace: normaliseDiagnosticTrace(input.orch && input.orch._diagnosticTrace),
-    // canonical-audit/1 (canonical-audit.js): bounded snapshot of this turn's canonical decisions. Audit only —
-    // never read back into runtime; canonical state lives in STATE# / STATETURN#. Absent on legacy-only BFFs.
-    canonical: input.canonical && typeof input.canonical === 'object' ? input.canonical : null,
   });
   // ac2-transcript-audit/1: the ac2 turn's bounded decision audit (own field; only present on ac2 turns).
   const ac2 = input.ac2 ? slimAc2Audit(stripSecrets(input.ac2)) : null;
@@ -524,11 +521,6 @@ function applyTurn(record, turn, now) {
   if (id) idx = turns.findIndex((t) => t && t.clientTurnId === id);
   if (idx >= 0) {
     turn.seq = turns[idx].seq;
-    // An idempotent duplicate (same clientTurnId, nothing merged again): keep the ORIGINAL turn's canonical audit
-    // and record the replay, instead of overwriting the real decision with the duplicate's empty one.
-    const was = turns[idx].canonical;
-    const dup = turn.canonical && turn.canonical.persistence && turn.canonical.persistence.duplicate;
-    if (was && dup && !(was.persistence && was.persistence.duplicate)) turn.canonical = canonicalAudit.markReplay(was, turn.at);
     turns[idx] = turn;
   } else {
     turn.seq = turns.length + 1;
@@ -1184,7 +1176,6 @@ async function persistTurn(store, obs, input) {
     requestId: input.requestId,
     clientTurnId: obs.clientTurnId,
     now: input.now,
-    canonical: input.canonical || null,
     ac2: input.ac2 || null,
   });
   let rec = await store.get(obs.sessionId);
@@ -1192,22 +1183,6 @@ async function persistTurn(store, obs, input) {
   rec = applyTurn(rec, turn, input.now);
   await store.put(rec);
   return { ok: true, sessionId: obs.sessionId, turnCount: rec.turnCount };
-}
-
-/**
- * An idempotent duplicate was answered from the cached view (no orchestrator call, nothing merged): mark the
- * ORIGINAL turn's canonical audit as replayed. Text, trace and decisions of that turn are left untouched.
- */
-async function persistReplay(store, obs, now) {
-  if (!store || !obs || !isValidSessionId(obs.sessionId) || !obs.clientTurnId) return { skipped: true };
-  const rec = await store.get(obs.sessionId);
-  if (!rec) return { skipped: true, reason: 'unknown-session' };
-  const t = (rec.turns || []).find((x) => x && x.clientTurnId === obs.clientTurnId);
-  if (!t) return { skipped: true, reason: 'unknown-turn' };
-  t.canonical = canonicalAudit.markReplay(t.canonical || { schemaVersion: canonicalAudit.SCHEMA_VERSION, path: 'legacy', persistence: {} }, nowIso(now));
-  rec.lastActivityAt = nowIso(now);
-  await store.put(rec);
-  return { ok: true, sessionId: obs.sessionId, seq: t.seq };
 }
 
 async function persistEnd(store, obs, now) {
@@ -1264,7 +1239,6 @@ module.exports = {
   createDynamoStore,
   persistTurn,
   persistEnd,
-  persistReplay,
   persistSafely,
   reviewOverview,
   semanticReviewView,

@@ -6,10 +6,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 process.env.MCP_HEALTH_URL = 'http://mcp.test/health';
-process.env.ORCHESTRATOR_URL = 'http://orchestrator.test';
-process.env.CANONICAL_MODE = 'control';
-const registry = require('../../diagnosis-engine/canonical/journey-registry.js');
-process.env.CANONICAL_CONTROL_JOURNEYS = registry.KEYS.join('+');
+process.env.ENGINE_URL = 'http://engine.test/';
 const handlerPath = require.resolve('../index.js');
 delete require.cache[handlerPath];
 const api = require(handlerPath);
@@ -18,12 +15,14 @@ const transcripts = require('../transcripts.js');
 const { memoryS3 } = require('../benchmark/acq-store.js');
 
 const ADMIN = async () => ({ username: 'a', email: 'admin@example.test', isAdmin: true });
-let realFetch; let realLoad;
+let realFetch; let realLoad; const probed = [];
 beforeAll(() => {
   realFetch = globalThis.fetch; realLoad = ai.loadConfig;
   globalThis.fetch = async (url) => {
     const u = String(url);
-    const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 783, overlay: { state: 'none' } } : { status: 'ok', diagnosisEngine: 'ok' };
+    const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 783, overlay: { state: 'none' } }
+      : { status: 'ok', health: 'healthy', service: 'diagnosis-engine', diagnosis: { architecture: 'ac2' } };
+    probed.push(u);
     return { ok: true, status: 200, text: async () => JSON.stringify(body), json: async () => body };
   };
   ai.loadConfig = async () => ({ routing: { understand: 'local', compose: 'local' }, local: { model: 'gpt-5.6-terra' }, frontier: { model: 'x', enabled: false }, version: 9 });
@@ -40,13 +39,19 @@ describe('Dashboard production state', () => {
     api.setSessionForTests(null);
     expect((await get()).statusCode).toBe(401);
   });
-  it('reports canonical, routing, override, Error Codes, media and recalls from existing sources', async () => {
+  it('reports the architecture, routing, override, Error Codes, media and recalls from existing sources', async () => {
     api.setSessionForTests(ADMIN);
     const r = await get();
     expect(r.statusCode).toBe(200);
-    const s = JSON.parse(r.body).state;
-    expect(s.canonical).toMatchObject({ mode: 'control', journeys: registry.KEYS.length });
-    expect(s.routing).toMatchObject({ understand: 'TypeSafe Jev', compose: 'Private AI', composeModel: 'gpt-5.6-terra' });
+    const body = JSON.parse(r.body);
+    const s = body.state;
+    expect(s.diagnosis).toEqual({ architecture: 'ac2' });
+    expect(s).not.toHaveProperty('canonical');
+    expect(s.routing).toEqual({ compose: 'Private AI', composeModel: 'gpt-5.6-terra', version: 9 });
+    // The diagnosis engine is probed directly (no orchestrator hop).
+    expect(probed).toContain('http://engine.test/health');
+    expect(body.health.parts.map((p) => p.id)).toEqual(['api', 'diagnosis_engine', 'error_codes']);
+    expect(body.health.ok).toBe(true);
     expect(s.override).toMatchObject({ active: false, blocked: false, runId: null });
     expect(s.errorCodes).toMatchObject({ ok: true, active: 783, overlay: 'none' });
     expect(s.media).toMatchObject({ overlay: 'absent', records: 0 });

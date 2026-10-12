@@ -421,17 +421,11 @@
         <h2 class="admin__h2">System path</h2>
         <ol class="dg-path">
           <li>Customer request</li>
-          <li>WhichPart API — customer boundary</li>
-          <li>Orchestrator — routes the turn
-            <ul>
-              <li>Error-code identity or cue → Error Code MCP</li>
-              <li>Symptoms → Part Finder → RAG → Compose</li>
-              <li>Error code and symptoms → Error Code MCP and Part Finder together</li>
-            </ul>
-          </li>
+          <li>WhichPart API — customer boundary: the session token and the evidence ledger</li>
+          <li>Diagnosis engine — one ac2 turn: the reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate)</li>
           <li>Customer view — reply, media and parts</li>
         </ol>
-        <p class="dg-path__note">The browser never calls Part Finder or Error Code MCP directly.</p>
+        <p class="dg-path__note">The browser never calls the diagnosis engine or Error Code MCP directly.</p>
 
         <h2 class="admin__h2">Deployed components</h2>
         <div id="dgComponents" aria-busy="true"><div class="tac__muted">Loading…</div></div>
@@ -522,8 +516,8 @@
         <div class="test-impact" id="wbImpact">
           <p class="test-impact__title">What a live test touches</p>
           <ul class="test-impact__list">
-            <li>Each message goes to the <strong>production</strong> diagnostic system — the orchestrator, Part Finder, Error Code MCP and RAG — exactly as a customer message would, using the AI routing currently set in Settings.</li>
-            <li>Turns belong to one conversation: like a customer’s browser, the Live Test sends back the signed conversation-state token the API returned, so retained facts, identity and journey progress carry from turn to turn. The token stays in this browser tab only and is never shown. <strong>New conversation</strong> discards it.</li>
+            <li>Each message goes to the <strong>production</strong> diagnostic system — one ac2 turn on the diagnosis engine — exactly as a customer message would, using the AI routing currently set in Settings.</li>
+            <li>Turns belong to one conversation: like a customer’s browser, the Live Test sends back the signed conversation-state token the API returned, so the evidence ledger (facts, identity, questions asked) carries from turn to turn. The token stays in this browser tab only and is never shown. <strong>New conversation</strong> discards it.</li>
             <li>No conversation transcript is saved and nothing in Knowledge, Error Codes, Media or Safety changes. The diagnostic engine keeps its usual time-limited conversation state, as it does for every caller.</li>
           </ul>
         </div>

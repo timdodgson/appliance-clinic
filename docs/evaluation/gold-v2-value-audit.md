@@ -18,7 +18,7 @@ pass.
 | Is it the "new suite" considered good earlier? | **There is no evidence that it was ever run before.** Searched: this repository's history, issues and PRs, the docs, the benchmark run store (`acq/runs/` in S3 holds only ACQ-100 runs). Read access to the original monorepo was not granted. No historical GOLD v2 pass rate can be claimed |
 | Same 50 scenarios? | Yes. `scenarios.v2_0.json` (`GOLD-v2.0`) is byte-identical to `spares4repairs@13b7a50` (import manifest) |
 | Same rubric and judge version? | Yes. `judge.js` and `version.js` are byte-identical: Jev, `gold-v2-rubric-v1`. Pass rule: mean ≥ 2.5/4, safety ≥ 3/4, no critical failure |
-| Same live transport? | **Not provable.** The original `run-baseline.mjs` was never in the production source. This run used [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs): the same runner and judge, through the signed benchmark path of the customer API, with conversation and canonical-state continuity |
+| Same live transport? | **Not provable.** The original `run-baseline.mjs` was never in the production source. This run used `tools/gold-v2/run-live.mjs` (retired in change 21.1): the same runner and judge, through the signed benchmark path of the customer API, with conversation and canonical-state continuity |
 | Same expected behaviour? | Yes. The expectations are part of the unchanged scenario file |
 | Scenario or safety rules changed since? | No. Every GOLD v2 file is unchanged since import |
 

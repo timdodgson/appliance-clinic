@@ -19,7 +19,7 @@ function deps(overrides) {
     getMediaOverlayCache: () => ({ applied: true, failed: false, overlayPresent: false, updatedAt: null, version: null }),
     getEffectiveMediaJoin: () => ({ byKnowledgeId: {}, byComponent: {} }),
     countJoinIdentities: () => 22,
-    loadAdminInference: async () => ({ config: null, openaiKey: 'sk-must-not-leak', jevConfigured: true }),
+    loadAdminInference: async () => ({ config: null, openaiKey: 'sk-must-not-leak' }),
     env: { LM_STUDIO_URL: 'http://localhost:1234', UNDERSTAND_PROVIDER: 'lmstudio', COMPOSE_PROVIDER: 'lmstudio' },
   }, overrides);
 }
@@ -32,25 +32,24 @@ describe('GET health succeeds', () => {
     expect(b.service).toBe('diagnosis-engine');
     expect(b.status).toBe('ok');
     expect(b.health).toBe('healthy');
-    expect(b.canonical.journeys).toBeGreaterThan(0);
-    expect(b.models.understand.configured).toBe(true);
-    expect(b.models.compose.configured).toBe(true);
+    expect(b.diagnosis).toEqual({ architecture: 'ac2' });
+    expect(b.models.reasoner.configured).toBe(true);
     expect(b.models.inferenceTested).toBe(false);
     expect(b.media.resolverAvailable).toBe(true);
     expect(b.media.overlayState).toBe('none');
     expect(Object.keys(b).sort()).toEqual([
-      'canonical', 'health', 'healthReason', 'media', 'models', 'service', 'status', 'version',
+      'diagnosis', 'health', 'healthReason', 'media', 'models', 'service', 'status', 'version',
     ]);
   });
 
-  it('reports the registered journeys and the real shipped media baseline', async () => {
+  it('reports the ac2 architecture and the real shipped media baseline', async () => {
     media.resetMediaOverlayCache();
     const body = await health.build(deps({
       describeMediaBaseline: media.describeMediaBaseline,
       getEffectiveMediaJoin: media.getEffectiveMediaJoin,
       countJoinIdentities: media.countJoinIdentities,
     }));
-    expect(body.canonical.journeys).toBe(Object.keys(require('../canonical-runtime.js').PACKS).length);
+    expect(body.diagnosis.architecture).toBe('ac2');
     expect(body.media.baselineLoaded).toBe(true);
     expect(body.media.effectiveMappingIdentities).toBeGreaterThan(0);
   });
@@ -78,13 +77,12 @@ describe('no diagnosis / LLM / mutation', () => {
     const messagesAt = handlerSrc.indexOf('let messages = body.messages');
     expect(healthAt).toBeGreaterThan(0);
     expect(messagesAt).toBeGreaterThan(healthAt);
-    expect(handlerSrc.indexOf('await understandTurn(body')).toBeGreaterThan(healthAt);
+    expect(handlerSrc.indexOf('await ac2.turn(')).toBeGreaterThan(healthAt);
   });
   it('does not infer through any provider', async () => {
     let inferred = false;
     const body = await health.build(deps({
       resolveProvidersFromAdminConfig: () => ({
-        understand: { name: 'lmstudio', model: null },
         compose: { name: 'lmstudio', model: null },
       }),
     }));
@@ -96,9 +94,9 @@ describe('no diagnosis / LLM / mutation', () => {
 describe('models', () => {
   it('reports configured local routing without secrets', async () => {
     const body = await health.build(deps());
-    expect(body.models.understand.configured).toBe(true);
-    expect(body.models.understand.provider).toBe('jev');
-    expect(body.models.understand.model).toBe('typesafe/jev');
+    expect(body.models.reasoner.configured).toBe(true);
+    expect(body.models.reasoner.provider).toBe('lmstudio');
+    expect(Object.keys(body.models).sort()).toEqual(['inferenceTested', 'note', 'reasoner']);
     expect(body.models.inferenceTested).toBe(false);
     expect(JSON.stringify(body)).not.toMatch(/sk-must-not-leak/);
     expect(JSON.stringify(body)).not.toMatch(/openaiKey/);
@@ -112,13 +110,10 @@ describe('models', () => {
           local: {},
         },
         openaiKey: 'sk-must-not-leak',
-        jevConfigured: true,
       }),
     }));
-    expect(body.models.understand.provider).toBe('jev');
-    expect(body.models.understand.model).toBe('typesafe/jev');
-    expect(body.models.compose.provider).toBe('openai');
-    expect(body.models.compose.model).toBe('gpt-4o-mini');
+    expect(body.models.reasoner.provider).toBe('openai');
+    expect(body.models.reasoner.model).toBe('gpt-4o-mini');
     const raw = JSON.stringify(body);
     expect(raw).not.toMatch(/sk-must-not-leak/);
     expect(raw).not.toMatch(/Bearer /);
@@ -126,11 +121,10 @@ describe('models', () => {
   });
   it('reports missing configuration as not configured / degraded', async () => {
     const body = await health.build(deps({
-      loadAdminInference: async () => ({ config: null, openaiKey: null, jevConfigured: false }),
+      loadAdminInference: async () => ({ config: null, openaiKey: null }),
       resolveProvidersFromAdminConfig: () => { throw new Error('CONFIG'); },
     }));
-    expect(body.models.understand.configured).toBe(false);
-    expect(body.models.compose.configured).toBe(false);
+    expect(body.models.reasoner.configured).toBe(false);
     expect(body.health).toBe('degraded');
   });
 });
@@ -252,7 +246,7 @@ describe('security', () => {
     const raw = JSON.stringify(body);
     expect(raw).not.toMatch(/sk-extra/);
     expect(raw).not.toMatch(/secret prompt/);
-    expect(Object.keys(body.canonical)).toEqual(['journeys']);
+    expect(Object.keys(body.diagnosis)).toEqual(['architecture']);
     expect(Object.keys(body.media).sort()).toEqual([
       'baselineLoaded', 'cacheTtlSeconds', 'effectiveMappingIdentities', 'overlayState',
       'overlayUpdatedAt', 'overlayVersion', 'resolverAvailable',

@@ -180,7 +180,7 @@ question the model never worded.
 - The diagnosis Lambda, `/part-finder` and `/ai/chat` are untouched, so the S4R-facing contract is unchanged.
 - An S4R-side compose failure still returns the template, as before. Changing that would be POTENTIALLY IMPACTS S4R.
 
-**Tests.** 4 semantic tests ([`compose-failure.test.mjs`](../../services/whichpart-api/test/compose-failure.test.mjs)),
+**Tests.** 4 semantic tests (`compose-failure.test.mjs`, retired in change 21.1),
 with the real handler and a mocked orchestrator:
 - detection
 - the failure view, with state version 1 kept and the retry reaching 2

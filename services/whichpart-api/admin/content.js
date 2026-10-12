@@ -8,9 +8,9 @@ const transcripts = require('../transcripts');
 const knowledgeInspect = require('../knowledge-inspect');
 const mediaInspect = require('../media-inspect');
 const mediaAdmin = require('../media-admin');
-const { ORCHESTRATOR_URL, LEARNING_BUCKET } = require('../config.js');
+const { LEARNING_BUCKET } = require('../config.js');
 const { log } = require('../log.js');
-const { parseJsonBody, queryParam, fetchHealth, respond } = require('../http-io.js');
+const { parseJsonBody, queryParam, respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
 const { s3client, _streamToString, acqS3 } = require('../s3.js');
 

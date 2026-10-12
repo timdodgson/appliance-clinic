@@ -2,24 +2,20 @@
  * Compile-time checks that the runtime modules still match the declared contracts. Nothing here runs; `tsc` fails
  * when a runtime shape stops fitting its declaration.
  */
-import type { ConversationState } from '../canonical';
+import type { Ac2State } from '../diagnosis-engine';
 import type { EngineConfig } from '../engine-config';
 import type { PromptRegistry } from '../prompts';
-import cs1 = require('../../services/diagnosis-engine/canonical/cs1.js');
+import ledger = require('../../services/diagnosis-engine/ac2/ledger.js');
 import engineConfig = require('../../services/diagnosis-engine/engine/config.js');
 import registry = require('../../prompts/registry.json');
 
 /** True only when A and B have exactly the same keys. */
 type SameKeys<A, B> = [Exclude<keyof A, keyof B>, Exclude<keyof B, keyof A>] extends [never, never] ? true : false;
 
-// cs/1: JavaScript widens literals (a SafetyLevel reads as string), so the state is checked structurally: the same
-// keys at every level the declaration spells out.
-type Runtime = ReturnType<typeof cs1.emptyState>;
-export const stateKeys: SameKeys<Runtime, ConversationState> = true;
-export const identityKeys: SameKeys<Runtime['identity'], ConversationState['identity']> = true;
-export const evidenceKeys: SameKeys<Runtime['evidence'], ConversationState['evidence']> = true;
-export const safetyKeys: SameKeys<Runtime['safety'], ConversationState['safety']> = true;
-export const scopeKeys: SameKeys<Runtime['scope'], ConversationState['scope']> = true;
+// ac2/1: JavaScript widens literals (the schema reads as string), so the new ledger is checked structurally: the same
+// keys as the declaration, apart from `hazards`, which the turn adds when it first records a hazard.
+type Runtime = ReturnType<typeof ledger.empty>;
+export const ledgerKeys: SameKeys<Runtime, Omit<Ac2State, 'hazards'>> = true;
 
 // The engine configuration and the prompt registry are checked by assignment.
 export const config: EngineConfig = engineConfig;

@@ -11,14 +11,6 @@ const ac2State = require('./ac2-state');
 
 const ENGINE_TIMEOUT_MS = Number(process.env.AC2_ENGINE_TIMEOUT_MS || 28000);
 
-/** AC2_MODE: 'off' (default) | 'benchmark' (authenticated benchmark / live-test turns that ask for it) | 'all'. */
-function selected(body, { live, bench }, env = process.env) {
-  const mode = String(env.AC2_MODE || 'off').toLowerCase();
-  if (mode === 'all') return true;
-  if (mode === 'benchmark') return Boolean((live || bench) && body && body.engine === 'ac2');
-  return false;
-}
-
 /** The engine's structured response, in the shape toWhichPartView projects for the browser. */
 function orchShape(r) {
   return {
@@ -70,16 +62,19 @@ function auditOf(out, extra = {}) {
 }
 
 /**
- * deps: { callEngine(rawBody) -> {status, json}, secretsLoader, store, toView(orch), log, rid }
- * -> { view, orch, audit, persisted }
+ * deps: { callEngine(rawBody, timeoutMs) -> {status, json}, secretsLoader, store, recallLookup? }
+ * -> { orch, token, audit, response, ms, session }  or  { error, token?, ms?, session? }
+ * `session`: { fresh, rejected } — whether this turn started a new conversation state, and why a presented token was
+ * not accepted (for the admin Live Test continuity status; never the token or the csid).
  */
 async function handle({ body, messages, image }, deps) {
   const secrets = await deps.secretsLoader().catch(() => null);
   const sess = ac2State.session(body, secrets);
   if (sess.error) return { error: sess.error };
+  const session = { fresh: sess.fresh, rejected: sess.rejected || null };
   const store = deps.store;
   const loaded = sess.fresh ? { status: 'missing', state: null, version: 0 } : await store.load(sess.csid);
-  if (loaded.status === 'error') return { error: 'state_load_failed', token: sess.token };
+  if (loaded.status === 'error') return { error: 'state_load_failed', token: sess.token, session };
   const prior = loaded.status === 'ok' ? loaded.state : null;
   const priorVersion = prior ? prior.turn : 0;
 
@@ -91,16 +86,16 @@ async function handle({ body, messages, image }, deps) {
   try {
     res = await deps.callEngine(raw, ENGINE_TIMEOUT_MS);
   } catch (e) {
-    return { error: 'engine_unreachable', token: sess.token, ms: Date.now() - t0 };
+    return { error: 'engine_unreachable', token: sess.token, ms: Date.now() - t0, session };
   }
   if (!res || res.status !== 200 || !res.json || res.json.type !== 'ac2') {
-    return { error: res && res.json && res.json.errorCode ? res.json.errorCode : `engine_http_${res ? res.status : 0}`, token: sess.token, ms: Date.now() - t0 };
+    return { error: res && res.json && res.json.errorCode ? res.json.errorCode : `engine_http_${res ? res.status : 0}`, token: sess.token, ms: Date.now() - t0, session };
   }
   const out = res.json;
   const saved = await store.save(sess.csid, out.state, priorVersion);
-  if (!saved.ok) return { error: `state_save_${saved.reason}`, token: sess.token, ms: Date.now() - t0 };
+  if (!saved.ok) return { error: `state_save_${saved.reason}`, token: sess.token, ms: Date.now() - t0, session };
   const orch = orchShape(out.response || {});
-  return { orch, token: sess.token, audit: auditOf(out, { ms: Date.now() - t0 }), response: out.response, ms: Date.now() - t0 };
+  return { orch, token: sess.token, audit: auditOf(out, { ms: Date.now() - t0 }), response: out.response, ms: Date.now() - t0, session };
 }
 
-module.exports = { handle, selected, orchShape, auditOf };
+module.exports = { handle, orchShape, auditOf };

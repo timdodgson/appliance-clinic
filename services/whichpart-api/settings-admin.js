@@ -288,10 +288,11 @@ async function probeEngineModels(opts) {
     const res = await fetchFn(url + '/health', { signal: ctrl.signal, headers: { accept: 'application/json', ...engineGetHeaders(url + '/health') } });
     const json = await res.json().catch(() => null);
     if (!res.ok || !json || !json.models) return { available: false, reason: 'The diagnosis engine health did not report models' };
+    // The engine runs one inference stage: the ac2 reasoner, on the COMPOSE route. It runs no UNDERSTAND stage.
     return {
       available: true,
-      understand: parseRunningStage(json.models.understand),
-      compose: parseRunningStage(json.models.compose),
+      understand: { available: false, reason: 'The diagnosis engine no longer runs UNDERSTAND (ac2, ADR 0020)' },
+      compose: parseRunningStage(json.models.reasoner),
     };
   } catch {
     return { available: false, reason: 'The diagnosis engine health unreachable' };
@@ -551,9 +552,9 @@ function settingsInventory(cfg, ctx) {
       current: ctx.jev && ctx.jev.credentialConfigured ? 'configured' : 'missing',
       currentLabel: ctx.jev && ctx.jev.credentialConfigured ? 'Configured' + (ctx.jev.gatewayId ? ' · via AI Gateway' : '') : 'Not configured',
       default: 'missing', defaultLabel: 'Not configured (env fallback only)',
-      consumer: 'The diagnosis engine understand() → Jev interprets every customer message',
-      effect: 'Within about 1 minute (the diagnosis engine caches it for 60 s)',
-      impactText: 'A wrong account or token makes every new customer turn fail UNDERSTAND.',
+      consumer: 'The Jev transcript review (TRANSCRIPT_REVIEW_PROVIDER=jev). The diagnosis engine does not use Jev (ac2, ADR 0020).',
+      effect: 'Within about 1 minute',
+      impactText: 'A wrong account or token makes the Jev transcript review fail. Customer turns are not affected.',
     }),
     row({
       id: 'openai.credential', label: 'OpenAI credential', group: 'credentials', editable: true, impact: route === 'frontier' ? 'high' : 'production', reasonRequired: false,
@@ -567,7 +568,7 @@ function settingsInventory(cfg, ctx) {
       id: 'routing.understand', label: 'Legacy UNDERSTAND routing', group: 'legacy', editable: false, impact: 'none', deprecated: true,
       current: cfg.routing.understand, currentLabel: cfg.routing.understand === 'frontier' ? 'OpenAI' : 'Private AI',
       default: d.routing.understand, defaultLabel: 'Private AI',
-      consumer: 'None for customers — UNDERSTAND is TypeSafe Jev. Still resolved (not used) by the diagnosis engine and written by the batch runner.',
+      consumer: 'None — the diagnosis engine reads only the COMPOSE route (ac2, ADR 0020). Still written by the batch runner.',
       effect: 'No customer effect',
       impactText: 'Deprecated. Not editable: a frontier value without a key would still break COMPOSE resolution.',
     }),
@@ -667,8 +668,8 @@ async function buildView(opts) {
     },
     runtimeStatus: {
       editable: false,
-      canonical: opts.canonical || null,
-      canonicalNote: 'Canonical conversation mode is deployment configuration (CANONICAL_MODE / CANONICAL_CONTROL_JOURNEYS on the API). It is not editable in Admin and changes only with a deployment.',
+      architecture: 'ac2',
+      architectureNote: 'Every diagnosis turn runs ac2: the LLM-led reasoner inside the deterministic guardrail kernel (ADR 0020). There is no other diagnosis path and nothing to configure.',
     },
     productionReview: {
       editable: false,

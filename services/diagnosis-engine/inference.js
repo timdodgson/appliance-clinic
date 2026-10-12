@@ -2,23 +2,21 @@
 /**
  * Inference provider boundary for ApplianceClinic.
  *
- * The diagnostic pipeline (UNDERSTAND + COMPOSE in engine/understand.js and engine/compose.js) used
- * to call LM Studio directly over an OpenAI-compatible HTTP endpoint. This
- * module turns that into an INFRASTRUCTURE boundary: the engine now depends on
- * a small `infer()` contract and no longer knows which provider serves the
- * inference.
+ * An INFRASTRUCTURE boundary: the ac2 turn (the reasoner and the claim
+ * extractor, ac2/runtime.js) depends on a small `infer()` contract and does not
+ * know which provider serves the inference.
  *
  * It is deliberately NOT a second diagnostic implementation — a provider
  * supplies raw inference only (messages in, text out). All grounding, safety,
- * RAG, error-code and response-contract logic stays in the engine.
+ * error-code and response-contract logic stays in the engine's kernel.
  *
  * Providers:
  *   - LMStudioProvider  (default, local, concurrency=1 for validation)
  *   - OpenAIProvider    (one remote implementation, OpenAI-compatible)
  *
- * UNDERSTAND and COMPOSE are resolved INDEPENDENTLY from configuration, so any
- * local/remote combination is possible without code changes. There is NO silent
- * fallback from remote to local — a misconfigured remote is an explicit error,
+ * The one inference stage, COMPOSE (the admin AI configuration's route for the
+ * reasoner), is resolved from configuration, local or remote, without code
+ * changes. There is NO silent fallback from remote to local — a misconfigured remote is an explicit error,
  * because a hidden fallback would invalidate quality/cost comparisons and mask
  * production availability problems.
  */
@@ -282,7 +280,7 @@ class OpenAIProvider extends OpenAICompatibleProvider {
 const KNOWN_PROVIDERS = ['lmstudio', 'openai'];
 
 /**
- * Resolve the provider for one stage ('UNDERSTAND' | 'COMPOSE') from env.
+ * Resolve the provider for one stage (e.g. 'COMPOSE') from env.
  *
  * Env (per stage, with a shared LLM_PROVIDER fallback):
  *   <STAGE>_PROVIDER   lmstudio | openai   (default lmstudio)
@@ -327,26 +325,25 @@ function resolveStageProvider(stage, env = process.env, deps = {}) {
   return new OpenAIProvider({ baseUrl: env.OPENAI_BASE_URL || 'https://api.openai.com/v1', apiKey, model, transport, stage });
 }
 
-/** Resolve both stages independently. */
+/** Resolve the inference stage. */
 function resolveProviders(env = process.env, deps = {}) {
   return {
-    understand: resolveStageProvider('UNDERSTAND', env, deps),
     compose: resolveStageProvider('COMPOSE', env, deps),
   };
 }
 
 /**
  * Resolve providers from the admin-managed operational config (the runtime
- * source of truth). Routing maps: local -> LM Studio, frontier -> OpenAI, per
- * stage independently.
+ * source of truth). Routing maps: local -> LM Studio, frontier -> OpenAI. Only
+ * the COMPOSE route is read (the reasoner's provider).
  *
  * When `aiConfig` is null/absent (secret not created or unreadable) this falls
  * back to the env-based default (local/local) — the safe production baseline.
- * A stage routed to frontier without a usable key/model raises a CONFIG error
+ * COMPOSE routed to frontier without a usable key/model raises a CONFIG error
  * (NO silent fallback to local), matching the abstraction's failure semantics.
  *
  * For LOCAL, the endpoint is the admin override if set, otherwise the
- * orchestrator's own deployed LM_STUDIO_URL — so a blank admin endpoint never
+ * engine's own deployed LM_STUDIO_URL — so a blank admin endpoint never
  * breaks the deployed local connection.
  */
 function resolveProvidersFromAdminConfig(aiConfig, openaiKey, env = process.env, deps = {}) {
@@ -370,7 +367,6 @@ function resolveProvidersFromAdminConfig(aiConfig, openaiKey, env = process.env,
   };
 
   return {
-    understand: pick('UNDERSTAND', aiConfig.routing.understand === 'frontier' ? 'frontier' : 'local'),
     compose: pick('COMPOSE', aiConfig.routing.compose === 'frontier' ? 'frontier' : 'local'),
   };
 }

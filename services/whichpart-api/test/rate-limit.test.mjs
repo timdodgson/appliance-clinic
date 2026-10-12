@@ -132,8 +132,7 @@ describe('counting', () => {
 describe('whichpart-api handler with rate limiting', () => {
   process.env.COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || 'eu-west-1_ACPOOL001';
   process.env.COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || 'acclient0001';
-  process.env.ORCHESTRATOR_URL = 'http://127.0.0.1:9';
-  process.env.ORCH_TIMEOUT_MS = '500';
+  process.env.ENGINE_URL = 'http://127.0.0.1:9/';
   const api = require('../index.js');
   const sdk = require('@aws-sdk/client-cognito-identity-provider');
   const full = { async increment() { return 1000; } };
@@ -159,10 +158,10 @@ describe('whichpart-api handler with rate limiting', () => {
       expect(JSON.parse(r.body).code).toBe('rate_limited');
     } finally { sdk.CognitoIdentityProviderClient.prototype.send = original; }
   });
-  it('enforce: a customer turn over the limit is 429 before the orchestrator is called', async () => {
+  it('enforce: a customer turn over the limit is 429 before the diagnosis engine is called', async () => {
     api.setRateLimitStoreForTests(full);
     const fetchBefore = globalThis.fetch;
-    globalThis.fetch = async () => { throw new Error('the orchestrator must not be called'); };
+    globalThis.fetch = async () => { throw new Error('the diagnosis engine must not be called'); };
     try {
       const r = await withMode('enforce', () => api.handler(ev('', { messages: [{ role: 'user', content: 'My dishwasher will not drain' }] })));
       expect(r.statusCode).toBe(429);

@@ -9,7 +9,6 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const tx = require('../transcripts.js');
 const dg = require('../diagnostics-inspect.js');
-const { diagnosticsAc2Mode } = require('../admin/diagnostics.js');
 
 const now = new Date('2026-10-12T10:00:00.000Z');
 const SID = 's-ac2-observe-01';
@@ -77,11 +76,11 @@ describe('slimAc2Audit', () => {
 });
 
 describe('persisted ac2 turns', () => {
-  it('stores the audit under turn.ac2 (canonical stays null) and the detail returns it', async () => {
+  it('stores the audit under turn.ac2 (never a canonical block) and the detail returns it', async () => {
     const store = tx.createMemoryStore();
-    await tx.persistTurn(store, { sessionId: SID, clientTurnId: 'ct-ac2-1' }, { messages: msgs, view, orch, requestId: 'rid-ac2', now, canonical: null, ac2: audit() });
+    await tx.persistTurn(store, { sessionId: SID, clientTurnId: 'ct-ac2-1' }, { messages: msgs, view, orch, requestId: 'rid-ac2', now, ac2: audit() });
     const rec = await store.get(SID);
-    expect(rec.turns[0].canonical).toBeNull();
+    expect(rec.turns[0]).not.toHaveProperty('canonical');
     expect(rec.turns[0].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', status: 'narrowing', provider: { model: 'test-model' }, regenerated: true });
     expect(rec.turns[0].ac2.ledger.facts.map((f) => f.status)).toEqual(['observed', 'contradicted']);
     const d = tx.drillDown(rec, now);
@@ -122,12 +121,12 @@ describe('persisted ac2 turns', () => {
   });
 });
 
-describe('Diagnostics: AC2 mode (read-only)', () => {
-  it('reads AC2_MODE like the BFF selector, invalid values run as off', () => {
-    expect(diagnosticsAc2Mode({})).toEqual({ mode: 'off', invalid: false });
-    expect(diagnosticsAc2Mode({ AC2_MODE: 'Benchmark' })).toEqual({ mode: 'benchmark', invalid: false });
-    expect(diagnosticsAc2Mode({ AC2_MODE: 'everything' })).toEqual({ mode: 'off', invalid: true });
-    expect(dg.ac2Runtime({ mode: 'all' })).toEqual({ mode: 'all', modeLabel: 'All customer turns', invalid: false });
-    expect(dg.ac2Runtime(null)).toBeNull();
+describe('Diagnostics: the diagnosis architecture (read-only)', () => {
+  it('is ac2, with no mode to configure', () => {
+    const snap = dg.buildSnapshot({ now, runtime: {} });
+    expect(snap.runtime.diagnosis).toMatchObject({ architecture: 'ac2' });
+    expect(snap.runtime).not.toHaveProperty('ac2');
+    expect(snap.runtime).not.toHaveProperty('canonical');
+    expect(snap.components.map((c) => c.id)).not.toContain('orchestrator');
   });
 });

@@ -2,15 +2,11 @@
 
 /** Admin: the diagnostics inspector. */
 const aiConfig = require('../ai-config.js');
-const conversationState = require('../conversation-state');
 const knowledgeInspect = require('../knowledge-inspect');
 const mediaInspect = require('../media-inspect');
 const mediaAdmin = require('../media-admin');
 const diagnosticsInspect = require('../diagnostics-inspect');
-const {
-  ORCHESTRATOR_URL, ENGINE_URL, S4R_PRODUCT_BASE_URL, ORCH_TIMEOUT_MS, MAX_MESSAGES, MCP_HEALTH_URL,
-  ACQ_JUDGE_MODEL,
-} = require('../config.js');
+const { ENGINE_URL, S4R_PRODUCT_BASE_URL, MAX_MESSAGES, MCP_HEALTH_URL, ACQ_JUDGE_MODEL } = require('../config.js');
 const { log } = require('../log.js');
 const { respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
@@ -19,48 +15,20 @@ const { mediaStore } = require('./content.js');
 let _diagnosticsTestDeps = null;
 function setDiagnosticsDepsForTests(deps) { _diagnosticsTestDeps = deps; }
 
-function diagnosticsCanonicalMode() {
-  try {
-    const r = conversationState.resolveMode();
-    return {
-      mode: r.mode,
-      controlJourneyCount: Array.isArray(r.journeys) ? r.journeys.length : 0,
-      demoted: !!r.demoted,
-      invalid: !!r.invalid,
-      unknownKeyCount: Array.isArray(r.unknown) ? r.unknown.length : 0,
-    };
-  } catch (e) {
-    return { mode: 'unknown', controlJourneyCount: null, demoted: false, invalid: false, unknownKeyCount: null };
-  }
-}
-/** AC2_MODE as ac2-turn.selected() reads it: off (default) | benchmark | all. Anything else runs as off. */
-function diagnosticsAc2Mode(env = process.env) {
-  const raw = String(env.AC2_MODE || 'off').toLowerCase();
-  const valid = ['off', 'benchmark', 'all'].includes(raw);
-  return { mode: valid ? raw : 'off', invalid: !valid };
-}
 async function adminDiagnostics(event) {
   if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
   const runtime = {
     maxConversationTurns: MAX_MESSAGES,
-    orchestratorTimeoutMs: ORCH_TIMEOUT_MS,
     families: knowledgeInspect.FAMILIES,
     s4rProductBaseHost: diagnosticsInspect.hostOf(S4R_PRODUCT_BASE_URL),
-    orchestratorHost: diagnosticsInspect.hostOf(ORCHESTRATOR_URL),
     mcpHealthHost: diagnosticsInspect.hostOf(MCP_HEALTH_URL),
     engineHost: diagnosticsInspect.hostOf(ENGINE_URL),
-    // Read-only canonical conversation mode as THIS runtime resolves it (env-driven; no writes).
-    canonical: diagnosticsCanonicalMode(),
-    ac2: diagnosticsAc2Mode(),
   };
   const testDeps = _diagnosticsTestDeps || {};
   try {
     const snapshot = await diagnosticsInspect.collect({
       fetch: testDeps.fetch || fetch,
       timeoutMs: testDeps.timeoutMs || 5000,
-      orchestratorHealthUrl: testDeps.orchestratorHealthUrl !== undefined
-        ? testDeps.orchestratorHealthUrl
-        : (ORCHESTRATOR_URL.replace(/\/$/, '') + '/health'),
       mcpHealthUrl: testDeps.mcpHealthUrl !== undefined ? testDeps.mcpHealthUrl : (MCP_HEALTH_URL || ''),
       engineHealthUrl: testDeps.engineHealthUrl !== undefined
         ? testDeps.engineHealthUrl
@@ -88,4 +56,4 @@ async function adminDiagnostics(event) {
   }
 }
 
-module.exports = { setDiagnosticsDepsForTests, diagnosticsCanonicalMode, diagnosticsAc2Mode, adminDiagnostics };
+module.exports = { setDiagnosticsDepsForTests, adminDiagnostics };

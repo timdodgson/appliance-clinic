@@ -5,7 +5,7 @@
  *
  *   AC2STATE#<csid>   { stateJson (the ledger), stateVersion (= ledger.turn), stateDigest, expiresAt }
  *
- * The browser holds only the opaque signed session token (state-token.js, unchanged); the ledger never leaves the
+ * The browser holds only the opaque signed session token (state-token.js); the ledger never leaves the
  * server. The item carries no `gsiPk`, so it never enters the admin activity index.
  */
 const crypto = require('crypto');
@@ -72,18 +72,21 @@ function createStore(opts = {}) {
 
 /**
  * Resolve this turn's session: verify the presented token (any valid AC session token), or start a new session.
- * -> { csid, token, fresh }  or  { error }
+ * -> { csid, token, fresh, rejected }  or  { error }. `rejected` is the reason a presented token was not accepted
+ * (expired, bad_signature, malformed), else null.
  */
 function session(body, secrets, { nowSec } = {}) {
   if (!secrets || !secrets.current) return { error: 'state_secret_unavailable' };
-  const presented = typeof body.stateToken === 'string' ? body.stateToken : null;
+  const presented = typeof body.stateToken === 'string' && body.stateToken ? body.stateToken : null;
+  let rejected = null;
   if (presented) {
     const v = stateToken.verifyToken(presented, secrets, nowSec ? { nowSec } : undefined);
-    if (v && v.ok) return { csid: v.csid, token: v.rotated ? stateToken.issueToken(v.csid, secrets) : presented, fresh: false };
+    if (v && v.ok) return { csid: v.csid, token: v.rotated ? stateToken.issueToken(v.csid, secrets) : presented, fresh: false, rejected: null };
     // An invalid or expired token starts a new conversation state rather than failing the customer's turn.
+    rejected = (v && v.reason) || 'invalid';
   }
   const csid = stateToken.newCanonicalSessionId();
-  return { csid, token: stateToken.issueToken(csid, secrets), fresh: true };
+  return { csid, token: stateToken.issueToken(csid, secrets), fresh: true, rejected };
 }
 
 module.exports = { createStore, session, SCHEMA, PREFIX };

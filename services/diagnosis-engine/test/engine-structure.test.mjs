@@ -1,6 +1,7 @@
 /**
- * The engine's module structure (ADR 0019): the engine/ modules form an acyclic graph below the handler, the handler's
- * `_internal` test surface is the canonical runtime as wired, and none of the deleted legacy pipeline modules exists.
+ * The engine's module structure (ADR 0019, 0020): the engine/ modules form an acyclic graph below the handler, the
+ * handler's `_internal` test surface is only the provider seam, and none of the deleted pipelines' modules exists: the
+ * legacy pipeline (ADR 0019) and the journey controller (ADR 0020: ac2 is the only diagnose path).
  */
 import { describe, it, expect } from 'vitest';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -17,18 +18,17 @@ const requires = Object.fromEntries(modules.map((f) => {
   return [f, [...src.matchAll(/require\('(\.{1,2}\/[^']+)'\)/g)].map((m) => m[1])];
 }));
 
-// The handler's `_internal` test surface: the canonical runtime as the handler wires it.
-const INTERNAL = [
-  'CANONICAL_JOURNEY_PACKS', '_setProvidersForTest', 'canonicalControls', 'canonicalFinishUnderstand', 'canonicalJourney',
-  'canonicalJourneys', 'canonicalModelParts', 'canonicalRespond', 'canonicalTransportMerge', 'canonicalTransportMetric',
-  'isCanonicalTransportBlock', 'isCanonicalTransportResult',
-];
+// The handler's `_internal` test surface: the inference provider seam only.
+const INTERNAL = ['_setProvidersForTest'];
 
-// The legacy diagnosis pipeline, deleted with ADR 0019.
 const DELETED = [
+  // The legacy diagnosis pipeline, deleted with ADR 0019.
   'part-finder-lambda.js', 'retrieval.js', 'fit-evidence.js', 'deploy.sh', 'engine/compose.js', 'engine/evidence.js',
   'engine/progression.js', 'engine/presentation.js', 'engine/safety.js', 'engine/intent-vocabulary.js',
   'engine/error-codes.js', 'engine/media-concepts.js', 'knowledge/normal-behaviour.json',
+  // The journey controller (Jev UNDERSTAND, mc/1, cs/1, the canonical journeys and COMPOSE), retired with ADR 0020.
+  'canonical', 'canonical-runtime.js', 'jev-client.js', 'jev-mc1.js', 'jev-understand.js', 'identity.js', 'security.js',
+  'engine/understand.js', 'engine/reply-filters.js', 'engine/catalogue.js', 'ac2/build-journey-knowledge.cjs',
 ];
 
 describe('engine modules', () => {
@@ -54,14 +54,14 @@ describe('engine modules', () => {
 });
 
 describe('handler _internal', () => {
-  it('is exactly the canonical runtime surface', () => {
+  it('is exactly the provider seam', () => {
     const internal = require('../handler.js')._internal;
     expect(Object.keys(internal).sort()).toEqual([...INTERNAL].sort());
     for (const k of INTERNAL) expect(internal[k], k).not.toBeUndefined();
   });
 });
 
-describe('legacy pipeline', () => {
+describe('retired pipelines', () => {
   it('none of its modules exists', () => {
     for (const f of DELETED) expect(existsSync(join(ROOT, f)), f).toBe(false);
   });

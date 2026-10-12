@@ -1,22 +1,16 @@
 /**
- * Diagnosis engine configuration: the S4R Parts Catalogue endpoint, model tuning, request limits and the admin-configured
- * inference providers. Read once at cold start from the environment; defaults are the production values.
+ * Diagnosis engine configuration: the S4R Parts Catalogue endpoint, request limits and the admin-configured inference
+ * providers. Read once at cold start from the environment; defaults are the production values.
  */
 const { resolveProvidersFromAdminConfig } = require('../inference.js');
 const { loadAdminInference } = require('../admin-config.js');
 
 // --- Configuration (env-overridable) ---
-// The COMPOSE provider and model come from the Admin AI configuration (inference.js, the provider boundary).
+// The reasoning provider and model come from the Admin AI configuration (inference.js, the provider boundary).
 // S4R Parts Catalogue (external service): compatible parts for a confirmed model.
 const PARTS_FOR_MODEL_API =
   process.env.PARTS_FOR_MODEL_API ||
   'https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/api/parts-for-model';
-
-// COMPOSE model tuning
-const LM_TEMPERATURE = numEnv('LM_TEMPERATURE', 0.3);
-const LM_TIMEOUT_MS = numEnv('LM_TIMEOUT_MS', 240000);
-// Mild repeat penalty stops the compose pass looping (observed on Qwen 27B).
-const LM_REPEAT_PENALTY = numEnv('LM_REPEAT_PENALTY', 1.1);
 
 // Inference providers, resolved from the Admin AI configuration (see inference.js). Default is local LM Studio. A
 // misconfigured remote raises a clear error (no silent fallback to local).
@@ -52,6 +46,5 @@ function numEnv(name, fallback) {
 }
 
 module.exports = {
-  PARTS_FOR_MODEL_API, LM_TEMPERATURE, LM_TIMEOUT_MS, LM_REPEAT_PENALTY, getProviders,
-  _setProvidersForTest, MAX_MESSAGES, MAX_BODY_BYTES,
+  PARTS_FOR_MODEL_API, getProviders, _setProvidersForTest, MAX_MESSAGES, MAX_BODY_BYTES,
 };

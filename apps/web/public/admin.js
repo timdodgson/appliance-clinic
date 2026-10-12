@@ -268,10 +268,10 @@
         + esc(value) + (href ? ' <a class="dash-link" href="' + esc(href) + '">' + esc(linkText) + '</a>' : '') + '</dd></div>');
     }
     var na = function (x) { return !x || x.unavailable; };
-    var c = s.canonical || {};
-    row('Canonical journeys', c.mode === 'control' ? 'Control · ' + c.journeys + ' journeys' : (c.mode === 'shadow' ? 'Shadow (not customer-facing)' + (c.demoted ? ' · control allow-list empty' : '') : 'Off'), null, '#diagnostics', 'Diagnostics');
+    var dz = s.diagnosis || {};
+    row('Diagnosis', dz.architecture === 'ac2' ? 'ac2 · LLM-led turn inside the guardrail kernel' : 'Not reported', null, '#diagnostics', 'Diagnostics');
     var r = s.routing;
-    row('AI routing', na(r) ? 'Could not be read' : 'UNDERSTAND ' + r.understand + ' · COMPOSE ' + r.compose + (r.composeModel ? ' (' + r.composeModel + ')' : ''), null, '#settings', 'Settings');
+    row('AI routing', na(r) ? 'Could not be read' : 'COMPOSE (reasoner) ' + r.compose + (r.composeModel ? ' (' + r.composeModel + ')' : ''), null, '#settings', 'Settings');
     var o = s.override;
     if (na(o)) row('Batch routing override', 'Could not be read', null, '#test?tab=batch', 'Test');
     else if (o.blocked || o.state === 'restore_failed') row('Batch routing override', (o.blocked ? 'Restore conflict' : 'Restore failed') + ' · run ' + (o.runId || '—'), 'bad', '#test?tab=batch', 'Resolve in Test');
@@ -3671,25 +3671,14 @@
       var models = rt.models || {};
       var html = '<dl class="dg-facts">';
       html += dgKv('Conversation window', rt.conversationWindowTurns != null ? rt.conversationWindowTurns + ' turns' : null);
-      html += dgKv('Orchestrator timeout', rt.orchestratorTimeoutMs != null ? rt.orchestratorTimeoutMs + ' ms' : null);
       html += dgKv('Media overlay cache TTL', rt.mediaOverlayCacheTtlMs != null ? Math.round(rt.mediaOverlayCacheTtlMs / 1000) + ' seconds' : null);
       html += dgKv('Supported appliance families', (rt.supportedFamilies && rt.supportedFamilies.length) ? rt.supportedFamilies.join(', ') : null);
-      if (models.understand) {
-        html += dgKv('UNDERSTAND', (models.understand.providerLabel || models.understand.provider || '') + ' · ' + (models.understand.modelLabel || models.understand.model || 'Version not exposed by runtime'));
-      }
       if (models.compose) {
-        html += dgKv('COMPOSE', (models.compose.providerLabel || models.compose.provider || '') + ' · ' + (models.compose.modelLabel || models.compose.model || 'Version not exposed by runtime'));
+        html += dgKv('COMPOSE (reasoner)', (models.compose.providerLabel || models.compose.provider || '') + ' · ' + (models.compose.modelLabel || models.compose.model || 'Version not exposed by runtime'));
       }
-      if (rt.canonical) {
-        // Read-only: the canonical mode is deploy configuration, never changed from Admin.
-        var cm = rt.canonical;
-        html += dgKv('Canonical conversation mode', (cm.modeLabel || cm.mode) + (cm.demoted ? ' — demoted to shadow (empty allow-list)' : '') + (cm.invalid ? ' — invalid setting, treated as off' : ''));
-        if (cm.mode === 'control') html += dgKv('Canonical control journeys', cm.controlJourneyCount != null ? String(cm.controlJourneyCount) + ' enabled' : null);
-        if (cm.unknownKeyCount) html += dgKv('Ignored allow-list keys', String(cm.unknownKeyCount) + ' not in the journey registry');
-      }
-      if (rt.ac2) {
-        // Read-only: AC2_MODE is deploy configuration, never changed from Admin.
-        html += dgKv('AC2 mode (LLM-led turn)', (rt.ac2.modeLabel || rt.ac2.mode) + (rt.ac2.invalid ? ' — invalid setting, treated as off' : ''));
+      if (rt.diagnosis) {
+        // Read-only: ac2 is the only diagnosis architecture (ADR 0020); there is nothing to configure.
+        html += dgKv('Diagnosis architecture', rt.diagnosis.label || rt.diagnosis.architecture);
       }
       html += '</dl>';
       if (rt.note) html += '<p class="dg-path__note">' + esc(rt.note) + '</p>';
@@ -5943,7 +5932,7 @@
     if (text) text.textContent = 'The conversation is unchanged. No ApplianceClinic answer was added.';
     if (tech) tech.textContent = [err && err.message, extra].filter(Boolean).join(' · ');
   }
-  // One line under each ApplianceClinic turn: turn number, continuity, state version, journey, time.
+  // One line under each ApplianceClinic turn: turn number, continuity, diagnostic status, time.
   function wbTurnMetaText(view, turnMeta) {
     var st = view && view.liveTest;
     if (!st && !turnMeta) return null;
@@ -5951,12 +5940,10 @@
     if (turnMeta && turnMeta.index) bits.push('Turn ' + turnMeta.index);
     if (st) {
       bits.push('State: ' + (Workbench ? Workbench.continuityLabel(st) : st.continuity));
-      var c = st.canonical || {};
-      if (c.resultVersion != null) bits.push('v' + (c.priorVersion == null ? '\u2014' : c.priorVersion) + ' \u2192 v' + c.resultVersion);
-      if (c.journey && c.journey.key) bits.push(c.journey.key);
+      if (st.audit && st.audit.status) bits.push(st.audit.status);
     }
     if (turnMeta && typeof turnMeta.durationMs === 'number') bits.push((Math.round(turnMeta.durationMs / 100) / 10) + ' s');
-    var problem = Boolean(st && (st.continuity === 'restarted' || st.continuity === 'unavailable' || st.continuity === 'degraded'));
+    var problem = Boolean(st && (st.continuity === 'restarted' || st.continuity === 'unavailable' || st.continuity === 'failed'));
     return { text: bits.join(' \u00b7 '), problem: problem };
   }
   // Conversation state strip + the rejected/not-renewed alert. Status only: never the token.
@@ -5966,11 +5953,9 @@
     if (!Workbench || !Workbench.stateSummary) return;
     var sum = Workbench.stateSummary(wbConv);
     if (el) {
-      var last = wbConv.lastStatus;
       var parts = ['Conversation state: ' + sum.label];
       if (sum.turns) parts.push(sum.turns + ' customer turn' + (sum.turns === 1 ? '' : 's'));
       parts.push('state token ' + (sum.tokenPresent ? 'held' : 'none'));
-      if (last && last.canonical && last.canonical.ref) parts.push('session ref ' + last.canonical.ref);
       el.textContent = parts.join(' \u00b7 ');
       el.setAttribute('data-state', sum.kind);
     }

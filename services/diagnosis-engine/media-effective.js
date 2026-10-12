@@ -4,7 +4,7 @@
  *
  * Used by:
  *   - admin Media inspector (whichpart-api)
- *   - live media selection for canonical NextActions (diagnosis engine, media.js)
+ *   - live media selection for the ac2 turn (diagnosis engine, media.js)
  *
  * Overlay items ADD or REPLACE by id. Detach is a durable tombstone so deleting
  * an overlay add cannot resurrect a shipped mapping. Retired/removed identities

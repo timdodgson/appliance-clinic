@@ -18,7 +18,6 @@ const acqJudge = require('../benchmark/acq-judge.js');
 // the whole conversation with a critical-failure override, Jev as the fixed
 // judge). ACQ-100 above remains as NON-AUTHORITATIVE legacy. The config endpoint
 // labels both so no score is ever shown unlabelled.
-const goldV2Version = require('../benchmark/gold-v2/version.js');
 // Batch routing override (benchmark/routing-override.js): the API reads its status, blocks Settings
 // inference writes while a batch owns live routing, recovers orphans on its 15-minute schedule and
 // applies admin conflict resolutions. The worker on the Private AI machine is the normal owner.
@@ -362,22 +361,18 @@ async function acqBenchmarkConfig(event) {
   const dist = acqCorpus.distribution(raw);
   return respond(200, {
     benchmarkVersion: acqScoring.ACQ_BENCHMARK_VERSION,
-    // Authoritative labelling of which quality benchmark governs. GOLD v2 is the
-    // active/recommended suite; ACQ-100 is retained only as legacy and must never
-    // be presented as the current quality score.
+    // Authoritative labelling of which quality benchmark governs. GOLD is the deterministic guardrail regression
+    // (ADR 0020): the GOLD v2.4 scenarios replayed through the ac2 kernel with no model call, in CI. ACQ-100 is
+    // retained only as legacy and must never be presented as the current quality score.
     qualityBenchmark: {
       active: {
-        id: goldV2Version.BENCHMARK,
-        label: 'GOLD v2',
+        id: 'GOLD-guardrails',
+        label: 'GOLD (guardrail regression)',
         status: 'active',
         recommended: true,
-        judgeModel: goldV2Version.JUDGE_MODEL,
-        judgePromptVersion: goldV2Version.JUDGE_PROMPT_VERSION,
-        scenarioCount: 50,
-        concurrency: goldV2Version.CONCURRENCY,
-        passPolicy: `mean \u2265 ${goldV2Version.PASS_MIN}/4, safety \u2265 ${goldV2Version.SAFETY_MIN}/4, no critical failure`,
-        run: 'node services/whichpart-api/benchmark/gold-v2/run-baseline.mjs',
-        note: 'Semantic-first: judges the whole conversation on ten 0\u20134 dimensions with a critical-failure override.',
+        scenarioSet: 'GOLD-v2.4',
+        run: 'npm run test:runtime -- --only ac2-guardrail-regression',
+        note: 'Deterministic: the safety gate, claim verifier and part gate must hold on every GOLD scenario. No model judge.',
       },
       legacy: {
         id: acqScoring.ACQ_BENCHMARK_VERSION,

@@ -1,7 +1,8 @@
 /**
- * The diagnosis engine's internal contract (ADR 0019): the signed requests Appliance Clinic services send to
- * `applianceclinic-diagnosis-engine`, and the JSON lines it returns. Every request carries the AC engine signature over
- * its exact body (ADR 0017); there is no unsigned request.
+ * The diagnosis engine's internal contract (ADR 0019, ADR 0020): the signed requests whichpart-api sends to
+ * `applianceclinic-diagnosis-engine`, and the JSON it returns. Every request carries the AC engine signature over its
+ * exact body (ADR 0017); there is no unsigned request. A diagnose request is one ac2 turn (`mode: 'turn'`); any other
+ * request that is not feedback or GET /health is refused (400 unsupported_request).
  */
 
 export type Role = 'user' | 'assistant';
@@ -12,17 +13,50 @@ export interface ImageContent { type: 'image_url'; image_url: { url: string } }
 export interface ChatMessage {
   role: Role;
   content: string | Array<TextContent | ImageContent>;
+  /** Media the advisor showed with this reply (assistant turns), so the engine does not show it again. */
+  media?: Array<Record<string, unknown>>;
 }
 
-/** A diagnosis request from the orchestrator. Without `mode`, the turn is answered only by the canonical journey that
- *  controls it (`canonical`); any other diagnose call is refused (409 canonical_not_controlled, ADR 0018). */
-export interface EngineRequest {
+/** A fact in the evidence ledger, with its provenance (ac2/ledger.js). */
+export interface LedgerFact {
+  id: string;
+  field: string;
+  value: unknown;
+  source: 'customer' | 'tool' | 'observation' | 'inference';
+  status: 'stated' | 'observed' | 'inferred' | 'uncertain' | 'contradicted';
+  turn: number;
+  quote?: string | null;
+  [extra: string]: unknown;
+}
+
+/** The conversation's evidence ledger (ac2/1). whichpart-api stores it (ac2-state.js) and sends it back each turn. */
+export interface Ac2State {
+  schema: 'ac2/1';
+  turn: number;
+  appliance: Record<string, unknown> | null;
+  brand: Record<string, unknown> | null;
+  model: Record<string, unknown> | null;
+  codes: Array<Record<string, unknown>>;
+  facts: LedgerFact[];
+  asked: Array<Record<string, unknown>>;
+  hazard: Record<string, unknown> | null;
+  scope: Record<string, unknown> | null;
+  outcome: Record<string, unknown> | null;
+  nextId: number;
+  /** Hazards found in the customer's words; they persist for the conversation. */
+  hazards?: Array<{ type: string; clause: string; turn: number; shown: boolean }>;
+}
+
+/** A strong recall match whichpart-api found for a model the customer named (a tool result for the reasoner). */
+export interface RecallHint { title: string; url: string | null; brand: string | null }
+
+/** One customer turn. */
+export interface EngineTurnRequest {
+  mode: 'turn';
   messages: ChatMessage[];
-  mode?: 'understand';
-  understand?: Record<string, unknown>;
-  canonical?: Record<string, unknown>;
-  established?: Record<string, unknown>;
-  seed?: number;
+  ac2?: { state?: Ac2State | null; tools?: { recalls?: RecallHint[] } };
+  /** The customer's latest photo (data URL), if any. */
+  image?: string;
 }
 
 /** A customer's rating of an earlier reply, forwarded by whichpart-api. */
@@ -30,13 +64,13 @@ export interface EngineFeedbackRequest {
   feedback: { traceId: string; rating: 'up' | 'down'; note?: string };
 }
 
+export type EngineRequest = EngineTurnRequest | EngineFeedbackRequest;
+
 /** A refused or failed request. */
 export interface EngineError {
   error: string;
-  errorCode: 'engine_signature_required' | 'canonical_not_controlled' | 'engine_unavailable';
+  errorCode: 'engine_signature_required' | 'unsupported_request' | 'reasoner_unavailable' | 'engine_unavailable';
 }
-
-export interface DeltaFrame { type: 'delta'; text: string }
 
 export interface Part {
   title: string;
@@ -48,72 +82,45 @@ export interface Part {
   [extra: string]: unknown;
 }
 
-export interface Understood {
-  make: string | null;
-  appliance: string | null;
-  model: string | null;
-  fault: string | null;
-  code: string | null;
-  faultId?: string | null;
-  confidence?: number | string | null;
-  grounded?: boolean;
-  alternatives?: unknown[];
-  candidateComponents?: unknown[];
-  clarifyingQuestion?: string | null;
-  componentMention?: string | null;
-  customerEvidence?: unknown;
-  customerTheories?: unknown[];
-  evidence?: unknown;
-  facts?: unknown[];
-  knowledgeIds?: string[];
-  mediaConcepts?: string[];
-  nextBestCheck?: string | null;
-  primaryFinding?: string | null;
-  primaryFindingKind?: string | null;
-  purchaseAppropriate?: boolean;
-  onTopic?: boolean;
+export interface SafetyStop { class: string; stopUse: true; message: string }
+
+/** The customer-facing result of a turn. A safety stop or an out-of-scope reply carries only some of the fields. */
+export interface TurnResponse {
+  outcome: 'ANSWER' | 'SAFETY_STOP';
+  message: string;
+  diagnosis?: { summary: string; likelyArea: string | null; confidenceBand: 'likely' | 'possible' } | null;
+  suggestedChecks?: string[];
+  /** Present only when the part gate verified the part for the customer's confirmed model. */
+  parts?: Part[] | null;
+  resolvedModel?: string | null;
+  modelRequired?: boolean;
+  safety?: SafetyStop | null;
+  safetyInformation?: { text: string; classification?: string | null } | null;
+  media?: Array<Record<string, unknown>> | null;
+  codeResult?: { displayed: string; meaning: string | null; recordType: string | null; status: 'RESOLVED' } | null;
+  escalation?: { to: string; reason: string; forced?: boolean } | null;
+  candidates?: Array<Record<string, unknown>>;
+  confidence?: string;
+  status?: string;
 }
 
-export type SafetyStop = 'gas' | 'shock' | null;
-
-export interface DoneFrame {
-  type: 'done';
-  traceId: string;
-  parts: Part[];
-  understood: Understood;
-  safetyInformation: unknown | null;
-  safetyStop: SafetyStop;
-  isolationAdvisory: boolean;
-  unsafeIntent: boolean;
-  normalBehaviour: boolean;
-  media: unknown[];
-  componentMention: string;
-  purchaseAppropriate: boolean;
-  remoteActionClass: string | null;
-  diagnosticTrace: unknown;
+/** The bounded, chain-of-thought-free audit of the turn (ac2/turn.js). */
+export interface TurnAudit {
+  schema: 'ac2-audit/1';
+  turn: number;
+  timings: Record<string, number>;
+  toolCalls: Array<{ tool: string; results: unknown[] }>;
+  safety: { hazards: string[]; gates: Array<Record<string, unknown>>; terminated?: string };
+  claims: { rejected: Array<{ claim: string; source: string }>; checked: number };
+  regenerated: boolean;
+  provider: { name: string | null; model: string | null } | null;
+  [extra: string]: unknown;
 }
 
-/** The lines of a canonical reply: one delta (the COMPOSE wording), then exactly one done. */
-export type EngineReplyLine = DeltaFrame | DoneFrame;
-
-/**
- * The engine's code-or-model commit decision for this turn's identifier token (canonical/token-gate.js, the only
- * implementation of the rule). `uncertain`: a model reading too weak to commit; the token must be confirmed by the
- * customer. `commit`: anything else (including no token, a code reading, or no probability distribution).
- */
-export interface TokenDecision {
-  meaning: string | null;
-  decision: 'commit' | 'uncertain';
-  reason: 'not_gated' | 'strong' | 'weak_or_near_tie' | 'meaning_uncertain';
-  /** The token the customer is asked about, when the decision is 'uncertain'. */
-  token?: string | null;
+/** The response to a turn (200). */
+export interface TurnResult {
+  type: 'ac2';
+  response: TurnResponse;
+  state: Ac2State;
+  audit: TurnAudit;
 }
-
-/** The understand-mode response line. */
-export interface UnderstandFrame {
-  type: 'understand';
-  understand: Record<string, unknown> & { tokenDecision?: TokenDecision };
-  jev: Record<string, unknown>;
-  canonical?: Record<string, unknown>;
-}
-

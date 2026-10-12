@@ -93,7 +93,7 @@ describe('AUTH — every Settings / ai-config route (derived from the router)', 
   });
 });
 
-describe('VIEW — no writes on load; inventory, current vs default, timing, canonical', () => {
+describe('VIEW — no writes on load; inventory, current vs default, timing, architecture', () => {
   it('GET /admin/settings performs no write of any kind', async () => {
     api.setSessionForTests(ADMIN);
     const store = memStore();
@@ -104,8 +104,8 @@ describe('VIEW — no writes on load; inventory, current vs default, timing, can
     expect(r.statusCode).toBe(200);
     expect(wrote).toBe(0);
     const v = JSON.parse(r.body);
-    expect(v.runtimeStatus.canonical).toMatchObject({ mode: expect.any(String) });
-    expect(v.runtimeStatus.editable).toBe(false);
+    expect(v.runtimeStatus).toMatchObject({ editable: false, architecture: 'ac2' });
+    expect(v.runtimeStatus).not.toHaveProperty('canonical');
   });
   it('inventory maps every setting to a runtime consumer with current, default, timing and impact', async () => {
     const cfg = ai.normalise({ local: { enabled: true, model: 'gpt-5.6-terra' }, frontier: { model: 'gpt-5.6-terra' }, routing: { understand: 'local', compose: 'local' } });
@@ -309,5 +309,15 @@ describe('SECRETS + READ-ONLY ACTIONS', () => {
     const s = JSON.stringify(v);
     expect(s).not.toMatch(/jev-SECRET|apiKey|apiToken|sk-/);
     expect(s).not.toContain('/private'); // endpoint shown as host only
+  });
+});
+
+describe('RUNNING — the engine reports one inference stage (the ac2 reasoner)', () => {
+  it('reads the reasoner as the running COMPOSE route and reports no running UNDERSTAND', async () => {
+    const health = { status: 'ok', service: 'diagnosis-engine', diagnosis: { architecture: 'ac2' }, models: { reasoner: { configured: true, provider: 'openai', model: 'gpt-x' }, inferenceTested: false } };
+    const r = await settings.probeEngineModels({ engineHealthUrl: 'https://engine.example/', fetch: async () => ({ ok: true, json: async () => health }) });
+    expect(r.available).toBe(true);
+    expect(r.compose).toMatchObject({ available: true, provider: 'openai', model: 'gpt-x' });
+    expect(r.understand.available).toBe(false);
   });
 });

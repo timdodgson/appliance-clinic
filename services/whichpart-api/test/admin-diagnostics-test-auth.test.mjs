@@ -14,7 +14,6 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const api = require('../index.js');
 const aiConfig = require('../ai-config.js');
-const registry = require('../../diagnosis-engine/canonical/journey-registry.js');
 const mediaAdmin = require('../media-admin.js');
 const src = require('./api-source.cjs')();
 
@@ -304,11 +303,8 @@ describe('ACTIONS — library concurrency, actor attribution and safe delete', (
   });
 });
 
-describe('CANONICAL — Diagnostics exposes the canonical mode read-only', () => {
-  const env = { mode: process.env.CANONICAL_MODE, keys: process.env.CANONICAL_CONTROL_JOURNEYS };
+describe('ARCHITECTURE — Diagnostics reports ac2 read-only', () => {
   afterEach(() => {
-    if (env.mode === undefined) delete process.env.CANONICAL_MODE; else process.env.CANONICAL_MODE = env.mode;
-    if (env.keys === undefined) delete process.env.CANONICAL_CONTROL_JOURNEYS; else process.env.CANONICAL_CONTROL_JOURNEYS = env.keys;
     api.setDiagnosticsDepsForTests(null);
     api.setSessionForTests(null);
   });
@@ -316,7 +312,7 @@ describe('CANONICAL — Diagnostics exposes the canonical mode read-only', () =>
     api.setSessionForTests(ADMIN);
     api.setDiagnosticsDepsForTests({
       fetch: async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => '{}' }),
-      orchestratorHealthUrl: '', mcpHealthUrl: '', engineHealthUrl: '',
+      mcpHealthUrl: '', engineHealthUrl: '',
       loadOverlay: async () => mediaAdmin.emptyState(),
       loadModels: async () => null,
     });
@@ -324,29 +320,16 @@ describe('CANONICAL — Diagnostics exposes the canonical mode read-only', () =>
     expect(r.statusCode).toBe(200);
     return JSON.parse(r.body);
   }
-  it('control mode reports the enabled journey count, never the keys themselves', async () => {
-    const keys = registry.KEYS.slice(0, 3);
-    process.env.CANONICAL_MODE = 'control';
-    process.env.CANONICAL_CONTROL_JOURNEYS = keys.join('+') + '+not-a-real-journey';
+  it('the runtime reports the ac2 architecture, with no canonical or AC2 mode and no orchestrator', async () => {
     const d = await snapshot();
-    expect(d.runtime.canonical).toEqual({ mode: 'control', modeLabel: 'Control (allow-listed journeys)', controlJourneyCount: 3, demoted: false, invalid: false, unknownKeyCount: 1 });
-    for (const k of keys) expect(JSON.stringify(d)).not.toContain(k);
+    expect(d.runtime.diagnosis).toMatchObject({ architecture: 'ac2' });
+    expect(d.runtime).not.toHaveProperty('canonical');
+    expect(d.runtime).not.toHaveProperty('ac2');
+    expect(d.components.map((c) => c.id)).toEqual(['whichpart-api', 'diagnosis-engine', 'error-code-mcp', 'media-resolver', 'parts-catalogue']);
+    expect(JSON.stringify(d)).not.toMatch(/orchestrator/i);
   });
-  it('off / shadow / empty control allow-list are reported truthfully', async () => {
-    process.env.CANONICAL_MODE = 'off';
-    expect((await snapshot()).runtime.canonical.mode).toBe('off');
-    process.env.CANONICAL_MODE = 'shadow';
-    expect((await snapshot()).runtime.canonical.mode).toBe('shadow');
-    process.env.CANONICAL_MODE = 'control';
-    process.env.CANONICAL_CONTROL_JOURNEYS = '';
-    const d = await snapshot();
-    expect(d.runtime.canonical.mode).toBe('shadow');
-    expect(d.runtime.canonical.demoted).toBe(true);
-  });
-  it('diagnostics stays GET-only and has no way to change the mode', () => {
+  it('diagnostics stays GET-only and reads no mode from the environment', () => {
     expect(SUPPORTED['/admin/diagnostics']).toEqual(['GET']);
-    const fn = src.slice(src.indexOf('function diagnosticsCanonicalMode'), src.indexOf('async function adminDiagnostics'));
-    expect(fn).not.toMatch(/process\.env\.CANONICAL_MODE\s*=/);
-    expect(fn).not.toMatch(/UpdateFunctionConfiguration/);
+    expect(src).not.toMatch(/CANONICAL_MODE|AC2_MODE|ORCHESTRATOR_URL/);
   });
 });
