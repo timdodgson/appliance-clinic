@@ -1,6 +1,6 @@
-/* Which Part — minimal conversational client.
- * Depends ONLY on the retailer-neutral Which Part contract returned by /api.
- * It knows nothing about the Spares4Repairs engine or product schema.
+/* Appliance Clinic — customer chat client.
+ * Depends ONLY on the Appliance Clinic contract returned by /api (the whichpart-api BFF in services/whichpart-api).
+ * Diagnosis happens server-side; this file renders the reply, safety, media and any part cards the API returns.
  *
  * Chat session lifecycle (persist / restore / New chat) lives here and in
  * chat-session.js. Visible transcript history and the bounded diagnostic
@@ -29,13 +29,13 @@
 
   var body = document.body;
   var form = document.getElementById('ask');
-  var input = document.getElementById('input');
-  var send = document.getElementById('send');
+  var input = /** @type {HTMLTextAreaElement} */ (document.getElementById('input'));
+  var send = /** @type {HTMLButtonElement} */ (document.getElementById('send'));
   var thread = document.getElementById('thread');
-  var camBtn = document.getElementById('cam');
-  var fileInput = document.getElementById('file');
+  var camBtn = /** @type {HTMLButtonElement} */ (document.getElementById('cam'));
+  var fileInput = /** @type {HTMLInputElement} */ (document.getElementById('file'));
   var preview = document.getElementById('preview');
-  var previewImg = document.getElementById('previewImg');
+  var previewImg = /** @type {HTMLImageElement} */ (document.getElementById('previewImg'));
   var previewRemove = document.getElementById('previewRemove');
   var askStatus = document.getElementById('askStatus');
   var retryBtn = document.getElementById('retryBtn');
@@ -86,10 +86,10 @@
   camBtn.addEventListener('click', function () {
     if (!busy) fileInput.click();
   });
-  fileInput.addEventListener('change', function (e) {
-    var file = e.target.files && e.target.files[0];
+  fileInput.addEventListener('change', function () {
+    var file = fileInput.files && fileInput.files[0];
     if (file) processImageFile(file);
-    e.target.value = '';
+    fileInput.value = '';
   });
   previewRemove.addEventListener('click', clearPendingImage);
 
@@ -110,7 +110,8 @@
     document.addEventListener(evt, function (e) {
       e.preventDefault();
       if (evt === 'drop' && !busy) {
-        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        var dt = /** @type {DragEvent} */ (e).dataTransfer;
+        var file = dt && dt.files && dt.files[0];
         if (file) processImageFile(file);
       }
     });
@@ -341,6 +342,7 @@
     Session.persist(storage, session);
   }
 
+  var draftTimer = 0; // debounces saving the unsent draft (declared: this file is strict mode)
   function scheduleDraftPersist() {
     session.draft = input.value || '';
     if (draftTimer) clearTimeout(draftTimer);
@@ -1098,9 +1100,6 @@
     function showUpdateBar() {
       if (appUpdate) appUpdate.hidden = false;
     }
-    function hideUpdateBar() {
-      if (appUpdate) appUpdate.hidden = true;
-    }
     if (appUpdateBtn) {
       appUpdateBtn.addEventListener('click', function () {
         if (!waitingWorker) return;
@@ -1164,7 +1163,7 @@
   var mLogout = $('mLogout');
   var mAdmin = $('mAdmin');
   var mAcct = $('mAcct');
-  var input = $('input');
+  var input = /** @type {HTMLTextAreaElement} */ ($('input'));
 
   // ---- auth state ----------------------------------------------------------
   function initials(name, email) {
@@ -1204,9 +1203,9 @@
   var loginModal = $('loginModal');
   var loginForm = $('loginForm');
   var loginError = $('loginError');
-  var loginEmail = $('loginEmail');
-  var loginPassword = $('loginPassword');
-  var loginSubmit = $('loginSubmit');
+  var loginEmail = /** @type {HTMLInputElement} */ ($('loginEmail'));
+  var loginPassword = /** @type {HTMLInputElement} */ ($('loginPassword'));
+  var loginSubmit = /** @type {HTMLButtonElement} */ ($('loginSubmit'));
 
   function openLogin() {
     if (!loginModal) return;
@@ -1278,7 +1277,7 @@
     });
   }
   document.addEventListener('click', function (e) {
-    if (userMenu && !userMenu.contains(e.target)) closeUserDropdown();
+    if (userMenu && !userMenu.contains(/** @type {Node} */ (e.target))) closeUserDropdown();
   });
 
   // ---- mobile menu ---------------------------------------------------------
@@ -1286,7 +1285,8 @@
   function closeMobileMenu() { if (mobileMenu) { mobileMenu.hidden = true; if (burger) burger.setAttribute('aria-expanded', 'false'); } }
   if (burger) burger.addEventListener('click', function (e) { e.stopPropagation(); if (mobileMenu.hidden) openMobileMenu(); else closeMobileMenu(); });
   document.addEventListener('click', function (e) {
-    if (mobileMenu && !mobileMenu.hidden && !mobileMenu.contains(e.target) && e.target !== burger && (!burger || !burger.contains(e.target))) closeMobileMenu();
+    var t = /** @type {Node} */ (e.target);
+    if (mobileMenu && !mobileMenu.hidden && !mobileMenu.contains(t) && t !== burger && (!burger || !burger.contains(t))) closeMobileMenu();
   });
 
   document.addEventListener('keydown', function (e) {

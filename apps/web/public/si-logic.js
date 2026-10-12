@@ -2,7 +2,7 @@
 /**
  * ApplianceClinic Safety Ingest — view helpers. No network. No secrets.
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.Si = api;

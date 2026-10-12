@@ -123,6 +123,7 @@
     this.panel.innerHTML = '';
     this.panel.appendChild(el('p', 'wm-badge__h', 'WebMCP enabled'));
     this.panel.appendChild(el('p', 'wm-badge__sub', tools.length + ' tool' + (tools.length === 1 ? '' : 's') + ' available to in-browser agents'));
+    var self = this;
     tools.forEach(function (t) {
       var row = el('div', 'wm-tool');
       var nameWrap = el('div');
@@ -132,8 +133,8 @@
       nameWrap.appendChild(el('span', 'wm-tool__tag ' + (readOnly ? 'wm-tool__tag--read' : 'wm-tool__tag--action'), readOnly ? 'read-only' : 'action'));
       row.appendChild(nameWrap);
       if (t.description) row.appendChild(el('div', 'wm-tool__desc', t.description));
-      this.panel.appendChild(row);
-    }, this);
+      self.panel.appendChild(row);
+    });
   };
 
   function start() {

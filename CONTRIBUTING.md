@@ -6,6 +6,7 @@ This repository holds a live production service. Most rules below exist so that 
 
 | Path | What it is | Ships to production? |
 |---|---|---|
+| `apps/web/` | Web front end: customer chat, admin, help pages, recall search (plain HTML/CSS/JS, no bundler; has its own `package.json`). See [apps/web/README.md](apps/web/README.md) | Yes, as static files in the AC web bucket (`apps/web/scripts/deploy.mjs`) |
 | `services/diagnosis-engine/` | Canonical diagnosis engine (Node, nodejs22.x). `canonical/` holds the deterministic journeys; `engine/` the shared helpers (configuration, catalogue, reply filters, the S4R Parts Catalogue client). `knowledge/` is read only by whichpart-api's read-only knowledge view | Yes, as the Lambda zip `applianceclinic-diagnosis-engine` |
 | `services/whichpart-api/` | Backend for the browser (Node 20): sessions, admin, transcripts, benchmarks | Yes, as a Lambda zip |
 | `orchestration/` | Orchestrator (Python 3.12) | Yes, as a container image |
@@ -32,6 +33,7 @@ npm run typecheck         # strict TypeScript over types/ and the runtime confor
 npm run lint              # ESLint (migration tooling)
 npm run test:tooling      # migration tooling tests
 npm run build:zips        # build the applianceclinic-diagnosis-engine and whichpart-api zips and compare them with build/reference/
+(cd apps/web && npm ci && npm run check)   # web front end: lint, typecheck, tests, reproducible build
 ```
 
 - **No credentials needed.** None of these commands needs AWS or model credentials. The runtime runner replaces AWS variables with fake values and strips proxy variables, so a test cannot reach production.

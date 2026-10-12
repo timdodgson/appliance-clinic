@@ -4,7 +4,7 @@
  * A scenario describes a CUSTOMER SITUATION for deliberate probing.
  * Expected behaviour is semantic product behaviour, not regex/string scoring.
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.CtsLogic = api;

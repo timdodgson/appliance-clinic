@@ -7,7 +7,7 @@
  * runner. Loaded as a plain <script> (attaches window.TacLogic) and also
  * require()-able in tests (module.exports).
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.TacLogic = api;

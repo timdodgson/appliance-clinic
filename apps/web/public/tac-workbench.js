@@ -4,7 +4,7 @@
  * Builds the SAME diagnose payload the customer product sends, minus
  * production transcript observability. Used by admin.js and unit tests.
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.TacWorkbench = api;
@@ -228,6 +228,7 @@
     if (next) c.stateToken = next;
     c.lastStatus = status;
     if (turn) turn.status = status;
+    /** @type {{ kind: string, reason: any, turn?: number | null } | null} */
     var problem = null;
     if (status && status.continuity === 'restarted') problem = { kind: 'restarted', reason: status.reason || null };
     else if (status && (status.continuity === 'unavailable' || status.stateOut === 'none')) problem = { kind: 'unavailable', reason: status.reason || null };

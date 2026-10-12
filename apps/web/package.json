@@ -1,0 +1,26 @@
+{
+  "name": "@appliance-clinic/web",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Appliance Clinic web front end: the customer chat, the admin and the static pages. Plain HTML, CSS and browser JavaScript with no bundler; `build` copies public/ to dist/ and writes a content manifest.",
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "deploy": "node scripts/deploy.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

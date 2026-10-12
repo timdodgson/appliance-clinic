@@ -2,7 +2,7 @@
  * Error Codes inspector — pure list/search helpers (no DOM, no diagnosis).
  * Admin catalogue discovery only. Not used by customer diagnosis.
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.EcLogic = api;

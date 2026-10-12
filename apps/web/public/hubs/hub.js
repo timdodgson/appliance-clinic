@@ -29,7 +29,8 @@
   }
 
   document.addEventListener('click', function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest('[data-diagnose]') : null;
+    var el = /** @type {Element} */ (e.target);
+    var btn = el && el.closest ? el.closest('[data-diagnose]') : null;
     if (!btn) return;
     e.preventDefault();
     var draft = btn.getAttribute('data-diagnose') || '';

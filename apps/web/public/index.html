@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <!-- WebMCP Chrome Origin Trial token for https://applianceclinic.ai. The placeholder below is
-       substituted with the real token at deploy time by deploy-static.sh (env WEBMCP_ORIGIN_TRIAL_TOKEN);
-       when no token is configured the deploy STRIPS this line entirely, so unsupported browsers never
-       see an invalid token. The token is public by design (served in the page) and is NOT committed. -->
+  <!-- WebMCP Chrome Origin Trial token for https://applianceclinic.ai. scripts/build.mjs substitutes the
+       placeholder below with WEBMCP_ORIGIN_TRIAL_TOKEN (scripts/deploy.mjs carries over the token already live),
+       and removes the line when no token is given, so browsers never see an invalid token. The token is public by
+       design (served in the page) but is not committed. -->
   <meta http-equiv="origin-trial" content="__WEBMCP_ORIGIN_TRIAL_TOKEN__" />
   <!-- Narrow CSP: only trusted, privacy-enhanced YouTube may be framed (embedded instructional
        video). No arbitrary iframes. Other resource types are unaffected (no default-src). -->

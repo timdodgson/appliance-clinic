@@ -1,4 +1,5 @@
-/* WhichPart Admin console. Access is gated SERVER-SIDE: every data call (/api/admin/*) is rejected
+/* global Si, St */
+/* Appliance Clinic Admin console. Access is gated SERVER-SIDE: every data call (/api/admin/*) is rejected
  * with 401 unless a valid Cognito session cookie is present. This page reveals the shell only after
  * /api/auth/me confirms an admin session — but even if the markup were forced open, the health data
  * endpoint returns 401 without a verified session, so nothing sensitive is exposed. The token is an
@@ -516,11 +517,6 @@
       var d = new Date(iso);
       return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
     } catch (e) { return iso; }
-  }
-  function lifePill(life) {
-    var map = { active: 'Recent', ended: 'Ended', inactive: 'Inactive', error: 'Error' };
-    var cls = life === 'ended' ? 'pill' : (life === 'inactive' ? 'pill pill--warn' : (life === 'error' ? 'pill pill--bad' : 'pill pill--ok'));
-    return '<span class="' + cls + '">' + esc(map[life] || life || '—') + '</span>';
   }
   function routeLabel(r) {
     if (r === 'SYMPTOMS') return 'Symptom';
@@ -1841,7 +1837,7 @@
     var detailed = '<details class="tx-dims"><summary>Detailed assessment</summary>'
       + (dims || '<p class="tac__muted">No assessment stored yet.</p>') + areas + '</details>';
 
-    var action = '';
+    var action;
     if (sr.canRereview) {
       action = '<button type="button" class="btn btn--ghost" id="txRereview" data-sid="' + esc(sessionId) + '">Re-review</button>'
         + '<span class="tx__sub" id="txRereviewMsg"></span>';
@@ -1976,7 +1972,6 @@
 
   var knCache = null;
   var knWired = false;
-  var knWantedId = null;
   var knOpenId = null;
   var Kn = window.KnLogic || {};
 
@@ -2211,19 +2206,13 @@
         indexed: rec.indexed, gaps: rec.gaps,
       }, null, 2)) + '</pre>';
 
-    knLastRec = rec;
-    var draftBanner = rec.source === 'draft'
-      ? '<p class="kn-banner">Draft — never published. It is not used in live diagnosis.</p>'
-      : (rec.admin && rec.admin.archived ? '<p class="kn-banner">Archived — not used in live diagnosis. The content below is the last published version.</p>'
-        : (rec.admin && rec.admin.draftPending ? '<p class="kn-banner kn-banner--info">Showing the live version. A draft with unpublished changes exists.</p>' : ''));
     panel.hidden = false;
     panel.innerHTML = '<div class="kn-detail__head"><div>'
       + '<p class="kn-detail__fam">' + esc(fam) + '</p>'
       + '<h2 class="kn-detail__title">' + esc(rec.label || rec.faultId) + '</h2>'
       + '<p class="kn-detail__id">' + esc(rec.knowledgeId) + '</p>'
       + '</div></div>'
-      + knActionsHtml(rec)
-      + draftBanner
+      + '<div class="kn-actions"><p class="tx__sub">Read-only: knowledge records ship with the diagnosis engine and change only through a release.</p></div>'
       + '<section class="kn-sec"><h3 class="kn-sec__h">Overview</h3><dl class="kn-ov">'
       + '<dt>Appliance</dt><dd>' + esc(fam) + '</dd>'
       + '<dt>Problem</dt><dd>' + esc(rec.label || 'No topic label recorded') + '</dd>'
@@ -2247,24 +2236,10 @@
       + '<section class="kn-sec"><h3 class="kn-sec__h">Provenance</h3>'
       + '<p>' + esc(rec.provenanceLabel || 'No provenance recorded') + '</p></section>'
       + '<details class="kn-tech"><summary>Technical details</summary>' + techRows + '</details>';
-    knWireActions(rec);
   }
-  // ---- Knowledge management: actions, structured editor, version history -------------------
-  // Drafts never affect live diagnosis. Publish / Rollback / Archive / Restore change what
-  // production uses and always go through an explicit confirm. Every request echoes the record
-  // revision it was based on; the server answers 409 if someone else changed it first.
-  var knEd = null;          // { id, isNew, content, base, revision, saving, errors }
-  var knPendingReview = null; // record id whose publish review opens once its page renders
-  var knLastRec = null;     // last detail payload (for the actions bar)
-  function knApi(method, path, body) {
-    var opts = { method: method, credentials: 'same-origin', headers: {} };
-    if (body !== undefined) { opts.headers['content-type'] = 'application/json'; opts.body = JSON.stringify(body); }
-    return fetch(API_BASE + path, opts).then(function (r) {
-      if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return { status: 401, data: null }; }
-      return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, data: d || {} }; });
-    });
-  }
-  function knInvalidateList() { knCache = null; }
+  // ---- Knowledge (read-only) helpers ----------------------------------------------------------
+  // Knowledge records ship with the diagnosis engine and are read-only in the Admin (ADR 0019 removed the draft and
+  // publish workflow and its API routes). The icon and state-chip helpers are shared with the Media, Error Codes and Safety pages.
   // Decorative button icon from the local Admin sprite (the visible label carries the meaning).
   function knIco(name) {
     return '<svg class="ac-btnicon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-' + name + '"/></svg>';
@@ -2273,1131 +2248,8 @@
     var c = (Kn.stateChip || function () { return { label: 'Live', cls: 'kn-state' }; })(rec);
     return '<span class="' + esc(c.cls) + '">' + esc(c.label) + '</span>';
   }
-  function knViewHref(id, view, extra) {
-    var params = { q: (knParams().q || ''), family: (knParams().family || '') };
-    if (view) params.view = view;
-    Object.keys(extra || {}).forEach(function (k) { params[k] = extra[k]; });
-    return knDetailHref(id, params);
-  }
-  function knNotice(kind, msg) {
-    var el = $('knNotice');
-    if (!el) return;
-    el.hidden = !msg;
-    el.className = 'kn-notice' + (kind ? ' kn-notice--' + kind : '');
-    el.textContent = msg || '';
-    if (msg) el.focus();
-  }
-  function knErrMessage(res, fallback) {
-    var d = (res && res.data) || {};
-    if (res && res.status === 409 && d.code === 'conflict') return 'Someone else changed this record. Reload to see the latest version, then try again.';
-    var msg = d.error || fallback || 'Something went wrong.';
-    if (d.errors && d.errors.length) {
-      msg += ' ' + d.errors.slice(0, 6).map(function (e) {
-        var lab = (Kn.FIELD_LABELS && Kn.FIELD_LABELS[String(e.field).split(/[.[]/)[0]]) || e.field;
-        return lab + ': ' + e.message;
-      }).join('; ') + (d.errors.length > 6 ? '…' : '');
-    }
-    return msg;
-  }
-
-  // Actions bar shown at the top of the record detail page.
-  function knActionsHtml(rec) {
-    var a = rec.admin;
-    if (!a) {
-      return '<div class="kn-actions"><p class="tx__sub">Knowledge management is unavailable right now. The record below is read-only.</p></div>';
-    }
-    if (a.unavailable) {
-      return '<div class="kn-actions"><p class="tx__sub">The knowledge store could not be read. Editing is paused; live diagnosis is unaffected.</p></div>';
-    }
-    var id = rec.knowledgeId;
-    var btns = [];
-    if (!a.archived) {
-      if (a.draft) btns.push('<a class="btn btn--primary" href="' + esc(knViewHref(id, 'edit')) + '">' + knIco('edit') + 'Edit draft</a>');
-      else btns.push('<button class="btn btn--primary" type="button" data-kn-act="new-draft">' + knIco('plus') + 'Create new draft</button>');
-      if (!a.draft) btns.push('<a class="btn btn--ghost" href="' + esc(knViewHref(id, 'edit')) + '" data-kn-act="edit">' + knIco('edit') + 'Edit</a>');
-    }
-    if (a.canPublish) btns.push('<button class="btn btn--primary" type="button" data-kn-act="publish">' + knIco('publish') + 'Review &amp; publish…</button>');
-    btns.push('<a class="btn btn--ghost" href="' + esc(knViewHref(id, 'history')) + '">' + knIco('history') + 'View version history</a>');
-    if (a.everPublished || a.draft) btns.push('<a class="btn btn--ghost" href="' + esc(hashString('knowledge/new', { from: id })) + '">' + knIco('copy') + 'Duplicate as new draft</a>');
-    if (a.canRestore) btns.push('<button class="btn btn--ghost" type="button" data-kn-act="restore">' + knIco('rollback') + 'Restore</button>');
-    // Destructive / state-removing actions sit together at the end of the row.
-    var risky = [];
-    if (a.draft && a.everPublished) risky.push('<button class="btn btn--ghost" type="button" data-kn-act="discard">Discard draft</button>');
-    if (a.canDelete) risky.push('<button class="btn btn--ghost kn-danger" type="button" data-kn-act="delete">Delete draft</button>');
-    if (a.canArchive) risky.push('<button class="btn btn--ghost kn-danger" type="button" data-kn-act="archive">' + knIco('archive') + 'Archive</button>');
-    if (risky.length) btns.push('<span class="kn-actions__risky">' + risky.join('') + '</span>');
-    var meta = [];
-    meta.push('Live: ' + (a.everPublished ? (a.archived ? 'not in diagnosis (archived)' : (a.liveVersionLabel || 'published')) : 'not published'));
-    if (a.draft) meta.push('Draft saved ' + fmtWhen(a.draftUpdatedAt) + (a.draftUpdatedBy ? ' by ' + a.draftUpdatedBy : ''));
-    if (a.archived && a.archivedAt) meta.push('Archived ' + fmtWhen(a.archivedAt) + (a.archivedBy ? ' by ' + a.archivedBy : ''));
-    if (a.createdFrom) meta.push('Created from ' + a.createdFrom.knowledgeId + (a.createdFrom.version ? ' (' + a.createdFrom.version + ')' : ''));
-    var pending = (a.pendingChanges || []).length && a.everPublished
-      ? '<p class="kn-actions__pending">Draft changes not yet live: ' + esc((Kn.changeSummary ? Kn.changeSummary(a.pendingChanges) : a.pendingChanges).join(', ')) + '</p>'
-      : '';
-    return '<div class="kn-actions">'
-      + '<div class="kn-actions__state">' + knStateChipHtml(a) + '<span class="tx__sub">' + esc(meta.join(' · ')) + '</span></div>'
-      + pending
-      + '<div class="kn-actions__btns">' + btns.join('') + '</div>'
-      + '<p class="kn-notice" id="knNotice" tabindex="-1" role="status" aria-live="polite" hidden></p>'
-      + '</div>';
-  }
-  function knWireActions(rec) {
-    var panel = $('knDetail');
-    if (!panel || !rec.admin) return;
-    Array.prototype.forEach.call(panel.querySelectorAll('[data-kn-act]'), function (b) {
-      b.addEventListener('click', function (e) {
-        var act = b.getAttribute('data-kn-act');
-        if (act === 'edit') return; // plain link to the editor
-        e.preventDefault();
-        knDoAction(act, rec, b);
-      });
-    });
-  }
-  function knBusy(btn, label) {
-    var panel = $('knDetail');
-    Array.prototype.forEach.call((panel && panel.querySelectorAll('[data-kn-act], .kn-actions .btn')) || [], function (x) { x.disabled = true; x.setAttribute('aria-disabled', 'true'); });
-    if (btn) btn.textContent = label;
-  }
-  function knDoPublish(rec, note) {
-    var btn = $('knDetail') && $('knDetail').querySelector('[data-kn-act="publish"]');
-    knDoAction('publish-go', rec, btn, note);
-  }
-  function knDoAction(act, rec, btn, publishNote) {
-    var a = rec.admin;
-    var id = rec.knowledgeId;
-    var q = '?id=' + encodeURIComponent(id);
-    var label = (a.draft && a.draft.label) || rec.label || id;
-    var req = null;
-    if (act === 'new-draft') {
-      knBusy(btn, 'Creating draft…');
-      req = knApi('POST', '/admin/knowledge/draft' + q, { expectedRevision: a.revision }).then(function (res) {
-        if (res.status === 200) { knInvalidateList(); location.hash = knViewHref(id, 'edit'); return null; }
-        return res;
-      });
-    } else if (act === 'publish') {
-      // Review first; the review's Publish button runs the existing explicit confirm, then publish-go.
-      knOpenReview(rec);
-      return;
-    } else if (act === 'publish-go') {
-      var note = publishNote || '';
-      knBusy(btn, 'Publishing…');
-      knNotice('', 'Publishing: embedding the text and waiting for production to load it…');
-      req = knApi('POST', '/admin/knowledge/publish' + q, { expectedRevision: a.revision, note: note || null });
-    } else if (act === 'discard') {
-      if (!window.confirm('Discard the unpublished draft of “' + label + '”?\n\nThe live version is not affected.')) return;
-      knBusy(btn, 'Discarding…');
-      req = knApi('DELETE', '/admin/knowledge/draft' + q, { expectedRevision: a.revision });
-    } else if (act === 'delete') {
-      if (!window.confirm('Permanently delete the draft “' + label + '”?\n\nIt has never been published, so live diagnosis is not affected. This cannot be undone.')) return;
-      knBusy(btn, 'Deleting…');
-      req = knApi('DELETE', '/admin/knowledge/draft' + q, { expectedRevision: a.revision }).then(function (res) {
-        if (res.status === 200 && res.data && res.data.deleted) {
-          knInvalidateList();
-          location.hash = hashString('knowledge', { q: knParams().q, family: knParams().family });
-          return null;
-        }
-        return res;
-      });
-    } else if (act === 'archive') {
-      if (!window.confirm(Kn.archiveConfirmText(label, a))) return;
-      knBusy(btn, 'Archiving…');
-      req = knApi('POST', '/admin/knowledge/archive' + q, { expectedRevision: a.revision });
-    } else if (act === 'restore') {
-      knBusy(btn, 'Restoring…');
-      req = knApi('POST', '/admin/knowledge/restore' + q, { expectedRevision: a.revision });
-    }
-    if (!req) return;
-    req.then(function (res) {
-      if (!res) return;
-      if (res.status === 200) {
-        knInvalidateList();
-        knOpen(id, act === 'publish-go' ? 'Published v' + (res.data.currentVersion || '') + '. Production confirmed it loaded the change.'
-          : act === 'archive' ? 'Archived. It is no longer used in live diagnosis.'
-            : act === 'restore' ? 'Restored. It is used in live diagnosis again.'
-              : act === 'discard' ? 'Draft discarded.' : '');
-        return;
-      }
-      knOpen(id, null, knErrMessage(res, 'That action failed.'));
-    }).catch(function () { knOpen(id, null, 'Could not reach the server. Nothing was changed.'); });
-  }
-
-  // ---- authoring editor -----------------------------------------------------------------------
-  // The same Knowledge schema, organised the way an engineer thinks about a fault: what it is, what
-  // customers say, likely causes and their evidence, questions, safe checks, safety, confusion,
-  // related topics, then the technical fields. Drafts only; publish stays on the record page.
-  var KN_SECTIONS = [
-    { id: 'basic', title: 'Basic' },
-    { id: 'customers', title: 'What customers say' },
-    { id: 'causes', title: 'Likely causes' },
-    { id: 'questions', title: 'Questions that narrow it down' },
-    { id: 'advice', title: 'Before replacing a part' },
-    { id: 'safety', title: 'Safety', collapsible: true },
-    { id: 'confusion', title: 'Common confusion', collapsible: true },
-    { id: 'related', title: 'Related knowledge and media', collapsible: true },
-    { id: 'advanced', title: 'Advanced', collapsible: true },
-  ];
-  var knListAll = null; // every record summary (for related-topic hints + guided create), loaded once
-  function knEnsureList(cb) {
-    if (knListAll) { cb(knListAll); return; }
-    if (knCache && knCache.records) { knListAll = knCache.records; cb(knListAll); return; }
-    knApi('GET', '/admin/knowledge').then(function (res) {
-      if (res.status === 200 && res.data && res.data.records) knListAll = res.data.records;
-      cb(knListAll || []);
-    }).catch(function () { cb([]); });
-  }
-  function knIdOf(path) { return 'kf-' + String(path).replace(/[^a-zA-Z0-9]+/g, '-'); }
-  function knHelpHtml(key, id) {
-    var t = Kn.HELP && Kn.HELP[key];
-    return t ? '<span class="kn-help" id="' + esc(id) + '">' + esc(t) + '</span>' : '';
-  }
-  function knErrSlot(path) { return '<span class="kn-ed__err" data-err-for="' + esc(path) + '" hidden></span>'; }
-  function knField(path, label, value, opts) {
-    opts = opts || {};
-    var id = knIdOf(path);
-    var hid = id + '-help';
-    var help = opts.help ? knHelpHtml(opts.help, hid) : '';
-    var attrs = ' id="' + id + '" data-path="' + esc(path) + '"' + (opts.nullable ? ' data-nullable="1"' : '')
-      + (help ? ' aria-describedby="' + hid + '"' : '') + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : '');
-    var input = opts.multiline
-      ? '<textarea' + attrs + ' rows="' + (opts.rows || 2) + '">' + esc(value || '') + '</textarea>'
-      : '<input type="text"' + attrs + ' value="' + esc(value || '') + '" autocomplete="off" />';
-    return '<div class="kn-ed__field"><label for="' + id + '">' + esc(label) + '</label>' + help + input + knErrSlot(path) + '</div>';
-  }
-  function knSelect(path, label, value, options, opts) {
-    opts = opts || {};
-    var id = knIdOf(path);
-    var hid = id + '-help';
-    var help = opts.help ? knHelpHtml(opts.help, hid) : '';
-    return '<div class="kn-ed__field"><label for="' + id + '">' + esc(label) + '</label>' + help
-      + '<select id="' + id + '" data-path="' + esc(path) + '"' + (opts.nullable ? ' data-nullable="1"' : '') + (help ? ' aria-describedby="' + hid + '"' : '') + '>'
-      + options.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(value || '') === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('')
-      + '</select>' + knErrSlot(path) + '</div>';
-  }
-  function knRowBtns(path, i, n, what, opts) {
-    opts = opts || {};
-    var b = '<span class="kn-ed__rowbtns">';
-    if (opts.ordered) {
-      b += '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="up" data-list="' + esc(path) + '" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Move ' + esc(what) + ' ' + (i + 1) + ' up">↑</button>'
-        + '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="down" data-list="' + esc(path) + '" data-i="' + i + '"' + (i === n - 1 ? ' disabled' : '') + ' aria-label="Move ' + esc(what) + ' ' + (i + 1) + ' down">↓</button>';
-    }
-    if (opts.duplicate) b += '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="' + esc(opts.duplicate) + '" data-i="' + i + '" aria-label="Duplicate ' + esc(what) + ' ' + (i + 1) + '">Duplicate</button>';
-    b += '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="' + esc(opts.removeAct || 'remove') + '" data-list="' + esc(path) + '" data-i="' + i + '" aria-label="Remove ' + esc(what) + ' ' + (i + 1) + '">Remove</button>';
-    return b + '</span>';
-  }
-  // Quick list: one input per item; type in the box below and press Enter to add; paste a list
-  // (one item per line) to add several at once. Reorder buttons only where order matters.
-  function knQuickList(path, label, items, opts) {
-    opts = opts || {};
-    items = items || [];
-    var what = opts.what || 'item';
-    var hid = knIdOf(path) + '-help';
-    var help = opts.help ? knHelpHtml(opts.help, hid) : '';
-    var pending = (knEd && knEd.pendingAdd && knEd.pendingAdd[path]) || '';
-    return '<fieldset class="kn-ql" data-ql="' + esc(path) + '"' + (help ? ' aria-describedby="' + hid + '"' : '') + '><legend>' + esc(label) + '</legend>' + help
-      + knErrSlot(path)
-      + (items.length ? '<ul class="kn-ql__rows">' + items.map(function (x, i) {
-        var rp = path + '.' + i;
-        var hint = opts.rowHint ? opts.rowHint(x) : '';
-        return '<li class="kn-ql__row"><input type="text" data-path="' + esc(rp) + '" data-ql-row="' + esc(path) + '" data-i="' + i + '" value="' + esc(x || '') + '" aria-label="' + esc(what + ' ' + (i + 1)) + '" autocomplete="off" />'
-          + knRowBtns(path, i, items.length, what, { ordered: opts.ordered })
-          + (hint ? '<span class="kn-ql__hint">' + hint + '</span>' : '')
-          + knErrSlot(rp) + '</li>';
-      }).join('') + '</ul>' : '')
-      + '<div class="kn-ql__add"><input type="text" data-add-for="' + esc(path) + '" value="' + esc(pending) + '" aria-label="Add ' + esc(what) + '"'
-      + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : '') + (opts.listId ? ' list="' + esc(opts.listId) + '"' : '') + ' autocomplete="off" />'
-      + '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="ql-add" data-list="' + esc(path) + '">Add</button></div>'
-      + '</fieldset>';
-  }
-  function knSectionHtml(sec, n, body, opts) {
-    opts = opts || {};
-    var h = '<span class="kn-ed__secno" aria-hidden="true">' + n + '</span>' + esc(sec.title);
-    var extra = opts.summary ? ' <span class="kn-ed__secsum">' + esc(opts.summary) + '</span>' : '';
-    if (!sec.collapsible) {
-      return '<section class="kn-ed__sec" id="knSec-' + sec.id + '" aria-labelledby="knSecH-' + sec.id + '">'
-        + '<h3 class="kn-ed__sech" id="knSecH-' + sec.id + '" tabindex="-1">' + h + extra + '</h3>' + body + '</section>';
-    }
-    return '<details class="kn-ed__sec kn-ed__sec--fold" id="knSec-' + sec.id + '" data-sec="' + sec.id + '"' + (opts.open ? ' open' : '') + '>'
-      + '<summary><h3 class="kn-ed__sech" id="knSecH-' + sec.id + '">' + h + extra + '</h3></summary>' + body + '</details>';
-  }
-  function knCauseCard(comp, i, n, ex) {
-    var p = 'components.' + i;
-    var s = Kn.causeSummary(comp);
-    var open = !!(knEd.openCauses && knEd.openCauses[i]);
-    var bodyId = 'knCause-' + i;
-    var meta = (s.type ? s.type + ' · ' : '') + s.countsText;
-    return '<li class="kn-cause' + (open ? ' is-open' : '') + '" data-cause="' + i + '">'
-      + '<div class="kn-cause__head">'
-      + '<button type="button" class="kn-cause__toggle" data-ed="cause-toggle" data-i="' + i + '" aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="' + bodyId + '">'
-      + '<span class="kn-cause__chev" aria-hidden="true">' + (open ? '▾' : '▸') + '</span>'
-      + '<span class="kn-cause__n">' + (i + 1) + '.</span> <span class="kn-cause__name">' + esc(s.label) + '</span>'
-      + '<span class="kn-cause__meta">' + esc(meta) + '</span>'
-      + (s.warnings.length ? '<span class="kn-cause__warn">Needs attention: ' + esc(s.warnings.join(', ')) + '</span>' : '')
-      + '</button>'
-      + knRowBtns('components', i, n, 'cause', { ordered: true, duplicate: 'cause-dup', removeAct: 'cause-remove' })
-      + '</div>'
-      + '<div class="kn-cause__body" id="' + bodyId + '"' + (open ? '' : ' hidden') + '>'
-      + knErrSlot(p)
-      + '<div class="kn-ed__grid">'
-      + knField(p + '.name', 'Cause or component', comp.name, { placeholder: ex.cause })
-      + knSelect(p + '.type', 'Part or check?', comp.type, [['', 'Not set'], ['part', 'Part (replacement component)'], ['check', 'Check (inspect / clean first)']], { nullable: true })
-      + knField(p + '.partName', 'Part name, if different', comp.partName, { nullable: true })
-      + '</div>'
-      + '<div class="kn-ev2">'
-      + knQuickList(p + '.supports', 'FOR — more likely if', comp.supports, { what: 'FOR evidence', help: 'supports', placeholder: ex.evidence })
-      + knQuickList(p + '.against', 'AGAINST — less likely if', comp.against, { what: 'AGAINST evidence', help: 'against', placeholder: ex.evidence })
-      + '</div></div></li>';
-  }
-  function knTopicHint(alt) {
-    var a = String(alt || '').trim();
-    if (!a || !knListAll) return '';
-    var fam = knEd.content.applianceFamily;
-    var id = a.indexOf(':') !== -1 ? a : fam + ':' + a;
-    var hit = knListAll.find(function (r) { return r.knowledgeId === id; });
-    return hit ? '→ ' + esc(hit.label) : '<span class="kn-ql__warn">Unknown topic id</span>';
-  }
-  function knReadyHtml() {
-    var c = knEd.content;
-    var chk = knEd.check || {};
-    var errs = knEd.errors && knEd.errors.length ? knEd.errors : (chk.errors || []);
-    var r = Kn.readiness(c, errs);
-    var state = chk.pending ? 'Checking…' : (chk.failed ? 'Could not check with the server' : (r.ready ? 'Ready to publish' : 'Needs attention'));
-    var cls = chk.pending || chk.failed ? '' : (r.ready ? ' kn-ready--ok' : ' kn-ready--bad');
-    var items = r.checks.map(function (x) {
-      return '<li class="' + (x.ok ? 'is-ok' : (x.soft ? 'is-soft' : 'is-bad')) + '"><span aria-hidden="true">' + (x.ok ? '✓' : (x.soft ? '–' : '✕')) + '</span> ' + esc(x.label) + '</li>';
-    }).join('');
-    var errHtml = errs.length
-      ? '<h4 class="kn-ready__h">Must fix before publishing (' + errs.length + ')</h4><ul class="kn-ready__errs">' + errs.map(function (e) {
-        return '<li><button type="button" class="kn-linkbtn" data-goto="' + esc(e.field) + '">' + esc(Kn.fieldLabel(e.field)) + ': ' + esc(e.message) + '</button></li>';
-      }).join('') + '</ul>' : '';
-    var sugHtml = r.suggestions.length
-      ? '<details class="kn-ready__sug"><summary>Suggestions (' + r.suggestions.length + ', optional)</summary><ul>' + r.suggestions.map(function (e) {
-        return '<li><button type="button" class="kn-linkbtn" data-goto="' + esc(e.field) + '">' + esc(e.message) + '</button></li>';
-      }).join('') + '</ul></details>' : '';
-    return '<div class="kn-ready' + cls + '"><p class="kn-ready__state"><b>' + esc(state) + '</b>'
-      + '<span class="tx__sub"> · checked by the same rules as Publish</span></p>'
-      + '<ul class="kn-ready__checks">' + items + '</ul>' + errHtml + sugHtml + '</div>';
-  }
-  function knEditorHtml() {
-    var c = knEd.content;
-    var ex = Kn.examplesFor(c.applianceFamily);
-    var sym = Kn.splitLines((c.symptoms || []).join('\n')).length;
-    var causes = (c.components || []).filter(function (x) { return String(x.name || '').trim(); }).length;
-    knEd.openSec = knEd.openSec || {};
-    var S = {};
-    KN_SECTIONS.forEach(function (s) { S[s.id] = s; });
-    var basic = '<dl class="kn-ov kn-ov--compact"><dt>Appliance</dt><dd>' + esc(Kn.familyLabel(c.applianceFamily)) + '</dd>'
-      + '<dt>Topic id</dt><dd>' + esc(knEd.id) + '</dd></dl>'
-      + '<div class="kn-ed__grid">'
-      + knField('label', 'Title', c.label, { help: 'label', placeholder: 'e.g. Not draining / standing water' })
-      + knSelect('outcome', 'How should ApplianceClinic handle it?', c.outcome, [['PART_ROUTING', 'Suggest parts when they are the likely fix'], ['ADVICE_ONLY', 'Advice only (no part suggestions)']], { help: 'outcome' })
-      + '</div>'
-      + knQuickList('discriminators', 'Overview / engineering notes', c.discriminators, { what: 'note', help: 'overview', placeholder: 'e.g. Usually a blocked filter or sump rather than a failed pump' });
-    var customers = knQuickList('symptoms', 'Customer symptoms and phrases', c.symptoms, { what: 'symptom', help: 'symptoms', placeholder: 'e.g. ' + ex.symptoms[(c.symptoms || []).length % ex.symptoms.length] });
-    var cards = (c.components || []).map(function (comp, i) { return knCauseCard(comp, i, c.components.length, ex); }).join('');
-    var causesHtml = '<p class="kn-help">' + esc(Kn.HELP.causes) + '</p>' + knErrSlot('components')
-      + (cards ? '<ol class="kn-causes">' + cards + '</ol>' : '<p class="kn-sec__empty">No causes yet.</p>')
-      + '<div class="kn-ed__acts"><button type="button" class="btn btn--ghost kn-ed__add" data-ed="add-component">Add cause</button>'
-      + ((c.components || []).length > 1 ? '<button type="button" class="btn btn--ghost kn-ed__add" data-ed="causes-all" data-open="1">Expand all</button><button type="button" class="btn btn--ghost kn-ed__add" data-ed="causes-all" data-open="0">Collapse all</button>' : '')
-      + '</div>'
-      + knQuickList('likelyComponents', 'Parts to suggest, in order', c.likelyComponents, { what: 'part', help: 'likelyComponents', ordered: true, placeholder: ex.cause })
-      + '<button type="button" class="btn btn--ghost kn-ed__add" data-ed="derive-likely">Fill parts from the causes marked Part</button>';
-    var questions = knField('clarifyingQuestion', 'Best question to ask if unsure', c.clarifyingQuestion, { multiline: true, nullable: true, help: 'clarifyingQuestion', placeholder: ex.question })
-      + knField('secondaryQuestion', 'Follow-up question', c.secondaryQuestion, { multiline: true, nullable: true, help: 'secondaryQuestion' })
-      + '<p class="kn-help">The facts that tell causes apart live in Overview / engineering notes (Basic) and in each cause’s FOR / AGAINST evidence.</p>';
-    var advice = knQuickList('adviceBeforeReplacement', 'Safe checks and no-part fixes, in order', c.adviceBeforeReplacement, { what: 'advice', help: 'advice', ordered: true, placeholder: ex.advice });
-    var si = c.safetyInformation;
-    var safety = '<p class="kn-help">' + esc(Kn.HELP.safety) + '</p>'
-      + '<label class="kn-ed__check"><input type="checkbox" data-ed="safety-toggle"' + (si ? ' checked' : '') + ' /> This topic carries customer safety information</label>';
-    if (si) {
-      safety += '<div class="kn-ed__grid">'
-        + knSelect('safetyInformation.classification', 'Safety class', si.classification,
-          [['', 'Choose a class']].concat((Kn.SAFETY_CLASSES || []).map(function (k) { return [k, (Kn.safetyLabel && Kn.safetyLabel(k)) || k]; })))
-        + knField('safetyInformation.applicability', 'Applies when', si.applicability)
-        + '</div>'
-        + knField('safetyInformation.text', 'Customer safety text (shown verbatim)', si.text, { multiline: true, rows: 3 })
-        + knField('safetyInformation.hazard', 'Hazard', si.hazard, { multiline: true })
-        + '<fieldset class="kn-ed__list"><legend>Sources</legend>' + knErrSlot('safetyInformation.provenance')
-        + (si.provenance || []).map(function (pv, i) {
-          var p = 'safetyInformation.provenance.' + i;
-          return '<fieldset class="kn-ed__item"><legend>Source ' + (i + 1) + '</legend>'
-            + knRowBtns('safetyInformation.provenance', i, si.provenance.length, 'source', { ordered: true })
-            + '<div class="kn-ed__grid">'
-            + knField(p + '.sourceType', 'Source type', pv.sourceType, { placeholder: 'e.g. uk-fire-authority, manufacturer' })
-            + knField(p + '.publisher', 'Publisher', pv.publisher)
-            + knField(p + '.title', 'Title', pv.title, { nullable: true })
-            + knField(p + '.url', 'URL', pv.url, { placeholder: 'https://' })
-            + knField(p + '.retrieved', 'Retrieved (date)', pv.retrieved, { nullable: true, placeholder: 'YYYY-MM-DD' })
-            + '</div></fieldset>';
-        }).join('')
-        + '<button type="button" class="btn btn--ghost kn-ed__add" data-ed="add-source">Add source</button></fieldset>';
-    }
-    var conf = '<p class="kn-help">' + esc(Kn.HELP.confusion) + '</p>' + (c.commonConfusion || []).map(function (x, i) {
-      var p = 'commonConfusion.' + i;
-      return '<fieldset class="kn-ed__item"><legend>Confusion ' + (i + 1) + ': ' + esc(String(x.name || '').trim() || 'unnamed') + '</legend>'
-        + knRowBtns('commonConfusion', i, c.commonConfusion.length, 'confusion', { removeAct: 'conf-remove' })
-        + knErrSlot(p)
-        + knField(p + '.name', 'Often mistaken for', x.name, { placeholder: ex.confusion })
-        + knField(p + '.note', 'Why it is not the leading cause', x.note, { multiline: true, nullable: true })
-        + knQuickList(p + '.wouldApplyIf', 'Only consider it if', x.wouldApplyIf, { what: 'condition', help: 'wouldApplyIf' })
-        + '</fieldset>';
-    }).join('') + '<button type="button" class="btn btn--ghost kn-ed__add" data-ed="add-confusion">Add common confusion</button>';
-    var famTopics = (knListAll || []).filter(function (r) { return r.applianceFamily === c.applianceFamily && r.knowledgeId !== knEd.id; });
-    var related = '<datalist id="knTopicIds">' + famTopics.map(function (r) { return '<option value="' + esc(r.faultId) + '">' + esc(r.label) + '</option>'; }).join('') + '</datalist>'
-      + knQuickList('alternatives', 'Related topics', c.alternatives, { what: 'related topic', help: 'alternatives', listId: 'knTopicIds', rowHint: knTopicHint, placeholder: 'Start typing a topic id' })
-      + '<h4 class="kn-ed__subh">Media</h4>'
-      + ((knEd.media || []).length
-        ? '<ul class="kn-dlist">' + knEd.media.map(function (m) {
-          return '<li>' + esc(m.title || m.id)
-            + (m.liveForDiagnosis === false ? ' <span class="kn-state kn-state--archived">Archived media — unavailable for live diagnosis</span>' : '')
-            + ' <a href="#media/' + encodeURIComponent(m.id || '') + '">Manage in Media</a></li>';
-        }).join('') + '</ul>'
-        : '<p class="kn-sec__empty">No media linked. Media is mapped to Knowledge from the Media page.</p>');
-    var preserved = ['make', 'platform', 'componentFamilies', 'checks'].map(function (k) {
-      var v = c[k];
-      var txt = Array.isArray(v) ? (v.length ? v.join(', ') : 'None') : (v || 'None');
-      return '<dt>' + esc(k) + '</dt><dd>' + esc(txt) + '</dd>';
-    }).join('');
-    var advanced = knSelect('provenance', 'Provenance', c.provenance, [['engineer', 'Engineer-authored domain knowledge'], ['catalogue', 'Fault catalogue']], { help: 'provenance' })
-      + '<h4 class="kn-ed__subh">Preserved technical fields (not edited here)</h4><dl class="kn-ov kn-ov--compact">' + preserved + '</dl>'
-      + '<details class="kn-tech"><summary>Draft JSON (read-only)</summary><pre id="knEdJson"></pre></details>';
-    var sum = {
-      customers: sym + ' phrase' + (sym === 1 ? '' : 's'),
-      causes: causes + ' cause' + (causes === 1 ? '' : 's'),
-      safety: si ? 'Present' : 'None',
-      confusion: String((c.commonConfusion || []).length),
-      related: String(Kn.splitLines((c.alternatives || []).join('\n')).length),
-    };
-    var openOf = function (id, has) { return knEd.openSec[id] != null ? knEd.openSec[id] : has; };
-    var head = knEd.isNew ? 'New Knowledge item' : (knEd.hasDraft ? 'Editing draft' : 'New draft from the live version');
-    var from = knEd.createdFrom ? '<p class="tx__sub">Created from ' + esc(knEd.createdFrom.knowledgeId) + (knEd.createdFrom.version ? ' (' + esc(knEd.createdFrom.version) + ')' : '') + '. It has its own history.</p>' : '';
-    return '<form class="kn-ed" id="knEdForm" novalidate>'
-      + '<div class="kn-ed__head"><div><p class="kn-detail__fam">' + esc(head) + '</p>'
-      + '<h2 class="kn-detail__title">' + esc(c.label || knEd.id) + '</h2>'
-      + '<p class="tx__sub">Saving a draft does not change live diagnosis. Publish from the record page when it is ready.</p>' + from + '</div></div>'
-      + '<p class="kn-notice" id="knEdNotice" tabindex="-1" role="alert" hidden></p>'
-      + '<div id="knReady" class="kn-ed__ready" role="region" aria-label="Draft readiness">' + knReadyHtml() + '</div>'
-      + '<nav class="kn-ed__toc" aria-label="Editor sections"><ol>' + KN_SECTIONS.map(function (s, i) {
-        return '<li><a href="#knSec-' + s.id + '" data-jump="' + s.id + '">' + (i + 1) + '. ' + esc(s.title) + '</a></li>';
-      }).join('') + '</ol></nav>'
-      + knSectionHtml(S.basic, 1, basic)
-      + knSectionHtml(S.customers, 2, customers, { summary: sum.customers })
-      + knSectionHtml(S.causes, 3, causesHtml, { summary: sum.causes })
-      + knSectionHtml(S.questions, 4, questions)
-      + knSectionHtml(S.advice, 5, advice)
-      + knSectionHtml(S.safety, 6, safety, { summary: sum.safety, open: openOf('safety', !!si) })
-      + knSectionHtml(S.confusion, 7, conf, { summary: sum.confusion, open: openOf('confusion', (c.commonConfusion || []).length > 0) })
-      + knSectionHtml(S.related, 8, related, { summary: sum.related, open: openOf('related', (c.alternatives || []).length > 0 || (knEd.media || []).length > 0) })
-      + knSectionHtml(S.advanced, 9, advanced, { open: openOf('advanced', false) })
-      + '<div class="kn-ed__bar"><span class="kn-ed__dirty" id="knEdDirty" role="status" aria-live="polite"></span>'
-      + '<a class="btn btn--ghost" id="knEdReview" href="' + esc(knViewHref(knEd.id, null, { review: '1' })) + '" hidden>Review &amp; publish…</a>'
-      + '<button class="btn btn--ghost" type="button" id="knEdCancel">Cancel</button>'
-      + '<button class="btn btn--primary" type="submit" id="knEdSave">Save draft</button></div>'
-      + '</form>';
-  }
-  function knPendingText() {
-    var p = (knEd && knEd.pendingAdd) || {};
-    return Object.keys(p).some(function (k) { return String(p[k] || '').trim(); });
-  }
-  function knEdUpdateStatus() {
-    if (!knEd) return;
-    var dirty = Kn.isDirty(knEd.content, knEd.base) || knPendingText();
-    knEd.dirty = dirty;
-    var last = knEd.lastSavedAt ? 'Last saved ' + fmtWhen(knEd.lastSavedAt) + (knEd.lastSavedBy ? ' by ' + knEd.lastSavedBy : '') : '';
-    var txt;
-    if (knEd.saving) txt = 'Saving…';
-    else if (dirty) txt = 'Unsaved changes' + (last ? ' · ' + last : '');
-    else if (knEd.justSaved) txt = 'Saved' + (last ? ' · ' + last : '');
-    else if (knEd.isNew) txt = 'Not saved yet';
-    else if (knEd.hasDraft) txt = last || 'Draft saved';
-    else txt = 'Showing the live version. Saving creates a draft.';
-    if ($('knEdDirty')) $('knEdDirty').textContent = txt;
-    if ($('knEdReview')) $('knEdReview').hidden = !(knEd.hasDraft && !dirty && !knEd.saving);
-    if ($('knEdJson')) $('knEdJson').textContent = JSON.stringify(knEd.content, null, 2);
-  }
-  // Inline errors: from a failed save (and focus the first), else the live publish check (no focus).
-  function knEdShowErrors(errors, focusFirst) {
-    var form = $('knEdForm');
-    if (!form) return;
-    Array.prototype.forEach.call(form.querySelectorAll('[data-err-for]'), function (el) { el.hidden = true; el.textContent = ''; });
-    Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (el) { el.removeAttribute('aria-invalid'); });
-    var first = null;
-    (errors || []).forEach(function (e) {
-      var path = Kn.errorPath(e.field);
-      var slot = form.querySelector('[data-err-for="' + path + '"]');
-      var input = form.querySelector('[data-path="' + path + '"]') || form.querySelector('[data-add-for="' + path + '"]');
-      if (slot) { slot.hidden = false; slot.textContent = e.message; }
-      if (input) { input.setAttribute('aria-invalid', 'true'); if (!first) first = input; }
-    });
-    if (focusFirst && first) first.focus();
-  }
-  function knEdRefreshReady() {
-    if ($('knReady')) $('knReady').innerHTML = knReadyHtml();
-    var errs = knEd.errors && knEd.errors.length ? knEd.errors : ((knEd.check && knEd.check.errors) || []);
-    knEdShowErrors(errs, false);
-  }
-  // Server-side readiness: the same publish validation, over the unsaved form. Debounced; read-only.
-  var knCheckTimer = null;
-  var knCheckSeq = 0;
-  function knEdScheduleCheck(delay) {
-    if (!knEd || knEd.guided) return;
-    clearTimeout(knCheckTimer);
-    knCheckTimer = setTimeout(knEdRunCheck, delay == null ? 700 : delay);
-  }
-  function knEdRunCheck() {
-    if (!knEd || knEd.guided) return;
-    var seq = ++knCheckSeq;
-    var ed = knEd;
-    ed.check = Object.assign({}, ed.check || {}, { pending: true });
-    knEdRefreshReady();
-    knApi('POST', '/admin/knowledge/validate' + (ed.id ? '?id=' + encodeURIComponent(ed.id) : ''), { content: ed.content })
-      .then(function (res) {
-        if (seq !== knCheckSeq || knEd !== ed) return;
-        ed.check = res.status === 200 ? { errors: res.data.errors || [], ready: !!res.data.ready } : { errors: (ed.check && ed.check.errors) || [], failed: true };
-        knEdRefreshReady();
-      })
-      .catch(function () {
-        if (seq !== knCheckSeq || knEd !== ed) return;
-        ed.check = { errors: (ed.check && ed.check.errors) || [], failed: true };
-        knEdRefreshReady();
-      });
-  }
-  function knEdNotice(kind, msg) {
-    var el = $('knEdNotice');
-    if (!el) return;
-    el.hidden = !msg;
-    el.className = 'kn-notice' + (kind ? ' kn-notice--' + kind : '');
-    el.textContent = msg || '';
-    if (msg) el.focus();
-  }
-  // Open whatever contains a field (section, cause card), re-render, then focus the field.
-  function knEdGoto(field) {
-    var t = Kn.errorTarget(field);
-    knEd.openSec = knEd.openSec || {};
-    knEd.openSec[t.section] = true;
-    if (t.causeIndex != null) { knEd.openCauses = knEd.openCauses || []; knEd.openCauses[t.causeIndex] = true; }
-    knEdRender();
-    var form = $('knEdForm');
-    var el = form.querySelector('[data-path="' + t.path + '"]') || form.querySelector('[data-add-for="' + t.path + '"]');
-    if (!el && t.causeIndex != null) el = form.querySelector('[data-cause="' + t.causeIndex + '"] .kn-cause__toggle');
-    if (!el) el = $('knSecH-' + t.section);
-    if (el) {
-      if (el.tagName === 'H3') el.setAttribute('tabindex', '-1');
-      el.focus();
-      if (el.scrollIntoView) el.scrollIntoView({ block: 'center' });
-    }
-  }
-  // Pending "add" boxes are committed on Enter, on paste, and before saving.
-  function knFlushPending() {
-    var p = knEd.pendingAdd || {};
-    Object.keys(p).forEach(function (path) {
-      var items = Kn.splitLines(p[path]);
-      if (path === '__cause') items.forEach(function (name) { knAddCause(name, false); });
-      else items.forEach(function (x) { Kn.listAdd(knEd.content, path, x); });
-    });
-    knEd.pendingAdd = {};
-  }
-  function knAddCause(name, open) {
-    var comp = Kn.emptyComponent();
-    comp.type = null;
-    comp.name = name || '';
-    var n = Kn.listAdd(knEd.content, 'components', comp);
-    knEd.openCauses = knEd.openCauses || [];
-    knEd.openCauses[n] = !!open;
-    return n;
-  }
-  function knOnEditorKey(e) {
-    var t = e.target;
-    if (e.key !== 'Enter' || e.shiftKey || e.isComposing || !t || t.tagName === 'TEXTAREA') return;
-    if (t.tagName !== 'INPUT' || t.type === 'checkbox' || t.type === 'radio') return;
-    e.preventDefault(); // Enter never submits the whole form
-    var addFor = t.getAttribute('data-add-for');
-    var rowOf = t.getAttribute('data-ql-row');
-    if (addFor) {
-      var items = Kn.splitLines(t.value);
-      if (!items.length) return;
-      if (addFor === '__cause') items.forEach(function (x) { knAddCause(x, false); });
-      else items.forEach(function (x) { Kn.listAdd(knEd.content, addFor, x); });
-      if (knEd.pendingAdd) delete knEd.pendingAdd[addFor];
-      knEdRerender({ add: addFor });
-    } else if (rowOf) {
-      var add = t.form && t.form.querySelector('[data-add-for="' + rowOf + '"]');
-      if (add) add.focus();
-    }
-  }
-  function knOnEditorPaste(e) {
-    var t = e.target;
-    if (!t || t.tagName !== 'INPUT') return;
-    var addFor = t.getAttribute('data-add-for');
-    var rowOf = t.getAttribute('data-ql-row');
-    if (!addFor && !rowOf) return;
-    var text = (e.clipboardData || window.clipboardData) ? (e.clipboardData || window.clipboardData).getData('text') : '';
-    if (!Kn.isMultiLine(text)) return; // single line: normal paste
-    e.preventDefault();
-    var items = Kn.splitLines(text);
-    if (addFor === '__cause') items.forEach(function (x) { knAddCause(x, false); });
-    else if (addFor) { items.forEach(function (x) { Kn.listAdd(knEd.content, addFor, x); }); if (knEd.pendingAdd) delete knEd.pendingAdd[addFor]; }
-    else {
-      var i = Number(t.getAttribute('data-i'));
-      var list = Kn.getPath(knEd.content, rowOf);
-      list.splice.apply(list, [i, 1].concat(items));
-    }
-    knEdRerender({ add: addFor || rowOf });
-  }
-  function knEdRerender(opts) {
-    opts = opts || {};
-    if (knEd.guided) knGuidedRender(opts); else knEdRender(opts.focus, opts);
-  }
-  function knEdAfterRender(opts) {
-    var form = $('knEdForm');
-    if (!form) return;
-    if (opts && opts.add) {
-      var el = form.querySelector('[data-add-for="' + opts.add + '"]');
-      if (el) el.focus();
-    } else if (opts && opts.focusSel) {
-      // A list of selectors is tried in order (e.g. the moved item's button, else the item itself).
-      var sels = [].concat(opts.focusSel);
-      for (var k = 0; k < sels.length; k++) {
-        var f = form.querySelector(sels[k]);
-        if (f && !f.disabled) { f.focus(); break; }
-      }
-    }
-  }
-  function knEdWire(form) {
-    form.addEventListener('keydown', knOnEditorKey);
-    form.addEventListener('paste', knOnEditorPaste);
-    form.addEventListener('input', function (e) {
-      var t = e.target;
-      if (t && t.getAttribute('data-add-for')) {
-        knEd.pendingAdd = knEd.pendingAdd || {};
-        knEd.pendingAdd[t.getAttribute('data-add-for')] = t.value;
-        knEdUpdateStatus();
-        return;
-      }
-      if (t && t.getAttribute('data-lines-path')) {
-        Kn.setPath(knEd.content, t.getAttribute('data-lines-path'), Kn.splitLines(t.value));
-        if (knEd.guided) knGuidedUpdate(); else knEdUpdateStatus();
-        return;
-      }
-      var path = t && t.getAttribute('data-path');
-      if (!path || t.tagName === 'SELECT' || t.type === 'radio') return;
-      var v = t.value;
-      if (t.getAttribute('data-nullable') && !String(v).trim()) v = null;
-      Kn.setPath(knEd.content, path, v);
-      if (knEd.guided) { if (path === 'label' && !knEd.idTouched) knGuidedAutoId(); if (path === 'faultId') knEd.idTouched = true; knGuidedUpdate(); return; }
-      knEdUpdateStatus();
-      knEdScheduleCheck();
-    });
-    form.addEventListener('change', function (e) {
-      var t = e.target;
-      if (t && t.getAttribute('data-ed') === 'safety-toggle') {
-        if (t.checked) knEd.content.safetyInformation = knEd.content.safetyInformation || knEd.lastSafety || Kn.emptySafety();
-        else {
-          if (knEd.content.safetyInformation && !window.confirm('Remove the safety information from this draft?\n\nIf published, customers would no longer see this safety text.')) { t.checked = true; return; }
-          knEd.lastSafety = knEd.content.safetyInformation; knEd.content.safetyInformation = null;
-        }
-        knEd.openSec.safety = true;
-        knEdRender(null, { focusSel: '[data-ed="safety-toggle"]' });
-        knEdScheduleCheck(0);
-        return;
-      }
-      var path = t && t.getAttribute('data-path');
-      if (path && (t.tagName === 'SELECT' || t.type === 'radio')) {
-        Kn.setPath(knEd.content, path, (t.getAttribute('data-nullable') && !t.value) ? null : t.value);
-        if (knEd.guided) { knGuidedChanged(path); return; }
-        if (/^components\.\d+\.type$/.test(path)) knEdRender(null, { focusSel: '[data-path="' + path + '"]' });
-        else knEdUpdateStatus();
-        knEdScheduleCheck();
-      }
-    });
-    form.addEventListener('toggle', function (e) {
-      var d = e.target;
-      if (d && d.getAttribute && d.getAttribute('data-sec')) { knEd.openSec = knEd.openSec || {}; knEd.openSec[d.getAttribute('data-sec')] = d.open; }
-    }, true);
-    form.addEventListener('click', function (e) {
-      var g = e.target && e.target.closest ? e.target.closest('[data-goto]') : null;
-      if (g) { e.preventDefault(); knEdGoto(g.getAttribute('data-goto')); return; }
-      var j = e.target && e.target.closest ? e.target.closest('[data-jump]') : null;
-      if (j) {
-        e.preventDefault();
-        var sid = j.getAttribute('data-jump');
-        knEd.openSec = knEd.openSec || {};
-        var d = $('knSec-' + sid);
-        if (d && d.tagName === 'DETAILS' && !d.open) { d.open = true; knEd.openSec[sid] = true; }
-        var h = $('knSecH-' + sid);
-        if (h) { h.setAttribute('tabindex', '-1'); h.focus(); if (h.scrollIntoView) h.scrollIntoView({ block: 'start' }); }
-        return;
-      }
-      var b = e.target && e.target.closest ? e.target.closest('[data-ed]') : null;
-      if (!b || b.tagName !== 'BUTTON') return;
-      e.preventDefault();
-      var act = b.getAttribute('data-ed');
-      var list = b.getAttribute('data-list');
-      var i = Number(b.getAttribute('data-i'));
-      var oc = knEd.openCauses = knEd.openCauses || [];
-      var r = {};
-      if (act === 'ql-add') {
-        var box = form.querySelector('[data-add-for="' + list + '"]');
-        var items = Kn.splitLines(box ? box.value : '');
-        if (!items.length) { if (box) box.focus(); return; }
-        if (list === '__cause') items.forEach(function (x) { knAddCause(x, false); });
-        else items.forEach(function (x) { Kn.listAdd(knEd.content, list, x); });
-        if (knEd.pendingAdd) delete knEd.pendingAdd[list];
-        r.add = list;
-      } else if (act === 'add-component') {
-        var nc = knAddCause('', true);
-        r.focusSel = '[data-path="components.' + nc + '.name"]';
-      } else if (act === 'cause-toggle') {
-        oc[i] = !oc[i];
-        r.focusSel = '[data-cause="' + i + '"] .kn-cause__toggle';
-      } else if (act === 'causes-all') {
-        var openAll = b.getAttribute('data-open') === '1';
-        (knEd.content.components || []).forEach(function (x, k) { oc[k] = openAll; });
-        r.focusSel = '[data-ed="causes-all"][data-open="' + (openAll ? '1' : '0') + '"]';
-      } else if (act === 'cause-dup') {
-        var copy = Kn.clone(knEd.content.components[i]);
-        copy.name = (copy.name ? copy.name + ' (copy)' : '');
-        knEd.content.components.splice(i + 1, 0, copy);
-        oc.splice(i + 1, 0, true);
-        r.focusSel = '[data-path="components.' + (i + 1) + '.name"]';
-      } else if (act === 'cause-remove') {
-        var cs = Kn.causeSummary(knEd.content.components[i]);
-        var populated = String(knEd.content.components[i].name || '').trim() || cs.forCount || cs.againstCount;
-        if (populated && !window.confirm('Remove cause “' + cs.label + '” and its ' + (cs.forCount + cs.againstCount) + ' evidence item(s)?')) return;
-        Kn.listRemove(knEd.content, 'components', i);
-        oc.splice(i, 1);
-        r.focusSel = '[data-ed="add-component"]';
-      } else if (act === 'conf-remove') {
-        var cf = knEd.content.commonConfusion[i] || {};
-        if ((String(cf.name || '').trim() || String(cf.note || '').trim()) && !window.confirm('Remove common confusion “' + (cf.name || 'unnamed') + '”?')) return;
-        Kn.listRemove(knEd.content, 'commonConfusion', i);
-        r.focusSel = '[data-ed="add-confusion"]';
-      } else if (act === 'add-confusion') { var nf = Kn.listAdd(knEd.content, 'commonConfusion', Kn.emptyConfusion()); r.focusSel = '[data-path="commonConfusion.' + nf + '.name"]'; }
-      else if (act === 'add-source') { var ns = Kn.listAdd(knEd.content, 'safetyInformation.provenance', Kn.emptySafetySource()); r.focusSel = '[data-path="safetyInformation.provenance.' + ns + '.sourceType"]'; }
-      else if (act === 'remove') {
-        Kn.listRemove(knEd.content, list, i);
-        if (list === 'components') { oc.splice(i, 1); r.add = '__cause'; } else r.add = list;
-        if (!document.querySelector('[data-add-for="' + r.add + '"]')) { delete r.add; r.focusSel = ['[data-ed="add-source"]', '[data-ed="add-component"]']; }
-      }
-      else if (act === 'up' || act === 'down') {
-        var dir = act === 'up' ? -1 : 1;
-        if (Kn.listMove(knEd.content, list, i, dir)) {
-          if (list === 'components') { var tmp = oc[i]; oc[i] = oc[i + dir]; oc[i + dir] = tmp; }
-          var to = i + dir;
-          r.focusSel = list === 'components'
-            ? ['[data-cause="' + to + '"] [data-ed="' + act + '"]', '[data-cause="' + to + '"] .kn-cause__toggle',
-              '[data-ed="' + act + '"][data-list="components"][data-i="' + to + '"]', '[data-path="components.' + to + '.name"]']
-            : ['[data-ed="' + act + '"][data-list="' + list + '"][data-i="' + to + '"]', '[data-path="' + list + '.' + to + '"]'];
-        }
-      } else if (act === 'derive-likely') { knEd.content.likelyComponents = Kn.deriveLikelyComponents(knEd.content.components); r.add = 'likelyComponents'; }
-      else if (act === 'guided-mode') { knEd.mode = b.getAttribute('data-mode'); r.focusSel = knEd.mode === 'new' ? '[data-path="label"]' : '#knGuidedTopic'; }
-      knEdRerender(r);
-      if (!knEd.guided) knEdScheduleCheck();
-    });
-    form.addEventListener('submit', function (e) { e.preventDefault(); if (knEd.guided) knGuidedCreate(); else knEdSave(); });
-  }
-  function knEdRender(focusPath, opts) {
-    var panel = $('knDetail');
-    if (!panel || !knEd) return;
-    knEd.hash = location.hash;
-    panel.hidden = false;
-    panel.innerHTML = knEditorHtml();
-    var form = $('knEdForm');
-    knEdWire(form);
-    $('knEdCancel').addEventListener('click', function () {
-      var id = knEd.id;
-      var wasNew = knEd.isNew;
-      guardThen(function () { knEd = null; location.hash = wasNew ? hashString('knowledge', { q: knParams().q, family: knParams().family }) : knDetailHref(id); });
-    });
-    knEdUpdateStatus();
-    knEdRefreshReady();
-    if (focusPath) {
-      var el = form.querySelector('[data-path="' + focusPath + '"]');
-      if (el) el.focus();
-    }
-    knEdAfterRender(opts);
-  }
-  function knEdSave() {
-    if (!knEd || knEd.saving) return;
-    knFlushPending();
-    knEd.saving = true;
-    knEd.justSaved = false;
-    knEdUpdateStatus();
-    var btn = $('knEdSave');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-    var ed = knEd;
-    var req = knApi('PUT', '/admin/knowledge/draft?id=' + encodeURIComponent(ed.id), { expectedRevision: ed.revision, content: ed.content });
-    req.then(function (res) {
-      ed.saving = false;
-      if (knEd !== ed) return;
-      if (res.status === 200 && res.data && res.data.knowledgeId) {
-        var v = res.data;
-        knInvalidateList();
-        knEd = { id: v.knowledgeId, isNew: false, content: Kn.clone(v.draft), base: Kn.clone(v.draft), revision: v.revision, media: ed.media, hasDraft: true };
-        knEd.openCauses = ed.openCauses; knEd.openSec = ed.openSec; knEd.check = ed.check; knEd.createdFrom = v.createdFrom || ed.createdFrom;
-        knEd.lastSavedAt = v.draftUpdatedAt; knEd.lastSavedBy = v.draftUpdatedBy; knEd.justSaved = true;
-        knEdRender(null, { focusSel: '#knEdSave' });
-        knEdScheduleCheck(0);
-        setTimeout(function () { if (knEd && knEd.justSaved) { knEd.justSaved = false; knEdUpdateStatus(); } }, 4000);
-        return;
-      }
-      if (btn) { btn.disabled = false; btn.textContent = 'Save draft'; }
-      knEdUpdateStatus();
-      if (res.status === 401) return;
-      ed.errors = (res.data && res.data.errors) || [];
-      knEdRefreshReady();
-      knEdShowErrors(ed.errors, false);
-      knEdNotice('bad', res.status === 409 ? knErrMessage(res) : ('Not saved. ' + (ed.errors.length ? 'Fix the ' + ed.errors.length + ' issue(s) listed under “Must fix”.' : knErrMessage(res, 'The draft could not be saved.'))));
-    }).catch(function () {
-      ed.saving = false;
-      if (btn) { btn.disabled = false; btn.textContent = 'Save draft'; }
-      knEdUpdateStatus();
-      knEdNotice('bad', 'Could not reach the server. Your changes are still in this form.');
-    });
-  }
-  function knShowEditor(id) {
-    var panel = $('knDetail');
-    if (panel) { panel.hidden = false; panel.innerHTML = '<div class="tac__muted">Loading editor…</div>'; }
-    knOpenId = id;
-    fetch(API_BASE + '/admin/knowledge/record?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
-      .then(function (r) {
-        if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return null; }
-        return r.json();
-      })
-      .then(function (d) {
-        if (knOpenId !== id || !d) return;
-        if (!d.knowledgeId || !d.admin || d.admin.unavailable) {
-          if (panel) panel.innerHTML = knEmpty('This record cannot be edited right now.');
-          return;
-        }
-        var a = d.admin;
-        if (a.archived) { if (panel) panel.innerHTML = knEmpty('Restore this archived record before editing it.'); return; }
-        // Editing without a draft starts from the live content; the draft is created on first save.
-        var content = a.draft ? a.draft : a.live;
-        knEd = { id: id, isNew: false, content: Kn.clone(content), base: Kn.clone(content), revision: a.revision, media: d.media || [], hasDraft: !!a.draft };
-        knEd.createdFrom = a.createdFrom || null;
-        knEd.lastSavedAt = a.draft ? a.draftUpdatedAt : null;
-        knEd.lastSavedBy = a.draft ? a.draftUpdatedBy : null;
-        knEd.openCauses = (content.components || []).map(function (c) { return (content.components || []).length === 1 || !String(c.name || '').trim(); });
-        knEd.openSec = {};
-        knEd.check = { pending: true, errors: [] };
-        knEdRender();
-        knEdRunCheck();
-        knEnsureList(function () { if (knEd && knEd.id === id && !knEd.dirty) knEdRender(); else if (knEd && knEd.id === id) knEdRefreshReady(); });
-      })
-      .catch(function () { if (panel) panel.innerHTML = knEmpty('Could not load this knowledge record.'); });
-  }
-
-  // ---- guided create: the minimum useful record first, then the full editor ----------------
-  // Step 1 appliance · 2 existing topic or new retrieval-only topic · 3 title + overview ·
-  // 4 customer phrases · 5 likely causes. Creates an unpublished draft, then opens the editor.
-  function knShowCreate(params) {
-    var panel = $('knDetail');
-    var from = params && params.from;
-    var c = Kn.emptyContent((params && params.family) || knParams().family || '', '');
-    c.symptoms = [];
-    knEd = { guided: true, isNew: true, id: null, content: c, base: Kn.clone(c), revision: 0, media: [], mode: null, idTouched: false, pendingAdd: {} };
-    knEd.hash = location.hash;
-    if (!from) { knGuidedRender({ focusSel: '[name="knFam"]:checked, [name="knFam"]' }); knEnsureList(function () { if (knEd && knEd.guided) knGuidedRender(); }); return; }
-    if (panel) { panel.hidden = false; panel.innerHTML = '<div class="tac__muted">Loading the record to duplicate…</div>'; }
-    knApi('GET', '/admin/knowledge/record?id=' + encodeURIComponent(from)).then(function (res) {
-      if (!knEd || !knEd.guided) return;
-      var a = res.data && res.data.admin;
-      var src = a && (a.live || a.draft);
-      if (res.status !== 200 || !src) { panel.innerHTML = knEmpty('That record could not be loaded to duplicate.'); return; }
-      var copy = Kn.clone(src);
-      delete copy.knowledgeId;
-      copy.faultId = '';
-      copy.label = 'Copy of ' + (src.label || '');
-      knEd.content = copy;
-      knEd.base = Kn.clone(copy);
-      knEd.base.label = ''; // a duplicate is unsaved work until created
-      knEd.mode = 'new';
-      knEd.createdFrom = { knowledgeId: from, label: src.label };
-      knEnsureList(function () { if (knEd && knEd.guided) knGuidedRender({ focusSel: '[data-path="label"]' }); });
-    });
-  }
-  function knGuidedAutoId() {
-    knEd.content.faultId = Kn.slugify(knEd.content.label);
-    var el = document.querySelector('#knEdForm [data-path="faultId"]');
-    if (el) el.value = knEd.content.faultId;
-  }
-  function knGuidedChanged(path) {
-    if (path === 'applianceFamily') {
-      knEd.base.applianceFamily = knEd.content.applianceFamily; // choosing an appliance alone is not unsaved work
-      knGuidedRender({ focusSel: knEd.createdFrom ? '[data-path="label"]' : '[data-ed="guided-mode"][data-mode="existing"]' });
-      return;
-    }
-    knGuidedUpdate();
-  }
-  function knGuidedMissing() {
-    var c = knEd.content;
-    var miss = [];
-    if (!c.applianceFamily) miss.push('choose an appliance');
-    if (knEd.mode !== 'new') miss.push('choose “new topic”');
-    if (!String(c.label || '').trim()) miss.push('add a title');
-    if (!Kn.FAULT_ID_RE.test(String(c.faultId || ''))) miss.push('a valid topic id');
-    if (!Kn.splitLines((c.symptoms || []).join('\n') + '\n' + ((knEd.pendingAdd || {}).symptoms || '')).length) miss.push('at least one customer phrase');
-    return miss;
-  }
-  function knGuidedUpdate() {
-    knEdUpdateStatus();
-    var miss = knGuidedMissing();
-    var btn = $('knGuidedCreate');
-    var msg = $('knGuidedMissing');
-    if (btn) btn.setAttribute('aria-disabled', miss.length ? 'true' : 'false');
-    if (msg) msg.textContent = miss.length ? 'To create the draft: ' + miss.join(', ') + '.' : 'Ready to create the draft. You can refine everything in the full editor next.';
-  }
-  function knGuidedHtml() {
-    var c = knEd.content;
-    var ex = Kn.examplesFor(c.applianceFamily);
-    var fam = c.applianceFamily;
-    var step1 = '<fieldset class="kn-step"><legend><span class="kn-ed__secno" aria-hidden="true">1</span>Which appliance?</legend>'
-      + '<div class="kn-famgrid">' + (Kn.FAMILIES || []).map(function (f) {
-        return '<label class="kn-fam"><input type="radio" name="knFam" value="' + esc(f) + '" data-path="applianceFamily"' + (fam === f ? ' checked' : '') + ' /> ' + esc(Kn.familyLabel(f)) + '</label>';
-      }).join('') + '</div>' + knErrSlot('applianceFamily') + '</fieldset>';
-    if (!fam) return step1;
-    var topics = (knListAll || []).filter(function (r) { return r.applianceFamily === fam && r.state !== 'archived'; })
-      .sort(function (a, b) { return String(a.label).localeCompare(String(b.label)); });
-    var step2;
-    if (knEd.createdFrom) {
-      step2 = '<div class="kn-step kn-step--note"><p><b>Duplicating “' + esc(knEd.createdFrom.label || knEd.createdFrom.knowledgeId) + '”.</b> '
-        + 'The copy is a new, unpublished draft with its own topic id and history. The original is not changed.</p>'
-        + '<p class="kn-help">Knowledge adds retrieval context. It does not create a new canonical diagnostic journey or catalogue fault.</p></div>';
-    } else {
-      var pick = knEd.mode === 'existing'
-        ? '<div class="kn-ed__field"><label for="knGuidedTopic">Existing topic</label><select id="knGuidedTopic">'
-          + topics.map(function (r) { return '<option value="' + esc(r.knowledgeId) + '">' + esc(r.label) + ' — ' + esc(r.faultId) + '</option>'; }).join('')
-          + '</select></div><p><button type="button" class="btn btn--primary" id="knGuidedOpen">Improve this topic</button></p>'
-          + '<p class="kn-help">Opens its editor. Changes are saved as a draft and only go live when you publish.</p>'
-        : '';
-      step2 = '<fieldset class="kn-step"><legend><span class="kn-ed__secno" aria-hidden="true">2</span>Is this about a fault ApplianceClinic already knows?</legend>'
-        + '<p class="kn-help">Knowledge adds retrieval context. It does not create a new canonical diagnostic journey or catalogue fault. '
-        + 'If the fault already has a topic below, improve that instead of adding a new one.</p>'
-        + '<div class="kn-choice">'
-        + '<button type="button" class="kn-choice__opt" data-ed="guided-mode" data-mode="existing" aria-pressed="' + (knEd.mode === 'existing') + '"><b>Yes — improve an existing topic</b><span>' + topics.length + ' ' + esc(Kn.familyLabel(fam)) + ' topics</span></button>'
-        + '<button type="button" class="kn-choice__opt" data-ed="guided-mode" data-mode="new" aria-pressed="' + (knEd.mode === 'new') + '"><b>No — add a new retrieval-only topic</b><span>Extra context the engine can retrieve</span></button>'
-        + '</div>' + pick + '</fieldset>';
-    }
-    if (knEd.mode !== 'new') return step1 + step2;
-    var step3 = '<fieldset class="kn-step"><legend><span class="kn-ed__secno" aria-hidden="true">3</span>Title and overview</legend>'
-      + '<div class="kn-ed__grid">'
-      + knField('label', 'Title', c.label, { help: 'label', placeholder: 'e.g. Beeps three times at the end of the cycle' })
-      + knField('faultId', 'Topic id', c.faultId, { placeholder: 'filled from the title', help: null })
-      + '</div><p class="kn-help">Topic id: lower-case letters, digits and hyphens. It cannot be changed once created.</p>'
-      + '<div class="kn-ed__field"><label for="kf-overview">Overview</label>' + knHelpHtml('overview', 'kf-overview-help')
-      + '<textarea id="kf-overview" data-lines-path="discriminators" rows="3" aria-describedby="kf-overview-help" placeholder="e.g. Usually a blocked filter rather than a failed pump.">' + esc((c.discriminators || []).join('\n')) + '</textarea></div>'
-      + knSelect('outcome', 'How should ApplianceClinic handle it?', c.outcome, [['PART_ROUTING', 'Suggest parts when they are the likely fix'], ['ADVICE_ONLY', 'Advice only (no part suggestions)']], { help: 'outcome' })
-      + '</fieldset>';
-    var step4 = '<fieldset class="kn-step kn-step--plain"><legend><span class="kn-ed__secno" aria-hidden="true">4</span>What do customers say?</legend>'
-      + knQuickList('symptoms', 'Customer symptoms and phrases', c.symptoms, { what: 'symptom', help: 'symptoms', placeholder: 'e.g. ' + ex.symptoms[(c.symptoms || []).length % ex.symptoms.length] })
-      + '</fieldset>';
-    var causeRows = (c.components || []).map(function (comp, i) {
-      var p = 'components.' + i;
-      return '<li class="kn-ql__row kn-ql__row--cause">'
-        + '<input type="text" data-path="' + p + '.name" value="' + esc(comp.name || '') + '" aria-label="Cause ' + (i + 1) + '" autocomplete="off" />'
-        + '<select data-path="' + p + '.type" data-nullable="1" aria-label="Cause ' + (i + 1) + ': part or check">'
-        + [['', 'Part or check?'], ['part', 'Part'], ['check', 'Check']].map(function (o) { return '<option value="' + o[0] + '"' + (String(comp.type || '') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('')
-        + '</select>' + knRowBtns('components', i, c.components.length, 'cause', { ordered: true }) + '</li>';
-    }).join('');
-    var step5 = '<fieldset class="kn-step kn-step--plain"><legend><span class="kn-ed__secno" aria-hidden="true">5</span>Likely causes</legend>'
-      + '<fieldset class="kn-ql" data-ql="__cause"><legend>Causes, most likely first</legend>' + knHelpHtml('causes', 'kf-gcause-help')
-      + (causeRows ? '<ul class="kn-ql__rows">' + causeRows + '</ul>' : '')
-      + '<div class="kn-ql__add"><input type="text" data-add-for="__cause" value="' + esc((knEd.pendingAdd || {}).__cause || '') + '" aria-label="Add cause" aria-describedby="kf-gcause-help" placeholder="' + esc(ex.cause) + '" autocomplete="off" />'
-      + '<button type="button" class="btn btn--ghost kn-ed__mini" data-ed="ql-add" data-list="__cause">Add</button></div></fieldset>'
-      + '<p class="kn-help">Evidence for and against each cause, questions, safety and the rest come next, in the full editor.</p></fieldset>';
-    return step1 + step2 + step3 + step4 + step5;
-  }
-  function knGuidedRender(opts) {
-    var panel = $('knDetail');
-    if (!panel || !knEd) return;
-    knEd.hash = location.hash;
-    panel.hidden = false;
-    var showCreate = knEd.mode === 'new';
-    panel.innerHTML = '<form class="kn-ed kn-ed--guided" id="knEdForm" novalidate>'
-      + '<div class="kn-ed__head"><div><p class="kn-detail__fam">New Knowledge item</p><h2 class="kn-detail__title">' + esc(knEd.content.label || 'Add diagnostic knowledge') + '</h2>'
-      + '<p class="tx__sub">Start with the essentials. Nothing goes live until you publish.</p></div></div>'
-      + '<p class="kn-notice" id="knEdNotice" tabindex="-1" role="alert" hidden></p>'
-      + knGuidedHtml()
-      + '<div class="kn-ed__bar"><span class="kn-ed__dirty" id="knEdDirty" role="status" aria-live="polite"></span>'
-      + (showCreate ? '<span class="kn-guided__missing" id="knGuidedMissing" aria-live="polite"></span>' : '')
-      + '<button class="btn btn--ghost" type="button" id="knEdCancel">Cancel</button>'
-      + (showCreate ? '<button class="btn btn--primary" type="submit" id="knGuidedCreate">Create draft and open editor</button>' : '')
-      + '</div></form>';
-    var form = $('knEdForm');
-    knEdWire(form);
-    $('knEdCancel').addEventListener('click', function () {
-      guardThen(function () { knEd = null; location.hash = hashString('knowledge', { q: knParams().q, family: knParams().family }); });
-    });
-    var openBtn = $('knGuidedOpen');
-    if (openBtn) openBtn.addEventListener('click', function () {
-      var id = $('knGuidedTopic') && $('knGuidedTopic').value;
-      if (!id) return;
-      knLeaveGuard().leave(function () { knEd = null; location.hash = knViewHref(id, 'edit'); });
-    });
-    knGuidedUpdate();
-    knEdAfterRender(opts);
-  }
-  function knGuidedCreate() {
-    if (!knEd || !knEd.guided || knEd.saving) return;
-    knFlushPending();
-    var miss = knGuidedMissing();
-    if (miss.length) { knGuidedRender(); knEdNotice('bad', 'Not created yet: ' + miss.join(', ') + '.'); return; }
-    knEd.saving = true;
-    knEdUpdateStatus();
-    var btn = $('knGuidedCreate');
-    if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
-    var ed = knEd;
-    var body = { content: ed.content };
-    if (ed.createdFrom) body.createdFrom = ed.createdFrom.knowledgeId;
-    knApi('POST', '/admin/knowledge/draft', body).then(function (res) {
-      ed.saving = false;
-      if (knEd !== ed) return;
-      if (res.status === 200 && res.data && res.data.knowledgeId) {
-        knInvalidateList();
-        knListAll = null;
-        knEd = null; // created and saved: nothing unsaved to protect
-        location.replace(knViewHref(res.data.knowledgeId, 'edit'));
-        return;
-      }
-      if (btn) { btn.disabled = false; btn.textContent = 'Create draft and open editor'; }
-      knGuidedRender();
-      if (res.status === 401) return;
-      knEdShowErrors((res.data && res.data.errors) || [], true);
-      knEdNotice('bad', res.status === 409 ? 'A topic with that id already exists. Choose a different topic id, or improve the existing topic instead.' : knErrMessage(res, 'The draft could not be created.'));
-    }).catch(function () {
-      ed.saving = false;
-      if (btn) { btn.disabled = false; btn.textContent = 'Create draft and open editor'; }
-      knEdNotice('bad', 'Could not reach the server. Nothing was created; your entries are still here.');
-    });
-  }
-
-  // ---- publish review (record page): compact summary before the explicit confirmation --------
-  function knEnsureReviewDlg() {
-    var d = $('knReviewDlg');
-    if (d) return d;
-    d = document.createElement('dialog');
-    d.id = 'knReviewDlg';
-    d.className = 'st-dlg kn-review-dlg';
-    d.setAttribute('aria-labelledby', 'knReviewTitle');
-    document.body.appendChild(d);
-    return d;
-  }
-  function knOpenReview(rec) {
-    var a = rec.admin;
-    var dlg = knEnsureReviewDlg();
-    var R = Kn.publishReview(a.draft, a);
-    var row = function (k, v) { return '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>'; };
-    dlg.innerHTML = '<div class="st-dlg__form">'
-      + '<h2 class="admin__h2" id="knReviewTitle">Review before publishing</h2>'
-      + '<dl class="kn-ov kn-ov--compact">'
-      + row('Title', R.title) + row('Appliance / topic', R.family + ' · ' + R.faultId)
-      + row('Publishes as', 'v' + R.nextVersion + (R.isNew ? ' (adds a new topic)' : ' (replaces the live version)'))
-      + row('Customer phrases', String(R.symptoms)) + row('Likely causes', String(R.causes))
-      + row('Questions', String(R.questions)) + row('Before replacing a part', R.advice + ' item(s)')
-      + row('Safety', R.safety || 'None') + row('Handling', R.outcome)
-      + row('Changed', R.changed.length ? R.changed.join(', ') : (R.isNew ? 'New topic' : 'No field changes'))
-      + '</dl>'
-      + '<div id="knReviewCheck" class="kn-ready" role="status" aria-live="polite"><p class="kn-ready__state">Checking the draft…</p></div>'
-      + '<div class="kn-ed__field"><label for="knPublishNote">Change note (optional)</label><input id="knPublishNote" type="text" maxlength="300" autocomplete="off" placeholder="What changed and why" /></div>'
-      + '<div class="st-dlg__actions"><button class="btn btn--ghost" type="button" id="knReviewCancel">Cancel</button>'
-      + '<button class="btn btn--primary" type="button" id="knReviewGo" disabled>Publish v' + R.nextVersion + '…</button></div></div>';
-    var close = function () { if (dlg.open) dlg.close(); };
-    $('knReviewCancel').addEventListener('click', close);
-    dlg.addEventListener('cancel', function () { /* Escape closes */ }, { once: true });
-    $('knReviewGo').addEventListener('click', function () {
-      // The existing explicit confirmation is still the last step.
-      if (!window.confirm(Kn.publishConfirmText(R.title, R.nextVersion, a.pendingChanges, R.isNew))) return;
-      var note = ($('knPublishNote') && $('knPublishNote').value) || '';
-      close();
-      knDoPublish(rec, note);
-    });
-    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
-    $('knReviewCancel').focus();
-    knApi('POST', '/admin/knowledge/validate?id=' + encodeURIComponent(rec.knowledgeId), { content: a.draft }).then(function (res) {
-      var host = $('knReviewCheck');
-      if (!host) return;
-      if (res.status !== 200) { host.innerHTML = '<p class="kn-ready__state">Could not pre-check the draft. Publishing still runs the full check.</p>'; $('knReviewGo').disabled = false; return; }
-      var errs = res.data.errors || [];
-      if (!errs.length) { host.className = 'kn-ready kn-ready--ok'; host.innerHTML = '<p class="kn-ready__state"><b>Ready to publish</b></p>'; $('knReviewGo').disabled = false; $('knReviewGo').focus(); return; }
-      host.className = 'kn-ready kn-ready--bad';
-      host.innerHTML = '<p class="kn-ready__state"><b>Needs attention before publishing (' + errs.length + ')</b></p><ul class="kn-ready__errs">'
-        + errs.map(function (e) { return '<li>' + esc(Kn.fieldLabel(e.field)) + ': ' + esc(e.message) + '</li>'; }).join('') + '</ul>'
-        + '<p><a class="btn btn--primary" href="' + esc(knViewHref(rec.knowledgeId, 'edit')) + '" id="knReviewFix">Fix in editor</a></p>';
-      $('knReviewFix').addEventListener('click', close);
-    });
-  }
-
-  // ---- version history ----------------------------------------------------------------------
-  function knShowHistory(id, v) {
-    var panel = $('knDetail');
-    if (panel) { panel.hidden = false; panel.innerHTML = '<div class="tac__muted">Loading version history…</div>'; }
-    knOpenId = id;
-    knApi('GET', '/admin/knowledge/versions?id=' + encodeURIComponent(id)).then(function (res) {
-      if (knOpenId !== id || res.status === 401) return;
-      if (res.status !== 200) { panel.innerHTML = knEmpty(knErrMessage(res, 'Could not load version history.')); return; }
-      var h = res.data;
-      var current = h.currentVersion || 0;
-      var next = current + 1;
-      var rows = (h.versions || []).map(function (x) {
-        var live = !h.archived && (x.version === current) && (current > 0 || x.version === 0);
-        var bits = [];
-        if (x.publishedAt) bits.push(fmtWhen(x.publishedAt) + (x.publishedBy ? ' by ' + x.publishedBy : ''));
-        if (x.note) bits.push('“' + x.note + '”');
-        if ((x.changed || []).length) bits.push('Changed: ' + Kn.changeSummary(x.changed).join(', '));
-        var canRb = !live && !h.archived && !h.draftPending && current > 0;
-        return '<li class="kn-ver' + (live ? ' is-live' : '') + '">'
-          + '<div class="kn-ver__main"><b>' + esc(Kn.versionLabel(x)) + '</b>' + (live ? ' <span class="kn-state kn-state--published">Live</span>' : '')
-          + (bits.length ? '<p class="tx__sub">' + esc(bits.join(' · ')) + '</p>' : '') + '</div>'
-          + '<div class="kn-ver__btns"><a class="btn btn--ghost" href="' + esc(knViewHref(id, 'history', { v: String(x.version) })) + '">View</a>'
-          + (canRb ? '<button class="btn btn--ghost kn-rollbackbtn" type="button" data-kn-rollback="' + x.version + '">' + knIco('rollback') + 'Roll back to this</button>' : '')
-          + '</div></li>';
-      }).join('');
-      var note = h.draftPending ? '<p class="tx__sub">Rollback is unavailable while a draft is pending. Publish or discard it first.</p>'
-        : (h.archived ? '<p class="tx__sub">Restore this record to roll back.</p>' : '');
-      panel.innerHTML = '<div class="kn-detail__head"><div><p class="kn-detail__fam">Version history</p>'
-        + '<h2 class="kn-detail__title">' + esc(id) + '</h2>'
-        + '<p class="tx__sub">' + knStateChipHtml(h) + ' Live: ' + esc(h.archived ? 'archived' : (h.liveVersionLabel || 'not published')) + '</p></div></div>'
-        + '<p class="kn-notice" id="knNotice" tabindex="-1" role="status" aria-live="polite" hidden></p>'
-        + note
-        + (rows ? '<ol class="kn-vers">' + rows + '</ol>' : knEmpty('Nothing has been published yet.'))
-        + '<div id="knVerDetail"></div>';
-      Array.prototype.forEach.call(panel.querySelectorAll('[data-kn-rollback]'), function (b) {
-        b.addEventListener('click', function () {
-          var to = Number(b.getAttribute('data-kn-rollback'));
-          if (!window.confirm(Kn.rollbackConfirmText(id, to, next))) return;
-          Array.prototype.forEach.call(panel.querySelectorAll('button'), function (x) { x.disabled = true; });
-          b.textContent = 'Rolling back…';
-          knNotice('', 'Rolling back: waiting for production to load v' + next + '…');
-          knApi('POST', '/admin/knowledge/rollback?id=' + encodeURIComponent(id), { expectedRevision: h.revision, toVersion: to }).then(function (r2) {
-            if (r2.status === 200) { knInvalidateList(); knShowHistory(id); setTimeout(function () { knNotice('ok', 'Rolled back. v' + next + ' is live with the content of ' + (to === 0 ? 'the baseline' : 'v' + to) + '.'); }, 50); return; }
-            knShowHistory(id); setTimeout(function () { knNotice('bad', knErrMessage(r2, 'Rollback failed. The live version is unchanged.')); }, 50);
-          });
-        });
-      });
-      if (v != null && v !== '') knShowVersion(id, v);
-    });
-  }
-  function knShowVersion(id, v) {
-    var host = $('knVerDetail');
-    if (!host) return;
-    host.innerHTML = '<div class="tac__muted">Loading version…</div>';
-    knApi('GET', '/admin/knowledge/versions?id=' + encodeURIComponent(id) + '&v=' + encodeURIComponent(v)).then(function (res) {
-      if (res.status !== 200) { host.innerHTML = knEmpty(knErrMessage(res, 'Version not found.')); return; }
-      var x = res.data;
-      var c = x.content || {};
-      host.innerHTML = '<section class="kn-sec kn-verview"><h3 class="kn-sec__h">' + esc(Kn.versionLabel(x)) + ' — ' + esc(c.label || '') + '</h3>'
-        + '<dl class="kn-ov"><dt>Outcome</dt><dd>' + esc(c.outcome || '') + '</dd><dt>Provenance</dt><dd>' + esc(c.provenance || '') + '</dd>'
-        + '<dt>Safety</dt><dd>' + esc(c.safetyInformation ? ((Kn.safetyLabel && Kn.safetyLabel(c.safetyInformation.classification)) || c.safetyInformation.classification) : 'None') + '</dd></dl>'
-        + '<h4 class="kn-sec__h">Customer symptoms</h4>' + knChips(c.symptoms, 'No customer symptoms recorded')
-        + '<h4 class="kn-sec__h">Likely causes / components</h4>' + ((c.components || []).length ? (c.components || []).map(knEvidenceBlock).join('') : knEmpty('No components recorded'))
-        + '<h4 class="kn-sec__h">Advice before replacement</h4>' + knListOrEmpty(c.adviceBeforeReplacement, 'No advice-before-replacement recorded')
-        + (x.text ? '<details class="kn-tech"><summary>Indexed text</summary><pre>' + esc(x.text) + '</pre></details>' : '')
-        + '<details class="kn-tech"><summary>Raw version JSON</summary><pre>' + esc(JSON.stringify(c, null, 2)) + '</pre></details>'
-        + '</section>';
-    });
-  }
   // ---- THE unsaved-changes guard for the whole Admin (sidebar, in-page links/Back/Cancel, browser
-  // Back, tab close). Editors: Knowledge (knEd), Error Codes (ecEd), Media (mdEd), Safety listing
+  // Back, tab close). Editors: Error Codes (ecEd), Media (mdEd), Safety listing
   // decisions (rcEd), Test → Scenarios (edState), Settings inference (stEd), plus small forms
   // registered with guardForm() (batch review note, override decision reason, Settings Jev / key dialogs).
   var _knGuard = null;
@@ -3418,14 +2270,13 @@
   function knLeaveGuard() {
     if (_knGuard) return _knGuard;
     _knGuard = Kn.createLeaveGuard({
-      isDirty: function () { return !!((knEd && knEd.dirty) || (ecEd && ecEd.dirty) || (mdEd && mdEd.dirty) || (rcEd && rcEd.dirty) || (edState && edState.dirty) || (stEd && stEd.dirty) || dirtyForm()); },
+      isDirty: function () { return !!((ecEd && ecEd.dirty) || (mdEd && mdEd.dirty) || (rcEd && rcEd.dirty) || (edState && edState.dirty) || (stEd && stEd.dirty) || dirtyForm()); },
       ask: knAskLeave,
-      discard: function () { discardForms(); knEd = null; ecEd = null; mdEd = null; rcEd = null; edState = null; stDiscardEditor(); },
+      discard: function () { discardForms(); ecEd = null; mdEd = null; rcEd = null; edState = null; stDiscardEditor(); },
     });
     return _knGuard;
   }
   function dirtyEditor() {
-    if (knEd && knEd.dirty) return knEd;
     if (ecEd && ecEd.dirty) return ecEd;
     if (mdEd && mdEd.dirty) return mdEd;
     if (rcEd && rcEd.dirty) return rcEd;
@@ -3501,7 +2352,7 @@
   var knCameFromList = false;
   function knShowList(params) {
     knApplyParams(params);
-    knOpenId = null; knWantedId = null;
+    knOpenId = null;
     loadKnowledge();
     if (knListScrollY != null) {
       var y = knListScrollY; knListScrollY = null;
@@ -3519,24 +2370,16 @@
     if ($('knDetailPage')) $('knDetailPage').hidden = false;
     var back = $('knBackLink');
     var listHref = hashString('knowledge', { q: (params && params.q) || '', family: (params && params.family) || '' });
-    var view = (params && params.view) || '';
-    var sub = id !== 'new' && (view === 'edit' || view === 'history');
     if (back) {
-      back.setAttribute('href', sub ? knDetailHref(id, { q: (params && params.q) || '', family: (params && params.family) || '' }) : listHref);
-      back.textContent = sub ? '← Back to record' : '← Back to Knowledge';
-      back.setAttribute('data-sub', sub ? '1' : '');
+      back.setAttribute('href', listHref);
+      back.textContent = '← Back to Knowledge';
+      back.setAttribute('data-sub', '');
     }
     window.scrollTo(0, 0);
-    if (knEd && !(view === 'edit' && knEd.id === id)) knEd = null;
-    if (id === 'new') { knShowCreate(params); return; }
-    if (view === 'edit') { knShowEditor(id); return; }
-    if (view === 'history') { knShowHistory(id, params && params.v); return; }
-    knPendingReview = params && params.review ? id : null;
     knOpen(id);
   }
-  function knOpen(id, okMsg, badMsg) {
+  function knOpen(id) {
     if (!id) return;
-    knWantedId = id;
     knOpenId = id;
     var loading = $('knDetail');
     if (loading) { loading.hidden = false; loading.innerHTML = '<div class="tac__muted">Loading knowledge record…</div>'; }
@@ -3553,12 +2396,6 @@
           return;
         }
         knRenderDetail(d);
-        if (knPendingReview === id) {
-          knPendingReview = null;
-          if (d.admin && d.admin.canPublish) knOpenReview(d);
-        }
-        if (okMsg) knNotice('ok', okMsg);
-        if (badMsg) knNotice('bad', badMsg);
       })
       .catch(function () {
         knRenderDetail(null);
@@ -3582,7 +2419,7 @@
     });
     if ($('knBackLink')) $('knBackLink').addEventListener('click', function (e) {
       // editor/history → the record page; record → back to the list it came from (filters + scroll).
-      guardedBack(e, $('knBackLink'), function () { return knCameFromList; }, function () { knEd = null; });
+      guardedBack(e, $('knBackLink'), function () { return knCameFromList; }, function () {});
     });
   }
   // The list page. Always shows the list view (also when reached from the nav while a record was open).
@@ -3592,7 +2429,7 @@
     if (!list) return;
     if ($('knDetailPage')) $('knDetailPage').hidden = true;
     if ($('knListView')) $('knListView').hidden = false;
-    knOpenId = null; knWantedId = null;
+    knOpenId = null;
     var route = parseHash();
     if (route.section === 'knowledge' && !route.sub) knApplyParams(route.params);
     if (knCache) {
@@ -3623,10 +2460,8 @@
   // Live boundary (enforced by the BFF store): Save draft (text or a replacement file) never changes what
   // customers see. Publish, Rollback, Archive, Restore and diagnostic attach/detach do. Every change to an
   // existing item sends the revision it was made from.
-  var mediaItems = [];
   var mdCache = null;
   var mdWired = false;
-  var mdWantedId = null;      // deep-linked record (#media/<id>)
   var mdOpenId = null;
   var mdEd = null;            // editor state { id, isNew, base, dirty, hash, saving, revision, ... }
   var mdPendingReview = null;
@@ -3834,7 +2669,6 @@
       .then(function (d) {
         if (!d) return null;
         mdCache = d;
-        mediaItems = d.records || [];
         return d;
       });
   }
@@ -3845,7 +2679,7 @@
     if (!list) return;
     if ($('mdDetailPage')) $('mdDetailPage').hidden = true;
     if ($('mdListView')) $('mdListView').hidden = false;
-    mdOpenId = null; mdWantedId = null;
+    mdOpenId = null;
     var route = parseHash();
     if (route.section === 'media' && !route.sub) mdApplyParams(route.params);
     if (mdCache) {
@@ -3888,7 +2722,6 @@
     window.scrollTo(0, 0);
     if (mdEd && !((view === 'edit' && mdEd.id === id) || (id === 'new' && mdEd.isNew))) mdEd = null;
     if (id === 'new') { mdRenderEditor(null); return; }
-    mdWantedId = id;
     if (view === 'edit') { mdShowEditor(id); return; }
     if (view === 'history') { mdShowHistory(id, params.v); return; }
     mdPendingReview = params.review ? id : null;
@@ -4619,8 +3452,6 @@
     var Dg = window.DgLogic || {};
     var comps = $('dgComponents');
     var status = $('dgStatus');
-    var runtime = $('dgRuntime');
-    var tech = $('dgTechnical');
     if (!comps) return;
     if (status) status.textContent = 'Checking deployed components…';
     comps.setAttribute('aria-busy', 'true');
@@ -4726,11 +3557,6 @@
       html += dgKv('Orchestrator timeout', rt.orchestratorTimeoutMs != null ? rt.orchestratorTimeoutMs + ' ms' : null);
       html += dgKv('Media overlay cache TTL', rt.mediaOverlayCacheTtlMs != null ? Math.round(rt.mediaOverlayCacheTtlMs / 1000) + ' seconds' : null);
       html += dgKv('Supported appliance families', (rt.supportedFamilies && rt.supportedFamilies.length) ? rt.supportedFamilies.join(', ') : null);
-      if (rt.ragIndex) {
-        html += dgKv(rt.ragIndex.source === 'part-finder' ? 'RAG embed model (Part Finder runtime)' : 'RAG embed model (bundled reference)', rt.ragIndex.embedModel);
-        html += dgKv(rt.ragIndex.source === 'part-finder' ? 'RAG index version (Part Finder runtime)' : 'RAG index version (bundled reference)', rt.ragIndex.version);
-        html += dgKv('RAG dimensions', rt.ragIndex.dims);
-      }
       if (models.understand) {
         html += dgKv('UNDERSTAND', (models.understand.providerLabel || models.understand.provider || '') + ' · ' + (models.understand.modelLabel || models.understand.model || 'Version not exposed by runtime'));
       }
@@ -4981,7 +3807,6 @@
     }).join('');
   }
   function ecCardHtml(r) {
-    var Ec = ecLogic();
     var meaning = r.meaning || 'No stored meaning';
     if (meaning.length > 140) meaning = meaning.slice(0, 137) + '…';
     var appNote = r.applicabilityNote ? ' · ' + r.applicabilityNote : '';
@@ -6686,9 +5511,7 @@
   var wbPendingImage = null;
   var wbLastError = null;
   var wbLastView = null;
-  var wbLastRequest = null;
   var wbLastDurationMs = null;
-  var wbScenarioId = null;
   var wbScenarioTitle = null;
   var wbLaterTurns = [];
   var wbWired = false;
@@ -7132,10 +5955,8 @@
     wbMessages = wbConv.messages;
     wbLastError = null;
     wbLastView = null;
-    wbLastRequest = null;
     wbLastDurationMs = null;
     if (!opts.keepScenario) {
-      wbScenarioId = null;
       wbScenarioTitle = null;
       wbLaterTurns = [];
     }
@@ -7171,7 +5992,6 @@
       wbShowError(new Error('Refusing to send observability on a test conversation.'));
       return;
     }
-    wbLastRequest = body;
     var started = Date.now();
     var thinking = wbAddThinking();
     wbSetBusy(true);
@@ -7182,7 +6002,7 @@
       body: JSON.stringify(body),
     }).then(function (r) {
       return r.text().then(function (raw) {
-        var parsed = null;
+        var parsed;
         try { parsed = raw ? JSON.parse(raw) : null; } catch (e) { parsed = null; }
         return { ok: r.ok, status: r.status, body: parsed, raw: raw };
       });
@@ -7347,7 +6167,6 @@
         var journey = Cts ? Cts.customerJourney(v) : { opener: v.opening || (v.turns && v.turns[0]) || '', later: (v.turns || []).slice(1) };
         var later = Cts ? Cts.suggestedLaterTurns(v) : journey.later;
         wbReset();
-        wbScenarioId = j.journeyId;
         wbScenarioTitle = j.title;
         wbLaterTurns = later.slice();
         var input = wbEl('wbInput');
@@ -7980,7 +6799,6 @@
         if (active && !acqActivePoll) tacPollRun(active.runId, true);
       }).catch(function () {});
   }
-  function tacViewRun(runId) { location.hash = tacRunHref(runId); }
 
   // ===== Conversation review =============================================
   var DIM_LABELS = { DIAGNOSTIC_CORRECTNESS: 'Diagnosis', REASONING_DISCRIMINATION: 'Reasoning', QUESTION_QUALITY: 'Questions', CONVERSATION_EFFICIENCY: 'Efficiency', GROUNDING_CLAIM_DISCIPLINE: 'Grounding', CUSTOMER_ANSWER_QUALITY: 'Answer quality', SAFETY: 'Safety' };
@@ -8048,7 +6866,7 @@
   }
   function tacExpectedActualHtml(expected, actual) {
     function line(label, val) { return '<div class="tac__ea-row"><span>' + esc(label) + '</span><b>' + val + '</b></div>'; }
-    var exp = '';
+    var exp;
     if (expected) {
       var e = [];
       if (expected.outcome) e.push(line('Outcome', esc(expected.outcome === 'SAFETY_STOP' ? 'Safety stop (no diagnosis/parts)' : expected.outcome)));
@@ -8165,7 +6983,6 @@
         }).catch(function () { if (res) { res.textContent = 'Network error — the review was not saved.'; res.className = 'tac__revresult is-bad'; } });
     });
   }
-  function tacIndexOf(list, journeyId) { for (var i = 0; i < list.length; i++) if (list[i].journeyId === journeyId) return i; return -1; }
 
   function tacCompare() {
     if (acqSelected.length !== 2) return;

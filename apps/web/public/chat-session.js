@@ -6,7 +6,7 @@
  *
  * Works in the browser (window.ACChatSession) and in Node tests (module.exports).
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.ACChatSession = api;

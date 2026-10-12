@@ -2,7 +2,7 @@
  * Diagnostics inspector — presentation helpers (no DOM, no diagnosis).
  * Read-only admin visibility. Not used by customer diagnosis.
  */
-(function (root, factory) {
+(/** @param {any} root @param {() => any} factory */ function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.DgLogic = api;
