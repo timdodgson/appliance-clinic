@@ -172,7 +172,7 @@ them with the live function after every runtime change.
 
 `spares4repairs-part-finder` (Function URL auth `NONE`, CORS `*`) was the shared engine before Phase 15. It is left
 physically untouched and still serves S4R, an external consumer. AC sends it no traffic after the cutover. Its CDK
-ownership outcome is in the [Phase 15 results](../evaluation/phase-15-results.md). <!-- P15: ownership outcome -->
+ownership was relinquished with zero physical change (change 15.3; [Phase 15 results](../evaluation/phase-15-results.md)).
 
 **Residual coupling.** It still runs in AC's AWS account, on `ac-diagnosis-role`, with AC secrets and AC's Jev credit.
 Changing any of those would modify resources it depends on, which Phase 15 deliberately does not do.

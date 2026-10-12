@@ -5,7 +5,7 @@ Phase 15 implemented [ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine
 - The legacy diagnosis code is deleted from AC.
 - The old shared engine, `spares4repairs-part-finder`, is not modified and receives no AC traffic.
 
-Tracking issue: <!-- P15: issue number -->
+Pull request: #121.
 
 ## New engine resource
 
@@ -14,13 +14,13 @@ Tracking issue: <!-- P15: issue number -->
 | Lambda | `applianceclinic-diagnosis-engine`, handler `handler.handler`, nodejs22.x |
 | Source | `services/diagnosis-engine/` (moved from `services/part-finder/`; git history keeps the old code) |
 | Created by | `AcRuntimeStack`, through `infra/production/steps/change.sh`; overrides under `functions.applianceclinic-diagnosis-engine.create` |
-| Function URL | `AWS_IAM`, `BUFFERED`, no CORS. <!-- P15: URL host --> |
+| Function URL | `AWS_IAM`, `BUFFERED`, no CORS |
 | Execution role | `ac-diagnosis-engine-role`: own log group; `GetSecretValue` on `applianceclinic/production/{ai-config,openai,jev}`; `PutObject` on `learning/feedback/*`; read `media-admin/*` |
 | Callers | `diag-orchestrator-role` (`DIAGNOSIS_ENGINE_URL`), `whichpart-api-role` (`ENGINE_URL`), via inline policy `ac-invoke-diagnosis-engine` |
 | Log group | `/aws/lambda/applianceclinic-diagnosis-engine`, 90-day retention |
 | Alarms | `-FailedTurns` (5 or more in 5 minutes), `-RefusedRequests` (1 or more), `-Errors`, `-Throttles`. No notification target yet |
-| Code SHA-256 | <!-- P15: code SHA-256 --> |
-| Change spec | <!-- P15: change id(s) --> |
+| Code SHA-256 | `alagHdzdHKAG8tVNg+dDvDbCa94JLsEABrrAHGpAuKw=` (reference `build/reference/applianceclinic-diagnosis-engine.zip.json`) |
+| Change specs | 15.1a (role, caller policies), 15.1b (log group, metric filters), 15.1c (alarms), 15.1d (function, URL) |
 
 ## Canonical modules retained, legacy deleted
 
@@ -37,81 +37,82 @@ Tracking issue: <!-- P15: issue number -->
 
 ## Line reduction
 
-| Area | Before | After |
+| Area | Before (`8fce213`) | After |
 |---|---|---|
-| Diagnosis engine runtime | <!-- P15: lines before --> | <!-- P15: lines after --> |
-| whichpart-api runtime | <!-- P15: lines before --> | <!-- P15: lines after --> |
-| Tests | <!-- P15: lines before --> | <!-- P15: lines after --> |
+| Diagnosis engine runtime JavaScript | 24,836 | 15,923 |
+| Diagnosis engine tests | 21,714 | 12,435 |
+| whichpart-api runtime JavaScript | 20,048 | 18,806 |
+| Migration tooling (`tools/migration`) | 6,591 | 6,030 |
+| Whole repository, code and config (docs excluded) | | 414 files changed: +3,295, −24,403 |
 
-## Tests removed and retained
+## Tests
 
-| Suite | Before | After |
+| | Before | After |
 |---|---|---|
-| Runtime test files (all) | 204, all pass at `main` `8fce213` | <!-- P15: after total and result --> |
-| Diagnosis engine test files | 137 | 90 (41 legacy-only removed; <!-- P15: others merged or rewritten -->) |
-| whichpart-api test files | 46 | 45 + 1 new (<!-- P15: names -->) |
-| Typecheck, tooling, lint | Clean, 796/796, clean | <!-- P15: results --> |
+| Runtime test files (all) | 204, all pass at `main` `8fce213` | **163, ALL PASS** |
+| Diagnosis engine test files | 137 | 90: 41 legacy-only files removed; `engine-adr0018-enforcement` replaced by `engine-signed-boundary`; `media-neutrality` rewritten on the canonical path; `health`, `engine-structure` and the canonical harness tests rewritten for the signed, buffered handler |
+| whichpart-api test files | 46 | 46: `knowledge-admin.test.mjs` removed with the workflow; `engine-signature.test.mjs` added (SigV4 vectors cross-checked against botocore) |
+| Orchestration | | `test_engine_request_signing.py` added (HMAC + SigV4) |
+| Typecheck, tooling, lint | Clean, 742, clean | Clean, **724/724** (18 tests went with the deleted S4R gate commands), clean |
 
-Removed files are recorded under `removed` in `docs/migration/runtime-changes.json` with their reasons.
+No test is skipped or marked as an expected failure.
 
-## Cutover evidence
+## Cutover
 
-<!-- P15: cutover sequence: engine created, orchestrator switched to DIAGNOSIS_ENGINE_URL, whichpart-api switched to the
-IAM ENGINE_URL; times, change ids and first signed calls -->
+1. 15.1a to 15.1d created the engine; its health reported 63 journeys, Jev and LM Studio configured, the media baseline loaded. An unsigned request got 401.
+2. 15.2 switched the orchestrator (`DIAGNOSIS_ENGINE_URL`, image with SigV4 signing) and whichpart-api (`ENGINE_URL`, SigV4 on feedback and health probes) at 07:02 UTC. The first attempt failed before any function changed (the grant lacked `iam:PassRole`, which a configuration update needs) and its rollback failed for the same reason; the owner approved `continue-update-rollback` skipping the two unchanged functions, drift was IN_SYNC, and the corrected change applied.
+3. 15.4 shipped the orchestrator without the dead legacy code.
+
+Every change: template equal to the deployed one except the named resources, change set exactly the spec's, drift IN_SYNC, deployed configuration equal to `runtime-overrides.json`, the same template a no-op, CloudTrail writes only on the spec's resources.
 
 ## Signed AC traffic to the old engine
 
-| Window | Signed AC calls to `spares4repairs-part-finder` |
+| Window | Signed AC requests to `spares4repairs-part-finder` |
 |---|---|
 | 7 days before the cutover | 8,604 |
-| After the cutover | <!-- P15: after count and window --> |
+| 24 hours before the cutover | 5,413 |
+| After the cutover (07:02 UTC onwards, AC logs) | **0** (no AC request of any kind) |
 
-## Proof the old engine was not modified
+The new engine's log group shows the same AC traffic, signed and served (understand and diagnose, all ok).
 
-<!-- P15: configuration, code SHA-256, URL auth and CORS, role and policy before and after; CloudTrail shows no write
-to the function, its URL, permissions or role -->
+## The old engine was not modified
 
-## CDK ownership outcome
+A fingerprint of the old engine was taken before and after release 15.3: its configuration, code SHA-256 (`ddicbVOIrPHVuo6V94c2SZ6/mpHIenObwKl5KK3KelY=`), Function URL configuration, resource policy, reserved concurrency, `ac-diagnosis-role` and its five inline policies. The two were identical. CloudTrail for 15.3 shows no write at all. No change in this phase targeted the old engine: each spec lists it as a forbidden resource.
 
-<!-- P15: ownership outcome (relinquished from AcRuntimeStack with Retain and zero physical change, with the change-set
-proof; or blocked, with the reason) -->
+## CDK ownership
 
-## Remaining S4R references, and why
+**Relinquished with zero physical change** (change 15.3). The change set held exactly ten `Remove` actions (the function, its URL, its two resource-policy statements, `ac-diagnosis-role` and its five inline policies), each with `PolicyAction: Retain`, and no Delete, Replace or Modify. AcRuntimeStack no longer declares, captures or reads them; the read-only execution policy no longer covers them.
+
+## Remaining S4R references
 
 | Reference | Why it stays |
 |---|---|
-| S4R Parts Catalogue client, `PARTS_FOR_MODEL_API` | External service AC calls as a client |
-| `S4R_PRODUCT_BASE_URL` | External shop links |
-| `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp`, their ECR repositories | Renaming means replacing the function |
-| `spares4repairs/dev/applianceclinic-*` secret names | Historical physical names, where still present |
-| `docs/migration/s4r-denylist.json` and the denylist guards | AC tooling must never touch S4R resources |
-| Historical phase results and runbooks | Kept as written |
-| S4R gates in `tools/` and `infra/` scripts | Retired; removal in a follow-up step <!-- P15: follow-up --> |
-| `.github/pull_request_template.md` "/part-finder contract test result" | <!-- P15: follow-up --> |
-| <!-- P15: others --> | |
+| `PARTS_FOR_MODEL_API` (S4R Parts Catalogue) and `S4R_PRODUCT_BASE_URL` (S4R Shop links) | The one permitted relationship: outbound, to an external service |
+| `ac-deny-s4r`, the S4R denylist, `s4r-boundary.sh`, the S4R pool rejection in `verify-ac-auth.sh` | Guards that AC never writes to S4R resources; they test nothing of S4R's behaviour |
+| AC resources named `spares4repairs-*` (`spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp`, their ECR repositories, the `spares4repairs/dev/applianceclinic-*` secrets) | Historical physical names; renaming replaces the resource |
+| Historical change specs, phase results, runbooks and ADRs | Records; not rewritten |
+| Phase 4 sandbox tooling and fixtures in `tools/migration` | Historical tooling; it gates nothing in production |
+
+## Residual coupling
+
+The old engine still runs in AC's AWS account with `ac-diagnosis-role`, AC's secrets and AC's Jev credit, for its external consumer. Changing any of that would modify resources the old engine depends on, which this phase deliberately did not do.
 
 ## GOLD
 
-Exactly two runs, 20 minutes apart, on the deployed build. No exploratory GOLD.
-
-| Run | Build | Score | Critical failures |
-|---|---|---|---|
-| 1 | <!-- P15: SHA --> | <!-- P15: score --> | <!-- P15 --> |
-| 2 | <!-- P15: SHA --> | <!-- P15: score --> | <!-- P15 --> |
+<!-- P15: GOLD -->
 
 ## Production checks
 
-<!-- P15: AC endpoints, auth, bearer, live AC journeys, engine /health, alarms state, stack drift, overrides equal to
-runtime-overrides.json, CloudTrail -->
-
-## Pull requests and commits
-
-| PR | Merge SHA | What |
-|---|---|---|
-| <!-- P15: PR --> | <!-- P15: SHA --> | <!-- P15 --> |
+AC bearer checks 5/5 (old orchestrator and MCP bearers refused, current accepted); live AC journeys (gas stop, intake, washing-machine drain journey, code meaning, unsafe decline); engine health; stack drift IN_SYNC; overrides equal to `runtime-overrides.json`; build equivalence of the engine zip, the whichpart-api zip and the orchestrator image with the deployed builds.
 
 ## Releases
 
-| Release | Unit | What |
+| Change | Unit | What |
 |---|---|---|
-| <!-- P15: release id --> | <!-- P15: unit --> | <!-- P15 --> |
+| 15.1a | IAM | `ac-diagnosis-engine-role`; caller invoke policies |
+| 15.1b | Logs | Engine log group and metric filters |
+| 15.1c | CloudWatch | Engine alarms |
+| 15.1d | applianceclinic-diagnosis-engine | Function and IAM Function URL |
+| 15.2 | orchestrator, whichpart-api | Cutover |
+| 15.3 | AcRuntimeStack | Shared engine released (Retain, no physical change) |
+| 15.4 | orchestrator | Dead legacy code removed |

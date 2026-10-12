@@ -172,7 +172,7 @@ engine instead of changing the shared one:
 
 The old engine was **not modified**. It keeps serving S4R, which is now an external consumer, and AC sends it no
 traffic. Its CDK ownership is relinquished with zero physical change, or reported blocked if that cannot be proven
-([results](../evaluation/phase-15-results.md)). <!-- P15: ownership outcome -->
+([results](../evaluation/phase-15-results.md)). AC released it from its CloudFormation stack with zero physical change.
 
 ## Trade-offs, honestly
 
