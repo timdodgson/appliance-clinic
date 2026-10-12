@@ -226,7 +226,8 @@ class OpenAICompatibleProvider {
     // status-check + graceful-degrade behaviour rather than retrying a 4xx/5xx.
     if (res.status !== 200) {
       // The provider's own error message (e.g. a context-length or schema error), bounded; never a credential.
-      const detail = String(res.body || '').replace(/\s+/g, ' ').slice(0, 300);
+      // Host names and URLs are removed: the local provider sits behind a private tunnel whose address is not logged.
+      const detail = String(res.body || '').replace(/https?:\/\/\S+/gi, '[url]').replace(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)+\.(?:dev|app|io|com|net|org|ai|uk|co)\b/gi, '[host]').replace(/\s+/g, ' ').slice(0, 300);
       return { status: res.status, text: '', usage: null, errorDetail: detail };
     }
     let text = '';
