@@ -137,8 +137,7 @@ describe('adapter boundary (adaptJevToIntent keeps intent.facts empty)', () => {
     expect(intent._jevEvidence).toBeTruthy();
     expect(intent._jevEvidence.source).toBe('jev');
     expect(factMap(intent._jevEvidence).get('noHeat')).toBe('TRUE');
-    // adaptJevToIntent itself does not populate intent.facts — the engine's fact-assembly
-    // boundary in part-finder-lambda.js merges _jevEvidence.facts in (tested below).
+    // adaptJevToIntent itself does not populate intent.facts; _jevEvidence is carried for observability.
     expect(Array.isArray(intent.facts)).toBe(true);
     expect(intent.facts.length).toBe(0);
     expect(intent.alreadyReplaced).toEqual([]);

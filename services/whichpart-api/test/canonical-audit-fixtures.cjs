@@ -3,7 +3,6 @@
  * Real canonical turns for the transcript-audit tests: the real engine merge + journey runtime + COMPOSE
  * (fake LM provider, no network), so the audit is built from exactly the structures production produces.
  */
-globalThis.awslambda = globalThis.awslambda || { streamifyResponse: (f) => f, HttpResponseStream: { from: (s) => s } };
 const L = require('../../diagnosis-engine/handler.js')._internal;
 const mc1 = require('../../diagnosis-engine/canonical/mc1.js');
 const REG = require('../../diagnosis-engine/canonical/journey-registry.js');

@@ -211,7 +211,7 @@ describe('adapter: Jev decisions → existing intent contract', () => {
   });
 
   // Typed INPUT scope/security classification (replaces the regex detectInjection gate).
-  // Jev decides meaning; part-finder-lambda applies the deterministic consequence.
+  // Jev decides meaning; the engine applies the deterministic consequence.
   it('exposes Jev prompt_attack as the typed input scope class', () => {
     const intent = adaptJevToIntent(ans({
       requestClass: { type: 'choice', choice: 'prompt_attack', confidence: 1, probabilities: { prompt_attack: 1 } },

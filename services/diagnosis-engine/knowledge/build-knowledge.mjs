@@ -10,23 +10,30 @@
  * engineer domain knowledge on top (e.g. oven base-element / FFD / commoned
  * neutrals) and can reorder components or add checks.
  *
- * Output: knowledge-docs.json  (consumed by build-index.mjs)
+ * Output: knowledge-docs.json, safety-information.json and media-information.json. The engine ships
+ * media-information.json; whichpart-api's read-only knowledge and media admin views read all three.
+ * Regenerating reproduces knowledge-docs.json and safety-information.json exactly. The shipped
+ * media-information.json also carries one mapping imported from production that overrides.json does
+ * not declare (vacuum:cuts-out -> vac-lost-suction); declare it before regenerating, or it is dropped.
  *
  * Usage: node build-knowledge.mjs
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { createRequire } from 'node:module';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CAT = JSON.parse(readFileSync(join(HERE, '..', 'faults-catalogue.json'), 'utf8'));
 const OVERRIDES = JSON.parse(readFileSync(join(HERE, 'overrides.json'), 'utf8'));
 const VERSION = OVERRIDES._version || '1.0.0';
 
-// SINGLE source of truth for canonical component identity: the same pure function the runtime uses
-// to key/lookup component media, imported directly so authored keys and runtime lookups never drift.
-const { canonicalComponent } = createRequire(import.meta.url)('../retrieval.js');
+// Canonical component identity: the slug media-information.json keys component media by.
+const canonicalComponent = (s) => String(s || '')
+  .toLowerCase()
+  .replace(/\([^)]*\)/g, ' ')
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim()
+  .replace(/\s+/g, '-');
 
 const titleCase = (s) => s.replace(/-/g, ' ');
 

@@ -10,12 +10,8 @@
  */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { createRequire } from 'node:module';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const here = path.dirname(fileURLToPath(import.meta.url));
 const api = require('../index.js');
 const aiConfig = require('../ai-config.js');
 const registry = require('../../diagnosis-engine/canonical/journey-registry.js');

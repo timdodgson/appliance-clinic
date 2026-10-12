@@ -9,7 +9,7 @@ const cs = require('../conversation-state.js');
 const tok = require('../state-token.js');
 const cs1 = require('../../diagnosis-engine/canonical/cs1.js');
 const { merge } = require('../../diagnosis-engine/canonical/merge.js');
-const { SECRETS, mockDdb, intentFor, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, intentFor, engineUnderstand } = require('./canonical-test-helpers.cjs');
 
 const NOW_MS = 1_800_000_000_000;
 const SHADOW = { CANONICAL_MODE: 'shadow' };
@@ -25,7 +25,7 @@ function setup() {
 /** One full shadow turn: prepare → "orchestrator" (real engine merge) → finish. */
 async function turn({ store, token, intent, newId = bytes24(1), env = SHADOW, out } = {}) {
   const ctx = await cs.prepareTurn({ body: token ? { stateToken: token } : {}, store, secrets: SECRETS, env, nowMs: NOW_MS, newId });
-  const result = ctx.block ? (out !== undefined ? out(ctx) : partFinderUnderstand(ctx.block, intent)) : undefined;
+  const result = ctx.block ? (out !== undefined ? out(ctx) : engineUnderstand(ctx.block, intent)) : undefined;
   const fin = await cs.finishTurn(ctx, result, { store, messageId: 'rid-1', nowMs: NOW_MS });
   return { ctx, result, fin };
 }
@@ -204,9 +204,9 @@ describe('per-turn protocol (prepare → orchestrator → finish)', () => {
     // Two turns prepared against version 1 concurrently.
     const a = await cs.prepareTurn({ body: { stateToken: t1.ctx.token }, store, secrets: SECRETS, env: SHADOW, nowMs: NOW_MS });
     const b = await cs.prepareTurn({ body: { stateToken: t1.ctx.token }, store, secrets: SECRETS, env: SHADOW, nowMs: NOW_MS });
-    const fa = await cs.finishTurn(a, partFinderUnderstand(a.block), { store, messageId: 'a', nowMs: NOW_MS });
+    const fa = await cs.finishTurn(a, engineUnderstand(a.block), { store, messageId: 'a', nowMs: NOW_MS });
     const winner = db.items.get('STATE#' + CSID).stateDigest.S;
-    const fb = await cs.finishTurn(b, partFinderUnderstand(b.block, intentFor({ applianceFamily: { type: 'choice', choice: 'dishwasher', confidence: 0.95, probabilities: { dishwasher: 0.95 } } })),
+    const fb = await cs.finishTurn(b, engineUnderstand(b.block, intentFor({ applianceFamily: { type: 'choice', choice: 'dishwasher', confidence: 0.95, probabilities: { dishwasher: 0.95 } } })),
       { store, messageId: 'b', nowMs: NOW_MS });
     expect(fa).toMatchObject({ written: true });
     expect(fb).toMatchObject({ written: false, degraded: 'conflict' });
@@ -220,7 +220,7 @@ describe('per-turn protocol (prepare → orchestrator → finish)', () => {
     // someone else advanced STATE without a record at v2 (simulated)
     const k = 'STATE#' + CSID;
     db.items.set(k, { ...db.items.get(k), stateVersion: { N: '9' } });
-    const fin = await cs.finishTurn(ctx, partFinderUnderstand(ctx.block), { store, messageId: 'x', nowMs: NOW_MS });
+    const fin = await cs.finishTurn(ctx, engineUnderstand(ctx.block), { store, messageId: 'x', nowMs: NOW_MS });
     expect(fin).toMatchObject({ written: false, recordWritten: true, degraded: 'conflict' });
     expect(db.items.get(k).stateVersion.N).toBe('9');
   });
@@ -234,11 +234,11 @@ describe('per-turn protocol (prepare → orchestrator → finish)', () => {
   it('invalid orchestrator output is never persisted', async () => {
     const cases = [
       [() => undefined, 'missing_output'],
-      [(c) => ({ ...partFinderUnderstand(c.block), degraded: 'merge_failed' }), 'upstream_merge_failed'],
-      [(c) => ({ ...partFinderUnderstand(c.block), sessionId: tok.newCanonicalSessionId(bytes24(5)) }), 'output_session_mismatch'],
-      [(c) => ({ ...partFinderUnderstand(c.block), version: 5 }), 'output_version_mismatch'],
-      [(c) => ({ ...partFinderUnderstand(c.block), state: { ...partFinderUnderstand(c.block).state, version: 4 } }), 'output_state_invalid'],
-      [(c) => ({ ...partFinderUnderstand(c.block), classification: null }), 'output_classification_missing'],
+      [(c) => ({ ...engineUnderstand(c.block), degraded: 'merge_failed' }), 'upstream_merge_failed'],
+      [(c) => ({ ...engineUnderstand(c.block), sessionId: tok.newCanonicalSessionId(bytes24(5)) }), 'output_session_mismatch'],
+      [(c) => ({ ...engineUnderstand(c.block), version: 5 }), 'output_version_mismatch'],
+      [(c) => ({ ...engineUnderstand(c.block), state: { ...engineUnderstand(c.block).state, version: 4 } }), 'output_state_invalid'],
+      [(c) => ({ ...engineUnderstand(c.block), classification: null }), 'output_classification_missing'],
     ];
     for (const [out, reason] of cases) {
       const { db, store } = setup();
@@ -313,7 +313,7 @@ describe('one-step replay (missed state write)', () => {
   });
   it('replay is the same pure merge the engine ran (deterministic)', () => {
     const block = { schema: 'cs/1', mode: 'shadow', sessionId: CSID, version: 0, state: null, degraded: null };
-    const out = partFinderUnderstand(block);
+    const out = engineUnderstand(block);
     const again = merge(cs1.emptyState(CSID), out.classification, { turn: 1 }).state;
     expect(cs.digest(again)).toBe(cs.digest(out.state));
     const r = cs.recoverOneStep({ csid: CSID, version: 0, state: null, mergeMod: { merge }, cs1,

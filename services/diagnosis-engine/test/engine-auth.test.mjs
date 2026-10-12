@@ -1,6 +1,7 @@
 /**
  * ADR 0017: orchestrator-only engine fields are honoured only with a valid AC signature over the exact body.
- * S4R's /part-finder page sends a plain {messages} request with no signature; that path must be unchanged.
+ * ADR 0019: there is no unsigned request path; the handler refuses any request without a valid signature
+ * (engine-signed-boundary.test.mjs).
  * ADR 0018: internal fields without a valid signature are refused, never dropped into a plain request.
  */
 import { describe, it, expect } from 'vitest';
@@ -64,8 +65,8 @@ describe('enforcement (ADR 0018: refused, never stripped into a plain request)',
   });
 });
 
-describe('S4R compatibility', () => {
-  it('the S4R /part-finder request (plain {messages}, S4R origin, no signature) is passed through untouched', () => {
+describe('gate record and helpers', () => {
+  it('a plain unsigned {messages} body has no internal fields to reject (the handler still refuses it for the missing signature)', () => {
     const s4r = { messages: [{ role: 'user', content: "My washing machine won't drain, it's a Bosch" }] };
     const g = A.gateInternalFields(s4r, ev(null, 'https://spares4repairs.co.uk'), JSON.stringify(s4r), { key: KEY, nowS: NOW });
     expect(g.body).toBe(s4r);

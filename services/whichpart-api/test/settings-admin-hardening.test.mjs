@@ -3,14 +3,10 @@
  * (including the batch runner's unversioned writes), change reasons, audit, atomic single-document
  * writes, verify-after-write, read-only connection checks, secret handling and no writes on view.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { createRequire } from 'node:module';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const here = path.dirname(fileURLToPath(import.meta.url));
 const api = require('../index.js');
 const ai = require('../ai-config.js');
 const settings = require('../settings-admin.js');

@@ -227,11 +227,11 @@ The engine's own role, `ac-diagnosis-engine-role`, can write only its own log gr
 
 | Check | What it covers | When |
 |---|---|---|
-| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites. Every test must pass: there is no accepted-failure list (Phase 13). Files deliberately removed are recorded under `removed` in `runtime-changes.json` | Every pull request |
+| Runtime tests (`npm run test:runtime`) | Unit, contract and journey suites: 163 files, all passing at Phase 15. Every test must pass: there is no accepted-failure list (Phase 13). Files deliberately removed are recorded under `removed` in `runtime-changes.json` | Every pull request |
 | Build equivalence (CI) | The `applianceclinic-diagnosis-engine` and `whichpart-api` zips and the images equal their `build/reference/` records | Every pull request |
 | Live AC journeys and production checks | AC endpoints, auth, bearer and journey checks against the deployed build | Before and after every runtime release |
 | Transcript review judge | Semantic review of production conversations (`review.transcript.*` prompts), summarised by `overall` from the `transcript-review-ok` log events | Scheduled; compared before and after releases |
-| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.4, 56 scenarios, rubric `gold-v2-rubric-v3`) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest recorded gate: 56/56 in two consecutive runs on the final Phase 13 build ([results](../evaluation/phase-13-results.md#gold-on-the-final-build)); Phase 15 in its [results](../evaluation/phase-15-results.md). Exactly two runs, 20 minutes apart, on the deployed build; no exploratory runs | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
+| GOLD v2 | Semantic whole-conversation benchmark (GOLD-v2.4, 56 scenarios, rubric `gold-v2-rubric-v3`) with Jev as the fixed judge (`benchmark.gold-v2.judge`). Latest gate: 56/56 in two consecutive runs on the Phase 15 build, `main` at `10ab5ff` ([results](../evaluation/phase-15-results.md#gold)). Exactly two runs, 20 minutes apart, on the deployed build; no exploratory runs | Owner-run (admin test area, or `tools/gold-v2/run-live.mjs`); needs the live transport and Jev credentials |
 | Live transcript review | Realistic journeys through the public AC path, ended so the production judge reviews them; both the judge's result and the conversation are read ([Phase 11](../evaluation/phase-11-results.md#transcript-review-live-final-build)) | After each phase's releases |
 
 Behaviour is never scored by regular expressions; semantic judgement uses the Jev or language-model judges above.
@@ -269,7 +269,8 @@ Every production change goes through `infra/production/steps/change.sh`:
   - `verify-ac-auth.sh`
   - the engine's `GET /health` (SigV4), shown as "Diagnosis engine" in the admin Diagnostics view
   - alarms `applianceclinic-diagnosis-engine-FailedTurns` (5 or more failed turns in 5 minutes), `-RefusedRequests` (any
-    unsigned or wrongly signed request), `-Errors` and `-Throttles`. **No notification target exists yet** (follow-up)
+    unsigned or wrongly signed request), `-Errors` and `-Throttles`. **No notification target exists yet**: an alarm can be in ALARM with nobody told
+    ([operational risks](../../infra/production/README.md#operational-risks))
   - the S4R contract, ingress, smoke and S4R health gates are retired from the AC change process
 - **Runtime code release:**
   - build the zip with `build/scripts/package_zips.py`
@@ -285,4 +286,7 @@ Every production change goes through `infra/production/steps/change.sh`:
   - Recovery is a top-up, not a deploy. Then check one AC diagnosis and the engine's health
     ([Phase 13 finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
   - Space GOLD runs, and run only those that are needed.
+- **Account Lambda concurrency is 10**, shared with another site. A throttle shows as a 429 from the engine and the
+  `-Throttles` alarm; the orchestrator retries a 429 once. The fix is an account quota increase (owner). These risks,
+  with symptoms, checks and actions, are in the [operational risks runbook](../../infra/production/README.md#operational-risks).
 - Phase runbooks: [`docs/migration/runbooks/`](../migration/runbooks/README.md).

@@ -1,15 +1,11 @@
 /**
  * Phase 7: batch runs default to staging, production needs explicit intent, and live AI routing (also read by the
- * Spares4Repairs diagnosis service) is never rewritten for a run that does not carry recorded routing intent.
+ * diagnosis engine) is never rewritten for a run that does not carry recorded routing intent.
  */
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const here = path.dirname(fileURLToPath(import.meta.url));
 const { decideTarget, routingAllowed } = require('../benchmark/target.js');
 const { createRoutingOverride, planOverride } = require('../benchmark/routing-override.js');
 const { createStore: createAcqStore, memoryS3 } = require('../benchmark/acq-store.js');

@@ -19,7 +19,7 @@ const api = require(handlerPath);
 const transcripts = require('../transcripts.js');
 const tok = require('../state-token.js');
 const conversationState = require('../conversation-state.js');
-const { SECRETS, mockDdb, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, engineUnderstand } = require('./canonical-test-helpers.cjs');
 
 const CSID = tok.newCanonicalSessionId(() => Buffer.alloc(24, 5));
 const TEMPLATE = 'Switch the machine off at the wall. Can you see water in the drum?';
@@ -35,7 +35,7 @@ function installOrchestrator() {
       { id: 'routing', label: 'Routing', evidence: 'OBSERVED', summary: 'SYMPTOMS', detail: null },
       ...(compose ? [{ id: 'canonical-control', label: 'Canonical control', evidence: 'OBSERVED', summary: 'x', detail: { compose } }] : []),
     ] };
-    if (payload.canonical) out._canonical = partFinderUnderstand(payload.canonical);
+    if (payload.canonical) out._canonical = engineUnderstand(payload.canonical);
     return { ok: true, status: 200, json: async () => out };
   };
 }

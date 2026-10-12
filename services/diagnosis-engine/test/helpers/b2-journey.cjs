@@ -61,7 +61,7 @@ function composeProblems(JC, P, seen) {
 
 const DWI = { appliance: { value: 'dishwasher', basis: 'stated' } };
 const dwOpener = (journey, faultDomain, obs = [], extra = {}, identity = {}) => opener(journey, faultDomain, obs, extra, { ...DWI, ...identity });
-/** Routing helper: run the REAL part-finder canonicalJourneys over typed turns with a given allow-list. */
+/** Routing helper: run the REAL engine canonicalJourneys over typed turns with a given allow-list. */
 function routeWith(L, turns, journeys, deps = {}) {
   let s = emptyState('cs_' + 'e'.repeat(32));
   for (const c of turns) s = merge(s, c, { turn: s.version + 1 }).state;

@@ -36,9 +36,7 @@ const before = (id, a, b) => { const x = idx(id, a), y = idx(id, b); return x !=
 const discr = (id) => (doc(id).discriminators || []).join(' \n ').toLowerCase();
 const conf = (id) => JSON.stringify(doc(id).commonConfusion || []).toLowerCase();
 const advice = (id) => (doc(id).adviceBeforeReplacement || []).join(' \n ').toLowerCase();
-const secondary = (id) => String(doc(id).secondaryQuestion || '').toLowerCase();
 const syn = (id) => [...(WM[id]?.synonyms || []), ...(doc(id).symptoms || [])].join(' ').toLowerCase();
-const allText = (id) => `${JSON.stringify(doc(id))}`.toLowerCase();
 
 // ---- 0. COVERAGE: every one of the 30 nodes reviewed + has an override ----------------------
 ok('washing-machine family present (>=30 nodes)', NODES.length >= 30);

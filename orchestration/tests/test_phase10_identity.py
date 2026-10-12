@@ -9,7 +9,7 @@ Each case reproduces the shape of a real failure with typed state; no customer t
 """
 import sys
 from orchestration import routing
-from orchestration.model import ConversationState, OrchestratorResponse, Outcome
+from orchestration.model import ConversationState, Outcome
 from orchestration.orchestrator import Orchestrator
 from orchestration.services import FakeErrorCodeService, FakeDiagnosticService, RagUnavailable
 from orchestration.tests.fixtures import CANNED

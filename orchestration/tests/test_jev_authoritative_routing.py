@@ -110,7 +110,6 @@ check("cannot-answer turn does not invent a code",
 # These are not naive "no regex" scans. They assert the BEHAVIOURAL invariant that deterministic
 # code consumes Jev's TYPED decision and never re-derives the same customer MEANING from prose.
 # ================================================================================================
-import types
 
 class ScriptedRag(FakeDiagnosticService):
     """Returns a controlled typed understand so we can make Jev's TYPED decision DISAGREE with what a

@@ -1,6 +1,6 @@
 # 0019. Appliance Clinic uses a dedicated canonical diagnosis engine
 
-- **Status:** Accepted
+- **Status:** Implemented (Phase 15, changes 15.1a–15.4, pull request #121 merged as `10ab5ff`; [results](../evaluation/phase-15-results.md))
 - **Date:** 2026-10-12
 - **Supersedes:** [0012](0012-legacy-diagnosis-pipeline-retained.md) (the legacy pipeline is retained).
 - **Amends:** [0017](0017-authenticate-orchestrator-only-engine-fields.md) and [0018](0018-no-ac-legacy-fallback.md):

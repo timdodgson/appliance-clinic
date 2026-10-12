@@ -16,7 +16,7 @@ This repository holds a live production service. Most rules below exist so that 
 | `infra/production/` | Production change and verification scripts | Owner tooling, credentialed |
 | `infra/sandbox/` | The Phase 4 sandbox rehearsal, kept as a record | No |
 | `build/` | Reproducible builds, reference digests and the test runner | No |
-| `tools/migration/` | Migration tooling: inventory, change-set checker, guards, baselines (has its own `package.json`) | No |
+| `tools/migration/` | Migration and production tooling: inventory, change-set checker, overrides drift check, guards (has its own `package.json`) | No |
 | `tools/gold-v2/` | Live GOLD v2 runner | Owner tooling, credentialed |
 | `docs/` | Architecture, ADRs, evaluation, migration record, portfolio | No |
 
@@ -116,6 +116,6 @@ Do not run any of the following unless you are the owner, deliberately, with the
 |---|---|
 | `infra/production/steps/*.sh`, `infra/production/*.sh` | Act on production AWS, or read it with owner credentials |
 | `tools/gold-v2/run-live.mjs` | Holds real conversations with production and calls the Jev judge (needs Secrets Manager access) |
-| `tools/migration` commands `backup`, `hotfix:admin`, `baseline --live`, `inventory`, `traffic`, `sandbox-image-copy` | Mutate or read production; each prints a plan and needs explicit flags |
+| `tools/migration` commands `backup`, `hotfix:admin`, `inventory`, and `bin/sandbox-image-copy.mjs` | Mutate or read production; each prints a plan and needs explicit flags |
 | `infra/sandbox/steps/*.sh` | The Phase 4 rehearsal; it creates and destroys AWS resources |
 | `error-codes/mcp/deploy/deploy.sh` | The last retired pre-CDK deploy script. It refuses to run; production is CloudFormation-managed. The others were deleted in Phase 15 |

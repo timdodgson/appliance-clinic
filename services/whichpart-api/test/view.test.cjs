@@ -152,7 +152,7 @@ const SI = {
   check('extraction: vision-read make not leaked', !JSON.stringify(v).includes('Beko'));
 }
 // 18. deriveContext: an image turn captures the latest image (structural). Rating-plate model
-// EXTRACTION + confirmation is now the RAG/Jev's job, not a BFF prose parse.
+// EXTRACTION + confirmation is now the diagnosis engine's (Jev's) job, not a BFF prose parse.
 {
   const c = deriveContext([{ role: 'user', content: [{ type: 'text', text: 'wont drain' }, { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } }] }]);
   check('image turn -> latestImage captured', !!c.latestImage);

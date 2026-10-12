@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const cs = require('../conversation-state.js');
 const tok = require('../state-token.js');
-const { SECRETS, mockDdb, intentFor, partFinderUnderstand, internal } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, intentFor, engineUnderstand, internal } = require('./canonical-test-helpers.cjs');
 
 const NOW_MS = 1_800_000_000_000;
 const CONTROL = { CANONICAL_MODE: 'control', CANONICAL_CONTROL_JOURNEYS: 'wm-not-draining' };
@@ -25,8 +25,8 @@ function setup() {
   return { db, store };
 }
 /** What the engine's understand mode returns: merge + Journey 1 pipeline (real code). */
-async function partFinder(block, intent = intentFor()) {
-  return internal.canonicalJourneys(partFinderUnderstand(block, intent), block);
+async function engineJourneys(block, intent = intentFor()) {
+  return internal.canonicalJourneys(engineUnderstand(block, intent), block);
 }
 const prepare = (store, { csid = CSID, ctid, env = CONTROL } = {}) => cs.prepareTurn({
   body: { stateToken: tokenFor(csid) }, store, secrets: SECRETS, env, nowMs: NOW_MS, newId: bytes24(9), clientTurnId: ctid,
@@ -34,7 +34,7 @@ const prepare = (store, { csid = CSID, ctid, env = CONTROL } = {}) => cs.prepare
 async function fullTurn(store, opts = {}) {
   const ctx = await prepare(store, opts);
   if (!ctx.block) return { ctx, fin: null };
-  const out = opts.out ? opts.out(ctx) : await partFinder(ctx.block);
+  const out = opts.out ? opts.out(ctx) : await engineJourneys(ctx.block);
   const fin = await cs.finishTurn(ctx, out, { store, messageId: 'rid', nowMs: NOW_MS });
   if (opts.marker !== false) await cs.recordClientTurn(ctx, fin, VIEW, { store, nowMs: NOW_MS });
   return { ctx, out, fin };
@@ -88,7 +88,7 @@ describe('idempotency (clientTurnId)', () => {
     await fullTurn(store, { ctid: 'turn-0001' });
     const a = await prepare(store, { ctid: 'turn-0002' });
     const b = await prepare(store, { ctid: 'turn-0002' });
-    const [oa, ob] = [await partFinder(a.block), await partFinder(b.block)];
+    const [oa, ob] = [await engineJourneys(a.block), await engineJourneys(b.block)];
     const fa = await cs.finishTurn(a, oa, { store, messageId: 'a', nowMs: NOW_MS });
     const fb = await cs.finishTurn(b, ob, { store, messageId: 'b', nowMs: NOW_MS });
     expect([fa.written, fb.written].sort()).toEqual([false, true]);

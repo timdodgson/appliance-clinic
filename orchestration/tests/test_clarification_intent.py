@@ -13,7 +13,7 @@ Contract:
 Run: python3 -m orchestration.tests.test_clarification_intent
 """
 import sys
-from orchestration.model import (TurnInput, Outcome, Route, OrchestratorResponse,
+from orchestration.model import (TurnInput, Outcome, OrchestratorResponse,
                                   ConversationState)
 from orchestration.services import FakeErrorCodeService, FakeDiagnosticService
 from orchestration.orchestrator import Orchestrator

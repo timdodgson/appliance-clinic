@@ -25,6 +25,7 @@ and pinned by tests rather than unified. Unifying them is a coordinated change w
 | Invalid request (JSON, messages, test-mode fields) | 400 `{error}` |
 | Rate limited | 429 `{error}` with `retry-after` (`RATE_LIMIT_MODE=enforce`) |
 | Orchestrator unreachable | 200 with the fallback view: `error: true` and a fixed "Sorry — something went wrong…" reply. The state token is unchanged |
+| Canonical path could not run (engine failure, Jev unavailable, degraded or unrecorded canonical result; orchestrator outcome `SERVICE_UNAVAILABLE`) | 200 with `error: true` and `degraded` set to the reason; the orchestrator's fixed "I can't run the diagnosis right now" reply, or `errorCode: "canonical_unavailable"` when the BFF itself could not prepare or record the state ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)). The state change is not persisted, and the transcript records the turn as failed |
 | Required COMPOSE failed (#21) | 200 with `error: true`, `errorCode: "ai_unavailable"`, "AI service unavailable…". The canonical state does not advance |
 | Success | 200 with the WhichPart view |
 
@@ -52,7 +53,7 @@ The media shapes are pinned by `test/admin-error-contracts.test.mjs`. Knowledge 
 
 | Edge | On failure |
 |---|---|
-| Orchestrator, calling the engine | The orchestrator's typed degraded result. whichpart-api sees a normal orchestrator response |
+| Orchestrator, calling the engine | One retry on HTTP 429 (a throttled call never ran); any other failure, or a second 429, is outcome `SERVICE_UNAVAILABLE`, which whichpart-api shows as an error view |
 | whichpart-api, calling the orchestrator | Thrown, then the fallback view above |
 | MCP | JSON-RPC errors; the orchestrator treats a failed tool call as no error-code evidence |
 

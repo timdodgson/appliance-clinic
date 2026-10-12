@@ -338,7 +338,7 @@ check("EC10 turn2 model-only keeps the code (carried) and adds no diagnosis", r2
       and (r2.codeResult.displayed or "").upper() == "23E" and r2.diagnosis is None, f"{r2.route}/{r2.codeResult}")
 
 # ---- SOURCE GUARDS: no per-code/brand facts smuggled into orchestrator PRODUCTION logic ----
-import os as _os, re as _re2
+import os as _os
 _orch_src = open(_os.path.join(_os.path.dirname(__file__), "..", "orchestrator.py")).read()
 # strip comments/docstrings-ish: only flag literals in executable lines (crude but catches leaks).
 _code_lines = [ln for ln in _orch_src.splitlines() if not ln.strip().startswith("#")]

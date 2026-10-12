@@ -25,3 +25,25 @@ Each change spec in [`changes/`](changes/) is the reviewed record of one product
 | [`steps/d-copy-secrets.sh`](steps/d-copy-secrets.sh) | 7 | Copied secret values server-side into the AC namespace |
 
 AC runs no S4R gate (ADR 0019): the former shared engine `spares4repairs-part-finder` was released from AC in change 15.3, and its `/part-finder` contract, `/ai/chat` ingress, S4R health and smoke-baseline checks were removed. The only S4R dependency is outbound: the S4R Parts Catalogue API and S4R Shop product links.
+
+## Operational risks
+
+Known risks in production, each waiting on an owner decision. Background: [project story, still open](../../docs/portfolio/project-story.md#still-open).
+
+**How to check.** The four engine alarms are `applianceclinic-diagnosis-engine-FailedTurns` (5 or more failed turns in 5 minutes), `-RefusedRequests` (any unsigned or wrongly signed request), `-Errors` and `-Throttles`. Failed turns are in the log group `/aws/lambda/applianceclinic-diagnosis-engine`; in Logs Insights:
+
+```
+fields @timestamp, requestId, jev.category, jev.status
+| filter @message like '"evt":"diagnosis-engine"' and @message like '"ok":false'
+| sort @timestamp desc
+```
+
+This is the same match as the `FailedTurns` metric filter. A Jev failure carries `jev.category` and `jev.status`.
+
+| Risk | What it looks like | Immediate action | Permanent fix (owner approval) |
+|---|---|---|---|
+| **Account Lambda concurrency quota is 10**, shared with another site | HTTP 429 from the engine; `-Throttles` in ALARM. The orchestrator retries a 429 once, so a short throttle costs nothing: on 2026-10-12 in the 08:20–08:25 UTC period, during GOLD, one throttle was absorbed and no turn failed. A longer one gives failed turns | Confirm the 429s line up with load (GOLD, or the other site); pause GOLD or any test traffic | An account-level quota increase (100 recommended; [analysis](../../docs/evaluation/phase-11-concurrency.md)) |
+| **The engine alarms notify nobody** | An alarm sits in ALARM and nobody is told | Check the four alarms by hand after every release and every GOLD run | An AC-owned SNS topic, set as each alarm's action, with a subscription; the recipient is the owner's decision |
+| **Jev credit or quota exhausted, with no alert** | HTTP 402 or 429 from Jev. Every turn gets the explicit "I can't run the diagnosis right now" error (`503 engine_unavailable` from the engine); `-FailedTurns` goes to ALARM. This took production down on 2026-10-11 ([finding](../../docs/evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)) | Top up the Jev account (no deploy is needed), then run one AC diagnosis and check the engine's health | Alerting on the Jev 402/429 rate and on remaining credit |
+| **Evaluation and production share one Jev account and credit** | A GOLD pair or the judges use up the credit production needs | Run GOLD only when needed, and space runs | A separate Jev key or budget for evaluation |
+| **The old shared engine runs in AC's account** on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer | Its load counts against the concurrency quota and the Jev credit; changing that role or those secrets would affect it | None: leave it unchanged ([ADR 0019](../../docs/adr/0019-dedicated-canonical-diagnosis-engine.md)) | Moving it is its consumer's change, not AC's |

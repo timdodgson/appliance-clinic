@@ -20,7 +20,7 @@ const api = require(handlerPath);
 const transcripts = require('../transcripts.js');
 const tok = require('../state-token.js');
 const conversationState = require('../conversation-state.js');
-const { SECRETS, mockDdb, partFinderUnderstand } = require('./canonical-test-helpers.cjs');
+const { SECRETS, mockDdb, engineUnderstand } = require('./canonical-test-helpers.cjs');
 
 const CSID = tok.newCanonicalSessionId(() => Buffer.alloc(24, 6));
 let db; let realFetch; let outcome; let degradeCanonical;
@@ -34,7 +34,7 @@ beforeAll(() => {
       : { route: 'SYMPTOMS', outcome: 'ANSWER', message: 'Check the pump filter. Is it clear?', provenance: {}, parts: [], understood: { appliance: 'washing-machine' } };
     out._diagnosticTrace = { schemaVersion: '1.0', stages: [] };
     if (payload.canonical) {
-      out._canonical = partFinderUnderstand(payload.canonical);
+      out._canonical = engineUnderstand(payload.canonical);
       if (degradeCanonical) out._canonical = { ...out._canonical, degraded: 'diagnose_unavailable' };
     }
     return { ok: true, status: 200, json: async () => out };
