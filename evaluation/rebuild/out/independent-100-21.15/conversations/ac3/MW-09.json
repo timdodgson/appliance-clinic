@@ -1,0 +1,625 @@
+{
+ "id": "MW-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-09-16ac66928c",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch built-in microwave BFL524MS0B randomly stops part way through cooking, time still on the display. Opening and closing the door lets it carry on. Maybe once every few days."
+  },
+  {
+   "role": "assistant",
+   "text": "This symptom—where the microwave stops but the clock stays on, and nudging the door restarts it—is a common sign of an intermittent electrical fault in the door interlock system. The microwave has safety switches that cut power if the door isn't perfectly latched; if one of these is worn or the latch mechanism is slightly misaligned, it can break the circuit momentarily. Before we consider internal repairs (which require opening the casing and are not safe to do yourself), please check the physical latch. With the microwave unplugged, look at the plastic hooks on the door edge and the slots in the frame. Is there any food or grease blocking them, and do the hooks look intact? If they are clean and undamaged, it is likely a worn interlock switch inside that needs an engineer to replace."
+  },
+  {
+   "role": "customer",
+   "text": "There was some grease around the door hooks and latch slots, so I cleaned it off. It's still happened once since. Hooks look intact. The door might sit very slightly lower on the handle side, but I can't be sure. No smell, sparks or tripping."
+  },
+  {
+   "role": "assistant",
+   "text": "These switches cut power if they don't feel a firm latch; if the switch is worn or the door isn't pressing it firmly enough, it cuts out randomly. 1. Does the door feel loose or wobbly when you gently push it?\n2. Can you see if there is a gap between the door and the frame that looks wider at the bottom than at the top? If the door feels loose or misaligned, the latch mechanism may be worn or the hinges shifted, preventing the switch from engaging fully. If it feels tight but still fails, the internal switch itself has likely failed and will need an engineer to replace."
+  },
+  {
+   "role": "customer",
+   "text": "It doesn't feel loose or wobbly as far as I can tell. The door looks very slightly lower on the handle side, but I can't say for sure whether the gap is wider at the bottom. It does seem to cut out more when I close the door gently rather than firmly."
+  },
+  {
+   "role": "assistant",
+   "text": "These switches cut power if they don't feel a firm, secure latch; if the contacts inside are worn or sticking, they break the circuit momentarily when the door is closed softly. Because fixing this requires opening the microwave casing to access the mains-powered interlock switches, I cannot advise you on how to do this safely. You should contact a qualified appliance engineer to replace the faulty switch(es). In the meantime, try to close the door firmly and consistently to keep using it, but be aware it may stop again at any time."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2120,
+     "labelMs": 365,
+     "enrichMs": 0,
+     "reasonMs": 9307,
+     "verifyMs": 2943,
+     "replyLabelMs": 374,
+     "totalMs": 15152
+    },
+    "usage": {
+     "promptTokens": 3581,
+     "completionTokens": 691,
+     "totalTokens": 4272
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door interlock or latch mechanism fault (high)",
+     "Loose internal wiring to door switches (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "BFL524MS0B",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "built-in microwave",
+      "brand": "Bosch",
+      "model": "BFL524MS0B",
+      "codes": [],
+      "symptom": "randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:not-heating",
+       "microwave:sparking-arcing"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Bosch; model BFL524MS0B.",
+     "The fault they reported is: \"randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BFL524MS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there any food or grease blocking them, and do the hooks look intact?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15199
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15560,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2066,
+     "labelMs": 328,
+     "enrichMs": 0,
+     "reasonMs": 15830,
+     "verifyMs": 2884,
+     "replyLabelMs": 303,
+     "totalMs": 21454
+    },
+    "usage": {
+     "promptTokens": 3952,
+     "completionTokens": 808,
+     "totalTokens": 4760
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "cleaning it didn't stop the fault",
+      "source": "extractor"
+     },
+     {
+      "claim": "Since cleaning it didn't stop the fault and the hooks are intact, this points strongly to an intermittent electrical fault in one of the door interlock switches inside the housing.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Intermittent door interlock switch fault (high)",
+     "Door latch mechanism misalignment or wear (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.87
+      },
+      "symptomArea": {
+       "value": "door_or_lid",
+       "confidence": 0.49
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stops but clock stays on, nudging door restarts it"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.76
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:sparking-arcing",
+       "microwave:door",
+       "microwave:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: cleaned grease around door hooks and latch slots - still happened once since.",
+     "Already given by the customer, never ask for it again: make Bosch; model BFL524MS0B.",
+     "The fault they reported is: \"randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BFL524MS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned grease around door hooks and latch slots: still happened once since",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there any food or grease blocking them, and do the hooks look intact?",
+       "turn": 1,
+       "resolution": "cleaned grease off, hooks intact, door might sit slightly lower"
+      },
+      {
+       "key": null,
+       "text": "Can you see if there is a gap between the door and the frame that looks wider at the bottom than at the top?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21516
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 21699,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2621,
+     "labelMs": 315,
+     "enrichMs": 1,
+     "reasonMs": 17270,
+     "verifyMs": 4544,
+     "replyLabelMs": 336,
+     "totalMs": 25144
+    },
+    "usage": {
+     "promptTokens": 4488,
+     "completionTokens": 802,
+     "totalTokens": 5290
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "firm closure usually works",
+      "source": "extractor"
+     },
+     {
+      "claim": "cleaning the external latch didn't fix it",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Worn or sticking door interlock switch (high)",
+     "Door alignment / latch mechanism wear (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.48
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.37
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "cuts out randomly"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:sparking-arcing",
+       "microwave:door",
+       "microwave:not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Checks they have done and what they found: cleaned grease around door hooks and latch slots - still happened once since; checked if door feels loose or wobbly - does not feel loose or wobbly; observed gap between door and frame - door looks very slightly lower on the handle side, but unsure if gap is wider at bottom.",
+     "Already given by the customer, never ask for it again: make Bosch; model BFL524MS0B.",
+     "The fault they reported is: \"randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BFL524MS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned grease around door hooks and latch slots: still happened once since",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked if door feels loose or wobbly: does not feel loose or wobbly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "observed gap between door and frame: door looks very slightly lower on the handle side, but unsure if gap is wider at bottom",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there any food or grease blocking them, and do the hooks look intact?",
+       "turn": 1,
+       "resolution": "cleaned grease off, hooks intact, door might sit slightly lower"
+      },
+      {
+       "key": null,
+       "text": "Can you see if there is a gap between the door and the frame that looks wider at the bottom than at the top?",
+       "turn": 2,
+       "resolution": "door does not feel loose or wobbly; cuts out more when closed gently rather than firmly"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 25189
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 25460,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0313777,
+ "finishedAt": "2026-10-13T20:48:48.721Z"
+}

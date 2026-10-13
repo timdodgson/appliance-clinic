@@ -1,0 +1,779 @@
+{
+ "id": "WD-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-02-a2600cae8a",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WD90T534DBW washer dryer - clothes are still damp at the end of the wash and dry programme. It's not that old. Is the heater going?"
+  },
+  {
+   "role": "assistant",
+   "text": "In fact, on a washer-dryer, the most common reasons for damp clothes are either that the load was too large for the drying cycle (a dryer holds significantly less than a washer), or that airflow is restricted by a blocked lint filter or condenser. 1. Load size: Was the drum more than half full? If so, try drying a smaller load next time.\n2. Lint filter: Located at the bottom front behind a small flap, this needs to be clean for air to circulate and heat effectively. If you confirm the load was small (e.g., 3-4kg) and the filter is clean, we can then look deeper into whether the heater element or its safety thermostat has failed."
+  },
+  {
+   "role": "customer",
+   "text": "I load a full 9kg drum and wash and dry in one go. The manual says 6kg for drying though. Haven't checked the filter yet, but there are no error codes and the drum gets hot."
+  },
+  {
+   "role": "assistant",
+   "text": "The dampness is probably because you are drying a 9kg load when the machine's dry capacity is only 6kg; trying to dry more than half the wash load will leave clothes wet regardless of how well it works. However, because restricted airflow can also cause this even with heat present, please unplug the machine and check the lint filter at the bottom front. Is it clean?"
+  },
+  {
+   "role": "customer",
+   "text": "I haven't checked the filter yet, I'll have a look. Would a half load with full spin be worth trying too?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, absolutely. Drying a 6kg load that has been spun as high as possible is much more effective than trying to dry 9kg. However, even with a smaller load, the machine needs good airflow to work properly. Please unplug it and check the lint filter in the door opening and the condenser unit behind the bottom flap—are they clean?"
+  },
+  {
+   "role": "customer",
+   "text": "I'll check the filter and condenser now. Haven't looked yet, so I'll report back. A half load did come out dry when I tried it with full spin, by the way."
+  },
+  {
+   "role": "assistant",
+   "text": "That suggests it is simply an overloading issue. A washer-dryer has a much smaller drying capacity than washing capacity; putting 9kg of wet clothes into a machine rated for only 6kg means the dryer cannot circulate enough hot air to evaporate all that moisture, even if the drum gets hot. The fix is straightforward: always separate your laundry. This will give you dry clothes every time without needing any repairs."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2145,
+     "labelMs": 293,
+     "enrichMs": 0,
+     "reasonMs": 10432,
+     "verifyMs": 1946,
+     "replyLabelMs": 332,
+     "totalMs": 15204
+    },
+    "usage": {
+     "promptTokens": 3686,
+     "completionTokens": 734,
+     "totalTokens": 4420
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "To answer your question directly: wet clothes do not automatically mean the heater has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloaded drum or incorrect programme selection (high)",
+     "Restricted airflow (blocked lint filter/condenser) (medium)",
+     "Faulty drying heater or thermal cut-out (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WD90T534DBW",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Samsung",
+      "model": "WD90T534DBW",
+      "codes": [],
+      "symptom": "clothes are still damp at the end of the wash and dry programme"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is the heater going?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Load size: Was the drum more than half full?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15353
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15619,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1608,
+     "labelMs": 341,
+     "enrichMs": 0,
+     "reasonMs": 11736,
+     "verifyMs": 4102,
+     "replyLabelMs": 292,
+     "totalMs": 18120
+    },
+    "usage": {
+     "promptTokens": 4045,
+     "completionTokens": 860,
+     "totalTokens": 4905
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "No, the heater is almost certainly not gone—since you said the drum gets hot, that proves the heating element is working.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloading (9kg wash load for 6kg dry capacity) (high)",
+     "Restricted airflow due to blocked filter/condenser (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.88
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.8
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "damp clothes"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.91
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Load size: Was the drum more than half full?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is it clean?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18177
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18522,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1555,
+     "labelMs": 813,
+     "enrichMs": 0,
+     "reasonMs": 7428,
+     "verifyMs": 1738,
+     "replyLabelMs": 310,
+     "totalMs": 11888
+    },
+    "usage": {
+     "promptTokens": 4136,
+     "completionTokens": 542,
+     "totalTokens": 4678
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloading the drying capacity (high)",
+     "Restricted airflow (blocked filter/condenser) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.67
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.6
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.48
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes wet after drying"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Would a half load with full spin be worth trying too?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.67,
+      "turn": 3
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Load size: Was the drum more than half full?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is it clean?",
+       "turn": 2,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Please unplug it and check the lint filter in the door opening and the condenser unit behind the bottom flap—are they clean?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12015
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 12486,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1925,
+     "labelMs": 346,
+     "enrichMs": 0,
+     "reasonMs": 15724,
+     "verifyMs": 3787,
+     "replyLabelMs": 310,
+     "totalMs": 22149
+    },
+    "usage": {
+     "promptTokens": 4385,
+     "completionTokens": 812,
+     "totalTokens": 5197
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "1400RPM"
+       ]
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloading the drying capacity (9kg load vs 6kg limit) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.85
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "does_not_know",
+       "confidence": 0.49
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.58
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check; turn 3: gives check.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Please unplug it and check the lint filter in the door opening and the condenser unit behind the bottom flap—are they clean?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.86,
+      "turn": 3
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Load size: Was the drum more than half full?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is it clean?",
+       "turn": 2,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Please unplug it and check the lint filter in the door opening and the condenser unit behind the bottom flap—are they clean?",
+       "turn": 3,
+       "resolution": "does_not_know"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 22318
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 22836,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.03917759999999999,
+ "finishedAt": "2026-10-13T20:10:42.518Z"
+}

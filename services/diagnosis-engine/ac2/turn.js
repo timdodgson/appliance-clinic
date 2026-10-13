@@ -224,7 +224,7 @@ function removeUnverifiedIdentifiers(reply, texts, rec) {
  * "it is definitely the pump") are softened, whatever the customer has checked. The customer's own "I confirmed" is
  * left alone (only the present-tense claim is changed).
  */
-const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely'], [/\balmost certainly\b/g, 'probably'], [/\bAlmost certainly\b/g, 'Probably'], [/\bstrongly suggests\b/g, 'suggests'], [/\bStrongly suggests\b/g, 'Suggests'], [/\ba classic sign of\b/g, 'a common sign of'], [/\bA classic sign of\b/g, 'A common sign of'], [/\b(?:the|The) classic sign of\b/g, 'a common sign of']];
+const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely'], [/\balmost certainly\b/g, 'probably'], [/\bAlmost certainly\b/g, 'Probably'], [/\bstrongly suggests\b/g, 'suggests'], [/\bStrongly suggests\b/g, 'Suggests'], [/\ba classic sign of\b/g, 'a common sign of'], [/\bA classic sign of\b/g, 'A common sign of'], [/\b(?:the|The) classic sign of\b/g, 'a common sign of'], [/\bstrongly points to\b/g, 'points to'], [/\bstrongly point to\b/g, 'point to'], [/\bStrongly points to\b/g, 'Points to'], [/\bhighly likely\b/g, 'likely'], [/\bHighly likely\b/g, 'Likely'], [/\bis exactly what (?:we|you) (?:would )?expect\b/g, 'is consistent with what you would expect'], [/\bthe most reliable fix is to\b/g, 'the likely fix may be to'], [/\bThe most reliable fix is to\b/g, 'The likely fix may be to']];
 function calibrate(reply) {
   let text = String(reply);
   let changed = 0;
@@ -252,6 +252,7 @@ function stepPrecaution(reply, recentText, appliance, hazards = []) {
  */
 const BUY_PART = /\b(?:buy|order|purchase|get hold of)\b[^.!?]{0,60}\b(?:part|replacement|pump|element|heater|belt|board|pcb|battery|thermostat|motor|pulley|kit|fuse|seal|sensor|valve|switch|module)\b|\b(?:you(?:'ll| will)? need to|you should) (?:replace|fit|order|buy)\b|\bthe (?:fix|solution|repair) is to (?:replace|fit)\b/i;
 const RECALL_DENIAL = /\b(?:no|not any)\s+(?:known\s+|specific\s+|current\s+|active\s+|official\s+)*(?:safety\s+)?recalls?\b|\bnot (?:been )?(?:subject to|part of|affected by|covered by) (?:a|any) (?:safety )?recall\b|\bisn'?t (?:subject to|affected by|covered by|part of) (?:a|any) (?:safety )?recall\b|\bdon'?t need to worry about (?:a|any) (?:hidden )?(?:recall|modification)\b/i;
+const REPLACE_COMPONENT = /\b(replace|replacing|Replace|Replacing)\b(?= (?:the|a|an|your|both|it with a|a new|the whole)(?: [\w()-]+){0,3} (?:pump|pulley|belt|element|heater|thermostat|board|pcb|motor|switch|interlock|bearing|sensor|valve|plate|battery|capacitor|magnetron|module|compressor|fuse|coupler|assembly|timer|lock|brushes)s?\b)/;
 const NEGATED = /\b(?:don'?t|do not|never|avoid|no need to|shouldn'?t|before you)\b/i;
 function removeUnconfirmedAdvice(reply, { narrowed }) {
   const sents = String(reply).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
@@ -260,6 +261,11 @@ function removeUnconfirmedAdvice(reply, { narrowed }) {
     if (RECALL_DENIAL.test(x)) { removed.push('recall-denial'); return false; }
     if (!narrowed && BUY_PART.test(x) && !NEGATED.test(x)) { removed.push('part-before-confirmed'); return false; }
     return true;
+  }).map((x) => {
+    // Replacing a component before a check confirms it becomes checking it; the advice (and any engineer) stays.
+    if (narrowed || NEGATED.test(x) || !REPLACE_COMPONENT.test(x)) return x;
+    removed.push('replace-before-confirmed');
+    return x.replace(REPLACE_COMPONENT, (verb) => ({ replace: 'check', replacing: 'checking', Replace: 'Check', Replacing: 'Checking' })[verb]);
   });
   return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').trim(), removed };
 }

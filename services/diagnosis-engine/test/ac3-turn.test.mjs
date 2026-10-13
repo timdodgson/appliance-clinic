@@ -469,3 +469,21 @@ describe('judged failures of the 21.11 evaluation (change 21.15)', () => {
   });
 });
 
+describe('judged failures of the 21.15 evaluation (change 21.16)', () => {
+  it('replacing a component before a check confirms it becomes checking it; the engineer advice stays', () => {
+    expect(removeUnconfirmedAdvice('I recommend calling an engineer to replace the door switch safely.', { narrowed: false }).text).toBe('I recommend calling an engineer to check the door switch safely.');
+    expect(removeUnconfirmedAdvice('Replacing the condensate pump assembly is the usual fix.', { narrowed: false }).text).toBe('Checking the condensate pump assembly is the usual fix.');
+    expect(removeUnconfirmedAdvice('Replace the filter in the base.', { narrowed: false }).removed).toEqual([]);
+    expect(removeUnconfirmedAdvice('An engineer can replace the door switch.', { narrowed: true }).removed).toEqual([]);
+  });
+  it('no dismantling advice, and no touching the machine when water is near the plug', () => {
+    expect(S.gateReply('If you are handy with tools, you can remove the glass top to inspect the element.', { hazards: [], appliance: 'hobs' }).violations).toHaveLength(1);
+    expect(S.gateReply('Remove the top casing to expose the motor assembly.', { hazards: [], appliance: 'vacuum' }).violations).toHaveLength(1);
+    expect(S.gateReply('Lift out the cutlery basket and remove the filter.', { hazards: [], appliance: 'dishwasher' }).violations).toHaveLength(0);
+    expect(S.gateReply('Turn off the washing machine at its controls immediately.', { hazards: [{ type: 'electrical_water' }], appliance: 'washing-machine' }).violations).toHaveLength(1);
+  });
+  it('softens "strongly points to", "highly likely" and "the most reliable fix is to"', () => {
+    expect(calibrate('This strongly points to a defrost fault and it is highly likely the pump. The most reliable fix is to replace it.').text).toBe('This points to a defrost fault and it is likely the pump. The likely fix may be to replace it.');
+  });
+});
+
