@@ -1,0 +1,67 @@
+{
+  "id": "22.1c-error-code-mcp-machine-independent-zip",
+  "description": "Code only, applianceclinic-error-code-mcp (proof of concept, no real customers): the same service and dataset, packaged so the zip no longer depends on the build machine. The dist-info RECORD files no longer list the console scripts pip writes to ../../bin (not shipped; their hashes carried the build Python's shebang), so CI rebuilds the deployed zip byte for byte. 13 RECORD files change; nothing that runs changes. Previous code: phase8/applianceclinic-error-code-mcp-Wm1i7OG6nSeugc_Cw_AQf6x7VPbGnG2sjd0Ig041sIM.zip; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code of the AC error-code service)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicerrorcodemcp",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-error-code-mcp",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-error-code-mcp"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the AC error-code service from the staged phase8 artefact. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-error-code-mcp"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp",
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ]
+  }
+}

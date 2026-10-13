@@ -163,8 +163,20 @@ def write_zip(path, entries, generated):
     return names
 
 
+def shipped_record(src):
+    """A dist-info RECORD without the console scripts pip wrote outside the package (`../../bin/...`): they are not
+    shipped, and their hashes carry the shebang of the Python that ran pip, so keeping them would make the zip depend
+    on the build machine."""
+    lines = open(src, 'rb').read().decode().splitlines(keepends=True)
+    return ''.join(l for l in lines if not l.startswith('../')).encode()
+
+
 def build_error_code_mcp(path, site):
-    return write_zip(path, error_code_mcp_entries(site), {'run.sh': MCP_RUN_SH})
+    entries = error_code_mcp_entries(site)
+    generated = {'run.sh': MCP_RUN_SH}
+    for name in [n for n in entries if n.endswith('.dist-info/RECORD')]:
+        generated[name] = shipped_record(entries.pop(name))
+    return write_zip(path, entries, generated)
 
 
 def main():
