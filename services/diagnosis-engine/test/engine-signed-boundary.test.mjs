@@ -63,7 +63,7 @@ describe('ac2 is the only diagnose path', () => {
     expect(r.status).toBe(200);
     expect(r.json.type).toBe('ac2');
     expect(r.json.response.outcome).toBe('SAFETY_STOP');
-    expect(r.json.state.schema).toBe('ac2/1');
+    expect(r.json.state.schema).toBe('ac3/1');
   });
   it('a turn whose reasoner cannot run is an explicit 503', async () => {
     lambda._internal._setProvidersForTest(failing);

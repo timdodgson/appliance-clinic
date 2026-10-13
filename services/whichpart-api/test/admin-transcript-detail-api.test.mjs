@@ -34,10 +34,11 @@ async function fakeEngine(raw) {
   const body = JSON.parse(raw);
   const prior = body.ac2 && body.ac2.state;
   const turn = (prior ? prior.turn : 0) + 1;
-  const state = { schema: 'ac2/1', turn, appliance: { value: 'washing-machine' }, brand: { value: 'hotpoint' }, model: null, codes: [],
-    facts: [{ id: `f${turn}`, field: 'symptom', value: 'not draining', source: 'customer', status: 'active', turn, quote: 'will not drain' }], asked: [], hazards: [] };
-  const audit = { turn, provider: { name: 'test', model: 'm' }, timings: { totalMs: 5 }, safety: { hazards: [], gates: [] },
-    claims: { rejected: [], checked: 2 }, regenerated: false, partGate: { outcome: 'model_needed' }, status: 'narrowing', candidates: [] };
+  const state = { schema: 'ac3/1', turn, stage: 2, outcome: null, narrowed: null, asked: [], hazards: [],
+    customer: { appliance: { value: 'washing-machine', confidence: 0.9, turn: 1 }, brand: { value: 'hotpoint', confidence: 0.9, turn: 1 }, model: null, codes: [], symptom: { value: 'not draining', confidence: 0.9, turn: 1 }, symptomArea: null, checks: [{ check: 'pump filter', result: 'clear', turn }], modelUnavailable: false },
+    knowledge: { knowledgeIds: [], fault: null, causes: [], components: [], codeMeanings: [], modelInfo: [] } };
+  const audit = { schema: 'ac3-audit/1', turn, provider: { name: 'test', model: 'm' }, timings: { totalMs: 5 }, safety: { hazards: [], gates: [] },
+    partGate: { outcome: 'none' }, tags: { labels: { appliance: { value: 'washing-machine', confidence: 0.9 } }, stage: 2, replyAction: { value: 'asks_question', confidence: 0.8 } } };
   return { status: 200, json: { type: 'ac2', response: { outcome: 'ANSWER', message: turn === 1 ? 'Is there water left in the drum?' : 'Next, check the pump filter.' }, state, audit } };
 }
 async function call(method, rawPath, { body, qs, admin = true } = {}) {
@@ -94,7 +95,7 @@ describe('enrichment through the real handler', () => {
     expect(engineCalls).toBe(2);
     const rec = await store.get(SID);
     expect(rec.turns.map((t) => [t.seq, t.ac2 && t.ac2.turn])).toEqual([[1, 1], [2, 2]]);
-    expect(rec.turns[1].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', status: 'narrowing', partGate: { outcome: 'model_needed' } });
+    expect(rec.turns[1].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', status: 'stage_2', partGate: { outcome: 'none' }, tags: { stage: 2, replyAction: { value: 'asks_question' } } });
     for (const t of rec.turns) expect(t).not.toHaveProperty('canonical');
     const dump = JSON.stringify(rec);
     expect(dump).not.toContain(r1.json.stateToken);

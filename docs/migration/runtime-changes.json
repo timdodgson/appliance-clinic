@@ -176,7 +176,7 @@
     },
     {
       "path": "services/whichpart-api/test/admin-transcript-detail-api.test.mjs",
-      "sha256": "185cf69bffe33051bf70f7bb8ff5627bcfc64af4b594f8aba717368da527c4e4",
+      "sha256": "ea5c9307fcfe7880c1a3f0dc9ed34a9e2123d3d094fb93f27896048f7e374b71",
       "changes": [
         "15.1-diagnosis-engine",
         "21.1-retire-journey-controller"
@@ -399,7 +399,7 @@
     },
     {
       "path": "services/whichpart-api/transcripts.js",
-      "sha256": "20b22014c12a7d711d2c3a4bfdf8b5d4ea66eeb2055e5ede214f1d119492b5a1",
+      "sha256": "7d672f032583d5e7d436ac7dd581001e439e701d3e94716376f81f1183ee8375",
       "changes": [
         "20.5-ac2-observability",
         "21.1-retire-journey-controller"
@@ -794,7 +794,7 @@
     },
     {
       "path": "services/diagnosis-engine/admin-config.js",
-      "sha256": "b31390af8926857a4cb918a1768f37418237851f8079808bcaace17482cec0c3",
+      "sha256": "8426f60438f571c6f8f9eb79815f9359d5e6e7915796e6507847779ade55710e",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -802,7 +802,8 @@
       "changes": [
         "7.17c-ac-ai-secrets-cutover",
         "15.1-diagnosis-engine",
-        "21.1-retire-journey-controller"
+        "21.1-retire-journey-controller",
+        "21.2-ac3-pipeline"
       ]
     },
     {
@@ -947,7 +948,7 @@
     },
     {
       "path": "services/diagnosis-engine/test/admin-config.test.mjs",
-      "sha256": "edef5d74afd32c08d9f638fbbcfb8c2cec594a2d2e712ca44cbb0d4fabda0d45",
+      "sha256": "78a292ff203aec48a2121510f5aef9ad2e63315a40980994e3322bc94e941d00",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -986,7 +987,7 @@
     },
     {
       "path": "services/diagnosis-engine/test/engine-signed-boundary.test.mjs",
-      "sha256": "d7fd9d2e1e274ecfb32507f4a54ff28a851d8bd1fc5503108b2a80372a804dd2",
+      "sha256": "90bf03f197276b12160b5384625cb609cf9625a2e6e97e0ffc1654ca71ec5195",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -998,7 +999,7 @@
     },
     {
       "path": "services/diagnosis-engine/test/engine-structure.test.mjs",
-      "sha256": "314eb3f2a08d7e799ba5b8436851473b76f68ec799a92070eb1174b6f11fc588",
+      "sha256": "73ac174d10369f878eb3ab9fc1e7b127edc417c991a7a7f14ecd1f56017dc429",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -1272,17 +1273,6 @@
       ]
     },
     {
-      "path": "services/diagnosis-engine/ac2/reasoner.js",
-      "sha256": "009f7a26749d839b64dc6e2cc6bbf2431bba4711936548bae61bd6cfc2751eb2",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
-      ]
-    },
-    {
       "path": "services/diagnosis-engine/ac2/errorcodes.js",
       "sha256": "edf61ffeca2d841a9f739e17ae97759395de2e36815774ee3db88b62dafa4b31",
       "role": "runtime",
@@ -1306,24 +1296,26 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/parts.js",
-      "sha256": "2b5a1575a3f4b4e52bebc5ecf6f96143322b7b76ff6115a88030535ea4f9d76d",
+      "sha256": "f2d348d89167dcc2766d05c904b63da6132a3ee8cbfea6401267969a4e0410e6",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "20.1-ac2-dormant"
+        "20.1-ac2-dormant",
+        "21.2-ac3-pipeline"
       ]
     },
     {
       "path": "services/diagnosis-engine/ac2/turn.js",
-      "sha256": "1566578ce96c2859ff9849618aa13ab16d1edfefed59500dcb1947a43c864622",
+      "sha256": "5f1d2c28af4ec99c932bdd7fa94e70a40810bcb6999559993233e6cade1292c7",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "20.1-ac2-dormant"
+        "20.1-ac2-dormant",
+        "21.2-ac3-pipeline"
       ]
     },
     {
@@ -1339,40 +1331,19 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/runtime.js",
-      "sha256": "21dfc4cae43069419c09d34aac7f1d02605e19051e125300f6583bad612f5270",
+      "sha256": "42d7749b852b7389920fee06943cecc8b8c96bf79349ae46bda67e7b14bf863c",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "20.1-ac2-dormant"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/verifier.js",
-      "sha256": "48d8d455396a48b675556b6b6710a68565b09263a361ff7cb7910a8b8cd1112d",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
+        "20.1-ac2-dormant",
+        "21.2-ac3-pipeline"
       ]
     },
     {
       "path": "services/diagnosis-engine/ac2/knowledge.js",
       "sha256": "eb567ebd506fbd135b22e312857413df8ba9ebb32f63f7d3205c958f4eca5046",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/ledger.js",
-      "sha256": "0789141c985f733408238eadd6615f8d407f410d5b245aaaec7d9f8baebb8cb1",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -1415,17 +1386,6 @@
       ]
     },
     {
-      "path": "services/diagnosis-engine/test/ac2-kernel.test.mjs",
-      "sha256": "1c181add90877be536fd127afaf90b3608f3fafa3259018fd76cae91bcda0271",
-      "role": "test",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
-      ]
-    },
-    {
       "path": "services/whichpart-api/ac2-state.js",
       "sha256": "454738926a1c716c19c80ac1b2c649b8239b9b6ea3e4323a8e9f8a5bed99129e",
       "role": "runtime",
@@ -1439,7 +1399,7 @@
     },
     {
       "path": "services/whichpart-api/ac2-turn.js",
-      "sha256": "59cc9a10fe3bd90dfcf508d1ea1a84c407ef51ccb5b61885603edabd8bd9ef7a",
+      "sha256": "44aaf6998db3627c1308ae1f9d38a5ea5606fa84a76ff3ed8abba2cd04198cf0",
       "role": "runtime",
       "units": [
         "whichpart-api"
@@ -1447,17 +1407,6 @@
       "changes": [
         "20.1-ac2-dormant",
         "21.1-retire-journey-controller"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/test/ac2-claims-adversarial.test.mjs",
-      "sha256": "19b1332ebad3ae14e050d503957418e4a112b75d7d43ababd05a29da7f04f6c1",
-      "role": "test",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
       ]
     },
     {
@@ -1486,13 +1435,91 @@
     },
     {
       "path": "services/diagnosis-engine/test/ac2-guardrail-regression.test.mjs",
-      "sha256": "8e46df19691a21f024641e139bbf3bd45af4f1a175a09ee82e9681964e88692f",
+      "sha256": "63add756f68aa5c0dc272bdc6db386401fd1c3bcfb8ef2a6468b87d0f292bb97",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "20.1-ac2-dormant"
+        "20.1-ac2-dormant",
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/util.js",
+      "sha256": "e1b12984b8f80a9c53737937738c28d642548f2e8927c5206a4acfb6331d2fd4",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/record.js",
+      "sha256": "60909c5406a5dbdfdb0e6536b269c77e442aeefe43d255f9e54d5e46b36ecc39",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/understand.js",
+      "sha256": "c5d5d9ab62f7c7ea728bfe50cba8d0bef8998823294bf2b096a8a63cad4b230b",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/labels.js",
+      "sha256": "7b2bcc9e3169669e921e3b1a99aa7f303cdf87aa93470f65f7a1a429ac3d488d",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/mcp.js",
+      "sha256": "ee5c2117cbf199bd4432d6805eba35b5d577ec0d69a0237edf62c7b211f517b3",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/reply.js",
+      "sha256": "dd052944a150043184504d8410d36643e0b6b58e4bd9411342e9d8d0ac4f7d32",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac3-turn.test.mjs",
+      "sha256": "b92881e6419578d5f5ba6f185fd42b932cc75e1520569887d7e01d32dd5036bd",
+      "role": "test",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.2-ac3-pipeline"
       ]
     }
   ],

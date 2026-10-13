@@ -37,13 +37,16 @@ own settings: role, runtime, handler, IAM Function URL, log retention, alarms).
 | `MEDIA_OVERLAY_TTL_MS` | Optional | 10000 | No | `media-effective.js` |
 | `LLM_PROVIDER`, `COMPOSE_PROVIDER`, `COMPOSE_MODEL`, `OPENAI_API_KEY`, `OPENAI_BASE_URL` | Optional | `lmstudio`; OpenAI base `https://api.openai.com/v1` | No | `inference.js` (environment-only provider selection; production uses the admin AI config) |
 | `AWS_REGION` | Lambda | `eu-west-1` | Lambda sets it | AWS clients |
+| `JEV_SECRET_ID` | Required for every turn | `spares4repairs/${STAGE}/applianceclinic-jev` | Yes: `applianceclinic/production/jev` | `admin-config.js`: the Jev credential (step 3 labels, step 10 media and reply tags). Missing: every turn is "temporarily unavailable" |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_GATEWAY_ID`, `JEV_ACCOUNT_ID`, `JEV_API_TOKEN`, `JEV_GATEWAY_ID` | Optional | none | No | `admin-config.js`: local Jev credentials when no secret is configured |
+| `JEV_TIMEOUT_MS`, `AC3_JEV_TIMEOUT_MS` | Optional | 15000; 12000 per Jev call in a turn | No | `jev-client.js`, `ac2/runtime.js` |
+| `MCP_URL`, `MCP_BEARER_TOKEN` | Required for error-code meanings | none: codes are reported as not resolved (never invented) | Yes: the error-code service URL and a dynamic reference to `applianceclinic/production/mcp-bearer` | `ac2/mcp.js` (step 4, error-code enrichment) |
 
 **Removed in Phase 15** with the legacy code: `LM_MAX_TOKENS` (legacy COMPOSE), `SEARCH_API` (legacy catalogue
 search), and `EMBED_URL`, `EMBED_MODEL`, `EMBED_TIMEOUT_MS` (retrieval embeddings, in the engine and whichpart-api).
 
-**Removed in change 21.1** with the journey controller (ADR 0020): `JEV_SECRET_ID`, `JEV_TIMEOUT_MS`,
-`CANONICAL_MC1_QUESTIONS`, `UNDERSTAND_PROVIDER`, the `CLOUDFLARE_*` / `JEV_*` local credentials and the COMPOSE tuning
-`LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`.
+**Removed in change 21.1** with the journey controller (ADR 0020): `CANONICAL_MC1_QUESTIONS`, `UNDERSTAND_PROVIDER` and
+the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`. Jev stays: it labels every turn (change 21.2).
 
 ## whichpart-api
 

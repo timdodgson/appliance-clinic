@@ -1,7 +1,7 @@
 'use strict';
 /**
- * The ac2 customer turn at the BFF: load the conversation's evidence ledger, send the turn to the diagnosis engine
- * (signed, `mode: 'turn'`), persist the new ledger, and turn the engine's structured response into the customer view.
+ * The customer turn at the BFF: load the conversation's record (ac3/1), send the turn to the diagnosis engine
+ * (signed, `mode: 'turn'`), persist the new record, and turn the engine's structured response into the customer view.
  *
  * The engine's turn pipeline is the orchestration (ac2/turn.js): there is no separate orchestrator hop on this path.
  * A turn the engine could not answer (reasoner unavailable, timeout) is an explicit error: the state is not
@@ -31,10 +31,12 @@ function orchShape(r) {
   };
 }
 
-/** Bounded, chain-of-thought-free audit for transcripts and the admin (no ledger quotes beyond what the customer typed). */
+/** Bounded audit for transcripts and the admin: timings, safety, part decision, the record's customer facts and this
+ * turn's tags (Jev labels with confidence, stage, what the reply did, media, enrichment used). */
 function auditOf(out, extra = {}) {
   const a = out && out.audit ? out.audit : {};
   const st = out && out.state ? out.state : null;
+  const c = st && st.customer ? st.customer : null;
   return {
     schemaVersion: 'ac2-transcript-audit/1',
     path: 'ac2',
@@ -42,20 +44,22 @@ function auditOf(out, extra = {}) {
     provider: a.provider || null,
     timings: a.timings || null,
     usage: a.usage || null,
-    toolCalls: a.toolCalls || [],
+    toolCalls: [],
     safety: a.safety || null,
-    claimsRejected: (a.claims && a.claims.rejected) || [],
-    claimsChecked: (a.claims && a.claims.checked) || 0,
-    regenerated: Boolean(a.regenerated),
+    claimsRejected: [],
+    claimsChecked: 0,
+    regenerated: false,
     partGate: a.partGate || null,
     escalation: a.escalation || null,
-    status: a.status || null,
-    candidates: a.candidates || [],
+    status: st ? (st.outcome || `stage_${st.stage}`) : null,
+    candidates: [],
     scope: a.scope || null,
-    ledger: st ? {
-      appliance: st.appliance, brand: st.brand, model: st.model, codes: st.codes,
-      facts: (st.facts || []).map((f) => ({ id: f.id, field: f.field, value: f.value, source: f.source, status: f.status, turn: f.turn, quote: f.quote || null })),
-      asked: st.asked, hazards: st.hazards || [],
+    tags: a.tags || null,
+    plan: a.plan || null,
+    ledger: c ? {
+      appliance: c.appliance, brand: c.brand, model: c.model, codes: c.codes,
+      facts: (c.checks || []).map((k, i) => ({ id: `c${i + 1}`, field: 'check', value: `${k.check}: ${k.result || 'done'}`, source: 'customer', status: 'stated', turn: k.turn, quote: null })),
+      asked: (st.asked || []).map((q) => ({ key: null, text: q.question, turn: q.turn, resolution: q.answer || null })), hazards: st.hazards || [],
     } : null,
     ...extra,
   };

@@ -27,7 +27,7 @@ const DELETED = [
   'engine/progression.js', 'engine/presentation.js', 'engine/safety.js', 'engine/intent-vocabulary.js',
   'engine/error-codes.js', 'engine/media-concepts.js', 'knowledge/normal-behaviour.json',
   // The journey controller (Jev UNDERSTAND, mc/1, cs/1, the canonical journeys and COMPOSE), retired with ADR 0020.
-  'canonical', 'canonical-runtime.js', 'jev-client.js', 'jev-mc1.js', 'jev-understand.js', 'identity.js', 'security.js',
+  'canonical', 'canonical-runtime.js', 'jev-mc1.js', 'jev-understand.js', 'identity.js', 'security.js',
   'engine/understand.js', 'engine/reply-filters.js', 'engine/catalogue.js', 'ac2/build-journey-knowledge.cjs',
 ];
 

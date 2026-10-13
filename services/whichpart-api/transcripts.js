@@ -352,7 +352,26 @@ function slimAc2Audit(a, opts) {
     cause: ac2Str(c && c.cause, 120), likelihood: ac2Str(c && c.likelihood, 16), evidence: ac2List(c && c.evidence).map((x) => ac2Str(x, 24)),
   }));
   out.ledger = ac2Ledger(a.ledger);
+  out.tags = ac2Tags(a.tags);
+  out.plan = ac2List(a.plan).slice(0, 8).map((x) => ac2Str(x, 400));
   return out;
+}
+
+/** This turn's tags: Jev labels (value + confidence), stage, what the reply did, media, enrichment used. */
+function ac2Tags(t) {
+  if (!t || typeof t !== 'object') return null;
+  const labels = {};
+  for (const [k, v] of Object.entries(t.labels && typeof t.labels === 'object' ? t.labels : {}).slice(0, 20)) {
+    labels[ac2Str(k, 40)] = v && typeof v === 'object' ? { value: ac2Scalar(v.value, 80), confidence: ac2Num(v.confidence) } : null;
+  }
+  const e = t.enrichment && typeof t.enrichment === 'object' ? t.enrichment : {};
+  return {
+    labels,
+    stage: ac2Num(t.stage),
+    replyAction: t.replyAction && typeof t.replyAction === 'object' ? { value: ac2Str(t.replyAction.value, 40), confidence: ac2Num(t.replyAction.confidence) } : null,
+    media: ac2Str(t.media, 120),
+    enrichment: { knowledgeIds: ac2List(e.knowledgeIds).map((x) => ac2Str(x, 80)), codes: ac2List(e.codes).map((x) => ({ code: ac2Str(x && x.code, 16), status: ac2Str(x && x.status, 24) })), recalls: ac2Num(e.recalls), parts: ac2Str(e.parts, 40) },
+  };
 }
 
 function slimTrace(trace) {

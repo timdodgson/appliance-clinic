@@ -10,7 +10,7 @@ import { describe, it, expect } from "vitest";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { loadAdminInference, _resetCache, AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID } = require("../admin-config.js");
+const { loadAdminInference, _resetCache, parseJevSecret, AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, JEV_SECRET_ID } = require("../admin-config.js");
 const { resolveProvidersFromAdminConfig, LMStudioProvider, OpenAIProvider, InferenceError } = require("../inference.js");
 
 /** Fake transport that records requests and returns scripted responses. */
@@ -44,7 +44,8 @@ describe("loadAdminInference — secret loading & fallback", () => {
     const r = await loadAdminInference({ now: 1, env: {}, fetchSecret: fakeSecrets({ config: undefined }) });
     expect(r.config).toBe(null);
     expect(r.openaiKey).toBe(null);
-    expect(Object.keys(r).sort()).toEqual(["at", "config", "openaiKey"]);
+    expect(Object.keys(r).sort()).toEqual(["at", "config", "jev", "jevConfigured", "openaiKey"]);
+    expect(r.jev).toBe(null);
   });
 
   it("does NOT read the credential when COMPOSE does not route to frontier", async () => {
@@ -69,12 +70,22 @@ describe("loadAdminInference — secret loading & fallback", () => {
   it("caches within the TTL and re-reads after reset", async () => {
     _resetCache();
     let reads = 0;
-    const fetchSecret = async () => { reads++; return JSON.stringify({ routing: { understand: "local", compose: "local" } }); };
+    const fetchSecret = async (id) => { if (id !== JEV_SECRET_ID) reads++; return JSON.stringify({ routing: { understand: "local", compose: "local" } }); };
     await loadAdminInference({ now: 1000, env: {}, fetchSecret });
     await loadAdminInference({ now: 1000 + 30000, env: {}, fetchSecret }); // within 60s TTL
     expect(reads).toBe(1); // AI config, once
     await loadAdminInference({ now: 1000 + 120000, env: {}, fetchSecret }); // past TTL
     expect(reads).toBe(2);
+  });
+
+  it("reads the Jev credential from its secret, and from the environment locally", async () => {
+    _resetCache();
+    const fetchSecret = async (id) => (id === JEV_SECRET_ID ? JSON.stringify({ accountId: "acc", apiToken: "tok", gatewayId: "gw" }) : null);
+    const r = await loadAdminInference({ now: 1, env: {}, fetchSecret });
+    expect(r.jev).toEqual({ accountId: "acc", apiToken: "tok", gatewayId: "gw" });
+    expect(r.jevConfigured).toBe(true);
+    expect(parseJevSecret(null, { CLOUDFLARE_ACCOUNT_ID: "a", CLOUDFLARE_API_TOKEN: "t" })).toEqual({ accountId: "a", apiToken: "t", gatewayId: null });
+    expect(parseJevSecret("not json", {})).toBe(null);
   });
 });
 

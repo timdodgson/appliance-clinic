@@ -128,10 +128,13 @@
       },
       "env": {
         "set": {
-          "AC_BEARER_VERSIONS": "engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
+          "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
+          "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai"
         },
         "digests": {
@@ -362,7 +365,8 @@
               "Action": "secretsmanager:GetSecretValue",
               "Resource": [
                 "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/ai-config-1amb1V",
-                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/openai-odBgqp"
+                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/openai-odBgqp",
+                "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/jev-TcVn9Y"
               ]
             }
           ]

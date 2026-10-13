@@ -1,418 +1,355 @@
 'use strict';
 /**
- * One customer turn: models reason, deterministic code verifies and constrains.
+ * One customer turn.
  *
- *   customer words ─► deterministic pre-pass (hazards in the customer's words, tool lookups: error codes, model hints,
- *                     knowledge, normal behaviour)
- *                  ─► diagnostic reasoner (LLM): understanding, ledger proposals, candidate causes, next question, reply
- *                  ─► kernel: evidence ledger (grounded quotes, contradictions), scope, safety gate, claim verifier,
- *                     repeated-question guard ─► (one regeneration with the kernel's objections, if any)
- *                  ─► part gate, escalation policy, fixed safety wording ─► response + audit
+ *   1  receive        the BFF loads the chat's record and sends the turn (signed)
+ *   2  understand     Qwen reads the latest message and pulls out what it means (hints only)
+ *   3  label          Jev labels it from the customer's words, with a confidence per label
+ *   4  enrich         RAG fault notes, normal behaviour, error-code meanings (error-code service), recalls, model info,
+ *                     parts (stage 2 only); kept apart from customer facts
+ *   5  record         the BFF saves the record; this turn's labels are the transcript tags
+ *   6  safety         Jev's hazard label plus the word-list backstop; fixed wording; stop only for gas or fire
+ *   7  decide         what this reply must do: stage 1 broad help, stage 2 narrow / model / part; never ask for
+ *                     anything already in the record
+ *   8  reply          Qwen writes the reply as a normal chat
+ *   9  final check    unsafe advice and unverified part numbers or prices removed; parts only when the catalogue
+ *                     confirms them for the customer's model
+ *   10 media          Jev picks the picture or video that matches the reply's check, and tags what the reply does
+ *   11 send           response, record and audit back to the BFF
  *
- * There is no other diagnostic path. If the reasoner or the claim extractor cannot run, the turn fails explicitly
- * (ProviderUnavailableError) and the customer is told the service is temporarily unavailable.
+ * If Qwen or Jev cannot run, the turn fails explicitly (ProviderUnavailableError): no fallback answer.
  */
-const L = require('./ledger.js');
+const Rec = require('./record.js');
 const S = require('./safety.js');
 const K = require('./knowledge.js');
 const M = require('./models.js');
-const V = require('./verifier.js');
 const P = require('./parts.js');
-const R = require('./reasoner.js');
+const J = require('./labels.js');
+const { understand } = require('./understand.js');
+const { writeReply } = require('./reply.js');
+const { textOf, ProviderUnavailableError } = require('./util.js');
 
 let EC = null;
 try { EC = require('./errorcodes.js'); } catch { EC = null; }
 
 const SUPPORTED = new Set(K.APPLIANCES);
-const OUT_OF_SCOPE_RE = /\b(boiler|central heating|radiators?|combi|immersion heater|car|van|engine|tv|television|laptop|computer|pc|monitor|phone|printer|kettle|toaster|air ?fryer|coffee machine|extractor (?:fan|hood)|cooker hood|dehumidifier|air con(?:ditioner)?|heat pump(?! dryer)|e-?bike|boat|caravan|lawn ?mower)\b/i;
-
-class ProviderUnavailableError extends Error {
-  constructor(message, cause) {
-    super(message);
-    this.name = 'ProviderUnavailableError';
-    this.category = (cause && (cause.category || cause.name)) || 'UNAVAILABLE';
-    this.status = (cause && cause.status) || null;
-    this.detail = cause && cause.detail ? String(cause.detail).slice(0, 300) : null;
-  }
-}
-
 const SCOPE_COPY = 'Appliance Clinic covers washing machines, washer-dryers, tumble dryers, dishwashers, fridges and freezers, ovens and cookers, hobs, microwaves and vacuum cleaners, so I can\'t diagnose that one.';
 const SCOPE_POINTER = [
   [/boiler|central heating|radiator|combi|immersion/i, ' For a boiler or heating fault, a Gas Safe registered engineer is the right person (and if you ever smell gas, call 0800 111 999).'],
   [/\b(car|van|engine|boat|caravan|e-?bike)\b/i, ' A garage or the manufacturer\'s support line is the best place to start.'],
   [/tv|television|laptop|computer|pc|monitor|phone|printer/i, ' The manufacturer\'s support line or a specialist electronics repairer is the best place to start; please don\'t open the case, as the power supply inside can hold a dangerous charge.'],
 ];
+const ATTACK_COPY = 'I can only help with household appliance faults. What\'s going on with your appliance?';
+const BLOCKING = new Set(['gas', 'fire', 'burning', 'battery', 'electric_shock', 'microwave_arcing', 'supply_trip']);
+const LABEL_WHERE = {
+  'washing-machine': 'on a sticker inside the door rim or on the back of the door', 'washer-dryer': 'on a sticker inside the door rim or on the back of the door',
+  'tumble-dryer': 'on a sticker inside the door opening', dishwasher: 'on the side edge of the door', 'fridge-freezer': 'on a sticker inside the fridge, usually on a side wall near the salad drawer',
+  'oven-cooker': 'on the frame around the oven door opening', hobs: 'on the underside of the hob or on the guarantee card', microwave: 'on the back or inside the door frame',
+  vacuum: 'on the body, often under the bin or battery',
+};
 
-function customerTexts(messages) {
-  return messages.filter((m) => m && m.role === 'user').map((m) => R.textOf(m.content));
-}
+const customerTexts = (messages) => messages.filter((m) => m.role === 'user').map((m) => textOf(m.content));
+const lastOf = (messages, role) => { for (let i = messages.length - 1; i >= 0; i -= 1) if (messages[i].role === role) return textOf(messages[i].content); return null; };
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** Deterministic tool pass over the customer's words. */
-function tools(st, texts) {
-  const all = texts.join('\n');
-  const latest = texts[texts.length - 1] || '';
-  const out = { errorCodes: [], modelHints: [], brandsSeen: [] };
-  const brandList = EC && EC.brands ? EC.brands() : Object.keys(M.SERIES);
-  const low = ` ${all.toLowerCase()} `;
-  for (const b of brandList) {
-    const re = new RegExp(`[^a-z]${b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^a-z]`);
-    if (re.test(low)) out.brandsSeen.push(b);
-  }
-  const brand = (st.brand && st.brand.value ? st.brand.value.toLowerCase() : null) || out.brandsSeen[0] || null;
-  const appliance = st.appliance && st.appliance.value && SUPPORTED.has(st.appliance.value) ? st.appliance.value : (K.applianceHints(all)[0] || null);
-
-  // Model hints: model-shaped tokens, and short series tokens that follow a brand name ("Dyson V6").
-  const tokens = new Set(M.candidateModels(all));
-  if (st.model && st.model.value) tokens.add(st.model.value);
-  for (const b of out.brandsSeen) {
-    const m = all.toLowerCase().match(new RegExp(`${b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+([a-z]{1,3}\\d{1,3}[a-z]?)\\b`));
-    if (m) tokens.add(m[1].toUpperCase());
-  }
-  for (const t of tokens) {
-    const h = M.hints(t, brand);
-    if (h.length) out.modelHints.push({ token: t, hints: h });
-  }
-
-  // Error codes: every code-like token, looked up with whatever brand/appliance context exists. The reasoner decides
-  // whether a token is a code at all.
-  if (EC && EC.candidateTokens && EC.lookup) {
-    const seen = new Set();
-    const cands = [...EC.candidateTokens(all), ...(st.codes || []).map((c) => ({ token: c.code }))];
-    for (const c of cands) {
-      const tok = c.token || c.code;
-      if (!tok || seen.has(tok)) continue;
-      seen.add(tok);
-      try {
-        const r = EC.lookup({ code: tok, brand, appliance });
-        if (r && r.status !== 'NOT_FOUND') out.errorCodes.push(r);
-        else if (r) out.errorCodes.push({ code: tok, status: 'NOT_FOUND', brand, appliance });
-      } catch { /* a lookup failure is reported as no result */ }
-      if (out.errorCodes.length >= 4) break;
+/** Candidate tokens and brands for Jev's make / model / code labels (from Qwen's reading and the message itself). */
+function candidatesFor(latest, reading) {
+  const tokens = [reading.model, ...reading.codes];
+  for (const t of M.candidateModels(latest)) tokens.push(t);
+  if (EC && EC.candidateTokens) for (const c of EC.candidateTokens(latest)) tokens.push(c.token || c.code);
+  const brands = [reading.brand];
+  if (EC && EC.brands) {
+    const low = ` ${latest.toLowerCase()} `;
+    for (const b of EC.brands()) {
+      if (!new RegExp(`[^a-z]${esc(b)}[^a-z]`).test(low)) continue;
+      brands.push(b);
+      const m = low.match(new RegExp(`${esc(b)}\\s+([a-z]{1,3}\\d{1,3}[a-z]?)\\b`));
+      if (m) tokens.push(m[1].toUpperCase());
     }
   }
-  // The catalogue's internal caveat ("meaning disputed across sources") becomes a flag, not customer-facing text.
-  out.errorCodes = out.errorCodes.map((r) => ({ ...r, candidates: (r.candidates || []).map((c) => {
-    const disputed = /meaning disputed/i.test(c.meaning || '') || c.disputed;
-    const { disputed: _d, ...rest } = c;
-    return { ...rest, meaning: String(c.meaning || '').replace(/\s*-?\s*meaning disputed across sources\.?/i, ''), ...(disputed ? { sourcesDisagree: true } : {}) };
-  }) }));
-  out.latestHasCode = Boolean(EC && EC.candidateTokens && EC.candidateTokens(latest).length);
-  return { ...out, brand, appliance };
+  return { tokens: tokens.filter(Boolean), brands: brands.filter(Boolean) };
 }
 
-function hazardState(st, messages) {
-  const appliance = st.appliance && st.appliance.value;
-  const found = S.detectHazards(messages, appliance);
-  // Hazards persist for the conversation even after older messages leave the window.
-  const prior = st.hazards || [];
-  const merged = [...prior];
-  for (const h of found) if (!merged.some((p) => p.type === h.type)) merged.push({ type: h.type, clause: h.clause.slice(0, 160), turn: st.turn, shown: false });
-  st.hazards = merged;
-  const top = S.mostSerious(merged);
-  return top ? { ...top, policy: S.POLICY[top.type] } : null;
-}
-
-function safetyContext(st, hazard, unsafeRequest) {
-  return {
-    activeHazards: (st.hazards || []).map((h) => ({ type: h.type, customerSaid: h.clause, warningAlreadyShown: Boolean(h.shown), prohibited: (S.POLICY[h.type] || {}).prohibit || [], continueHelping: !((S.POLICY[h.type] || {}).terminate) })),
-    unsafeRequestThisTurn: unsafeRequest,
-    note: hazard ? 'A hazard is active: the system shows the fixed safety wording. Continue helping only with checks that are safe with the appliance switched off and isolated; do not suggest running, testing or using it.' : null,
-  };
-}
-
-function sim(a, b) {
-  const wa = new Set(K.words(a));
-  const wb = new Set(K.words(b));
-  if (!wa.size || !wb.size) return 0;
-  let n = 0;
-  for (const w of wa) if (wb.has(w)) n += 1;
-  return n / Math.min(wa.size, wb.size);
-}
-
-/** The question in this reply repeats one the customer could not or would not answer, or was asked twice already. */
-function repeatedQuestion(st, proposal) {
-  if (!proposal.next) return null;
-  const key = String(proposal.next.key || '').toLowerCase().replace(/[^a-z0-9_]+/g, '_');
-  const closed = L.closedQuestions(st);
-  if (key && closed.includes(key)) return { key, why: 'closed' };
-  for (const a of st.asked) {
-    if ((a.resolution === 'unknown' || a.resolution === 'declined' || a.times >= 2) && sim(a.text, proposal.next.question) >= 0.75) return { key: a.key, why: 'similar' };
+/** Step 3 → record: labelled customer values. */
+function applyLabels(rec, L, reading) {
+  const t = rec.turn;
+  if (L.appliance.value && SUPPORTED.has(L.appliance.value)) Rec.setValue(rec, 'appliance', L.appliance.value, L.appliance.confidence, t);
+  if (L.make.value) Rec.setValue(rec, 'brand', L.make.value, L.make.confidence, t);
+  if (L.model.value) { Rec.setValue(rec, 'model', L.model.value.toUpperCase(), L.model.confidence, t); rec.customer.modelUnavailable = false; }
+  if (L.code.value) Rec.addCode(rec, L.code.value, t);
+  if (L.symptomArea.value) {
+    Rec.setValue(rec, 'symptomArea', L.symptomArea.value, L.symptomArea.confidence, t);
+    if (reading.symptom && !rec.customer.symptom) Rec.setValue(rec, 'symptom', reading.symptom, L.symptomArea.confidence, t);
   }
-  return null;
+  if (L.checkOutcome.value || L.lastAnswer.value === 'answered') for (const c of reading.checksReported) Rec.addCheck(rec, c.check, c.result, t);
+  if (L.lastAnswer.value) Rec.resolveLastAsked(rec, L.lastAnswer.value === 'answered' ? (reading.answerToLastQuestion || 'answered') : L.lastAnswer.value);
+  if (L.modelUnreachable.value && !rec.customer.model) rec.customer.modelUnavailable = true;
+  if (L.checkOutcome.value === 'fixed') rec.outcome = 'fixed';
+  if (L.checkOutcome.value === 'still_faulty' || L.checkOutcome.value === 'helped_then_returned') rec.stage = 2;
+  if (L.narrowed.value) { rec.narrowed = { component: L.narrowed.value, confidence: L.narrowed.confidence, turn: t }; rec.stage = 2; }
 }
 
-function stripQuestion(reply, question) {
-  const sents = V.sentences(reply);
-  const kept = sents.filter((s) => !(s.includes('?') && sim(s, question) >= 0.6));
-  return kept.join('').trim();
+/** Step 6: hazards from Jev's label and the word-list backstop; they persist for the conversation. */
+function applyHazards(rec, labels, messages, recalls) {
+  const add = (type, clause, extra = {}) => { if (type && !rec.hazards.some((h) => h.type === type)) rec.hazards.push({ type, clause: String(clause || '').slice(0, 160), turn: rec.turn, shown: false, ...extra }); };
+  if (labels.hazard.value) add(labels.hazard.value, `labelled: ${labels.hazard.value}`, { source: 'jev', confidence: labels.hazard.confidence });
+  // The word list needs the appliance for appliance-specific hazards (microwave arcing): the record's, else a hint from the words.
+  const appliance = (rec.customer.appliance && rec.customer.appliance.value) || K.applianceHints(customerTexts(messages).join(' '))[0] || null;
+  for (const h of S.detectHazards(messages, appliance)) add(h.type, h.clause, { source: 'words' });
+  if (recalls.length) add('recall', recalls[0].title || 'recall notice', { url: recalls[0].url || null, source: 'recall-store' });
+  const top = S.mostSerious(rec.hazards);
+  return top ? { ...top, policy: S.POLICY[top.type] || {} } : null;
+}
+
+/** Step 4: tools. */
+async function enrich(rec, texts, deps, recalls) {
+  const appliance = rec.customer.appliance && rec.customer.appliance.value;
+  const symptomText = [rec.customer.symptom && rec.customer.symptom.value, texts.slice(-3).join(' ')].filter(Boolean).join(' ');
+  const knowledge = appliance ? K.retrieve({ appliance, text: symptomText }) : [];
+  const normal = appliance ? K.normalNotes({ appliance, text: symptomText }) : [];
+  if (knowledge.length) {
+    rec.knowledge.knowledgeIds = knowledge.map((k) => k.knowledgeId);
+    rec.knowledge.fault = knowledge[0].fault || null;
+    rec.knowledge.causes = [...new Set(knowledge.flatMap((k) => k.causes || []))].slice(0, 8);
+    rec.knowledge.components = [...new Set(knowledge.flatMap((k) => k.likelyComponents || []))].slice(0, 12);
+  }
+  const brand = rec.customer.brand && rec.customer.brand.value;
+  const model = rec.customer.model && rec.customer.model.value;
+  const codeMeanings = [];
+  for (const c of rec.customer.codes.slice(-3)) {
+    const prior = rec.knowledge.codeMeanings.find((x) => x.code === c.code);
+    if (prior && prior.status === 'RESOLVED') { codeMeanings.push(prior); continue; }
+    const r = deps.resolveCode ? await deps.resolveCode({ make: brand, appliance, code: c.code, model }) : { code: c.code, status: 'UNAVAILABLE' };
+    codeMeanings.push(r);
+    rec.knowledge.codeMeanings = rec.knowledge.codeMeanings.filter((x) => x.code !== c.code).concat(r);
+  }
+  for (const r of codeMeanings) {
+    if (r.status === 'RESOLVED' && r.components && r.components.length) rec.knowledge.components = [...new Set([...r.components, ...rec.knowledge.components])].slice(0, 12);
+  }
+  rec.knowledge.modelInfo = model ? M.hints(model, brand ? brand.toLowerCase() : null) : [];
+  const compactKnowledge = knowledge.map((k) => ({ fault: k.fault, likelyCauses: k.causes, components: k.likelyComponents, ownerSafeChecks: k.ownerSafeChecks, discriminators: k.discriminators, commonConfusion: k.commonConfusion }));
+  return { knowledge: compactKnowledge, normal, codeMeanings, recalls };
+}
+
+/** Step 7: the plan for this reply, decided in code. */
+function decide(rec, reading, hazard, unsafe, parts) {
+  const plan = [];
+  const c = rec.customer;
+  const appliance = c.appliance && c.appliance.value;
+  const model = c.model && c.model.value;
+  if (reading.customerQuestion) plan.push(`They asked: "${reading.customerQuestion}" - answer that first.`);
+  if (rec.outcome === 'fixed') {
+    plan.push('The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else.');
+    return plan;
+  }
+  if (!appliance) {
+    plan.push('We do not know which appliance this is yet: ask which appliance it is (and the make, if they know it). Keep it short.');
+    return plan;
+  }
+  if (hazard && !hazard.policy.terminate) plan.push(`Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. Only suggest checks that are safe with the appliance switched off and unplugged, never running or testing it; recommend ${String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ')} where the fault needs one.`);
+  if (unsafe) plan.push(`They asked about something unsafe (${unsafe.replace(/_/g, ' ')}): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.`);
+  const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
+  if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
+  if (rec.stage === 1) {
+    plan.push('Stage 1 (broad help): say the most likely cause in plain words and give one or two safe checks the owner can do for it, most likely first. Do not ask for the model number in this reply.');
+    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES; if the catalogue could not resolve it, say what it usually means on this appliance and what would confirm it.');
+    return plan;
+  }
+  // Stage 2: the owner's checks did not fix it.
+  if (!model && !c.modelUnavailable) {
+    const where = LABEL_WHERE[appliance] || 'on the rating label';
+    plan.push(`Stage 2: their checks did not fix it. Say what that points to, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
+  } else if (!model) {
+    plan.push('Stage 2: their checks did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
+  } else if (parts && parts.outcome === 'verified') {
+    plan.push(`Stage 2: the checks point to the ${parts.component}. Say that, and that a matching part for model ${parts.catalogueModel} is shown below; they should check the listing matches their model before ordering. Mention when an engineer is the better choice.`);
+  } else if (parts && parts.outcome === 'no_catalogue_part') {
+    plan.push(`Stage 2: the checks point to the ${parts.component}, but we could not find a confirmed match for model ${model}. Say so, and suggest the manufacturer's spares or an engineer.`);
+  } else {
+    plan.push('Stage 2: their checks did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
+  }
+  return plan;
+}
+
+/** Part numbers and prices may come only from the catalogue or the customer's own words. */
+const IDENT = /\b(?=[A-Z0-9-]*\d)(?=[A-Z0-9-]*[A-Z0-9]{6,})[A-Z0-9][A-Z0-9-]{5,}\b|£\s?\d+(?:\.\d{2})?/g;
+function removeUnverifiedIdentifiers(reply, texts, rec) {
+  const known = `${texts.join(' ')} ${(rec.customer.model && rec.customer.model.value) || ''} ${rec.customer.codes.map((c) => c.code).join(' ')}`.toUpperCase().replace(/\s+/g, '');
+  const sents = String(reply).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
+  const removed = [];
+  const kept = sents.filter((s) => {
+    const ids = (s.toUpperCase().match(IDENT) || []).filter((id) => !known.includes(id.replace(/\s+/g, '')));
+    if (ids.length) { removed.push(ids.slice(0, 3)); return false; }
+    return true;
+  });
+  return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').trim(), removed };
+}
+
+// A physical check without isolation gets the isolation step first.
+const PHYSICAL = /\b(unscrew|remove|take (?:out|off)|pull (?:out|off|back)|open (?:the |up )?(?:filter|flap|panel|cover|back|door seal|pump|sump)|lift (?:out|off)|(?:clean|wash|rinse) (?:the )?(?:filters?|condenser|pump|sump|drain|coils?|brush)|detach (?:the )?(?:wand|hose|head|floorhead|bin)|clear (?:the )?(?:filter|drain|hose|pump|blockage)|turn the impeller|reach (?:in|into)|tilt (?:it|the)|pull (?:it|the machine) (?:out|forward)|check inside|flush (?:the|out))\b/i;
+const ISOLATED = /\b(unplug|unplugged|switch(?:ed)? (?:it |the \w+ )?off|isolat\w+|turn(?:ed)? (?:it )?off at|power off|power is off|off at the (?:wall|socket|fuse|consumer|cooker switch)|remove the battery|take the battery off)\b/i;
+function stepPrecaution(reply, recentText, appliance) {
+  if (!PHYSICAL.test(reply) || ISOLATED.test(reply) || ISOLATED.test(recentText || '')) return null;
+  if (appliance === 'microwave') return 'Unplug it first and never remove the outer casing.';
+  if (appliance === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
+  if (appliance === 'oven-cooker' || appliance === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
+  return 'Before you start, switch it off and unplug it.';
+}
+
+function lastQuestion(reply) {
+  const qs = (String(reply).match(/[^.!?\n]*\?/g) || []).map((s) => s.trim()).filter(Boolean);
+  return qs.length ? qs[qs.length - 1] : null;
 }
 
 /**
- * Run one turn.
- * input: { messages, state, image }
- * deps:  { reasoner: provider, extractor: provider, lookupParts: async (model) => {parts, model}, mediaFor: (kids, ctx) => media[] }
+ * input: { messages, state, tools: { recalls } }
+ * deps:  { qwen: provider, jev: { evaluate({state, questions}) }, resolveCode, lookupParts, mediaCandidates }
  */
 async function runTurn(input, deps) {
   const t0 = Date.now();
   const messages = (input.messages || []).filter((m) => m && (m.role === 'user' || m.role === 'assistant'));
-  const st = input.state && input.state.schema === L.SCHEMA ? L.clone(input.state) : L.empty();
-  st.turn += 1;
+  const rec = Rec.load(input.state);
+  rec.turn += 1;
   const texts = customerTexts(messages);
   const latest = texts[texts.length - 1] || '';
-  const ctx = { turn: st.turn, customerTexts: texts };
-  const audit = { schema: 'ac2-audit/1', turn: st.turn, timings: {}, toolCalls: [], safety: { hazards: [], gates: [] }, claims: { rejected: [], checked: 0 }, regenerated: false, provider: null };
-
-  // 1. Deterministic pre-pass.
-  // Product-safety recalls: strong matches from the recall store (a BFF tool), passed in with the turn.
+  const priorAssistant = lastOf(messages, 'assistant');
   const recalls = Array.isArray(input.tools && input.tools.recalls) ? input.tools.recalls.slice(0, 3) : [];
-  if (recalls.length && !(st.hazards || []).some((h) => h.type === 'recall')) {
-    st.hazards = (st.hazards || []).concat({ type: 'recall', clause: String(recalls[0].title || 'recall notice').slice(0, 160), turn: st.turn, shown: false, url: recalls[0].url || null });
-  }
-  let hazard = hazardState(st, messages);
-  let unsafeRequest = S.detectUnsafeRequest(latest, (st.appliance && st.appliance.value) || K.applianceHints(texts.join(' '))[0] || null);
-  const tl = tools(st, texts);
-  audit.toolCalls.push({ tool: 'error-codes', results: tl.errorCodes.map((r) => ({ code: r.code, status: r.status })) });
-  audit.toolCalls.push({ tool: 'model-hints', results: tl.modelHints.map((m) => ({ token: m.token, families: m.hints.map((h) => h.family) })) });
-  const knowledge = K.retrieve({ appliance: tl.appliance, text: texts.join(' ') });
-  const normal = K.normalNotes({ appliance: tl.appliance, text: texts.join(' ') });
-  audit.toolCalls.push({ tool: 'knowledge', results: knowledge.map((k) => k.knowledgeId) });
-  if (normal.length) audit.toolCalls.push({ tool: 'normal-behaviour', results: normal.map((n) => n.id) });
+  const audit = { schema: 'ac3-audit/1', turn: rec.turn, timings: {}, provider: deps.qwen ? { name: deps.qwen.name || null, model: deps.qwen.model || null } : null, safety: { hazards: [], gates: [] } };
 
-  // 2. A hazard where continuing is itself unsafe: fixed wording only, no reasoning.
+  // Gas or an active fire in the customer's words: the fixed emergency wording at once, before (and without) any model.
+  const early = S.mostSerious(S.detectHazards(messages, rec.customer.appliance && rec.customer.appliance.value).filter((h) => (S.POLICY[h.type] || {}).terminate));
+  if (early) {
+    if (!rec.hazards.some((h) => h.type === early.type)) rec.hazards.push({ type: early.type, clause: String(early.clause || '').slice(0, 160), turn: rec.turn, shown: true, source: 'words' });
+    rec.outcome = 'safety_stop';
+    audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: early.type, gates: [] };
+    audit.tags = { replyAction: { value: 'safety_stop', confidence: null } };
+    audit.timings.totalMs = Date.now() - t0;
+    const policy = S.POLICY[early.type];
+    return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(early.type), safety: { class: early.type, stopUse: true, message: S.copyFor(early.type) }, escalation: { to: policy.escalate, reason: early.type } }, audit };
+  }
+
+  // 2. Understand (Qwen).
+  const u = await understand(deps.qwen, { latest, priorAssistant });
+  audit.timings.understandMs = u.ms;
+  // 3. Label (Jev).
+  const lab = await J.labelMessage(deps.jev, { latest, priorAssistant, reading: u.reading, known: Rec.known(rec), candidates: candidatesFor(latest, u.reading), components: rec.knowledge.components });
+  audit.timings.labelMs = lab.ms;
+  const labels = lab.labels;
+  applyLabels(rec, labels, u.reading);
+  const tags = { labels, reading: { appliance: u.reading.appliance, brand: u.reading.brand, model: u.reading.model, codes: u.reading.codes, symptom: u.reading.symptom }, stage: rec.stage };
+
+  // 6 (first): safety. Gas or an active fire: fixed wording only.
+  let hazard = applyHazards(rec, labels, messages, recalls);
+  const unsafe = labels.unsafeRequest.value || S.detectUnsafeRequest(latest, rec.customer.appliance && rec.customer.appliance.value);
   if (hazard && hazard.policy.terminate) {
-    for (const h of st.hazards) h.shown = true;
-    audit.safety.hazards = st.hazards.map((h) => h.type);
-    audit.safety.terminated = hazard.type;
-    st.outcome = { status: 'safety_stop', hazard: hazard.type };
+    for (const h of rec.hazards) h.shown = true;
+    rec.outcome = 'safety_stop';
+    audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: hazard.type, gates: [] };
+    audit.tags = { ...tags, replyAction: { value: 'safety_stop', confidence: null } };
     audit.timings.totalMs = Date.now() - t0;
-    return {
-      state: st,
-      response: { outcome: 'SAFETY_STOP', message: S.copyFor(hazard.type), safety: { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) }, escalation: { to: hazard.policy.escalate, reason: hazard.type } },
-      audit,
-    };
+    return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(hazard.type), safety: { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) }, escalation: { to: hazard.policy.escalate, reason: hazard.type } }, audit };
   }
 
-  // 3. The reasoner.
-  const context = {
-    turn: st.turn,
-    messages,
-    ledger: L.promptView(st),
-    tools: { errorCodes: tl.errorCodes, modelHints: tl.modelHints, brandsMentioned: tl.brandsSeen, recalls },
-    knowledge,
-    normal,
-    safety: safetyContext(st, hazard, unsafeRequest),
-  };
-  let r;
-  try {
-    r = await R.reason(deps.reasoner, context);
-  } catch (e) {
-    throw new ProviderUnavailableError('diagnostic reasoner unavailable', e);
-  }
-  audit.timings.reasonMs = r.ms;
-  audit.usage = r.usage;
-  audit.provider = { name: deps.reasoner.name || null, model: deps.reasoner.model || null };
-  let proposal = r.proposal;
-
-  // 4. The ledger takes what is grounded.
-  applyUnderstanding(st, proposal, ctx);
-  recordToolFacts(st, tl, ctx);
-  hazard = hazardState(st, messages); // appliance-specific detectors (microwave arcing) may now apply
-  unsafeRequest = unsafeRequest || S.detectUnsafeRequest(latest, st.appliance && st.appliance.value);
-
-  // 5. Scope.
-  const u = proposal.understanding;
-  const supported = st.appliance && SUPPORTED.has(st.appliance.value);
-  const oosWord = (latest.match(OUT_OF_SCOPE_RE) || [])[0];
-  if (!supported && (u.outOfScope.is || (oosWord && !K.applianceHints(texts.join(' ')).length))) {
-    const what = `${u.outOfScope.what || ''} ${oosWord || ''} ${latest}`;
-    const pointer = (SCOPE_POINTER.find(([re]) => re.test(what)) || [null, ''])[1];
-    st.scope = { status: 'out', what: (u.outOfScope.what || oosWord || '').slice(0, 60) };
-    st.outcome = { status: 'out_of_scope' };
-    audit.scope = st.scope;
-    audit.timings.totalMs = Date.now() - t0;
+  // Scope.
+  const supported = rec.customer.appliance && SUPPORTED.has(rec.customer.appliance.value);
+  if (labels.scope.value === 'prompt_attack' || (!supported && (labels.scope.value === 'unrelated' || labels.appliance.value === 'other_appliance'))) {
+    const attack = labels.scope.value === 'prompt_attack';
+    const pointer = (SCOPE_POINTER.find(([re]) => re.test(latest)) || [null, ''])[1];
     const hz = hazard ? `${S.copyFor(hazard.type)} ` : '';
-    return { state: st, response: { outcome: 'ANSWER', message: `${hz}${SCOPE_COPY}${pointer}`.trim() }, audit };
+    for (const h of rec.hazards) h.shown = true;
+    audit.scope = { status: attack ? 'attack' : 'out' };
+    audit.tags = { ...tags, replyAction: { value: 'answers_only', confidence: null } };
+    audit.timings.totalMs = Date.now() - t0;
+    return { state: rec, response: { outcome: 'ANSWER', message: attack ? ATTACK_COPY : `${hz}${SCOPE_COPY}${pointer}`.trim() }, audit };
   }
 
-  // 6. Kernel checks, with one regeneration if the proposal breaks a rule.
-  let reply = proposal.reply;
-  let check = await kernelChecks(reply, proposal, st, hazard, texts, deps, audit);
-  // Regenerate only when the deterministic clean-up would leave a damaged reply: a safety violation or a repeated
-  // question always; unsupported claims only when removing them loses much of the reply or its question.
-  if (needsRegeneration(proposal.reply, check)) {
-    audit.regenerated = true;
-    const feedback = check.issues.map((i) => i.text);
-    try {
-      const r2 = await R.reason(deps.reasoner, { ...context, ledger: L.promptView(st) }, { feedback });
-      audit.timings.regenerateMs = r2.ms;
-      proposal = { ...r2.proposal, understanding: proposal.understanding };
-      reply = proposal.reply;
-    } catch (e) {
-      throw new ProviderUnavailableError('diagnostic reasoner unavailable', e);
-    }
-    check = await kernelChecks(reply, proposal, st, hazard, texts, deps, audit);
-  }
-  reply = check.reply; // deterministic clean-up of anything still unsupported or prohibited
-  if (!reply.trim()) reply = proposal.next && proposal.next.question && !check.repeated ? proposal.next.question : 'Could you tell me a little more about what the appliance is doing at the moment?';
+  // 4. Enrich.
+  const tE = Date.now();
+  const found = await enrich(rec, texts, deps, recalls);
+  audit.timings.enrichMs = Date.now() - tE;
+  hazard = applyHazards(rec, labels, messages, recalls); // appliance-specific word detectors may now apply
 
-  // The part card is decided after the reasoner wrote its reply: say so when one is shown.
-  // (Computed below; appended once the gate has run.)
-  // 7. Fixed safety wording: shown once when a hazard first appears, and on any unsafe request.
+  // Parts (stage 2 only): the catalogue must confirm a part for the customer's model.
+  const appliance = rec.customer.appliance && rec.customer.appliance.value;
+  const model = rec.customer.model && rec.customer.model.value;
+  let parts = null;
+  if (rec.stage === 2 && rec.narrowed && model && !(hazard && BLOCKING.has(hazard.type)) && deps.lookupParts) {
+    let res;
+    try { res = await deps.lookupParts(model); } catch { res = { parts: [] }; }
+    const list = Array.isArray(res && res.parts) ? res.parts : [];
+    const m = list.length ? P.matchParts(list, appliance, rec.narrowed.component) : { parts: [] };
+    parts = m.parts.length
+      ? { outcome: 'verified', component: rec.narrowed.component, parts: m.parts, catalogueModel: (res && res.model) || model }
+      : { outcome: 'no_catalogue_part', component: rec.narrowed.component, reason: list.length ? 'no-matching-part' : 'model-not-in-catalogue' };
+  }
+
+  // 7. Decide; 8. reply (Qwen).
+  const safetyNotes = [];
+  const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
+  if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
+  const plan = decide(rec, u.reading, hazard, unsafe, parts);
+  const r = await writeReply(deps.qwen, { messages, brief: { known: Rec.known(rec), knowledge: found.knowledge, codeMeanings: found.codeMeanings, normal: found.normal, plan, safetyNotes, recalls: found.recalls } });
+  audit.timings.replyMs = r.ms;
+  audit.usage = r.usage;
+  audit.plan = plan;
+
+  // 9. Final check.
+  const gate = S.gateReply(r.text, { hazards: rec.hazards, appliance });
+  for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
+  const ids = removeUnverifiedIdentifiers(gate.text, texts, rec);
+  for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
+  let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
   const prefix = [];
-  for (const h of st.hazards) {
-    if (!h.shown) { prefix.push(h.type === 'recall' ? `${S.copyFor('recall')} Notice: ${h.clause}${h.url ? ` (https://applianceclinic.ai${h.url})` : ''}.` : S.copyFor(h.type)); h.shown = true; }
+  for (const h of rec.hazards) {
+    if (h.shown) continue;
+    prefix.push(h.type === 'recall' ? `${S.copyFor('recall')} Notice: ${h.clause}${h.url ? ` (https://applianceclinic.ai${h.url})` : ''}.` : S.copyFor(h.type));
+    h.shown = true;
   }
-  if (unsafeRequest && S.copyFor(unsafeRequest) && !reply.includes(S.copyFor(unsafeRequest))) prefix.push(S.copyFor(unsafeRequest));
-  if (unsafeRequest) audit.safety.gates.push({ gate: 'unsafe-request', type: unsafeRequest });
-  const caution = stepPrecaution(reply, texts, messages, st);
+  const unsafeCopy = unsafe === 'repeated_reset' ? S.copyFor('supply_trip') : (unsafe ? S.copyFor(unsafe) : null);
+  if (unsafe && unsafeCopy && !prefix.includes(unsafeCopy)) { prefix.push(unsafeCopy); audit.safety.gates.push({ gate: 'unsafe-request', type: unsafe }); }
+  const caution = stepPrecaution(reply, `${texts.slice(-2).join(' ')} ${priorAssistant || ''}`, appliance);
   if (caution) { prefix.push(caution); audit.safety.gates.push({ gate: 'step-precaution' }); }
-  if (prefix.length) reply = `${prefix.join(' ')} ${reply}`;
-  audit.safety.hazards = st.hazards.map((h) => h.type);
+  if (prefix.length) reply = `${prefix.filter(Boolean).join(' ')} ${reply}`;
+  audit.safety.hazards = rec.hazards.map((h) => h.type);
 
-  // 8. Questions asked, answered.
-  if (proposal.next) L.noteAsked(st, proposal.next.key, proposal.next.question, st.turn);
+  // 10. Media and reply tags (Jev).
+  const stop = Boolean(hazard && BLOCKING.has(hazard.type));
+  const kids = rec.knowledge.knowledgeIds.filter((id) => K.knownKnowledgeId(id));
+  let pool = [];
+  if (!stop && kids.length && deps.mediaCandidates) {
+    try { pool = await deps.mediaCandidates(kids, { make: rec.customer.brand && rec.customer.brand.value, model, messages }); } catch { pool = []; }
+  }
+  const rl = await J.labelReply(deps.jev, { reply, media: pool });
+  audit.timings.replyLabelMs = rl.ms;
 
-  // 9. Part gate.
-  const partDecision = await P.gate(proposal, st, hazard, { lookup: deps.lookupParts, appliance: st.appliance && st.appliance.value });
-  if (partDecision.outcome === 'verified') reply = `${reply} I've found a matching part for model ${partDecision.catalogueModel} — it's shown below; check the listing matches before ordering.`;
-  audit.partGate = { outcome: partDecision.outcome, component: partDecision.component || null, failed: partDecision.failed || [], matcher: partDecision.matcher || null, cited: partDecision.cited || [] };
+  const q = lastQuestion(reply);
+  if (q) Rec.noteAsked(rec, q, rec.turn);
+  const action = rl.replyAction.value;
+  if (action === 'recommends_engineer' && rec.outcome !== 'fixed') rec.outcome = 'engineer';
+  else if (action === 'suggests_part' && parts && parts.outcome === 'verified') rec.outcome = 'part';
+  else if (action === 'says_normal') rec.outcome = 'normal';
 
-  // 10. Escalation policy: hazards force their escalation; otherwise the reasoner's.
-  const escalation = hazard ? { to: hazard.policy.escalate, reason: hazard.type, forced: true } : proposal.escalation;
-  audit.escalation = escalation || null;
+  const escalation = hazard ? { to: hazard.policy.escalate || 'engineer', reason: hazard.type, forced: true } : (action === 'recommends_engineer' ? { to: 'engineer', reason: 'reply' } : null);
+  audit.tags = { ...tags, stage: rec.stage, replyAction: rl.replyAction, media: rl.media ? rl.media.id || rl.media.title || null : null,
+    enrichment: { knowledgeIds: rec.knowledge.knowledgeIds, codes: found.codeMeanings.map((x) => ({ code: x.code, status: x.status })), recalls: recalls.length, parts: parts ? parts.outcome : 'none' } };
+  audit.partGate = parts ? { outcome: parts.outcome, component: parts.component, reason: parts.reason || null } : { outcome: 'none' };
+  audit.escalation = escalation;
+  audit.timings.totalMs = Date.now() - t0;
 
-  // 11. Assemble.
-  const a = proposal.assessment;
-  const stop = Boolean(hazard);
-  const kids = a.knowledgeIds.filter((id) => K.knownKnowledgeId(id));
-  st.outcome = { status: a.status, confidence: a.confidence, summary: a.summary, candidates: a.candidates, part: partDecision.outcome };
   const response = {
     outcome: 'ANSWER',
     message: reply,
-    // A heading only when the cause is settled with real confidence; a differential is not shown as a verdict.
-    diagnosis: a.summary && ['narrowed', 'resolved', 'probably_normal', 'needs_engineer'].includes(a.status) && a.confidence !== 'low' ? { summary: a.summary, likelyArea: a.candidates[0] ? a.candidates[0].cause : null, confidenceBand: a.confidence === 'high' ? 'likely' : 'possible' } : null,
-    suggestedChecks: [],
-    parts: partDecision.outcome === 'verified' ? partDecision.parts : null,
-    resolvedModel: partDecision.outcome === 'verified' ? partDecision.catalogueModel : null,
-    modelRequired: partDecision.outcome === 'model_needed',
+    diagnosis: rec.narrowed ? { summary: `Likely cause: ${rec.narrowed.component}`, likelyArea: rec.narrowed.component, confidenceBand: 'likely' } : null,
+    parts: parts && parts.outcome === 'verified' ? parts.parts : null,
+    resolvedModel: parts && parts.outcome === 'verified' ? parts.catalogueModel : null,
+    modelRequired: rec.stage === 2 && !model && !rec.customer.modelUnavailable,
     safety: stop ? { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) } : null,
     safetyInformation: !stop && kids.length ? K.safetyInformation(kids[0]) : null,
-    media: !stop && kids.length && deps.mediaFor ? await deps.mediaFor(kids, { make: st.brand && st.brand.value, model: st.model && st.model.value, messages }) : null,
-    // The code's meaning is explained in the reply; the catalogue text (with its internal caveats) is not a heading.
+    media: rl.media ? [rl.media] : null,
     codeResult: null,
-    escalation: escalation || null,
-    candidates: a.candidates,
-    confidence: a.confidence,
-    status: a.status,
+    escalation,
   };
-  audit.candidates = a.candidates;
-  audit.status = a.status;
-  audit.ledger = { facts: st.facts.length, contradictions: L.contradictions(st).length };
-  audit.timings.totalMs = Date.now() - t0;
-  return { state: st, response, audit };
+  return { state: rec, response, audit };
 }
 
-/** Deterministic tool results become tool facts: the meaning of a code the customer reported, from the catalogue. */
-function recordToolFacts(st, tl, ctx) {
-  for (const r of tl.errorCodes) {
-    if (r.status !== 'RESOLVED' || !r.candidates || !r.candidates[0]) continue;
-    if (!st.codes.some((c) => c.code === String(r.code).toUpperCase())) continue;
-    L.recordFact(st, { field: `error_code_${String(r.code).toLowerCase().replace(/[^a-z0-9]+/g, '_')}_meaning`, value: r.candidates[0].meaning, source: 'tool', status: 'observed' }, { ...ctx, fromTool: true });
-  }
-}
-
-function applyUnderstanding(st, proposal, ctx) {
-  const u = proposal.understanding;
-  if (u.appliance && u.appliance.value && u.appliance.value !== 'unknown') L.setIdentity(st, 'appliance', u.appliance, ctx);
-  if (u.brand) L.setIdentity(st, 'brand', u.brand, ctx);
-  if (u.model) L.setIdentity(st, 'model', u.model, ctx);
-  for (const c of u.codes) L.addCode(st, c.code, c.quote, ctx);
-  for (const f of u.newFacts) L.recordFact(st, { field: f.field, value: f.value, quote: f.quote, source: 'customer', status: f.status === 'uncertain' ? 'uncertain' : 'stated' }, ctx);
-  L.resolveAsked(st, u.lastQuestionAnswer);
-}
-
-// Safety copy that travels with owner checks (the journey engine's step precautions, now applied to any reply that
-// sends the customer to handle the appliance): a physical check without isolation gets the isolation step first.
-const PHYSICAL = /\b(unscrew|remove|take (?:out|off)|pull (?:out|off|back)|open (?:the |up )?(?:filter|flap|panel|cover|back|door seal|pump|sump)|lift (?:out|off)|clean (?:the )?(?:filter|condenser|pump|sump|drain|coils?|brush)|clear (?:the )?(?:filter|drain|hose|pump|blockage)|turn the impeller|reach (?:in|into)|tilt (?:it|the)|pull (?:it|the machine) (?:out|forward)|check inside|flush (?:the|out))\b/i;
-const ISOLATED = /\b(unplug|unplugged|switch(?:ed)? (?:it |the \w+ )?off|isolat\w+|turn(?:ed)? (?:it )?off at|power off|power is off|off at the (?:wall|socket|fuse|consumer|cooker switch)|remove the battery)\b/i;
-function stepPrecaution(reply, texts, messages, st) {
-  if (!PHYSICAL.test(reply) || ISOLATED.test(reply)) return null;
-  // Already isolated in this conversation (the customer said so, or the last reply told them to)?
-  const recent = [...texts.slice(-2), ...messages.filter((m) => m.role === 'assistant').slice(-1).map((m) => R.textOf(m.content))].join(' ');
-  if (ISOLATED.test(recent)) return null;
-  const a = st.appliance && st.appliance.value;
-  if (a === 'microwave') return S.COPY.microwave_arcing.split('. ').slice(-1)[0].replace(/^Never/, 'Unplug it first and never');
-  if (a === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
-  if (a === 'oven-cooker' || a === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
-  if (a === 'fridge-freezer') return 'First switch it off and unplug it.';
-  return 'Before you start, switch it off and unplug it.';
-}
-
-function needsRegeneration(original, check) {
-  if (!check.issues.length) return false;
-  if (check.issues.some((i) => i.kind !== 'claim')) return true;
-  const before = String(original || '').trim();
-  const after = String(check.reply || '').trim();
-  if (!after) return true;
-  if (before.includes('?') && !after.includes('?')) return true;
-  return after.length < before.length * 0.4;
-}
-
-// Identifiers the kernel cannot verify: part numbers and prices may only come from the parts catalogue (tool) or the
-// customer's own words.
-const IDENT = /\b(?=[A-Z0-9-]*\d)(?=[A-Z0-9-]*[A-Z0-9]{6,})[A-Z0-9][A-Z0-9-]{5,}\b|£\s?\d+(?:\.\d{2})?/g;
-function unverifiedIdentifiers(reply, texts, st) {
-  const known = `${texts.join(' ')} ${(st.model && st.model.value) || ''} ${(st.codes || []).map((c) => c.code).join(' ')}`.toUpperCase().replace(/\s+/g, '');
-  const sents = V.sentences(reply);
-  const bad = [];
-  const kept = sents.filter((x) => {
-    const ids = (x.toUpperCase().match(IDENT) || []).filter((id) => !known.includes(id.replace(/\s+/g, '')));
-    if (ids.length) { bad.push({ sentence: x.trim().slice(0, 200), ids }); return false; }
-    return true;
-  });
-  return { text: kept.join('').replace(/\s{2,}/g, ' ').trim(), bad };
-}
-
-/** Safety gate, claim verification and the repeated-question guard. Returns { reply (cleaned), issues }. */
-async function kernelChecks(reply, proposal, st, hazard, texts, deps, audit) {
-  const issues = [];
-  const gate = S.gateReply(reply, { hazards: st.hazards || [], appliance: st.appliance && st.appliance.value });
-  for (const v of gate.violations) {
-    audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
-    issues.push({ kind: 'safety', text: `Do not advise this (unsafe): "${v.sentence}"` });
-  }
-  let cleaned = gate.text;
-  const ids = unverifiedIdentifiers(cleaned, texts, st);
-  for (const b of ids.bad) {
-    audit.safety.gates.push({ gate: 'unverified-identifier', ids: b.ids.slice(0, 3) });
-    issues.push({ kind: 'identifier', text: `Do not give part numbers or prices (${b.ids.join(', ')}): they are not verified. Name the component type; the system checks the catalogue.` });
-  }
-  cleaned = ids.text;
-  const extract = deps.extractor ? async (system, user) => {
-    const res = await deps.extractor.infer({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens: 700, temperature: 0, timeoutMs: 30000, responseFormat: V.EXTRACT_FORMAT, stream: false });
-    if (res.status !== 200) { const e = new Error(`extractor http ${res.status}`); e.category = 'HTTP'; e.status = res.status; e.detail = res.errorDetail || null; throw e; }
-    return { json: R.parseJson(res.text), usage: res.usage };
-  } : null;
-  let verdict;
-  try {
-    verdict = await V.verify(cleaned, st, texts, { extract });
-  } catch (e) {
-    throw new ProviderUnavailableError('claim extractor unavailable', e);
-  }
-  audit.claims.checked += verdict.claims.length;
-  audit.timings.verifyMs = (audit.timings.verifyMs || 0) + (verdict.extractor.ms || 0);
-  for (const rj of verdict.rejected) {
-    audit.claims.rejected.push({ claim: rj.claim, source: rj.source });
-    issues.push({ kind: 'claim', text: `Unsupported claim about the customer (they did not say this): "${rj.claim}". Do not state it as fact; ask or hedge instead.` });
-  }
-  if (verdict.rejected.length) cleaned = V.neutralise(verdict);
-  const rep = repeatedQuestion(st, proposal);
-  if (rep) {
-    audit.safety.gates.push({ gate: 'repeated-question', key: rep.key, why: rep.why });
-    issues.push({ kind: 'repeat', text: `Do not ask "${proposal.next.question}" again: the customer could not or would not answer it, or it was already asked twice. Reason around it, answer what you can, or take a different route.` });
-    cleaned = stripQuestion(cleaned, proposal.next.question);
-  }
-  return { reply: cleaned, issues, repeated: Boolean(rep) };
-}
-
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, decide, applyLabels, candidatesFor, removeUnverifiedIdentifiers, stepPrecaution, lastQuestion };

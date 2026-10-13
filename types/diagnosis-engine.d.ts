@@ -17,34 +17,32 @@ export interface ChatMessage {
   media?: Array<Record<string, unknown>>;
 }
 
-/** A fact in the evidence ledger, with its provenance (ac2/ledger.js). */
-export interface LedgerFact {
-  id: string;
-  field: string;
-  value: unknown;
-  source: 'customer' | 'tool' | 'observation' | 'inference';
-  status: 'stated' | 'observed' | 'inferred' | 'uncertain' | 'contradicted';
-  turn: number;
-  quote?: string | null;
-  [extra: string]: unknown;
-}
+/** A labelled customer value: what Jev judged from the customer's own words, with its confidence. */
+export interface LabelledValue { value: string; confidence: number | null; turn: number }
 
-/** The conversation's evidence ledger (ac2/1). whichpart-api stores it (ac2-state.js) and sends it back each turn. */
-export interface Ac2State {
-  schema: 'ac2/1';
+/** The conversation record (ac3/1). whichpart-api stores it (ac2-state.js) and sends it back each turn. */
+export interface ConversationRecord {
+  schema: 'ac3/1';
   turn: number;
-  appliance: Record<string, unknown> | null;
-  brand: Record<string, unknown> | null;
-  model: Record<string, unknown> | null;
-  codes: Array<Record<string, unknown>>;
-  facts: LedgerFact[];
-  asked: Array<Record<string, unknown>>;
-  hazard: Record<string, unknown> | null;
-  scope: Record<string, unknown> | null;
-  outcome: Record<string, unknown> | null;
-  nextId: number;
-  /** Hazards found in the customer's words; they persist for the conversation. */
-  hazards?: Array<{ type: string; clause: string; turn: number; shown: boolean }>;
+  /** What the customer told us. */
+  customer: {
+    appliance: LabelledValue | null;
+    brand: LabelledValue | null;
+    model: LabelledValue | null;
+    codes: Array<{ code: string; turn: number }>;
+    symptom: LabelledValue | null;
+    symptomArea: LabelledValue | null;
+    checks: Array<{ check: string; result: string; turn: number }>;
+    modelUnavailable: boolean;
+  };
+  /** What our tools added, kept apart from customer facts. */
+  knowledge: { knowledgeIds: string[]; fault: string | null; causes: string[]; components: string[]; codeMeanings: Array<Record<string, unknown>>; modelInfo: Array<Record<string, unknown>> };
+  asked: Array<{ question: string; turn: number; answer: string | null }>;
+  hazards: Array<{ type: string; clause: string; turn: number; shown: boolean; [extra: string]: unknown }>;
+  /** 1 = broad help and safe checks; 2 = the owner's checks failed: narrow, model, part. */
+  stage: 1 | 2;
+  narrowed: { component: string; confidence: number | null; turn: number } | null;
+  outcome: 'fixed' | 'part' | 'engineer' | 'normal' | 'safety_stop' | null;
 }
 
 /** A strong recall match whichpart-api found for a model the customer named (a tool result for the reasoner). */
@@ -54,7 +52,7 @@ export interface RecallHint { title: string; url: string | null; brand: string |
 export interface EngineTurnRequest {
   mode: 'turn';
   messages: ChatMessage[];
-  ac2?: { state?: Ac2State | null; tools?: { recalls?: RecallHint[] } };
+  ac2?: { state?: ConversationRecord | null; tools?: { recalls?: RecallHint[] } };
   /** The customer's latest photo (data URL), if any. */
   image?: string;
 }
@@ -104,16 +102,15 @@ export interface TurnResponse {
   status?: string;
 }
 
-/** The bounded, chain-of-thought-free audit of the turn (ac2/turn.js). */
+/** The bounded audit of the turn (ac2/turn.js): timings, safety, part decision, the plan and this turn's tags. */
 export interface TurnAudit {
-  schema: 'ac2-audit/1';
+  schema: 'ac3-audit/1';
   turn: number;
   timings: Record<string, number>;
-  toolCalls: Array<{ tool: string; results: unknown[] }>;
   safety: { hazards: string[]; gates: Array<Record<string, unknown>>; terminated?: string };
-  claims: { rejected: Array<{ claim: string; source: string }>; checked: number };
-  regenerated: boolean;
   provider: { name: string | null; model: string | null } | null;
+  tags?: Record<string, unknown>;
+  plan?: string[];
   [extra: string]: unknown;
 }
 
@@ -121,6 +118,6 @@ export interface TurnAudit {
 export interface TurnResult {
   type: 'ac2';
   response: TurnResponse;
-  state: Ac2State;
+  state: ConversationRecord;
   audit: TurnAudit;
 }
