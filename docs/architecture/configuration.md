@@ -55,7 +55,7 @@ the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`. Jev s
 | `ENGINE_URL` | Optional | the production engine URL (see below) | Yes: the `applianceclinic-diagnosis-engine` IAM Function URL | `config.js`; every ac2 turn, the feedback POST and the admin health probes, SigV4-signed with this function's role (`engine-signature.js`) |
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
-| `AC2_ENGINE_TIMEOUT_MS` | Optional | 28000 | No | `ac2-turn.js` (engine call timeout of a turn) |
+| `AC2_ENGINE_TIMEOUT_MS` | Optional | 45000 | No | `ac2-turn.js` (engine call timeout of a turn; well inside the CloudFront origin read timeout of 120 s, change 21.17) |
 | `ENGINE_SIGNING_TOKEN` | Required for every engine call (ADR 0017) | none (calls are sent unsigned, and the engine refuses them with 401) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-signature.js` |
 | `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `AC_ADMIN_GROUP` | Required for sign-in (empty refuses every session) | empty, empty, `admin` | Yes | `config.js` |
 | `LEARNING_BUCKET` | Optional | `whichpart-learning-800960611664` | Yes | `config.js` |

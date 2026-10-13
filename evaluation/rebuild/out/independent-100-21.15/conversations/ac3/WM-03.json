@@ -1,0 +1,613 @@
+{
+ "id": "WM-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-03-c67d4d2b7b",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My indesit washing machine fills with water and drains but the drum just doesn't go round at all. Its an IWC something. Had it about 9 years. Is it worth fixing?"
+  },
+  {
+   "role": "assistant",
+   "text": "At nine years old, an Indesit washing machine often still has value if the fault is mechanical rather than electronic. The most common reason for filling and draining but not spinning (or agitating) on these models is a broken drive belt or worn motor brushes. If it's just the belt, it is usually worth fixing as it is cheap and straightforward; if it is the motor brushes, that is also a relatively low-cost repair. However, if the drum bearings have failed (usually indicated by a loud grinding noise), it is generally not worth repairing. To help us decide, please check if there is a belt visible at the back of the machine and let me know if you hear any buzzing sounds when it tries to start."
+  },
+  {
+   "role": "customer",
+   "text": "I took the back panel off and the belt is on both pulleys and feels tight, so it doesn't look broken. When it should be turning I can hear relays clicking but no buzzing or any other motor noise. I did notice a faint hot electrical smell a few weeks ago, but not since."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. To help them prepare, could you please read the model number from the sticker inside the door rim or on the back of the door?\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "I've looked at the label inside the door and it reads IWC 71252. That's as much as I can make out. Is the smell really a reason to scrap it, though? It was only faint and I haven't noticed it since."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA faint hot electrical smell is not something to ignore, even if it hasn't happened since. It usually means components like the motor's carbon brushes are wearing down and sparking internally, generating heat. Because there is an active safety hazard involving potential overheating or electrical arcing, it is not safe to use the machine again until a qualified engineer has inspected and repaired it internally."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1378,
+     "labelMs": 303,
+     "enrichMs": 0,
+     "reasonMs": 8397,
+     "verifyMs": 427,
+     "replyLabelMs": 306,
+     "totalMs": 10859
+    },
+    "usage": {
+     "promptTokens": 3482,
+     "completionTokens": 604,
+     "totalTokens": 4086
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Drive belt broken or slipped off (high)",
+     "Motor brushes worn out (common in 9-year-old Indesits) (medium)",
+     "Drum obstruction or seized bearings (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.28
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.3
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Indesit",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Indesit",
+      "model": "IWC something",
+      "codes": [],
+      "symptom": "fills with water and drains but the drum just doesn't go round at all"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.83
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:inlet-valve",
+       "washing-machine:odour",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it worth fixing?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Indesit.",
+     "The fault they reported is: \"fills with water and drains but the drum just doesn't go round at all\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10921
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11134,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2321,
+     "labelMs": 271,
+     "enrichMs": 0,
+     "reasonMs": 11186,
+     "verifyMs": 8054,
+     "replyLabelMs": 439,
+     "totalMs": 22340
+    },
+    "usage": {
+     "promptTokens": 4391,
+     "completionTokens": 772,
+     "totalTokens": 5163
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "regeneration-skipped",
+       "reason": "time-budget",
+       "elapsedMs": 21894
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "you hear relays clicking",
+      "source": "extractor"
+     },
+     {
+      "claim": "that earlier hot electrical smell",
+      "source": "extractor"
+     },
+     {
+      "claim": "previous heat warning",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Failed motor brushes or internal motor fault (high)",
+     "Faulty main PCB (relay clicks but no power to motor) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.78
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.2
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Indesit",
+      "model": null,
+      "codes": [],
+      "symptom": "filling and draining but not spinning; relays clicking but no motor noise"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:inlet-valve",
+       "washing-machine:odour"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: checked belt at back of machine - belt is on both pulleys and feels tight, so it doesn't look broken.",
+     "Already given by the customer, never ask for it again: make Indesit.",
+     "The fault they reported is: \"fills with water and drains but the drum just doesn't go round at all\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the model number so we can find the right part; say it is usually on a sticker inside the door rim or on the back of the door. If the label cannot be reached right now (for example the door will not open), say it can wait."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked belt at back of machine: belt is on both pulleys and feels tight, so it doesn't look broken",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To help them prepare, could you please read the model number from the sticker inside the door rim or on the back of the door?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.78
+      }
+     ]
+    },
+    "ms": 22385
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 22914,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2191,
+     "labelMs": 1011,
+     "enrichMs": 0,
+     "reasonMs": 13717,
+     "verifyMs": 3906,
+     "replyLabelMs": 386,
+     "totalMs": 21219
+    },
+    "usage": {
+     "promptTokens": 4752,
+     "completionTokens": 652,
+     "totalTokens": 5404
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "you've ruled out a broken belt",
+      "source": "extractor"
+     },
+     {
+      "claim": "Since your machine now won't spin at all (and you've ruled out a broken belt), that burning smell was likely the warning sign of this failure.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Worn carbon brushes causing arcing and heat (high)",
+     "Motor thermal fuse blown due to overheating (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.51
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": "IWC 71252",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": "IWC 71252",
+      "codes": [],
+      "symptom": "burning or hot-plastic smell"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:inlet-valve",
+       "washing-machine:odour"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is the smell really a reason to scrap it, though? It was only faint and I haven't noticed it since.\" - answer that first.",
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: safety stop.",
+     "Checks they have done and what they found: checked belt at back of machine - belt is on both pulleys and feels tight, so it doesn't look broken.",
+     "Already given by the customer, never ask for it again: make Indesit; model IWC 71252.",
+     "The fault they reported is: \"fills with water and drains but the drum just doesn't go round at all\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "IWC 71252",
+      "confidence": 0.98,
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked belt at back of machine: belt is on both pulleys and feels tight, so it doesn't look broken",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To help them prepare, could you please read the model number from the sticker inside the door rim or on the back of the door?",
+       "turn": 2,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.78
+      }
+     ]
+    },
+    "ms": 21362
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 21586,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0375717,
+ "finishedAt": "2026-10-13T20:00:39.378Z"
+}

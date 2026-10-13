@@ -1,0 +1,616 @@
+{
+ "id": "TD-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-03-0b599d85e2",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch WTN85201GB condenser dryer not drying properly anymore, clothes still damp after 2 hrs. any ideas"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. Poor drying on Bosch condenser dryers is most often caused by restricted airflow rather than a broken part. The two most common culprits are a blocked lint filter or a clogged condenser unit (the white plastic block at the bottom front), which prevents moist air from escaping. 1. Lint Filter: Open the door and remove the filter at the bottom of the door opening. Is it full of fluff?\n2. Condenser: Open the small flap at the bottom left of the front panel. Also, were the clothes very wet when you put them in? If they weren't spun well in the washing machine (e.g.Please let me know if the filters were clogged and how wet the laundry was."
+  },
+  {
+   "role": "customer",
+   "text": "Door filter has fluff and a waxy film, rinsed it under the tap and water barely passes through until I scrubbed it. Haven't looked at the condenser yet. Clothes were a normal load, 1200 spin."
+  },
+  {
+   "role": "assistant",
+   "text": "That waxy film on your lint filter is a classic sign that the condenser needs cleaning too; if air can't pass through the condenser, moisture stays in the drum. Please open the small flap at the bottom left of the front panel and remove the white plastic condenser block. Is it clogged with fluff or debris, and have you rinsed it clean?\n[Helpful to see: image \"Where the condenser and water tank are\" — On a condenser dryer the water container pulls out at the top and the condenser/heat exchanger sits behind a flap at the bottom front — slide it out and rinse it. Condenser/heat-pump dryers only; layout may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Never cleaned it before. Took it out and the front face is matted with lint. Rinsed it with the shower head and it's come clean. Anything else to do before I put it back?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, let the condenser unit drip-dry completely before putting it back in; if you reinsert it while wet, it can cause mould or odours. Once it's dry, slide it back into its housing at the bottom of the door and close the flap securely. This blockage was probably why your clothes were coming out damp—without clear airflow, the moisture couldn't escape. It is worth cleaning both the lint filter and this condenser unit every few cycles to keep it running efficiently. Let me know if you need anything else!"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1866,
+     "labelMs": 286,
+     "enrichMs": 0,
+     "reasonMs": 13039,
+     "verifyMs": 453,
+     "replyLabelMs": 306,
+     "totalMs": 15994
+    },
+    "usage": {
+     "promptTokens": 3540,
+     "completionTokens": 783,
+     "totalTokens": 4323
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "800RPM"
+       ]
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Remove the condenser unit and rinse it under a tap until the water runs clear.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clogged condenser or lint filter restricting airflow (high)",
+     "Laundry was not spun well enough in the washing machine (medium)",
+     "Coated moisture sensors causing early termination (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WTN85201GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": "Bosch",
+      "model": "WTN85201GB",
+      "codes": [],
+      "symptom": "not drying properly, clothes still damp after 2 hrs"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any ideas\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"not drying properly, clothes still damp after 2 hrs\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, were the clothes very wet when you put them in?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16126
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16489,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3890,
+     "labelMs": 283,
+     "enrichMs": 0,
+     "reasonMs": 11060,
+     "verifyMs": 2606,
+     "replyLabelMs": 303,
+     "totalMs": 18195
+    },
+    "usage": {
+     "promptTokens": 4175,
+     "completionTokens": 597,
+     "totalTokens": 4772
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Clogged condenser unit restricting airflow (high)",
+     "Restricted vent hose or internal ducting blockage (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "suction_or_airflow",
+       "confidence": 0.46
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.93
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.6
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.22
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "poor drying"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.84
+     },
+     "checkGiven": null,
+     "media": "td-condenser",
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:not-emptying-condensate"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: rinsed lint filter under the tap and scrubbed it - water barely passes through until scrubbed.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"not drying properly, clothes still damp after 2 hrs\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "rinsed lint filter under the tap and scrubbed it: water barely passes through until scrubbed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, were the clothes very wet when you put them in?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is it clogged with fluff or debris, and have you rinsed it clean?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18246
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18471,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2483,
+     "labelMs": 373,
+     "enrichMs": 0,
+     "reasonMs": 11852,
+     "verifyMs": 1612,
+     "replyLabelMs": 319,
+     "totalMs": 16697
+    },
+    "usage": {
+     "promptTokens": 4312,
+     "completionTokens": 502,
+     "totalTokens": 4814
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Blocked lint filter and condenser restricting airflow (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.59
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.88
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.85
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:not-emptying-condensate"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Anything else to do before I put it back?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "rinsed lint filter under the tap and scrubbed it: water barely passes through until scrubbed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "removed condenser block: found front face matted with lint",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "rinsed condenser with shower head: it came clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, were the clothes very wet when you put them in?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is it clogged with fluff or debris, and have you rinsed it clean?",
+       "turn": 2,
+       "resolution": "front face is matted with lint; rinsed it clean"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16758
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 17190,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.030389700000000006,
+ "finishedAt": "2026-10-13T20:17:47.030Z"
+}

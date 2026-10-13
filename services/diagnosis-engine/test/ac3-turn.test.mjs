@@ -11,7 +11,7 @@ const Rec = require('../ac2/record.js');
 const J = require('../ac2/labels.js');
 const { normalise } = require('../ac2/understand.js');
 const { resolveErrorCode } = require('../ac2/mcp.js');
-const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, calibrate, UNSAFE_REASSURANCE } = require('../ac2/turn.js');
+const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, removeUnconfirmedAdvice, calibrate, stepPrecaution, UNSAFE_REASSURANCE } = require('../ac2/turn.js');
 
 const user = (content) => ({ role: 'user', content });
 const bot = (content) => ({ role: 'assistant', content });
@@ -416,6 +416,18 @@ describe('the reasoning step and the claim check (restored from the first rebuil
     expect(out.response.message).toMatch(/Is the drain hose kinked behind the machine\?$/);
   });
 
+  it('no time for a regeneration: the claim check\'s clean-up stands and the turn says why (whichpart-api waits 28 s)', async () => {
+    const q = qwen({ reading: { appliance: 'washing machine' }, reply: 'You\'ve already cleaned the pump filter, so is the drain hose kinked? Check behind the machine for a sharp bend in the grey hose.' });
+    let n = 0;
+    const slow = () => (n++ === 0 ? 0 : 26001);
+    const out = await runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' }), { now: slow }));
+    expect(q.reasons).toHaveLength(1);
+    expect(out.audit.regenerated).toBeUndefined();
+    expect(out.audit.safety.gates).toEqual(expect.arrayContaining([expect.objectContaining({ gate: 'regeneration-skipped', reason: 'time-budget' })]));
+    expect(out.response.message).not.toMatch(/already cleaned/);
+    expect(out.response.message).toMatch(/sharp bend in the grey hose/);
+  });
+
   it('the claim extractor down: an explicit error, no unchecked reply', async () => {
     const q = qwen({ reading: { appliance: 'washing machine' } });
     const infer = q.infer.bind(q);
@@ -426,3 +438,52 @@ describe('the reasoning step and the claim check (restored from the first rebuil
     await expect(runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' })))).rejects.toThrow(/claim extractor unavailable/);
   });
 });
+
+describe('judged failures of the 21.11 evaluation (change 21.15)', () => {
+  it('water near the plug: the gate removes advice to unplug, even in a sentence that says stop', () => {
+    const H = { hazards: [{ type: 'electrical_water' }], appliance: 'washing-machine' };
+    expect(S.gateReply('Stop the machine immediately and unplug it from the wall socket.', H).violations).toHaveLength(1);
+    expect(S.gateReply('Yes, it is safe to turn off the power at the wall socket (the plug) if you cannot find the fuse box.', H).violations).toHaveLength(1);
+    expect(S.gateReply('Do not touch the plug or unplug it; switch off at the consumer unit.', H).violations).toHaveLength(0);
+    expect(S.gateReply('Stop using it, then run an empty cycle to test it.', { hazards: [{ type: 'burning' }], appliance: 'tumble-dryer' }).violations).toHaveLength(1);
+  });
+  it('water near the plug: the plan and the step precaution isolate at the consumer unit, never at the plug', () => {
+    const rec = Rec.empty();
+    Rec.setValue(rec, 'appliance', 'washing-machine', 0.9, 1);
+    const plan = decide(rec, normalise({}), { type: 'electrical_water', policy: S.POLICY.electrical_water }, null, null).join(' ');
+    expect(plan).toMatch(/switched off at the consumer unit \(fuse box\), never touching the plug or socket/);
+    expect(stepPrecaution('Unscrew the filter flap at the bottom.', '', 'washing-machine', [{ type: 'electrical_water' }])).toMatch(/consumer unit/);
+    expect(stepPrecaution('Unscrew the filter flap at the bottom.', '', 'washing-machine', [])).toMatch(/unplug it/);
+  });
+  it('no buying or fitting a part before the fault is narrowed; allowed once it is', () => {
+    expect(removeUnconfirmedAdvice('The fix is to replace the battery pack. Check the charging pins first.', { narrowed: false })).toEqual({ text: 'Check the charging pins first.', removed: ['part-before-confirmed'] });
+    expect(removeUnconfirmedAdvice('You should purchase a drain pump listed for your model.', { narrowed: true }).removed).toEqual([]);
+    expect(removeUnconfirmedAdvice("Don't buy a new pump yet: check the impeller first.", { narrowed: false }).removed).toEqual([]);
+    expect(decide(Object.assign(Rec.empty(), { stage: 1, customer: { ...Rec.empty().customer, appliance: { value: 'dishwasher' } } }), normalise({}), null, null, null).join(' ')).toMatch(/do not tell them to buy, order or replace a part/i);
+  });
+  it('never says there is no recall', () => {
+    expect(removeUnconfirmedAdvice("There are no specific safety recalls for this Hotpoint model that I am aware of, so you don't need to worry about a hidden modification. Check the manufacturer's recall checker.", { narrowed: false })).toEqual({ text: "Check the manufacturer's recall checker.", removed: ['recall-denial'] });
+  });
+  it('softens "almost certainly", "strongly suggests" and "a classic sign of"', () => {
+    expect(calibrate('This is almost certainly the pulley. That strongly suggests a blown fuse. A classic sign of a worn thermostat.').text).toBe('This is probably the pulley. That suggests a blown fuse. A common sign of a worn thermostat.');
+  });
+});
+
+describe('judged failures of the 21.15 evaluation (change 21.16)', () => {
+  it('replacing a component before a check confirms it becomes checking it; the engineer advice stays', () => {
+    expect(removeUnconfirmedAdvice('I recommend calling an engineer to replace the door switch safely.', { narrowed: false }).text).toBe('I recommend calling an engineer to check the door switch safely.');
+    expect(removeUnconfirmedAdvice('Replacing the condensate pump assembly is the usual fix.', { narrowed: false }).text).toBe('Checking the condensate pump assembly is the usual fix.');
+    expect(removeUnconfirmedAdvice('Replace the filter in the base.', { narrowed: false }).removed).toEqual([]);
+    expect(removeUnconfirmedAdvice('An engineer can replace the door switch.', { narrowed: true }).removed).toEqual([]);
+  });
+  it('no dismantling advice, and no touching the machine when water is near the plug', () => {
+    expect(S.gateReply('If you are handy with tools, you can remove the glass top to inspect the element.', { hazards: [], appliance: 'hobs' }).violations).toHaveLength(1);
+    expect(S.gateReply('Remove the top casing to expose the motor assembly.', { hazards: [], appliance: 'vacuum' }).violations).toHaveLength(1);
+    expect(S.gateReply('Lift out the cutlery basket and remove the filter.', { hazards: [], appliance: 'dishwasher' }).violations).toHaveLength(0);
+    expect(S.gateReply('Turn off the washing machine at its controls immediately.', { hazards: [{ type: 'electrical_water' }], appliance: 'washing-machine' }).violations).toHaveLength(1);
+  });
+  it('softens "strongly points to", "highly likely" and "the most reliable fix is to"', () => {
+    expect(calibrate('This strongly points to a defrost fault and it is highly likely the pump. The most reliable fix is to replace it.').text).toBe('This points to a defrost fault and it is likely the pump. The likely fix may be to replace it.');
+  });
+});
+

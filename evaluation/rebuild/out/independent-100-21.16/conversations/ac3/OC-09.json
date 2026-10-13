@@ -1,0 +1,378 @@
+{
+ "id": "OC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-09-6655219190",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hotpoint SA2 oven not heatin on fan, grill ok. wat does SA2 mean??"
+  },
+  {
+   "role": "assistant",
+   "text": "SA2 is simply Hotpoint’s model series code for this specific cooker design; it doesn’t indicate a fault. Regarding your issue: if the grill works but the fan oven doesn't heat, the most likely cause is that the fan heating element (the ring-shaped heater behind the back panel) has failed, though it could also be the selector switch or wiring. To narrow this down, please check this:\n1. Turn the cooker off and let it cool completely.\n2. Select the 'Fan Oven' function and set a temperature.\n3. Look inside the oven: is the fan spinning? If the fan is NOT turning, that points to a motor or wiring issue. If the fan IS turning but the oven isn't getting hot, it suggests the heating element itself has failed."
+  },
+  {
+   "role": "customer",
+   "text": "fan is not spinning, just a low hum from the back. oven barely warms up on fan setting"
+  },
+  {
+   "role": "assistant",
+   "text": "That low hum without spinning suggests the fan motor is trying to start but can't—likely because it has seized up or there's an electrical issue like a shorted heating element tripping the safety cutout. Because this involves opening the oven cavity and dealing with mains electricity, you should not attempt to fix this yourself. Please call a qualified appliance engineer to check the fan motor (and check the element if needed). In the meantime, you can still use the grill function as that is working fine."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1865,
+     "labelMs": 283,
+     "enrichMs": 0,
+     "reasonMs": 11677,
+     "verifyMs": 518,
+     "replyLabelMs": 317,
+     "totalMs": 14700
+    },
+    "usage": {
+     "promptTokens": 3506,
+     "completionTokens": 610,
+     "totalTokens": 4116
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Fan oven element failure (high)",
+     "Function selector switch fault (medium)",
+     "Wiring or connection issue to the fan element (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "SA2",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "not heating on fan, grill ok"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:fan-motor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what does SA2 mean??\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Look inside the oven: is the fan spinning?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14819
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15175,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2265,
+     "labelMs": 311,
+     "enrichMs": 0,
+     "reasonMs": 12131,
+     "verifyMs": 3452,
+     "replyLabelMs": 444,
+     "totalMs": 18659
+    },
+    "usage": {
+     "promptTokens": 3570,
+     "completionTokens": 557,
+     "totalTokens": 4127
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "replace-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Fan oven motor seized or failing (high)",
+     "Fan oven element shorting to earth (causing safety cutout) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.89
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.4
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "fan not spinning, low hum from back, oven barely warms up on fan setting"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:fan-motor",
+       "oven-cooker:terminal-block"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Look inside the oven: is the fan spinning?",
+       "turn": 1,
+       "resolution": "fan is not spinning"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18709
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 19157,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0197158,
+ "finishedAt": "2026-10-13T22:36:44.341Z"
+}

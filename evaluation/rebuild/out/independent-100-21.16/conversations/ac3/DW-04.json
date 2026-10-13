@@ -1,0 +1,831 @@
+{
+ "id": "DW-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-04-027ae398f3",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+  },
+  {
+   "role": "assistant",
+   "text": "The E:15 code on your Bosch dishwasher means the anti-flood (water-protection) system has been triggered. This happens when water collects in the base pan of the machine, causing the drain pump to run continuously as a safety measure. This is usually caused by a leak somewhere—either from the door seal, a spray arm deflecting water outwards, or an internal hose/pump seal leaking into the base tray. It can also be triggered if the inlet hose connection at the tap is dripping onto the floor. First, please check: is there any water visible on the floor around the dishwasher right now?"
+  },
+  {
+   "role": "customer",
+   "text": "No water on the kitchen floor, none at all. I can see a little shine of water in the base tray through a gap by the plinth though."
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. Since there is no water on your kitchen floor, the leak is coming from inside the dishwasher and dripping into this tray. Please pull the dishwasher out carefully (turn off the water tap first), tilt it slightly backwards onto a towel, and place a shallow tray or thick towels under the front base pan to catch any dripping water. Then run a short drain cycle with the door open. Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?"
+  },
+  {
+   "role": "customer",
+   "text": "I can't pull it out or tilt it, it's fully integrated under the worktop and the kitchen plinth is glued at the ends. I'd have to damage it to get it off. Is there anything else I can check from the front?"
+  },
+  {
+   "role": "assistant",
+   "text": "Since you can't move the dishwasher, we have a safety limitation: the E:15 code means water is sitting in the base pan (the anti-flood tray) at the bottom of the machine. This water usually comes from an internal leak—most commonly a failing seal on the drain pump or a leaking hose connection inside the sump area. Because that tray is inaccessible without pulling the unit out, you cannot safely empty it yourself. While you wait for help, please do these quick checks from the front to rule out simple external causes:\n1. Open the door and check the rubber seal around the tub edge for splits or debris caught in it.\n2. Make sure nothing is deflecting the spray arms so they fire water directly at the door gap. If those look fine, the leak is probably internal (pump/tub). As you cannot access the base pan to drain it and reset the system safely, I recommend calling an engineer who can remove the dishwasher, empty the tray, and replace the faulty seal or hose."
+  },
+  {
+   "role": "customer",
+   "text": "Door seal looks okay, no splits or debris that I can see. I'm not sure how to check the spray arms properly, so I can't tell you about those."
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. This triggers the E:15 safety lock, which keeps the pump running until the water is removed. Because you cannot safely pull out this integrated unit to access and empty that base tray yourself, this requires an engineer. They will need to remove the dishwasher, drain the protection tray, find the leak, and fix it (often replacing a seal or hose). Please call a qualified appliance repair service for this."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1648,
+     "labelMs": 383,
+     "enrichMs": 3923,
+     "reasonMs": 12865,
+     "verifyMs": 1592,
+     "replyLabelMs": 319,
+     "totalMs": 20775
+    },
+    "usage": {
+     "promptTokens": 3914,
+     "completionTokens": 576,
+     "totalTokens": 4490
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Water-protection system activated by a leak (internal or external) (high)",
+     "Faulty flood switch (less likely, usually indicates actual water presence) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMV4HTX31E",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:15",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMV4HTX31E",
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "pump keeps running"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.66
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:drain-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please check: is there any water visible on the floor around the dishwasher right now?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20906
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 21172,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1571,
+     "labelMs": 303,
+     "enrichMs": 0,
+     "reasonMs": 14807,
+     "verifyMs": 3451,
+     "replyLabelMs": 321,
+     "totalMs": 20496
+    },
+    "usage": {
+     "promptTokens": 4304,
+     "completionTokens": 717,
+     "totalTokens": 5021
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "That confirms the anti-flood system is working correctly by running the pump to clear the water that has collected in the base pan.",
+      "source": "detector"
+     },
+     {
+      "claim": "To stop it happening again, we need to find where the water is leaking from before it reaches the bottom.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Internal leak (sump hose or pump seal) (high)",
+     "Door seal or spray arm leaking into base (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.88
+      },
+      "symptomArea": {
+       "value": "leak",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.72
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.55
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.14
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E:15"
+      ],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please check: is there any water visible on the floor around the dishwasher right now?",
+       "turn": 1,
+       "resolution": "no water on the kitchen floor"
+      },
+      {
+       "key": null,
+       "text": "Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20544
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20753,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1591,
+     "labelMs": 311,
+     "enrichMs": 0,
+     "reasonMs": 16257,
+     "verifyMs": 2755,
+     "replyLabelMs": 522,
+     "totalMs": 21491
+    },
+    "usage": {
+     "promptTokens": 4646,
+     "completionTokens": 794,
+     "totalTokens": 5440
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Internal leak (pump seal or sump hose) (high)",
+     "Door seal or spray arm deflecting water into the base (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.11
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.82
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can check from the front?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please check: is there any water visible on the floor around the dishwasher right now?",
+       "turn": 1,
+       "resolution": "no water on the kitchen floor"
+      },
+      {
+       "key": null,
+       "text": "Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?",
+       "turn": 2,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21621
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 22009,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1995,
+     "labelMs": 658,
+     "enrichMs": 1,
+     "reasonMs": 13982,
+     "verifyMs": 6265,
+     "replyLabelMs": 300,
+     "totalMs": 23255
+    },
+    "usage": {
+     "promptTokens": 4912,
+     "completionTokens": 622,
+     "totalTokens": 5534
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the door seal looks fine",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Internal leak (pump seal or sump hose) triggering the anti-flood system (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.23
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.47
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E:15"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:circulation-pump",
+       "dishwasher:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check; turn 3: recommends engineer.",
+     "Checks they have done and what they found: checked the rubber seal around the tub edge for splits or debris - looks okay, no splits or debris that I can see.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?\".",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked the rubber seal around the tub edge for splits or debris: looks okay, no splits or debris that I can see",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please check: is there any water visible on the floor around the dishwasher right now?",
+       "turn": 1,
+       "resolution": "no water on the kitchen floor"
+      },
+      {
+       "key": null,
+       "text": "Does the water in the base tray refill from an internal leak inside the machine, or does it stay dry?",
+       "turn": 2,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 23300
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 23694,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0430516,
+ "finishedAt": "2026-10-13T22:12:03.182Z"
+}

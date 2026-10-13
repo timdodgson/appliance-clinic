@@ -1,0 +1,55 @@
+{
+ "id": "VC-07.ac3",
+ "case": "VC-07",
+ "system": "ac3",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 2,
+  "fidelity": 1,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 2,
+  "calibration": 1,
+  "noRepetition": 1,
+  "escalation": 1,
+  "partQuality": 2,
+  "languageUnderstanding": 3,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": true,
+   "evidence": "'this is a safety hazard: please do not plug it in or use it again until a qualified engineer has inspected it. They need to check if the motor itself was damaged by the overheating'"
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "'Stop using this appliance ... until a qualified engineer has inspected it' repeated in all three replies despite the customer reporting a snapped belt, a tassel jam and no electrical smell or sparks"
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": true,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant correctly suspected the drive belt and sensibly asked for the model number before naming a replacement, but it treated a momentary rubber-belt-slip smell as an electrical fire hazard and insisted three times on a qualified engineer, directly ignoring the customer's evidence ('belt is snapped in 2 bits', 'no sparks or electrical smell'). It never gave the simple user-level fix (clear the tassel and hair, fit a U85-AS-Be belt, check the brushbar spins freely), speculated about motor overheating on a belt-driven machine, and even referred to removing a battery on a corded upright. A UK homeowner would be left paying for an unnecessary engineer visit for a £5 belt change.",
+ "costUsd": 0.17463
+}

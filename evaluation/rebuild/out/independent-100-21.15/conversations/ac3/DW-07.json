@@ -1,0 +1,816 @@
+{
+ "id": "DW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-07-adb385175c",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch SMS25AW00G, came back to E:09 on the display and the dishes are washed but stone cold. Is this an expensive fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "On your Bosch model, E:09 indicates a flow-through heating element failure. Regarding cost, this is typically a moderate repair because the heater is integrated into the circulation pump assembly rather than being a simple separate element; expect parts and labour to be more significant than a basic filter clean but generally less than a full PCB replacement. However, before assuming the part needs replacing, we need to confirm the heating circuit isn't just misreporting due to a sensor or wiring fault. Please run a 65°C or Intensive programme with a normal load and tell me if the dishes are hot at the end, or still cold."
+  },
+  {
+   "role": "customer",
+   "text": "I've already tried the hot programme and the eco one, and both came out cold. Machine fills, circulates and drains fine though. Is it worth checking the heater with my multimeter?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, it is worth checking with a multimeter to confirm the fault before buying parts. E:09 specifically points to a failure in the flow-through heating circuit (the heater is built into the circulation pump assembly on this model). Since both programmes resulted in cold dishes and the machine fills/circulates normally, the element itself has likely failed or the NTC temperature sensor is misreporting. To check safely: switch off the dishwasher at the mains and unplug it. Access the bottom of the tub to find the circulation pump assembly (usually behind a small cover). Locate the two electrical terminals on the heater element within that assembly. Set your multimeter to measure resistance (Ohms, Ω) and place one probe on each terminal. A healthy flow-through heater typically reads between 20Ω and 35Ω. If it shows 'OL' (open loop/infinite) or near zero ohms, the element is faulty. If the reading suggests a fault, the entire circulation pump/heater assembly needs replacing. This is a moderate repair; parts are usually available for this model but require some dismantling to access. If the resistance looks correct, the issue may be the NTC sensor or its wiring (often in the door loom), which would also need an engineer or advanced DIY skills to diagnose further."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I've done the check with it unplugged and the panel off. Across the heater terminals on the pump I get an open circuit. So is that the heater gone, and roughly what would replacing it cost? Machine is 9 years old so I'm weighing up repair vs replace."
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, an open circuit suggests the heating element inside that assembly has failed. If you are handy with tools and have the right screwdrivers (often Torx), it is a doable DIY job; otherwise, getting three local engineer quotes would be wise before deciding."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. Roughly what would an engineer or the part cost though? I don't know part prices myself, so I'm trying to work out if it's worth repairing a 9 year old machine."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: heater element]\nI cannot give exact prices as I don't have access to live supplier stock or labour rates for your area. However, on a 9-year-old Bosch dishwasher, the flow-through heater is integrated into the circulation pump assembly, so you would replace the entire unit rather than just the element. Given the machine's age, many homeowners find that replacing this part is not cost-effective compared to buying a new appliance. If you are confident with DIY and can source the part cheaply yourself, it might be worth trying; otherwise, I would suggest getting quotes for a replacement dishwasher."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2772,
+     "labelMs": 310,
+     "enrichMs": 420,
+     "reasonMs": 10297,
+     "verifyMs": 3091,
+     "replyLabelMs": 299,
+     "totalMs": 17217
+    },
+    "usage": {
+     "promptTokens": 3177,
+     "completionTokens": 562,
+     "totalTokens": 3739
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Flow-through heating element failure (high)",
+     "NTC temperature sensor fault or wiring issue (door loom) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.83
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMS25AW00G",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:09",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMS25AW00G",
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes washed but stone cold"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.86
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:temperature-sensor",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is this an expensive fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 17265
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 17684,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3111,
+     "labelMs": 623,
+     "enrichMs": 0,
+     "reasonMs": 15267,
+     "verifyMs": 1375,
+     "replyLabelMs": 359,
+     "totalMs": 20782
+    },
+    "usage": {
+     "promptTokens": 3949,
+     "completionTokens": 898,
+     "totalTokens": 4847
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Flow-through heating element failure (integrated in circulation pump) (high)",
+     "NTC temperature sensor fault or wiring issue (door loom) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.94
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.52
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.91
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 0.58
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes cold after hot and eco programmes"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:water-matrix",
+       "dishwasher:spray-arm"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it worth checking the heater with my multimeter?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 20830
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 21223,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2975,
+     "labelMs": 308,
+     "enrichMs": 1,
+     "reasonMs": 8426,
+     "verifyMs": 4742,
+     "replyLabelMs": 317,
+     "totalMs": 16805
+    },
+    "usage": {
+     "promptTokens": 4318,
+     "completionTokens": 560,
+     "totalTokens": 4878
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£80",
+        "£150"
+       ]
+      },
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£100",
+        "£150"
+       ]
+      },
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£200",
+        "£300"
+       ]
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Failed flow-through heating element (integrated in circulation pump) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.87
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.35
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "cold dishes"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.58
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:door-loom",
+       "dishwasher:water-matrix"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"is that the heater gone, and roughly what would replacing it cost?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Checks they have done and what they found: checked resistance across heater terminals on pump with multimeter - open circuit.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked resistance across heater terminals on pump with multimeter: open circuit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16847
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 17175,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1339,
+     "labelMs": 307,
+     "enrichMs": 1,
+     "reasonMs": 11080,
+     "verifyMs": 2632,
+     "replyLabelMs": 302,
+     "totalMs": 16288
+    },
+    "usage": {
+     "promptTokens": 4447,
+     "completionTokens": 518,
+     "totalTokens": 4965
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£80",
+        "£150"
+       ]
+      },
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£150",
+        "£300"
+       ]
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "heater element",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": null,
+    "status": "engineer",
+    "candidates": [
+     "Failed flow-through heating element in circulation pump assembly (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.65
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "heater element",
+       "confidence": 0.68
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.69
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:door-loom",
+       "dishwasher:water-matrix"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "They asked: \"Roughly what would an engineer or the part cost though?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check; turn 3: recommends engineer.",
+     "Their latest message adds no new facts about the fault. Give the next step after what you already told them: if a check you gave is still outstanding, ask how it went; if an engineer is needed, explain how to arrange one.",
+     "Checks they have done and what they found: checked resistance across heater terminals on pump with multimeter - open circuit.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the heater element, but we could not find a confirmed match for model SMS25AW00G. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked resistance across heater terminals on pump with multimeter: open circuit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16333
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 16683,
+   "retried": false,
+   "label": "Likely cause: heater element",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0426396,
+ "finishedAt": "2026-10-13T20:31:11.114Z"
+}

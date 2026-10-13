@@ -1,0 +1,377 @@
+{
+ "id": "WD-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-02-76d1fc72bf",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WD90T534DBW washer dryer - clothes are still damp at the end of the wash and dry programme. It's not that old. Is the heater going?"
+  },
+  {
+   "role": "assistant",
+   "text": "In fact, if the drum gets very hot but clothes remain damp, the heat is working and the issue is usually airflow or load size. The most common cause for this symptom on Samsung washer-dryers is simply overloading the drying cycle (drying a full wash load) or a blocked lint filter/condenser restricting air circulation. Less commonly, it could be a faulty thermal cut-out or heater element if no heat was generated at all. To narrow this down safely: 1) Was the laundry load for drying roughly half the machine's washing capacity (e.g., max 5kg)? 2) Did the drum get noticeably hot during the dry phase, or did it stay only warm/cool?"
+  },
+  {
+   "role": "customer",
+   "text": "No, I load a full 9kg drum and it washes and dries in one go. The drum does get hot during drying, and the clothes are hot but damp at the end."
+  },
+  {
+   "role": "assistant",
+   "text": "The issue is that you are drying a full 9kg load; washer-dryers can only dry about half their wash capacity (around 5–6kg for this model). Drying a full load leaves clothes damp because there isn't enough space for air to circulate properly. To fix this, split your laundry: wash the full 9kg, but only put up to 5kg in the drum for the drying cycle. If you still have issues with smaller loads, check the lint filter and condenser (usually behind a flap at the bottom front) are clean."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1765,
+     "labelMs": 311,
+     "enrichMs": 0,
+     "reasonMs": 17352,
+     "verifyMs": 437,
+     "replyLabelMs": 286,
+     "totalMs": 20211
+    },
+    "usage": {
+     "promptTokens": 3686,
+     "completionTokens": 752,
+     "totalTokens": 4438
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "To answer your question directly: a damp result does not automatically mean the heater has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloaded drum or incorrect programme selection (high)",
+     "Restricted airflow (blocked lint filter/condenser) (medium)",
+     "Faulty drying heater or thermal cut-out (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WD90T534DBW",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Samsung",
+      "model": "WD90T534DBW",
+      "codes": [],
+      "symptom": "clothes are still damp at the end of the wash and dry programme"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.44
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is the heater going?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "2) Did the drum get noticeably hot during the dry phase, or did it stay only warm/cool?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20264
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 21120,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 4613,
+     "labelMs": 329,
+     "enrichMs": 1,
+     "reasonMs": 12736,
+     "verifyMs": 2141,
+     "replyLabelMs": 333,
+     "totalMs": 20194
+    },
+    "usage": {
+     "promptTokens": 4009,
+     "completionTokens": 634,
+     "totalTokens": 4643
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "The heater is working fine—that’s why the drum gets hot.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloading (drying a full wash load) (high)",
+     "Airflow restriction (blocked filter/condenser) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.96
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes remain damp after drying cycle"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "2) Did the drum get noticeably hot during the dry phase, or did it stay only warm/cool?",
+       "turn": 1,
+       "resolution": "drum gets hot during drying"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20271
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20765,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0181758,
+ "finishedAt": "2026-10-13T21:53:50.344Z"
+}

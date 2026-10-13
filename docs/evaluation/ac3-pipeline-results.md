@@ -1,4 +1,4 @@
-# ac3 pipeline: independent evaluation (releases 21.5, 21.7, 21.9, 21.11)
+# ac3 pipeline: independent evaluation (releases 21.5 to 21.16)
 
 [ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md) replaced the first rebuild's single reasoning pass and
 claim verifier ([ADR 0020](../adr/0020-llm-led-diagnosis-with-deterministic-guardrails.md), "ac2") with a pipeline of
@@ -29,6 +29,8 @@ prompts, rubric and critical-failure definitions, same harness (`evaluation/rebu
 | **21.7** (interim) | Facts and check results in the record, calibrated replies | 2026-10-13, all 100 | Headline only: **overall 2.48**, **14 blocking loops** (commit `b68d7a5`, ADR 0021). Conversations and judgements lost |
 | **21.9** | No copied replies or repeated questions | **Re-run** 2026-10-13 15:19–16:20 UTC, all 100 | Everything: `evaluation/rebuild/out/independent-100/conversations/ac3/`, `judge/{primary,second,pairwise-ac3-*}/`, `results-independent-100.json` |
 | **21.11** | The first rebuild's reasoning step and claim check restored in the pipeline | 2026-10-13 16:24–17:37 UTC, all 100 | Everything: `evaluation/rebuild/out/independent-100-21.11/` (the ac2 baseline is linked, not copied), `results-independent-100-21.11.json` |
+| **21.15** | 21.14 (regeneration only within a 26 s budget) and fixes for 21.11's judged failures | 2026-10-13 19:58–21:10 UTC, all 100 | `out/independent-100-21.15/`, `results-independent-100-21.15.json` |
+| **21.16** | Fixes for 21.15's judged failures | 2026-10-13 21:42–22:53 UTC, all 100 | `out/independent-100-21.16/`, `results-independent-100-21.16.json` |
 
 The original 21.9 run's files were lost with the session that made them, so 21.9 was run again on the same live code
 (engine `CodeSha256 AkhERavL…`, verified against `build/reference/applianceclinic-diagnosis-engine.zip.json` before the
@@ -40,7 +42,31 @@ stopped the run (2 explicit engine errors in 348 turns).
 
 ## Verdict
 
-**21.11 is the best Appliance Clinic result so far, and still not ready.** Restoring the reasoning step and the claim
+**21.16 is the safest and most reliable Appliance Clinic so far, level with the first rebuild on usefulness, and still
+well behind the general assistant.** Two rounds of fixes for what the judges flagged (21.15, 21.16) cut conversations
+with a critical failure from 25 to 16 (confirmed by the second judge: 18 to 14), harmful outcomes from 1 to 0, unsafe
+DIY from 2 to 1 and confident unsupported conclusions from 18 to 8; it wins or ties 52% against the first rebuild. Overall
+usefulness moves within run-to-run noise (2.79, 2.68, 2.74: most cases score the same, and the rest move both ways).
+The general assistant still wins 86–14.
+
+| | 21.9 | 21.11 | 21.15 | **21.16** | First rebuild (ac2) | General assistant |
+|---|---|---|---|---|---|---|
+| Overall usefulness (0–4) | 2.37 | 2.79 | 2.68 | **2.74** | 2.73 | 3.48 |
+| Resolved or usefully escalated / declined | 72% | 79% | 78% | **83%** | 84% | 91% |
+| Conversations with any critical failure | 36 | 25 | 17 | **16** | 24 | 6 |
+| …confirmed by the second judge | 26 | 18 | 15 | **14** | 18 | 4 |
+| Outcome judged harmful | 1 | 1 | 1 | **0** | 1 | 1 |
+| Unsafe DIY (critical) | 5 | 2 | 3 | **1** | 2 | 3 |
+| Confident unsupported conclusion (critical) | 12 | 18 | 9 | **8** | 17 | 2 |
+| Invented customer evidence | 11% | 4% | 1% | **5%** | 4% | 0% |
+| Blocking loops (critical) | 15 | 5 | 3 | **4** | 5 | 0 |
+| Pairwise vs general assistant (win–loss) | 10–90 | 12–88 | 16–84 | **14–86** | 17–83 | |
+| Pairwise vs first rebuild (win–tie–loss) | 29–4–67 | 44–5–51 | 37–9–54 | **46–6–48** | | |
+| Median / 90th percentile turn | 7.5 / 10.3 s | 17.2 / 22.6 s | 16.9 s / – | **18.1 / 22.5 s** | 11.5 / 16.4 s | 16.1 / 21.9 s |
+
+### 21.11
+
+**21.11 was the best Appliance Clinic result at the time, and still not ready.** Restoring the reasoning step and the claim
 check lifted the pipeline from 2.37 to **2.79**, past the first rebuild's 2.73, with invented customer evidence back
 down from 11% to 4%, looping from 31% to 11% and blocking loops from 15 to 5. Head to head it is level with the first
 rebuild (44–5–51) and far behind the general assistant (12–88). It is slower: median turn 17.2 s, 90th percentile
@@ -216,10 +242,21 @@ Harness notes: two conversations (FF-01, FF-11) stopped on malformed simulator J
 The error-code service was moved to a new function (changes 22.1a–22.2) after the run, so 21.11 was evaluated against
 the unrepaired error-code catalogue, as 21.9 was.
 
+## Changes 21.14–21.17
+
+| Change | What | Why (judged evidence) |
+|---|---|---|
+| 21.14 | The one regeneration runs only when another reasoning pass and claim check fit within 26 s; otherwise the claim check's clean-up stands | Every turn over whichpart-api's 28 s wait after 21.11 was a regeneration turn |
+| 21.15 | Water near the plug: isolate at the consumer unit, never the plug; the safety gate's warning test must govern the advice itself. No buying or ordering a part before the fault is narrowed; no "there is no recall"; more certainty softened | 21.11: WM-05, DW-03 (unplug near water), VC-10, WM-06 (buy a part before any check), TD-01 (no recall claimed for a recalled dryer), 18 confident unsupported conclusions |
+| 21.16 | Replacing a component before a check confirms it becomes checking it; no advice to remove a glass hob top, casing or motor housing; no switching off at the machine near water; more certainty softened | 21.15: TD-09, TD-10, WM-11 (replace before confirmed), HB-07, VC-05 (dismantling), WM-05 |
+| 21.17 | whichpart-api waits up to 45 s for the engine (CloudFront allows 120 s) | After 21.14 no regeneration ran long, but a slow single reasoning pass (17–19 s) still took 4 of 470 turns past 28 s |
+
+All are final-check or plan changes in code (ADR 0021 steps 7 and 9); none adds a fixed reply.
+
 ## What follows
 
-- **Latency.** The reasoner and the claim extractor add about 10 s a turn (median 17.2 s against 7.5 s for 21.9).
-- **Calibration and confident unsupported conclusions** (18) are now the largest critical class; the claim check covers
-  claims about the customer, not the assistant's own conclusions.
+- **Latency.** The reasoner and the claim extractor add about 10 s a turn (median 18.1 s against 7.5 s for 21.9); the reasoning pass alone is 7–19 s on the production model.
+- **Wrong diagnoses** are now the main loss: the reasoner settles on a plausible but wrong cause (MW-04: a cracked plate
+  instead of the coupler) and the remaining critical classes are small (8 confident unsupported, 6 unjustified part).
 - **The gap to the general assistant** (12–88) is unchanged in kind: it asks fewer, better-chosen questions and explains
   more. Nothing here closes it.

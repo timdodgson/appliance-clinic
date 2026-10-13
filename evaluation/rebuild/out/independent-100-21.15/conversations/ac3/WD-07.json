@@ -1,0 +1,406 @@
+{
+ "id": "WD-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-07-cf55100bf7",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "We had a power cut last night and now our Candy washer dryer is completely dead - no lights, nothing. Everything else in the house came back on. The plug fuse is fine, I swapped it. Help!"
+  },
+  {
+   "role": "assistant",
+   "text": "Since the plug fuse is fine and there are no lights at all, the issue is likely internal—often the main PCB (control board) or the power supply section within it. To identify the correct part or next steps, I need the model number. It is usually on a sticker inside the door rim or on the back of the door.\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "It's a Candy Smart Pro, model CSOW 4965TWE/1-80 on the label. About 3 years old. I've also tried the socket with a lamp and it works fine, and unplugging it for 10+ minutes didn't help."
+  },
+  {
+   "role": "assistant",
+   "text": "The most likely cause is a failure of the main control PCB (the brain of the machine), possibly triggered by the voltage spike from last night's power cut. As this involves opening the appliance casing to access internal electronics, it is not safe for you to repair yourself. I recommend contacting a qualified engineer or Candy support for a repair.\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1668,
+     "labelMs": 293,
+     "enrichMs": 0,
+     "reasonMs": 6497,
+     "verifyMs": 2088,
+     "replyLabelMs": 301,
+     "totalMs": 10880
+    },
+    "usage": {
+     "promptTokens": 2865,
+     "completionTokens": 534,
+     "totalTokens": 3399
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Internal power supply failure (PCB or transformer) (high)",
+     "Faulty mains lead or internal wiring break (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Candy",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Candy",
+      "model": null,
+      "codes": [],
+      "symptom": "completely dead - no lights, nothing"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.67
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:tripping-electrics",
+       "washer-dryer:drying-heater",
+       "washer-dryer:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Help!\" - answer that first.",
+     "Checks they have done and what they found: swapped plug fuse - fuse is fine.",
+     "Already given by the customer, never ask for it again: make Candy.",
+     "The fault they reported is: \"completely dead - no lights, nothing\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the model number so we can find the right part; say it is usually on a sticker inside the door rim or on the back of the door. If the label cannot be reached right now (for example the door will not open), say it can wait."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Candy",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "swapped plug fuse: fuse is fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10922
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11147,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2868,
+     "labelMs": 292,
+     "enrichMs": 1,
+     "reasonMs": 9707,
+     "verifyMs": 2767,
+     "replyLabelMs": 364,
+     "totalMs": 16076
+    },
+    "usage": {
+     "promptTokens": 3259,
+     "completionTokens": 771,
+     "totalTokens": 4030
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "a power reset did not restore any lights or display",
+      "source": "extractor"
+     },
+     {
+      "claim": "Since you have confirmed the socket works, the plug fuse is intact, and a power reset did not restore any lights or display, the issue is almost certainly internal.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Main PCB (Control Board) Failure (high)",
+     "Internal Wiring/Connector Fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.42
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.49
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.96
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "CSOW 4965TWE/1-80",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Candy",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.5
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Candy",
+      "model": "CSOW 4965TWE/1-80",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:tripping-electrics",
+       "washer-dryer:drying-heater",
+       "washer-dryer:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "Checks they have done and what they found: swapped plug fuse - fuse is fine; tested socket with a lamp - works fine; unplugged for 10+ minutes - didn't help.",
+     "Already given by the customer, never ask for it again: make Candy; model CSOW 4965TWE/1-80.",
+     "The fault they reported is: \"completely dead - no lights, nothing\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Candy",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "CSOW 4965TWE/1-80",
+      "confidence": 1,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "swapped plug fuse: fuse is fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "tested socket with a lamp: works fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "unplugged for 10+ minutes: didn't help",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16141
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 16672,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0194198,
+ "finishedAt": "2026-10-13T20:14:53.300Z"
+}
