@@ -166,7 +166,7 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   if (hazard && !hazard.policy.terminate) {
     const who = String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ');
     plan.push(MUST_BE_CHECKED.has(hazard.type)
-      ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.`
+      ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off ${hazard.type === 'electrical_water' ? 'at the consumer unit (fuse box), never touching the plug or socket while anything is wet' : 'and unplugged'}, but never say or imply that a check could make it safe to use, or that they might not need an engineer.`
       : `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. Only suggest checks that are safe with the appliance switched off and unplugged, never running or testing it; recommend ${who} where the fault needs one.`);
   }
   // What we have already told them: the reply builds on it instead of repeating it.
@@ -185,7 +185,7 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
   if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
   if (rec.stage === 1) {
-    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.');
+    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.');
     if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
     return plan;
   }
@@ -200,7 +200,7 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   } else if (parts && parts.outcome === 'no_catalogue_part') {
     plan.push(`Stage 2: the checks point to the ${parts.component}, but we could not find a confirmed match for model ${model}. Say so, and suggest the manufacturer's spares or an engineer.`);
   } else {
-    plan.push('Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
+    plan.push('Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it.');
   }
   return plan;
 }
@@ -224,7 +224,7 @@ function removeUnverifiedIdentifiers(reply, texts, rec) {
  * "it is definitely the pump") are softened, whatever the customer has checked. The customer's own "I confirmed" is
  * left alone (only the present-tense claim is changed).
  */
-const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely']];
+const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely'], [/\balmost certainly\b/g, 'probably'], [/\bAlmost certainly\b/g, 'Probably'], [/\bstrongly suggests\b/g, 'suggests'], [/\bStrongly suggests\b/g, 'Suggests'], [/\ba classic sign of\b/g, 'a common sign of'], [/\bA classic sign of\b/g, 'A common sign of'], [/\b(?:the|The) classic sign of\b/g, 'a common sign of']];
 function calibrate(reply) {
   let text = String(reply);
   let changed = 0;
@@ -235,12 +235,33 @@ function calibrate(reply) {
 // A physical check without isolation gets the isolation step first.
 const PHYSICAL = /\b(unscrew|remove|take (?:out|off)|pull (?:out|off|back)|open (?:the |up )?(?:filter|flap|panel|cover|back|door seal|pump|sump)|lift (?:out|off)|(?:clean|wash|rinse) (?:the )?(?:filters?|condenser|pump|sump|drain|coils?|brush)|detach (?:the )?(?:wand|hose|head|floorhead|bin)|clear (?:the )?(?:filter|drain|hose|pump|blockage)|turn the impeller|reach (?:in|into)|tilt (?:it|the)|pull (?:it|the machine) (?:out|forward)|check inside|flush (?:the|out))\b/i;
 const ISOLATED = /\b(unplug|unplugged|switch(?:ed)? (?:it |the \w+ )?off|isolat\w+|turn(?:ed)? (?:it )?off at|power off|power is off|off at the (?:wall|socket|fuse|consumer|cooker switch)|remove the battery|take the battery off)\b/i;
-function stepPrecaution(reply, recentText, appliance) {
+function stepPrecaution(reply, recentText, appliance, hazards = []) {
   if (!PHYSICAL.test(reply) || ISOLATED.test(reply) || ISOLATED.test(recentText || '')) return null;
+  if (hazards.some((h) => h.type === 'electrical_water')) return 'First switch the circuit off at the consumer unit (fuse box); don\'t touch the plug or socket while anything is wet.';
   if (appliance === 'microwave') return 'Unplug it first and never remove the outer casing.';
   if (appliance === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
   if (appliance === 'oven-cooker' || appliance === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
   return 'Before you start, switch it off and unplug it.';
+}
+
+/**
+ * Advice the evidence does not support yet, removed sentence by sentence:
+ *   - buying, ordering or fitting a part before the fault is narrowed to one (Jev's label) or the catalogue confirms it;
+ *   - saying the appliance has no recall: the recall store lists the notices it holds, so an empty result never proves
+ *     there is none.
+ */
+const BUY_PART = /\b(?:buy|order|purchase|get hold of)\b[^.!?]{0,60}\b(?:part|replacement|pump|element|heater|belt|board|pcb|battery|thermostat|motor|pulley|kit|fuse|seal|sensor|valve|switch|module)\b|\b(?:you(?:'ll| will)? need to|you should) (?:replace|fit|order|buy)\b|\bthe (?:fix|solution|repair) is to (?:replace|fit)\b/i;
+const RECALL_DENIAL = /\b(?:no|not any)\s+(?:known\s+|specific\s+|current\s+|active\s+|official\s+)*(?:safety\s+)?recalls?\b|\bnot (?:been )?(?:subject to|part of|affected by|covered by) (?:a|any) (?:safety )?recall\b|\bisn'?t (?:subject to|affected by|covered by|part of) (?:a|any) (?:safety )?recall\b|\bdon'?t need to worry about (?:a|any) (?:hidden )?(?:recall|modification)\b/i;
+const NEGATED = /\b(?:don'?t|do not|never|avoid|no need to|shouldn'?t|before you)\b/i;
+function removeUnconfirmedAdvice(reply, { narrowed }) {
+  const sents = String(reply).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
+  const removed = [];
+  const kept = sents.filter((x) => {
+    if (RECALL_DENIAL.test(x)) { removed.push('recall-denial'); return false; }
+    if (!narrowed && BUY_PART.test(x) && !NEGATED.test(x)) { removed.push('part-before-confirmed'); return false; }
+    return true;
+  });
+  return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').trim(), removed };
 }
 
 /** True when a reply copies one of our earlier replies (same opening, ignoring case, spacing and punctuation). */
@@ -430,6 +451,9 @@ async function runTurn(input, deps) {
   const cal = calibrate(gated);
   if (cal.changed) audit.safety.gates.push({ gate: 'certainty', softened: cal.changed });
   gated = cal.text;
+  const held = removeUnconfirmedAdvice(gated, { narrowed: Boolean(rec.narrowed) || Boolean(parts && parts.outcome === 'verified') });
+  for (const g of held.removed) audit.safety.gates.push({ gate: g });
+  gated = held.text;
   const ids = removeUnverifiedIdentifiers(gated, texts, rec);
   for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
   let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
@@ -441,7 +465,7 @@ async function runTurn(input, deps) {
   }
   const unsafeCopy = unsafe === 'repeated_reset' ? S.copyFor('supply_trip') : (unsafe ? S.copyFor(unsafe) : null);
   if (unsafe && unsafeCopy && !prefix.includes(unsafeCopy)) { prefix.push(unsafeCopy); audit.safety.gates.push({ gate: 'unsafe-request', type: unsafe }); }
-  const caution = stepPrecaution(reply, `${texts.slice(-2).join(' ')} ${priorAssistant || ''}`, appliance);
+  const caution = stepPrecaution(reply, `${texts.slice(-2).join(' ')} ${priorAssistant || ''}`, appliance, rec.hazards);
   if (caution) { prefix.push(caution); audit.safety.gates.push({ gate: 'step-precaution' }); }
   if (prefix.length) reply = `${prefix.filter(Boolean).join(' ')} ${reply}`;
   audit.safety.hazards = rec.hazards.map((h) => h.type);
@@ -488,4 +512,4 @@ async function runTurn(input, deps) {
   return { state: rec, response, audit };
 }
 
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, claimCheck, needsRegeneration, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, copiesEarlier, stepPrecaution, lastQuestion };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, claimCheck, needsRegeneration, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, removeUnconfirmedAdvice, calibrate, copiesEarlier, stepPrecaution, lastQuestion };
