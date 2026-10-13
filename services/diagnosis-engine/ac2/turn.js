@@ -11,13 +11,15 @@
  *   6  safety         Jev's hazard label plus the word-list backstop; fixed wording; stop only for gas or fire
  *   7  decide         what this reply must do: stage 1 broad help, stage 2 narrow / model / part; never ask for
  *                     anything already in the record; build on what earlier replies already told them
- *   8  reply          Qwen writes the reply as a normal chat
+ *   8  reason, reply  the first rebuild's reasoner (Qwen) reasons over the record, tools, knowledge and the plan, and
+ *                     writes the reply; the claim verifier removes customer-specific claims the record does not
+ *                     support (one regeneration with its objections when the clean-up would damage the reply)
  *   9  final check    unsafe advice and unverified part numbers or prices removed; certainty a check has not proved
  *                     softened; parts only when the catalogue confirms them for the customer's model
  *   10 media          Jev picks the picture or video that matches the reply's check, and tags what the reply does
  *   11 send           response, record and audit back to the BFF
  *
- * If Qwen or Jev cannot run, the turn fails explicitly (ProviderUnavailableError): no fallback answer.
+ * If Qwen, the claim extractor or Jev cannot run, the turn fails explicitly (ProviderUnavailableError): no fallback answer.
  */
 const Rec = require('./record.js');
 const S = require('./safety.js');
@@ -26,7 +28,8 @@ const M = require('./models.js');
 const P = require('./parts.js');
 const J = require('./labels.js');
 const { understand } = require('./understand.js');
-const { writeReply } = require('./reply.js');
+const R = require('./reasoner.js');
+const V = require('./verifier.js');
 const { textOf, ProviderUnavailableError } = require('./util.js');
 
 let EC = null;
@@ -244,6 +247,41 @@ function copiesEarlier(reply, messages) {
   return r.length >= 60 && messages.some((m) => m.role === 'assistant' && norm(textOf(m.content)) === r);
 }
 
+/**
+ * The claim check (the first rebuild's verifier): customer-specific claims the record does not support are objections
+ * for the regeneration, and their sentences are removed from what is sent. A copied earlier reply is an objection too.
+ * If the claim extractor cannot run, the turn fails explicitly.
+ */
+async function claimCheck(reply, facts, texts, messages, deps, audit) {
+  const issues = [];
+  const extract = async (system, user) => {
+    const res = await deps.qwen.infer({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens: 700, temperature: 0, timeoutMs: 30000, responseFormat: V.EXTRACT_FORMAT, stream: false });
+    if (res.status !== 200) { const e = new Error(`extractor http ${res.status}`); e.category = 'HTTP'; e.status = res.status; e.detail = res.errorDetail || null; throw e; }
+    return { json: R.parseJson(res.text), usage: res.usage };
+  };
+  let verdict;
+  try { verdict = await V.verify(reply, facts, texts, { extract }); } catch (e) { throw new ProviderUnavailableError('claim extractor unavailable', e); }
+  audit.claims.checked += verdict.claims.length;
+  audit.timings.verifyMs = (audit.timings.verifyMs || 0) + (verdict.extractor.ms || 0);
+  for (const rj of verdict.rejected) {
+    audit.claims.rejected.push({ claim: rj.claim, source: rj.source });
+    issues.push({ kind: 'claim', text: `Unsupported claim about the customer (they did not say this): "${rj.claim}". Do not state it as fact; ask or hedge instead.` });
+  }
+  if (copiesEarlier(reply, messages)) issues.push({ kind: 'copied', text: 'Your draft repeated one of your earlier replies word for word. Do not repeat it: respond to what they just said and give a different next step (or say plainly that an engineer is needed and why).' });
+  return { reply: verdict.rejected.length ? V.neutralise(verdict) : String(reply).trim(), issues };
+}
+
+/** Regenerate when removing unsupported claims would leave a damaged reply (empty, its question lost, most of it gone). */
+function needsRegeneration(original, check) {
+  if (!check.issues.length) return false;
+  if (check.issues.some((i) => i.kind !== 'claim')) return true;
+  const before = String(original || '').trim();
+  const after = String(check.reply || '').trim();
+  if (!after) return true;
+  if (before.includes('?') && !after.includes('?')) return true;
+  return after.length < before.length * 0.4;
+}
+
 function lastQuestion(reply) {
   const qs = (String(reply).match(/[^.!?\n]*\?/g) || []).map((s) => s.trim()).filter(Boolean);
   return qs.length ? qs[qs.length - 1] : null;
@@ -333,25 +371,45 @@ async function runTurn(input, deps) {
       : { outcome: 'no_catalogue_part', component: rec.narrowed.component, reason: list.length ? 'no-matching-part' : 'model-not-in-catalogue' };
   }
 
-  // 7. Decide; 8. reply (Qwen).
+  // 7. Decide; 8. reason and reply (Qwen), then the claim check.
   const safetyNotes = [];
   const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
   if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
   const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew });
-  const brief = { known: Rec.known(rec), knowledge: found.knowledge, codeMeanings: found.codeMeanings, normal: found.normal, plan, safetyNotes, recalls: found.recalls };
-  let r = await writeReply(deps.qwen, { messages, brief });
-  // A reply that copies an earlier one is written again once, told why; it is never replaced by fixed text.
-  if (copiesEarlier(r.text, messages)) {
-    audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
-    const again = { ...brief, plan: [...plan, 'Your first draft repeated one of your earlier replies word for word. Do not repeat it: respond to what they just said and give a different next step (or say plainly that an engineer is needed and why).'] };
-    r = await writeReply(deps.qwen, { messages, brief: again }, { temperature: 0.8 });
-  }
-  audit.timings.replyMs = r.ms;
+  const facts = Rec.evidence(rec);
+  const context = {
+    turn: rec.turn,
+    messages,
+    ledger: { facts, known: Rec.known(rec), alreadyAsked: rec.asked.map((a) => ({ question: a.question, answer: a.answer })) },
+    tools: { errorCodes: found.codeMeanings, modelHints: rec.knowledge.modelInfo, recalls: found.recalls },
+    knowledge: found.knowledge,
+    normal: found.normal,
+    safety: { activeHazards: rec.hazards.map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
+    plan,
+  };
+  const reason = async (feedback) => {
+    try { return await R.reason(deps.qwen, context, feedback ? { feedback } : {}); } catch (e) { throw new ProviderUnavailableError('diagnostic reasoner unavailable', e); }
+  };
+  audit.claims = { checked: 0, rejected: [] };
+  let r = await reason(null);
+  audit.timings.reasonMs = r.ms;
   audit.usage = r.usage;
   audit.plan = plan;
+  let check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+  // One regeneration with the objections when the clean-up would damage the reply, or when it copies an earlier one;
+  // never replaced by fixed text.
+  if (needsRegeneration(r.proposal.reply, check)) {
+    audit.regenerated = true;
+    if (check.issues.some((i) => i.kind === 'copied')) audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
+    r = await reason(check.issues.map((i) => i.text));
+    audit.timings.regenerateMs = r.ms;
+    check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+  }
+  const a = r.proposal.assessment;
+  audit.reasoning = { status: a.status, confidence: a.confidence, candidates: a.candidates.map((x) => `${x.cause} (${x.likelihood})`), next: r.proposal.next ? r.proposal.next.question : null };
 
   // 9. Final check.
-  const gate = S.gateReply(r.text, { hazards: rec.hazards, appliance });
+  const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: rec.hazards, appliance });
   for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
   let gated = gate.text;
   if (hazard && MUST_BE_CHECKED.has(hazard.type)) {
@@ -421,4 +479,4 @@ async function runTurn(input, deps) {
   return { state: rec, response, audit };
 }
 
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, copiesEarlier, stepPrecaution, lastQuestion };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, claimCheck, needsRegeneration, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, copiesEarlier, stepPrecaution, lastQuestion };

@@ -116,4 +116,24 @@ function known(rec) {
   };
 }
 
-module.exports = { SCHEMA, empty, load, setValue, addCode, addCheck, addFact, noteAsked, resolveLastAsked, noteAdvice, markChecksReported, checksAwaitingResult, adviceSummary, known };
+/**
+ * The record as evidence for the reasoner and the claim verifier: every customer value and confirmed fact or check,
+ * and every resolved error-code meaning (tool), each with a stable id the reasoner and the extractor can cite.
+ */
+function evidence(rec) {
+  const c = rec.customer;
+  const out = [];
+  const add = (id, field, value, source) => { if (value) out.push({ id, field, value: String(value), source }); };
+  add('appliance', 'appliance', c.appliance && c.appliance.value, 'customer');
+  add('brand', 'brand', c.brand && c.brand.value, 'customer');
+  add('model', 'model', c.model && c.model.value, 'customer');
+  c.codes.forEach((x, i) => add(`code${i + 1}`, 'error_code', x.code, 'customer'));
+  add('symptom', 'symptom', c.symptom && c.symptom.value, 'customer');
+  (c.facts || []).forEach((x, i) => add(`fact${i + 1}`, 'customer_said', x.fact, 'customer'));
+  c.checks.forEach((x, i) => add(`check${i + 1}`, 'check_done', `${x.check}: ${x.result || 'done'}`, 'customer'));
+  if (c.modelUnavailable) add('model_label', 'model_label_reachable', 'no, they cannot reach the model label right now', 'customer');
+  for (const r of rec.knowledge.codeMeanings || []) if (r && r.status === 'RESOLVED' && r.meaning) add(`codemeaning_${r.code}`, 'error_code_meaning', `${r.code}: ${r.meaning}`, 'tool');
+  return out;
+}
+
+module.exports = { SCHEMA, empty, load, setValue, addCode, addCheck, addFact, noteAsked, resolveLastAsked, noteAdvice, markChecksReported, checksAwaitingResult, adviceSummary, known, evidence };

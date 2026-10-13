@@ -198,7 +198,7 @@
       "id": "diagnosis.ac3.reply",
       "purpose": "Step 8: Qwen writes the customer reply as a normal chat, from the conversation and the briefing (already known, knowledge, error-code meanings, normal behaviour, recalls, safety notes, the plan decided in code).",
       "consumers": [
-        "Diagnosis engine turn (ac2/turn.js)"
+        "None in the turn since change 21.11 (the reasoner writes the reply); kept for rollback. chatHistory in the same file serves the evaluation-only control."
       ],
       "source": [
         {
@@ -231,6 +231,70 @@
           "date": "2026-10-13",
           "fingerprint": "f3275c1e3412dd75467637a6d293a9334b84dc465be594d2f238f9c9f3aca893",
           "change": "customerSaid and checksDone are true and never contradicted or asked again; no assumed model features; causes stated as possibilities until a check proves one."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.ac2.reason",
+      "version": 2,
+      "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Diagnosis engine turn (ac2/turn.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/reasoner.js",
+          "declarations": [
+            "APPLIANCE_ENUM",
+            "SYSTEM",
+            "SCHEMA",
+            "RESPONSE_FORMAT"
+          ]
+        }
+      ],
+      "input": "The conversation, the ac3 record as the ledger (its customer and tool facts with ids, what is known, what was asked), tool results (error codes, model hints, recalls), retrieved knowledge, normal-operation notes, safety constraints, the plan for this reply and, on a regeneration, the claim check's objections.",
+      "output": "JSON (json_schema ac2_turn): understanding, assessment, next, part, escalation, reply. The reply goes through the claim check and the final check before it reaches the customer.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "4d7298bccd4e1593852f7a4380aec072e3705de06295f918dd98b412792f58ce",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "a09eb77f91b7a96fb5b6d8773df0197f0875aaa63e4a75e74a92bcc2ed1e46d9",
+          "change": "Restored in the ac3 pipeline (change 21.11): rule 0 says to follow the plan code decided for this reply (the plan wins over the reasoner's own next step); the plan is part of the input. The rest of the prompt is v1 unchanged."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.ac2.claims",
+      "version": 1,
+      "purpose": "Claim extraction for the claim verifier (restored in the ac3 pipeline, change 21.11): lists the reply's customer-specific claims with their kind and the customer's words or record facts that support them. It decides nothing; deterministic checks do.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Claim verifier (ac2/verifier.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/verifier.js",
+          "declarations": [
+            "EXTRACT_SYSTEM",
+            "EXTRACT_FORMAT"
+          ]
+        }
+      ],
+      "input": "The draft reply split into numbered sentences, the record's supporting facts (customer and tool) and the customer's messages.",
+      "output": "JSON (json_schema ac2_claims): claims[{sentence, claim, kind, customerQuote, supportedBy}].",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "5985f555bd0cc43c3d4c1e83e5dfa6c8c417a25f6d4ef5c31512520bef56b347",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
         }
       ]
     }

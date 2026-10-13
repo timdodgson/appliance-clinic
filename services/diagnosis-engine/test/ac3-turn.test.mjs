@@ -1,6 +1,6 @@
 /**
- * The turn pipeline: Qwen understands → Jev labels → tools enrich → safety → code decides → Qwen replies → final
- * check → Jev picks media. Qwen and Jev are stubs here; the deterministic steps are real.
+ * The turn pipeline: Qwen understands → Jev labels → tools enrich → safety → code decides → the reasoner (Qwen) reasons
+ * and replies → claim check → final check → Jev picks media. Qwen and Jev are stubs here; the deterministic steps are real.
  */
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
@@ -16,15 +16,30 @@ const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, 
 const user = (content) => ({ role: 'user', content });
 const bot = (content) => ({ role: 'assistant', content });
 
-/** Qwen stub: the understanding call (json_schema) gets `reading`; the reply call gets `reply`. Records both prompts. */
-function qwen({ reading = {}, reply = 'Thanks, let us take a look.' } = {}) {
-  const calls = [];
+/** A reasoner proposal (json_schema ac2_turn) around a reply. */
+const proposal = (reply) => ({
+  understanding: { appliance: null, brand: null, model: null, codes: [], newFacts: [], lastQuestionAnswer: 'not_applicable', customerQuestion: null, outOfScope: { is: false, what: null } },
+  assessment: { status: 'gathering', candidates: [{ cause: 'blockage', likelihood: 'high', evidence: [] }], confidence: 'low', knowledgeIds: [], summary: null },
+  next: null, part: null, escalation: null, reply,
+});
+/** The reasoner's input (the JSON user message of an ac2_turn call). */
+const ctxOf = (req) => JSON.parse(req.messages[1].content);
+
+/**
+ * Qwen stub, by the call's json_schema: the understanding call gets `reading`, the reasoner gets a proposal with
+ * `reply`, the claim extractor gets `claims`. Records every call; `reasons` holds the reasoner calls.
+ */
+function qwen({ reading = {}, reply = 'Thanks, let us take a look.', claims = [] } = {}) {
+  const calls = []; const reasons = [];
   return {
-    name: 'stub', model: 'qwen-stub', calls,
+    name: 'stub', model: 'qwen-stub', calls, reasons,
     async infer(req) {
       calls.push(req);
-      if (req.responseFormat) return { status: 200, text: JSON.stringify({ appliance: null, brand: null, model: null, codes: [], symptom: null, customerQuestion: null, answerToLastQuestion: null, checksReported: [], cannotReachModel: false, ...reading }) };
-      return { status: 200, text: typeof reply === 'function' ? reply(req) : reply };
+      const kind = req.responseFormat && req.responseFormat.json_schema && req.responseFormat.json_schema.name;
+      if (kind === 'ac2_turn') { reasons.push(req); return { status: 200, text: JSON.stringify(proposal(typeof reply === 'function' ? reply(req) : reply)) }; }
+      if (kind === 'ac2_claims') return { status: 200, text: JSON.stringify({ claims: typeof claims === 'function' ? claims(req) : claims }) };
+      if (!kind) return { status: 200, text: typeof reply === 'function' ? reply(req) : reply };
+      return { status: 200, text: JSON.stringify({ appliance: null, brand: null, model: null, codes: [], symptom: null, customerQuestion: null, answerToLastQuestion: null, checksReported: [], cannotReachModel: false, ...reading }) };
     },
   };
 }
@@ -83,13 +98,12 @@ describe('turn: the two stages', () => {
     expect(out.state.stage).toBe(1);
     expect(out.audit.plan.join(' ')).toMatch(/Stage 1/);
     expect(out.audit.plan.join(' ')).not.toMatch(/model number so we can/);
-    const system = q.calls[1].messages[0].content;
-    expect(system).toMatch(/ALREADY KNOWN: .*"model":"V6"/);
-    // A real chat, not a JSON blob; this turn's plan is attached to the latest customer message as a marked note.
-    const chat = q.calls[1].messages.slice(1);
-    expect(chat).toHaveLength(1);
-    expect(chat[0].role).toBe('user');
-    expect(chat[0].content).toMatch(/^dyson v6 pulsing\n\n\[Note for the assistant, not from the customer\] PLAN FOR THIS REPLY: .*Stage 1/);
+    // The reasoner gets the record (as its ledger), the conversation and this reply's plan.
+    const ctx = ctxOf(q.reasons[0]);
+    expect(ctx.ledger.known).toMatchObject({ appliance: 'vacuum', brand: 'Dyson', model: 'V6' });
+    expect(ctx.ledger.facts).toEqual(expect.arrayContaining([{ id: 'model', field: 'model', value: 'V6', source: 'customer' }]));
+    expect(ctx.conversation).toEqual([{ role: 'customer', text: 'dyson v6 pulsing' }]);
+    expect(ctx.plan.join(' ')).toMatch(/Stage 1/);
     expect(out.response.media).toEqual(media);
     expect(out.response.message).toMatch(/^Switch it off and unplug it \(or take the battery off\) first\. Pulsing/);
   });
@@ -141,10 +155,9 @@ describe('turn: the two stages', () => {
     const q = qwen({ reading: { appliance: 'fridge freezer', symptom: 'freezer icing up', facts: ['static freezer, not frost-free', 'it is 12 years old'] } });
     const out = await runTurn({ messages: [user('my old static freezer (not frost free, 12 yrs old) keeps icing up')] }, deps(q, jev({ appliance: 'fridge-freezer', symptomArea: 'not_cooling', fact_0: true })));
     expect(out.state.customer.facts.map((f) => f.fact)).toEqual(['static freezer, not frost-free']);
-    const system = q.calls[1].messages[0].content;
-    expect(system).toMatch(/"customerSaid":\["static freezer, not frost-free"\]/);
-    expect(system).toMatch(/never contradict them and never ask about them again/);
-    expect(system).toMatch(/Do not assume a design or feature of their model/);
+    const ctx = ctxOf(q.reasons[0]);
+    expect(ctx.ledger.known.customerSaid).toEqual(['static freezer, not frost-free']);
+    expect(ctx.ledger.facts).toEqual(expect.arrayContaining([{ id: 'fact1', field: 'customer_said', value: 'static freezer, not frost-free', source: 'customer' }]));
   });
 
   it('a reported check moves the record on: the earlier check is no longer awaiting a result', async () => {
@@ -173,13 +186,13 @@ describe('turn: the two stages', () => {
   it('a reply that copies an earlier one is written again once, told why (never replaced by fixed text)', async () => {
     const earlier = 'E:15 is the anti-flood code: water has reached the base pan, so the pump runs to clear it. Check the door seal and filter first.';
     let n = 0;
-    const q = qwen({ reading: { appliance: 'dishwasher' }, reply: () => (n++ === 0 ? earlier : 'Since the seal and filter are fine, look under the plinth with a torch for water in the base tray.') });
+    const q = qwen({ reading: { appliance: 'dishwasher' }, reply: () => (n++ === 0 ? earlier : 'Next, look under the plinth with a torch for water in the base tray.') });
     const out = await runTurn({ messages: [user('bosch dishwasher E:15'), bot(earlier), user('seal and filter are fine, what next?')] }, deps(q, jev({ appliance: 'dishwasher' })));
     expect(out.response.message).toMatch(/look under the plinth/);
     expect(out.audit.safety.gates).toEqual(expect.arrayContaining([{ gate: 'copied-earlier-reply', rewritten: true }]));
-    const second = q.calls[q.calls.length - 1];
-    expect(second.temperature).toBe(0.8);
-    expect(second.messages[second.messages.length - 1].content).toMatch(/first draft repeated one of your earlier replies/);
+    expect(q.reasons).toHaveLength(2);
+    expect(ctxOf(q.reasons[1]).correctionFromSystem.join(' ')).toMatch(/draft repeated one of your earlier replies/);
+    expect(out.audit.regenerated).toBe(true);
   });
 
   it('the plan never quotes our own earlier questions (the reply model copied them)', () => {
@@ -369,5 +382,47 @@ describe('evaluation-only ablation: the reply model alone', () => {
     const out = await writePlain(q, [user('dishwasher wont drain')]);
     expect(out.text).toBe('Try cleaning the filter.');
     expect(q.calls[0].messages).toEqual([{ role: 'system', content: PLAIN_SYSTEM }, { role: 'user', content: 'dishwasher wont drain' }]);
+  });
+});
+
+describe('the reasoning step and the claim check (restored from the first rebuild, change 21.11)', () => {
+  it('the reasoner gets the plan and the record as evidence, with resolved code meanings as tool facts', async () => {
+    const q = qwen({ reading: { appliance: 'dishwasher', brand: 'Bosch', codes: ['E24'] }, reply: 'E24 is a drain fault. Clean the filter in the base first.' });
+    const resolveCode = async (x) => ({ code: x.code, status: 'RESOLVED', meaning: 'drain fault', components: ['drain pump'] });
+    const out = await runTurn({ messages: [user('bosch dishwasher E24')] }, deps(q, jev({ appliance: 'dishwasher', make: 'Bosch', code: 'E24' }), { resolveCode }));
+    const ctx = ctxOf(q.reasons[0]);
+    expect(ctx.plan).toEqual(out.audit.plan);
+    expect(ctx.ledger.facts).toEqual(expect.arrayContaining([{ id: 'code1', field: 'error_code', value: 'E24', source: 'customer' }, { id: 'codemeaning_E24', field: 'error_code_meaning', value: 'E24: drain fault', source: 'tool' }]));
+    expect(out.audit.reasoning).toMatchObject({ status: 'gathering', candidates: ['blockage (high)'] });
+    expect(out.audit.regenerated).toBeUndefined();
+  });
+
+  it('an unsupported claim about the customer is removed; the rest of the reply stands without a regeneration', async () => {
+    const q = qwen({ reading: { appliance: 'washing machine' }, reply: 'A full drum after a cycle is usually a blocked filter or hose. You confirmed the filter is clear. Next, check the drain hose behind the machine for a kink, and see whether the sink waste under it is blocked.' });
+    const out = await runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' })));
+    expect(out.response.message).not.toMatch(/You confirmed/);
+    expect(out.response.message).toMatch(/check the drain hose/);
+    expect(out.audit.claims.rejected).toEqual([expect.objectContaining({ claim: 'You confirmed the filter is clear.' })]);
+    expect(q.reasons).toHaveLength(1);
+  });
+
+  it('when removing the claim would lose the question, the reasoner writes it again once with the objection', async () => {
+    let n = 0;
+    const q = qwen({ reading: { appliance: 'washing machine' }, reply: () => (n++ === 0 ? 'You\'ve already cleaned the pump filter, so is the drain hose kinked?' : 'Is the drain hose kinked behind the machine?') });
+    const out = await runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' })));
+    expect(q.reasons).toHaveLength(2);
+    expect(ctxOf(q.reasons[1]).correctionFromSystem.join(' ')).toMatch(/Unsupported claim about the customer .*cleaned the pump filter/);
+    expect(out.audit.regenerated).toBe(true);
+    expect(out.response.message).toMatch(/Is the drain hose kinked behind the machine\?$/);
+  });
+
+  it('the claim extractor down: an explicit error, no unchecked reply', async () => {
+    const q = qwen({ reading: { appliance: 'washing machine' } });
+    const infer = q.infer.bind(q);
+    q.infer = async (req) => {
+      if (req.responseFormat && req.responseFormat.json_schema.name === 'ac2_claims') { const e = new Error('connect ECONNREFUSED'); e.category = 'NETWORK'; throw e; }
+      return infer(req);
+    };
+    await expect(runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' })))).rejects.toThrow(/claim extractor unavailable/);
   });
 });

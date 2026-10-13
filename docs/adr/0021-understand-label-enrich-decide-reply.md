@@ -1,6 +1,7 @@
 # 0021. One turn: Qwen understands, Jev labels, tools enrich, code decides, Qwen replies
 
-- **Status:** Implemented (changes 21.2–21.9, 2026-10-13); the journey controller is removed
+- **Status:** Implemented (changes 21.2–21.9, 2026-10-13); the journey controller is removed. **Amended by change
+  21.11:** the reasoning step and the claim verifier of 0020 are restored inside this pipeline (see below)
 - **Date:** 2026-10-13
 - **Amends:** [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md): replaces its single reasoning pass and
   mandatory claim verifier
@@ -77,3 +78,16 @@ Smoke chats on the live site after each release (2026-10-13), multi-turn through
 - turn time 4–8 s (Qwen understand about 1 s, Jev labels about 0.3 s, reply 2–3 s).
 
 The full evaluation is in the [evaluation index](../evaluation/README.md).
+
+## Amendment: change 21.11 (2026-10-13)
+
+The evaluation of 21.9 ([ac3 pipeline results](../evaluation/ac3-pipeline-results.md): overall 2.37 against 0020's
+2.73; invented customer evidence 11% against 4%) showed the pipeline's reply model crediting customers with checks they
+never reported, which 0020's claim verifier existed to stop. Change 21.11 keeps steps 1–7 and 9–11 and replaces step 8:
+
+8. **Reason and reply (Qwen, 0020's reasoner).** One structured pass over the record (as its ledger, with fact ids),
+   the tools, the knowledge, the safety constraints and this reply's plan, which it must follow: candidate causes, next
+   question or check, part, escalation and the reply. **Claim check (0020's verifier):** customer-specific claims the
+   record does not support are objections; one regeneration with them when removing them would damage the reply (or it
+   copies an earlier one), then any sentence still carrying one is removed. If the reasoner or the claim extractor
+   cannot run, the turn fails explicitly.

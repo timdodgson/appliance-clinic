@@ -1308,14 +1308,15 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/turn.js",
-      "sha256": "13920c683cb8b88fa32a3143c916ea1572c04f16b6ada46b7e7d9e56ab0423a6",
+      "sha256": "de018a26842b137ba84c29fa10dacab4b789f5ab9acb8a142d139c16aa788c0d",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
         "20.1-ac2-dormant",
-        "21.2-ac3-pipeline"
+        "21.2-ac3-pipeline",
+        "21.11-ac3-reasoner-and-claim-check"
       ]
     },
     {
@@ -1435,14 +1436,15 @@
     },
     {
       "path": "services/diagnosis-engine/test/ac2-guardrail-regression.test.mjs",
-      "sha256": "63add756f68aa5c0dc272bdc6db386401fd1c3bcfb8ef2a6468b87d0f292bb97",
+      "sha256": "6f9d2a81ae15ab2832aa303b2939e7f48185e5d8f3351f7d85b43b0db294af7c",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
         "20.1-ac2-dormant",
-        "21.2-ac3-pipeline"
+        "21.2-ac3-pipeline",
+        "21.11-ac3-reasoner-and-claim-check"
       ]
     },
     {
@@ -1458,13 +1460,14 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/record.js",
-      "sha256": "f8a58164e1f9dcee8dc37ffde7313f9d7354ade9d1d5d97c1b8489f633e47361",
+      "sha256": "243fd180f9845c8c03f4dbd74fcce6bc46b24ac28e9dd111be2310eb77a7dee3",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "21.2-ac3-pipeline"
+        "21.2-ac3-pipeline",
+        "21.11-ac3-reasoner-and-claim-check"
       ]
     },
     {
@@ -1513,13 +1516,14 @@
     },
     {
       "path": "services/diagnosis-engine/test/ac3-turn.test.mjs",
-      "sha256": "f7092b1eb030bdda76c83aba0bcf3a987f0767d9f7a5589b7bdfc9e0d4f89c6b",
+      "sha256": "95269c3e22a16caa335fe4b5b1ac415c25d2405d30722b257fa5218238f4387b",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
-        "21.2-ac3-pipeline"
+        "21.2-ac3-pipeline",
+        "21.11-ac3-reasoner-and-claim-check"
       ]
     },
     {
@@ -1532,6 +1536,39 @@
       "changes": [
         "21.2-ac3-pipeline"
       ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/reasoner.js",
+      "sha256": "becddc576d5050cffd3f70b49370c9ab1c9e6686f0dac495362ce3a8908b349c",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.11-ac3-reasoner-and-claim-check"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/verifier.js",
+      "sha256": "25183b8118bbf5ad7199aba47273ce3e29bfd04891a4d986fc9c8ba89b5ee04f",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.11-ac3-reasoner-and-claim-check"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac3-claims-adversarial.test.mjs",
+      "sha256": "a702aaac0ca988334a8bfa3bf4a40108de077cd2c8261f1679dced4c54a4b69d",
+      "role": "test",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "21.11-ac3-reasoner-and-claim-check"
+      ]
     }
   ],
   "removed": [
@@ -1540,14 +1577,14 @@
       "changes": [
         "8.2-api-split"
       ],
-      "reason": "Never required by the API; the diagnosis engine has its own copy (Phase 8 findings §6)."
+      "reason": "Never required by the API; the diagnosis engine has its own copy (Phase 8 findings \u00a76)."
     },
     {
       "path": "services/whichpart-api/recalls/write-static.cjs",
       "changes": [
         "8.2-api-split"
       ],
-      "reason": "No reference anywhere (Phase 8 findings §6)."
+      "reason": "No reference anywhere (Phase 8 findings \u00a76)."
     },
     {
       "path": "orchestration/tests/test_journey_policy_v2.py",
