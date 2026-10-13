@@ -38,8 +38,14 @@ deterministic code verifies and constrains** ([ADR 0020](docs/adr/0020-llm-led-d
 The LLM owns diagnosis; a deterministic kernel owns the evidence ledger, a mandatory claim verifier, the safety kernel,
 the part gate, escalation and the audit trail, with no fallback. On the same 100 cases and a held-out set frozen before
 tuning, it beat the journey architecture 83–17 (held-out 27–4) but lost to the general assistant 17–83 (held-out 4–27),
-missing the cut-over targets ([results](docs/evaluation/llm-led-rebuild.md)). **Customers have not been moved**: the
-journey architecture below still serves them, and the new engine runs only on the signed benchmark path.
+missing its targets ([results](docs/evaluation/llm-led-rebuild.md)).
+
+That design gave one model call the whole job. It was then simplified with the owner into small jobs
+([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md)): Qwen reads each message, Jev labels it with a
+confidence per label, tools enrich the record (RAG, error codes, recalls, parts), code decides what the reply must do
+(broad help first, then model and part once the owner's checks fail), and Qwen writes the reply. This is now the only
+path (changes 21.2 and 21.3); the journey controller is removed. Appliance Clinic is a proof of concept with no real
+customers yet.
 
 ## Architecture
 

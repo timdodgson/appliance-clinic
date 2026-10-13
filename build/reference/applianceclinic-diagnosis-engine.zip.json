@@ -1,7 +1,7 @@
 {
  "unit": "applianceclinic-diagnosis-engine",
- "codeSha256": "eilgTfMTXiKagjJBZqC+wXUyumVEpXeNORSAVo3DCxw=",
- "source": "Release 20.14 (change 20.14): built from this repository (build/scripts/package_zips.py) and deployed through AcRuntimeStack; live $LATEST CodeSha256 verified equal to the staged zip",
+ "codeSha256": "gYsR7dYGXWvG6qknBKK6bTJACYXHc8kwIN0y/sREgG8=",
+ "source": "Changes 21.2 (engine) and 21.3 (whichpart-api): built from this repository (build/scripts/package_zips.py) and deployed through AcRuntimeStack; live $LATEST CodeSha256 verified equal to the staged zip",
  "note": "Reference for build equivalence. Per-file SHA-256 of every entry in the deployed zip. Contains no file contents.",
  "files": {
   "ac2/data/error-codes.json": {
@@ -16,513 +16,65 @@
    "sha256": "eb567ebd506fbd135b22e312857413df8ba9ebb32f63f7d3205c958f4eca5046",
    "bytes": 6506
   },
-  "ac2/ledger.js": {
-   "sha256": "0789141c985f733408238eadd6615f8d407f410d5b245aaaec7d9f8baebb8cb1",
-   "bytes": 9673
+  "ac2/labels.js": {
+   "sha256": "7b2bcc9e3169669e921e3b1a99aa7f303cdf87aa93470f65f7a1a429ac3d488d",
+   "bytes": 12753
+  },
+  "ac2/mcp.js": {
+   "sha256": "ee5c2117cbf199bd4432d6805eba35b5d577ec0d69a0237edf62c7b211f517b3",
+   "bytes": 2873
   },
   "ac2/models.js": {
    "sha256": "9823b6a6f6bef75f963a3dce7f3cd5cd8f988b8d9fe399624ce36da3a18af375",
    "bytes": 8918
   },
   "ac2/parts.js": {
-   "sha256": "2b5a1575a3f4b4e52bebc5ecf6f96143322b7b76ff6115a88030535ea4f9d76d",
-   "bytes": 4255
+   "sha256": "f2d348d89167dcc2766d05c904b63da6132a3ee8cbfea6401267969a4e0410e6",
+   "bytes": 1819
   },
-  "ac2/reasoner.js": {
-   "sha256": "009f7a26749d839b64dc6e2cc6bbf2431bba4711936548bae61bd6cfc2751eb2",
-   "bytes": 15738
+  "ac2/record.js": {
+   "sha256": "60909c5406a5dbdfdb0e6536b269c77e442aeefe43d255f9e54d5e46b36ecc39",
+   "bytes": 3566
+  },
+  "ac2/reply.js": {
+   "sha256": "dd052944a150043184504d8410d36643e0b6b58e4bd9411342e9d8d0ac4f7d32",
+   "bytes": 3389
   },
   "ac2/runtime.js": {
-   "sha256": "21dfc4cae43069419c09d34aac7f1d02605e19051e125300f6583bad612f5270",
-   "bytes": 2059
+   "sha256": "42d7749b852b7389920fee06943cecc8b8c96bf79349ae46bda67e7b14bf863c",
+   "bytes": 3388
   },
   "ac2/safety.js": {
    "sha256": "a99e1ad8e6ec7f5d59d69ff76199fd0c72b3122334e0b5f90e99170fc731c14d",
    "bytes": 14693
   },
   "ac2/turn.js": {
-   "sha256": "1566578ce96c2859ff9849618aa13ab16d1edfefed59500dcb1947a43c864622",
-   "bytes": 24633
+   "sha256": "5f1d2c28af4ec99c932bdd7fa94e70a40810bcb6999559993233e6cade1292c7",
+   "bytes": 25369
   },
-  "ac2/verifier.js": {
-   "sha256": "48d8d455396a48b675556b6b6710a68565b09263a361ff7cb7910a8b8cd1112d",
-   "bytes": 14628
+  "ac2/understand.js": {
+   "sha256": "c5d5d9ab62f7c7ea728bfe50cba8d0bef8998823294bf2b096a8a63cad4b230b",
+   "bytes": 4096
+  },
+  "ac2/util.js": {
+   "sha256": "e1b12984b8f80a9c53737937738c28d642548f2e8927c5206a4acfb6331d2fd4",
+   "bytes": 1388
   },
   "admin-config.js": {
-   "sha256": "4d2874b2b2115d7a72288aa1b026a808ca7bb16ae9d1487900beab8310dfabbc",
-   "bytes": 4992
-  },
-  "canonical-runtime.js": {
-   "sha256": "60ff29290ee70aed615b2eb52945b3e2696cb7b5f29de9c6c348149d665c5098",
-   "bytes": 22088
-  },
-  "canonical/candidates.js": {
-   "sha256": "dcb36fbfb23947409aad2fa55c9fe5be32dfa9b2a61752323f5835e7e4a1ba87",
-   "bytes": 14553
-  },
-  "canonical/cause-summary.js": {
-   "sha256": "2fd5b9df797cb47083ccabc83c8f1e525dff36941e8acdadf67b082915694017",
-   "bytes": 14200
-  },
-  "canonical/compose-kit.js": {
-   "sha256": "1155ab998e9040c38743272b0e55249f62141abcff70e64079bccac37ffbf053",
-   "bytes": 45507
-  },
-  "canonical/cs1.js": {
-   "sha256": "4ac6ce11f0037128302f741900e91851f374d87953bc892209bdc7c49b7f79a9",
-   "bytes": 4967
-  },
-  "canonical/dw-family.js": {
-   "sha256": "aba4d6bf8d41298e77c50385a663d2c3051f50783fb36cfcd8c72bad687799ba",
-   "bytes": 1409
-  },
-  "canonical/dw1-not-draining.js": {
-   "sha256": "765362ec9dcf02c6a976e5c0d80259b18c0d298587740938c337390b75c73a19",
-   "bytes": 14904
-  },
-  "canonical/dw2-not-filling.js": {
-   "sha256": "5052beefc722424579768de044fdb03a142447ff00279486f4613842b533998a",
-   "bytes": 14276
-  },
-  "canonical/dw3-leaking.js": {
-   "sha256": "a98e996c2d61ca957b740e58b6bb74d08a235f96e6ef5723caf68c11c779317e",
-   "bytes": 16672
-  },
-  "canonical/dw4-not-cleaning.js": {
-   "sha256": "68d31185d38e7f0c1cb2c1e88ccd1bae6f4b2c727c227057afce979169bcdb83",
-   "bytes": 14357
-  },
-  "canonical/dw5-heating-drying.js": {
-   "sha256": "82ff8362cc75dfc5b0e7d35c5bafeaa9e41fe531274ccbfbe180b355d866b0cc",
-   "bytes": 12385
-  },
-  "canonical/dw6-door-not-starting.js": {
-   "sha256": "57654d6c11b7cad0ae4a25eea3a5656cc315a8822d974f64df5be501cb612674",
-   "bytes": 13135
-  },
-  "canonical/evidence-engine.js": {
-   "sha256": "ec2f4adcea7f3305fa16a0e80e740754b1aa1e9debba362d41965e95f21b201a",
-   "bytes": 10338
-  },
-  "canonical/ff-family.js": {
-   "sha256": "ccd7b5935c2607a97e9701eb0933f539fe53e35476bd4b5842e768fbe69a9943",
-   "bytes": 3857
-  },
-  "canonical/ff1-not-cooling.js": {
-   "sha256": "77a09eaffd7eb371528ecb1dd0b53c31f0583ff444229daa3642208677731918",
-   "bytes": 20670
-  },
-  "canonical/ff2-too-cold.js": {
-   "sha256": "32cd160bdc391e9a3c43b028922eceef5fb75759d140448510970cf011f20cf6",
-   "bytes": 7085
-  },
-  "canonical/ff3-noisy.js": {
-   "sha256": "70eae50c284b07a7ef08fc26684cc6d8670a0fe1603c81c27fd2b9b514067efd",
-   "bytes": 14091
-  },
-  "canonical/ff4-leaking.js": {
-   "sha256": "022d825ec931581d79cd11c960c8f334d55c12d4575aab6ff53dcd422ed21b4d",
-   "bytes": 13609
-  },
-  "canonical/ff5-ice-frost.js": {
-   "sha256": "67a0847e3ac61caf27b0cd05239fb4da26b7a0efdbbf4b7c7f343758bf54109f",
-   "bytes": 13204
-  },
-  "canonical/ff6-door-seal.js": {
-   "sha256": "1690fa528da7f9ec7dd9dbe2122281b9f824991bb63c60c5d31a3bc39f1d2e1a",
-   "bytes": 8201
-  },
-  "canonical/ff7-not-running.js": {
-   "sha256": "83a3f97949c524a027b78e614c055a5ec48835a50bdae874f6ea042c0a0658c7",
-   "bytes": 11459
-  },
-  "canonical/gas-ignition.js": {
-   "sha256": "8e1b77d90b4404106ce29b40134c95f6377e10c56b567dce6b34a4bb884327bd",
-   "bytes": 8270
-  },
-  "canonical/hb1-zone-not-heating.js": {
-   "sha256": "a1b85d6a4d895516c1d2767417f029a7fad06154910c540bcc3ef11339a235f3",
-   "bytes": 9264
-  },
-  "canonical/hb2-no-power.js": {
-   "sha256": "7c247c223475f5b6bbbd5af267358d9ee78bca642be0a1967e96cb6bf99ffa5c",
-   "bytes": 6716
-  },
-  "canonical/hb3-overheating-control.js": {
-   "sha256": "665174005fbb6488f0989e37c12b1bf0b77983632811fcc4290516244f41bf57",
-   "bytes": 5719
-  },
-  "canonical/hb4-ignition-gas.js": {
-   "sha256": "0d108bd001bfd695e4adeab14a3e2571cf82b4cd67175daac1c08f3e5b78049a",
-   "bytes": 379
-  },
-  "canonical/hob-family.js": {
-   "sha256": "c7df53ad7924ba1febbd379f1e40dcab8f0c7276cf9e49ec4fa2b6c99625f1b9",
-   "bytes": 2242
-  },
-  "canonical/j1-compose.js": {
-   "sha256": "d9fd2345e73413b01ef3a42030d7cbb046156ca24ca9b81463765b717a06777c",
-   "bytes": 12945
-  },
-  "canonical/j1-diagnostics.js": {
-   "sha256": "3de23971e60d26076e12284d6ff511c0c43cd9eacb26efa444c8c1d3a5a79bed",
-   "bytes": 17453
-  },
-  "canonical/j1-pipeline.js": {
-   "sha256": "7267f4d59a21f012d50c483771dc57dde9f4477b2aafbcbfde7454fdddb40558",
-   "bytes": 4596
-  },
-  "canonical/j1-policy.js": {
-   "sha256": "6a127de91ee69cfba303b46c70ae1a1b33a2733d5d9ac9446590983314c9a7ee",
-   "bytes": 15529
-  },
-  "canonical/j2-compose.js": {
-   "sha256": "6791200fc22b6304f95d721c1da655d1185d4a6270385651e494fff59b77c6c7",
-   "bytes": 16391
-  },
-  "canonical/j2-diagnostics.js": {
-   "sha256": "325b968e04ed54f164fc97a3d23a67d53ece7c59b2fcb41895495cf0fa581bdb",
-   "bytes": 17890
-  },
-  "canonical/j2-pipeline.js": {
-   "sha256": "1cebfdbb63f2617e70e84236bd00c26811cc0dcf3bd139dc3758739908d8bbaf",
-   "bytes": 3364
-  },
-  "canonical/j2-policy.js": {
-   "sha256": "6b4418953e1b47a1c4d02ac56674c79b8461aae6ea5a9b30d2ecb9146f79096e",
-   "bytes": 13472
-  },
-  "canonical/j3-compose.js": {
-   "sha256": "b9be78b22095a10ff2d48729bc56ef1313fed855030a8373ecb2673b1fa4860d",
-   "bytes": 13772
-  },
-  "canonical/j3-diagnostics.js": {
-   "sha256": "f3b5b06deb6e21f148d7b6222a569bd221ca09facef1220ab1bc6e0371f83e0a",
-   "bytes": 11756
-  },
-  "canonical/j3-pipeline.js": {
-   "sha256": "b5808d175d8376d5618a1814145f08e1f32494407a76e27e3814cb5c11c09fad",
-   "bytes": 3460
-  },
-  "canonical/j3-policy.js": {
-   "sha256": "31705d0b3819d8b623d17edcadddae424df5b7fc268bf648a495eb3f3fd8d371",
-   "bytes": 13091
-  },
-  "canonical/j4-compose.js": {
-   "sha256": "1a60ec7d5b8fa35e6419a9284687792c2db3dec307699d27b35cb5c0e0c8b03e",
-   "bytes": 6448
-  },
-  "canonical/j4-diagnostics.js": {
-   "sha256": "6bac3958aae5a23df343d13f9302af2d4500e372c7b4ca270569008d3b455b80",
-   "bytes": 3964
-  },
-  "canonical/j4-pipeline.js": {
-   "sha256": "0393ad2fbe40fd45ff04384cfadbf0ae18360a643a6ad5d41bffd175a7db58f7",
-   "bytes": 906
-  },
-  "canonical/j4-policy.js": {
-   "sha256": "5aae4f8399b133656318dbe2f69b0df79c5a12ea87ffa5441ca11781ef7ed3f0",
-   "bytes": 2425
-  },
-  "canonical/j5-compose.js": {
-   "sha256": "31e5eeb570361b73be58c3c80a54ec68e433ded094506cd9fe42607fd581477a",
-   "bytes": 6916
-  },
-  "canonical/j5-diagnostics.js": {
-   "sha256": "5c834a0f12ac08a7a35205c927d620f4dcce7b37556a7fea39a092dca5f678fc",
-   "bytes": 3526
-  },
-  "canonical/j5-pipeline.js": {
-   "sha256": "27a77599a7c6fa9560d2f808dd5a7b134ac2502b6449b1fd8828868a11615a30",
-   "bytes": 494
-  },
-  "canonical/j5-policy.js": {
-   "sha256": "a3eaead0725ed99fd377e04e89c5aa0f89308431eddeb6c1edbdfacc20f01e17",
-   "bytes": 3514
-  },
-  "canonical/j6-compose.js": {
-   "sha256": "c8da43d03f56c99bfb17e9cedb46da307909e3bb88881ac7e929d39900d0b9d3",
-   "bytes": 6339
-  },
-  "canonical/j6-diagnostics.js": {
-   "sha256": "525cfb124cc954d4bef8af936f27666f47b07f506b6d173d48cb448fd867e089",
-   "bytes": 3962
-  },
-  "canonical/j6-pipeline.js": {
-   "sha256": "e5d0f2c1db951c10ca9679a29aa931f2cbb8cdf3887a280fa9d633eed5abc971",
-   "bytes": 787
-  },
-  "canonical/j6-policy.js": {
-   "sha256": "8f3faaf0c750eed6942365be79683b07a873ca9ae1c8f74af98ec33f6eb095c9",
-   "bytes": 2535
-  },
-  "canonical/j7-compose.js": {
-   "sha256": "c73c9dd01d5fd4312e4d32d9cccb532f1c70d7151d17f422718b0071e4532be1",
-   "bytes": 6629
-  },
-  "canonical/j7-diagnostics.js": {
-   "sha256": "bd5080ef82971f915ea08eef9a87181b6c5cb04e4dd48c772ef9e268e220510f",
-   "bytes": 3558
-  },
-  "canonical/j7-pipeline.js": {
-   "sha256": "71fda6ef1443e9ceeb35aa3d92c7f788a5c20760e75ed3f421648071b27a8080",
-   "bytes": 595
-  },
-  "canonical/j7-policy.js": {
-   "sha256": "9e87e79dc8f73b9ee6280e728e85d5f9718aeec6707f32eadc8c57a0aa5f3c06",
-   "bytes": 2242
-  },
-  "canonical/j8-compose.js": {
-   "sha256": "9ec5696e349ffd1969060c97a10eea68da913f7a2ef18b95fd1628d53845fba4",
-   "bytes": 8902
-  },
-  "canonical/j8-diagnostics.js": {
-   "sha256": "3ac3a385040144f2e4702a918b800338e6d6e20f3f8cca0fedbff62bbe36cf0d",
-   "bytes": 6430
-  },
-  "canonical/j8-pipeline.js": {
-   "sha256": "9f975eea4f8be65cac9abcf7bbca79177fd98b6d2678237daf2a26269b5b270c",
-   "bytes": 787
-  },
-  "canonical/j8-policy.js": {
-   "sha256": "b208c7395c1fb26bf2ae803b3ef76372ee078979c109474d49dc858c4b378fd2",
-   "bytes": 3970
-  },
-  "canonical/j9-compose.js": {
-   "sha256": "0f3cdf77cfa68b0cf63ecc710e256c5d3aa26706f2873bd7ead779dfbb021393",
-   "bytes": 6148
-  },
-  "canonical/j9-diagnostics.js": {
-   "sha256": "98b7c8c2852edb687fb4e77828b2cc35b9577dba8337bffe6dd8f0b10fe653fe",
-   "bytes": 4267
-  },
-  "canonical/j9-pipeline.js": {
-   "sha256": "1e519e6c622866092f2dbb003f9bc57b25503caeac136d251b7c061b2099d52c",
-   "bytes": 515
-  },
-  "canonical/j9-policy.js": {
-   "sha256": "b2abcf8c07129090d14fc7a3b949e0ea81311fe86a91bebb76cb56acdfe4e219",
-   "bytes": 1642
-  },
-  "canonical/journey-pipeline.js": {
-   "sha256": "328d09af06683a2dd7687aa25aec7983f219d27fb0bfd6bfb3a9e6b75a5a0fae",
-   "bytes": 5385
-  },
-  "canonical/journey-registry.js": {
-   "sha256": "0e7455d7cfaea2a5fd4e72e391d315a300eb8829a202b868de4ec440a7b39358",
-   "bytes": 3295
-  },
-  "canonical/journeys.json": {
-   "sha256": "2e4523f66e0b8e68518d3bab11c4cc8c49a196e8a1fed8eaaa40526e50162586",
-   "bytes": 17332
-  },
-  "canonical/mc1-questions.js": {
-   "sha256": "a4b8c3eec58965e4d01ba57134b75981c5b2d33fff2af20ccf994f81446d83cc",
-   "bytes": 134986
-  },
-  "canonical/mc1.js": {
-   "sha256": "03d653ed591efa69fc5e5fb81686efb0b118f65dcd449f85e26ba478013bed94",
-   "bytes": 12278
-  },
-  "canonical/merge.js": {
-   "sha256": "567f088c8d4d550c18f18c105cf68f085429902eaca440f8163b0a3370cea3e6",
-   "bytes": 21849
-  },
-  "canonical/mw-family.js": {
-   "sha256": "5003ddce219777790189506f818040318df92c9d1a5ed69ee3a0b83b395cbe13",
-   "bytes": 3299
-  },
-  "canonical/mw1-not-heating.js": {
-   "sha256": "0eb750ff9795e6e7aae77aaa8028767de1239716d36f4a1019479a77594bb605",
-   "bytes": 6371
-  },
-  "canonical/mw2-not-starting.js": {
-   "sha256": "09c36c3439209d8391d6cab48f47a3b95c1890beec06719bdc8d72f5ee94286f",
-   "bytes": 9017
-  },
-  "canonical/mw3-door.js": {
-   "sha256": "d0ea7ff8db48fc335d26c09ae7ea74231839b97e83bf059b250f6ed1daf814b1",
-   "bytes": 7770
-  },
-  "canonical/mw4-turntable.js": {
-   "sha256": "a657e9abbb6a52f13005bd109df2ece86084be9d1ab775f70049d2d5f23531e0",
-   "bytes": 5591
-  },
-  "canonical/mw5-noisy-sparking.js": {
-   "sha256": "58b098e5d90dcc1d4f95f29eca83a0aa68158db39e99f6004316de93a8fb937e",
-   "bytes": 15161
-  },
-  "canonical/mw6-starts-door-closes.js": {
-   "sha256": "6972fb0288217244153d1b3a236a9033910523742b67ed42e2e170530b170836",
-   "bytes": 2893
-  },
-  "canonical/ov-family.js": {
-   "sha256": "729e1b7375bcc5cfa68dc4a2224487b013304c960e0e34c5ef046f7f06056c33",
-   "bytes": 4417
-  },
-  "canonical/ov1-not-heating.js": {
-   "sha256": "59d31c1eb28edff1788719e7ca534166b349904231f33a05b3e203325df725cf",
-   "bytes": 11257
-  },
-  "canonical/ov2-overheating.js": {
-   "sha256": "6da87ae435fc8a46401b7d182f394c12c3dd3c29645697b7e83b4e9b289b1873",
-   "bytes": 8116
-  },
-  "canonical/ov3-grill.js": {
-   "sha256": "ea7cfa09aaa9086eca03ef484c6d589bb56e3c56b0a19b68c5b0092cda4c3062",
-   "bytes": 7610
-  },
-  "canonical/ov4-fan.js": {
-   "sha256": "c1bf5fd9ae3899faa3ef3f48a809e0594ae9b57df505ad9ae9af7d2422c75720",
-   "bytes": 7868
-  },
-  "canonical/ov5-dead.js": {
-   "sha256": "aa4034f3731c785146ab9648298989f8901a458d6af8353afa4b3f382d408a91",
-   "bytes": 8847
-  },
-  "canonical/ov6-door.js": {
-   "sha256": "539ac0cb9692f63b432ef0038029da6c15bada980dcec2077205f21fd0b06bd3",
-   "bytes": 10009
-  },
-  "canonical/ov7-tripping.js": {
-   "sha256": "edaf9633ac63e20274a7a9f6fbf03b365e948acf9338b62d16e1a040612e8e90",
-   "bytes": 6237
-  },
-  "canonical/ov8-ignition-gas.js": {
-   "sha256": "2f1d44cbb151926eb2479a24f219d1e3f6bbfd92852c220225263a995cb15c75",
-   "bytes": 407
-  },
-  "canonical/policy-kit.js": {
-   "sha256": "134c4806d04799fd68bebfb791b6728b14090bf0877ec566ba7e554441ba9ef0",
-   "bytes": 26090
-  },
-  "canonical/requests.js": {
-   "sha256": "96177a9c8fd7fb50d1149f659fc5c643a8ab1329ca88c37cbff732cd2c8c995f",
-   "bytes": 11605
-  },
-  "canonical/td-family.js": {
-   "sha256": "0f5bae97047e20e9104f487f6edec226be630daa24115b641b0616bc15e3408c",
-   "bytes": 5647
-  },
-  "canonical/td1-not-heating.js": {
-   "sha256": "20e554d21ec03aac0ead29e489250a48ee5515861cc49f116126471bea94b5d8",
-   "bytes": 14758
-  },
-  "canonical/td2-not-drying.js": {
-   "sha256": "45afc2d1aa13c50094e5e18bf0a2937b30059cf246a026027ab033b6a186ac50",
-   "bytes": 12776
-  },
-  "canonical/td3-drum-not-turning.js": {
-   "sha256": "8b89a27f267e037783a3ba06a7f485d0ae326d7797d907ccef9f90a6cf5f4a57",
-   "bytes": 9272
-  },
-  "canonical/td4-noisy.js": {
-   "sha256": "6614635e17c4b6e7abf33ea3f6fdf7ce3b4c0bf4e24116d16ddb7b06d099b2d4",
-   "bytes": 10717
-  },
-  "canonical/td5-stops-mid-cycle.js": {
-   "sha256": "0a7066e8afd468e3b6713d6c8dc59ac6706d884a976b7576f06428b720734cd8",
-   "bytes": 12160
-  },
-  "canonical/td6-water-container.js": {
-   "sha256": "a6c658b61d06466506d1e43cd885292de6a4d4b6aef8a3748bd75cc4e4255140",
-   "bytes": 12355
-  },
-  "canonical/td7-door-not-starting.js": {
-   "sha256": "cc63df3a46cfed0ebbfcfee05213a76099fdcbc0e59f2df67b5808ee9885afd2",
-   "bytes": 12587
-  },
-  "canonical/token-gate.js": {
-   "sha256": "3a73fafce92a0e29b5d2c15578935dc196905ace1689b89974d84f578fde0082",
-   "bytes": 6530
-  },
-  "canonical/vac-family.js": {
-   "sha256": "eb421f13416e79fcdeb33b8e29b3813bd2d7b072e7dd3535ce205f39dd324f22",
-   "bytes": 5797
-  },
-  "canonical/vac1-low-suction.js": {
-   "sha256": "84dd615680ff412ddeab4a147f11fcb3243d4bd5d3db436eea7a214c37e79b86",
-   "bytes": 9426
-  },
-  "canonical/vac2-pulsing.js": {
-   "sha256": "a938c14d7b41c5c6520d89298fefee861e6beaf8720eb4054294c3e5126ab4b1",
-   "bytes": 12692
-  },
-  "canonical/vac3-not-running.js": {
-   "sha256": "2b6b97c25299670be38447ae932c6ba017fa1fd680387ad1dedb36f8f0d3bf8b",
-   "bytes": 10510
-  },
-  "canonical/vac4-brush.js": {
-   "sha256": "79682098514f9227ee331a87006524e7db2da64ace8d60468ef99f56edd7baff",
-   "bytes": 7088
-  },
-  "canonical/vac5-battery.js": {
-   "sha256": "4a805dcf7d9bd30b76a1a92271041c11e319b0bf0e19666a7b2627065a5038e1",
-   "bytes": 9107
-  },
-  "canonical/vac6-noisy.js": {
-   "sha256": "f968b0708d3b4313ed9c61015fac1017b99428968659901f58c04e807949567a",
-   "bytes": 9849
-  },
-  "canonical/wd-family.js": {
-   "sha256": "2b5d9d66556501854ac25d1c5cddff9c8ec5ec3c438ccb3d288f47ed2046cdc8",
-   "bytes": 8785
-  },
-  "canonical/wd-not-drying.js": {
-   "sha256": "b0946cbdf57ed8ec6f5afcb6f516a8c11c60349ef442cf1c904e265fd488c899",
-   "bytes": 20889
-  },
-  "canonical/wd1-not-draining.js": {
-   "sha256": "807dd01894f62171342d76d5d1e3e1cb982dbe914bf1c83be96fdec7bc63007d",
-   "bytes": 363
-  },
-  "canonical/wd2-not-spinning.js": {
-   "sha256": "2dbbd5152f3c13e8fe82c1b9eadda8126a2471be7fb9fcbee80f87c0be16808e",
-   "bytes": 338
-  },
-  "canonical/wd3-leaking.js": {
-   "sha256": "0cc70dce4d6024ebf9da643541f61f25958cb8b9cfd255cdbe7efacd695859ad",
-   "bytes": 323
-  },
-  "canonical/wd4-not-filling.js": {
-   "sha256": "8bf58ef6f4dbf8bcbd4416d734fb52eb0ee305fe4d3dd2a0b11efd2315cc07cd",
-   "bytes": 335
-  },
-  "canonical/wd5-overfilling.js": {
-   "sha256": "6b14b18e3974bd10c68b76b9c1de795585ae6f1fb6af4cba70061ca6b7977540",
-   "bytes": 335
-  },
-  "canonical/wd6-door.js": {
-   "sha256": "dc04b8484412ad65d5239f2bd08c1b02a16c9fe0eadaf9f000c43030ae3711a9",
-   "bytes": 322
-  },
-  "canonical/wd7-excessive-vibration.js": {
-   "sha256": "f1cad1a7a624f1953619ccd8f5911786ec419fc8d97fa6f3593432d7dfffd265",
-   "bytes": 359
-  },
-  "canonical/wd8-noisy.js": {
-   "sha256": "9995b44a7ab27bfcebc969b9c5adef49439b3a0aa4914b2aaffd94eca8e7289b",
-   "bytes": 317
-  },
-  "canonical/wd9-not-heating-wash.js": {
-   "sha256": "21fe4b0f90e478c8ca9594fff780fb01439557c9542ab5280a44f020b73bfaa5",
-   "bytes": 409
+   "sha256": "8426f60438f571c6f8f9eb79815f9359d5e6e7915796e6507847779ade55710e",
+   "bytes": 4896
   },
   "engine-auth.js": {
-   "sha256": "218bc065bffb3097c1bcba8ad4a9b74b6148310b991f884aa3a6f9d55226f755",
-   "bytes": 3178
-  },
-  "engine/catalogue.js": {
-   "sha256": "38d5fd2973ce3c3f0438dfa671bb6c7eac0ad8584e8a0d777e96eed399928da8",
-   "bytes": 2463
+   "sha256": "0cc0fcd532129639894273b0f2c56aba7c3df677f404ec33d44d9c91dfa183af",
+   "bytes": 3114
   },
   "engine/config.js": {
-   "sha256": "fc94d4e39cf5f8abc4fd1423cc607b09231ec31a7c8947ebaf84fa83b020f797",
-   "bytes": 2768
+   "sha256": "9cf3711b67ab24ddfcee0adeb3f8a3e81bf17e241caa13173191eaecc96a4171",
+   "bytes": 2432
   },
   "engine/conversation.js": {
-   "sha256": "b62e7a89a2504b9bba51af1040e1f23cf0f51dcfc91cdb641dd2de657cfd67f4",
-   "bytes": 3726
+   "sha256": "9e9ef5c7d8eb39831afa5050fa990db2acdd14703b0fc23268152114b5dc5cd7",
+   "bytes": 460
   },
   "engine/learning-log.js": {
    "sha256": "242e5b6727f7695374b164334f2849f1de70688906c33001e6748e987231e466",
@@ -532,45 +84,21 @@
    "sha256": "95e2e6ed7abce5779b6c7a8f13969cb21528015585769452df0fd33cae98b949",
    "bytes": 3296
   },
-  "engine/reply-filters.js": {
-   "sha256": "2e37217bb6c10f65c4567456833a52f76a20a62ff55cafb35599be01bf35f508",
-   "bytes": 9688
-  },
-  "engine/understand.js": {
-   "sha256": "391df2bc347344d0bf8cc875fc9ddbf2c19f5ccee806960e5485d47aa2f754ba",
-   "bytes": 3332
-  },
-  "faults-catalogue.json": {
-   "sha256": "87c4b92c7856bb48e373ce59cb60b0efdabe2e269626a39cceec939a4d9b6186",
-   "bytes": 217736
-  },
   "handler.js": {
-   "sha256": "21b5d416894b0266793753bdbe202d635fc4bda2b162ec318d65991806746f8d",
-   "bytes": 10417
+   "sha256": "a03e0debb63b3f8012722309153d11c2468d1887054c562bec63f0b5d8088444",
+   "bytes": 4516
   },
   "health.js": {
-   "sha256": "b465e976c759134b2860b55b1f976354a6a6bddfb3c57ee7525a885f1b5d794b",
-   "bytes": 7211
-  },
-  "identity.js": {
-   "sha256": "856e065207be51f795186f95571a1f9969dbdb75c87845d1da838b3fb635e34e",
-   "bytes": 17536
+   "sha256": "6f4439084261ce0714785602f11de9f89b392395fe77431daec81039b9afb19e",
+   "bytes": 6402
   },
   "inference.js": {
-   "sha256": "937a5264ec214591690b595da9f7d8853f0bc6d7213a5d9cc61aec430144e830",
-   "bytes": 16455
+   "sha256": "f3b08821c1fa461981f2ed3b39049ec6afaf184a8f7ebc1d3229267d98ddc364",
+   "bytes": 16178
   },
   "jev-client.js": {
    "sha256": "9d4c8aea3f390200f9c45536e420fdd5d4d3b8658bc15e6952ffd17c67f4d03f",
    "bytes": 6123
-  },
-  "jev-mc1.js": {
-   "sha256": "8a5a06a84a06079bf659d99230421e17c81ac56410e8e9bd21fdafa7d0b97370",
-   "bytes": 2677
-  },
-  "jev-understand.js": {
-   "sha256": "5f53f029bc9939f044ca1f27ef2745aa551bd2912501817d4054afa864a7bb2c",
-   "bytes": 62117
   },
   "knowledge/journey-knowledge.json": {
    "sha256": "34279ba6a9e43a902d64afc0f67c5c7830cbb1b0e4fc8852b04da0be953bc0f7",
@@ -593,16 +121,12 @@
    "bytes": 16977
   },
   "media-effective.js": {
-   "sha256": "7768a181ba976590c9b4fda3715ff81572b2c395145a590e47a7014f9ef5ce9c",
-   "bytes": 5102
+   "sha256": "cc99732d75a6d1685d55dd8a91da5c771931a425782661a32ce1dc9e1318bf06",
+   "bytes": 5093
   },
   "media.js": {
-   "sha256": "015f538f1d40f199b32773c545541722902c38b6f9b16a6f3c720a84d1b99451",
-   "bytes": 11817
-  },
-  "security.js": {
-   "sha256": "a6ba594fd988f7cd42a448e34fc77a5cd970516218c1b63e53fdf614de28aeb6",
-   "bytes": 3038
+   "sha256": "77068a4115308fdb928dd1b4c73d138bda8f278c61ee056dbb5bca3d919699a8",
+   "bytes": 11808
   }
  }
 }

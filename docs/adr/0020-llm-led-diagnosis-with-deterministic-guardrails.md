@@ -1,8 +1,7 @@
 # 0020. LLM-led diagnosis inside a deterministic guardrail kernel
 
-- **Status:** Accepted; implemented dormant (`AC2_MODE=benchmark`). **Not cut over**: the final evaluation missed its
-  targets ([results](../evaluation/llm-led-rebuild.md)), so customers stay on the journey architecture and points 4–5 below
-  are not carried out
+- **Status:** Accepted; amended by [0021](0021-understand-label-enrich-decide-reply.md), which replaced the single
+  reasoning pass and the claim verifier and is the path in use
 - **Date:** 2026-10-12
 - **Supersedes:** the diagnostic-control parts of [0010](0010-deterministic-policy-around-llm.md) (code decides the
   diagnosis), [0014](0014-cs1-is-the-only-conversation-state.md) (cs/1), [0015](0015-one-owner-per-decision.md) for
