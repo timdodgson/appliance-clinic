@@ -100,18 +100,18 @@ The Spares4Repairs (S4R) parts catalogue and shop are third-party services to Ap
 | Step | Model | Code |
 |---|---|---|
 | Understand | Qwen reads the message (hints) | none |
-| Label | Jev picks fixed labels with confidence | thresholds; below threshold = not stated |
+| Label | Jev picks fixed labels with confidence, and confirms each check and fact Qwen read | thresholds; below threshold = not stated |
 | Enrich | none | RAG, error-code service, recalls, model info, parts catalogue |
 | Safety | Jev's hazard label | word-list backstop, fixed wording, gas/fire stop, banned-advice filter |
 | Decide | Jev for fuzzy questions (narrowed?) | stage, what to ask, what never to ask, when a part may be shown |
-| Reply | Qwen writes | final check (unsafe advice, unverified identifiers) |
+| Reply | Qwen writes | final check (unsafe advice, unproved certainty, unverified identifiers) |
 | Media | Jev picks the matching item | candidate media from the knowledge nodes |
 
 Every prompt is registered and versioned, with a CI guard ([prompts/README.md](prompts/README.md)).
 
 ## Safety model
 
-- **Hazards are found twice.** Jev labels hazards from the customer's words, and a word list catches what a model might miss (respecting negation such as "no burning smell").
+- **Hazards are found twice.** Jev labels hazards from the customer's words, and a word list catches what a model might miss (respecting negation such as "no burning smell", and ignoring a hazard word inside a question or something to look for, such as "look for scorch marks").
 - **Only gas and an active fire end the chat.** Both get the fixed emergency wording at once, before any model is called. Other hazards (burning, water on electrics, shock, supply trips, microwave arcing, damaged batteries, recalls) get fixed stop-use wording once. The chat then continues with checks that are safe with the appliance off.
 - **Banned advice is removed from every reply**: live testing, opening a microwave casing, discharging capacitors, gas or refrigerant work, bypassing safety devices, running an appliance that smelt of burning.
 - **Precautions travel with checks.** A reply that sends the customer to open, remove or clean something gets the isolation step if it lacks one.
@@ -162,8 +162,7 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - **The LLM provider is a single point of failure.** Production reasoning runs on Qwen 3.6 served by LM Studio over a private tunnel; when the tunnel dropped on 2026-10-12 (about 20:25–21:19 UTC) turns failed explicitly, by design. Evaluation runs share the same provider, which serves one request at a time.
-- **The error-code service has not been released with the repaired dataset** (64 records restored, Beko hob `U`). Live lookups use the unrepaired catalogue until it is, and CI's `images` check stays red.
-- **Reply quality issues seen in the 2026-10-13 smoke chats:** after a burning smell, one reply said simple checks might avoid an engineer; after failed vacuum checks, one reply assumed "no sign of life". Both are prompt or plan fixes for the next engine release.
+- **The error-code service has not been released with the repaired dataset** (64 records restored, Beko hob `U`). The image is built from this repository and tested (232 error-code tests pass; it differs from the live image only in the 16 repaired files), but uploading it to ECR needs the account owner. Until then live lookups use the unrepaired catalogue and CI's `images` check stays red.
 
 ## Working on it
 

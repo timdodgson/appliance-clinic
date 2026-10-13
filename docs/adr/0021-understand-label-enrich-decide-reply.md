@@ -1,6 +1,6 @@
 # 0021. One turn: Qwen understands, Jev labels, tools enrich, code decides, Qwen replies
 
-- **Status:** Implemented (changes 21.2–21.5, 2026-10-13); the journey controller is removed
+- **Status:** Implemented (changes 21.2–21.7, 2026-10-13); the journey controller is removed
 - **Date:** 2026-10-13
 - **Amends:** [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md): replaces its single reasoning pass and
   mandatory claim verifier
@@ -39,8 +39,8 @@ Each customer message (`services/diagnosis-engine/ac2/turn.js`):
    reported; after a hazard that needs an engineer, say so plainly.
 8. **Reply (Qwen).** The conversation as a normal chat plus a briefing (what we know, knowledge, plan).
 9. **Final check.** Prohibited advice, unverified part numbers or prices, and (after such a hazard) any suggestion that
-   it is safe to use or may not need an engineer, are removed; a part card only when the catalogue confirms it for the
-   customer's model.
+   it is safe to use or may not need an engineer, are removed; certainty no check has proved ("confirms",
+   "definitely") is softened; a part card only when the catalogue confirms it for the customer's model.
 10. **Media and tags (Jev).** Jev picks the picture or video for the reply's check, labels what the reply did and which
     check it gave (recorded for the next turn), and these labels become the transcript tags.
 11. **Send.** If Qwen or Jev cannot run: "temporarily unavailable", no fallback answer.
@@ -49,7 +49,10 @@ Each customer message (`services/diagnosis-engine/ac2/turn.js`):
 
 - About 4–8 s per turn (two small Qwen calls, two Jev calls) against 10–20 s for ADR 0020's engine.
 - Jev is a runtime dependency again (credit and availability need monitoring).
-- No claim verifier: Qwen writes from the record and the briefing; the final check covers safety and identifiers only.
+- No claim verifier: Qwen writes from the record and the briefing. Fidelity comes from the record instead: the facts
+  the customer stated and the checks they reported (each confirmed by Jev in their words) are given as true, and the
+  checks still awaiting a result are named so a reply never assumes one. The final check covers safety, certainty and
+  identifiers.
 - The journey controller and the orchestrator hop are removed from the request path; rollback is git.
 
 ## Live verification
@@ -58,6 +61,12 @@ Smoke chats on the live site after each release (2026-10-13), multi-turn through
 - vacuum pulsing, washing machine full of water (filter, hose, model, pump hum), a Bosch error code, gas, burning smell;
 - found and fixed in the plan and record, not with hard-coded replies: reassurance after a burning smell (21.4), an
   invented symptom (21.4), a reply that repeated the previous one (21.5);
+- the independent-100 evaluation of 21.5 (overall 2.32, below ADR 0020's engine at 2.73) traced its losses to the plan
+  and record, not the models: replies assumed checks the customer had not reported, contradicted facts they had given,
+  stated guesses as certain and guessed what an unresolved code meant; the word list also matched a hazard word inside
+  a question ("look for scorch marks"). Fixed in 21.6 (facts and check results in the record, confirmed by Jev; stage 2
+  only on a reported check; plan wording; question-aware word list) and 21.7 (no guessed code meanings; certainty
+  softened in the final check);
 - turn time 4–8 s (Qwen understand about 1 s, Jev labels about 0.3 s, reply 2–3 s).
 
 The full evaluation is in the [evaluation index](../evaluation/README.md).

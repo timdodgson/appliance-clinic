@@ -1,6 +1,6 @@
 # Architecture overview
 
-This is the one current-state architecture document: the system as it runs since changes 21.2–21.5 (2026-10-13).
+This is the one current-state architecture document: the system as it runs since changes 21.2–21.7 (2026-10-13).
 The decision is [ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md); the history that led to it is at the end.
 
 Appliance Clinic is a proof of concept with no real customers yet.
@@ -84,7 +84,7 @@ sequenceDiagram
   E->>E: decide the plan (code)
   E->>Q: write reply (chat + briefing)
   Q-->>E: reply text
-  E->>E: final check (banned advice, reassurance after hazards, unverified ids)
+  E->>E: final check (banned advice, reassurance after hazards, unproved certainty, unverified ids)
   E->>J: label reply (action, check given, media)
   J-->>E: labels
   E-->>W: response + record + audit (tags)
@@ -94,13 +94,13 @@ sequenceDiagram
 
 | Step | What happens | Where |
 |---|---|---|
-| Understand | Qwen extracts appliance, brand, model, codes, symptom, question, answer, checks reported. Hints only | `ac2/understand.js` |
-| Label | Jev: scope, appliance, make/model/code among candidate tokens, symptom area, hazard, unsafe request, answer to the last question, check outcome, model label reachable, narrowed component. Below threshold = not stated | `ac2/labels.js` |
+| Understand | Qwen extracts appliance, brand, model, codes, symptom, question, answer, checks reported and facts stated (including what is not happening). Hints only | `ac2/understand.js` |
+| Label | Jev: scope, appliance, make/model/code among candidate tokens, symptom area, hazard, unsafe request, answer to the last question, check outcome, model label reachable, narrowed component; and a yes/no confirmation of each check and fact Qwen read, so a misreading is never recorded. Below threshold = not stated | `ac2/labels.js` |
 | Enrich | RAG over fault notes, the old journeys as knowledge and normal-behaviour notes; error codes via MCP; recalls; model info; parts (stage 2) | `ac2/knowledge.js`, `ac2/mcp.js`, `ac2/models.js`, `ac2/parts.js` |
 | Safety | Jev's hazard label plus the word-list backstop; fixed wording once; gas or fire stops before any model | `ac2/safety.js`, `ac2/turn.js` |
 | Decide | The plan for the reply (below) | `decide()` in `ac2/turn.js` |
 | Reply | Qwen writes from the conversation and a briefing | `ac2/reply.js` |
-| Final check | Banned advice, reassurance after a hazard, unverified part numbers and prices | `ac2/turn.js`, `ac2/safety.js` |
+| Final check | Banned advice, reassurance after a hazard, certainty no check has proved ("confirms", "definitely" softened), unverified part numbers and prices | `ac2/turn.js`, `ac2/safety.js` |
 | Media and tags | Jev picks the matching picture or video and labels what the reply did and which check it gave | `ac2/labels.js` |
 
 ## The record (`ac3/1`)
@@ -122,6 +122,7 @@ classDiagram
     codes[]
     symptom, symptomArea
     checks[] : check, result, turn
+    facts[] : fact, turn
     modelUnavailable
   }
   class Knowledge {
@@ -130,7 +131,7 @@ classDiagram
     codeMeanings[], modelInfo[]
   }
   class Asked { question, turn, answer }
-  class Advice { turn, action, check, question }
+  class Advice { turn, action, check, question, reported }
   class Hazard { type, clause, turn, shown, source }
   Record *-- Customer : what the customer told us
   Record *-- Knowledge : what our tools added
@@ -139,7 +140,10 @@ classDiagram
   Record *-- Hazard
 ```
 
-Customer facts and tool knowledge are kept apart, so a RAG guess is never recorded as something the customer said.
+Customer facts and tool knowledge are kept apart, so a RAG guess is never recorded as something the customer said. A
+check or fact Qwen reads is recorded only when Jev confirms it in the customer's words; the reply is told to treat
+those as true, never contradict them and never ask about them again. Each piece of advice keeps whether the customer
+has reported back on its check, so a reply never assumes a result.
 The record's shape is checked against its TypeScript declaration at compile time (`types/check/conformance.ts`).
 
 ## Stages and outcomes
@@ -150,7 +154,7 @@ stateDiagram-v2
   Stage1 : Stage 1 broad help (likely cause, safe checks, media)
   Stage2 : Stage 2 narrowing (model, next check, part)
   Stage1 --> Fixed : check fixed it
-  Stage1 --> Stage2 : check done, still faulty
+  Stage1 --> Stage2 : check reported (Qwen + Jev agree), still faulty
   Stage1 --> Normal : normal behaviour
   Stage2 --> Part : narrowed, model known, catalogue match
   Stage2 --> Engineer : needs an engineer
@@ -167,9 +171,13 @@ The plan for each reply is decided in code (`decide()`), from the record:
 - answer the customer's question first;
 - after a hazard, say what it means (an engineer's check before use, where that applies) and only suggest checks that
   are safe with the appliance off;
-- list what they were already told and build on it; if the latest message adds nothing new, give the next step;
-- keep to the symptom they reported;
-- stage 1: the likely cause and one or two safe checks, no model number asked;
+- list what they were already told and build on it; list the checks still awaiting a result and never imply they were
+  done; if the latest message adds nothing new, give the next step;
+- list the checks they reported with what they found; keep to the symptom they reported;
+- stage 1: what could cause it, most likely first, as possibilities (including settings, loading, installation or
+  normal behaviour), then the one or two safe checks or the one question that best separates them; no model number
+  asked;
+- an error code the catalogue cannot resolve: say its meaning cannot be confirmed, never guess;
 - stage 2: ask for the make and model (saying where the label usually is) if it is missing and reachable; otherwise the
   next discriminating check, or the part when the catalogue confirms one for that model;
 - never ask for anything already in the record, or a question they could not answer.
@@ -180,12 +188,12 @@ The plan for each reply is decided in code (`decide()`), from the record:
 flowchart TD
   M["Customer message"] --> G{"gas or fire<br/>in the words?"}
   G -->|yes| STOP["Fixed emergency wording<br/>no model called"]
-  G -->|no| L["Jev hazard label<br/>+ word-list backstop"]
+  G -->|no| L["Jev hazard label<br/>+ word-list backstop<br/>(negations, questions and<br/>things to look for ignored)"]
   L --> H{"hazard?"}
   H -->|no| R["Reply as planned"]
   H -->|yes| F["Fixed stop-use wording once<br/>plan: safe-when-off checks only<br/>engineer before use where required"]
   F --> R
-  R --> C["Final check: banned advice,<br/>reassurance after hazards,<br/>unverified identifiers"]
+  R --> C["Final check: banned advice,<br/>reassurance after hazards,<br/>unproved certainty,<br/>unverified identifiers"]
   C --> P{"part allowed?<br/>stage 2, narrowed, model known,<br/>no blocking hazard, catalogue match"}
   P -->|yes| CARD["Part card"]
   P -->|no| OUT["Reply"]

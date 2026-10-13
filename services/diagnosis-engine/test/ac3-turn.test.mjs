@@ -11,7 +11,7 @@ const Rec = require('../ac2/record.js');
 const J = require('../ac2/labels.js');
 const { normalise } = require('../ac2/understand.js');
 const { resolveErrorCode } = require('../ac2/mcp.js');
-const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, UNSAFE_REASSURANCE } = require('../ac2/turn.js');
+const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, calibrate, UNSAFE_REASSURANCE } = require('../ac2/turn.js');
 
 const user = (content) => ({ role: 'user', content });
 const bot = (content) => ({ role: 'assistant', content });
@@ -98,7 +98,7 @@ describe('turn: the two stages', () => {
     expect(t1.state.knowledge.components).toEqual(expect.arrayContaining(['drain pump', 'pump filter']));
 
     const history = [user('my washing machine is full of water'), bot('It is probably a blocked pump filter. Drain it carefully and check the filter behind the bottom front panel. Did that clear it?')];
-    const j2 = jev({ checkOutcome: 'still_faulty', lastAnswer: 'answered' });
+    const j2 = jev({ checkOutcome: 'still_faulty', lastAnswer: 'answered', check_0: true });
     const t2 = await runTurn({ messages: [...history, user('checked the filter, nothing in it, still wont empty')], state: t1.state },
       deps(qwen({ reading: { checksReported: [{ check: 'pump filter', result: 'clear, still will not empty' }] } }), j2));
     expect(t2.state.stage).toBe(2);
@@ -116,6 +116,43 @@ describe('turn: the two stages', () => {
     expect(t3.response.parts.map((p) => p.partNo)).toEqual(['P1']);
     expect(t3.response.resolvedModel).toBe('WAT28371GB');
     expect(t3.audit.plan.join(' ')).toMatch(/matching part for model WAT28371GB/);
+  });
+
+  it('a check the customer has not reported doing is never recorded, and the stage does not move on', async () => {
+    const rec = Rec.empty();
+    Rec.setValue(rec, 'appliance', 'washing-machine', 0.9, 1);
+    Rec.noteAdvice(rec, { turn: 1, action: 'gives_check', check: 'Clean the pump filter', question: null });
+    rec.turn = 1;
+    // Qwen misreads "I'll check the filter later" as a check done; Jev does not find it in the customer's words.
+    const out = await runTurn({ messages: [user('washing machine wont drain'), bot('Clean the pump filter.'), user("ok I'll check the filter later, what else could it be?")], state: rec },
+      deps(qwen({ reading: { checksReported: [{ check: 'pump filter', result: 'still not draining' }] } }), jev({ checkOutcome: 'still_faulty' })));
+    expect(out.state.customer.checks).toEqual([]);
+    expect(out.state.stage).toBe(1);
+    const plan = out.audit.plan.join(' ');
+    expect(plan).toMatch(/have not reported the result of: "Clean the pump filter"\. Never say or imply they did it/);
+    expect(plan).not.toMatch(/did not fix it/);
+  });
+
+  it('keeps the facts the customer stated (confirmed by Jev) and gives them to the reply as true', async () => {
+    const q = qwen({ reading: { appliance: 'fridge freezer', symptom: 'freezer icing up', facts: ['static freezer, not frost-free', 'it is 12 years old'] } });
+    const out = await runTurn({ messages: [user('my old static freezer (not frost free, 12 yrs old) keeps icing up')] }, deps(q, jev({ appliance: 'fridge-freezer', symptomArea: 'not_cooling', fact_0: true })));
+    expect(out.state.customer.facts.map((f) => f.fact)).toEqual(['static freezer, not frost-free']);
+    const system = q.calls[1].messages[0].content;
+    expect(system).toMatch(/"customerSaid":\["static freezer, not frost-free"\]/);
+    expect(system).toMatch(/never contradict them and never ask about them again/);
+    expect(system).toMatch(/Do not assume a design or feature of their model/);
+  });
+
+  it('a reported check moves the record on: the earlier check is no longer awaiting a result', async () => {
+    const rec = Rec.empty();
+    Rec.setValue(rec, 'appliance', 'washing-machine', 0.9, 1);
+    Rec.noteAdvice(rec, { turn: 1, action: 'gives_check', check: 'Clean the pump filter', question: null });
+    rec.turn = 1;
+    const out = await runTurn({ messages: [user('washing machine wont drain'), bot('Clean the pump filter.'), user('cleaned the filter, nothing in it, still full')], state: rec },
+      deps(qwen({ reading: { checksReported: [{ check: 'pump filter', result: 'empty, still full of water' }] } }), jev({ checkOutcome: 'still_faulty', check_0: true })));
+    expect(out.state.stage).toBe(2);
+    expect(Rec.checksAwaitingResult(out.state).filter((c) => c === 'Clean the pump filter')).toEqual([]);
+    expect(out.audit.plan.join(' ')).toMatch(/Checks they have done and what they found: pump filter - empty, still full of water/);
   });
 
   it('carries on without the model when the label cannot be reached', async () => {
@@ -196,6 +233,21 @@ describe('turn: safety', () => {
     expect(out.response.parts).toBeNull();
   });
 
+  it('softens certainty a check has not proved, and leaves the customer\'s own "confirmed" alone', () => {
+    const r = calibrate('That rapid re-icing confirms a defrost fault. It is definitely the heater. Since you confirmed the clock is set, try this.');
+    expect(r.text).toBe('That rapid re-icing suggests a defrost fault. It is most likely the heater. Since you confirmed the clock is set, try this.');
+    expect(r.changed).toBe(2);
+  });
+
+  it('an error code the catalogue cannot resolve: the plan says not to guess its meaning', () => {
+    const rec = Rec.empty();
+    Rec.setValue(rec, 'appliance', 'oven-cooker', 0.9, 1);
+    Rec.addCode(rec, 'SA2', 1);
+    const plan = decide(rec, normalise({}), null, null, null).join(' ');
+    expect(plan).toMatch(/cannot confirm what it means on their model .* never guess a meaning/);
+    expect(plan).not.toMatch(/usually means/);
+  });
+
   it('removes unverified part numbers and prices, keeps the customer\'s own identifiers', () => {
     const rec = Rec.empty(); Rec.setValue(rec, 'model', 'WAT28371GB', 0.9, 1);
     const r = removeUnverifiedIdentifiers('Your WAT28371GB uses pump 00145787. It costs £45. Check the filter.', ['its a WAT28371GB'], rec);
@@ -256,6 +308,12 @@ describe('safety kernel (shared)', () => {
     expect(S.detectHazards([user('No burning smell, it just stopped')])).toEqual([]);
     expect(S.detectHazards([user('the water is only inside the fridge by the way, nowhere near the plug')])).toEqual([]);
     expect(S.detectHazards([user('my fridge freezer tripped the electrics')]).map((h) => h.type)).toEqual(['supply_trip']);
+  });
+  it('a hazard word in a question or something they will look for is not a report; a report next to a question still is', () => {
+    expect(S.detectHazards([user('I will let it cool, then look at the box for scorch marks')])).toEqual([]);
+    expect(S.detectHazards([user('is there any sign of melting I should check for?')])).toEqual([]);
+    expect(S.detectHazards([user('is it safe? there is smoke coming from the back')]).map((h) => h.type)).toContain('burning');
+    expect(S.detectHazards([user('could it be the motor? it smelt of burning yesterday')]).map((h) => h.type)).toEqual(['burning']);
   });
   it('removes prohibited advice and keeps warnings not to do it', () => {
     const g = S.gateReply('Discharge the capacitor with a screwdriver. Never remove the outer casing yourself.', { appliance: 'microwave' });

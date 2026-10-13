@@ -12,8 +12,8 @@
  *   7  decide         what this reply must do: stage 1 broad help, stage 2 narrow / model / part; never ask for
  *                     anything already in the record; build on what earlier replies already told them
  *   8  reply          Qwen writes the reply as a normal chat
- *   9  final check    unsafe advice and unverified part numbers or prices removed; parts only when the catalogue
- *                     confirms them for the customer's model
+ *   9  final check    unsafe advice and unverified part numbers or prices removed; certainty a check has not proved
+ *                     softened; parts only when the catalogue confirms them for the customer's model
  *   10 media          Jev picks the picture or video that matches the reply's check, and tags what the reply does
  *   11 send           response, record and audit back to the BFF
  *
@@ -84,15 +84,23 @@ function applyLabels(rec, L, reading) {
   if (L.symptomArea.value) Rec.setValue(rec, 'symptomArea', L.symptomArea.value, L.symptomArea.confidence, t);
   // The customer's own description of the fault, kept from the first message that gives one.
   if (reading.symptom && !rec.customer.symptom) Rec.setValue(rec, 'symptom', reading.symptom, L.symptomArea.confidence, t);
-  if (L.checkOutcome.value || L.lastAnswer.value === 'answered') for (const c of reading.checksReported) Rec.addCheck(rec, c.check, c.result, t);
+  // Checks and facts Qwen read are recorded only when Jev finds them in the customer's own words.
+  const checks = (L.checksConfirmed || []).map((i) => reading.checksReported[i]).filter(Boolean);
+  for (const c of checks) Rec.addCheck(rec, c.check, c.result, t);
+  if (checks.length) Rec.markChecksReported(rec, t);
+  for (const i of L.factsConfirmed || []) Rec.addFact(rec, (reading.facts || [])[i], t);
   if (L.lastAnswer.value) Rec.resolveLastAsked(rec, L.lastAnswer.value === 'answered' ? (reading.answerToLastQuestion || 'answered') : L.lastAnswer.value);
   if (L.modelUnreachable.value && !rec.customer.model) rec.customer.modelUnavailable = true;
   if (L.checkOutcome.value === 'fixed') rec.outcome = 'fixed';
-  if (L.checkOutcome.value === 'still_faulty' || L.checkOutcome.value === 'helped_then_returned') rec.stage = 2;
+  // Stage 2 only when a check was actually reported (Qwen and Jev agree) and the fault is still there.
+  if ((L.checkOutcome.value === 'still_faulty' || L.checkOutcome.value === 'helped_then_returned') && checks.length) rec.stage = 2;
   if (L.narrowed.value) { rec.narrowed = { component: L.narrowed.value, confidence: L.narrowed.confidence, turn: t }; rec.stage = 2; }
 }
 
-/** Step 6: hazards from Jev's label and the word-list backstop; they persist for the conversation. */
+/**
+ * Step 6: hazards from Jev's label and the word-list backstop; they persist for the conversation. The backstop is
+ * independent of Jev on purpose: a hazard in the customer's words is active whatever Jev says.
+ */
 function applyHazards(rec, labels, messages, recalls) {
   const add = (type, clause, extra = {}) => { if (type && !rec.hazards.some((h) => h.type === type)) rec.hazards.push({ type, clause: String(clause || '').slice(0, 160), turn: rec.turn, shown: false, ...extra }); };
   if (labels.hazard.value) add(labels.hazard.value, `labelled: ${labels.hazard.value}`, { source: 'jev', confidence: labels.hazard.confidence });
@@ -158,30 +166,33 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   // What we have already told them: the reply builds on it instead of repeating it.
   if (rec.advice.length) {
     plan.push(`Already told them (do not repeat any of it; build on it): ${Rec.adviceSummary(rec).join('; ')}.`);
+    const waiting = Rec.checksAwaitingResult(rec);
+    if (waiting.length) plan.push(`They have not reported the result of: ${waiting.map((x) => `"${x}"`).join('; ')}. Never say or imply they did it or what it showed.`);
     if (nothingNew) plan.push('Their latest message adds no new facts about the fault. Give the next step after what you already told them: if a check you gave is still outstanding, ask how it went; if an engineer is needed, explain how to arrange one.');
   }
+  if (c.checks.length) plan.push(`Checks they have done and what they found: ${c.checks.map((x) => `${x.check} - ${x.result || 'done'}`).join('; ')}.`);
   const symptom = c.symptom && c.symptom.value;
   if (symptom) plan.push(`The fault they reported is: "${symptom}". Keep to it: never describe a symptom, result or state they have not told you.`);
   if (unsafe) plan.push(`They asked about something unsafe (${unsafe.replace(/_/g, ' ')}): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.`);
   const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
   if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
   if (rec.stage === 1) {
-    plan.push('Stage 1 (broad help): say the most likely cause in plain words and give one or two safe checks the owner can do for it, most likely first. Do not ask for the model number in this reply.');
-    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES; if the catalogue could not resolve it, say what it usually means on this appliance and what would confirm it.');
+    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.');
+    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
     return plan;
   }
   // Stage 2: the owner's checks did not fix it.
   if (!model && !c.modelUnavailable) {
     const where = LABEL_WHERE[appliance] || 'on the rating label';
-    plan.push(`Stage 2: their checks did not fix it. Say what that points to, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
+    plan.push(`Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
   } else if (!model) {
-    plan.push('Stage 2: their checks did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
+    plan.push('Stage 2: the checks they reported did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
   } else if (parts && parts.outcome === 'verified') {
     plan.push(`Stage 2: the checks point to the ${parts.component}. Say that, and that a matching part for model ${parts.catalogueModel} is shown below; they should check the listing matches their model before ordering. Mention when an engineer is the better choice.`);
   } else if (parts && parts.outcome === 'no_catalogue_part') {
     plan.push(`Stage 2: the checks point to the ${parts.component}, but we could not find a confirmed match for model ${model}. Say so, and suggest the manufacturer's spares or an engineer.`);
   } else {
-    plan.push('Stage 2: their checks did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
+    plan.push('Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
   }
   return plan;
 }
@@ -198,6 +209,19 @@ function removeUnverifiedIdentifiers(reply, texts, rec) {
     return true;
   });
   return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').trim(), removed };
+}
+
+/**
+ * A cause is a possibility until a check proves it: certainty words in the reply ("that confirms a defrost fault",
+ * "it is definitely the pump") are softened, whatever the customer has checked. The customer's own "I confirmed" is
+ * left alone (only the present-tense claim is changed).
+ */
+const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely']];
+function calibrate(reply) {
+  let text = String(reply);
+  let changed = 0;
+  for (const [re, to] of CERTAINTY) text = text.replace(re, () => { changed += 1; return to; });
+  return { text, changed };
 }
 
 // A physical check without isolation gets the isolation step first.
@@ -320,6 +344,9 @@ async function runTurn(input, deps) {
     if (kept.length < sents.length) audit.safety.gates.push({ gate: 'unsafe-reassurance', removed: sents.length - kept.length });
     gated = kept.join('').trim();
   }
+  const cal = calibrate(gated);
+  if (cal.changed) audit.safety.gates.push({ gate: 'certainty', softened: cal.changed });
+  gated = cal.text;
   const ids = removeUnverifiedIdentifiers(gated, texts, rec);
   for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
   let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
@@ -378,4 +405,4 @@ async function runTurn(input, deps) {
   return { state: rec, response, audit };
 }
 
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, applyLabels, candidatesFor, removeUnverifiedIdentifiers, stepPrecaution, lastQuestion };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, stepPrecaution, lastQuestion };
