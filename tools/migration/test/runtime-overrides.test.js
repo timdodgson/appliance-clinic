@@ -70,7 +70,7 @@ describe('runtime overrides', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
     // The former shared engine spares4repairs-part-finder and its role ac-diagnosis-role are no longer AC's (change 15.3).
     const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp',
-      'applianceclinic-diagnosis-engine'];
+      'applianceclinic-diagnosis-engine', 'applianceclinic-error-code-mcp'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
     const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'];
     for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-engine-role'], k).toContain(k);
@@ -103,7 +103,7 @@ describe('runtime overrides', () => {
   });
 
   // ADR 0022: applianceclinic-error-code-mcp, a Zip function run by the Lambda Web Adapter layer behind a public URL.
-  const LWA = 'arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:22';
+  const LWA = 'arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:23';
   const urlStatements = [
     { Sid: 'FunctionURLAllowPublicAccess', Effect: 'Allow', Principal: '*', Action: 'lambda:InvokeFunctionUrl',
       Condition: { StringEquals: { 'lambda:FunctionUrlAuthType': 'NONE' } } },

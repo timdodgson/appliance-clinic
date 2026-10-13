@@ -1,6 +1,6 @@
 {
   "id": "22.2-error-code-mcp-cutover",
-  "description": "DRAFT (ADR 0022, step 3 of 3): every AC consumer of the error-code MCP calls applianceclinic-error-code-mcp. Environment only: whichpart-api MCP_URL and MCP_HEALTH_URL, applianceclinic-diagnosis-engine MCP_URL and spares4repairs-diag-orchestrator MCP_URL become the new Function URL (generated at 22.1b; filled in from it). The bearer (mcp-bearer) is unchanged. This releases the repaired error-code dataset (change 18.1: 16 files, integrity.py anchors) without an ECR push. Rollback: the previous URL https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws in the same four variables (git revert of this change's overrides); spares4repairs-error-code-mcp stays deployed and untouched until a later release change.",
+  "description": "ADR 0022, step 3 of 3 (prepared; not executed): every AC consumer of the error-code MCP calls applianceclinic-error-code-mcp (https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/, created and verified in 22.1b). Environment only, in runtime-overrides.json: whichpart-api MCP_URL = https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws and MCP_HEALTH_URL = https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/health; applianceclinic-diagnosis-engine MCP_URL = https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws; spares4repairs-diag-orchestrator MCP_URL = https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/ (each keeps its current trailing-slash form). The bearer (mcp-bearer, version 40f015b8-f39b-ceb4-a686-b532251fc4bb) is unchanged. This releases the repaired error-code dataset (change 18.1; /health datasetV1Hash 835496f2dc8d, enrichmentV1Hash 28c0cc32df74) without an ECR push. Rollback: the previous URL https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws in the same four variables (git revert of this change's overrides); spares4repairs-error-code-mcp stays deployed and untouched until a later release change.",
   "classification": "SAFE AC CHANGE (environment of the AC consumers)",
   "stack": "AcRuntimeStack",
   "kind": "UPDATE",
@@ -56,20 +56,9 @@
         "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role",
         "arn:aws:iam::800960611664:role/diag-orchestrator-role"
       ]
-    },
-    {
-      "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-      ],
-      "Resource": [
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-*",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-*",
-        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/orchestrator-bearer-*"
-      ]
     }
   ],
-  "grantNotes": "Configuration of the three AC consumer functions only; PassRole of their own (unchanged) roles, which a configuration update requires; resolution of their existing dynamic references.",
+  "grantNotes": "Configuration of the three AC consumer functions only; PassRole of their own (unchanged) roles, which a configuration update requires. Their dynamic references (mcp-bearer, engine-signing, orchestrator-bearer) are resolved by the read-only base (ResolveAcBearerReferences).",
   "writes": {
     "types": [
       "AWS::Lambda::Function"
@@ -96,7 +85,8 @@
       "ac-diagnosis-role",
       "65vnizdmk4",
       "eu-west-1_mUWucohuX",
-      "spares4repairs-error-code-mcp"
+      "spares4repairs-error-code-mcp",
+      "applianceclinic-error-code-mcp"
     ]
   }
 }

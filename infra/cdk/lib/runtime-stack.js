@@ -209,19 +209,25 @@ class RuntimeStack extends cdk.Stack {
       alarmName: `${name}-${aid}`, comparisonOperator: 'GreaterThanOrEqualToThreshold', evaluationPeriods: 1, period: 300,
       treatMissingData: 'notBreaching', ...props,
     }));
-    if (!parts.has('metrics')) return;
-    for (const [metric, filterPattern] of Object.entries(CREATED_METRICS)) {
-      const mf = retain(new logs.CfnMetricFilter(this, `${fid}${metric}`, {
-        logGroupName, filterPattern, filterName: `${name}-${metric}`,
-        metricTransformations: [{ metricNamespace: 'ApplianceClinic', metricName: `DiagnosisEngine${metric}`, metricValue: '1', defaultValue: 0 }],
-      }));
-      mf.node.addDependency(lg);
+    // The log metrics (and their alarms) are the diagnosis engine's own; a function staged without `metrics` (ADR 0022:
+    // the error-code MCP) gets only the Lambda Errors and Throttles alarms.
+    const metrics = parts.has('metrics');
+    if (metrics) {
+      for (const [metric, filterPattern] of Object.entries(CREATED_METRICS)) {
+        const mf = retain(new logs.CfnMetricFilter(this, `${fid}${metric}`, {
+          logGroupName, filterPattern, filterName: `${name}-${metric}`,
+          metricTransformations: [{ metricNamespace: 'ApplianceClinic', metricName: `DiagnosisEngine${metric}`, metricValue: '1', defaultValue: 0 }],
+        }));
+        mf.node.addDependency(lg);
+      }
     }
     if (!parts.has('alarms') || !c.alarms) return;
-    alarm('FailedTurns', { alarmDescription: 'Diagnosis engine turns that failed (503 engine_unavailable): Jev or COMPOSE provider down, or an engine error.',
-      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineFailedTurns', statistic: 'Sum', threshold: 5 });
-    alarm('RefusedRequests', { alarmDescription: 'Requests refused for a missing or invalid engine signature. AC callers always sign: any refusal is a caller or key fault.',
-      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineRefusedRequests', statistic: 'Sum', threshold: 1 });
+    if (metrics) {
+      alarm('FailedTurns', { alarmDescription: 'Diagnosis engine turns that failed (503 engine_unavailable): Jev or COMPOSE provider down, or an engine error.',
+        namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineFailedTurns', statistic: 'Sum', threshold: 5 });
+      alarm('RefusedRequests', { alarmDescription: 'Requests refused for a missing or invalid engine signature. AC callers always sign: any refusal is a caller or key fault.',
+        namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineRefusedRequests', statistic: 'Sum', threshold: 1 });
+    }
     for (const m of ['Errors', 'Throttles']) {
       alarm(m, { alarmDescription: `Lambda ${m} on ${name}.`, namespace: 'AWS/Lambda', metricName: m, statistic: 'Sum', threshold: 1,
         dimensions: [{ name: 'FunctionName', value: name }] });

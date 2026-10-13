@@ -2,7 +2,7 @@
 # Phase 7: contract checks for the AC-only endpoints (diag orchestrator, error-code MCP, whichpart-api URL settings).
 # Run as the IAM user, from the repository root, before and after a change:
 #
-#   bash infra/production/verify-ac-endpoints.sh <out-dir>
+#   [MCP_FUNCTION=applianceclinic-error-code-mcp] bash infra/production/verify-ac-endpoints.sh <out-dir>
 #
 # Handler checks invoke each function with a Function-URL-shaped event (lambda invoke; direct Function URLs are not
 # reachable from every operator network). Only side-effect-free paths are called: GET /health and requests without a
@@ -28,7 +28,8 @@ invoke() { # FUNCTION METHOD PATH [AUTH]
   jq -r '.statusCode // "none"' "$O/out.json"
 }
 
-ORCH=spares4repairs-diag-orchestrator; MCP=spares4repairs-error-code-mcp
+# MCP_FUNCTION selects the error-code MCP function (ADR 0022: applianceclinic-error-code-mcp, the Zip Lambda).
+ORCH=spares4repairs-diag-orchestrator; MCP=${MCP_FUNCTION:-spares4repairs-error-code-mcp}
 check "orchestrator GET /health is open" "$(invoke $ORCH GET /health)" 200
 jq -e '.body | fromjson | .status == "ok" and (tostring | test("(?i)token|secret|bearer") | not)' "$O/out.json" >/dev/null && echo "PASS orchestrator /health names no token or secret" || { echo "FAIL orchestrator /health payload"; fail=1; }
 check "orchestrator POST /diagnose without a bearer" "$(invoke $ORCH POST /diagnose)" 401

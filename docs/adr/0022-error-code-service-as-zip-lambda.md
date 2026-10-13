@@ -1,6 +1,6 @@
 # 0022. The error-code service runs as a Zip Lambda, applianceclinic-error-code-mcp
 
-- **Status:** Proposed (step 0, repository only: change 22.0; changes 22.1a, 22.1b and 22.2 are drafts)
+- **Status:** Accepted; partly implemented (22.0 build; 22.1a and 22.1b executed 2026-10-13; 22.2 cut-over prepared, not executed)
 - **Date:** 2026-10-13
 
 ## Context
@@ -37,7 +37,11 @@ Two facts constrain how:
    `build/scripts/fetch_error_code_mcp_site.sh`. Entries are sorted and use a fixed timestamp, so a rebuild is
    byte-identical. `build/scripts/compare_zip_to_image.py` compares the zip with the deployed image file by file.
 3. **The Lambda Web Adapter runs it, as a layer.** The function uses layer
-   `arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:22` (the adapter version the image pins, 0.8.4)
+   `arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:23` (LWA 0.8.4, the adapter version the image pins: its `extensions/lambda-adapter` is byte-identical to the image's
+   `opt/extensions/lambda-adapter`, sha256 `82b8edfc96ccd9959472bf2b6233811cf79f0af6537d3f5fd5ab67dbc8d2e6be`, 3,040,328
+   bytes; layer CodeSha256 `9DGT6q7SqBO8+T+RDFjviWO2+ejppQUgvUtBid5/NYk=`, also recorded in
+   `build/reference/applianceclinic-error-code-mcp.zip.json`. Version :22 is LWA 0.8.3
+   and differs)
    with `AWS_LAMBDA_EXEC_WRAPPER=/opt/bootstrap` and `AWS_LWA_PORT=8080`. `run.sh` runs the image's command from the same
    directory:
 
@@ -46,7 +50,8 @@ Two facts constrain how:
    PYTHONPATH="$LAMBDA_TASK_ROOT" exec python3 -m uvicorn asgi:app --host 0.0.0.0 --port 8080 --log-level info
    ```
 
-   The image's `PORT`, `PYTHONUNBUFFERED` and `PYTHONDONTWRITEBYTECODE` are set too. The service code is unchanged.
+   The image's `PYTHONUNBUFFERED` and `PYTHONDONTWRITEBYTECODE` are set too (its `PORT=8080` only repeated
+   `AWS_LWA_PORT` for the adapter and is not set). The service code is unchanged.
 4. **It reuses `error-code-mcp-role`.** The role already has what the service needs (the overlay read of the learning
    bucket). Only its `ac-function-logs` inline policy gains the new log group. No new role, no new trust.
 5. **The URL is public and bearer-gated, as today.** Auth `NONE`, BUFFERED, no CORS. `asgi.py` enforces the bearer
@@ -57,6 +62,21 @@ Two facts constrain how:
    URL and its two statements. 22.2 moves `MCP_URL` (and `MCP_HEALTH_URL`) of whichpart-api, the diagnosis engine and
    the orchestrator to the new URL. To support this, `createdFunction` declares `layers` and `statements`, and the
    statements of a created function depend on it. Every existing template synthesizes byte-identically.
+
+## Status of the release (2026-10-13)
+
+- 22.1a: log group `/aws/lambda/applianceclinic-error-code-mcp`, the Errors and Throttles alarms, and the log group added
+  to `error-code-mcp-role/ac-function-logs`. Drift IN_SYNC; the template is a no-op.
+- 22.1b: `applianceclinic-error-code-mcp`, CodeSha256 `Wm1i7OG6nSeugc/Cw/AQf6x7VPbGnG2sjd0Ig041sIM=` (equal to
+  `build/reference/applianceclinic-error-code-mcp.zip.json`), Function URL
+  `https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/`. Drift IN_SYNC; the deployed configuration
+  equals `runtime-overrides.json`.
+- Verified on arm64 (Function-URL-shaped `lambda invoke`; the operator network's egress proxy refuses Function URL
+  hosts): `/health` 200 with mappingCount 847, datasetV1Hash `835496f2dc8d` and enrichmentV1Hash `28c0cc32df74` (the
+  image still serves `0a2a8e0cbc16` and `6301265a2a80`); `/mcp` without a bearer and with a wrong bearer 401; with the
+  bearer, `resolve-error-code` Beko hob `U` and Bosch dishwasher `E15` both RESOLVED. Cold start: init 3.56 s, no
+  errors in the log.
+- 22.2 moves the consumers' `MCP_URL` (and whichpart-api's `MCP_HEALTH_URL`) to the new URL.
 
 ## Consequences
 
