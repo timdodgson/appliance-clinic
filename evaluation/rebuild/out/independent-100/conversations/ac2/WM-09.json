@@ -1,0 +1,1136 @@
+{
+ "id": "WM-09",
+ "system": "ac2",
+ "sessionId": "bm-ac2-wm-09-34bd029d0b",
+ "endReason": "escalated",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "LG F4V5VYP0W says OE and the clothes are sat in water. I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen. What else can I do?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. The OE code on your LG washing machine means 'Error Drain' – the machine has tried to pump out the water but couldn't. This is almost always caused by a blockage in the filter or drain hose, not a broken part. I understand you are worried about flooding given what happened last time. We can manage this safely: place shallow trays or plenty of old towels on the floor in front of the bottom flap. Open the flap and look for a small thin black hose (a pre-drain tube). Pull it out, unclip the end, and let the water drain into your tray. If there is no small hose, wrap a thick towel around the main filter cap and unscrew it very slowly to let the water trickle out. Once the water is gone, check if it drained freely or if it was blocked/gurgling? This will tell us if it's a simple blockage or something else."
+  },
+  {
+   "role": "customer",
+   "text": "I'll do the little hose with towels and my baking tray, but I'm definitely not unscrewing the main filter, I won't do that bit. Do I just do the small tube first?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, start with the small tube. Place your baking tray under it, pull the plug out of the end of that thin black hose, and let the water drain into the tray. Once it has finished dripping, put the plug back in tightly and push the hose back into its clip. After you have done this, please check the grey drain hose at the back of the machine to make sure it isn't kinked or pushed too far into the waste pipe. Is the hose straight and clear?"
+  },
+  {
+   "role": "customer",
+   "text": "The machine is pushed right back against the wall and the hose was squashed behind it, so I've pulled it out and straightened it. I'm happy to drain the small tube into the tray with towels down, but I still won't touch the main filter."
+  },
+  {
+   "role": "assistant",
+   "text": "That is good news about the hose; a kinked drain pipe is a very common cause of the OE code because the machine simply cannot push the water out. Please put the small pre-drain tube back in its clip and close the flap. Plug the machine back in, turn it on, and select a 'Drain' or 'Spin' programme (if available) to see if it can now pump the water out without showing OE again."
+  },
+  {
+   "role": "customer",
+   "text": "I tried a spin after straightening the hose. It drained a little slower than normal, then OE came up again. What now?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Partial blockage in the pump filter or impeller]\nThe most common cause here is a partial blockage in the pump filter or the small impeller behind it (like a coin, button, or hair grip). To help us decide if this is just a blockage or a failing pump, please listen carefully while it tries to drain again. Do you hear a humming or buzzing sound coming from the bottom front of the machine as it attempts to pump? This tells us if the motor is trying but blocked, or if it isn't running at all."
+  },
+  {
+   "role": "customer",
+   "text": "Yes, the pump hums when it tries to drain, and I've heard an occasional rattle too. Still not unscrewing the filter though."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blocked drain pump or impeller]\nBefore you start, switch it off and unplug it. The fact that the pump is humming and rattling confirms it is receiving power and trying to work, but something is physically stopping it—usually a coin, button, or hair grip caught in the impeller behind the filter. You will need to call an engineer to open the machine, remove any obstruction from the pump housing, and test if the pump motor itself is still functional."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 11320,
+     "verifyMs": 2945,
+     "totalMs": 14304
+    },
+    "usage": {
+     "promptTokens": 3904,
+     "completionTokens": 817,
+     "totalTokens": 4721
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "F4V5VYP0W",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:heater",
+       "washing-machine:motor-drum",
+       "tumble-dryer:not-emptying-condensate"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Blocked drain pump filter or hose",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty drain pump",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "LG F4V5VYP0W says OE and the clothes are sat in water.",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "LG",
+      "status": "stated",
+      "quote": "LG",
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "status": "stated",
+      "quote": "F4V5VYP0W",
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "quote": "says OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "Machine displays OE code and clothes are sitting in water.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "LG F4V5VYP0W says OE and the clothes are sat in water."
+      },
+      {
+       "id": "f2",
+       "field": "safety_concern",
+       "value": "Customer is afraid to open the filter door because it flooded previously.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen."
+      },
+      {
+       "id": "f3",
+       "field": "error_code_oe_meaning",
+       "value": "Drain issue - not draining (food clogs / installation)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "safe_drain_check",
+       "text": "Since you are worried about flooding, we can do this safely. Get some shallow trays or large towels and place them in front of the bottom door. Open the flap slowly, but instead of unscrewing the filt",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14456
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15270,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9910,
+     "verifyMs": 478,
+     "totalMs": 10392
+    },
+    "usage": {
+     "promptTokens": 4547,
+     "completionTokens": 719,
+     "totalTokens": 5266
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "F4V5VYP0W",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:heater",
+       "washing-machine:motor-drum"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Blockage in drain hose or pump filter",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     },
+     {
+      "cause": "Kinked or blocked external drain pipe",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "LG F4V5VYP0W says OE and the clothes are sat in water.",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "LG",
+      "status": "stated",
+      "quote": "LG",
+      "turn": 2
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "status": "stated",
+      "quote": "F4V5VYP0W",
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "quote": "says OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "Machine displays OE code and clothes are sitting in water.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "LG F4V5VYP0W says OE and the clothes are sat in water."
+      },
+      {
+       "id": "f2",
+       "field": "safety_concern",
+       "value": "Customer is afraid to open the filter door because it flooded previously.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen."
+      },
+      {
+       "id": "f3",
+       "field": "error_code_oe_meaning",
+       "value": "Drain issue - not draining (food clogs / installation)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "safety_concern_filter_removal",
+       "value": "Customer refuses to unscrew the main filter due to fear of flooding.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'm definitely not unscrewing the main filter, I won't do that bit."
+      },
+      {
+       "id": "f5",
+       "field": "plan_to_use_pre_drain_hose",
+       "value": "Customer plans to use the small pre-drain hose with towels and a baking tray.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'll do the little hose with towels and my baking tray... Do I just do the small tube first?"
+      }
+     ],
+     "asked": [
+      {
+       "key": "safe_drain_check",
+       "text": "Since you are worried about flooding, we can do this safely. Get some shallow trays or large towels and place them in front of the bottom door. Open the flap slowly, but instead of unscrewing the filt",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_drain_hose_after_pre_drain",
+       "text": "Yes, start with the small tube. Once that has drained into your tray and you have cleared any water from the sump area, please check the grey drain hose at the back of the machine to make sure it isn'",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10449
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 10924,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10978,
+     "verifyMs": 2133,
+     "totalMs": 13171
+    },
+    "usage": {
+     "promptTokens": 5129,
+     "completionTokens": 761,
+     "totalTokens": 5890
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "F4V5VYP0W",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you have straightened it, let's see if that was the only issue.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Kinked drain hose (now resolved)",
+      "likelihood": "high",
+      "evidence": [
+       "f5"
+      ]
+     },
+     {
+      "cause": "Blockage in pump filter or sump hose",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty drain pump",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "LG F4V5VYP0W says OE and the clothes are sat in water.",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "LG",
+      "status": "stated",
+      "quote": "LG",
+      "turn": 3
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "status": "stated",
+      "quote": "F4V5VYP0W",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "quote": "says OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "Machine displays OE code and clothes are sitting in water.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "LG F4V5VYP0W says OE and the clothes are sat in water."
+      },
+      {
+       "id": "f2",
+       "field": "safety_concern",
+       "value": "Customer is afraid to open the filter door because it flooded previously.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen."
+      },
+      {
+       "id": "f3",
+       "field": "error_code_oe_meaning",
+       "value": "Drain issue - not draining (food clogs / installation)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "safety_concern_filter_removal",
+       "value": "Customer refuses to unscrew the main filter due to fear of flooding.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'm definitely not unscrewing the main filter, I won't do that bit."
+      },
+      {
+       "id": "f5",
+       "field": "plan_to_use_pre_drain_hose",
+       "value": "Customer plans to use the small pre-drain hose with towels and a baking tray.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'll do the little hose with towels and my baking tray... Do I just do the small tube first?"
+      },
+      {
+       "id": "f7",
+       "field": "drain_hose_fixed",
+       "value": "Customer pulled the machine out from against the wall and straightened the squashed grey drain hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "The machine is pushed right back against the wall and the hose was squashed behind it, so I've pulled it out and straightened it."
+      },
+      {
+       "id": "f8",
+       "field": "refusal_main_filter",
+       "value": "Customer refuses to touch or unscrew the main pump filter.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I still won't touch the main filter."
+      }
+     ],
+     "asked": [
+      {
+       "key": "safe_drain_check",
+       "text": "Since you are worried about flooding, we can do this safely. Get some shallow trays or large towels and place them in front of the bottom door. Open the flap slowly, but instead of unscrewing the filt",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_drain_hose_after_pre_drain",
+       "text": "Yes, start with the small tube. Once that has drained into your tray and you have cleared any water from the sump area, please check the grey drain hose at the back of the machine to make sure it isn'",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "test_drain_after_hose_fix",
+       "text": "Now that the hose is straight, please put the small pre-drain tube back in its clip and close the flap. Plug the machine back in, turn it on, and select a 'Drain' or 'Spin' programme (if available) to",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13214
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 13820,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10893,
+     "verifyMs": 4003,
+     "totalMs": 14941
+    },
+    "usage": {
+     "promptTokens": 5409,
+     "completionTokens": 718,
+     "totalTokens": 6127
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "F4V5VYP0W",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "straightening the hose helped slightly but didn't fix it",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Partial blockage in the pump filter or impeller",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f7",
+       "drain_test_result"
+      ]
+     },
+     {
+      "cause": "Failing drain pump (weak impeller)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "drain_test_result"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "LG F4V5VYP0W says OE and the clothes are sat in water.",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "LG",
+      "status": "stated",
+      "quote": "LG",
+      "turn": 4
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "status": "stated",
+      "quote": "F4V5VYP0W",
+      "turn": 4
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "quote": "says OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "Machine displays OE code and clothes are sitting in water.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "LG F4V5VYP0W says OE and the clothes are sat in water."
+      },
+      {
+       "id": "f2",
+       "field": "safety_concern",
+       "value": "Customer is afraid to open the filter door because it flooded previously.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen."
+      },
+      {
+       "id": "f3",
+       "field": "error_code_oe_meaning",
+       "value": "Drain issue - not draining (food clogs / installation)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "safety_concern_filter_removal",
+       "value": "Customer refuses to unscrew the main filter due to fear of flooding.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'm definitely not unscrewing the main filter, I won't do that bit."
+      },
+      {
+       "id": "f5",
+       "field": "plan_to_use_pre_drain_hose",
+       "value": "Customer plans to use the small pre-drain hose with towels and a baking tray.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'll do the little hose with towels and my baking tray... Do I just do the small tube first?"
+      },
+      {
+       "id": "f7",
+       "field": "drain_hose_fixed",
+       "value": "Customer pulled the machine out from against the wall and straightened the squashed grey drain hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "The machine is pushed right back against the wall and the hose was squashed behind it, so I've pulled it out and straightened it."
+      },
+      {
+       "id": "f8",
+       "field": "refusal_main_filter",
+       "value": "Customer refuses to touch or unscrew the main pump filter.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I still won't touch the main filter."
+      },
+      {
+       "id": "f10",
+       "field": "drain_test_result",
+       "value": "Machine drained slowly then showed OE code again after straightening the hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "I tried a spin after straightening the hose. It drained a little slower than normal, then OE came up again."
+      }
+     ],
+     "asked": [
+      {
+       "key": "safe_drain_check",
+       "text": "Since you are worried about flooding, we can do this safely. Get some shallow trays or large towels and place them in front of the bottom door. Open the flap slowly, but instead of unscrewing the filt",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_drain_hose_after_pre_drain",
+       "text": "Yes, start with the small tube. Once that has drained into your tray and you have cleared any water from the sump area, please check the grey drain hose at the back of the machine to make sure it isn'",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "test_drain_after_hose_fix",
+       "text": "Now that the hose is straight, please put the small pre-drain tube back in its clip and close the flap. Plug the machine back in, turn it on, and select a 'Drain' or 'Spin' programme (if available) to",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "listen_to_pump_sound",
+       "text": "With the machine still unplugged, can you listen closely to the bottom front area while it tries to drain (you may need to ask someone to start a spin/drain cycle and listen while you are near the bas",
+       "turn": 4,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15086
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 15762,
+   "retried": false,
+   "label": "Partial blockage in the pump filter or impeller",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 11100,
+     "verifyMs": 3407,
+     "totalMs": 15052
+    },
+    "usage": {
+     "promptTokens": 5639,
+     "completionTokens": 743,
+     "totalTokens": 6382
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "F4V5VYP0W",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Because you have decided not to open the main filter yourself, we cannot clear this blockage safely without risking further damage or leakage.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f10"
+     ]
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "The machine is not draining due to a likely blockage in the pump impeller or a failing drain pump. Since you have refused to open the main filter to clear any debris, and the pump is humming/rattling "
+    },
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Blocked drain pump impeller or filter",
+      "likelihood": "high",
+      "evidence": [
+       "f10",
+       "pump_sound_humming_rattle"
+      ]
+     },
+     {
+      "cause": "Failing drain pump motor",
+      "likelihood": "medium",
+      "evidence": [
+       "pump_sound_humming_rattle"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "LG F4V5VYP0W says OE and the clothes are sat in water.",
+      "turn": 5,
+      "confidence": null
+     },
+     "brand": {
+      "value": "LG",
+      "status": "stated",
+      "quote": "LG",
+      "turn": 5
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "status": "stated",
+      "quote": "F4V5VYP0W",
+      "turn": 5
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "quote": "says OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "Machine displays OE code and clothes are sitting in water.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "LG F4V5VYP0W says OE and the clothes are sat in water."
+      },
+      {
+       "id": "f2",
+       "field": "safety_concern",
+       "value": "Customer is afraid to open the filter door because it flooded previously.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen."
+      },
+      {
+       "id": "f3",
+       "field": "error_code_oe_meaning",
+       "value": "Drain issue - not draining (food clogs / installation)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "safety_concern_filter_removal",
+       "value": "Customer refuses to unscrew the main filter due to fear of flooding.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'm definitely not unscrewing the main filter, I won't do that bit."
+      },
+      {
+       "id": "f5",
+       "field": "plan_to_use_pre_drain_hose",
+       "value": "Customer plans to use the small pre-drain hose with towels and a baking tray.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I'll do the little hose with towels and my baking tray... Do I just do the small tube first?"
+      },
+      {
+       "id": "f7",
+       "field": "drain_hose_fixed",
+       "value": "Customer pulled the machine out from against the wall and straightened the squashed grey drain hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "The machine is pushed right back against the wall and the hose was squashed behind it, so I've pulled it out and straightened it."
+      },
+      {
+       "id": "f8",
+       "field": "refusal_main_filter",
+       "value": "Customer refuses to touch or unscrew the main pump filter.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I still won't touch the main filter."
+      },
+      {
+       "id": "f10",
+       "field": "drain_test_result",
+       "value": "Machine drained slowly then showed OE code again after straightening the hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "I tried a spin after straightening the hose. It drained a little slower than normal, then OE came up again."
+      },
+      {
+       "id": "f12",
+       "field": "pump_sound_humming_rattle",
+       "value": "The pump hums and occasionally rattles when trying to drain, but the customer refuses to open the main filter.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": "Yes, the pump hums when it tries to drain, and I've heard an occasional rattle too. Still not unscrewing the filter though."
+      }
+     ],
+     "asked": [
+      {
+       "key": "safe_drain_check",
+       "text": "Since you are worried about flooding, we can do this safely. Get some shallow trays or large towels and place them in front of the bottom door. Open the flap slowly, but instead of unscrewing the filt",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_drain_hose_after_pre_drain",
+       "text": "Yes, start with the small tube. Once that has drained into your tray and you have cleared any water from the sump area, please check the grey drain hose at the back of the machine to make sure it isn'",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "test_drain_after_hose_fix",
+       "text": "Now that the hose is straight, please put the small pre-drain tube back in its clip and close the flap. Plug the machine back in, turn it on, and select a 'Drain' or 'Spin' programme (if available) to",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "listen_to_pump_sound",
+       "text": "With the machine still unplugged, can you listen closely to the bottom front area while it tries to drain (you may need to ask someone to start a spin/drain cycle and listen while you are near the bas",
+       "turn": 4,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15113
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 15582,
+   "retried": false,
+   "label": "Blocked drain pump or impeller",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0584945,
+ "finishedAt": "2026-10-12T21:32:58.385Z"
+}

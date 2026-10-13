@@ -1,0 +1,424 @@
+{
+ "id": "VC-01",
+ "system": "ac2",
+ "sessionId": "bm-ac2-vc-01-638a0a499b",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, I've got a Dyson V15 Detect (SV22) about 4 months old. When I go from the kitchen tiles onto the lounge rug the motor suddenly gets much louder and the battery number drops faster, then it calms down again when I go back on the tiles. Also the screen goes up and down by itself. Is the motor on its way out? It's still under guarantee so I want to report it before it dies completely."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely normal behaviour with a separate screen glitch issue]\nIt is very unlikely that the motor is failing. What you are describing—the louder noise and faster battery drain on rugs—is actually normal behaviour. Rugs create more suction resistance than tiles, so the motor has to work harder (drawing more power and making more noise) to maintain cleaning performance. Once you return to the smooth tile floor, the load drops, which is why it calms down again. However, the screen going up and down by itself is not normal and suggests a software glitch or a faulty display unit. Since your V15 Detect is only 4 months old and still under guarantee, I recommend contacting Dyson support directly to arrange a warranty repair for the display issue. They can often diagnose this remotely or send a replacement part. In the meantime, you can try resetting the vacuum by turning it off, removing the battery (if detachable on your specific sub-model) or leaving it off for 10 minutes, and then turning it back on to see if the screen glitch persists.\n[Helpful to see: image \"Poor suction — what to check first\" — A vacuum that pulses or cuts out after running is usually a full bin, a dirty filter or a blockage starving the airflow — check and clear those before suspecting battery, charger or motor. Switch off and unplug first. Typical layout — your model may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Thank you. I'm not sure I'd call it a glitch with the screen, though; it's the runtime number and the particle graphic that move around while I'm cleaning. There are no warning symbols or red lights. It's currently set to a middle mode, if that matters. Should I still contact Dyson about it?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Normal behaviour]\nThe fluctuating runtime and particle count are actually normal for the V15 Detect. The screen calculates these in real-time based on suction load; as you move from tiles to rug, the increased resistance changes the airflow and motor speed slightly, causing the calculated runtime estimate to drop and the particle graphic to react to the dust density change. Since there are no error codes or warning lights, this is not a fault. You do not need to contact Dyson for the screen behaviour or the noise/battery drain on rugs. The motor is healthy. If you still wish to have it checked under guarantee for peace of mind, you can contact them, but they will likely confirm these are normal characteristics of the Laser Slim Fluffy head and LCD system."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 13031,
+     "verifyMs": 5497,
+     "totalMs": 18562
+    },
+    "usage": {
+     "promptTokens": 3548,
+     "completionTokens": 1017,
+     "totalTokens": 4565
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "V15",
+        "status": "NOT_FOUND"
+       },
+       {
+        "code": "SV22",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SV22",
+        "families": [
+         "vacuum"
+        ]
+       },
+       {
+        "token": "V15",
+        "families": [
+         "vacuum"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "vacuum:cuts-out",
+       "vacuum:wont-run",
+       "vacuum:motor"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "manufacturer",
+     "reason": "The appliance is under guarantee and has a display fault (screen going up and down by itself) which likely requires a warranty repair or replacement. The noise change is consistent with normal operati"
+    },
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Normal load increase on rugs causing higher motor RPM and power draw",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Software glitch or sensor issue causing screen fluctuation",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Impending motor failure due to bearing wear or obstruction",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "status": "stated",
+      "quote": "Dyson V15 Detect (SV22)",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "dyson",
+      "status": "stated",
+      "quote": "Dyson",
+      "turn": 1
+     },
+     "model": {
+      "value": "V15 DETECT (SV22)",
+      "status": "stated",
+      "quote": "Dyson V15 Detect (SV22)",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_type",
+       "value": "cordless vacuum cleaner",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Dyson V15 Detect (SV22)"
+      },
+      {
+       "id": "f2",
+       "field": "age",
+       "value": "4 months old",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "about 4 months old"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_noise_change",
+       "value": "motor gets much louder when going from kitchen tiles onto lounge rug, then calms down on tiles",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "When I go from the kitchen tiles onto the lounge rug the motor suddenly gets much louder and the battery number drops faster, then it calms down again when I go back on the tiles."
+      },
+      {
+       "id": "f4",
+       "field": "symptom_battery_drain",
+       "value": "battery number drops faster on rugs",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the battery number drops faster"
+      },
+      {
+       "id": "f5",
+       "field": "symptom_screen_glitch",
+       "value": "screen goes up and down by itself",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Also the screen goes up and down by itself."
+      },
+      {
+       "id": "f6",
+       "field": "warranty_status",
+       "value": "still under guarantee",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "It's still under guarantee"
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 18602
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 19062,
+   "retried": false,
+   "label": "Likely normal behaviour with a separate screen glitch issue",
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9322,
+     "verifyMs": 2478,
+     "totalMs": 11803
+    },
+    "usage": {
+     "promptTokens": 4244,
+     "completionTokens": 624,
+     "totalTokens": 4868
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "V15",
+        "status": "NOT_FOUND"
+       },
+       {
+        "code": "SV22",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SV22",
+        "families": [
+         "vacuum"
+        ]
+       },
+       {
+        "token": "V15 DETECT (SV22)",
+        "families": [
+         "vacuum"
+        ]
+       },
+       {
+        "token": "V15",
+        "families": [
+         "vacuum"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "vacuum:cuts-out",
+       "vacuum:wont-run",
+       "vacuum:motor"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Normal operation of the Laser Slim Fluffy head and LCD interface",
+      "likelihood": "high",
+      "evidence": [
+       "f3",
+       "f4",
+       "f5",
+       "newFacts[0]",
+       "newFacts[1]"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "status": "stated",
+      "quote": "Dyson V15 Detect (SV22)",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "dyson",
+      "status": "stated",
+      "quote": "Dyson",
+      "turn": 2
+     },
+     "model": {
+      "value": "V15 DETECT (SV22)",
+      "status": "stated",
+      "quote": "Dyson V15 Detect (SV22)",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_type",
+       "value": "cordless vacuum cleaner",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Dyson V15 Detect (SV22)"
+      },
+      {
+       "id": "f2",
+       "field": "age",
+       "value": "4 months old",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "about 4 months old"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_noise_change",
+       "value": "motor gets much louder when going from kitchen tiles onto lounge rug, then calms down on tiles",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "When I go from the kitchen tiles onto the lounge rug the motor suddenly gets much louder and the battery number drops faster, then it calms down again when I go back on the tiles."
+      },
+      {
+       "id": "f4",
+       "field": "symptom_battery_drain",
+       "value": "battery number drops faster on rugs",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the battery number drops faster"
+      },
+      {
+       "id": "f5",
+       "field": "symptom_screen_glitch",
+       "value": "screen goes up and down by itself",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Also the screen goes up and down by itself."
+      },
+      {
+       "id": "f6",
+       "field": "warranty_status",
+       "value": "still under guarantee",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "It's still under guarantee"
+      },
+      {
+       "id": "f7",
+       "field": "screen_behaviour",
+       "value": "runtime number and particle graphic move around while cleaning, no warning symbols or red lights",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "it's the runtime number and the particle graphic that move around while I'm cleaning. There are no warning symbols or red lights."
+      },
+      {
+       "id": "f8",
+       "field": "current_mode",
+       "value": "middle mode",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "It's currently set to a middle mode"
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11997
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12274,
+   "retried": false,
+   "label": "Normal behaviour",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.027656100000000003,
+ "finishedAt": "2026-10-12T22:57:37.447Z"
+}

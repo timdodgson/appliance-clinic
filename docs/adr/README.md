@@ -35,3 +35,4 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0017](0017-authenticate-orchestrator-only-engine-fields.md) | Authenticate the orchestrator-only engine fields | Implemented (Phase 11); amended by [0019](0019-dedicated-canonical-diagnosis-engine.md) |
 | [0018](0018-no-ac-legacy-fallback.md) | No Appliance Clinic turn falls back to the legacy pipeline | Implemented (Phase 13); amended by [0019](0019-dedicated-canonical-diagnosis-engine.md) |
 | [0019](0019-dedicated-canonical-diagnosis-engine.md) | Appliance Clinic uses a dedicated canonical diagnosis engine | Implemented (Phase 15) |
+| [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md) | LLM-led diagnosis inside a deterministic guardrail kernel | Accepted; deployed dormant, not cut over ([evaluation](../evaluation/llm-led-rebuild.md)) |

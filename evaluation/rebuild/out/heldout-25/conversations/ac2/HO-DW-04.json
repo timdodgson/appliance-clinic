@@ -1,0 +1,148 @@
+{
+ "id": "HO-DW-04",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ho-dw-04-a34e910dfe",
+ "endReason": "concluded",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bottom rack on my Beko DVN05320W isn't getting clean and I've noticed the lower spray arm has a crack along one side and wobbles. Do I just need a new arm?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Split lower spray arm]\nYes, replacing the lower spray arm is exactly what you need. A cracked and wobbling arm will not spin properly or direct water effectively, which explains why your bottom rack isn't getting clean. It can also cause leaks by spraying water sideways at the door seal. Before fitting the new one, ensure the filter is clear and check that the mounting post on the tub floor isn't damaged or blocked with debris. If you notice any leaking during a test run after replacement, stop using it immediately as this could indicate a secondary issue with the arm's seal or mounting.\n[Helpful to see: image \"Check and rinse the spray arm\" — The spray arm spins to fire water through small jet holes. Check it spins freely and rinse the jets clear of food/grit. It usually unclips at the centre. Typical layout — your dishwasher may differ.]"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6478,
+     "verifyMs": 2540,
+     "totalMs": 9048
+    },
+    "usage": {
+     "promptTokens": 2846,
+     "completionTokens": 502,
+     "totalTokens": 3348
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "DVN05320W",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:spray-arm",
+       "dishwasher:circulation-pump",
+       "dishwasher:diverter-valve"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-eco-long",
+       "dw-eco-long"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "not_justified",
+     "component": "lower spray arm assembly",
+     "failed": [
+      "G1-no-recorded-evidence"
+     ],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Split/cracked lower spray arm causing poor cleaning and potential leaks",
+      "likelihood": "high",
+      "evidence": [
+       "lower_spray_arm_condition"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "my Beko DVN05320W",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Beko",
+      "status": "stated",
+      "quote": "Beko DVN05320W",
+      "turn": 1
+     },
+     "model": {
+      "value": "DVN05320W",
+      "status": "stated",
+      "quote": "DVN05320W",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "lower_spray_arm_condition",
+       "value": "crack along one side and wobbles",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the lower spray arm has a crack along one side and wobbles"
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 9097
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9364,
+   "retried": false,
+   "label": "Split lower spray arm",
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0108403,
+ "finishedAt": "2026-10-12T23:23:43.086Z"
+}

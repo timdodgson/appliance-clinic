@@ -1,0 +1,293 @@
+{
+ "id": "HO-OC-02",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ho-oc-02-cf7b12cf3b",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Ran the pyrolytic clean on my AEG BPE556060M for the first time and it finished 40 minutes ago but the door is still locked with a padlock symbol. Is it stuck?"
+  },
+  {
+   "role": "assistant",
+   "text": "It is likely not stuck in a faulty sense; pyrolytic cleaning locks the door mechanically until the internal temperature drops to a safe level (usually below 50-60°C). This cooling phase can take 1–2 hours or more depending on ambient conditions. If the oven is still hot, please do not force it open as this could damage the locking mechanism or cause injury. If it has cooled down completely and the door remains locked even when you gently operate the release handle/lever, there may be a mechanical fault with the lock motor or latch. Please check if it's cool and try the release gently."
+  },
+  {
+   "role": "customer",
+   "text": "The fan is still running and the door glass feels warm, so I think it's still cooling. Should I just wait? I don't want to break it, it's only 3 months old."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Probably normal]\nYes, please just wait. The fan running and the warmth confirm the oven is still in its cooling phase, which is designed to keep the door locked until it is safe to open. This can take up to two hours after the cycle ends. Do not force the handle; simply leave it alone until the padlock symbol disappears and the glass is cool to the touch."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8657,
+     "verifyMs": 379,
+     "totalMs": 9076
+    },
+    "usage": {
+     "promptTokens": 3511,
+     "completionTokens": 616,
+     "totalTokens": 4127
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "BPE556060M",
+        "families": [
+         "oven-cooker"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:door-lock",
+       "oven-cooker:door-lock",
+       "washing-machine:not-draining"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Normal cooling delay (pyrolytic locks door until safe temp)",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Door lock mechanism fault or obstruction",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "pyrolytic clean on my AEG BPE556060M",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "AEG",
+      "status": "stated",
+      "quote": "AEG BPE556060M",
+      "turn": 1
+     },
+     "model": {
+      "value": "BPE556060M",
+      "status": "stated",
+      "quote": "AEG BPE556060M",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "cycle_status",
+       "value": "Finished 40 minutes ago, door still locked with padlock symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "finished 40 minutes ago but the door is still locked with a padlock symbol"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_temperature_and_force_attempt",
+       "text": "Pyrolytic cycles lock the door for safety until the oven cools down sufficiently, which can take several hours. Is the oven interior still very hot to touch (through the glass), or has it cooled down?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9117
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9522,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 5398,
+     "verifyMs": 1468,
+     "totalMs": 6871
+    },
+    "usage": {
+     "promptTokens": 2750,
+     "completionTokens": 410,
+     "totalTokens": 3160
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "BPE556060M",
+        "families": [
+         "oven-cooker"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:door-glass-dirty",
+       "oven-cooker:door-glass",
+       "oven-cooker:door-lock"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "probably_normal",
+    "candidates": [
+     {
+      "cause": "Normal pyrolytic cooling cycle",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "pyrolytic clean on my AEG BPE556060M",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "AEG",
+      "status": "stated",
+      "quote": "AEG BPE556060M",
+      "turn": 2
+     },
+     "model": {
+      "value": "BPE556060M",
+      "status": "stated",
+      "quote": "AEG BPE556060M",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "cycle_status",
+       "value": "Finished 40 minutes ago, door still locked with padlock symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "finished 40 minutes ago but the door is still locked with a padlock symbol"
+      },
+      {
+       "id": "f2",
+       "field": "door_temperature",
+       "value": "Warm, fan still running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The fan is still running and the door glass feels warm"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_temperature_and_force_attempt",
+       "text": "Pyrolytic cycles lock the door for safety until the oven cools down sufficiently, which can take several hours. Is the oven interior still very hot to touch (through the glass), or has it cooled down?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 6936
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 7366,
+   "retried": false,
+   "label": "Probably normal",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0175494,
+ "finishedAt": "2026-10-12T23:28:49.155Z"
+}

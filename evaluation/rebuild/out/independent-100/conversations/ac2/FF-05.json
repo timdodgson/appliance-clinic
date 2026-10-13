@@ -1,0 +1,317 @@
+{
+ "id": "FF-05",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ff-05-d35de3180a",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My fridge freezer has been making a funny smell in the kitchen the last couple of days, I've cleaned it out but it's still there. Any ideas?"
+  },
+  {
+   "role": "assistant",
+   "text": "A 'funny' smell from a fridge-freezer can range from simple organic spoilage to a serious electrical fault. First, please describe the smell: does it smell like burning plastic or hot electronics (which suggests an overheating component), rotten food (suggesting something was missed in the drain or seals), or just musty/mouldy? Secondly, has the fridge-freezer tripped your RCD or blown a fuse recently? If there is any sign of scorching at the plug or socket, stop using it immediately and isolate it from the mains.\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer."
+  },
+  {
+   "role": "customer",
+   "text": "It smells like hot plastic, a sort of electrical burning smell, not rotten food. It's stronger round the back and side of the fridge than inside it. The fuse box hasn't tripped. The plug feels a little bit warm too, though the socket looks ok."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning smell or smoke can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. Stop using the fridge-freezer immediately. A burning plastic smell combined with a warm plug is a clear sign of an electrical fault, such as a failing start relay, damaged wiring, or a short circuit in the compressor. This is a safety hazard that can lead to fire or electric shock if left unattended. Please switch the appliance off at the wall and leave it unplugged. Do not attempt to open the back panel or test any electrical components yourself. You will need to call a qualified appliance engineer to diagnose and repair the fault safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9135,
+     "verifyMs": 1203,
+     "totalMs": 10390
+    },
+    "usage": {
+     "promptTokens": 3494,
+     "completionTokens": 659,
+     "totalTokens": 4153
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:defrost-system"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Because you've already cleaned it out and the smell remains, we need to distinguish between a hygiene issue and an appliance malfunction.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Electrical fault (overheating component or short circuit)",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Spoiled food or organic matter in drain/compartment",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Mould or mildew on door seals or interior surfaces",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "stated",
+      "quote": "My fridge freezer",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_smell",
+       "value": "funny smell in the kitchen",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "making a funny smell in the kitchen the last couple of days"
+      },
+      {
+       "id": "f2",
+       "field": "action_cleaned",
+       "value": "cleaned it out but smell persists",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I've cleaned it out but it's still there"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_smell_type_and_electricals",
+       "text": "To narrow this down safely, what does the smell resemble (e.g. burning plastic/electrical, rotten food, or musty/mouldy)? Also, has the appliance tripped any circuit breakers or RCDs recently?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10461
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11121,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8029,
+     "verifyMs": 1659,
+     "totalMs": 9689
+    },
+    "usage": {
+     "promptTokens": 3559,
+     "completionTokens": 601,
+     "totalTokens": 4160
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:fridge-airflow"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "needs_engineer",
+    "candidates": [
+     {
+      "cause": "Electrical fault (mains lead, plug, or internal wiring/relay)",
+      "likelihood": "high",
+      "evidence": [
+       "f3",
+       "f4"
+      ]
+     },
+     {
+      "cause": "Compressor start relay failure",
+      "likelihood": "medium",
+      "evidence": [
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "stated",
+      "quote": "My fridge freezer",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_smell",
+       "value": "funny smell in the kitchen",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "making a funny smell in the kitchen the last couple of days"
+      },
+      {
+       "id": "f2",
+       "field": "action_cleaned",
+       "value": "cleaned it out but smell persists",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "I've cleaned it out but it's still there"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_smell_type",
+       "value": "hot plastic / electrical burning smell, stronger at back and side",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "It smells like hot plastic, a sort of electrical burning smell... It's stronger round the back and side of the fridge than inside it."
+      },
+      {
+       "id": "f4",
+       "field": "symptom_plug_temp",
+       "value": "plug feels a little bit warm",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The plug feels a little bit warm too"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_smell_type_and_electricals",
+       "text": "To narrow this down safely, what does the smell resemble (e.g. burning plastic/electrical, rotten food, or musty/mouldy)? Also, has the appliance tripped any circuit breakers or RCDs recently?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "it smells like hot plastic, a sort of electrical burning smell, not rotten food",
+       "turn": 2,
+       "shown": true
+      }
+     ]
+    },
+    "ms": 9733
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 10171,
+   "retried": false,
+   "label": "Electrical fault requiring engineer",
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0213906,
+ "finishedAt": "2026-10-12T22:24:21.878Z"
+}

@@ -1,0 +1,1114 @@
+{
+ "id": "OC-08",
+ "system": "ac2",
+ "sessionId": "bm-ac2-oc-08-9fcecdbe74",
+ "endReason": "concluded",
+ "customerTurns": 6,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "oven wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "If your oven won't come on at all, the most common cause is actually control-state rather than a broken part. Has there been a recent power cut or did you switch the cooker off at the wall? If so, check if the clock is flashing or set to an automatic/timer mode. Many ovens will not heat until you manually set the time and switch the program to 'Manual' (often indicated by a hand symbol). Please let me know what the display shows."
+  },
+  {
+   "role": "customer",
+   "text": "yes power went off for an hour last night. display is flashing 0.00 and a little symbol"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Oven in Automatic mode after power cut]\nThat flashing 0.00 is the clock resetting after the power cut. Most ovens default into an 'Automatic' or 'Timer' mode when this happens, which prevents any heating functions from working until you manually override it. Please set the correct time on the display and switch the oven program to 'Manual' (often shown as a hand symbol). Once that is done, try selecting a standard bake or fan function. If the oven starts heating normally, it was just in the wrong mode. If it still does nothing after setting it to Manual, let me know exactly which symbols are lit."
+  },
+  {
+   "role": "customer",
+   "text": "how do i set the clock? no manual"
+  },
+  {
+   "role": "assistant",
+   "text": "Since I don't know your specific brand yet, I can't give you the exact button sequence. However, on most ovens, setting the clock involves pressing a 'Clock' or 'Time' button, then using '+' and '-' (or a dial) to set the hours and minutes, followed by another press of 'Clock' to confirm. Once the time is set, look for a 'Manual' mode. This is often a button with a hand symbol, or sometimes just turning the main function knob away from any timer icons (like an alarm clock). If your oven has no manual option and the display remains flashing even after you think the time is set, please tell me the brand and model number so I can look up the exact steps for your machine."
+  },
+  {
+   "role": "customer",
+   "text": "it's a Neff. dont know the model, how do i set the clock?"
+  },
+  {
+   "role": "assistant",
+   "text": "For Neff ovens, the clock is usually set by pressing the 'Clock' button (or holding it for 2 seconds), then using the '+' and '-' buttons to adjust the time. Press 'Clock' again to confirm. Once the time is set, look for a 'Manual' mode: this is often a button with a hand symbol, or sometimes just turning the main function knob away from any timer icons (like an alarm clock). Can you see a hand symbol on your display or control panel?"
+  },
+  {
+   "role": "customer",
+   "text": "not sure, just the flashing 0.00 and a little symbol. which button is the clock one? I'll try it"
+  },
+  {
+   "role": "assistant",
+   "text": "Use the '+' and '-' buttons to set the correct time, then press 'Clock' again to confirm. Once this is done, try turning on a standard bake or fan function."
+  },
+  {
+   "role": "customer",
+   "text": "you still haven't said which button is the clock one. i'll try it once you tell me"
+  },
+  {
+   "role": "assistant",
+   "text": "I know I haven't given you the specific button sequence yet. On most Neff ovens, press and hold the 'Clock' button for 2 seconds until the hours start flashing. Use '+' or '-' to set the hour, then press 'Clock' again to move to minutes. Set the minutes with '+'/'-', then press 'Clock' once more to save. Once done, try turning a function knob."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6838,
+     "verifyMs": 333,
+     "totalMs": 7200
+    },
+    "usage": {
+     "promptTokens": 3105,
+     "completionTokens": 537,
+     "totalTokens": 3642
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:temperature-probe",
+       "oven-cooker:element"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Clock/timer in automatic mode after power interruption",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Heating element failure",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty control board or selector switch",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "oven wont come on",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7244
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8000,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8385,
+     "verifyMs": 1540,
+     "totalMs": 9988
+    },
+    "usage": {
+     "promptTokens": 2976,
+     "completionTokens": 645,
+     "totalTokens": 3621
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:selector-switch"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Clock/Timer in Automatic mode after power cut",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     },
+     {
+      "cause": "Control PCB fault (less likely given flashing clock)",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "oven wont come on",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [
+      {
+       "code": "0.00",
+       "quote": "display is flashing 0.00",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_outage",
+       "value": "Power went off for an hour last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yes power went off for an hour last night."
+      },
+      {
+       "id": "f3",
+       "field": "display_state",
+       "value": "Display is flashing 0.00 and a little symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "display is flashing 0.00 and a little symbol"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "set_manual_mode",
+       "text": "Please try setting the clock to the correct time and switch the oven program to 'Manual' (usually indicated by a hand symbol or simply turning the dial away from any timer/clock icon). Does the oven t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10105
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 10591,
+   "retried": false,
+   "label": "Oven in Automatic mode after power cut",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9182,
+     "verifyMs": 433,
+     "totalMs": 9663
+    },
+    "usage": {
+     "promptTokens": 3284,
+     "completionTokens": 666,
+     "totalTokens": 3950
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "0.00",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:selector-switch"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Oven in Automatic/Timer mode after power cut",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Faulty control board/timer",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "oven wont come on",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [
+      {
+       "code": "0.00",
+       "quote": "display is flashing 0.00",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_outage",
+       "value": "Power went off for an hour last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yes power went off for an hour last night."
+      },
+      {
+       "id": "f3",
+       "field": "display_state",
+       "value": "Display is flashing 0.00 and a little symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "display is flashing 0.00 and a little symbol"
+      },
+      {
+       "id": "f4",
+       "field": "clock_setting_attempt",
+       "value": "User does not know how to set the clock or find manual mode",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "how do i set the clock? no manual"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "set_manual_mode",
+       "text": "Please try setting the clock to the correct time and switch the oven program to 'Manual' (usually indicated by a hand symbol or simply turning the dial away from any timer/clock icon). Does the oven t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "identify_model_for_instructions",
+       "text": "Because every brand sets the clock differently, could you tell me the exact brand and model number of your oven? It is usually on a sticker inside the door frame or on the back of the control panel. I",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9704
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 10242,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8337,
+     "verifyMs": 2061,
+     "totalMs": 10443
+    },
+    "usage": {
+     "promptTokens": 3543,
+     "completionTokens": 677,
+     "totalTokens": 4220
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "0.00",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:selector-switch"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Clock/Timer in Automatic mode after power cut",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Control PCB fault (less likely given flashing display)",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Neff",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 4
+     },
+     "model": null,
+     "codes": [
+      {
+       "code": "0.00",
+       "quote": "display is flashing 0.00",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_outage",
+       "value": "Power went off for an hour last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yes power went off for an hour last night."
+      },
+      {
+       "id": "f3",
+       "field": "display_state",
+       "value": "Display is flashing 0.00 and a little symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "display is flashing 0.00 and a little symbol"
+      },
+      {
+       "id": "f4",
+       "field": "clock_setting_attempt",
+       "value": "User does not know how to set the clock or find manual mode",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "how do i set the clock? no manual"
+      },
+      {
+       "id": "f5",
+       "field": "brand_identified",
+       "value": "Neff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "it's a Neff"
+      },
+      {
+       "id": "f6",
+       "field": "model_unknown",
+       "value": "User does not know the model number",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "dont know the model"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "set_manual_mode",
+       "text": "Please try setting the clock to the correct time and switch the oven program to 'Manual' (usually indicated by a hand symbol or simply turning the dial away from any timer/clock icon). Does the oven t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "identify_model_for_instructions",
+       "text": "Because every brand sets the clock differently, could you tell me the exact brand and model number of your oven? It is usually on a sticker inside the door frame or on the back of the control panel. I",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "neff_clock_set_instructions",
+       "text": "For Neff ovens, the clock is usually set by pressing the 'Clock' button (or holding it for 2 seconds), then using the '+' and '-' buttons to adjust the time. Press 'Clock' again to confirm. Once the t",
+       "turn": 4,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10503
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 10873,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7974,
+     "verifyMs": 2193,
+     "regenerateMs": 7890,
+     "totalMs": 18202
+    },
+    "usage": {
+     "promptTokens": 4318,
+     "completionTokens": 587,
+     "totalTokens": 4905
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "0.00",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:element"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "repeated-question",
+       "key": "neff_clock_set_instructions",
+       "why": "closed"
+      },
+      {
+       "gate": "repeated-question",
+       "key": "neff_clock_set_instructions",
+       "why": "closed"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "you are unsure about the buttons",
+      "source": "extractor"
+     },
+     {
+      "claim": "your model uses a dial instead of buttons",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": true,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Oven in Automatic/Timer mode after power cut",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Control board fault (less likely given flashing clock)",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 5,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Neff",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 5
+     },
+     "model": null,
+     "codes": [
+      {
+       "code": "0.00",
+       "quote": "display is flashing 0.00",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_outage",
+       "value": "Power went off for an hour last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yes power went off for an hour last night."
+      },
+      {
+       "id": "f3",
+       "field": "display_state",
+       "value": "Display is flashing 0.00 and a little symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "display is flashing 0.00 and a little symbol"
+      },
+      {
+       "id": "f4",
+       "field": "clock_setting_attempt",
+       "value": "User does not know how to set the clock or find manual mode",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "how do i set the clock? no manual"
+      },
+      {
+       "id": "f5",
+       "field": "brand_identified",
+       "value": "Neff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "it's a Neff"
+      },
+      {
+       "id": "f6",
+       "field": "model_unknown",
+       "value": "User does not know the model number",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "dont know the model"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "set_manual_mode",
+       "text": "Please try setting the clock to the correct time and switch the oven program to 'Manual' (usually indicated by a hand symbol or simply turning the dial away from any timer/clock icon). Does the oven t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "identify_model_for_instructions",
+       "text": "Because every brand sets the clock differently, could you tell me the exact brand and model number of your oven? It is usually on a sticker inside the door frame or on the back of the control panel. I",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "neff_clock_set_instructions",
+       "text": "For Neff ovens, try this sequence to set the clock and exit 'Automatic' mode: 1. Press the 'Clock' button (or hold it for 2 seconds). 2. Use the '+' or '-' buttons to set the correct time. 3. Press 'C",
+       "turn": 5,
+       "times": 2,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18250
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 18667,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 6,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7440,
+     "verifyMs": 904,
+     "regenerateMs": 7067,
+     "totalMs": 15529
+    },
+    "usage": {
+     "promptTokens": 4000,
+     "completionTokens": 536,
+     "totalTokens": 4536
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "0.00",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:tripping-electrics"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "repeated-question",
+       "key": "neff_clock_set_instructions",
+       "why": "closed"
+      },
+      {
+       "gate": "repeated-question",
+       "key": "neff_clock_set_instructions",
+       "why": "closed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": true,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Clock/Timer in Automatic mode after power cut",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Control board fault (less likely given flashing display)",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 6,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Neff",
+      "status": "stated",
+      "quote": "it's a Neff",
+      "turn": 6
+     },
+     "model": null,
+     "codes": [
+      {
+       "code": "0.00",
+       "quote": "display is flashing 0.00",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "oven wont come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "oven wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_outage",
+       "value": "Power went off for an hour last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yes power went off for an hour last night."
+      },
+      {
+       "id": "f3",
+       "field": "display_state",
+       "value": "Display is flashing 0.00 and a little symbol",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "display is flashing 0.00 and a little symbol"
+      },
+      {
+       "id": "f4",
+       "field": "clock_setting_attempt",
+       "value": "User does not know how to set the clock or find manual mode",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "how do i set the clock? no manual"
+      },
+      {
+       "id": "f5",
+       "field": "brand_identified",
+       "value": "Neff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "it's a Neff"
+      },
+      {
+       "id": "f6",
+       "field": "model_unknown",
+       "value": "User does not know the model number",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "dont know the model"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_clock_mode",
+       "text": "Has there been a recent power cut or did you switch the cooker off at the wall? If so, is the clock flashing or showing 'Auto'/'Timer'? Many ovens will not heat until you set the time and switch it to",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "set_manual_mode",
+       "text": "Please try setting the clock to the correct time and switch the oven program to 'Manual' (usually indicated by a hand symbol or simply turning the dial away from any timer/clock icon). Does the oven t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "identify_model_for_instructions",
+       "text": "Because every brand sets the clock differently, could you tell me the exact brand and model number of your oven? It is usually on a sticker inside the door frame or on the back of the control panel. I",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "neff_clock_set_instructions",
+       "text": "On most Neff ovens, press and hold the 'Clock' button for 2 seconds until the hours start flashing. Use '+' or '-' to set the hour, then press 'Clock' again to move to minutes. Set the minutes with '+",
+       "turn": 6,
+       "times": 3,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15647
+   },
+   "turn": 6,
+   "status": 200,
+   "ms": 15901,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.06421690000000001,
+ "finishedAt": "2026-10-12T22:47:35.043Z"
+}

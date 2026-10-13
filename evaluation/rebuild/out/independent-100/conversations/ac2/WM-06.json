@@ -1,0 +1,897 @@
+{
+ "id": "WM-06",
+ "system": "ac2",
+ "sessionId": "bm-ac2-wm-06-8f445535ab",
+ "endReason": "escalated",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "I understand you've already cleaned the filter. To identify the correct part without guessing, I need to know if the pump is trying to work. Please run a drain-only cycle (or spin) and listen closely at the bottom front of the machine while it tries to empty. Do you hear a humming or buzzing noise from the pump area, or is it completely silent?"
+  },
+  {
+   "role": "customer",
+   "text": "yeah it hums but the water doesn't move, no burning smell. there's a loud hum and a bit of a rattle. so is it the pump?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blocked or failing drain pump]\nA loud hum with no water movement and a rattle strongly suggests the pump motor is trying to turn but can't—usually because something like a coin, button, or hair grip is jammed in the impeller, or the impeller itself has broken. Please unplug the machine first. Remove the filter again and shine a torch into the opening. Try turning the small plastic impeller (the fan-like part) gently with your finger or a non-metallic tool. Does it spin freely, is it stuck/jammed by something, or are the blades broken? This will tell us if we just need to clear a blockage or if the pump needs replacing."
+  },
+  {
+   "role": "customer",
+   "text": "ok did that, impeller turns but feels a bit stiff and gritty in places. also E18 came up on the display when it stalled. so is it the pump then?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blocked or damaged drain pump impeller]\nYes, the E18 code confirms a drainage fault, and your description of a loud hum with a rattle plus a stiff, gritty impeller points directly to the drain pump. The grit suggests debris is jamming the mechanism or the plastic blades are worn/broken, preventing it from moving water even though the motor is trying. Please ensure the machine is unplugged before attempting any replacement work. If you are comfortable with basic DIY, you can order a compatible drain pump for your Bosch model and replace it yourself. If not, this is a straightforward part swap that an engineer would perform."
+  },
+  {
+   "role": "customer",
+   "text": "ok but which pump exactly? all I've got is FD 9409 off the sticker inside the door, the E-Nr is rubbed off. is that enough to order one?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Drain pump]\nNo, \"FD 9409\" is not enough to order the correct part. That looks like a model series or internal code, but Bosch requires the full Model number (e.g., WAX...) and specifically the E-Nr (or FNr) found on the rating plate inside the door frame to identify the exact pump variant. Since the E-Nr is rubbed off, you will need to remove the top cover of the machine to read the full model and E-Nr printed on a label there. Once you have those details, you can order the correct drain pump."
+  },
+  {
+   "role": "customer",
+   "text": "right, but I'm not taking the top off, I've no tools for that. is there any other way to get the right pump from what I've got? Bosch Serie 4, VarioPerfect on the front if that helps"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Drain pump failure requiring professional identification and replacement]\nBefore you start, switch it off and unplug it. I understand you don't want to remove the top cover without tools. Unfortunately, \"FD 9409\" is an internal code and Bosch requires the full E-Nr (or FNr) on the rating plate to guarantee the correct drain pump fits. Since that label is inside the door frame but the main model/E-Nr plate is under the top lid, I cannot safely order the part for you without risking the wrong one arriving. Given your symptoms (humming, rattle, gritty impeller) and the E18 code, it is almost certainly a failed drain pump. Because you cannot access the rating plate to confirm the exact variant yourself, the best next step is to call an engineer. They can read the label once they open the machine and fit the correct part in one visit."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7187,
+     "verifyMs": 1170,
+     "totalMs": 8399
+    },
+    "usage": {
+     "promptTokens": 3619,
+     "completionTokens": 549,
+     "totalTokens": 4168
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "FD",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:pressure-switch"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Blockage in drain hose or waste pipe",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty drain pump (impeller broken or motor failed)",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Blockage in sump hose or internal piping",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "bosch washer FD 9409",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "bosch",
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "status": "stated",
+      "quote": "FD 9409",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "filter_cleaned",
+       "value": "cleaned the filter already",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "ive cleaned the filter already"
+      }
+     ],
+     "asked": [
+      {
+       "key": "pump_sound_check",
+       "text": "When the machine tries to drain, can you hear a humming or buzzing sound from the bottom front of the machine, or is it completely silent?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8451
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8744,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9358,
+     "verifyMs": 2213,
+     "totalMs": 11632
+    },
+    "usage": {
+     "promptTokens": 4303,
+     "completionTokens": 693,
+     "totalTokens": 4996
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "FD",
+        "status": "NOT_FOUND"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you've already cleaned the filter, the next step is to check what's inside the pump housing itself.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Foreign object jammed in pump impeller",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "newFacts.0"
+      ]
+     },
+     {
+      "cause": "Failed drain pump motor/impeller",
+      "likelihood": "medium",
+      "evidence": [
+       "newFacts.0"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "bosch washer FD 9409",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "bosch",
+      "turn": 2
+     },
+     "model": {
+      "value": "FD 9409",
+      "status": "stated",
+      "quote": "FD 9409",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "filter_cleaned",
+       "value": "cleaned the filter already",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "ive cleaned the filter already"
+      },
+      {
+       "id": "f2",
+       "field": "pump_sound_check",
+       "value": "loud hum and a bit of a rattle, water doesn't move",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yeah it hums but the water doesn't move, no burning smell. there's a loud hum and a bit of a rattle."
+      }
+     ],
+     "asked": [
+      {
+       "key": "pump_sound_check",
+       "text": "When the machine tries to drain, can you hear a humming or buzzing sound from the bottom front of the machine, or is it completely silent?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "pump_impeller_check",
+       "text": "With the machine unplugged, remove the filter again and shine a torch into the hole. Can you see the small plastic impeller (the fan-like part) inside? Try turning it gently with your finger or a non-",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11674
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12307,
+   "retried": false,
+   "label": "Blocked or failing drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10635,
+     "verifyMs": 2887,
+     "totalMs": 17770
+    },
+    "usage": {
+     "promptTokens": 4849,
+     "completionTokens": 712,
+     "totalTokens": 5561
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "FD",
+        "status": "NOT_FOUND"
+       },
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Because you've already cleaned the filter and the impeller still feels gritty/stiff inside the housing, replacing the entire drain pump unit is the correct fix; cleaning further is unlikely to resolve a mechanical blockage or broken internal component.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f2",
+      "f3"
+     ]
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Blocked or damaged drain pump impeller",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Partial blockage in the sump hose (tub to pump)",
+      "likelihood": "medium",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "bosch washer FD 9409 not draining",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "bosch",
+      "turn": 3
+     },
+     "model": {
+      "value": "FD 9409",
+      "status": "stated",
+      "quote": "FD 9409",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "E18 came up on the display when it stalled",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "filter_cleaned",
+       "value": "cleaned the filter already",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "ive cleaned the filter already"
+      },
+      {
+       "id": "f2",
+       "field": "pump_sound_check",
+       "value": "loud hum and a bit of a rattle, water doesn't move",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yeah it hums but the water doesn't move, no burning smell. there's a loud hum and a bit of a rattle."
+      },
+      {
+       "id": "f3",
+       "field": "pump_impeller_check",
+       "value": "impeller turns but feels a bit stiff and gritty in places",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ok did that, impeller turns but feels a bit stiff and gritty in places. also E18 came up on the display when it stalled."
+      },
+      {
+       "id": "f4",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "pump_sound_check",
+       "text": "When the machine tries to drain, can you hear a humming or buzzing sound from the bottom front of the machine, or is it completely silent?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "pump_impeller_check",
+       "text": "With the machine unplugged, remove the filter again and shine a torch into the hole. Can you see the small plastic impeller (the fan-like part) inside? Try turning it gently with your finger or a non-",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 17880
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 18266,
+   "retried": false,
+   "label": "Blocked or damaged drain pump impeller",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9128,
+     "verifyMs": 3077,
+     "regenerateMs": 8835,
+     "totalMs": 25064
+    },
+    "usage": {
+     "promptTokens": 5183,
+     "completionTokens": 545,
+     "totalTokens": 5728
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "FD",
+        "status": "NOT_FOUND"
+       },
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:inlet-valve",
+       "washing-machine:leak-drain"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "E12345678"
+       ]
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": true,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f2",
+      "f3"
+     ]
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Drain pump failure (jammed impeller)",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "bosch washer FD 9409 not draining",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "bosch",
+      "turn": 4
+     },
+     "model": {
+      "value": "FD 9409",
+      "status": "stated",
+      "quote": "FD 9409",
+      "turn": 4
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "E18 came up on the display when it stalled",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "filter_cleaned",
+       "value": "cleaned the filter already",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "ive cleaned the filter already"
+      },
+      {
+       "id": "f2",
+       "field": "pump_sound_check",
+       "value": "loud hum and a bit of a rattle, water doesn't move",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yeah it hums but the water doesn't move, no burning smell. there's a loud hum and a bit of a rattle."
+      },
+      {
+       "id": "f3",
+       "field": "pump_impeller_check",
+       "value": "impeller turns but feels a bit stiff and gritty in places",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ok did that, impeller turns but feels a bit stiff and gritty in places. also E18 came up on the display when it stalled."
+      },
+      {
+       "id": "f4",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "pump_sound_check",
+       "text": "When the machine tries to drain, can you hear a humming or buzzing sound from the bottom front of the machine, or is it completely silent?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "pump_impeller_check",
+       "text": "With the machine unplugged, remove the filter again and shine a torch into the hole. Can you see the small plastic impeller (the fan-like part) inside? Try turning it gently with your finger or a non-",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 25105
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 25738,
+   "retried": false,
+   "label": "Drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10713,
+     "verifyMs": 2290,
+     "totalMs": 13748
+    },
+    "usage": {
+     "promptTokens": 4872,
+     "completionTokens": 736,
+     "totalTokens": 5608
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "FD",
+        "status": "NOT_FOUND"
+       },
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:pressure-switch",
+       "washing-machine:dispenser"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f2",
+      "f3"
+     ]
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "Cannot identify the exact pump part without the E-Nr on the rating plate, which requires removing the top cover. The customer has stated they have no tools and will not remove the cover. An engineer c"
+    },
+    "status": "needs_engineer",
+    "candidates": [
+     {
+      "cause": "Drain pump failure (jammed/broken impeller)",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "bosch washer FD 9409 not draining",
+      "turn": 5,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "bosch",
+      "turn": 5
+     },
+     "model": {
+      "value": "FD 9409",
+      "status": "stated",
+      "quote": "FD 9409",
+      "turn": 5
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "E18 came up on the display when it stalled",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "filter_cleaned",
+       "value": "cleaned the filter already",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "ive cleaned the filter already"
+      },
+      {
+       "id": "f2",
+       "field": "pump_sound_check",
+       "value": "loud hum and a bit of a rattle, water doesn't move",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "yeah it hums but the water doesn't move, no burning smell. there's a loud hum and a bit of a rattle."
+      },
+      {
+       "id": "f3",
+       "field": "pump_impeller_check",
+       "value": "impeller turns but feels a bit stiff and gritty in places",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ok did that, impeller turns but feels a bit stiff and gritty in places. also E18 came up on the display when it stalled."
+      },
+      {
+       "id": "f4",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "f5",
+       "field": "model_series_info",
+       "value": "Bosch Serie 4, VarioPerfect on front; E-Nr rubbed off; no tools to remove top cover",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": "right, but I'm not taking the top off, I've no tools for that. is there any other way to get the right pump from what I've got? Bosch Serie 4, VarioPerfect on the front if that helps"
+      }
+     ],
+     "asked": [
+      {
+       "key": "pump_sound_check",
+       "text": "When the machine tries to drain, can you hear a humming or buzzing sound from the bottom front of the machine, or is it completely silent?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "pump_impeller_check",
+       "text": "With the machine unplugged, remove the filter again and shine a torch into the hole. Can you see the small plastic impeller (the fan-like part) inside? Try turning it gently with your finger or a non-",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13853
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 14311,
+   "retried": false,
+   "label": "Drain pump failure requiring professional identification and replacement",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0579783,
+ "finishedAt": "2026-10-12T21:29:09.004Z"
+}

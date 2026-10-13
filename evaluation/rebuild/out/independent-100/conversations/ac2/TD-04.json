@@ -1,0 +1,149 @@
+{
+ "id": "TD-04",
+ "system": "ac2",
+ "sessionId": "bm-ac2-td-04-f41ae36f48",
+ "endReason": "concluded",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "We replaced our old condenser dryer with a heat pump one about a month ago and honestly it's driving me mad, a normal load of towels takes nearly 3 and a half hours, the old one did it in about 90 minutes. It also feels barely warm for the first half hour when I open the door to check. Surely that's not right? Is it faulty?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Probably normal heat-pump behaviour]\nThat sounds completely normal for a heat pump dryer. Unlike your old condenser model which used a hot element to blast dry clothes quickly (hence the 90 minutes and high heat), a heat pump works like a fridge in reverse: it recycles warm air at a much lower temperature to save energy. This means cycles are naturally longer (often 2–4 hours) and the drum feels only warm, not hot. 1. Clean the lint filter in the door seal after every load.\n2. Locate the condenser unit (usually behind a flap at the bottom front), take it out, and rinse off any fluff under a tap until the water runs clear. Let it dry fully before putting it back. If clothes are still damp after a full cycle with clean filters and an emptied water tank, then we should look deeper."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9113,
+     "verifyMs": 2273,
+     "totalMs": 11441
+    },
+    "usage": {
+     "promptTokens": 3252,
+     "completionTokens": 714,
+     "totalTokens": 3966
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "tumble-dryer:heat-pump",
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:not-heating"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "td-heat-pump-slow"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "probably_normal",
+    "candidates": [
+     {
+      "cause": "Normal heat-pump operation (lower temp, longer cycle)",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Blocked condenser or filters restricting airflow",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "status": "stated",
+      "quote": "heat pump one",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_type_change",
+       "value": "Replaced old condenser dryer with a heat pump one about a month ago",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "We replaced our old condenser dryer with a heat pump one about a month ago"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_duration",
+       "value": "Normal load of towels takes nearly 3 and a half hours",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a normal load of towels takes nearly 3 and a half hours"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_temperature",
+       "value": "Feels barely warm for the first half hour when opening door",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the old one did it in about 90 minutes. It also feels barely warm for the first half hour when I open the door to check."
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11499
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11984,
+   "retried": false,
+   "label": "Probably normal heat-pump behaviour",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.011369100000000002,
+ "finishedAt": "2026-10-12T21:50:53.361Z"
+}

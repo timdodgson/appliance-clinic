@@ -1,0 +1,358 @@
+{
+ "id": "MW-01",
+ "system": "ac2",
+ "sessionId": "bm-ac2-mw-01-dc29b792bc",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My Panasonic NN-ST45KWBPQ is sparking inside when I heat soup, little blue flashes on the right-hand wall and a crackling noise. I stopped it. Is it safe?"
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nStop using the microwave now: switch it off at the socket and unplug it, and don't run it again (not even empty) until we know why it sparked. Never take the outer casing off — parts inside can hold a lethal charge even when it is unplugged. It is not safe to continue using the microwave while it is sparking. Arcing can damage the cavity walls and eventually the magnetron. The most common cause of sparks on the side wall is a piece of metal (like a spoon or foil) inside, or food splatter that has carbonised. The second most likely cause is a burnt waveguide cover (the small rectangular sheet on the side wall). Please unplug the microwave first. 1. Is there any metal object or metallic-trimmed dish inside?\n2. Look at the small flat cover panel on the right-hand wall. Is it clean, or is it blackened/burnt/holed? Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Unplugged now. No metal, just a plain plastic bowl with soup. The panel on the right wall is cardboard-like with a black burnt spot and greasy splatter on it. There was also a slight burnt smell and a wisp of smoke from that spot once."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning smell or smoke can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. That burnt spot on the right-hand wall is the waveguide cover (a thin mica sheet that protects the antenna). The grease and food splatter carbonised under the heat, causing the sparking and smoke. This part is inexpensive and replaces easily. 1. 2. 3. Remove it: it usually slides out or unclips gently. If it is stuck, do not force it; a flat plastic tool can help lift the edge.\n4. Replace it with an exact-fit replacement for your Panasonic NN-ST45KWBPQ. Ensure it sits flush and secure before closing the door. Once replaced, plug it back in and test with a cup of water on full power for one minute to confirm normal operation. Do not run it empty or with metal items."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9716,
+     "verifyMs": 409,
+     "totalMs": 10128
+    },
+    "usage": {
+     "promptTokens": 4356,
+     "completionTokens": 685,
+     "totalTokens": 5041
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "microwave:sparking-arcing",
+       "washing-machine:motor-drum",
+       "washing-machine:excessive-vibration"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "hob-induction-buzz",
+       "hob-induction-pan"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [
+      "microwave_arcing"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "engineer-if-internal",
+     "reason": "microwave_arcing",
+     "forced": true
+    },
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Metal or foil inside the cavity",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Burnt or damaged waveguide (mica) cover",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "status": "stated",
+      "quote": "My Panasonic NN-ST45KWBPQ is sparking inside when I heat soup",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Panasonic",
+      "status": "stated",
+      "quote": "My Panasonic NN-ST45KWBPQ",
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-ST45KWBPQ",
+      "status": "stated",
+      "quote": "Panasonic NN-ST45KWBPQ",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_location",
+       "value": "sparking inside on right-hand wall",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "little blue flashes on the right-hand wall"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_sound",
+       "value": "crackling noise",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a crackling noise"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_metal_and_waveguide",
+       "text": "Is it safe? No, do not use the microwave until you have checked inside. With the appliance unplugged, please look at the right-hand wall where the flashes were. Is there any metal cutlery, foil, or a ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "microwave_arcing",
+       "clause": "my panasonic nn-st45kwbpq is sparking inside when i heat soup, little blue flashes on the right-hand wall and a crackling noise",
+       "turn": 1,
+       "shown": true
+      }
+     ]
+    },
+    "ms": 10193
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10573,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9322,
+     "verifyMs": 3249,
+     "totalMs": 12574
+    },
+    "usage": {
+     "promptTokens": 3946,
+     "completionTokens": 667,
+     "totalTokens": 4613
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "NN-ST45KWBPQ",
+        "families": [
+         "microwave"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "microwave:sparking-arcing",
+       "microwave:grill-not-heating",
+       "microwave:not-heating"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [
+      "microwave_arcing",
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Unplug the microwave (you have done this).",
+      "source": "detector"
+     },
+     {
+      "claim": "Locate the small rectangular panel on the right interior wall where you saw the burn mark.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "not_justified",
+     "component": "waveguide cover",
+     "failed": [
+      "G3-active-hazard"
+     ],
+     "matcher": null,
+     "cited": [
+      "f2"
+     ]
+    },
+    "escalation": {
+     "to": "engineer-if-internal",
+     "reason": "microwave_arcing",
+     "forced": true
+    },
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Burnt waveguide cover (mica sheet)",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "waveguide_cover_condition"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "status": "stated",
+      "quote": "My Panasonic NN-ST45KWBPQ is sparking inside when I heat soup",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Panasonic",
+      "status": "stated",
+      "quote": "My Panasonic NN-ST45KWBPQ",
+      "turn": 2
+     },
+     "model": {
+      "value": "NN-ST45KWBPQ",
+      "status": "stated",
+      "quote": "Panasonic NN-ST45KWBPQ",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_location",
+       "value": "sparking inside on right-hand wall",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "little blue flashes on the right-hand wall"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_sound",
+       "value": "crackling noise",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a crackling noise"
+      },
+      {
+       "id": "f3",
+       "field": "waveguide_cover_condition",
+       "value": "cardboard-like panel with black burnt spot and greasy splatter, slight burnt smell and wisp of smoke from that spot",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The panel on the right wall is cardboard-like with a black burnt spot and greasy splatter on it. There was also a slight burnt smell and a wisp of smoke from that spot once."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_metal_and_waveguide",
+       "text": "Is it safe? No, do not use the microwave until you have checked inside. With the appliance unplugged, please look at the right-hand wall where the flashes were. Is there any metal cutlery, foil, or a ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "microwave_arcing",
+       "clause": "my panasonic nn-st45kwbpq is sparking inside when i heat soup, little blue flashes on the right-hand wall and a crackling noise",
+       "turn": 1,
+       "shown": true
+      },
+      {
+       "type": "burning",
+       "clause": "there was also a slight burnt smell and a wisp of smoke from that spot once",
+       "turn": 2,
+       "shown": true
+      }
+     ]
+    },
+    "ms": 12686
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13119,
+   "retried": false,
+   "label": "Burnt waveguide cover (mica sheet)",
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0219873,
+ "finishedAt": "2026-10-12T22:36:26.418Z"
+}
