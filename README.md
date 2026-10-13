@@ -150,6 +150,7 @@ Appliance Clinic began inside the Spares4Repairs monorepo and shared its AWS acc
 | 12–13 | Single owners for the remaining decisions; no hidden fallback path and no accepted test failures |
 | 15 | A dedicated canonical diagnosis engine, IAM-authenticated and signed; the legacy diagnosis code deleted |
 | 16–21 | Independent benchmark (lost 94–6), first LLM-led rebuild, then the agreed pipeline (ADR 0021) live and the journey controller deleted |
+| 22 | The error-code service as a Zip Lambda with the repaired dataset (ADR 0022); the retired image function released from the stack and deleted |
 
 The story, with its decisions and trade-offs, is in [docs/portfolio/project-story.md](docs/portfolio/project-story.md). The phase-by-phase evidence is in [docs/migration/](docs/migration/PLAN.md) and [docs/evaluation/](docs/evaluation/README.md).
 
@@ -162,7 +163,6 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - **The LLM provider is a single point of failure.** Production reasoning runs on Qwen 3.6 served by LM Studio over a private tunnel; when the tunnel dropped on 2026-10-12 (about 20:25–21:19 UTC) turns failed explicitly, by design. Evaluation runs share the same provider, which serves one request at a time.
-- **The retired error-code image function still exists.** Since change 22.2 every caller uses the Zip Lambda `applianceclinic-error-code-mcp` with the repaired dataset ([ADR 0022](docs/adr/0022-error-code-service-as-zip-lambda.md)); `spares4repairs-error-code-mcp` and its ECR repository get no traffic. Removing them from the stack is a separate reviewed change.
 
 ## Working on it
 

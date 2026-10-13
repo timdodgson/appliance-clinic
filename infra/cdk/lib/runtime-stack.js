@@ -25,8 +25,9 @@ const { upTo, retain, shellHandle, logical, SANDBOX_NAMES } = require('./common'
 const { applyOverrides, importedSid } = require('./overrides');
 
 /** Import groups by production name. */
+// spares4repairs-error-code-mcp (5.7a) was released from the stack in change 22.3 (ADR 0022).
 const FUNCTION_STEP = {
-  'spares4repairs-error-code-mcp': '5.7a', 'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c',
+  'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c',
   'applianceclinic-diagnosis-engine': '5.10', 'applianceclinic-error-code-mcp': '5.10',
 };
 const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'applianceclinic-diagnosis-engine': '5.10',

@@ -15,8 +15,10 @@ if [[ $PROFILE == sandbox ]]; then S=-sbx; else S=; fi
 ROLES=(whichpart-api-role$S diag-orchestrator-role$S error-code-mcp-role$S)
 # ADR 0019: the dedicated diagnosis engine and its role, created by AcRuntimeStack (changes 15.1a to 15.1d). The shared
 # engine spares4repairs-part-finder and ac-diagnosis-role were released from the stack (change 15.3) and are not captured.
+# ADR 0022: the error-code MCP Zip Lambda applianceclinic-error-code-mcp (changes 22.1a, 22.1b) replaced the image function
+# spares4repairs-error-code-mcp, released from the stack in change 22.3 and then deleted; error-code-mcp-role stays.
 [[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-engine-role)
-FUNCTIONS=(spares4repairs-error-code-mcp$S spares4repairs-diag-orchestrator$S whichpart-api$S)
+FUNCTIONS=(spares4repairs-diag-orchestrator$S whichpart-api$S)
 [[ $PROFILE == production ]] && FUNCTIONS+=(applianceclinic-diagnosis-engine applianceclinic-error-code-mcp)
 RULES=(whichpart-recall-ingest-daily$S whichpart-transcript-review$S)
 umask 077

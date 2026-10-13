@@ -1,6 +1,6 @@
 # 0022. The error-code service runs as a Zip Lambda, applianceclinic-error-code-mcp
 
-- **Status:** Accepted; partly implemented (22.0 build; 22.1a and 22.1b executed 2026-10-13; 22.2 cut-over prepared, not executed)
+- **Status:** Accepted; implemented (22.0 build; 22.1a, 22.1b, 22.2 and 22.3 executed 2026-10-13; the image function deleted the same day)
 - **Date:** 2026-10-13
 
 ## Context
@@ -76,7 +76,18 @@ Two facts constrain how:
   image still serves `0a2a8e0cbc16` and `6301265a2a80`); `/mcp` without a bearer and with a wrong bearer 401; with the
   bearer, `resolve-error-code` Beko hob `U` and Bosch dishwasher `E15` both RESOLVED. Cold start: init 3.56 s, no
   errors in the log.
-- 22.2 moves the consumers' `MCP_URL` (and whichpart-api's `MCP_HEALTH_URL`) to the new URL.
+- 22.2 moves the consumers' `MCP_URL` (and whichpart-api's `MCP_HEALTH_URL`) to the new URL. Executed 18:14 UTC: drift
+  IN_SYNC, no-op, the deployed configuration equals `runtime-overrides.json`.
+- 22.3 releases `spares4repairs-error-code-mcp`, its URL and its two statements (`FunctionURLAllowPublicAccess`,
+  `PublicInvoke`) from `AcRuntimeStack`. The change set held exactly four `Remove` actions, each `PolicyAction: Retain`,
+  with an empty grant. A fingerprint of the function (configuration, image digest `sha256:dc715181…`, URL configuration,
+  resource policy, tags), `error-code-mcp-role` and its two inline policies was identical before and after. Drift
+  IN_SYNC; the template is a no-op.
+- Then, outside CloudFormation (which no longer owned it), the IAM user deleted its Function URL and the function, after
+  its log group showed no invocation since 22.2 (the last, a `/health` GET at 18:01 UTC) and its `Invocations` metric
+  was empty. Kept: the log group `/aws/lambda/spares4repairs-error-code-mcp`, the ECR repository
+  `spares4repairs-error-code-mcp` (`AcDataStack`), `error-code-mcp-role` (the Zip Lambda's role; its `ac-function-logs`
+  still names the old log group) and `build/reference/spares4repairs-error-code-mcp.image.json` as the record.
 
 ## Consequences
 
@@ -98,7 +109,8 @@ Two facts constrain how:
 - The arm64 runtime smoke happens in 22.1b, before 22.2. Locally the zip was run on x86 with x86 builds of the four
   binary packages (`pydantic_core`, `rpds-py`, `cryptography`, `cffi`) put in place of the arm64 ones.
 - `spares4repairs-error-code-mcp`, its URL, its image and its ECR repository stay until a release change. Its log
-  permission stays in `ac-function-logs` until then.
+  permission stays in `ac-function-logs` until then. (Change 22.3 released the function and its URL, which were then
+  deleted; the ECR repository and the log permission stay.)
 
 ## Alternatives considered
 

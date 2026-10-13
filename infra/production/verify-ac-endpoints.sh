@@ -28,8 +28,9 @@ invoke() { # FUNCTION METHOD PATH [AUTH]
   jq -r '.statusCode // "none"' "$O/out.json"
 }
 
-# MCP_FUNCTION selects the error-code MCP function (ADR 0022: applianceclinic-error-code-mcp, the Zip Lambda).
-ORCH=spares4repairs-diag-orchestrator; MCP=${MCP_FUNCTION:-spares4repairs-error-code-mcp}
+# MCP_FUNCTION selects the error-code MCP function; the default is the Zip Lambda applianceclinic-error-code-mcp (ADR 0022;
+# the image function spares4repairs-error-code-mcp was released in change 22.3 and deleted).
+ORCH=spares4repairs-diag-orchestrator; MCP=${MCP_FUNCTION:-applianceclinic-error-code-mcp}
 check "orchestrator GET /health is open" "$(invoke $ORCH GET /health)" 200
 jq -e '.body | fromjson | .status == "ok" and (tostring | test("(?i)token|secret|bearer") | not)' "$O/out.json" >/dev/null && echo "PASS orchestrator /health names no token or secret" || { echo "FAIL orchestrator /health payload"; fail=1; }
 check "orchestrator POST /diagnose without a bearer" "$(invoke $ORCH POST /diagnose)" 401

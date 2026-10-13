@@ -1,0 +1,64 @@
+{
+  "id": "22.3-release-error-code-mcp-image",
+  "description": "ADR 0022, release: AC releases the retired error-code image function from AcRuntimeStack with zero physical change. The template no longer declares spares4repairs-error-code-mcp, its Function URL or its two resource-policy statements (FunctionURLAllowPublicAccess, PublicInvoke). Every one has DeletionPolicy Retain in the deployed template, so CloudFormation removes them from the stack only; nothing is deleted, replaced or modified, and the execution role gets no write. error-code-mcp-role and its two inline policies stay in the stack: applianceclinic-error-code-mcp runs on that role. Every caller moved to applianceclinic-error-code-mcp in change 22.2. Proven by a before/after fingerprint of the function configuration, code, URL, resource policy, role and inline policies, and by CloudTrail (no Lambda or IAM write). Afterwards the operator deletes the function and its URL directly (lambda:DeleteFunctionUrlConfig, lambda:DeleteFunction as the IAM user, outside CloudFormation, which no longer owns them) once its log group shows no invocation after 22.2; its log group /aws/lambda/spares4repairs-error-code-mcp and the ECR repository spares4repairs-error-code-mcp (AcDataStack) stay.",
+  "classification": "SAFE AC CHANGE (ownership only; no physical change)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairserrorcodemcp",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-error-code-mcp",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairserrorcodemcpUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairserrorcodemcpFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FunctionURLAllowPublicAccess",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairserrorcodemcpPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "AcRuntimeStack-spares4repairserrorcodemcpPublicInvoke-gEZ9EwvqI2yE",
+      "replacement": null
+    }
+  ],
+  "grant": [],
+  "grantNotes": "None: removing retained resources makes no API call on them.",
+  "writes": {
+    "types": [],
+    "expected": [],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:UpdateAssumeRolePolicy"
+    ],
+    "resources": [],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-error-code-mcp",
+      "applianceclinic-error-code-mcp",
+      "error-code-mcp-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

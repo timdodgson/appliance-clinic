@@ -78,8 +78,8 @@ describe('ac-cfn-execution', () => {
       secretsmanager: 'secretsmanager:DescribeSecret', ecr: 'ecr:DescribeRepositories', events: 'events:DescribeRule',
     };
     const targets = acArns.filter((a) => !/migration-backup|log-group|:role\/cdk-|s3:::cdk-/.test(a));
-    // 19 since the shared engine was released from AC (change 15.3).
-    expect(targets.length).toBeGreaterThanOrEqual(19);
+    // 19 since the shared engine was released from AC (change 15.3); 18 since the error-code image function (change 22.3).
+    expect(targets.length).toBeGreaterThanOrEqual(18);
     for (const arn of targets) {
       const service = arn.split(':')[2];
       expect(allows(reads[service], arn), arn).toBe(true);
@@ -93,6 +93,9 @@ describe('ac-cfn-execution', () => {
     expect(allows('logs:DescribeLogGroups', 'arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp:*')).toBe(true);
     expect(allows('cloudwatch:ListTagsForResource', 'arn:aws:cloudwatch:eu-west-1:800960611664:alarm:applianceclinic-error-code-mcp-Errors')).toBe(true);
     expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder')).toBe(false);
+    // Change 22.3: the retired image function is no longer read; its role (used by the Zip Lambda) still is.
+    expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-error-code-mcp')).toBe(false);
+    expect(allows('iam:GetRole', 'arn:aws:iam::800960611664:role/error-code-mcp-role')).toBe(true);
   });
   it('reads no object in an AC bucket (customer data), and no S4R resource', () => {
     for (const b of AC.buckets) expect(allows('s3:GetObject', `arn:aws:s3:::${b}/any/key`)).toBe(false);
