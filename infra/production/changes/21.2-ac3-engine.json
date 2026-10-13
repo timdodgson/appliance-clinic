@@ -1,0 +1,86 @@
+{
+  "id": "21.2-ac3-engine",
+  "description": "The agreed turn pipeline on the diagnosis engine (Qwen understands, Jev labels, tools enrich, code decides, Qwen replies, final check, Jev picks media). Customers are unaffected: the BFF still sends customer turns to the journey path; only signed benchmark/live-test turns reach mode 'turn'. Engine code, three environment variables (JEV_SECRET_ID, MCP_URL, MCP_BEARER_TOKEN as a pinned dynamic reference; AC_BEARER_VERSIONS marker) (the engine role already reads the AC Jev secret). Previous code: phase8/applianceclinic-diagnosis-engine-eilgTfMTXiKagjJBZqC-wXUyumVEpXeNORSAVo3DCxw.zip; rollback = restore that s3Key, the previous environment.",
+  "classification": "SAFE AC CHANGE (AC diagnosis engine code and configuration)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role"
+      ]
+    },
+    {
+      "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-*",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-*"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Engine code and configuration from the staged phase8 artefact (PassRole of its unchanged role, which UpdateFunctionConfiguration requires); CloudFormation resolves the pinned mcp-bearer and engine-signing dynamic references.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 'use strict';
 /**
- * BFF-owned durable state for the ac2 engine: the evidence ledger (ac2/1), one item per conversation in the existing
+ * BFF-owned durable state for the diagnosis engine: the conversation record (ac3/1), one item per conversation in the existing
  * `whichpart-transcripts` table, written with a version condition so two concurrent turns cannot both advance it.
  *
- *   AC2STATE#<csid>   { stateJson (the ledger), stateVersion (= ledger.turn), stateDigest, expiresAt }
+ *   AC2STATE#<csid>   { stateJson (the record), stateVersion (= ledger.turn), stateDigest, expiresAt }
  *
  * The browser holds only the opaque signed session token (state-token.js); the ledger never leaves the
  * server. The item carries no `gsiPk`, so it never enters the admin activity index.
@@ -13,7 +13,9 @@ const ddb = require('./ddb');
 const stateToken = require('./state-token');
 
 const PREFIX = 'AC2STATE#';
-const SCHEMA = 'ac2/1';
+const SCHEMA = 'ac3/1';
+// A record written by an earlier engine version: the conversation continues with a new record, replacing the old item.
+const OLD_SCHEMAS = new Set(['ac2/1']);
 const MAX_STATE_BYTES = 96 * 1024;
 const digest = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
@@ -27,7 +29,7 @@ function createStore(opts = {}) {
   const call = opts.call || ((action, payload) => ddb.dynamodb(action, payload, opts.clientOpts || {}));
   const env = opts.env || process.env;
   return {
-    /** -> { status: 'missing'|'ok'|'malformed'|'error', state, version } */
+    /** -> { status: 'missing'|'ok'|'stale'|'malformed'|'error', state, version } */
     async load(csid) {
       let res;
       try {
@@ -37,6 +39,7 @@ function createStore(opts = {}) {
       }
       if (!res || !res.Item) return { status: 'missing', state: null, version: 0 };
       const it = ddb.unmarshall(res.Item);
+      if (OLD_SCHEMAS.has(it.schemaVersion) && Number.isFinite(it.stateVersion)) return { status: 'stale', state: null, version: it.stateVersion };
       if (it.schemaVersion !== SCHEMA || typeof it.stateJson !== 'string' || it.stateDigest !== digest(it.stateJson)) return { status: 'malformed' };
       let state;
       try { state = JSON.parse(it.stateJson); } catch { return { status: 'malformed' }; }

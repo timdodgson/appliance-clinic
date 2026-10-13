@@ -27,7 +27,7 @@ function memStore() {
 }
 function engineReturning(response, stateTurn = 1) {
   const calls = [];
-  return { calls, fn: async (raw) => { calls.push(JSON.parse(raw)); return { status: 200, json: { type: 'ac2', response, state: { schema: 'ac2/1', turn: (calls[calls.length - 1].ac2.state ? calls[calls.length - 1].ac2.state.turn : 0) + stateTurn, facts: [] }, audit: { turn: 1, safety: { hazards: [], gates: [] }, claims: { rejected: [], checked: 0 } } } }; } };
+  return { calls, fn: async (raw) => { calls.push(JSON.parse(raw)); return { status: 200, json: { type: 'ac2', response, state: { schema: 'ac3/1', turn: (calls[calls.length - 1].ac2.state ? calls[calls.length - 1].ac2.state.turn : 0) + stateTurn, facts: [] }, audit: { turn: 1, safety: { hazards: [], gates: [] }, claims: { rejected: [], checked: 0 } } } }; } };
 }
 const deps = (engine, store) => ({ callEngine: engine.fn, secretsLoader: async () => SECRETS, store });
 
@@ -40,7 +40,7 @@ describe('turn', () => {
     expect(engine.calls[0]).toMatchObject({ mode: 'turn', ac2: { state: null } });
     const second = await T.handle({ body: { stateToken: first.token }, messages: [{ role: 'user', content: 'yes' }] }, deps(engine, store));
     expect(second.token).toBe(first.token);
-    expect(engine.calls[1].ac2.state).toMatchObject({ schema: 'ac2/1', turn: 1 });
+    expect(engine.calls[1].ac2.state).toMatchObject({ schema: 'ac3/1', turn: 1 });
     expect([...store.items.values()][0].state.turn).toBe(2);
   });
 
@@ -121,7 +121,25 @@ describe('ac2-state', () => {
       return {};
     };
     const store = S.createStore({ call, table: 't' });
-    expect((await store.save('cs_x', { schema: 'ac2/1', turn: 1 }, 0)).ok).toBe(true);
+    expect((await store.save('cs_x', { schema: 'ac3/1', turn: 1 }, 0)).ok).toBe(true);
     expect((await store.load('cs_x')).status).toBe('malformed');
+  });
+
+  it('replaces a record written by the earlier engine version (ac2/1) instead of failing the turn', async () => {
+    const items = { 'AC2STATE#cs_y': { pk: { S: 'AC2STATE#cs_y' }, schemaVersion: { S: 'ac2/1' }, stateVersion: { N: '4' }, stateJson: { S: '{}' }, stateDigest: { S: 'x' } } };
+    const call = async (action, p) => {
+      if (action === 'GetItem') return items[p.Key.pk.S] ? { Item: items[p.Key.pk.S] } : {};
+      if (action === 'PutItem') {
+        const cur = items[p.Item.pk.S];
+        if (p.ConditionExpression === 'stateVersion = :v' && (!cur || cur.stateVersion.N !== p.ExpressionAttributeValues[':v'].N)) { const e = new Error('cc'); e.body = { __type: 'ConditionalCheckFailedException' }; throw e; }
+        items[p.Item.pk.S] = p.Item; return {};
+      }
+      return {};
+    };
+    const store = S.createStore({ call, table: 't' });
+    const loaded = await store.load('cs_y');
+    expect(loaded).toMatchObject({ status: 'stale', version: 4 });
+    expect((await store.save('cs_y', { schema: 'ac3/1', turn: 1 }, loaded.version)).ok).toBe(true);
+    expect((await store.load('cs_y')).status).toBe('ok');
   });
 });

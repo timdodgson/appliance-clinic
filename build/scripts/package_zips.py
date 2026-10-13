@@ -27,7 +27,7 @@ FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 def diagnosis_engine_entries():
     """The engine's runtime files: the handler and its modules, the ac2 turn and its guardrail kernel, the knowledge the
     reasoner reads and the media mappings."""
-    top = ['handler.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js', 'admin-config.js', 'inference.js']
+    top = ['handler.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js', 'admin-config.js', 'inference.js', 'jev-client.js']
     engine = sorted(f'engine/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'engine', '*.js')))
     entries = {name: os.path.join(DE, name) for name in top + engine}
     entries['knowledge/media-information.json'] = os.path.join(DE, 'knowledge', 'media-information.json')

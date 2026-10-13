@@ -80,7 +80,8 @@ async function handle({ body, messages, image }, deps) {
   const loaded = sess.fresh ? { status: 'missing', state: null, version: 0 } : await store.load(sess.csid);
   if (loaded.status === 'error') return { error: 'state_load_failed', token: sess.token, session };
   const prior = loaded.status === 'ok' ? loaded.state : null;
-  const priorVersion = prior ? prior.turn : 0;
+  // A stale record (an earlier engine version) is replaced: the next write is conditioned on its version.
+  const priorVersion = prior ? prior.turn : (loaded.status === 'stale' ? loaded.version : 0);
 
   let recalls = [];
   try { recalls = deps.recallLookup ? await deps.recallLookup(messages) : []; } catch { recalls = []; }
