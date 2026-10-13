@@ -1,5 +1,7 @@
 # As-built architecture (Phase 10 truth audit)
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 > **Reading this page.** The audit sections below are the Phase 10 record of what the code at `ec48371` did. They are kept unchanged as evidence; several of the problems they describe have since been fixed. What changed afterwards is in [After Phase 11](#after-phase-11-releases-1111113), [After Phase 13](#after-phase-13-releases-131136) and [After Phase 15](#after-phase-15-dedicated-canonical-diagnosis-engine), and the current system is described in the [overview](overview.md).
 
 This describes what the code at `ec48371` does, as traced from source, from the live Lambda configuration, and from production logs and transcripts. Where the earlier [overview](overview.md) disagrees, this document is the evidence. The overview has been corrected to match it.

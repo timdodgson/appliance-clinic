@@ -1,5 +1,7 @@
 # Target architecture (Phase 10)
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 The [as-built audit](as-built.md) found that each customer decision has several owners: state, NextAction, safety, identity and wording. The real defects came from the seams between those owners. Three examples:
 - **A code typed as a model.** One layer committed a weak model guess, and another layer then trusted it.
 - **A prompt leak.** The prompt contract had no check that the model's instructions stay out of the reply.
