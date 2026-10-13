@@ -1,5 +1,7 @@
 # Phase 8 architecture findings (2026-10-09)
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 A review of `main` at `d266240`, before any Phase 8 change. It drives the Phase 8 cleanup (issue #61). The
 current-state description lives in [overview.md](overview.md); this file records what was found and what was decided.
 

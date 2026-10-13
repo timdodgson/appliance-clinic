@@ -174,12 +174,43 @@ The old engine was **not modified**. It keeps serving S4R, which is now an exter
 traffic. AC released it from its CloudFormation stack with zero physical change (change 15.3). The final build passed
 GOLD-v2.4 56/56 twice, and all 163 runtime test files pass ([results](../evaluation/phase-15-results.md)).
 
+### 12. Green tests, losing benchmark (Phase 16)
+
+GOLD passed 56/56 on every release. An independent, blind benchmark of 100 sourced cases, run against a general-purpose
+assistant with the same simulated customers, found the opposite: **the general assistant won 94–6**
+([report](../evaluation/independent-100-case-benchmark.md)). The root-cause analysis put most losses on the architecture
+itself: the fixed check order ignored evidence and direct questions, missing journeys looped, the closed vocabulary lost
+nuance, and fixed copy asserted things the customer never said. GOLD had been written alongside the journeys, so it
+measured the design against itself. GOLD was redefined as deterministic regression; quality is now measured on
+independent cases only.
+
+### 13. The first rebuild (Phase 20)
+
+[ADR 0020](../adr/0020-llm-led-diagnosis-with-deterministic-guardrails.md) gave one Qwen call the whole turn inside a heavy
+guardrail kernel (evidence ledger, claim verifier, safety, part gate). On the same cases and a held-out set frozen before
+tuning it beat the journeys 83–17 but lost 17–83 to the general assistant ([results](../evaluation/llm-led-rebuild.md)).
+The lesson: one big call, a long rulebook and a form to fill in before the reply is the worst set-up for a mid-sized
+model, and a checker that cuts sentences out makes replies worse.
+
+### 14. Small jobs, a fixed record, code decides (Phase 21)
+
+The design was then worked out with the owner step by step ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)):
+Qwen reads each message; Jev labels it with a confidence per label from the customer's own words; tools enrich the record
+(RAG, error codes, recalls, parts); code decides what the reply must do (broad help first, then model and part once the
+owner's checks fail; never ask for what is known; build on what was already said); Qwen writes the reply; a final check and
+Jev's media pick close the turn. The journey controller and the orchestrator hop were deleted in the same release, with
+git as the rollback. Live smoke chats found three reply-quality issues (reassurance after a burning smell, an invented
+symptom, a repeated reply); each was fixed in the plan and the record, not with hard-coded replies, and re-tested live.
+Results on the independent 100, the held-out set and a new real-journey add-on set are in the
+[evaluation index](../evaluation/README.md).
+
 ## Trade-offs, honestly
 
 | Decision | Bought | Cost |
 |---|---|---|
 | Import, don't recreate | No downtime, no data migration | Import semantics had to be learned the hard way, in a sandbox and with a read-only role |
-| Language models only classify and word ([ADR 0010](../adr/0010-deterministic-policy-around-llm.md)) | Safety and part logic that can be unit-tested and doesn't change with the model | Each appliance journey is code (diagnostics, policy, copy), which is slower to add than a prompt |
+| Language models only classify and word ([ADR 0010](../adr/0010-deterministic-policy-around-llm.md), Phases 8–15) | Safety and part logic that could be unit-tested | Lost 94–6 to a general assistant; replaced in Phase 21 |
+| Small model jobs with a fixed record ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)) | Qwen reasons and writes freely; Jev's labels give every fact a shape and a confidence; code still owns safety, the plan and parts | Every turn depends on two providers (Qwen and Jev); no fallback by design |
 | Keep the legacy pipeline for S4R (Phases 8–13) | The S4R contract never changed | Two diagnosis paths in one engine until Phase 15 |
 | A new engine instead of changing the shared one (Phase 15) | AC has one canonical path and a private, IAM-authenticated engine; S4R is untouched | The old engine still runs in AC's account, on AC's role, secrets and Jev credit |
 | CloudFront left unmanaged ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)) | No risk to the shared distribution during the migration | One AC resource is still outside CDK |
@@ -190,19 +221,13 @@ GOLD-v2.4 56/56 twice, and all 163 runtime test files pass ([results](../evaluat
 
 ## Still open
 
-Checked against the code, the live configuration and the Phase 15 results. Solved items are not carried forward. The operational risks among them have a short runbook in [infra/production/README.md](../../infra/production/README.md#operational-risks).
-
 | Item | Evidence or detail |
 |---|---|
-| **Account Lambda concurrency is 10**, shared with every workload in the account, including another site and the old shared engine | The pool sat at 10 for 383 minutes in 14 days ([analysis](../evaluation/phase-11-concurrency.md)). A real throttle occurred on 2026-10-12 in the 08:20–08:25 UTC period during the Phase 15 GOLD pair; the orchestrator's single 429 retry absorbed it and no turn failed ([results](../evaluation/phase-15-results.md#production-checks)). Fix: an account-level quota increase (100 recommended), which needs the account owner's approval |
-| **The orchestrator** is one Python module (about 1,400 lines since Phase 13) | The legacy composition that made up most of it was deleted with the AC legacy fallback ([ADR 0018](../adr/0018-no-ac-legacy-fallback.md)); what remains is the canonical branch, the non-journey outcomes (hazard, unsafe, code, unsupported, intake) and their documentation |
-| **The old shared engine is still on AC's account and credit** | `spares4repairs-part-finder` runs in AC's AWS account on `ac-diagnosis-role`, with AC secrets and AC's Jev credit, and serves S4R. Changing that would modify resources it depends on, which Phase 15 deliberately did not do ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)). Moving it is S4R's change |
-| **No alarm notification target** | The four engine alarms (`applianceclinic-diagnosis-engine-{FailedTurns,RefusedRequests,Errors,Throttles}`) go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription; the recipient is the owner's decision |
-| **Knowledge corpus files in the engine's folder** | `services/diagnosis-engine/knowledge/` is used only by whichpart-api's read-only knowledge view; the engine does not read it at runtime |
-| **Canonical coverage** | 63 journeys own most AC turns; a typed problem no journey owns gets an explicit `UNSUPPORTED` reply, and an appliance outside the typed families gets the repeated appliance clarify ([Phase 13](../evaluation/phase-13-results.md)) |
-| **No Jev quota or credit monitoring** | On 2026-10-11 the Jev account ran out of credit (HTTP 402) and AC (and S4R, through the shared engine) was down for about an hour; nothing alerted ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev 402/429 rate and on remaining credit, ahead of exhaustion. Until then a top-up is the recovery ([runbook](../../infra/production/README.md#operational-risks)) |
-| **Evaluation shares production's Jev credit** | GOLD runs, the GOLD judge and the transcript judge use the same Jev account as AC and the old shared engine, so evaluation load can exhaust production. Needed where possible: a separate evaluation key or account, or a budget cap for evaluation traffic; until then GOLD runs are rationed and spaced |
-| **Engine signing key in the Lambda environment** | The same pattern as the service bearers (dynamic references). A runtime secret fetch would keep it out of `lambda:GetFunctionConfiguration` |
-| **The GOLD judge is not independent** | GOLD and transcript review are judged by Jev, the same service that does the understanding. The rubric and pass rule are fixed and verdicts are checked by reading the conversations, but an independent judge would be stronger evidence |
-| **Planned target steps** | Error codes opening the matching canonical journey (T8); one safety-copy source shared by Python and JavaScript (T9); complete cause sentences in the error-code enrichment (T10) ([target](../architecture/target.md)) |
-| **Conversation-quality items** | The vacuum belt question asks corded or cordless even when the model implies it; the vacuum won't-start path is weak after an uncertain charge answer; a second model ask can follow an ambiguous code ([Phase 11](../evaluation/phase-11-results.md#remaining-debt)) |
+| **Account Lambda concurrency is 10**, shared with every workload in the account | Fix: an account-level quota increase (100 recommended), which needs the account owner's approval ([analysis](../evaluation/phase-11-concurrency.md)) |
+| **Every turn needs Jev; no credit or quota monitoring** | Running out of Jev credit took the service down on 2026-10-11 ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev error rate and remaining credit |
+| **The LLM provider is a single point of failure** | Qwen runs on LM Studio over a private tunnel, one request at a time; when the tunnel dropped on 2026-10-12 turns failed explicitly, by design |
+| **No alarm notification target** | The engine alarms go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription |
+| **Error-code service not released with the repaired dataset** | 64 records restored and the Beko hob `U` added in the repo. The image is built from the repo and tested (232 error-code tests pass; only the 16 repaired files differ from the live image), but uploading it needs the account owner. Until then the live service runs the earlier data and CI's `images` check stays red |
+| **The old shared engine still runs in AC's account** | It serves S4R; moving it is S4R's change ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)) |
+| **The orchestrator function still exists** | No traffic since change 21.3; removing it from the stack is a separate reviewed change |
+| **Evaluation shares production's providers** | Benchmark runs use the same LM Studio and Jev account as the live service |

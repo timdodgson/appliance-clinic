@@ -7,9 +7,8 @@ This repository holds a live production service. Most rules below exist so that 
 | Path | What it is | Ships to production? |
 |---|---|---|
 | `apps/web/` | Web front end: customer chat, admin, help pages, recall search (plain HTML/CSS/JS, no bundler; has its own `package.json`). See [apps/web/README.md](apps/web/README.md) | Yes, as static files in the AC web bucket (`apps/web/scripts/deploy.mjs`) |
-| `services/diagnosis-engine/` | Canonical diagnosis engine (Node, nodejs22.x). `canonical/` holds the deterministic journeys; `engine/` the shared helpers (configuration, catalogue, reply filters, the S4R Parts Catalogue client). `knowledge/` is read only by whichpart-api's read-only knowledge view | Yes, as the Lambda zip `applianceclinic-diagnosis-engine` |
-| `services/whichpart-api/` | Backend for the browser (Node 20): sessions, admin, transcripts, benchmarks | Yes, as a Lambda zip |
-| `orchestration/` | Orchestrator (Python 3.12) | Yes, as a container image |
+| `services/diagnosis-engine/` | Diagnosis engine (Node, nodejs22.x). `ac2/` holds the turn pipeline of [ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md) (understand, label, enrich, safety, decide, reply, final check); `engine/` the shared helpers (configuration, the S4R Parts Catalogue client); `knowledge/` the fault notes, the retired journeys as knowledge, normal-behaviour notes and media mappings | Yes, as the Lambda zip `applianceclinic-diagnosis-engine` |
+| `services/whichpart-api/` | Backend for the browser (Node 20): sessions, the conversation record, transcripts with per-turn tags, recalls, admin | Yes, as a Lambda zip |
 | `error-codes/` | Error-code MCP service (Python 3.12) and its generated data | Yes, as a container image |
 | `prompts/` | Prompt registry and its guard | Indirectly: the prompts live in the runtime code |
 | `types/` | Strict TypeScript contract declarations | No |
@@ -18,7 +17,7 @@ This repository holds a live production service. Most rules below exist so that 
 | `infra/sandbox/` | The Phase 4 sandbox rehearsal, kept as a record | No |
 | `build/` | Reproducible builds, reference digests and the test runner | No |
 | `tools/migration/` | Migration and production tooling: inventory, change-set checker, overrides drift check, guards (has its own `package.json`) | No |
-| `tools/gold-v2/` | Live GOLD v2 runner | Owner tooling, credentialed |
+| `evaluation/` | Frozen case sets (independent-100, heldout-25, real-journeys-13) and the benchmark harness | Owner tooling for live runs |
 | `docs/` | Architecture, ADRs, evaluation, migration record, portfolio | No |
 
 ## Setup and everyday checks
@@ -27,7 +26,7 @@ You need Node 20 (`>=20 <23`), Python 3.12 and, for images only, Docker with arm
 
 ```bash
 npm ci && npm --prefix tools/migration ci
-npm run setup:python      # .venv-orchestrator and .venv-error-code-mcp, with production package versions
+npm run setup:python      # the error-code service test environment, with production package versions
 npm run test:runtime      # every runtime test; any failure fails
 npm run typecheck         # strict TypeScript over types/ and the runtime conformance checks
 npm run lint              # ESLint (migration tooling)
@@ -39,7 +38,7 @@ npm run build:zips        # build the applianceclinic-diagnosis-engine and which
 - **No credentials needed.** None of these commands needs AWS or model credentials. The runtime runner replaces AWS variables with fake values and strips proxy variables, so a test cannot reach production.
 - **Images.** Build them as CI does (`.github/workflows/build-images.yml`). Each rebuild must equal its `build/reference/*.image.json`.
 - **Every runtime test passes.** There is no accepted-failure list, xfail or skip. A failing test is fixed in the product, rewritten to the current contract, or removed (recorded under `removed` in `docs/migration/runtime-changes.json` with its reason) in the same change.
-- **One decision path** ([ADR 0018](docs/adr/0018-no-ac-legacy-fallback.md), [ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)). A turn is canonical, an explicit non-diagnostic outcome, or an explicit error. Do not add a second diagnosis path, an unsigned engine request or a silent fallback.
+- **One decision path** ([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md), [ADR 0018](docs/adr/0018-no-ac-legacy-fallback.md)). Every turn goes through the one pipeline or is an explicit error. Do not add a second diagnosis path, an unsigned engine request, a hard-coded reply or a silent fallback.
 - **Retired suites stay retired.** Do not re-enable tests the runner excludes. Do not use the legacy ACQ-100 benchmark for evaluation; it is labelled non-authoritative.
 
 ## Branches and pull requests
@@ -117,7 +116,7 @@ Do not run any of the following unless you are the owner, deliberately, with the
 | Command | Why |
 |---|---|
 | `infra/production/steps/*.sh`, `infra/production/*.sh` | Act on production AWS, or read it with owner credentials |
-| `tools/gold-v2/run-live.mjs` | Holds real conversations with production and calls the Jev judge (needs Secrets Manager access) |
+| `evaluation/rebuild/run.mjs`, `judge.mjs` | Hold conversations with the live service through the benchmark envelope and call the judges (needs Secrets Manager access) |
 | `tools/migration` commands `backup`, `hotfix:admin`, `inventory`, and `bin/sandbox-image-copy.mjs` | Mutate or read production; each prints a plan and needs explicit flags |
 | `infra/sandbox/steps/*.sh` | The Phase 4 rehearsal; it creates and destroys AWS resources |
 | `error-codes/mcp/deploy/deploy.sh` | The last retired pre-CDK deploy script. It refuses to run; production is CloudFormation-managed. The others were deleted in Phase 15 |

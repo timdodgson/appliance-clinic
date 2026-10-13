@@ -61,7 +61,8 @@ exports.handler = async (event) => {
 
   try {
     // LLM-led diagnosis inside the deterministic guardrail kernel (ac2/turn.js).
-    const out = await ac2.turn({ messages, state: body.ac2 && body.ac2.state, tools: body.ac2 && body.ac2.tools, image: body.image || null });
+    const control = body.ac2 && body.ac2.control === 'qwen-plain' ? 'qwen-plain' : null;
+    const out = control ? await ac2.plain({ messages, state: body.ac2 && body.ac2.state }) : await ac2.turn({ messages, state: body.ac2 && body.ac2.state, tools: body.ac2 && body.ac2.tools, image: body.image || null });
     metric.ac2 = out.audit;
     metric.totalMs = Date.now() - started; metric.ok = true; log(metric);
     return json(200, { type: 'ac2', response: out.response, state: out.state, audit: out.audit });

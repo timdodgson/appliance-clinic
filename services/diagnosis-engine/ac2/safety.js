@@ -15,7 +15,7 @@
 const COPY = {
   gas: 'If you can smell gas, treat it as an emergency: don\'t turn any switches on or off and no naked flames. Turn the gas off at the meter if you safely can, open doors and windows, and leave if the smell is strong. Call the National Gas Emergency line on 0800 111 999.',
   fire: 'If there are flames or smoke is still coming from it, keep away, don\'t open the door of an oven, microwave or dryer that is on fire, switch it off at the wall or the fuse box only if you can do that safely, get everyone out and call 999.',
-  burning: 'A burning smell or smoke can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don\'t run it again — not even as a test — until it has been checked by a qualified engineer.',
+  burning: 'A burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don\'t run it again — not even as a test — until it has been checked by a qualified engineer.',
   electrical_water: 'Water near the plug or socket is dangerous. Please don\'t touch the plug, socket or machine if they or your hands are wet. If you can do it safely, switch off the circuit at the consumer unit (fuse box), keep away from the water, and don\'t use the machine again until a qualified electrician or appliance engineer has checked it.',
   electric_shock: 'Stop using it now. If you can do it safely, switch it off at the socket or at the consumer unit (fuse box). A shock usually means an earth or insulation fault, so don\'t use it again until a qualified electrician or appliance engineer has found and fixed it.',
   supply_trip: 'Please don\'t keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again.',
@@ -30,6 +30,9 @@ const COPY = {
 };
 
 const NEG = /\b(no|not|never|nowhere|isn'?t|wasn'?t|aren'?t|don'?t|doesn'?t|didn'?t|can'?t|cannot|without|nothing|none|away from)\b/;
+// A question or something they will look for is not a report: "look at the box for scorch marks", "is it smoking?",
+// "any sign of melting".
+const HYPOTHETICAL = /\b(look(?:ing)?(?: \w+){0,4} for|check(?:ing)?(?: \w+){0,3} for|signs? of|in case|whether|if (?:there|it|you|i)\b|could (?:it|that|this) be|should i|would it|is (?:it|that|this|there)|are there)\b/;
 
 /** Split text into clauses so a negation only covers its own clause. */
 function clauses(text) {
@@ -43,8 +46,11 @@ function affirmed(text, re, scope = 'clause') {
     const m = c.match(re);
     if (!m) continue;
     const before = c.slice(Math.max(0, m.index - 28), m.index);
-    // A negation before the match, or inside a multi-word match ("water ... nowhere near the plug"), negates it.
-    if (!NEG.test(before) && !(m[0].includes(' ') && NEG.test(m[0]))) return { clause: c, match: m[0] };
+    // A negation before the match, or inside a multi-word match ("water ... nowhere near the plug"), negates it; so does
+    // a question or a plan to look for it ("look at the box for scorch marks").
+    if (NEG.test(before) || (m[0].includes(' ') && NEG.test(m[0]))) continue;
+    if (HYPOTHETICAL.test(c.slice(Math.max(0, m.index - 40), m.index))) continue;
+    return { clause: c, match: m[0] };
   }
   return null;
 }

@@ -5,17 +5,17 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 
 const DIR = new URL('.', import.meta.url).pathname;
-const SETS = ['independent-100', 'heldout-25'];
+const SETS = (process.argv[2] ? process.argv[2].split(',') : ['independent-100', 'heldout-25', 'real-journeys-13']);
 const rd = (p) => JSON.parse(readFileSync(p, 'utf8'));
 const pct = (x) => (x == null ? '–' : `${Math.round(x * 100)}%`);
 const f2 = (x) => (x == null ? '–' : x.toFixed(2));
-const NAME = { ac2: 'New AC (ac2)', ac: 'Old AC (journeys)', ga: 'General assistant' };
+const NAME = { ac3: 'Live pipeline (ac3)', ac2: 'First rebuild (ac2)', ac: 'Journeys (old AC)', ga: 'General assistant' };
 
 for (const set of SETS) {
   const p = `${DIR}results-${set}.json`;
   if (!existsSync(p)) continue;
   const r = rd(p).all;
-  const sys = ['ac2', 'ac', 'ga'].filter((s) => r[s] && r[s].n);
+  const sys = ['ac3', 'ac2', 'ac', 'ga'].filter((s) => r[s] && r[s].n);
   console.log(`\n### ${set}\n`);
   console.log(`| | ${sys.map((s) => NAME[s]).join(' | ')} |`);
   console.log(`|---|${sys.map(() => '---').join('|')}|`);
@@ -49,7 +49,7 @@ for (const set of SETS) {
   for (const c of crit) console.log(`| ${c} | ${sys.map((s) => r[s].criticalFailures[c]).join(' | ')} |`);
 
   // ac2 kernel activity and model usage from the per-turn audits.
-  const cdir = `${DIR}out/${set}/conversations/ac2`;
+  const cdir = `${DIR}out/${set}/conversations/${existsSync(`${DIR}out/${set}/conversations/ac3`) ? 'ac3' : 'ac2'}`;
   if (existsSync(cdir)) {
     let turns = 0; let regen = 0; let rejected = 0; let gates = {}; let tokIn = 0; let tokOut = 0; let errors = 0; let parts = {}; let calls = 0;
     for (const f of readdirSync(cdir)) {
@@ -66,17 +66,17 @@ for (const set of SETS) {
         if (a.partGate) parts[a.partGate.outcome] = (parts[a.partGate.outcome] || 0) + 1;
       }
     }
-    console.log(`\nac2 audit (${set}): turns ${turns}, explicit errors ${errors}, regenerated ${regen} (${pct(regen / (turns || 1))}), claims rejected ${rejected}, model calls ≈${calls} (${(calls / (turns || 1)).toFixed(2)}/turn), reasoner tokens in ${tokIn} / out ${tokOut} (mean ${Math.round(tokIn / (turns || 1))} / ${Math.round(tokOut / (turns || 1))} per turn), gates ${JSON.stringify(gates)}, part gate ${JSON.stringify(parts)}`);
+    console.log(`\npipeline audit (${set}): turns ${turns}, explicit errors ${errors}, regenerated ${regen} (${pct(regen / (turns || 1))}), claims rejected ${rejected}, model calls ≈${calls} (${(calls / (turns || 1)).toFixed(2)}/turn), reasoner tokens in ${tokIn} / out ${tokOut} (mean ${Math.round(tokIn / (turns || 1))} / ${Math.round(tokOut / (turns || 1))} per turn), gates ${JSON.stringify(gates)}, part gate ${JSON.stringify(parts)}`);
   }
   // Evaluation cost (simulator, general assistant, judges) where the CLI reported it.
   let judgeUsd = 0;
-  for (const sub of ['primary', 'second', 'pairwise-ac2-ga', 'pairwise-ac2-ac', 'pairwise-ac-ga']) {
+  for (const sub of ['primary', 'second', 'pairwise-ac2-ga', 'pairwise-ac2-ac', 'pairwise-ac-ga', 'pairwise-ac3-ga', 'pairwise-ac3-ac', 'pairwise-ac3-ac2']) {
     const jd = `${DIR}out/${set}/judge/${sub}`;
     if (!existsSync(jd)) continue;
     for (const f of readdirSync(jd)) if (f.endsWith('.json')) judgeUsd += rd(`${jd}/${f}`).costUsd || 0;
   }
   let simUsd = 0; let gaUsd = 0;
-  for (const s of ['ac2', 'ac', 'ga']) {
+  for (const s of ['ac3', 'ac2', 'ac', 'ga']) {
     const cd = `${DIR}out/${set}/conversations/${s}`;
     if (!existsSync(cd)) continue;
     for (const f of readdirSync(cd)) { const c = rd(`${cd}/${f}`); simUsd += c.simCostUsd || 0; if (s === 'ga') gaUsd += (c.meta || []).reduce((a, m) => a + (m.costUsd || 0), 0); }

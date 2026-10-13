@@ -33,11 +33,16 @@ export interface ConversationRecord {
     symptom: LabelledValue | null;
     symptomArea: LabelledValue | null;
     checks: Array<{ check: string; result: string; turn: number }>;
+    /** Facts the customer stated (confirmed by Jev from their words), including what is not happening. */
+    facts: Array<{ fact: string; turn: number }>;
     modelUnavailable: boolean;
   };
   /** What our tools added, kept apart from customer facts. */
   knowledge: { knowledgeIds: string[]; fault: string | null; causes: string[]; components: string[]; codeMeanings: Array<Record<string, unknown>>; modelInfo: Array<Record<string, unknown>> };
   asked: Array<{ question: string; turn: number; answer: string | null }>;
+  /** What each of our replies did, so the next one builds on it instead of repeating it. */
+  /** reported: the customer has reported back on a check given in an earlier reply. */
+  advice: Array<{ turn: number; action: string | null; check: string | null; question: string | null; reported: boolean }>;
   hazards: Array<{ type: string; clause: string; turn: number; shown: boolean; [extra: string]: unknown }>;
   /** 1 = broad help and safe checks; 2 = the owner's checks failed: narrow, model, part. */
   stage: 1 | 2;

@@ -1,5 +1,7 @@
 # As-built trace: hop tables and evidence (Phase 10)
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 Source: `timdodgson/appliance-clinic` at `origin/main` = `ec48371` (read-only; no AWS calls).
 Everything below is derived from code. `docs/architecture/overview.md` was used only as a hint; disagreements are listed in §3 Q12.
 Line numbers are for `ec48371`. "BFF" = `services/whichpart-api`, "orch" = `orchestration/`, "engine" = `services/part-finder`.

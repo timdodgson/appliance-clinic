@@ -121,7 +121,7 @@
       ],
       "input": "The assistant's previous message and the latest customer message.",
       "output": "JSON (json_schema ac3_understand).",
-      "version": 1,
+      "version": 3,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -129,6 +129,18 @@
           "date": "2026-10-13",
           "fingerprint": "c1336e8417cfe78649a0d11e79cad0c26c82ba1e3b8414af98304e8eb36dc7a0",
           "change": "Initial version (change 21.2): the agreed pipeline replacing the single ac2 reasoning pass and the claim verifier."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "6cf3c00b8175ebe3122ff00d52633fef417d12b80791d89f39f0aba6d3feb9d4",
+          "change": "Also reads the facts the customer states (including what is not happening); checksReported excludes checks only planned or asked about."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-13",
+          "fingerprint": "29b7eb30e7e4d94d3cb6177220c516568d4da49ee81b3dd65638131bcf4ed433",
+          "change": "checksReported excludes safety steps (switching off, unplugging, finding the fuse box)."
         }
       ]
     },
@@ -153,7 +165,7 @@
       ],
       "input": "The latest customer message, the previous assistant message, Qwen's reading as a hint, what is already known, candidate tokens; or the reply and candidate media.",
       "output": "Jev answers (choice with confidence, noul).",
-      "version": 1,
+      "version": 4,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -161,6 +173,24 @@
           "date": "2026-10-13",
           "fingerprint": "047b07881506089c77d53ba7e52cc9b20840f84e4ea661a386c7a0d0594d8288",
           "change": "Initial version (change 21.2): the agreed pipeline replacing the single ac2 reasoning pass and the claim verifier."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "d4d6d0a5a79fceb5edb6cace3e56e4dfde619a3859e7c89fb2d24f88bce6dbe3",
+          "change": "The reply labels also record which check the reply gave, so the next reply builds on what the customer was already told."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-13",
+          "fingerprint": "56d2528e07b59283b734f33392e1dfa12f45a96337c9670f36d6001f0624848e",
+          "change": "Confirms each check and fact Qwen read against the customer's own words (noul per item); hazard label excludes questions, things to look for and food burnt while cooking."
+        },
+        {
+          "version": 4,
+          "date": "2026-10-13",
+          "fingerprint": "d007f17ef02f0f5cfea1865a0b944b3344815034b5aded9d5309a3d6023ca014",
+          "change": "Check confirmation excludes safety steps such as switching it off or unplugging it."
         }
       ]
     },
@@ -168,7 +198,7 @@
       "id": "diagnosis.ac3.reply",
       "purpose": "Step 8: Qwen writes the customer reply as a normal chat, from the conversation and the briefing (already known, knowledge, error-code meanings, normal behaviour, recalls, safety notes, the plan decided in code).",
       "consumers": [
-        "Diagnosis engine turn (ac2/turn.js)"
+        "None in the turn since change 21.11 (the reasoner writes the reply); kept for rollback. chatHistory in the same file serves the evaluation-only control."
       ],
       "source": [
         {
@@ -181,7 +211,7 @@
       ],
       "input": "The conversation as user/assistant turns; the briefing in the system message.",
       "output": "Plain text.",
-      "version": 1,
+      "version": 3,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -189,6 +219,82 @@
           "date": "2026-10-13",
           "fingerprint": "3b71b7247567c41b53a3e16ab498634fb01fbd7bea0b7bc232e96d673fb5ff91",
           "change": "Initial version (change 21.2): the agreed pipeline replacing the single ac2 reasoning pass and the claim verifier."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "c398c65b33bc26fdc046d74645ec49fc7fb2555d9af510744536818b31790d39",
+          "change": "Never describe a symptom, result or state the customer has not reported (smoke-chat finding: a pulsing vacuum described as dead)."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-13",
+          "fingerprint": "f3275c1e3412dd75467637a6d293a9334b84dc465be594d2f238f9c9f3aca893",
+          "change": "customerSaid and checksDone are true and never contradicted or asked again; no assumed model features; causes stated as possibilities until a check proves one."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.ac2.reason",
+      "version": 2,
+      "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Diagnosis engine turn (ac2/turn.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/reasoner.js",
+          "declarations": [
+            "APPLIANCE_ENUM",
+            "SYSTEM",
+            "SCHEMA",
+            "RESPONSE_FORMAT"
+          ]
+        }
+      ],
+      "input": "The conversation, the ac3 record as the ledger (its customer and tool facts with ids, what is known, what was asked), tool results (error codes, model hints, recalls), retrieved knowledge, normal-operation notes, safety constraints, the plan for this reply and, on a regeneration, the claim check's objections.",
+      "output": "JSON (json_schema ac2_turn): understanding, assessment, next, part, escalation, reply. The reply goes through the claim check and the final check before it reaches the customer.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "4d7298bccd4e1593852f7a4380aec072e3705de06295f918dd98b412792f58ce",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "a09eb77f91b7a96fb5b6d8773df0197f0875aaa63e4a75e74a92bcc2ed1e46d9",
+          "change": "Restored in the ac3 pipeline (change 21.11): rule 0 says to follow the plan code decided for this reply (the plan wins over the reasoner's own next step); the plan is part of the input. The rest of the prompt is v1 unchanged."
+        }
+      ]
+    },
+    {
+      "id": "diagnosis.ac2.claims",
+      "version": 1,
+      "purpose": "Claim extraction for the claim verifier (restored in the ac3 pipeline, change 21.11): lists the reply's customer-specific claims with their kind and the customer's words or record facts that support them. It decides nothing; deterministic checks do.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Claim verifier (ac2/verifier.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/verifier.js",
+          "declarations": [
+            "EXTRACT_SYSTEM",
+            "EXTRACT_FORMAT"
+          ]
+        }
+      ],
+      "input": "The draft reply split into numbered sentences, the record's supporting facts (customer and tool) and the customer's messages.",
+      "output": "JSON (json_schema ac2_claims): claims[{sentence, claim, kind, customerQuote, supportedBy}].",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-12",
+          "fingerprint": "5985f555bd0cc43c3d4c1e83e5dfa6c8c417a25f6d4ef5c31512520bef56b347",
+          "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
         }
       ]
     }
