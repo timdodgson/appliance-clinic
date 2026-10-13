@@ -158,3 +158,13 @@ describe('evaluation-only ablation (control)', () => {
     expect(store.items.size).toBe(1);
   });
 });
+
+describe('transcript audit', () => {
+  it('records the claim check and the reasoner\'s candidates from the engine audit (change 21.13)', () => {
+    const audit = T.auditOf({ audit: { turn: 2, claims: { checked: 3, rejected: [{ claim: 'You confirmed the filter is clear.', source: 'detector' }] }, regenerated: true, reasoning: { candidates: ['blocked filter (high)', 'drain pump (medium)'] } }, state: null });
+    expect(audit).toMatchObject({ claimsChecked: 3, claimsRejected: [{ claim: 'You confirmed the filter is clear.', source: 'detector' }], regenerated: true, candidates: ['blocked filter (high)', 'drain pump (medium)'] });
+  });
+  it('an audit without them records none', () => {
+    expect(T.auditOf({ audit: {}, state: null })).toMatchObject({ claimsChecked: 0, claimsRejected: [], regenerated: false, candidates: [] });
+  });
+});
