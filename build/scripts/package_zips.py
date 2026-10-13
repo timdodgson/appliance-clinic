@@ -3,7 +3,7 @@
 
     python3 build/scripts/package_zips.py [--out-dir build/out]
 
-  - applianceclinic-diagnosis-engine: services/diagnosis-engine (the canonical diagnosis engine, ADR 0019)
+  - applianceclinic-diagnosis-engine: services/diagnosis-engine (the ac2 diagnosis engine, ADR 0019, ADR 0020)
   - whichpart-api:                    services/whichpart-api, plus the engine files it ships (listed below)
 It makes no AWS call.
 
@@ -15,7 +15,6 @@ import argparse
 import glob
 import json
 import os
-import subprocess
 import sys
 import zipfile
 
@@ -26,15 +25,19 @@ FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
 
 def diagnosis_engine_entries():
-    """The engine's runtime files: the handler and its modules, the canonical journeys, the catalogue and the media
-    mappings. Runtime files added later are registered in docs/migration/runtime-changes.json."""
-    top = ['handler.js', 'canonical-runtime.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js',
-           'security.js', 'identity.js', 'admin-config.js', 'inference.js', 'jev-client.js', 'jev-understand.js',
-           'jev-mc1.js', 'faults-catalogue.json']
+    """The engine's runtime files: the handler and its modules, the ac2 turn and its guardrail kernel, the knowledge the
+    reasoner reads and the media mappings."""
+    top = ['handler.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js', 'admin-config.js', 'inference.js', 'jev-client.js']
     engine = sorted(f'engine/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'engine', '*.js')))
-    canonical = sorted(f'canonical/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'canonical', '*.js'))) + ['canonical/journeys.json']
-    entries = {name: os.path.join(DE, name) for name in top + engine + canonical}
+    entries = {name: os.path.join(DE, name) for name in top + engine}
     entries['knowledge/media-information.json'] = os.path.join(DE, 'knowledge', 'media-information.json')
+    # ac2: the LLM-led turn and its guardrail kernel, and the knowledge the reasoner reads.
+    for p in sorted(glob.glob(os.path.join(DE, 'ac2', '*.js'))):
+        entries[f'ac2/{os.path.basename(p)}'] = p
+    for p in sorted(glob.glob(os.path.join(DE, 'ac2', 'data', '*.json'))):
+        entries[f'ac2/data/{os.path.basename(p)}'] = p
+    for n in ('knowledge-docs.json', 'journey-knowledge.json', 'normal-operation.json', 'safety-information.json'):
+        entries[f'knowledge/{n}'] = os.path.join(DE, 'knowledge', n)
     return entries
 
 
@@ -56,17 +59,14 @@ def index_meta(knowledge_dir):
 
 def whichpart_api_entries(generated):
     """The whichpart-api zip: its own files, plus the files it copies in from the engine or generates."""
-    # The packaging check that media-canonical-refs.json is current.
-    subprocess.run(['node', os.path.join(WP, 'scripts', 'build-media-canonical-refs.cjs'), '--check'], check=True, cwd=ROOT)
     # Phase 8: fit-evidence.js (never required) and benchmark/acq-simulator.js (test-only) are no longer shipped.
     files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js',
-             'package.json', 'transcripts.js', 'ddb.js', 'conversation-state.js', 'canonical-audit.js', 'state-token.js',
+             'package.json', 'transcripts.js', 'ddb.js', 'ac2-state.js', 'ac2-turn.js', 'canonical-audit.js', 'state-token.js',
              'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js',
              'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js',
              'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js',
              'benchmark/acq-grade.js', 'benchmark/acq-judge.js', 'benchmark/acq-store.js', 'benchmark/acq-library.js',
-             'benchmark/acq-reviews.js', 'benchmark/routing-override.js', 'benchmark/acq-100.v1.json',
-             'benchmark/gold-v2/version.js']
+             'benchmark/acq-reviews.js', 'benchmark/routing-override.js', 'benchmark/acq-100.v1.json']
     # Phase 7 onwards: runtime files added after the import (docs/migration/runtime-changes.json).
     files += sorted(os.path.relpath(f['path'], 'services/whichpart-api') for f in json.load(open(os.path.join(ROOT, 'docs', 'migration', 'runtime-changes.json')))['added']
                     if f['role'] == 'runtime' and 'whichpart-api' in f['units'])
@@ -75,13 +75,11 @@ def whichpart_api_entries(generated):
         for path in sorted(glob.glob(os.path.join(WP, d, '**', '*'), recursive=True)):
             if os.path.isfile(path) and '__pycache__' not in path:
                 entries[os.path.relpath(path, WP)] = path
-    # Copied in from the diagnosis engine: knowledge files for the admin inspectors and the shared canonical core.
+    # Copied in from the diagnosis engine: knowledge files for the admin inspectors and the effective media join.
     knowledge = os.path.join(DE, 'knowledge')
     for n in ('knowledge-docs.json', 'safety-information.json', 'media-information.json'):
         entries[f'knowledge-inspect/{n}'] = os.path.join(knowledge, n)
     entries['media-effective.js'] = os.path.join(DE, 'media-effective.js')
-    for n in ('cs1.js', 'merge.js', 'requests.js', 'journey-registry.js', 'journeys.json'):
-        entries[f'canonical/{n}'] = os.path.join(DE, 'canonical', n)
     generated['knowledge-inspect/index-meta.json'] = index_meta(knowledge)
     return entries
 

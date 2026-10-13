@@ -138,5 +138,20 @@ check("FOLD two-letter alias form still matches the stem mapping",
       _alias.get("status")=="RESOLVED" and _alias.get("faultId")==_stem.get("faultId"),
       str(_alias.get("faultId")))
 
+# Dataset V1.1: no record is lost to a shared mappingId (V1 had 50 shared ids, 64 records overwritten).
+check("INV mappingIds unique", len({m["mappingId"] for m in mappings}) == len(mappings))
+try:
+    Resolver(mappings=mappings + [mappings[0]]); _dup = False
+except ValueError:
+    _dup = True
+check("INV Resolver refuses duplicate mappingIds", _dup)
+r = st("Bosch", "cooker-oven", "E011")
+check("V1.1 Bosch oven E011 is the BSH record (not the Tecnik one)",
+      r["status"] == "AMBIGUOUS" and all("bsh-oven" in c["mappingId"] for c in r["candidates"]), str(r.get("candidates")))
+r = st("Tecnik", "cooker-oven", "E011")
+check("V1.1 Tecnik oven E011 still resolves", r["status"] == "RESOLVED" and "stuck" in r["meaning"].lower(), str(r))
+r = st("Beko", "hobs", "U")
+check("V1.1 Beko induction hob U = pan detection", r["status"] == "RESOLVED" and r["faultId"] == "cookware", str(r))
+
 print(f"\nRESULT: {passed} passed / {failed} failed  (total {passed+failed})")
 sys.exit(1 if failed else 0)

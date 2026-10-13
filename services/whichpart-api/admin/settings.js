@@ -8,7 +8,6 @@ const { log } = require('../log.js');
 const { readJson, authPath, respond } = require('../http-io.js');
 const { requireSession, requireAdmin } = require('../session.js');
 const { routingOverrideStatusSafe } = require('../benchmark-state.js');
-const { diagnosticsCanonicalMode } = require('./diagnostics.js');
 
 let _settingsTestDeps = null;
 function setSettingsDepsForTests(deps) { _settingsTestDeps = deps; }
@@ -140,7 +139,6 @@ async function adminSettingsGet(event) {
     env: testDeps.env,
     transcriptPolicy: testDeps.transcriptPolicy,
     loadKeyMeta: testDeps.loadKeyMeta,
-    canonical: diagnosticsCanonicalMode(),
     batchOverride: await routingOverrideStatusSafe(),
     getBatchOverride: routingOverrideStatusSafe,
   });
@@ -169,7 +167,6 @@ async function adminSettingsInferencePatch(event) {
     env: testDeps.env,
     transcriptPolicy: testDeps.transcriptPolicy,
     loadKeyMeta: testDeps.loadKeyMeta,
-    canonical: diagnosticsCanonicalMode(),
     batchOverride: await routingOverrideStatusSafe(),
     getBatchOverride: routingOverrideStatusSafe,
   });
@@ -208,7 +205,6 @@ async function adminSettingsJevPatch(event) {
     env: testDeps.env,
     transcriptPolicy: testDeps.transcriptPolicy,
     loadKeyMeta: testDeps.loadKeyMeta,
-    canonical: diagnosticsCanonicalMode(),
     batchOverride: await routingOverrideStatusSafe(),
     getBatchOverride: routingOverrideStatusSafe,
   });

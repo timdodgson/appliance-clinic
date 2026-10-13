@@ -4,7 +4,7 @@ Every language-model and Jev prompt the runtime sends is registered in [`registr
 
 | Field | Meaning |
 |---|---|
-| `id` | Stable identifier, e.g. `diagnosis.canonical.compose`. It never changes; a replacement prompt gets a new id |
+| `id` | Stable identifier, e.g. `review.transcript.llm`. It never changes; a replacement prompt gets a new id |
 | `version` | Integer, the latest changelog entry |
 | `purpose`, `owner`, `consumers` | What it does, which component owns it, and who depends on its output |
 | `source` | The exact declarations (file and names) that make up the prompt. The prompts stay in the runtime code, next to the logic that fills them |
@@ -21,7 +21,7 @@ Every language-model and Jev prompt the runtime sends is registered in [`registr
 3. In `registry.json`, increase `version` and append a changelog entry: the date, the fingerprint and what changed.
 4. If the prompt has a `runtimeVersion`, bump that constant too and record the new value.
 5. Evaluate the change before release, then deploy it as a reviewed runtime release:
-   - **diagnosis prompts:** the engine test suite, the live AC journeys and a GOLD pair on the deployed build
+   - **diagnosis prompts:** the engine test suite (including the GOLD guardrail regression) and the live AC journeys on the deployed build
    - **judge prompts:** a comparison run against the previous version
 
 Moving a prompt to another file without changing it keeps the fingerprint. Update `source` only.
@@ -30,7 +30,7 @@ Moving a prompt to another file without changing it keeps the fingerprint. Updat
 
 | Id | Used by |
 |---|---|
-| `diagnosis.jev.understand` | Jev UNDERSTAND: every AC orchestrated turn (understand mode) |
-| `diagnosis.canonical.compose`, `diagnosis.jev.mc1` | The canonical diagnosis: mc/1 classification and COMPOSE wording of the journey's NextAction |
+| `diagnosis.ac2.reason` | The diagnostic reasoner, every customer turn (ADR 0020) |
+| `diagnosis.ac2.claims` | The claim verifier's extraction step, every customer turn |
 | `review.transcript.llm`, `review.transcript.jev` | The scheduled transcript review and admin re-review |
-| `benchmark.acq.judge`, `benchmark.gold-v2.judge` | Admin test-area benchmarks |
+| `benchmark.acq.judge` | Admin test-area benchmark (ACQ-100, legacy) |

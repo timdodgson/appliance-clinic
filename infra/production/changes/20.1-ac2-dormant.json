@@ -1,0 +1,93 @@
+{
+  "id": "20.1-ac2-dormant",
+  "description": "ac2 (LLM-led diagnosis inside the deterministic guardrail kernel), dormant: the diagnosis engine gains the signed mode 'turn' (services/diagnosis-engine/ac2) and whichpart-api gains the ac2 path (ac2-turn.js, ac2-state.js) selected by AC2_MODE=benchmark, i.e. only service-authenticated benchmark and admin live-test turns that send engine:'ac2'. Every customer turn stays on the existing journey path. Code and one environment variable. Previous code: engine phase8/applianceclinic-diagnosis-engine-o-Mk5fVO0T6MDFpEELn9EsXQ8WXN-3n0mR0g33Y2o04.zip, whichpart-api phase8/whichpart-api-TfyJTEqJeGbeOzQTd8DITduVlGGh-gjPr0Zveazdrq8.zip; rollback = restore both s3Keys and remove AC2_MODE.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine and whichpart-api; one AC environment variable)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code updates of two AC functions from staged phase8 artefacts in the AC assets bucket, and one environment variable on whichpart-api (PassRole of its unchanged role, which UpdateFunctionConfiguration requires).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

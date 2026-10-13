@@ -170,12 +170,6 @@ function compactHealth(services) {
     ok: !!(s.whichpartApi && s.whichpartApi.ok),
     detail: (s.whichpartApi && s.whichpartApi.error) || null,
   });
-  parts.push({
-    id: 'diagnostics',
-    name: 'Diagnostics',
-    ok: !!(s.orchestrator && s.orchestrator.ok),
-    detail: (s.orchestrator && (s.orchestrator.error || (!s.orchestrator.ok && s.orchestrator.status))) || null,
-  });
   const engine = s.diagnosisEngine;
   parts.push({
     id: 'diagnosis_engine',

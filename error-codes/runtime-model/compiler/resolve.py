@@ -8,14 +8,25 @@ OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 
 def _load(name): return json.load(open(os.path.join(OUT, name)))
 
+def index_unique(records, key="mappingId"):
+    """Index records by id, refusing duplicates. Dataset V1 shipped 50 shared mappingIds and a
+    last-wins dict silently dropped 64 records; a duplicate id is now a hard error."""
+    out = {}
+    for r in records:
+        k = r[key]
+        if k in out:
+            raise ValueError(f"duplicate {key} {k!r}: records would overwrite each other")
+        out[k] = r
+    return out
+
 class Resolver:
     def __init__(self, mappings=None, schemes=None, faults=None, sources=None):
         # Optional injected mappings let the MCP serve baseline + admin overlay
         # without changing lookup predicates. Default remains the banked files.
         if mappings is None:
-            mappings = {m["mappingId"]: m for m in _load("mappings.json")}
+            mappings = index_unique(_load("mappings.json"))
         elif isinstance(mappings, list):
-            mappings = {m["mappingId"]: m for m in mappings}
+            mappings = index_unique(mappings)
         self.mappings = mappings
         self.schemes = schemes if schemes is not None else {s["schemeId"]: s for s in _load("schemes.json")}
         self.faults = faults if faults is not None else {f["faultId"]: f for f in _load("faults.json")}

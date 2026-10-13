@@ -2,16 +2,14 @@
 /**
  * Runtime loader for the admin-managed ApplianceClinic AI configuration.
  *
- * The orchestrator reads the operational config (routing/models) and, when a
- * stage is routed to the frontier provider, the OpenAI credential — both from
- * Secrets Manager, matching the project's convention. Values are cached for a
- * short TTL so a config change becomes effective within ~CACHE_TTL_MS WITHOUT a
- * code redeploy, and WITHOUT a secrets lookup per token/stream chunk.
+ * The engine reads the operational config (routing/models) and, when the
+ * reasoning stage (COMPOSE route) is routed to the frontier provider, the OpenAI
+ * credential — both from Secrets Manager, matching the project's convention.
+ * Values are cached for a short TTL so a config change becomes effective within
+ * ~CACHE_TTL_MS WITHOUT a code redeploy, and WITHOUT a secrets lookup per call.
  *
- * The loader also reads TypeSafe Jev credentials from
- * `spares4repairs/<STAGE>/applianceclinic-jev`. The token is never logged.
- * Missing Jev credentials are a CONFIG failure for UNDERSTAND (no silent
- * fallback to the old generative pass).
+ * It also reads the TypeSafe Jev credential (JEV_SECRET_ID): Jev labels every turn. The token is never logged; missing
+ * credentials make every turn an explicit "temporarily unavailable" error (no fallback).
  */
 
 const STAGE = process.env.STAGE || 'dev';
@@ -23,7 +21,7 @@ const JEV_SECRET_ID = process.env.JEV_SECRET_ID || `spares4repairs/${STAGE}/appl
 
 const CACHE_TTL_MS = Number(process.env.AI_CONFIG_CACHE_TTL_MS || 60000); // 60s default
 
-let _cache = null; // { at, config, openaiKey, jev }
+let _cache = null; // { at, config, openaiKey, jev, jevConfigured }
 
 /** Default secret fetcher using the AWS SDK v3 present in the Lambda runtime. */
 async function defaultFetchSecret(secretId) {
@@ -37,6 +35,7 @@ async function defaultFetchSecret(secretId) {
 }
 let _sm = null;
 
+/** Jev credential from the secret JSON ({accountId, apiToken, gatewayId}) or, locally, from the environment. */
 function parseJevSecret(raw, env) {
   let accountId = (env && env.CLOUDFLARE_ACCOUNT_ID) || (env && env.JEV_ACCOUNT_ID) || null;
   let apiToken = (env && env.CLOUDFLARE_API_TOKEN) || (env && env.JEV_API_TOKEN) || null;
@@ -51,20 +50,18 @@ function parseJevSecret(raw, env) {
         if (typeof parsed.gatewayId === 'string' && parsed.gatewayId.trim()) gatewayId = parsed.gatewayId.trim();
       }
     } catch {
-      // unreadable JSON — ignore; env may still supply credentials
+      // unreadable JSON: the environment may still supply credentials
     }
   }
-  if (accountId && apiToken) return { accountId, apiToken, gatewayId: gatewayId || null };
-  return null;
+  return accountId && apiToken ? { accountId, apiToken, gatewayId: gatewayId || null } : null;
 }
 
 /**
- * Return { config, openaiKey, jev, jevConfigured } for the current request, using the cache.
- * `jev` holds the credential object in memory only and is never logged.
+ * Return { config, openaiKey } for the current request, using the cache. The key is held in memory only and never
+ * logged.
  * @param {object} [opts]
  * @param {number} [opts.now]
  * @param {(id:string)=>Promise<string|null>} [opts.fetchSecret] injectable for tests
- * @param {object} [opts.env]
  */
 async function loadAdminInference(opts = {}) {
   const now = opts.now || Date.now();
@@ -74,7 +71,6 @@ async function loadAdminInference(opts = {}) {
   const env = opts.env || process.env;
   let config = null;
   let openaiKey = null;
-  let jev = null;
 
   try {
     const s = await fetchSecret(AI_CONFIG_SECRET_ID);
@@ -83,9 +79,8 @@ async function loadAdminInference(opts = {}) {
     config = null; // absent/unreadable -> fall back to env local default
   }
 
-  // Only fetch the credential when a stage actually routes to the frontier.
-  const needsKey = config && config.routing &&
-    (config.routing.understand === 'frontier' || config.routing.compose === 'frontier');
+  // Only fetch the credential when the reasoning stage (the COMPOSE route) actually routes to the frontier.
+  const needsKey = config && config.routing && config.routing.compose === 'frontier';
   if (needsKey) {
     try {
       const s = await fetchSecret(OPENAI_SECRET_ID);
@@ -98,15 +93,14 @@ async function loadAdminInference(opts = {}) {
     }
   }
 
+  let jev = null;
   try {
-    const s = await fetchSecret(JEV_SECRET_ID);
-    jev = parseJevSecret(s, env);
+    jev = parseJevSecret(await fetchSecret(JEV_SECRET_ID), env);
   } catch {
     jev = parseJevSecret(null, env);
   }
-  if (!jev) jev = parseJevSecret(null, env);
 
-  _cache = { at: now, config, openaiKey, jev, jevConfigured: Boolean(jev && jev.accountId && jev.apiToken) };
+  _cache = { at: now, config, openaiKey, jev, jevConfigured: Boolean(jev) };
   return _cache;
 }
 
@@ -114,6 +108,5 @@ async function loadAdminInference(opts = {}) {
 function _resetCache() { _cache = null; }
 
 module.exports = {
-  loadAdminInference, _resetCache, parseJevSecret,
-  AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, JEV_SECRET_ID, CACHE_TTL_MS,
+  loadAdminInference, _resetCache, parseJevSecret, AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, JEV_SECRET_ID, CACHE_TTL_MS,
 };

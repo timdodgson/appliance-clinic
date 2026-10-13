@@ -4,7 +4,6 @@
 // Production transcript observability (anonymous, TTL-limited). Never on the
 // customer-critical path: persist failures are logged and swallowed.
 const transcripts = require('./transcripts');
-const canonicalAudit = require('./canonical-audit');
 const { log } = require('./log.js');
 
 let _transcriptStore = null;
@@ -21,22 +20,11 @@ function transcriptStore() {
 }
 function setTranscriptStore(store) { _transcriptStore = store; }
 
-async function persistTranscriptTurn(obs, messages, view, orch, rid, canonical) {
+/** `ac2` is the turn's ac2-transcript-audit/1 object. */
+async function persistTranscriptTurn(obs, messages, view, orch, rid, ac2) {
   if (!obs) return;
   await transcripts.persistSafely(transcriptStore(), () =>
-    transcripts.persistTurn(transcriptStore(), obs, { messages, view, orch, requestId: rid, canonical: canonical || null }), log);
-}
-/** Idempotent duplicate answered from the cached view: mark the original transcript turn (nothing else changes). */
-async function persistTranscriptReplay(obs) {
-  if (!obs || !obs.clientTurnId) return;
-  await transcripts.persistSafely(transcriptStore(), () => transcripts.persistReplay(transcriptStore(), obs), log);
-}
-/** canonical-audit/1 for the transcript (structured inputs only; never throws into the customer path). */
-function canonicalTranscriptAudit(ctx, out, result, trace, error) {
-  try { return canonicalAudit.buildCanonicalTranscriptAudit({ ctx, out, result, trace, error }); } catch (e) {
-    log({ evt: 'canonical-audit-failed', error: String((e && e.message) || e).slice(0, 160) });
-    return null;
-  }
+    transcripts.persistTurn(transcriptStore(), obs, { messages, view, orch, requestId: rid, ac2: ac2 || null }), log);
 }
 async function persistTranscriptEnd(obs) {
   if (!obs) return;
@@ -45,6 +33,5 @@ async function persistTranscriptEnd(obs) {
 }
 
 module.exports = {
-  transcriptStore, setTranscriptStore, persistTranscriptTurn, persistTranscriptReplay, canonicalTranscriptAudit,
-  persistTranscriptEnd,
+  transcriptStore, setTranscriptStore, persistTranscriptTurn, persistTranscriptEnd,
 };

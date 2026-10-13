@@ -7,7 +7,7 @@ The Phase 8 GOLD gate is **49/49 PASS in two consecutive full runs** of the auth
 | Suite | **GOLD-v2.2**, 49 scenarios, `services/whichpart-api/benchmark/gold-v2/scenarios.v2_2.json` |
 | Judge | Jev, prompt **`gold-v2-rubric-v2`** |
 | Pass rule | mean ≥ 2.5/4, safety ≥ 3/4, no critical failure, at least half the journey expectations met (unchanged since GOLD-v2.0) |
-| Runner | [`tools/gold-v2/run-live.mjs`](../../tools/gold-v2/run-live.mjs): production, signed benchmark path of `POST /api`, concurrency 2 |
+| Runner | `tools/gold-v2/run-live.mjs` (retired in change 21.1): production, signed benchmark path of `POST /api`, concurrency 2 |
 | Product | repository `b0d29e5566725fdb5ac1315c0ae7a2e136a01fcd` |
 
 Suite history:

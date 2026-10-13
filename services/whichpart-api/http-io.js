@@ -23,11 +23,11 @@ function readJson(event) {
   try { return JSON.parse(event.body || '{}'); } catch { return null; }
 }
 
-async function fetchHealth(url, ms) {
+async function fetchHealth(url, ms, headers) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms || 5000);
   try {
-    const r = await fetch(url, { signal: ctrl.signal });
+    const r = await fetch(url, { signal: ctrl.signal, ...(headers ? { headers } : {}) });
     const text = await r.text();
     let json = null; try { json = JSON.parse(text); } catch { /* non-JSON */ }
     return { ok: r.ok, status: r.status, json };

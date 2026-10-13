@@ -11,11 +11,10 @@ const { engineGetHeaders } = require('./engine-signature.js');
 const SECRET_KEY = /token|secret|password|api[_-]?key|credential|authorization|bearer|cookie/i;
 const SECRET_VALUE = /sk-[A-Za-z0-9]{8,}|AKIA[0-9A-Z]{8,}|Bearer\s+[A-Za-z0-9._~+/-]+=*/i;
 
-const ORCH_FIELDS = ['status', 'service', 'version', 'errorCodeMcp', 'diagnosisEngine'];
 const MCP_FIELDS = ['status', 'service', 'version', 'datasetVersion', 'mappingCount', 'baselineMappingCount', 'uniqueLookupCount', 'effectiveActiveCount', 'datasetV1Hash', 'enrichmentV1Hash', 'overlay'];
 const ENGINE_SERVICE = 'diagnosis-engine';
-const ENGINE_FIELDS = ['status', 'health', 'healthReason', 'service', 'version', 'canonical', 'models', 'media'];
-const ENGINE_CANONICAL_FIELDS = ['journeys'];
+const ENGINE_FIELDS = ['status', 'health', 'healthReason', 'service', 'version', 'diagnosis', 'models', 'media'];
+const ENGINE_DIAGNOSIS_FIELDS = ['architecture'];
 const ENGINE_STAGE_FIELDS = ['configured', 'provider', 'model'];
 const ENGINE_MEDIA_FIELDS = [
   'resolverAvailable', 'baselineLoaded', 'overlayState', 'overlayUpdatedAt',
@@ -24,30 +23,19 @@ const ENGINE_MEDIA_FIELDS = [
 
 const SYSTEM_PATH = {
   title: 'System path',
-  summary: 'A customer request reaches WhichPart API, which calls the orchestrator. The orchestrator sends error-code turns to Error Code MCP and appliance turns to the diagnosis engine (Jev understanding, cs/1 state, deterministic journey, COMPOSE). The browser never calls those services directly.',
+  summary: 'A customer request reaches WhichPart API, which runs one ac2 turn on the diagnosis engine: the LLM-led reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate). The engine looks up error codes, knowledge and parts itself. The browser never calls those services directly.',
   steps: [
     { id: 'customer', label: 'Customer request' },
-    { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF' },
-    { id: 'orchestrator', label: 'Orchestrator', role: 'Routes the turn' },
-    {
-      id: 'routing',
-      kind: 'branch',
-      branches: [
-        { when: 'Error-code identity or cue', then: 'Error Code MCP' },
-        { when: 'Appliance symptoms', then: 'Diagnosis engine: Jev understanding → cs/1 → deterministic journey → COMPOSE' },
-        { when: 'Error code and symptoms', then: 'Error Code MCP and the diagnosis engine together' },
-      ],
-    },
+    { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF: the session token and the evidence ledger' },
+    { id: 'diagnosis-engine', label: 'Diagnosis engine', role: 'ac2 turn: reasoner → guardrail kernel → response' },
     { id: 'customer-view', label: 'Customer view', role: 'Reply, media and parts' },
   ],
 };
 
 const ROUTING = {
-  note: 'High-level routing only. The orchestrator chooses the path from the customer turn; this page does not change it.',
+  note: 'There is one diagnosis path (ac2, ADR 0020). Every turn goes to the diagnosis engine; this page does not change it.',
   paths: [
-    { cue: 'Error-code identity or cue', destination: 'Error Code MCP' },
-    { cue: 'Appliance symptoms', destination: 'Diagnosis engine (Jev understanding → cs/1 → deterministic journey → COMPOSE)' },
-    { cue: 'Error code and symptoms', destination: 'Error Code MCP and the diagnosis engine together' },
+    { cue: 'Every customer turn', destination: 'Diagnosis engine (ac2: reasoner inside the guardrail kernel; error-code, knowledge and parts tools)' },
   ],
 };
 
@@ -130,12 +118,11 @@ function classifyProbe(probe, opts) {
 
 function pickEngine(json) {
   const raw = pick(json, ENGINE_FIELDS);
-  if (raw.canonical && typeof raw.canonical === 'object') raw.canonical = pick(raw.canonical, ENGINE_CANONICAL_FIELDS);
+  if (raw.diagnosis && typeof raw.diagnosis === 'object') raw.diagnosis = pick(raw.diagnosis, ENGINE_DIAGNOSIS_FIELDS);
   if (raw.media && typeof raw.media === 'object') raw.media = pick(raw.media, ENGINE_MEDIA_FIELDS);
   if (raw.models && typeof raw.models === 'object') {
     raw.models = {
-      understand: pick(raw.models.understand, ENGINE_STAGE_FIELDS),
-      compose: pick(raw.models.compose, ENGINE_STAGE_FIELDS),
+      reasoner: pick(raw.models.reasoner, ENGINE_STAGE_FIELDS),
       inferenceTested: raw.models.inferenceTested === true,
       note: typeof raw.models.note === 'string' ? raw.models.note : null,
     };
@@ -317,7 +304,6 @@ function modelsRuntime(setup) {
   if (!setup || setup.unavailable) {
     return {
       ...healthOf('unknown', 'Model configuration was not available to inspect'),
-      understand: null,
       compose: null,
       judge: null,
     };
@@ -332,7 +318,6 @@ function modelsRuntime(setup) {
     };
   }
   return {
-    understand: stage(setup.understand),
     compose: stage(setup.compose),
     judge: setup.judge ? {
       provider: setup.judge.provider || null,
@@ -372,7 +357,6 @@ function versionField(value, missingLabel) {
 
 function buildSnapshot(input) {
   const now = iso((input && input.now) || new Date());
-  const orchProbe = (input && input.probes && input.probes.orchestrator) || { skipped: true, skipReason: 'No reliable health probe available' };
   const mcpProbe = (input && input.probes && input.probes.mcp) || { skipped: true, skipReason: 'No reliable health probe available' };
   const engProbe = (input && input.probes && input.probes.engine) || { skipped: true, skipReason: 'No reliable health probe available' };
   const knowledge = (input && input.knowledge) || knowledgeRuntime(null);
@@ -380,23 +364,15 @@ function buildSnapshot(input) {
   const models = (input && input.models) || modelsRuntime(null);
   const runtimeIn = (input && input.runtime) || {};
 
-  const orchSafe = pick(orchProbe.json, ORCH_FIELDS);
   const mcpSafe = pick(mcpProbe.json, MCP_FIELDS);
-  const orchHealth = classifyProbe(orchProbe, {
-    complete: (j) => j && (j.status === 'ok' || j.service),
-  });
   const mcpHealth = classifyProbe(mcpProbe, {
     complete: (j) => j && (j.status === 'ok' || j.mappingCount != null || j.service),
   });
 
-  // The orchestrator reports whether its diagnosis-engine URL is configured.
-  const engineConfig = orchSafe.diagnosisEngine || null;
-  const mcpConfigured = orchSafe.errorCodeMcp || null;
-
   const apiComp = component(
     'whichpart-api',
     'WhichPart API',
-    'Customer boundary. Accepts the browser request and calls the orchestrator.',
+    'Customer boundary. Accepts the browser request, holds the conversation\'s evidence ledger and runs the ac2 turn on the diagnosis engine.',
     healthOf('healthy', 'This Diagnostics request was served by WhichPart API'),
     {
       probedAt: now,
@@ -413,60 +389,21 @@ function buildSnapshot(input) {
     },
   );
 
-  const orchFacts = [
-    { label: 'Service', value: orchSafe.service || 'customer-diagnostic-orchestrator' },
-    { label: 'Reported version', value: orchSafe.version || 'Version not exposed by runtime' },
-    { label: 'Error Code MCP (config)', value: mcpConfigured || 'Not reported by this probe' },
-    { label: 'Diagnosis engine (config)', value: engineConfig || 'Not reported by this probe' },
-  ];
-  if (orchProbe.latencyMs != null && !orchProbe.skipped) {
-    orchFacts.push({ label: 'Last probe', value: String(orchProbe.latencyMs) + ' ms' });
-  }
-  const orchComp = component(
-    'orchestrator',
-    'Orchestrator',
-    'Routes each turn to Error Code MCP and/or the diagnosis engine. Does not diagnose itself.',
-    orchHealth,
-    {
-      latencyMs: orchProbe.skipped ? null : orchProbe.latencyMs,
-      probedAt: orchProbe.probedAt || null,
-      version: versionField(orchSafe.version),
-      facts: orchFacts,
-      technical: {
-        host: runtimeIn.orchestratorHost || null,
-        probe: orchProbe.skipped ? { available: false } : {
-          httpStatus: orchProbe.status != null ? orchProbe.status : null,
-          latencyMs: orchProbe.latencyMs != null ? orchProbe.latencyMs : null,
-          probedAt: orchProbe.probedAt || null,
-          error: orchProbe.error || null,
-        },
-        reported: orchSafe,
-      },
-    },
-  );
-
   const engSafe = pickEngine(engProbe.json);
   const engHealthState = classifyEngineProbe(engProbe);
 
   const engFacts = [];
-  if (engSafe.canonical && engSafe.canonical.journeys != null) {
-    engFacts.push({ label: 'Journeys', value: String(engSafe.canonical.journeys) });
+  if (engSafe.diagnosis && engSafe.diagnosis.architecture) {
+    engFacts.push({ label: 'Architecture', value: String(engSafe.diagnosis.architecture) });
   } else if (!engProbe.skipped && engHealthState.health !== 'unavailable') {
-    engFacts.push({ label: 'Journeys', value: 'Not reported' });
+    engFacts.push({ label: 'Architecture', value: 'Not reported' });
   }
-  if (engSafe.models && engSafe.models.understand && engSafe.models.compose) {
-    const u = engSafe.models.understand.configured && engSafe.models.compose.configured;
-    engFacts.push({ label: 'Models', value: u ? 'Configured' : 'Not configured' });
-    if (engSafe.models.understand.provider) {
+  if (engSafe.models && engSafe.models.reasoner) {
+    engFacts.push({ label: 'Reasoner provider', value: engSafe.models.reasoner.configured ? 'Configured' : 'Not configured' });
+    if (engSafe.models.reasoner.provider) {
       engFacts.push({
-        label: 'UNDERSTAND',
-        value: engSafe.models.understand.provider + (engSafe.models.understand.model ? ' · ' + engSafe.models.understand.model : ''),
-      });
-    }
-    if (engSafe.models.compose.provider) {
-      engFacts.push({
-        label: 'COMPOSE',
-        value: engSafe.models.compose.provider + (engSafe.models.compose.model ? ' · ' + engSafe.models.compose.model : ''),
+        label: 'Reasoner',
+        value: engSafe.models.reasoner.provider + (engSafe.models.reasoner.model ? ' · ' + engSafe.models.reasoner.model : ''),
       });
     }
     engFacts.push({ label: 'Inference tested', value: engSafe.models.inferenceTested ? 'yes' : 'no' });
@@ -480,10 +417,6 @@ function buildSnapshot(input) {
       engFacts.push({ label: 'Overlay', value: engSafe.media.overlayState === 'none' ? 'none (shipped baseline)' : engSafe.media.overlayState });
     }
   }
-  engFacts.push({
-    label: 'Orchestrator config flag',
-    value: engineConfig || 'Not reported (orchestrator probe did not report the diagnosis engine)',
-  });
   if (engProbe.skipped) {
     engFacts.push({ label: 'Reachability', value: 'No reliable health probe available' });
   }
@@ -493,7 +426,7 @@ function buildSnapshot(input) {
   const engComp = component(
     'diagnosis-engine',
     'Diagnosis engine',
-    'Canonical diagnosis: Jev understanding, cs/1 state, deterministic journeys, safety and part gates, COMPOSE wording.',
+    'ac2 diagnosis: the LLM-led reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate).',
     engHealthState,
     {
       latencyMs: engProbe.skipped ? null : engProbe.latencyMs,
@@ -509,7 +442,7 @@ function buildSnapshot(input) {
           error: engProbe.error || null,
         },
         reported: engSafe,
-        note: 'GET /health on the diagnosis engine (ENGINE_URL). The orchestrator calls the same function.',
+        note: 'GET /health on the diagnosis engine (ENGINE_URL), the function every customer turn calls.',
       },
     },
   );
@@ -526,7 +459,7 @@ function buildSnapshot(input) {
   const mcpComp = component(
     'error-code-mcp',
     'Error Code MCP',
-    'Frozen error-code catalogue lookup used when a turn is routed as an error code.',
+    'Error-code catalogue service behind the Admin error-code editor. The diagnosis engine ships its own export of the catalogue.',
     mcpHealth,
     {
       latencyMs: mcpProbe.skipped ? null : mcpProbe.latencyMs,
@@ -608,23 +541,20 @@ function buildSnapshot(input) {
 
   const lastSuccess = [];
   const lastFailed = [];
-  [apiComp, orchComp, engComp, mcpComp].forEach((c) => {
+  [apiComp, engComp, mcpComp].forEach((c) => {
     if (c.health === 'healthy' && c.probedAt) lastSuccess.push({ id: c.id, name: c.name, at: c.probedAt, latencyMs: c.latencyMs });
     if (c.health === 'unavailable' && c.probedAt) lastFailed.push({ id: c.id, name: c.name, at: c.probedAt, latencyMs: c.latencyMs, reason: c.healthReason });
   });
 
   const runtime = {
     conversationWindowTurns: runtimeIn.maxConversationTurns != null ? runtimeIn.maxConversationTurns : null,
-    orchestratorTimeoutMs: runtimeIn.orchestratorTimeoutMs != null ? runtimeIn.orchestratorTimeoutMs : null,
     mediaOverlayCacheTtlMs: 10000,
     supportedFamilies: Array.isArray(runtimeIn.families) ? runtimeIn.families.slice() : [],
     models: {
-      understand: models.understand,
       compose: models.compose,
     },
-    // Canonical conversation mode as resolved by the deployed API (read-only; allow-list keys
-    // themselves are not exposed, only how many are enabled).
-    canonical: canonicalRuntime(runtimeIn.canonical),
+    // The diagnosis architecture: ac2 (the LLM-led turn inside the guardrail kernel) is the only one; not configurable.
+    diagnosis: { architecture: 'ac2', label: 'ac2 — LLM-led turn inside the deterministic guardrail kernel (every turn)' },
     note: 'Read-only. Settings owns writable AI configuration. Secrets are not included.',
   };
 
@@ -632,7 +562,6 @@ function buildSnapshot(input) {
     generatedAt: now,
     identifiers: {
       whichpartApi: 'whichpart-api',
-      orchestratorHost: runtimeIn.orchestratorHost || null,
       mcpHealthHost: runtimeIn.mcpHealthHost || null,
       engineHost: runtimeIn.engineHost || null,
       partsCatalogueHost: runtimeIn.s4rProductBaseHost || null,
@@ -642,7 +571,6 @@ function buildSnapshot(input) {
       mcpEnrichmentV1Hash: mcpSafe.enrichmentV1Hash || null,
     },
     probes: {
-      orchestrator: orchComp.technical && orchComp.technical.probe,
       engine: engComp.technical && engComp.technical.probe,
       mcp: mcpComp.technical && mcpComp.technical.probe,
     },
@@ -650,7 +578,6 @@ function buildSnapshot(input) {
     notExposed: [
       'Lambda version aliases',
       'Lambda code hashes',
-      'Orchestrator diagnosis-engine URL',
       'Bearer tokens',
       'API keys and credentials',
       'System prompts',
@@ -664,7 +591,7 @@ function buildSnapshot(input) {
     readOnly: true,
     systemPath: SYSTEM_PATH,
     routing: ROUTING,
-    components: [apiComp, orchComp, engComp, mcpComp, mediaComp, partsComp],
+    components: [apiComp, engComp, mcpComp, mediaComp, partsComp],
     knowledge,
     media,
     mcp: {
@@ -696,25 +623,10 @@ function buildSnapshot(input) {
   };
 }
 
-const CANONICAL_MODE_LABELS = { off: 'Off', shadow: 'Shadow (observe only)', control: 'Control (allow-listed journeys)', unknown: 'Unknown' };
-function canonicalRuntime(c) {
-  if (!c || typeof c !== 'object' || typeof c.mode !== 'string') return null;
-  const mode = Object.prototype.hasOwnProperty.call(CANONICAL_MODE_LABELS, c.mode) ? c.mode : 'unknown';
-  return {
-    mode,
-    modeLabel: CANONICAL_MODE_LABELS[mode],
-    controlJourneyCount: Number.isFinite(c.controlJourneyCount) ? c.controlJourneyCount : null,
-    demoted: !!c.demoted,
-    invalid: !!c.invalid,
-    unknownKeyCount: Number.isFinite(c.unknownKeyCount) ? c.unknownKeyCount : null,
-  };
-}
-
 function failureSnapshot(err, runtime) {
   const base = buildSnapshot({
     now: new Date(),
     probes: {
-      orchestrator: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
       engine: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
       mcp: { skipped: true, skipReason: 'Diagnostics collector failed before probes completed' },
     },
@@ -745,11 +657,9 @@ async function collect(deps) {
   const timeoutMs = deps.timeoutMs || 5000;
   const runtime = deps.runtime || {};
 
-  const orchUrl = deps.orchestratorHealthUrl || '';
   const mcpUrl = deps.mcpHealthUrl || '';
   const engUrl = deps.engineHealthUrl || '';
 
-  const orchP = settled(timedProbe(orchUrl, timeoutMs, fetchImpl));
   const mcpP = mcpUrl
     ? settled(timedProbe(mcpUrl, timeoutMs, fetchImpl))
     : Promise.resolve({ ok: true, value: { skipped: true, skipReason: 'MCP health URL is not configured' } });
@@ -772,12 +682,11 @@ async function collect(deps) {
     return modelsRuntime(await deps.loadModels());
   })());
 
-  const [orch, mcp, eng, kn, media, models] = await Promise.all([orchP, mcpP, engP, knP, mediaP, modelsP]);
+  const [mcp, eng, kn, media, models] = await Promise.all([mcpP, engP, knP, mediaP, modelsP]);
 
   return buildSnapshot({
     now: deps.now || new Date(),
     probes: {
-      orchestrator: orch.ok ? orch.value : { ok: false, error: String(orch.error && orch.error.message || orch.error || 'probe failed') },
       mcp: mcp.ok ? mcp.value : { ok: false, error: String(mcp.error && mcp.error.message || mcp.error || 'probe failed') },
       engine: eng.ok ? eng.value : { ok: false, error: String(eng.error && eng.error.message || eng.error || 'probe failed') },
     },
@@ -791,7 +700,6 @@ async function collect(deps) {
 module.exports = {
   SYSTEM_PATH,
   ROUTING,
-  ORCH_FIELDS,
   MCP_FIELDS,
   ENGINE_FIELDS,
   hostOf,
@@ -805,7 +713,6 @@ module.exports = {
   knowledgeRuntime,
   mediaRuntime,
   modelsRuntime,
-  canonicalRuntime,
   buildSnapshot,
   failureSnapshot,
   collect,

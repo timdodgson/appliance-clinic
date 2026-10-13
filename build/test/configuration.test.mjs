@@ -27,7 +27,7 @@ const PY = [/os\.environ(?:\.get)?\(?\[?["']([A-Z][A-Z0-9_]{2,})["']/g];
 function read(dir, ext, patterns) {
   const names = new Set();
   for (const f of files(join(ROOT, dir), ext)) {
-    if (/knowledge\/build|benchmark\/gold-v2\/run-|\.test\./.test(f)) continue;
+    if (/knowledge\/build|\.test\./.test(f)) continue;
     const src = readFileSync(f, 'utf8');
     for (const re of patterns) for (const m of src.matchAll(re)) names.add(m[1]);
   }
@@ -38,7 +38,6 @@ describe('configuration.md', () => {
   it.each([
     ['services/diagnosis-engine', ['.js', '.cjs'], JS],
     ['services/whichpart-api', ['.js', '.cjs'], JS],
-    ['orchestration', ['.py'], PY],
     ['error-codes/mcp', ['.py'], PY],
   ])('documents every variable %s reads', (dir, ext, patterns) => {
     const read_ = read(dir, ext, patterns);

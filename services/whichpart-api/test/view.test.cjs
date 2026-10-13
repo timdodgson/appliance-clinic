@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Deterministic unit tests for the boundary — NO orchestrator/network.
+ * Deterministic unit tests for the boundary — NO engine/network.
  * Locks the FIT INVARIANT (never claim MODEL_CONFIRMED without a resolved model + model-specific
- * part), safety part-suppression, and the conversation->context derivation used for multi-turn.
+ * part), safety part-suppression, the customer-safe projection of the ac2 turn's response, and the
+ * structural conversation window / latest photo the BFF forwards.
  *
  *   node services/whichpart-api/test/view.test.cjs
  */
-const { toWhichPartView, deriveContext, sanitiseConversation, conversationWindow,
-  resolveOrchestratorSessionId } = require('../index.js');
+const { toWhichPartView, latestImageOf, conversationWindow } = require('../index.js');
 
 let pass = 0, fail = 0;
 function check(name, cond, detail) {
@@ -17,7 +17,7 @@ function check(name, cond, detail) {
 }
 
 const orch = (extra = {}) => ({
-  outcome: 'ANSWER', route: 'SYMPTOMS', message: 'Likely a drain fault.',
+  outcome: 'ANSWER', route: 'AC2', message: 'Likely a drain fault.',
   codeResult: null, diagnosis: { summary: 'Likely a drain fault.' },
   suggestedChecks: [], parts: [], resolvedModel: null, ...extra,
 });
@@ -56,32 +56,19 @@ const part = (extra = {}) => ({ partNo: 'ABC123', title: 'Inverter', price: '80.
   const m = toWhichPartView({ outcome: 'ANSWER', message: 'Descale required.', codeResult: { displayed: 'E12', recordType: 'MAINTENANCE', meaning: 'Descale' }, parts: [] }, 't');
   check('MAINTENANCE -> advisory tag', m.advisory === true);
 }
-// 7. needsModel only for identity clarifications (not symptom-detail asks)
+// 7. needsModel only when the part gate asks for the model (modelRequired); retired fields stay null
 {
-  const id = toWhichPartView({ outcome: 'CLARIFICATION_REQUIRED', message: 'What model?', clarification: { needs: [{ attribute: 'scheme' }] }, parts: [] }, 't');
-  check('identity clarification -> needsModel true', id.needsModel === true);
-  const sym = toWhichPartView({ outcome: 'CLARIFICATION_REQUIRED', message: 'Tell me more', clarification: { needs: ['symptom-detail'] }, parts: [] }, 't');
-  check('symptom clarification -> needsModel false', sym.needsModel === false);
+  const id = toWhichPartView(orch({ message: 'What model?', modelRequired: true }), 't');
+  check('model request -> needsModel true', id.needsModel === true);
+  const sym = toWhichPartView(orch({ message: 'Tell me more' }), 't');
+  check('no model request -> needsModel false', sym.needsModel === false);
+  check('retired extractedModel / pendingRequest are null', sym.extractedModel === null && sym.pendingRequest === null);
 }
 // 8. no internal ids leak into the view
 {
   const v = toWhichPartView(orch({ codeResult: { displayed: 'F06', meaning: 'NTC sensor', recordType: 'FAULT' } }), 't');
   const blob = JSON.stringify(v).toLowerCase();
   check('no scheme/faultId leak', !blob.includes('scheme') && v.diagnosis.faultId === null && !blob.includes('bsh_'));
-}
-
-// 9. deriveContext (Story 3: STRUCTURAL transport only — semantics are the orchestrator's Jev).
-// The BFF no longer derives make/appliance/code/observed; it forwards the conversation. These
-// assertions lock the structural transport it still produces.
-{
-  const ctx = deriveContext([
-    { role: 'user', content: 'My Bosch washing machine says F06' },
-    { role: 'user', content: 'the rating plate says WGG244FCGB/01' },
-  ]);
-  check('current message = latest turn', /WGG244FCGB/.test(ctx.message), ctx.message);
-  check('conversationText carries the whole thread', /F06/.test(ctx.conversationText) && /WGG244FCGB/.test(ctx.conversationText), ctx.conversationText);
-  check('deriveContext no longer emits semantic fields', ctx.make === undefined && ctx.appliance === undefined && ctx.displayedCode === undefined && ctx.observed === undefined, JSON.stringify(Object.keys(ctx)));
-  check('sessionId present (structural)', typeof ctx.sessionId === 'string' && ctx.sessionId.startsWith('wp-'), ctx.sessionId);
 }
 
 // 11. SAFETY INFORMATION passthrough (customer-safe projection)
@@ -117,7 +104,6 @@ const SI = {
   const v = toWhichPartView(orch({
     outcome: 'ANSWER', message: 'Based on what you\u2019ve described, this is likely a motor / drum fault. ... could you tell me the make and model?',
     diagnosis: { summary: 'Motor / drum fault' }, modelRequired: true, parts: null,
-    clarification: { question: 'What is the make and model number?', needs: [{ attribute: 'model' }] },
   }), 't');
   check('stage1 grounded diagnosis present', v.diagnosis.label === 'Motor / drum fault' || v.diagnosis.summary.length > 0);
   check('stage1 needsModel true (from modelRequired)', v.needsModel === true);
@@ -140,31 +126,12 @@ const SI = {
   check('stage1 + safetyInfo: no parts', v.parts.length === 0);
 }
 
-// 17. RATING-PLATE extraction -> confirmation, ZERO parts, no MODEL_CONFIRMED, make not leaked
+// 18. latestImageOf: the customer's latest photo is forwarded (structural); reading it is the engine's job.
 {
-  const v = toWhichPartView(orch({ outcome: 'ANSWER', message: 'Not draining. I\u2019ve read the model as WMB71442W from the photo \u2014 is that correct?',
-    diagnosis: { summary: 'Not draining' }, modelRequired: true, parts: null,
-    imageExtraction: { make: 'Beko', model: 'WMB71442W', source: 'IMAGE', status: 'IMAGE_EXTRACTED_UNCONFIRMED' } }), 't');
-  check('extraction: extractedModel surfaced', v.extractedModel === 'WMB71442W');
-  check('extraction: ZERO parts before confirmation', v.parts.length === 0);
-  check('extraction: needsModel false (candidate in confirmation, not missing)', v.needsModel === false);
-  check('extraction: no MODEL_CONFIRMED', !v.parts.some((p) => p.fitStatus === 'MODEL_CONFIRMED'));
-  check('extraction: vision-read make not leaked', !JSON.stringify(v).includes('Beko'));
-}
-// 18. deriveContext: an image turn captures the latest image (structural). Rating-plate model
-// EXTRACTION + confirmation is now the diagnosis engine's (Jev's) job, not a BFF prose parse.
-{
-  const c = deriveContext([{ role: 'user', content: [{ type: 'text', text: 'wont drain' }, { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } }] }]);
-  check('image turn -> latestImage captured', !!c.latestImage);
-}
-// 20. safety information + image-extraction can coexist (safety survives the media turn)
-{
-  const v = toWhichPartView(orch({ outcome: 'ANSWER', message: 'Not heating. I\u2019ve read the model as X from the photo \u2014 correct?',
-    diagnosis: { summary: 'Not heating' }, modelRequired: true, parts: null,
-    imageExtraction: { make: 'Panasonic', model: 'NN-1234', source: 'IMAGE', status: 'IMAGE_EXTRACTED_UNCONFIRMED' },
-    safetyInformation: SI }), 't');
-  check('safety survives media turn', v.safetyInformation && v.safetyInformation.text === SI.text);
-  check('safety+extraction: still zero parts', v.parts.length === 0);
+  const img = { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } };
+  check('image turn -> latest image captured', latestImageOf([{ role: 'user', content: [{ type: 'text', text: 'wont drain' }, img] }]) === 'data:image/jpeg;base64,AAAA');
+  check('earlier photo carried forward', latestImageOf([{ role: 'user', content: [img] }, { role: 'assistant', content: 'ok' }, { role: 'user', content: 'and?' }]) === 'data:image/jpeg;base64,AAAA');
+  check('no photo -> null', latestImageOf([{ role: 'user', content: 'x' }]) === null);
 }
 
 // 21. INSTRUCTIONAL MEDIA surfaced with safe fields only
@@ -193,17 +160,6 @@ const SI = {
   const blob = JSON.stringify(v.media);
   check('media keeps a public id handle for later-turn dedupe', v.media[0].id === 'wm-pump-filter');
   check('media strips provenance/relatedCheck/applicability', !/relatedCheck|applicability|own-generic|"provenance"/.test(blob));
-}
-
-// 25. multi-turn: assistant question survives into conversationText so a decline is bound to it
-{
-  const ctx = deriveContext([
-    { role: 'user', content: 'The dishwasher finishes but glasses are wet and streaky' },
-    { role: 'assistant', content: 'At the end of the cycle, is everything warm or hot to the touch but still wet, or does it come out stone cold?' },
-    { role: 'user', content: "I don't know" },
-  ]);
-  check('decline follow-up keeps the advisor question in conversationText', /Advisor asked:/.test(ctx.conversationText) && /stone cold/.test(ctx.conversationText));
-  check('decline follow-up keeps both customer turns', /glasses are wet/.test(ctx.conversationText) && /I don'?t know/.test(ctx.conversationText));
 }
 
 // 26. diagnosis grain controls catalogue presentation (advice-only cannot leak purchase)
@@ -244,32 +200,6 @@ const SI = {
 }
 
 {
-  const conv = sanitiseConversation([
-    { role: 'user', content: 'it will not empty' },
-    { role: 'assistant', content: 'Check the accessible trap.', media: [{ id: 'diagram-1', type: 'DIAGRAM', title: 'Where it is', url: '/media/x.png' }] },
-  ]);
-  check('assistant media fingerprints survive sanitise', conv[1].media && conv[1].media[0].id === 'diagram-1');
-}
-{
-  const conv = sanitiseConversation([
-    { role: 'user', content: 'it will not empty' },
-    { role: 'assistant', content: 'Check the accessible trap.', safetyInformation: { text: 'Stop using it until checked.', classification: 'STOP_USE' } },
-  ]);
-  check('assistant safety fingerprints survive sanitise', conv[1].safetyInformation && conv[1].safetyInformation.text === 'Stop using it until checked.');
-}
-
-{
-  const leading = sanitiseConversation([
-    { role: 'assistant', content: 'Please describe the fault.' },
-    { role: 'user', content: 'it leaks underneath on rinse' },
-    { role: 'assistant', content: 'Check the filter cap.' },
-    { role: 'user', content: 'yes the model is correct' },
-  ]);
-  check('sanitise drops a leading assistant turn', leading[0] && leading[0].role === 'user');
-  check('sanitise keeps the opening customer report', leading[0].content.includes('leaks underneath'));
-}
-
-{
   const seven = [];
   seven.push({ role: 'user', content: 'opening symptom' });
   for (let i = 0; i < 3; i++) {
@@ -281,59 +211,6 @@ const SI = {
   check('short window that would be assistant-first keeps the opening', short[0].role === 'user' && short[0].content === 'opening symptom');
   check('short window still includes the latest user turn', short[short.length - 1].content === 'follow up 2');
 }
-
-// ---- STABLE per-conversation session identity (conversation-state persistence) --------------
-// The orchestrator holds deterministic ConversationState keyed on the sessionId the BFF sends. For
-// established facts to persist across turns, that id MUST be stable across a conversation's turns
-// yet distinct per conversation. The old id mixed in Date.now()+random (and hashed the whole
-// growing user thread), so the store missed every turn and the persistence/reconciliation layer
-// never engaged. These lock the stabilised behaviour.
-{
-  const t1 = deriveContext([
-    { role: 'user', content: 'my washing machine will not spin and water is left in the drum' },
-  ]);
-  const t2 = deriveContext([
-    { role: 'user', content: 'my washing machine will not spin and water is left in the drum' },
-    { role: 'assistant', content: 'Have you checked the pump filter at the bottom front?' },
-    { role: 'user', content: "I'm not sure" },
-  ]);
-  const t3 = deriveContext([
-    { role: 'user', content: 'my washing machine will not spin and water is left in the drum' },
-    { role: 'assistant', content: 'Have you checked the pump filter at the bottom front?' },
-    { role: 'user', content: "I'm not sure" },
-    { role: 'assistant', content: 'Please open it with towels ready and tell me what you find.' },
-    { role: 'user', content: 'the filter is clear' },
-  ]);
-  check('session id is stable across the turns of one conversation',
-    t1.sessionId === t2.sessionId && t2.sessionId === t3.sessionId,
-    `${t1.sessionId} / ${t2.sessionId} / ${t3.sessionId}`);
-  check('session id is deterministic (no Date/random volatility)',
-    deriveContext([{ role: 'user', content: 'my washing machine will not spin and water is left in the drum' }]).sessionId === t1.sessionId,
-    t1.sessionId);
-}
-{
-  const a = deriveContext([{ role: 'user', content: 'my dishwasher is not drying the dishes' }]);
-  const b = deriveContext([{ role: 'user', content: 'my oven is not heating up at all' }]);
-  check('different conversations get different session ids (no state bleed)', a.sessionId !== b.sessionId,
-    `${a.sessionId} vs ${b.sessionId}`);
-}
-{
-  // The client's stable per-conversation id (observability.sessionId) is preferred as the
-  // orchestrator session key; an invalid/absent one falls back to the deterministic fingerprint.
-  const fallback = 'wp-abc123';
-  check('valid client session id is used as the orchestrator key',
-    resolveOrchestratorSessionId('b3f1c2d4e5a60718', fallback) === 'b3f1c2d4e5a60718');
-  check('absent client session id falls back to the derived fingerprint',
-    resolveOrchestratorSessionId(null, fallback) === fallback);
-  check('too-short/invalid client session id falls back to the derived fingerprint',
-    resolveOrchestratorSessionId('short', fallback) === fallback);
-}
-
-// (Story 3) Appliance-family / model-vs-error-code / compound-code interpretation used to be
-// asserted here against the BFF's deriveContext. Those semantics have moved to the orchestrator's
-// single Jev UNDERSTAND (validated by orchestration/tests/test_jev_authoritative_routing.py, the
-// deployed acceptance run and GOLD). The BFF no longer interprets customer meaning, so there is
-// nothing structural left to assert for those cases here.
 
 console.log(`\nview tests: ${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

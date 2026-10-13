@@ -6,18 +6,14 @@
  */
 const errorCodesAdmin = require('./error-codes-admin');
 
-const ORCHESTRATOR_URL =
-  process.env.ORCHESTRATOR_URL ||
-  'https://ajpz33wv4yezh6g2ayv5ite3zu0ruviq.lambda-url.eu-west-1.on.aws/';
-const ORCHESTRATOR_TOKEN = process.env.ORCHESTRATOR_TOKEN || '';
-// The RAG engine is still used ONLY for the feedback side-channel (S3 writer). Not for diagnosis.
+// The diagnosis engine (applianceclinic-diagnosis-engine): every customer turn (ac2), the feedback side-channel and the
+// admin health probes. Its Function URL is AWS_IAM; calls are signed (engine-signature.js).
 const ENGINE_URL =
   process.env.ENGINE_URL ||
   'https://3asx4cw2qs5ajsjkytdwffhhvy0ptnoz.lambda-url.eu-west-1.on.aws/';
 const S4R_PRODUCT_BASE_URL =
   process.env.S4R_PRODUCT_BASE_URL || 'https://d1hrb3pgx61xww.cloudfront.net';
 const CLIENT_ID = 'whichpart';
-const ORCH_TIMEOUT_MS = Number(process.env.ORCH_TIMEOUT_MS) || 120000;
 const MAX_MESSAGES = 12;
 
 // ---- Cognito auth (Appliance Clinic's own user pool, AcAuthStack; ADR 0006) ---
@@ -42,7 +38,6 @@ const ACQ_JUDGE_MODEL = process.env.ACQ_JUDGE_MODEL || 'gpt-5.6-terra';
 const MCP_URL = process.env.MCP_URL || errorCodesAdmin.mcpBaseFromHealth(MCP_HEALTH_URL);
 
 module.exports = {
-  ORCHESTRATOR_URL, ORCHESTRATOR_TOKEN, ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, ORCH_TIMEOUT_MS,
-  MAX_MESSAGES, COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, AUTH_REGION, AC_AUTH, SESSION_COOKIE, LOGGED_IN_COOKIE,
+  ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, MAX_MESSAGES, COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, AUTH_REGION, AC_AUTH, SESSION_COOKIE, LOGGED_IN_COOKIE,
   MCP_HEALTH_URL, MCP_BEARER_TOKEN, LEARNING_BUCKET, ACQ_JUDGE_MODEL, MCP_URL,
 };

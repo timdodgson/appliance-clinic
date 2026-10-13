@@ -1,0 +1,300 @@
+{
+ "id": "DW-11",
+ "system": "ac2",
+ "sessionId": "bm-ac2-dw-11-4cbc1a0793",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Just got a new Siemens dishwasher and there's always a bit of water left in the bottom under the filter after it finishes. Is it draining properly?"
+  },
+  {
+   "role": "assistant",
+   "text": "A small amount of clean water sitting in the sump area under the filter is actually normal; it keeps the internal seals lubricated. However, if there is a large volume of dirty water, or if the machine stops mid-cycle with an error, that indicates a drainage fault. 1. Is the water clean and roughly level with the bottom of the filter housing (about a cup's worth), or is it much higher and possibly dirty?\n2. Does the dishwasher finish its cycle normally without pausing or flashing an error code?\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. The water is clean and only about a cupful, covering the bottom of the sump under the filter, with none in the main tub. The cycle finishes normally with no error codes."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Normal operation (sump water)]\nYes, it is draining properly. That small amount of clean water sitting under the filter is normal; it stays in the sump to keep the internal seals lubricated and prevent them from drying out."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8220,
+     "verifyMs": 361,
+     "totalMs": 8621
+    },
+    "usage": {
+     "promptTokens": 4079,
+     "completionTokens": 583,
+     "totalTokens": 4662
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:poor-clean-results"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "dw-sump-water"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Normal residual water in the sump",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Partial blockage (filter or drain hose)",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Siemens dishwasher",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Siemens",
+      "status": "stated",
+      "quote": "Siemens",
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "New appliance with standing water under filter after cycle",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Just got a new Siemens dishwasher and there's always a bit of water left in the bottom under the filter after it finishes."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_water_quality_and_level",
+       "text": "To tell if this is normal or a blockage, please check two things: 1) Is the water clean and roughly at the level of the filter base (a cup or so), or is it dirty and higher up? 2) Does the machine com",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8671
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8896,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7238,
+     "verifyMs": 3896,
+     "totalMs": 11195
+    },
+    "usage": {
+     "promptTokens": 4360,
+     "completionTokens": 504,
+     "totalTokens": 4864
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:poor-clean-results"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "dw-sump-water"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "the water is clean",
+      "source": "extractor"
+     },
+     {
+      "claim": "only about a cupful",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Normal operation (sump water)",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "dw-sump-water"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Siemens dishwasher",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Siemens",
+      "status": "stated",
+      "quote": "Siemens",
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "New appliance with standing water under filter after cycle",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Just got a new Siemens dishwasher and there's always a bit of water left in the bottom under the filter after it finishes."
+      },
+      {
+       "id": "f2",
+       "field": "water_quality_and_level",
+       "value": "Clean water, about a cupful covering the bottom of the sump under the filter, none in main tub",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The water is clean and only about a cupful, covering the bottom of the sump under the filter, with none in the main tub."
+      },
+      {
+       "id": "f3",
+       "field": "cycle_status",
+       "value": "Finishes normally with no error codes",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The cycle finishes normally with no error codes."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_water_quality_and_level",
+       "text": "To tell if this is normal or a blockage, please check two things: 1) Is the water clean and roughly at the level of the filter base (a cup or so), or is it dirty and higher up? 2) Does the machine com",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11255
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 11713,
+   "retried": false,
+   "label": "Normal operation (sump water)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.017410799999999997,
+ "finishedAt": "2026-10-12T22:15:38.892Z"
+}

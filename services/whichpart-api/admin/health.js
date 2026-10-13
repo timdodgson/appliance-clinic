@@ -3,9 +3,9 @@
 /** Admin: health and dashboard. */
 const aiConfig = require('../ai-config.js');
 const transcripts = require('../transcripts');
-const conversationState = require('../conversation-state');
 const transcriptReview = require('../transcript-review');
-const { ORCHESTRATOR_URL, MCP_HEALTH_URL } = require('../config.js');
+const { ENGINE_URL, MCP_HEALTH_URL } = require('../config.js');
+const { engineGetHeaders } = require('../engine-signature.js');
 const { log } = require('../log.js');
 const { queryParam, fetchHealth, respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
@@ -14,17 +14,19 @@ const { transcriptStore } = require('../transcript-store.js');
 const { loadOverlayCached } = require('./content.js');
 const { recallStore } = require('./recalls.js');
 
+/** The diagnosis engine is probed directly (GET /health, SigV4-signed: its Function URL is AWS_IAM). */
 async function gatherHealthServices() {
-  const orchUrl = ORCHESTRATOR_URL.replace(/\/$/, '') + '/health';
+  const engineUrl = ENGINE_URL.replace(/\/$/, '') + '/health';
   const results = { whichpartApi: { ok: true, service: 'whichpart-api' } };
-  const [orch, mcp] = await Promise.all([
-    fetchHealth(orchUrl, 5000),
+  const [engine, mcp] = await Promise.all([
+    fetchHealth(engineUrl, 5000, engineGetHeaders(engineUrl)),
     MCP_HEALTH_URL ? fetchHealth(MCP_HEALTH_URL, 5000) : Promise.resolve(null),
   ]);
-  results.orchestrator = orch.json ? { ok: orch.ok, ...orch.json } : { ok: false, error: orch.error || ('http ' + orch.status) };
+  results.diagnosisEngine = engine.json
+    ? { ok: Boolean(engine.ok && engine.json.status === 'ok'), state: engine.json.health || engine.json.status || 'unknown',
+      architecture: (engine.json.diagnosis && engine.json.diagnosis.architecture) || null }
+    : { ok: false, error: engine.error || ('http ' + engine.status), state: 'unknown' };
   if (mcp) results.mcp = mcp.json ? { ok: mcp.ok, ...mcp.json } : { ok: false, error: mcp.error || ('http ' + mcp.status) };
-  results.diagnosisEngine = { ok: !!(orch.json && orch.json.diagnosisEngine), reportedBy: 'orchestrator',
-    state: (orch.json && orch.json.diagnosisEngine) || 'unknown' };
   return results;
 }
 
@@ -51,7 +53,7 @@ async function adminDashboard(event) {
   try {
     services = await gatherHealthServices();
   } catch (e) {
-    services = { whichpartApi: { ok: true, service: 'whichpart-api' }, orchestrator: { ok: false, error: String(e && e.message || e) }, diagnosisEngine: { ok: false, state: 'unknown' } };
+    services = { whichpartApi: { ok: true, service: 'whichpart-api' }, diagnosisEngine: { ok: false, error: String(e && e.message || e), state: 'unknown' } };
   }
   let production;
   try {
@@ -71,7 +73,7 @@ async function adminDashboard(event) {
 
 /**
  * Dashboard "Production state": read-only facts from sources the BFF already reads elsewhere —
- * canonical mode (this Lambda's env), the stored AI routing (Settings' document), the batch routing
+ * the diagnosis architecture (ac2, the only one), the stored AI routing (Settings' document), the batch routing
  * override lease, the Error Code MCP health already fetched above, the media overlay (cached loader the
  * customer path uses) and the recall site counts recorded by the last publish. Each part fails on its
  * own as { unavailable: true }; nothing here writes, and no secret or id is returned.
@@ -82,7 +84,7 @@ async function dashboardState(services) {
     part(async () => {
       const cfg = await aiConfig.loadConfig();
       const frontier = cfg.routing && cfg.routing.compose === 'frontier';
-      return { understand: 'TypeSafe Jev', compose: frontier ? 'OpenAI' : 'Private AI', composeModel: (frontier ? cfg.frontier && cfg.frontier.model : cfg.local && cfg.local.model) || null, version: cfg.version || 1 };
+      return { compose: frontier ? 'OpenAI' : 'Private AI', composeModel: (frontier ? cfg.frontier && cfg.frontier.model : cfg.local && cfg.local.model) || null, version: cfg.version || 1 };
     }),
     part(async () => {
       const s = await routingOverrideStatusSafe();
@@ -100,10 +102,9 @@ async function dashboardState(services) {
       return { listed: Number.isFinite(site.records) ? site.records : null, lastSuccessAt: (m && m.lastSuccessAt) || null };
     }),
   ]);
-  const cm = conversationState.resolveMode();
   const mcp = services && services.mcp;
   return {
-    canonical: { mode: cm.mode, journeys: (cm.journeys || []).length, demoted: Boolean(cm.demoted) },
+    diagnosis: { architecture: 'ac2' },
     routing, override, media, recalls,
     errorCodes: mcp ? { ok: Boolean(mcp.ok), active: Number.isFinite(mcp.effectiveActiveCount) ? mcp.effectiveActiveCount : null, overlay: (mcp.overlay && mcp.overlay.state) || null } : { unavailable: true },
   };

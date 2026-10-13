@@ -1,0 +1,803 @@
+{
+ "id": "HO-DW-01",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ho-dw-01-f4ae83d97f",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch SMS2HVI67G showing E:25 and won't drain. A wine glass smashed in it last night if that's relevant?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blocked drain filter]\nThe E:25 code on your Bosch dishwasher confirms a drainage fault, and given that a wine glass smashed inside last night, it is highly likely that glass shards have blocked the drain filter or the pump impeller. This is a very common cause for this error. To fix this safely, please switch off and unplug the appliance first. Then, remove the bottom rack and twist out the main flat filter at the base of the tub (usually counter-clockwise). Check if glass pieces are trapped in the filter mesh or sitting in the sump area underneath. Clear any debris carefully using a towel to protect your hands. Let me know what you find when you inspect it."
+  },
+  {
+   "role": "customer",
+   "text": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on. Still want me to check anything else?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Residual glass fragments blocking the sump or pump impeller]\nGood work getting those big pieces out safely. With the filter still removed, please look into the hole at the bottom of the tub (the sump). If you see a small plastic cover with a clip, lift it to reveal the impeller blades underneath. Check carefully for any remaining glass shards or debris caught in those blades or around them. Let me know what you find there.\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Took the sump water out with a sponge, then removed the white pump cover under the filter. There was a sliver of glass wedged against the impeller, got it out with tongs and the impeller now turns freely. Cover clicked back in ok. What next?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Drain pump blocked by glass debris (now cleared)]\nThat sounds like the root cause has been addressed. The glass shard was likely jamming the impeller, preventing the pump from moving water and triggering the E:25 error. Please reassemble the filter housing securely. Then, run a short drain or rinse cycle to confirm the machine can now pump out water without fault. If it drains cleanly and no code appears, you are good to go for normal use."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, ran a drain and it pumps out fine, no E:25 now. Anything else I should do?"
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news. Since the drain cycle ran successfully without the error code returning, the blockage has been fully cleared and the appliance is back to normal operation. You can now load it as usual; just try to avoid putting fragile glass items in the bottom rack next time to prevent this from happening again."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8754,
+     "verifyMs": 2167,
+     "totalMs": 10922
+    },
+    "usage": {
+     "promptTokens": 2756,
+     "completionTokens": 710,
+     "totalTokens": 3466
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:25",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMS2HVI67G",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:door-glass",
+       "hobs:cracked-surface",
+       "microwave:turntable"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Drain filter blocked by glass shards",
+      "likelihood": "high",
+      "evidence": [
+       "drain_issue",
+       "debris_present"
+      ]
+     },
+     {
+      "cause": "Drain hose kinked or obstructed",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch SMS2HVI67G",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS2HVI67G",
+      "status": "stated",
+      "quote": "SMS2HVI67G",
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:25",
+       "quote": "showing E:25",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "won't drain",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "won't drain"
+      },
+      {
+       "id": "f2",
+       "field": "debris_present",
+       "value": "A wine glass smashed in it last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "A wine glass smashed in it last night if that's relevant?"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e_25_meaning",
+       "value": "Not draining - blocked drain filter / hose (kinked)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter",
+       "text": "Please switch off and unplug the dishwasher, then remove the bottom rack to access the flat filter at the base of the tub. Twist the coarse filter (the larger plastic piece) counter-clockwise to lift ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11085
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11791,
+   "retried": false,
+   "label": "Blocked drain filter",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8658,
+     "verifyMs": 5220,
+     "regenerateMs": 9056,
+     "totalMs": 22980
+    },
+    "usage": {
+     "promptTokens": 3477,
+     "completionTokens": 664,
+     "totalTokens": 4141
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:25",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMS2HVI67G",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:foreign-object",
+       "dishwasher:not-draining",
+       "dishwasher:drain-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "The customer removed shards safely.",
+      "source": "extractor"
+     },
+     {
+      "claim": "The error code E:25 persists.",
+      "source": "extractor"
+     },
+     {
+      "claim": "There is a small plastic cover at the very bottom of the empty filter hole.",
+      "source": "extractor"
+     },
+     {
+      "claim": "E:25 is still showing.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 6,
+    "regenerated": true,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Residual glass fragments blocking the sump or pump impeller",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f4"
+      ]
+     },
+     {
+      "cause": "Drain hose blocked or kinked by debris",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f2"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch SMS2HVI67G",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 2
+     },
+     "model": {
+      "value": "SMS2HVI67G",
+      "status": "stated",
+      "quote": "SMS2HVI67G",
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "E:25",
+       "quote": "showing E:25",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "won't drain",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "won't drain"
+      },
+      {
+       "id": "f2",
+       "field": "debris_present",
+       "value": "A wine glass smashed in it last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "A wine glass smashed in it last night if that's relevant?"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e_25_meaning",
+       "value": "Not draining - blocked drain filter / hose (kinked)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "filter_cleaned",
+       "value": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter",
+       "text": "Please switch off and unplug the dishwasher, then remove the bottom rack to access the flat filter at the base of the tub. Twist the coarse filter (the larger plastic piece) counter-clockwise to lift ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_sump_impeller",
+       "text": "With the filter still out, please look into the hole at the bottom of the tub (the sump). Is there a small plastic cover with a clip? If so, lift it to see the pump impeller underneath. Are there any ",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 23023
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 23307,
+   "retried": false,
+   "label": "Residual glass fragments blocking the sump or pump impeller",
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9340,
+     "verifyMs": 1644,
+     "totalMs": 11044
+    },
+    "usage": {
+     "promptTokens": 4333,
+     "completionTokens": 676,
+     "totalTokens": 5009
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:25",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMS2HVI67G",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:foreign-object",
+       "dishwasher:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "dw-sump-water"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Drain pump blocked by glass debris (now cleared)",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f4",
+       "impeller_clear"
+      ]
+     },
+     {
+      "cause": "Residual blockage in drain hose or sump",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch SMS2HVI67G",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 3
+     },
+     "model": {
+      "value": "SMS2HVI67G",
+      "status": "stated",
+      "quote": "SMS2HVI67G",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "E:25",
+       "quote": "showing E:25",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "won't drain",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "won't drain"
+      },
+      {
+       "id": "f2",
+       "field": "debris_present",
+       "value": "A wine glass smashed in it last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "A wine glass smashed in it last night if that's relevant?"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e_25_meaning",
+       "value": "Not draining - blocked drain filter / hose (kinked)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "filter_cleaned",
+       "value": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on."
+      },
+      {
+       "id": "f5",
+       "field": "impeller_clear",
+       "value": "There was a sliver of glass wedged against the impeller, got it out with tongs and the impeller now turns freely. Cover clicked back in ok.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "Took the sump water out with a sponge, then removed the white pump cover under the filter. There was a sliver of glass wedged against the impeller, got it out with tongs and the impeller now turns freely. Cover clicked back in ok."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter",
+       "text": "Please switch off and unplug the dishwasher, then remove the bottom rack to access the flat filter at the base of the tub. Twist the coarse filter (the larger plastic piece) counter-clockwise to lift ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_sump_impeller",
+       "text": "With the filter still out, please look into the hole at the bottom of the tub (the sump). Is there a small plastic cover with a clip? If so, lift it to see the pump impeller underneath. Are there any ",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "test_drain_cycle",
+       "text": "Please put the filter back in place, close the door and start a drain or rinse cycle. Does it drain successfully without showing E:25 again?",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11098
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11804,
+   "retried": false,
+   "label": "Drain pump blocked by glass debris (now cleared)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6688,
+     "verifyMs": 1510,
+     "totalMs": 8710
+    },
+    "usage": {
+     "promptTokens": 4587,
+     "completionTokens": 436,
+     "totalTokens": 5023
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:25",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMS2HVI67G",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:foreign-object",
+       "dishwasher:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "dw-sump-water"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump impeller (cleared)",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f5"
+     ]
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Drain pump blocked by glass debris",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f4",
+       "f5"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch SMS2HVI67G",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 4
+     },
+     "model": {
+      "value": "SMS2HVI67G",
+      "status": "stated",
+      "quote": "SMS2HVI67G",
+      "turn": 4
+     },
+     "codes": [
+      {
+       "code": "E:25",
+       "quote": "showing E:25",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "drain_issue",
+       "value": "won't drain",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "won't drain"
+      },
+      {
+       "id": "f2",
+       "field": "debris_present",
+       "value": "A wine glass smashed in it last night",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "A wine glass smashed in it last night if that's relevant?"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e_25_meaning",
+       "value": "Not draining - blocked drain filter / hose (kinked)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "filter_cleaned",
+       "value": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Pulled the filter out, there were some big bits of glass in it. Got them out with gloves on."
+      },
+      {
+       "id": "f5",
+       "field": "impeller_clear",
+       "value": "There was a sliver of glass wedged against the impeller, got it out with tongs and the impeller now turns freely. Cover clicked back in ok.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "Took the sump water out with a sponge, then removed the white pump cover under the filter. There was a sliver of glass wedged against the impeller, got it out with tongs and the impeller now turns freely. Cover clicked back in ok."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter",
+       "text": "Please switch off and unplug the dishwasher, then remove the bottom rack to access the flat filter at the base of the tub. Twist the coarse filter (the larger plastic piece) counter-clockwise to lift ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_sump_impeller",
+       "text": "With the filter still out, please look into the hole at the bottom of the tub (the sump). Is there a small plastic cover with a clip? If so, lift it to see the pump impeller underneath. Are there any ",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "test_drain_cycle",
+       "text": "Please put the filter back in place, close the door and start a drain or rinse cycle. Does it drain successfully without showing E:25 again?",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8870
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 9338,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0412777,
+ "finishedAt": "2026-10-12T23:22:00.943Z"
+}

@@ -171,17 +171,17 @@ describe('remote adapter', () => {
 });
 
 describe('configuration resolution + explicit errors (no silent fallback)', () => {
-  it('default config resolves lmstudio for both stages', () => {
+  it('default config resolves lmstudio for the inference stage', () => {
     const p = resolveProviders({});
-    expect(p.understand.name).toBe('lmstudio');
+    expect(Object.keys(p)).toEqual(['compose']);
     expect(p.compose.name).toBe('lmstudio');
   });
 
   it('unknown provider is a CONFIG error', () => {
-    const e = (() => { try { resolveStageProvider('UNDERSTAND', { UNDERSTAND_PROVIDER: 'acme' }); } catch (x) { return x; } })();
+    const e = (() => { try { resolveStageProvider('COMPOSE', { COMPOSE_PROVIDER: 'acme' }); } catch (x) { return x; } })();
     expect(e).toBeInstanceOf(InferenceError);
     expect(e.category).toBe('CONFIG');
-    expect(/Unknown UNDERSTAND_PROVIDER/.test(e.message)).toBe(true);
+    expect(/Unknown COMPOSE_PROVIDER/.test(e.message)).toBe(true);
   });
 
   it('remote without credential is a CONFIG error (refuses to fall back to local)', () => {
@@ -198,39 +198,23 @@ describe('configuration resolution + explicit errors (no silent fallback)', () =
   });
 });
 
-describe('mutation — UNDERSTAND and COMPOSE are configured INDEPENDENTLY', () => {
-  it('switching UNDERSTAND to remote changes only understand', () => {
-    const p = resolveProviders({ UNDERSTAND_PROVIDER: 'openai', UNDERSTAND_MODEL: 'gpt-4o', OPENAI_API_KEY: 'sk' });
-    expect(p.understand.name).toBe('openai');
-    expect(p.understand.model).toBe('gpt-4o');
-    expect(p.compose.name).toBe('lmstudio');
-  });
-
-  it('switching COMPOSE to remote changes only compose', () => {
+describe('mutation — the COMPOSE route alone selects the provider', () => {
+  it('switching COMPOSE to remote changes compose, with its own model', () => {
     const p = resolveProviders({ COMPOSE_PROVIDER: 'openai', COMPOSE_MODEL: 'gpt-4o-mini', OPENAI_API_KEY: 'sk' });
     expect(p.compose.name).toBe('openai');
     expect(p.compose.model).toBe('gpt-4o-mini');
-    expect(p.understand.name).toBe('lmstudio');
   });
 
-  it('all four combinations resolve without cross-wiring, with independent models', () => {
-    const key = { OPENAI_API_KEY: 'sk' };
-    const A = resolveProviders({});
-    expect([A.understand.name, A.compose.name]).toEqual(['lmstudio', 'lmstudio']);
-    const B = resolveProviders({ ...key, UNDERSTAND_PROVIDER: 'openai', UNDERSTAND_MODEL: 'm' });
-    expect([B.understand.name, B.compose.name]).toEqual(['openai', 'lmstudio']);
-    const C = resolveProviders({ ...key, COMPOSE_PROVIDER: 'openai', COMPOSE_MODEL: 'm' });
-    expect([C.understand.name, C.compose.name]).toEqual(['lmstudio', 'openai']);
-    const D = resolveProviders({ ...key, UNDERSTAND_PROVIDER: 'openai', UNDERSTAND_MODEL: 'm', COMPOSE_PROVIDER: 'openai', COMPOSE_MODEL: 'm2' });
-    expect([D.understand.name, D.compose.name]).toEqual(['openai', 'openai']);
-    expect(D.understand.model).toBe('m');
-    expect(D.compose.model).toBe('m2');
+  it('a retired UNDERSTAND setting has no effect', () => {
+    const p = resolveProviders({ UNDERSTAND_PROVIDER: 'openai', UNDERSTAND_MODEL: 'gpt-4o' });
+    expect(Object.keys(p)).toEqual(['compose']);
+    expect(p.compose.name).toBe('lmstudio');
   });
 });
 
 describe('capabilities + usage normalisation', () => {
   it('providers declare capabilities explicitly', () => {
-    expect(resolveProviders({}).understand.capabilities).toEqual({ structuredOutput: true, vision: true, seed: true, streaming: true });
+    expect(resolveProviders({}).compose.capabilities).toEqual({ structuredOutput: true, vision: true, seed: true, streaming: true });
   });
 
   it('normaliseUsage handles missing/partial usage', () => {

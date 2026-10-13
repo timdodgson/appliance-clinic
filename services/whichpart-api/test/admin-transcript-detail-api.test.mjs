@@ -1,46 +1,45 @@
 /**
- * Transcript enrichment + Admin transcript API, against the REAL BFF handler. The orchestrator is mocked (fetch) but
- * runs the real engine canonical runtime for the turn (merge → journey → policy → COMPOSE with a fake LM), so the
- * stored canonical-audit/1 block is what production writes. Proves:
- *   - a controlled turn writes the audit; the browser view is unchanged by it (and by an audit failure)
- *   - idempotent duplicate marks the original turn as replayed
- *   - list stays compact; detail returns per-turn audits in order; unknown / invalid ids; old + mixed sessions
- *   - auth unchanged (401 without an admin session); no token / csid in the stored record
+ * Transcript enrichment + Admin transcript API, against the REAL BFF handler. The diagnosis engine is a fake (the ac2
+ * turn's engine call), the ledger store is in memory, so the stored ac2-transcript-audit/1 block is what production
+ * writes. Proves:
+ *   - each ac2 turn stores its audit (never a canonical block); the browser view never carries it; no token / csid
+ *   - historical canonical-audit/1 turns (written before the journey controller was retired) stay readable: detail
+ *     returns them, the list summarises them, and a session that mixes them with ac2 turns is reported as mixed
+ *   - list stays compact; detail returns per-turn audits in order; unknown / invalid ids
+ *   - auth unchanged (401 without an admin session)
  */
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
-process.env.ORCHESTRATOR_URL = 'http://orchestrator.test';
-process.env.ORCHESTRATOR_TOKEN = '';
-const handlerPath = require.resolve('../index.js');
-delete require.cache[handlerPath];
-const api = require(handlerPath);
+const api = require('../index.js');
 const transcripts = require('../transcripts.js');
-const audit = require('../canonical-audit.js');
-const { SECRETS, mockDdb } = require('./canonical-test-helpers.cjs');
-const F = require('./canonical-audit-fixtures.cjs');
 
-const BY_TEXT = { 'my hotpoint washing machine will not drain': F.TURNS.wmOpen, 'the filter is clear': F.TURNS.wmFilterClear };
-let realFetch; let db; let orchCalls;
-function installOrchestrator() {
-  realFetch = globalThis.fetch;
-  globalThis.fetch = async (url, init) => {
-    const p = JSON.parse(init.body);
-    orchCalls += 1;
-    const latest = p.latestMessage || '';
-    const out = { route: 'SYMPTOMS', outcome: 'ANSWER', message: 'Legacy reply.', provenance: {}, parts: [],
-      understood: { appliance: 'washing-machine' }, _diagnosticTrace: { schemaVersion: '1.0', stages: [{ id: 'routing', label: 'Routing', evidence: 'OBSERVED', summary: 'SYMPTOMS', detail: null }] } };
-    const c = BY_TEXT[latest];
-    if (p.canonical && c) {
-      const blk = { ...p.canonical, control: p.canonical.control || { journeys: [] } };
-      const t = await F.runTurn(c, blk);
-      out._canonical = t.out;
-      out._diagnosticTrace = t.trace;
-      if (t.reply) out.message = t.reply;
-    }
-    return { ok: true, status: 200, json: async () => out };
+const SECRETS = { current: 's'.repeat(48), previous: null };
+let engineCalls;
+function memLedger() {
+  const items = new Map();
+  return {
+    async load(csid) { const it = items.get(csid); return it ? { status: 'ok', state: it, version: it.turn } : { status: 'missing', state: null, version: 0 }; },
+    async save(csid, state, expected) {
+      const cur = items.get(csid);
+      if ((cur ? cur.turn : 0) !== expected) return { ok: false, reason: 'conflict' };
+      items.set(csid, state); return { ok: true };
+    },
   };
+}
+/** The engine's ac2 turn: a reply and an advanced ledger, with a bounded audit. */
+async function fakeEngine(raw) {
+  engineCalls += 1;
+  const body = JSON.parse(raw);
+  const prior = body.ac2 && body.ac2.state;
+  const turn = (prior ? prior.turn : 0) + 1;
+  const state = { schema: 'ac3/1', turn, stage: 2, outcome: null, narrowed: null, asked: [], hazards: [],
+    customer: { appliance: { value: 'washing-machine', confidence: 0.9, turn: 1 }, brand: { value: 'hotpoint', confidence: 0.9, turn: 1 }, model: null, codes: [], symptom: { value: 'not draining', confidence: 0.9, turn: 1 }, symptomArea: null, checks: [{ check: 'pump filter', result: 'clear', turn }], modelUnavailable: false },
+    knowledge: { knowledgeIds: [], fault: null, causes: [], components: [], codeMeanings: [], modelInfo: [] } };
+  const audit = { schema: 'ac3-audit/1', turn, provider: { name: 'test', model: 'm' }, timings: { totalMs: 5 }, safety: { hazards: [], gates: [] },
+    partGate: { outcome: 'none' }, tags: { labels: { appliance: { value: 'washing-machine', confidence: 0.9 } }, stage: 2, replyAction: { value: 'asks_question', confidence: 0.8 } } };
+  return { status: 200, json: { type: 'ac2', response: { outcome: 'ANSWER', message: turn === 1 ? 'Is there water left in the drum?' : 'Next, check the pump filter.' }, state, audit } };
 }
 async function call(method, rawPath, { body, qs, admin = true } = {}) {
   api.setSessionForTests(admin ? async () => ({ username: 'a', email: 'a@x', isAdmin: true }) : async () => null);
@@ -54,77 +53,66 @@ async function say(text, history = [], { ctid, token } = {}) {
   return call('POST', '/api', { body: { messages, ...(token ? { stateToken: token } : {}), observability: { sessionId: SID, clientTurnId: ctid } }, admin: false });
 }
 
-beforeAll(() => { installOrchestrator(); api.setMediaAdminStore({ loadState: async () => null }); });
-afterAll(() => { globalThis.fetch = realFetch; delete process.env.CANONICAL_MODE; delete process.env.CANONICAL_CONTROL_JOURNEYS; api.setSessionForTests(null); });
+/** A turn as the retired journey controller stored it (canonical-audit/1), for the read-only legacy path. */
+function legacyCanonicalTurn(seq, at) {
+  return {
+    seq, at, clientTurnId: `ct-old-${seq}`, customer: { text: 'my hotpoint washing machine will not drain', photo: false },
+    customerVisible: { reply: 'Is the drain filter clear?' }, metadata: { route: 'SYMPTOMS', outcome: 'ANSWER', requestId: 'old' },
+    diagnosticTrace: null,
+    canonical: { schemaVersion: 'canonical-audit/1', path: 'control', mode: 'control', controlled: true, owner: 'wm-not-draining', ref: 'abcdef012345',
+      appliance: 'washing-machine', version: { before: 0, after: 1 }, policy: { rule: 'R7', kind: 'ask_check', target: 'drain-filter' },
+      nextAction: { kind: 'ask_check', target: 'drain-filter', rule: 'R7' }, stateDelta: [{ op: 'add', field: 'appliance', to: 'washing-machine' }],
+      persistence: { written: true, recordWritten: true } },
+  };
+}
+async function seedHistorical(store, sessionId, at) {
+  const rec = transcripts.emptyRecord(sessionId, new Date(at));
+  rec.turns = [legacyCanonicalTurn(1, at)];
+  rec.turnCount = 1;
+  await store.put(rec);
+}
+
+beforeAll(() => {
+  api.setMediaAdminStore({ loadState: async () => null });
+  api.setStateTokenDepsForTests({ secretsLoader: async () => SECRETS });
+});
+afterAll(() => { api.setSessionForTests(null); api.setStateTokenDepsForTests({}); api.setAc2DepsForTests({ store: null }); });
 beforeEach(() => {
-  db = mockDdb(); orchCalls = 0;
-  process.env.CANONICAL_MODE = 'control';
-  process.env.CANONICAL_CONTROL_JOURNEYS = F.REG.KEYS.join('+');
-  const cs = require('../conversation-state.js');
-  api.setCanonicalDepsForTests({ store: cs.createStateStore({ table: 'whichpart-transcripts', call: db.call, env: {} }), secretsLoader: async () => SECRETS,
-    newId: () => Buffer.alloc(24, 9) });
+  engineCalls = 0;
+  api.setAc2DepsForTests({ store: memLedger(), callEngine: fakeEngine });
   api.setTranscriptStore(transcripts.createMemoryStore());
 });
 
 describe('enrichment through the real handler', () => {
-  it('two controlled turns: per-turn audits in order, view unchanged, no token / csid stored', async () => {
+  it('two ac2 turns: per-turn audits in order, view unchanged, no token / csid stored', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
     const r1 = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0001' });
     expect(r1.status).toBe(200);
-    const r2 = await say('the filter is clear', [{ role: 'user', content: 'my hotpoint washing machine will not drain' }, { role: 'assistant', content: r1.json.reply }],
+    expect(r1.json.reply).toBe('Is there water left in the drum?');
+    const r2 = await say('yes, lots of water', [{ role: 'user', content: 'my hotpoint washing machine will not drain' }, { role: 'assistant', content: r1.json.reply }],
       { ctid: 'ct-0002', token: r1.json.stateToken });
+    expect(r2.json.stateToken).toBe(r1.json.stateToken);
+    expect(engineCalls).toBe(2);
     const rec = await store.get(SID);
-    expect(rec.turns.map((t) => [t.seq, t.canonical && t.canonical.policy && t.canonical.policy.rule])).toEqual([[1, 'R7'], [2, 'R8']]);
-    expect(rec.turns[1].canonical).toMatchObject({ path: 'control', owner: 'wm-not-draining', version: { before: 1, after: 2 } });
+    expect(rec.turns.map((t) => [t.seq, t.ac2 && t.ac2.turn])).toEqual([[1, 1], [2, 2]]);
+    expect(rec.turns[1].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', status: 'stage_2', partGate: { outcome: 'none' }, tags: { stage: 2, replyAction: { value: 'asks_question' } } });
+    for (const t of rec.turns) expect(t).not.toHaveProperty('canonical');
     const dump = JSON.stringify(rec);
     expect(dump).not.toContain(r1.json.stateToken);
-    expect(dump).not.toContain(r2.json.stateToken);
     expect(dump).not.toMatch(/cs_[A-Za-z0-9_-]{32}/);
     // the browser view never carries the audit
-    expect(r1.raw).not.toMatch(/canonical-audit|stateDelta|"_canonical"/);
+    expect(r1.raw).not.toMatch(/ac2-transcript-audit|claimsChecked|"ledger"/);
   });
-  it('an audit failure never changes the customer response', async () => {
-    const r1 = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0101' });
-    const orig = audit.buildCanonicalTranscriptAudit;
-    audit.buildCanonicalTranscriptAudit = () => { throw new Error('boom'); };
-    try {
-      db = mockDdb();
-      const cs = require('../conversation-state.js');
-      api.setCanonicalDepsForTests({ store: cs.createStateStore({ table: 'whichpart-transcripts', call: db.call, env: {} }) });
-      api.setTranscriptStore(transcripts.createMemoryStore());
-      const r1b = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0101' });
-      const strip = (j) => JSON.stringify({ ...j, requestId: null, stateToken: null });
-      expect(strip(r1b.json)).toBe(strip(r1.json));
-    } finally { audit.buildCanonicalTranscriptAudit = orig; }
-  });
-  it('idempotent duplicate (same clientTurnId): cached view returned, original audit marked replayed', async () => {
+  it('a turn the engine could not answer is stored as a failed ac2 turn, and the customer sees the explicit error', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
-    const r1 = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0201' });
-    const before = orchCalls;
-    const dup = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0201', token: r1.json.stateToken });
-    expect(orchCalls).toBe(before);                                        // not re-processed
-    expect(dup.json.reply).toBe(r1.json.reply);
-    const t = (await store.get(SID)).turns;
-    expect(t).toHaveLength(1);
-    expect(t[0].canonical.persistence.idempotentReplay.count).toBe(1);
-    expect(t[0].canonical.policy.rule).toBe('R7');
-  });
-  it('canonical off: legacy turns carry no audit (nothing fabricated)', async () => {
-    process.env.CANONICAL_MODE = 'off';
-    const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
-    await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0301' });
-    expect((await store.get(SID)).turns[0].canonical).toBeNull();
+    api.setAc2DepsForTests({ callEngine: async () => ({ status: 503, json: { errorCode: 'reasoner_unavailable' } }) });
+    const r = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0101' });
+    expect(r.json).toMatchObject({ error: true, errorCode: 'ai_unavailable', degraded: 'reasoner_unavailable' });
+    expect((await store.get(SID)).turns[0].ac2).toMatchObject({ path: 'ac2', error: 'reasoner_unavailable' });
   });
 });
 
 describe('admin transcript API', () => {
-  async function seedMixed(store) {
-    process.env.CANONICAL_MODE = 'off';
-    await say('hello there legacy first', [], { ctid: 'ct-0401' });                  // legacy turn (no canonical)
-    process.env.CANONICAL_MODE = 'control';
-    await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0402' }); // canonical controlled turn
-    return store.get(SID);
-  }
   it('auth unchanged: list and detail are 401 without an admin session', async () => {
     expect((await call('GET', '/api/admin/transcripts', { admin: false })).status).toBe(401);
     expect((await call('GET', '/api/admin/transcripts/session', { qs: { id: SID }, admin: false })).status).toBe(401);
@@ -133,35 +121,45 @@ describe('admin transcript API', () => {
     expect((await call('GET', '/api/admin/transcripts/session', { qs: { id: 'unknown-session-xyz' } })).status).toBe(404);
     expect((await call('GET', '/api/admin/transcripts/session', { qs: { id: 'bad' } })).status).toBe(400);
   });
-  it('mixed legacy / canonical session: detail returns each turn with its own audit (or null), in order', async () => {
+  it('a historical canonical-audit/1 session stays readable: detail returns the stored audit, the list summarises it', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
-    await seedMixed(store);
-    const d = await call('GET', '/api/admin/transcripts/session', { qs: { id: SID } });
+    await seedHistorical(store, 's-historical-0001', '2026-10-01T10:00:00.000Z');
+    const d = await call('GET', '/api/admin/transcripts/session', { qs: { id: 's-historical-0001' } });
     expect(d.status).toBe(200);
     const turns = d.json.customerVisible.turns;
-    expect(turns.map((t) => t.seq)).toEqual([1, 2]);
-    expect(turns[0].canonical).toBeNull();
-    expect(turns[0].runtime).toMatchObject({ route: 'SYMPTOMS' });
-    expect(turns[1].canonical).toMatchObject({ schemaVersion: 'canonical-audit/1', path: 'control', policy: { rule: 'R7' } });
-    expect(d.json.overview.canonical).toMatchObject({ path: 'mixed', journey: 'wm-not-draining', counts: { control: 1, legacy: 1 } });
+    expect(turns[0].canonical).toMatchObject({ schemaVersion: 'canonical-audit/1', path: 'control', policy: { rule: 'R7' } });
+    expect(turns[0].ac2).toBeNull();
+    expect(d.json.overview.canonical).toMatchObject({ path: 'control', journey: 'wm-not-draining', counts: { control: 1 } });
   });
-  it('list: compact rows (no per-turn audit), newest first, cursor pagination, canonical filters', async () => {
+  it('a session that continues after the cutover is mixed; the older canonical audit is kept read-only', async () => {
+    const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
+    await seedHistorical(store, SID, '2026-10-01T10:00:00.000Z');
+    await say('the filter is clear', [{ role: 'user', content: 'my hotpoint washing machine will not drain' }, { role: 'assistant', content: 'Is the drain filter clear?' }], { ctid: 'ct-0402' });
+    const d = await call('GET', '/api/admin/transcripts/session', { qs: { id: SID } });
+    const turns = d.json.customerVisible.turns;
+    expect(turns.map((t) => t.seq)).toEqual([1, 2]);
+    expect(turns[0].canonical).toMatchObject({ schemaVersion: 'canonical-audit/1', owner: 'wm-not-draining' });
+    expect(turns[1].canonical).toBeNull();
+    expect(turns[1].ac2).toMatchObject({ path: 'ac2' });
+    expect(d.json.overview.canonical).toMatchObject({ path: 'mixed', journey: 'wm-not-draining', counts: { control: 1, ac2: 1 } });
+  });
+  it('list: compact rows (no per-turn audit), newest first, cursor pagination, path and journey filters', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
     for (let i = 0; i < 3; i++) {
       const rec = transcripts.emptyRecord(`s-page-session-${i}`, new Date(Date.UTC(2026, 9, 1, 10, i)));
       rec.turns = [{ seq: 1, customer: { text: `t${i}` }, customerVisible: { reply: 'r' } }]; rec.turnCount = 1;
       await store.put(rec);
     }
-    await seedMixed(store);
+    await seedHistorical(store, 's-historical-0002', '2026-10-01T09:00:00.000Z');
+    await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0501' });
     const p1 = await call('GET', '/api/admin/transcripts', { qs: { limit: '2' } });
     expect(p1.json.items.map((r) => r.sessionId)).toEqual([SID, 's-page-session-2']);
-    expect(p1.raw).not.toMatch(/stateDelta|"diagnostics"|nextAction|"turns"/);
-    expect(p1.json.items[0]).toMatchObject({ canonical: { path: 'mixed', journey: 'wm-not-draining' }, partRecommended: false });
+    expect(p1.raw).not.toMatch(/stateDelta|"ledger"|nextAction|"turns":\[/);
+    expect(p1.json.items[0]).toMatchObject({ canonical: { path: 'ac2' } });
     const p2 = await call('GET', '/api/admin/transcripts', { qs: { limit: '2', cursor: p1.json.nextCursor } });
     expect(p2.json.items.map((r) => r.sessionId)).toEqual(['s-page-session-1', 's-page-session-0']);
-    const f = await call('GET', '/api/admin/transcripts', { qs: { journey: 'wm-not-draining' } });
-    expect(f.json.items.map((r) => r.sessionId)).toEqual([SID]);
-    const l = await call('GET', '/api/admin/transcripts', { qs: { canonical: 'legacy' } });
-    expect(l.json.items).toHaveLength(3);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { journey: 'wm-not-draining' } })).json.items.map((r) => r.sessionId)).toEqual(['s-historical-0002']);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { canonical: 'ac2' } })).json.items.map((r) => r.sessionId)).toEqual([SID]);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { canonical: 'legacy' } })).json.items).toHaveLength(3);
   });
 });

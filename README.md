@@ -26,6 +26,27 @@ It covers nine appliance families (washing machines, washer-dryers, tumble dryer
 - **Security as a contract.** Least-privilege IAM, rotated secrets, and an engine that accepts only IAM-authenticated, HMAC-signed requests ([ADR 0017](docs/adr/0017-authenticate-orchestrator-only-engine-fields.md), [SECURITY.md](SECURITY.md)).
 - **Reviewed production releases.** Every change is a checked change set with a temporary least-privilege grant, drift detection, a no-op check and a CloudTrail audit ([`change.sh`](infra/production/steps/change.sh)).
 
+## Independent benchmark and the rebuild
+
+GOLD, the internal suite, passed 56/56 on every release. An independent, blind 100-case benchmark against a
+general-purpose assistant then found **the general assistant won 94–6** (usefulness 3.48 against 1.46; AC invented
+customer evidence in 19% of conversations and looped in 38%) ([report](docs/evaluation/independent-100-case-benchmark.md)).
+GOLD had been written alongside the journeys, so it measured the design against itself.
+
+The root cause was the journey controller. A replacement was built and deployed dormant: **models reason;
+deterministic code verifies and constrains** ([ADR 0020](docs/adr/0020-llm-led-diagnosis-with-deterministic-guardrails.md)).
+The LLM owns diagnosis; a deterministic kernel owns the evidence ledger, a mandatory claim verifier, the safety kernel,
+the part gate, escalation and the audit trail, with no fallback. On the same 100 cases and a held-out set frozen before
+tuning, it beat the journey architecture 83–17 (held-out 27–4) but lost to the general assistant 17–83 (held-out 4–27),
+missing its targets ([results](docs/evaluation/llm-led-rebuild.md)).
+
+That design gave one model call the whole job. It was then simplified with the owner into small jobs
+([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md)): Qwen reads each message, Jev labels it with a
+confidence per label, tools enrich the record (RAG, error codes, recalls, parts), code decides what the reply must do
+(broad help first, then model and part once the owner's checks fail), and Qwen writes the reply. This is now the only
+path (changes 21.2 and 21.3); the journey controller is removed. Appliance Clinic is a proof of concept with no real
+customers yet.
+
 ## Architecture
 
 ```mermaid
@@ -165,6 +186,8 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Nothing alerts on Jev credit or quota.** Running out of Jev credit caused a real outage on 2026-10-11 ([finding](docs/evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
 - **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
+- **The LLM provider is a single point of failure.** Production reasoning runs on Qwen 3.6 served by LM Studio over a private tunnel; when the tunnel dropped on 2026-10-12 (about 20:25–21:19 UTC) turns failed explicitly, by design. Evaluation runs share the same provider, which serves one request at a time.
+- **The new engine reads the bundled error-code catalogue**, not the admin console's overlay edits.
 
 ## Working on it
 

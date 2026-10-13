@@ -1,0 +1,28 @@
+{
+ "id": "HO-MW-01",
+ "system": "ga",
+ "sessionId": "a223e3c3-e506-4fa2-9348-d033d0f781d2",
+ "endReason": "concluded",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Panasonic NN-E28JMMBPQ stopped heating. I've got the outer cover off already. How do I discharge the capacitor and test the magnetron and diode with my multimeter?"
+  },
+  {
+   "role": "assistant",
+   "text": "# Testing the High-Voltage Section of a Panasonic NN-E28JMMBPQ\n\n**Warning:** The high-voltage capacitor can hold a lethal charge for days after unplugging. The HV circuit runs at about 2,000 to 4,000 V at several hundred mA, which is enough to kill. Never measure anything with the oven plugged in, and never run it with the cover off.\n\n## Before you start\n\n- **Unplug it.** Don't rely on the door or the switch.\n- **Remove jewellery.** Work with one hand where you can and keep the other away from the chassis.\n- **Check the oven type.** The NN-E28 should be a conventional type with a large, heavy transformer. If you find a finned inverter circuit board instead, stop. The procedure below doesn't apply.\n\n## 1. Discharging the HV capacitor\n\nThe capacitor is a metal can, usually about 0.9 to 1.1 µF and 2,100 VAC, with two terminals. One lead goes to the HV diode, which is bolted to the chassis at the other end.\n\n**What you need:** an insulated-handle screwdriver, or better, a jumper wire with insulated crocodile clips on both ends. Adding a 10 kΩ to 100 kΩ, 5 W+ resistor in series is gentler than a dead short.\n\n**Steps:**\n1. Clip one end of the jumper to bare chassis metal, such as an unpainted screw or the ground lug.\n2. Holding only the insulated part, touch the other end to **each** capacitor terminal in turn, for a few seconds each.\n3. Short the two capacitor terminals **directly to each other** as well.\n4. Repeat the whole thing. Capacitors can \"recover\" a small charge.\n5. Leave a jumper clipped across the terminals while you work, if you can.\n\nA spark or crack is normal if it was still charged. A built-in bleeder resistor may have drained it already, but never assume that.\n\n## 2. Testing the magnetron\n\nDisconnect both spade connectors from the magnetron terminals. They're on the side, inside a metal filter box. Note which wire goes where.\n\n| Test | Meter setting | Expected result |\n|---|---|---|\n| Terminal to terminal (filament) | Ω, lowest range | **Under 1 Ω**, typically 0.1 to 0.5 Ω |\n| Either terminal to metal case | Ω, highest range | **Open / OL** (infinite) |\n\n**Interpreting the results:**\n- **Open between the terminals** means the filament is broken and the magnetron is dead.\n- **Any reading to the case** means it's shorted and the magnetron is dead.\n- **Both tests pass** does not prove it's good. A magnetron can pass both tests and still have lost emission. If everything else checks out, it becomes the prime suspect by elimination.\n\nAlso look for a burnt or arced antenna cap (the dome on top) and any cracked ceramic. Both mean the magnetron needs replacing.\n\n## 3. Testing the HV diode\n\n**A normal multimeter can't properly test this diode.** It has many junctions in series and needs roughly 6 to 12 V to conduct. A meter's diode-test function only puts out about 2 to 3 V, so a good diode reads \"OL\" in both directions.\n\n**What a meter can tell you:**\n- **Low reading in both directions** means the diode is shorted and bad.\n\n**A better test using a 9 V battery:**\n1. Disconnect the diode.\n2. Connect the battery, diode, and meter in series, with the meter set to DC volts.\n3. **Forward direction:** you should read a few volts, roughly 1 to 3 V less than the battery voltage.\n4. **Reversed:** you should read about 0 V.\n5. If both directions give the same result, the diode is bad.\n\nDiodes are cheap, about £3 to £8. Many people just replace it while they're in there.\n\n## 4. Testing the capacitor\n\nWith it discharged and disconnected:\n- **Terminal to case** should read OL. Any reading means it's shorted.\n- **Across the terminals on the Ω range** should give a steady reading of around 9 to 10 MΩ. That's the internal bleeder resistor.\n- **Capacitance mode**, if your meter has one, should read close to the value printed on the can, usually about 1.0 µF.\n- **Visual check:** bulging, leaking oil, or a scorched terminal means it's bad.\n\n## 5. Other common causes worth checking\n\nIf the light and turntable work but the food doesn't heat, also check these:\n\n- **HV transformer:** the primary should read a few ohms. The secondary (HV winding to chassis) should read about 50 to 120 Ω. Open means it's bad. Burnt smell or discoloured varnish is also a bad sign.\n- **Magnetron thermal cutout:** this is a small disc on the magnetron. It should show continuity at room temperature.\n- **Door interlock switches:** a failing switch can cut the HV circuit while leaving the lamp working. Check each one opens and closes cleanly as you press it.\n\n## Parts\n\nSearch by the model number **NN-E28JMMBPQ**, or by the part numbers printed on each component. The magnetron is often a **2M261-M32** or **2M236** family part, but match the number on yours. A replacement magnetron for this model costs about £25 to £45. On a basic 20 L oven, that is sometimes close to the price of a new one, so weigh that before buying.\n\nIf you tell me what readings you get, I can help you interpret them."
+  }
+ ],
+ "meta": [
+  {
+   "turn": 1,
+   "status": 200,
+   "ms": 31805,
+   "costUsd": 0.0551581,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.017984800000000002,
+ "finishedAt": "2026-10-12T17:11:11.356Z"
+}

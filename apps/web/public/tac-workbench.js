@@ -143,7 +143,7 @@
     return out;
   }
 
-  // The canonical state token is a bearer credential for the conversation's server-side state:
+  // The state token is a bearer credential for the conversation's server-side evidence ledger:
   // the technical payload shows only whether one was present.
   function redactToken(obj) {
     if (obj && typeof obj === 'object' && Object.prototype.hasOwnProperty.call(obj, 'stateToken')) {
@@ -161,7 +161,7 @@
 
   // ---- Live Test conversation (one per "New conversation"; never persisted) -------------------
   // Mirrors the customer client (app.js): the same ACChatSession message window, and the opaque
-  // canonical `stateToken` from the last response echoed back verbatim on the next turn. The token
+  // `stateToken` from the last response echoed back verbatim on the next turn. The token
   // is never parsed, displayed or stored anywhere but this in-memory object.
   var TOKEN_RE = /^[A-Za-z0-9._-]+$/;
   function safeToken(t) { return (typeof t === 'string' && t.length > 0 && t.length <= 200 && TOKEN_RE.test(t)) ? t : null; }
@@ -173,9 +173,9 @@
   }
   function createLiveConversation() {
     return {
-      sessionId: 'lt-' + randomPart(),   // orchestrator ConversationState key (the customer's observability.sessionId role)
+      sessionId: 'lt-' + randomPart(),   // the test conversation's id in the API logs (never a customer transcript)
       messages: [],                      // the same shape the customer client keeps
-      turns: [],                         // per-turn record: text, clientTurnId, continuity status, timings
+      turns: [],                         // per-turn record: continuity status, timings
       stateToken: null,                  // opaque; echoed back, never inspected
       stateProblem: null,                // { kind, reason, turn } when the API rejected / did not renew state
       lastStatus: null,
@@ -194,7 +194,7 @@
     if (opts.display && opts.display !== content) msg.display = opts.display;
     if (opts.image) msg.image = opts.image;
     c.messages.push(msg);
-    var turn = { index: c.turns.length + 1, clientTurnId: 'lt-' + randomPart().slice(0, 24), sentAt: null, durationMs: null, status: null, error: null, tokenSent: false };
+    var turn = { index: c.turns.length + 1, sentAt: null, durationMs: null, status: null, error: null, tokenSent: false };
     c.turns.push(turn);
     return turn;
   }
@@ -210,7 +210,7 @@
     var t = turn || currentTurn(conv);
     // Exactly what app.js ask() does: send the last token we were given, if any.
     if (conv.stateToken) body.stateToken = conv.stateToken;
-    body.liveTest = { sessionId: conv.sessionId, clientTurnId: t ? t.clientTurnId : null };
+    body.liveTest = { sessionId: conv.sessionId };
     if (t) t.tokenSent = Boolean(conv.stateToken);
     return body;
   }
@@ -234,7 +234,6 @@
     else if (status && (status.continuity === 'unavailable' || status.stateOut === 'none')) problem = { kind: 'unavailable', reason: status.reason || null };
     else if (!status) problem = { kind: 'no_status', reason: null };
     else if (hadToken && !next) problem = { kind: 'unavailable', reason: 'no_token_issued' };
-    if (problem && status && status.canonical && status.canonical.mode === 'off') problem = null; // canonical off: nothing to carry
     if (problem) { problem.turn = turn ? turn.index : null; c.stateProblem = problem; }
     if (view && typeof view.reply === 'string') {
       var stored = {};
@@ -257,11 +256,9 @@
   var CONTINUITY_LABELS = {
     'new': 'New conversation state issued',
     continued: 'Continued',
-    replayed: 'Replayed (same turn retried)',
-    restarted: 'Rejected — the API started a new canonical session',
-    degraded: 'Degraded — this turn ran without canonical state',
+    restarted: 'Rejected — the API started a new conversation state',
+    failed: 'Failed — this turn was not answered; the conversation state was not advanced',
     unavailable: 'Not renewed — no state token was returned',
-    off: 'Canonical state is off',
   };
   var REASON_LABELS = {
     expired: 'the state token had expired',
@@ -270,7 +267,10 @@
     no_secret: 'the API has no signing secret',
     no_signing_secret: 'the API has no signing secret',
     no_token_issued: 'no replacement token was returned',
-    read_failed: 'the saved state could not be read',
+    state_load_failed: 'the saved state could not be read',
+    state_secret_unavailable: 'the API has no signing secret',
+    reasoner_unavailable: 'the diagnosis reasoner was unavailable',
+    engine_unreachable: 'the diagnosis engine could not be reached',
   };
   function continuityLabel(status) {
     if (!status) return 'No continuity status returned';
@@ -292,27 +292,26 @@
     return 'Conversation state was not renewed' + (p.reason ? ' (' + reasonLabel(p.reason) + ')' : '') + '. The next turn would not carry this conversation\u2019s state. Start a new conversation to continue.';
   }
 
-  /** Inspect rows for the continuity status (booleans and safe ids only; never the token). */
+  /** Inspect rows for the continuity status and the turn's ac2 audit (booleans, counts and safe labels; never the token). */
   function continuityRows(status, turn) {
     if (!status) return [];
-    var c = status.canonical || {};
-    var r = c.retained || null;
-    var u = c.understood || null;
+    var a = status.audit || null;
+    var ledger = a && a.ledger;
+    var safety = (a && a.safety) || {};
     return [
       row('State in', status.stateIn === 'present' ? 'Prior state token sent' : 'No prior state token'),
       row('State out', status.stateOut === 'refreshed' ? 'Refreshed (same session)' : (status.stateOut === 'issued' ? 'New session token issued' : 'None returned')),
       row('Continuity', continuityLabel(status) + (status.reason ? ' — ' + reasonLabel(status.reason) : '')),
-      row('Canonical mode', c.mode || null),
-      row('Session ref', c.ref || null),
-      row('State version', c.priorVersion != null || c.resultVersion != null ? ('v' + (c.priorVersion == null ? '\u2014' : c.priorVersion) + ' \u2192 v' + (c.resultVersion == null ? '\u2014' : c.resultVersion)) : null),
-      row('Journey', c.journey && c.journey.key ? c.journey.key + (c.journey.control ? ' (control)' : '') + (c.journey.nextAction && c.journey.nextAction.kind ? ' · next: ' + c.journey.nextAction.kind + (c.journey.nextAction.target ? ' ' + c.journey.nextAction.target : '') : '') : null),
-      row('Retained appliance', r && r.appliance),
-      row('Retained make', r && r.make),
-      row('Retained model', r ? (r.model ? 'Yes' : 'No') : null),
-      row('Retained problem', r && r.problem && r.problem.journey),
-      row('Retained checks', r && r.checks && r.checks.length ? r.checks.join(', ') : null),
-      row('This message said', u ? [u.appliance, u.make, u.model ? 'model' : null, u.journey].filter(Boolean).join(' · ') || 'No identity or problem on its own' : null),
-      row('Degraded', c.degraded || null),
+      row('Engine', status.engine || null),
+      row('Ledger turn', a && a.turn != null ? String(a.turn) : null),
+      row('Diagnostic status', a && a.status),
+      row('Appliance', ledger && ledger.appliance && ledger.appliance.value),
+      row('Facts recorded', ledger && Array.isArray(ledger.facts) ? String(ledger.facts.length) : null),
+      row('Hazards', safety.hazards && safety.hazards.length ? safety.hazards.join(', ') : null),
+      row('Guardrail gates', safety.gates && safety.gates.length ? safety.gates.map(function (g) { return g && g.gate; }).filter(Boolean).join(', ') : null),
+      row('Claims rejected', a && Array.isArray(a.claimsRejected) ? String(a.claimsRejected.length) : null),
+      row('Regenerated', a ? (a.regenerated ? 'Yes' : 'No') : null),
+      row('Part gate', a && a.partGate && a.partGate.outcome),
       row('Turn time', turn && typeof turn.durationMs === 'number' ? Math.round(turn.durationMs) + ' ms' : null),
     ];
   }

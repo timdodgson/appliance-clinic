@@ -194,6 +194,29 @@ def origin_admin(m):
     return str(m.get("schemeId") or "").startswith("ADMIN") or str(m.get("mappingId") or "").startswith("ADMIN::")
 
 
+def unique_baseline(baseline_mappings):
+    """Baseline mappings by mappingId. Duplicate ids are refused (Dataset V1 had 50 shared ids and a
+    last-wins dict silently dropped 64 records; V1.1 suffixes them '@<sourceFile>')."""
+    out = {}
+    for m in baseline_mappings or []:
+        mid = m.get("mappingId")
+        if not mid:
+            continue
+        if mid in out:
+            raise ValueError(f"duplicate mappingId {mid!r} in baseline mappings")
+        out[mid] = m
+    return out
+
+
+def legacy_id_aliases(mappings):
+    """Pre-V1.1 id -> the V1.1 id of the record that id resolved to (the last one in file order)."""
+    out = {}
+    for mid in mappings:
+        if "@" in mid:
+            out[mid.split("@", 1)[0]] = mid
+    return out
+
+
 def merge(baseline_mappings, baseline_enrichment, overlay, sources=None):
     """Return effective catalogue facts.
 
@@ -203,8 +226,9 @@ def merge(baseline_mappings, baseline_enrichment, overlay, sources=None):
     """
     overlay = overlay if isinstance(overlay, dict) else empty_overlay()
     records = overlay.get("records") if isinstance(overlay.get("records"), dict) else {}
-    mappings = {m["mappingId"]: clone(m) for m in (baseline_mappings or []) if m.get("mappingId")}
+    mappings = {mid: clone(m) for mid, m in unique_baseline(baseline_mappings).items()}
     shipped_ids = set(mappings)
+    legacy = legacy_id_aliases(mappings)
     enrichment = index_enrichment(clone(baseline_enrichment or []))
     meta = {mid: {"status": "active", "origin": "shipped"} for mid in mappings}
 
@@ -212,6 +236,9 @@ def merge(baseline_mappings, baseline_enrichment, overlay, sources=None):
     for mid, rec in records.items():
         if not mid or not isinstance(rec, dict):
             continue
+        if mid not in shipped_ids and mid in legacy and legacy[mid] not in records:
+            # overlay written before Dataset V1.1 made ids unique: it addressed the record that won last-wins
+            mid = legacy[mid]
         origin = rec.get("origin") or ("shipped" if mid in shipped_ids else "admin")
         status = rec.get("status") or "active"
         if origin == "shipped" and mid not in shipped_ids:
@@ -422,6 +449,20 @@ def collide(active_mappings, candidate, ignore_id=None):
     return hits
 
 
+def new_collisions(active_mappings, candidate, ignore_id=None, before=None):
+    """collide(), minus overlaps the record already had before this edit (`before`).
+
+    Shipped records legitimately overlap across schemes (e.g. Hotpoint washing-machine F05 is in both the
+    Indesit and the Whirlpool scheme; Dataset V1.1 restored records that a shared mappingId used to hide).
+    Editing content must not be blocked by those pre-existing, source-backed overlaps; any NEW key or
+    NEW conflicting record is still a collision."""
+    hits = collide(active_mappings, candidate, ignore_id=ignore_id)
+    if not before:
+        return hits
+    had = {h["mappingId"]: set(h["keys"]) for h in collide(active_mappings, before, ignore_id=ignore_id)}
+    return [h for h in hits if not set(h["keys"]) <= had.get(h["mappingId"], set())]
+
+
 def validate_url(url):
     if url is None or url == "":
         return None
@@ -603,7 +644,8 @@ def validate_patch(existing, body, merged):
             "url": validate_url(p.get("url")),
         }
     candidate = _overlay_content(existing["mapping"], patch)
-    hits = collide(merged.get("active_mappings") or {}, candidate, ignore_id=existing["mapping"]["mappingId"])
+    hits = new_collisions(merged.get("active_mappings") or {}, candidate, ignore_id=existing["mapping"]["mappingId"],
+                          before=existing["mapping"] if existing.get("origin") == "shipped" else None)
     if existing.get("status") != "retired" and hits:
         raise CatalogueError("collision", "This alias already resolves to another active record for that brand and appliance.", {"conflicts": hits})
     enrichment_patch = None

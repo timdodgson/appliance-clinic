@@ -27,6 +27,7 @@ How the quality of Appliance Clinic is measured, and the record of each round. T
 
 | Round | Document | What it shows |
 |---|---|---|
+| LLM-led rebuild | [llm-led-rebuild.md](llm-led-rebuild.md) | The replacement architecture (ADR 0020) on the same 100 cases plus a 31-case held-out set, blind-judged against old AC and the general assistant: **improved but not ready** (83–17 vs old AC; 17–83 vs general AI; overall 2.73 vs 1.46 vs 3.48; held-out 2.81 vs 1.06 vs 3.65). Not cut over |
 | Independent benchmark | [independent-100-case-benchmark.md](independent-100-case-benchmark.md) | 100 independently sourced cases, AC live vs a general-purpose assistant, shared customer simulator, blind judges: **general AI advantage** (94–6 pairwise; overall 3.48 vs 1.46; AC critical failures 42 vs 6) |
 | Evidence premises | [evidence-premise-audit.md](evidence-premise-audit.md) | Conclusion copy may state only evidence cs/1 records: the live oven defect, the evidence gate, the audit of all 303 fixed conclusion texts, why GOLD missed it, and the GOLD pair on release 17.2 (56/56 twice) |
 | Phase 15 | [phase-15-results.md](phase-15-results.md) | ADR 0019: the dedicated canonical diagnosis engine, the legacy code deleted, cutover evidence, the GOLD pair (56/56 twice) and the final production checks |

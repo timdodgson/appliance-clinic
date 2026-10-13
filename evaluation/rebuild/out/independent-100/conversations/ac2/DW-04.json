@@ -1,0 +1,794 @@
+{
+ "id": "DW-04",
+ "system": "ac2",
+ "sessionId": "bm-ac2-dw-04-7b1fe816f3",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+  },
+  {
+   "role": "assistant",
+   "text": "E:15 on Bosch dishwashers means the anti-flood system has detected water in the base pan and activated the drain pump to prevent a leak under your kitchen units. This is a safety feature, not necessarily a broken part. The most common cause is a small internal leak (often from the door seal or spray arm) dripping down into the sump area where the float switch sits. Please pull the dishwasher out carefully (ensure it's unplugged first), lay some thick towels on the floor underneath, and tilt the machine back slightly (about 45 degrees) towards you. Does water pour out onto the towels?"
+  },
+  {
+   "role": "customer",
+   "text": "I can't pull it out or tilt it, it's fully integrated under the worktop and the plinth is glued at the ends. I could see a little shine of water in the base tray through a gap with a torch though."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Anti-flood system triggered by water in base pan due to internal leak]\nE:15 confirms the anti-flood system has detected water in the base pan. Since you cannot tilt the machine to drain it, we need to address the immediate cause and clear any blockages that might be contributing. Please open the door, remove the lower rack, and twist out the filter assembly at the bottom of the tub. This will help us determine if a blockage is causing overflow or if we need to focus on finding the source of the leak (such as the door seal or spray arm)."
+  },
+  {
+   "role": "customer",
+   "text": "I've already checked the filter and it's fairly clean. The door seal looks okay too. Anything else I can try without pulling the unit out?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Internal leak triggering anti-flood system]\nBefore you start, switch it off and unplug it. The E:15 code confirms water is sitting in the base pan of your dishwasher, which triggers the safety pump to run continuously. Since you cannot tilt the unit to drain it and the filter/seal look okay, the most likely cause is an internal leak (often from the pump seal or a sump hose) dripping down into that tray. To narrow this down without moving the machine: please check if the dishwasher can complete a drain cycle. Listen for the pump running during a rinse program. Also, check under your sink where the drain hose connects to the waste pipe—is there any water pooling around that connection or in the sink trap? If the drain is blocked, it might be overflowing into the base; if the drain is clear but the error persists, the leak is internal and will require an engineer to access the base pan safely."
+  },
+  {
+   "role": "customer",
+   "text": "It won't start a programme at the moment, the pump just hums constantly. After I left it unplugged for 24h it managed one cycle, then E:15 came back. I haven't looked at the drain hose connection under the sink, and I'm not sure I can see it from there. Does that point to an engineer?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Internal leak requiring engineer access to drain base pan safely]\nYes, that points to calling an engineer. The E:15 code confirms water is sitting in the sealed base pan of your dishwasher, which triggers the safety pump to run continuously. Since the error returned after you unplugged it for 24 hours, there is likely an ongoing internal leak (such as from the pump seal or an internal hose) rather than just a temporary blockage. An engineer will need to safely access the base pan, remove the water, and fix the source of the leak.\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9777,
+     "verifyMs": 1103,
+     "totalMs": 10937
+    },
+    "usage": {
+     "promptTokens": 3699,
+     "completionTokens": 725,
+     "totalTokens": 4424
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMV4HTX31E",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:drain-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you've already reset it and the error persists, there is likely still water in that base tray or an active leak refilling it.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Water-protection (anti-flood) system activated due to water in the base pan",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Active leak inside the dishwasher or at connections causing continuous re-triggering",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch integrated dishwasher",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "status": "stated",
+      "quote": "Model SMV4HTX31E",
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "quote": "showing E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "error_code",
+       "value": "E:15 with pump running after reset",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e_15_meaning",
+       "value": "Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_base_water",
+       "text": "To confirm this is the anti-flood switch triggering, we need to check if there is water in the bottom tray of the machine. Please pull the dishwasher out carefully (ensure it's unplugged first), lay s",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11273
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11914,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10948,
+     "verifyMs": 2705,
+     "totalMs": 13706
+    },
+    "usage": {
+     "promptTokens": 4245,
+     "completionTokens": 826,
+     "totalTokens": 5071
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMV4HTX31E",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "it is clogged with food or debris",
+      "source": "extractor"
+     },
+     {
+      "claim": "there is any standing water or visible debris like glass or bones inside",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Internal leak (pump seal, sump hose, or spray arm) triggering anti-flood system",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f2"
+      ]
+     },
+     {
+      "cause": "Blocked filter/sump causing overflow into base (less common for E:15 but possible)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch integrated dishwasher",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 2
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "status": "stated",
+      "quote": "Model SMV4HTX31E",
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "quote": "showing E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "error_code",
+       "value": "E:15 with pump running after reset",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e_15_meaning",
+       "value": "Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "integration_type",
+       "value": "fully integrated under worktop with glued plinth, cannot be pulled out or tilted",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I can't pull it out or tilt it, it's fully integrated under the worktop and the plinth is glued at the ends."
+      },
+      {
+       "id": "f4",
+       "field": "water_in_base",
+       "value": "visible water in base tray through a gap with torch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I could see a little shine of water in the base tray through a gap with a torch though."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_base_water",
+       "text": "To confirm this is the anti-flood switch triggering, we need to check if there is water in the bottom tray of the machine. Please pull the dishwasher out carefully (ensure it's unplugged first), lay s",
+       "turn": 1,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_filter_and_sump",
+       "text": "Since you can't access the base, please open the door, remove the lower rack, and twist out the filter assembly at the bottom of the tub. Is it clogged with food or debris? Also, look into the sump (t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13757
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14038,
+   "retried": false,
+   "label": "Anti-flood system triggered by water in base pan due to internal leak",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10944,
+     "verifyMs": 3203,
+     "totalMs": 14207
+    },
+    "usage": {
+     "promptTokens": 4544,
+     "completionTokens": 753,
+     "totalTokens": 5297
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMV4HTX31E",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "The appliance has a confirmed leak into the base pan (E:15) and cannot be safely accessed by the owner to drain it. If the drain hose and waste are clear, this indicates an internal component failure "
+    },
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Internal leak (pump seal or sump hose) triggering anti-flood system",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f2",
+       "f4"
+      ]
+     },
+     {
+      "cause": "Blocked drain causing overflow into base tray",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f2"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch integrated dishwasher",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 3
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "status": "stated",
+      "quote": "Model SMV4HTX31E",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "quote": "showing E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "error_code",
+       "value": "E:15 with pump running after reset",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e_15_meaning",
+       "value": "Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "integration_type",
+       "value": "fully integrated under worktop with glued plinth, cannot be pulled out or tilted",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I can't pull it out or tilt it, it's fully integrated under the worktop and the plinth is glued at the ends."
+      },
+      {
+       "id": "f4",
+       "field": "water_in_base",
+       "value": "visible water in base tray through a gap with torch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I could see a little shine of water in the base tray through a gap with a torch though."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_base_water",
+       "text": "To confirm this is the anti-flood switch triggering, we need to check if there is water in the bottom tray of the machine. Please pull the dishwasher out carefully (ensure it's unplugged first), lay s",
+       "turn": 1,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_filter_and_sump",
+       "text": "Since you can't access the base, please open the door, remove the lower rack, and twist out the filter assembly at the bottom of the tub. Is it clogged with food or debris? Also, look into the sump (t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_drain_hose_and_waste",
+       "text": "Since you can't access the base pan, please check if the dishwasher is draining properly. Run a short drain or rinse cycle (if it allows) and listen for the pump running. Also, check under your sink w",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14260
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14938,
+   "retried": false,
+   "label": "Internal leak triggering anti-flood system",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10998,
+     "verifyMs": 3584,
+     "totalMs": 14639
+    },
+    "usage": {
+     "promptTokens": 4716,
+     "completionTokens": 824,
+     "totalTokens": 5540
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "SMV4HTX31E",
+        "families": [
+         "dishwasher"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:drain-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "your unit is fully integrated with a glued plinth",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "The appliance is fully integrated and cannot be moved or tilted to drain the water-protection tray. The E:15 error (water in base) has recurred after a reset, indicating an active internal leak (likel"
+    },
+    "status": "needs_engineer",
+    "candidates": [
+     {
+      "cause": "Internal leak (pump seal or sump hose) triggering anti-flood system",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f4"
+      ]
+     },
+     {
+      "cause": "Blocked drain path causing overflow into base pan",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "Bosch integrated dishwasher",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 4
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "status": "stated",
+      "quote": "Model SMV4HTX31E",
+      "turn": 4
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "quote": "showing E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "error_code",
+       "value": "E:15 with pump running after reset",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e_15_meaning",
+       "value": "Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "integration_type",
+       "value": "fully integrated under worktop with glued plinth, cannot be pulled out or tilted",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I can't pull it out or tilt it, it's fully integrated under the worktop and the plinth is glued at the ends."
+      },
+      {
+       "id": "f4",
+       "field": "water_in_base",
+       "value": "visible water in base tray through a gap with torch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I could see a little shine of water in the base tray through a gap with a torch though."
+      },
+      {
+       "id": "f5",
+       "field": "pump_behavior",
+       "value": "Pump hums constantly, won't start programme; ran one cycle after 24h unplug then error returned",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "It won't start a programme at the moment, the pump just hums constantly. After I left it unplugged for 24h it managed one cycle, then E:15 came back."
+      },
+      {
+       "id": "f6",
+       "field": "integration_constraint",
+       "value": "Fully integrated under worktop with glued plinth, cannot pull out or tilt",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "I can't pull it out or tilt it, it's fully integrated under the worktop and the plinth is glued at the ends."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_base_water",
+       "text": "To confirm this is the anti-flood switch triggering, we need to check if there is water in the bottom tray of the machine. Please pull the dishwasher out carefully (ensure it's unplugged first), lay s",
+       "turn": 1,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_filter_and_sump",
+       "text": "Since you can't access the base, please open the door, remove the lower rack, and twist out the filter assembly at the bottom of the tub. Is it clogged with food or debris? Also, look into the sump (t",
+       "turn": 2,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_drain_hose_and_waste",
+       "text": "Since you can't access the base pan, please check if the dishwasher is draining properly. Run a short drain or rinse cycle (if it allows) and listen for the pump running. Also, check under your sink w",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14786
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 15125,
+   "retried": false,
+   "label": "Internal leak requiring engineer access to drain base pan safely",
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.046716799999999996,
+ "finishedAt": "2026-10-12T22:08:42.706Z"
+}

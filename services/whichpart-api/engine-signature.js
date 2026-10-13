@@ -1,8 +1,8 @@
 'use strict';
 /**
- * whichpart-api's direct calls to the diagnosis engine (the feedback pass-through and the admin health probes).
- *   - ADR 0017: a POST body carries the AC engine signature (HMAC, keyed by the engine signing secret), as the
- *     orchestrator signs its calls. Header format matches services/diagnosis-engine/engine-auth.js.
+ * whichpart-api's calls to the diagnosis engine (every ac2 turn, the feedback pass-through and the admin health probes).
+ *   - ADR 0017: a POST body carries the AC engine signature (HMAC, keyed by the engine signing secret). Header format
+ *     matches services/diagnosis-engine/engine-auth.js.
  *   - ADR 0019: the engine's Function URL is AWS_IAM, so every call is also SigV4-signed (service `lambda`) with this
  *     function's role credentials, which may invoke only that URL. Without credentials (local tests) no SigV4 is added.
  */

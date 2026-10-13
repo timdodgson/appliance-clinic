@@ -1,5 +1,5 @@
 /**
- * Customer explanatory media for canonical NextActions: the shipped mappings (knowledge/media-information.json) merged
+ * Customer explanatory media for the ac2 turn: the shipped mappings (knowledge/media-information.json) merged
  * with the durable Admin overlay (S3 media-admin/state.json, through media-effective.mergeJoin), and the selection of
  * the items a step shows. Attached by grounded identity only, never by similarity.
  */

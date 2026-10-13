@@ -16,17 +16,18 @@ _EC = os.path.dirname(os.path.dirname(_HERE))              # .../error-codes
 RT = os.path.join(_EC, "runtime-model", "generated", "runtime")
 ENR = os.path.join(_EC, "enrichment", "generated")
 
-DATASET_V1_HASH = "0a2a8e0cbc1601fb7018affec5b28f13779b25cd72ce70a2264e013b8f40371a"
-ENRICHMENT_V1_HASH = "6301265a2a80ac28e90308b89e47c8404d2009e0c4778e8aee9c3609483a9903"
+# Dataset V1.1 (unique mappingIds + Beko hob U): anchors produced by error-codes/tools/repair-runtime-dataset.py
+DATASET_V1_HASH = "835496f2dc8da20060ed574c65bc470080c6571a332ea45324cd9605d98cf0da"
+ENRICHMENT_V1_HASH = "28c0cc32df74562ba479e8c25f121a8677acf09d9617988767c3e926e3517f20"
 
 # raw-bytes sha256 anchors captured from the banked artifacts (tamper detection independent
 # of the compilers' content-hash formulas)
 RAW_ANCHORS = {
-    os.path.join(RT, "mappings.json"): "f6355aef183df161367125f9a36ddc87bc67682de5f790b59364f90175cb68c3",
+    os.path.join(RT, "mappings.json"): "0393f021daf7fad6bb779c18fbe46d31e7f16e962095aa4c1c3d5376aebe1500",
     os.path.join(RT, "schemes.json"): "ad1ec4677ac0801cc99f6ef46a3f31c835f6b953f3131e93636dd3c458db37cd",
     os.path.join(RT, "faults.json"): "54e4474878de105b4ddd9ad6c56f528ed348a7877e15a1f0de59d7274d63f845",
-    os.path.join(RT, "sources.json"): "d78a8b893f205fdb135ee9ba1d23e77f54617906b2494e2eac61c993d6e41b92",
-    os.path.join(ENR, "enrichment.json"): "f11cccca3f578471fa8b15f70e6104e96d8ec9146c6bf9937b30ec27be0ff9fe",
+    os.path.join(RT, "sources.json"): "f871c5409dd884a8e1512ef317bbc50f28b0df67e7a7415dc183dab6668af70d",
+    os.path.join(ENR, "enrichment.json"): "a6fa080688e8a9bbd6c0e5fb3510f5b1733520b517100078ca51da3e157203cd",
 }
 
 

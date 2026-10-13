@@ -1,0 +1,55 @@
+{
+ "id": "HO-WM-04.ac",
+ "case": "HO-WM-04",
+ "system": "ac",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 3,
+  "fidelity": 1,
+  "noFabrication": 2,
+  "diagnosticUsefulness": 1,
+  "questionQuality": 1,
+  "calibration": 1,
+  "noRepetition": 2,
+  "escalation": 1,
+  "partQuality": 4,
+  "languageUnderstanding": 2,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": true,
+   "evidence": "'I understand the shaking persists despite previous adjustments' - the customer had made no adjustments"
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": false,
+   "evidence": ""
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The first reply correctly raised transit bolts with a helpful image, but when the customer said 'do u mean the big bolts at the back? i can unplug it n have a look' the assistant never followed up, instead cycling through load balance, levelling and an empty spin while ignoring three direct requests to go and look at the back. It also ignored her stated inability to lift or tilt the machine, repeating 'ease it forward carefully' each turn, and invented 'previous adjustments' she never made. It ended by escalating to an engineer with 'cause not confirmed' despite the customer effectively pointing at the unchecked transit bolts, so no part was recommended but the obvious simple fix was never confirmed.",
+ "costUsd": 0.1772394
+}

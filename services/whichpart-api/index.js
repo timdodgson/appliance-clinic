@@ -4,12 +4,11 @@
  * Which Part API — anti-corruption / boundary layer.
  *
  * The Which Part UI depends solely on the retailer-neutral contract produced here
- * (Diagnosis / CandidateComponent / CanonicalPart / Offer[]). This boundary now calls the
- * Customer Diagnostic Orchestrator (ONE diagnostic API) instead of the RAG engine directly.
- * The orchestrator internally fans out to the Error-Code MCP and the Diagnostic RAG; the browser
- * never chooses between them and never sees downstream credentials.
+ * (Diagnosis / CandidateComponent / CanonicalPart / Offer[]). Every customer turn is one ac2 turn
+ * (ADR 0020): this boundary loads the conversation's evidence ledger, calls the diagnosis engine
+ * (signed, `mode: 'turn'`) and persists the new ledger. The browser never sees downstream credentials.
  *
- *   Browser -> /api (this Lambda) -> Orchestrator /diagnose (bearer) -> MCP / RAG
+ *   Browser -> /api (this Lambda) -> diagnosis engine (ac2 turn, AWS_IAM + AC signature)
  *
  * FIT INVARIANT preserved: a part is MODEL_CONFIRMED only when the customer's model was actually
  * resolved AND the part is model-specific (not brand-only) — otherwise VERIFY_FIT.
@@ -18,33 +17,28 @@
 
 const settingsAdmin = require('./settings-admin.js');
 const transcripts = require('./transcripts');
-const conversationState = require('./conversation-state');
+const ac2State = require('./ac2-state');
+const ac2Turn = require('./ac2-turn');
 const liveTest = require('./live-test.js');
 const benchmarkAuth = require('./benchmark-auth.js');
 const stateTokenMod = require('./state-token');
 const transcriptReview = require('./transcript-review');
 const recallStoreMod = require('./recalls/store');
 const recallIngest = require('./recalls/ingest');
+const recallMatch = require('./recalls/match');
 const mediaAdmin = require('./media-admin');
 const diagnosticsInspect = require('./diagnostics-inspect');
 const errorCodesAdmin = require('./error-codes-admin');
 const httpHeaders = require('./http-headers.js');
-const {
-  ORCHESTRATOR_URL, ORCHESTRATOR_TOKEN, ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, ORCH_TIMEOUT_MS,
-  MAX_MESSAGES,
-} = require('./config.js');
+const { ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, MAX_MESSAGES } = require('./config.js');
 const { signedJsonHeaders } = require('./engine-signature.js');
 const { log } = require('./log.js');
-const { fetchWithThrottleRetry } = require('./orchestrator-retry.js');
 const { queryParam, authPath, CORS, respond } = require('./http-io.js');
 const { setRateLimitStoreForTests, rateLimited } = require('./rate-limiting.js');
 const { authLogin, authMe, authLogout, setSessionForTests, requireAdmin } = require('./session.js');
 const { setAcqS3ForTests } = require('./s3.js');
 const { routingOverride, recoverRoutingOverride } = require('./benchmark-state.js');
-const {
-  setTranscriptStore, persistTranscriptTurn, persistTranscriptReplay, canonicalTranscriptAudit,
-  persistTranscriptEnd,
-} = require('./transcript-store.js');
+const { setTranscriptStore, persistTranscriptTurn, persistTranscriptEnd } = require('./transcript-store.js');
 const {
   setMediaAdminStore, loadOverlayCached, adminKnowledge, adminKnowledgeRecord, adminMedia,
   adminMediaRecord, adminMediaCreate, adminMediaPatch, adminMediaReplace, adminMediaAction, adminMediaVersion,
@@ -78,14 +72,7 @@ const {
 let _benchmarkSecretsLoader = () => benchmarkAuth.loadSecrets();
 function setBenchmarkDepsForTests({ secretsLoader } = {}) { _benchmarkSecretsLoader = secretsLoader || (() => benchmarkAuth.loadSecrets()); }
 
-// ---- conversation transport (Story 3: STRUCTURAL only; Jev in the orchestrator owns meaning) --
-function textOf(content) {
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content)) {
-    return content.filter((p) => p && p.type === 'text' && p.text).map((p) => p.text).join(' ');
-  }
-  return '';
-}
+// ---- conversation transport (structural only; the ac2 turn owns meaning) ------------------------------
 function hasImage(content) {
   return Array.isArray(content) && content.some((p) => p && p.type === 'image_url');
 }
@@ -94,58 +81,13 @@ function imageOf(content) {
   const p = content.find((x) => x && x.type === 'image_url' && x.image_url && x.image_url.url);
   return p ? p.image_url.url : null;
 }
-function deriveContext(messages) {
-  // Story 3: STRUCTURAL transport only. The BFF assembles the conversation and forwards it; it does
-  // NOT interpret customer meaning. Appliance family, symptom presence, model-vs-error-code and
-  // answer/confirmation semantics are the orchestrator's single Jev UNDERSTAND (run before routing).
-  const userTexts = messages.filter((m) => m && m.role === 'user').map((m) => textOf(m.content));
-  const assistantTexts = messages.filter((m) => m && m.role === 'assistant').map((m) => textOf(m.content));
-  // current-turn message = latest user text (or empty if only a photo was sent)
-  const lastUser = [...messages].reverse().find((m) => m && m.role === 'user');
-  const message = lastUser ? textOf(lastUser.content) : '';
-  const photoOnly = Boolean(lastUser && hasImage(lastUser.content) && !message.trim());
-  // Latest-turn rating-plate image; carried forward (structural) if this turn has none, so the
-  // RAG vision can still read a plate the customer sent on an earlier turn.
-  let latestImage = lastUser ? imageOf(lastUser.content) : null;
-  if (!latestImage) {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (m && m.role === 'user' && hasImage(m.content)) { latestImage = imageOf(m.content); break; }
-    }
+/** The customer's latest photo (a rating plate, a part): this turn's, else the most recent earlier one. */
+function latestImageOf(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m && m.role === 'user' && hasImage(m.content)) return imageOf(m.content);
   }
-  // STABLE per-conversation session key. The orchestrator holds deterministic ConversationState
-  // keyed by this id and must be able to find it again on the NEXT turn, so the key has to be
-  // stable across a conversation's turns (established facts persist) yet distinct per conversation
-  // (state never bleeds between customers). The volatile per-request id used before (Date.now +
-  // random, plus a hash of ALL user turns that itself changed as the thread grew) guaranteed a
-  // store miss every turn, so the whole persistence/reconciliation layer never engaged. The caller
-  // threads in the client's stable per-conversation id (observability.sessionId) when present; this
-  // fallback — a deterministic fingerprint of the OPENING customer turn — covers clients that send
-  // none (it is the only signal present from turn 1 and unchanged as the thread grows). Fallback
-  // collisions are limited to warm-container lifetime AND an identical opening message with no
-  // client session id; the production client always carries one, so this is an edge case.
-  const openerKey = (userTexts.find((t) => (t || '').trim()) || '').trim();
-  const sessionId = 'wp-' + hashStr(openerKey);
-  // CLIENT-CARRIED CONTEXT: send the WHOLE accumulated conversation each turn so the single Jev
-  // UNDERSTAND sees the full thread (retention/correction) with a stateless-per-request session.
-  let conversationText = userTexts.map((t) => (t || '').trim()).filter(Boolean).join('. ');
-  // When assistant turns are present, send a labelled transcript so a later "I don't know" is bound
-  // to the question that was asked (structural transcript formatting; routing.customer_speech
-  // strips advisor lines so they never become customer facts).
-  if (assistantTexts.length) {
-    const labelled = [];
-    for (const m of messages) {
-      if (!m) continue;
-      const t = (textOf(m.content) || '').trim();
-      if (!t) continue;
-      if (m.role === 'user') labelled.push('Customer: ' + t.slice(0, 1200));
-      else if (m.role === 'assistant') labelled.push('Advisor asked: ' + t.slice(0, 500));
-    }
-    if (labelled.length >= 2) conversationText = labelled.join('\n');
-  }
-  const turnIndex = Math.max(0, userTexts.length - 1);
-  const latestMessage = message || '';
-  return { message, conversationText, sessionId, photoOnly, latestImage, turnIndex, latestMessage };
+  return null;
 }
 
 function conversationWindow(list, cap) {
@@ -165,41 +107,6 @@ function conversationWindow(list, cap) {
     return [opening, ...tail];
   }
   return hist.slice(start);
-}
-
-function sanitiseConversation(messages) {
-  const out = [];
-  for (const m of messages || []) {
-    if (!m || (m.role !== 'user' && m.role !== 'assistant')) continue;
-    const t = (textOf(m.content) || '').trim();
-    if (!t) continue;
-    const rec = {
-      role: m.role,
-      content: t.slice(0, m.role === 'assistant' ? 900 : 2000),
-    };
-    if (m.role === 'assistant' && Array.isArray(m.media) && m.media.length) {
-      rec.media = m.media.slice(0, 4).map((item) => ({
-        id: item && item.id ? String(item.id).slice(0, 80) : null,
-        type: item && item.type ? String(item.type).slice(0, 20) : null,
-        title: item && item.title ? String(item.title).slice(0, 160) : '',
-        url: item && item.url ? String(item.url).slice(0, 400) : null,
-        videoId: item && item.videoId ? String(item.videoId).slice(0, 40) : null,
-      }));
-    }
-    if (m.role === 'assistant' && m.safetyInformation) {
-      const shown = m.safetyInformation;
-      const text = typeof shown === 'string' ? shown : shown.text;
-      if (text) rec.safetyInformation = { text: String(text).slice(0, 900) };
-    }
-    out.push(rec);
-  }
-  return conversationWindow(out, MAX_MESSAGES);
-}
-
-function hashStr(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
-  return (h >>> 0).toString(36);
 }
 
 // ---- handler -----------------------------------------------------------------
@@ -535,7 +442,7 @@ async function handleEvent(event) {
   const liveStateIn = live ? liveTest.stateInOf(body) : null;
 
   // Service-authenticated benchmark (benchmark-auth.js): the same diagnose path with a runner's own
-  // conversation session id + clientTurnId and NO customer transcript. A `benchmark` object is
+  // conversation session id and NO customer transcript. A `benchmark` object is
   // accepted only with a valid x-benchmark-signature (HMAC over this exact body); otherwise 401 —
   // never silently ignored. It is not an Admin session and grants nothing else.
   let bench = null;
@@ -553,15 +460,13 @@ async function handleEvent(event) {
       if (body.feedback || !Array.isArray(body.messages)) return respond(400, { error: 'benchmark requires messages' });
     }
   }
-  const benchStateIn = bench ? liveTest.stateInOf(body) : null;
-  const benchStatus = (args) => Object.assign(liveTest.status(Object.assign({ stateIn: benchStateIn }, args)), { schema: 'benchmark/1', session: benchmarkAuth.sessionRef(bench.sessionId), clientTurnId: Boolean(bench.clientTurnId) });
 
-  // Observability fields are stripped here and NEVER forwarded to the orchestrator.
+  // Observability fields are stripped here and NEVER forwarded to the engine.
   // (A live test / benchmark request is refused above if it carries observability, so `obs` is null for it.)
   const obs = live || bench ? null : transcripts.takeObservability(body);
 
-  // Feedback pass-through: forward {feedback:{traceId,rating,note}} to the RAG engine (the single
-  // S3 writer/redactor). The traceId originates from the RAG (carried through the orchestrator).
+  // Feedback pass-through: forward {feedback:{traceId,rating,note}} to the diagnosis engine (the single
+  // S3 writer/redactor).
   if (live && (body.feedback || !Array.isArray(body.messages))) return respond(400, { error: 'liveTest requires messages' });
   if (body.feedback) {
     try {
@@ -593,288 +498,93 @@ async function handleEvent(event) {
     if (limitedTurn) return limitedTurn;
   }
 
-  // CANONICAL STATE (canonical-architecture.md §11). The BFF owns durable cs/1 state. The signed token is verified,
-  // state is loaded and sent to the orchestrator, and the returned state is persisted. ADR 0018: in `control` an AC
-  // turn is canonical or an explicit error. A turn whose state could not be prepared is never sent on to be answered
-  // some other way, and a turn whose result could not be persisted is not shown as a normal reply.
-  const canonCtx = await canonicalPrepare(body, live ? live.clientTurnId : (bench ? bench.clientTurnId : (obs && obs.clientTurnId)), rid);
-  const canonicalFailure = async (reason, path, trace) => {
-    log({ evt: 'whichpart-api', rid, ok: false, canonicalUnavailable: reason, path,
-      canonical: { mode: canonCtx.mode, version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid) } });
-    const failed = canonicalUnavailableView(rid, reason);
-    if (canonCtx.token) failed.stateToken = canonCtx.token;
-    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path });
-    if (bench) failed.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path });
-    await persistTranscriptTurn(obs, messages, failed, null, rid,
-      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: reason }, trace || null, path));
-    return respond(200, failed);
-  };
-
-  // IDEMPOTENT RETRY (canonical control): the same browser clientTurnId was already merged and
-  // answered for this canonical session. Return the processed result; never merge again.
-  if (canonCtx.duplicate && canonCtx.duplicate.view && canonCtx.mode === 'control') {
-    const cached = { ...canonCtx.duplicate.view, requestId: rid };
-    if (canonCtx.token) cached.stateToken = canonCtx.token;
-    if (live) cached.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'replayed' });
-    if (bench) cached.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'replayed' });
-    log({ evt: 'whichpart-api', rid, client: CLIENT_ID, liveTest: live ? true : undefined,
-      benchmark: bench ? { auth: true, session: benchmarkAuth.sessionRef(bench.sessionId), turnId: Boolean(bench.clientTurnId), continuity: 'replayed' } : undefined,
-      canonical: { mode: canonCtx.mode, duplicate: canonCtx.duplicate.source,
-      version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid), replayedView: true } });
-    await persistTranscriptReplay(obs);
-    return respond(200, cached);
-  }
-
-  if (canonCtx.mode === 'control' && !canonCtx.block) {
-    const reason = canonCtx.degraded || (canonCtx.duplicate ? 'duplicate_unreplayable' : 'canonical_block_missing');
-    return canonicalFailure(reason, 'canonical_prepare_failed');
-  }
-
-  const t0 = Date.now();
-  let orch;
-  try {
-    // The client's stable per-conversation id (observability.sessionId, already validated by
-    // takeObservability) is the orchestrator session key so its ConversationState persists across
-    // turns. When the client sends no observability (e.g. the regression harness) the orchestrator
-    // call falls back to a deterministic opening-turn fingerprint.
-    orch = await callOrchestrator(messages, live ? live.sessionId : (bench ? bench.sessionId : (obs && obs.sessionId)), canonCtx.block);
-  } catch (err) {
-    log({ evt: 'whichpart-api', rid, error: err.message, ms: Date.now() - t0 });
-    const fallback = fallbackView(rid);
-    if (canonCtx.token) fallback.stateToken = canonCtx.token;
-    if (live) fallback.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'orchestrator_unavailable' });
-    if (bench) fallback.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'orchestrator_unavailable' });
-    await persistTranscriptTurn(obs, messages, fallback, null, rid,
-      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: canonCtx.degraded }, null, 'orchestrator_unavailable'));
-    return respond(200, fallback);
-  }
-
-  // #21: a REQUIRED canonical COMPOSE whose provider failed (structured violation `compose_failed` in the
-  // canonical-control stage; never inferred from text) used to reach the customer as the deterministic template,
-  // looking like a healthy turn. It is now an explicit failure: the documented "AI service unavailable" reply with
-  // error:true, exactly the orchestrator-unavailable path, so the canonical state is NOT advanced (the customer never
-  // saw this turn's question) and the turn is logged as failed. Output-contract fallbacks (tripwire, checkReply) and
-  // the fixed safety-stop copy keep their deterministic template by design.
-  if (composeProviderFailed(orch._diagnosticTrace)) {
-    log({ evt: 'whichpart-api', rid, ok: false, composeFailed: true, route: orch.route, ms: Date.now() - t0,
-      canonical: canonCtx.mode === 'off' ? undefined : { mode: canonCtx.mode, version: canonCtx.version, ref: conversationState.sessionRef(canonCtx.csid) } });
-    const failed = aiUnavailableView(rid);
-    if (canonCtx.token) failed.stateToken = canonCtx.token;
-    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
-    if (bench) failed.benchmark = benchStatus({ ctx: canonCtx, summary: null, tokenOut: Boolean(canonCtx.token), path: 'compose_failed' });
-    await persistTranscriptTurn(obs, messages, failed, null, rid,
-      canonicalTranscriptAudit(canonCtx, null, { written: false, recordWritten: false, degraded: canonCtx.degraded }, orch._diagnosticTrace, 'compose_failed'));
-    return respond(200, failed);
-  }
-
-  const canonResult = await canonicalFinish(canonCtx, orch._canonical, rid);
-  const upstreamDegraded = orch._canonical && orch._canonical.degraded ? String(orch._canonical.degraded).slice(0, 60) : null;
-  // A reply whose canonical result could not be recorded is not shown as a normal answer (the customer would see a
-  // question the state never asked). A written turn record is enough: the next turn's one-step replay restores it.
-  if (canonCtx.mode === 'control' && orch.outcome !== 'SERVICE_UNAVAILABLE' && canonResult.degraded && !canonResult.recordWritten) {
-    return canonicalFailure(canonResult.degraded, 'canonical_finish_failed', orch._diagnosticTrace);
-  }
-  let canonSummary = null;
-  try { canonSummary = conversationState.summarise(canonCtx, orch._canonical, canonResult); } catch { canonSummary = null; }
-  // Live Test only: the merged state this turn actually persisted (projected, never returned whole).
-  const liveMerged = (live || bench) && canonResult.written && orch._canonical && orch._canonical.state ? orch._canonical.state : null;
-  // The transcript keeps only the bounded canonical-audit/1 projection (no state body, csid or token).
-  const canonAudit = canonicalTranscriptAudit(canonCtx, orch._canonical, canonResult, orch._diagnosticTrace);
-  delete orch._canonical; // server-side only; never reaches the view or the transcript
-  // Admin diagnostic trace (persisted with the transcript turn, never in the browser view): a bounded
-  // canonical persistence stage — mode, safe ref, versions, mc/1 summary, rules, persistence, degraded.
-  if (canonSummary && orch._diagnosticTrace && Array.isArray(orch._diagnosticTrace.stages)) {
-    orch._diagnosticTrace.stages.push(conversationState.traceStage(canonSummary));
-  }
-
-  let overlay = null;
-  try { overlay = await loadOverlayCached(); } catch { overlay = null; }
-  const view = toWhichPartView(orch, rid, overlay);
-  // ADR 0016: a turn whose decision path could not run is an error, not a normal reply (the copy is the
-  // orchestrator's own; the flag lets the client offer a retry and the transcript count it as failed).
-  if (orch.outcome === 'SERVICE_UNAVAILABLE') {
-    view.error = true;
-    view.degraded = upstreamDegraded || canonResult.degraded || canonCtx.degraded || 'service_unavailable';
-  }
-  if (canonCtx.token) view.stateToken = canonCtx.token;
-  // Idempotency marker (+ cached view) only for a turn whose canonical state was persisted.
-  if (canonResult.written && canonCtx.clientTurnId) {
-    await conversationState.recordClientTurn(canonCtx, canonResult, view, { store: canonicalStore() });
-  }
-  // Attached after the idempotency cache is written, so a cached view never carries a live-test status.
-  if (live) view.liveTest = liveTest.status({ stateIn: liveStateIn, ctx: canonCtx, summary: canonSummary, tokenOut: Boolean(canonCtx.token), mergedState: liveMerged });
-  if (bench) view.benchmark = Object.assign(benchStatus({ ctx: canonCtx, summary: canonSummary, tokenOut: Boolean(canonCtx.token), mergedState: liveMerged }),
-    { compose: composeOf(orch._diagnosticTrace) });
-  const cr = orch.codeResult || null;
-  const mcpInvoked = orch.route === 'ERROR_CODE' || orch.route === 'ERROR_CODE_AND_SYMPTOMS';
-  const ragInvoked = orch.route === 'SYMPTOMS' || orch.route === 'ERROR_CODE_AND_SYMPTOMS';
-  const submitted = (orch._telemetry && orch._telemetry.submitted) || null;
-  log({
-    evt: 'whichpart-api', rid, client: CLIENT_ID,
-    // Admin Live Test turn: continuity status only (never the token, csid or state body).
-    liveTest: live ? { stateIn: view.liveTest.stateIn, stateOut: view.liveTest.stateOut, continuity: view.liveTest.continuity, reason: view.liveTest.reason } : undefined,
-    // Service-authenticated benchmark turn: safe refs only (never the session id, token or secret).
-    benchmark: bench ? { auth: true, session: view.benchmark.session, turnId: view.benchmark.clientTurnId, stateIn: view.benchmark.stateIn, stateOut: view.benchmark.stateOut, continuity: view.benchmark.continuity, reason: view.benchmark.reason } : undefined,
-    route: orch.route, outcome: orch.outcome,
-    hasDisplayedCode: Boolean(cr && cr.displayed),
-    mcpInvoked,
-    ragInvoked,
-    clarificationRequired: orch.outcome === 'CLARIFICATION_REQUIRED',
-    safetyState: (orch.safety && orch.safety.class) || 'NORMAL',
-    safetyStopUse: Boolean((orch.safety && orch.safety.stopUse) || orch.outcome === 'SAFETY_STOP'),
-    partCount: view.parts.length,
-    mcpSubmitted: submitted,
-    mcpResolved: cr ? {
-      displayed: cr.displayed || null,
-      status: cr.status || null,
-      recordType: cr.recordType || null,
-      meaning: cr.meaning ? String(cr.meaning).slice(0, 180) : null,
-      source: cr.source || null,
-      confidence: cr.confidence || cr.mappingConfidence || null,
-    } : null,
-    ragConstrainedByMcp: Boolean(mcpInvoked && ragInvoked && cr && cr.status === 'RESOLVED'),
-    canonical: canonCtx.mode === 'off' ? undefined : {
-      mode: canonCtx.mode, demoted: canonCtx.demoted || undefined, version: canonCtx.version,
-      duplicate: canonCtx.duplicate ? canonCtx.duplicate.source : undefined,
-      appliance: canonSummary && canonSummary.mc1 ? canonSummary.mc1.appliance : undefined,
-      control: canonSummary && canonSummary.journey ? {
-        key: canonSummary.journey.key || null, applies: canonSummary.journey.applies, control: canonSummary.journey.control,
-        rule: canonSummary.journey.nextAction ? canonSummary.journey.nextAction.rule : undefined,
-        kind: canonSummary.journey.nextAction ? canonSummary.journey.nextAction.kind : undefined,
-        target: canonSummary.journey.nextAction ? canonSummary.journey.nextAction.target : undefined,
-      } : undefined,
-      recovered: canonCtx.recovered || undefined,
-      degraded: canonResult.degraded || canonCtx.degraded || null, written: canonResult.written,
-      recordWritten: canonResult.recordWritten,
-      ref: canonSummary ? canonSummary.ref : undefined,
-      resultVersion: canonSummary ? canonSummary.resultVersion : undefined,
-      rules: canonSummary ? canonSummary.rulesFired : undefined,
-      stateBytes: canonSummary ? canonSummary.stateBytes : undefined,
-      classifier: canonSummary && canonSummary.classifier ? {
-        source: canonSummary.classifier.source, degraded: canonSummary.classifier.degraded || undefined,
-        reason: canonSummary.classifier.reason || undefined, recallGap: canonSummary.classifier.recallGap,
-      } : undefined,
-    },
-    ms: Date.now() - t0,
-  });
-  await persistTranscriptTurn(obs, messages, view, orch, rid, canonAudit);
-  return respond(200, view);
+  // ac2 (ADR 0020): LLM-led diagnosis inside the deterministic guardrail kernel (services/diagnosis-engine/ac2). It is
+  // the only diagnose path; the engine's turn pipeline is the whole decision path.
+  return ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn });
 };
 
-// ---- orchestrator call --------------------------------------------------------
-// Pick the orchestrator session key. The client's stable per-conversation id (observability
-// sessionId) is preferred so the orchestrator's deterministic ConversationState is found again on
-// the next turn and established facts persist. transcripts.isValidSessionId guards the format the
-// orchestrator keys on; anything missing/invalid falls back to the deterministic opening-turn
-// fingerprint computed by deriveContext. Pure + exported for unit tests (no network).
-function resolveOrchestratorSessionId(clientSessionId, fallbackSessionId) {
-  if (clientSessionId && transcripts.isValidSessionId(clientSessionId)) return clientSessionId;
-  return fallbackSessionId;
+// ---- ac2 turn ------------------------------------------------------------------------------------------
+let _ac2Store = null;
+function ac2Store() {
+  if (!_ac2Store) _ac2Store = ac2State.createStore();
+  return _ac2Store;
 }
-
-// ---- canonical state (cs/1 transport + persistence) ------------------------------------------------
-let _canonicalStore = null;
-let _canonicalSecretsLoader = () => stateTokenMod.loadSecrets();
-let _canonicalNewId = undefined;
-function canonicalStore() {
-  if (!_canonicalStore) _canonicalStore = conversationState.createStateStore();
-  return _canonicalStore;
+function setAc2DepsForTests({ store, callEngine } = {}) {
+  if (store !== undefined) _ac2Store = store;
+  if (callEngine !== undefined) _ac2CallEngine = callEngine;
 }
-function setCanonicalDepsForTests({ store, secretsLoader, newId } = {}) {
-  if (store !== undefined) _canonicalStore = store;
-  if (secretsLoader !== undefined) _canonicalSecretsLoader = secretsLoader;
-  if (newId !== undefined) _canonicalNewId = newId;
-}
-let _canonicalUnknownLogged = false;
-/** Never throws; `off` mode does no work at all. */
-async function canonicalPrepare(body, clientTurnId, rid) {
-  const { mode, demoted, unknown } = conversationState.resolveMode();
-  // An allow-list key that is not in the journey registry is never enabled; say so once per container.
-  if (unknown && unknown.length && !_canonicalUnknownLogged) {
-    _canonicalUnknownLogged = true;
-    log({ evt: 'canonical-config', warning: 'unknown CANONICAL_CONTROL_JOURNEYS keys ignored', unknown: unknown.slice(0, 20).map((k) => String(k).slice(0, 60)) });
-  }
-  if (mode === 'off') return { mode: 'off', block: null, token: null, degraded: null };
-  try {
-    let secrets = null;
-    try { secrets = await _canonicalSecretsLoader(); } catch { secrets = null; }
-    const ctx = await conversationState.prepareTurn({ body, store: canonicalStore(), secrets, newId: _canonicalNewId, clientTurnId });
-    if (ctx.degraded) log({ evt: 'canonical-prepare', rid, mode: ctx.mode, degraded: ctx.degraded });
-    return ctx;
-  } catch (e) {
-    // e.g. store construction failed. The legacy path continues; canonical is simply off this turn.
-    log({ evt: 'canonical-prepare', rid, mode, degraded: 'prepare_failed', error: String((e && e.message) || e).slice(0, 160) });
-    return { mode, demoted, block: null, token: null, version: 0, degraded: 'prepare_failed' };
-  }
-}
-async function canonicalFinish(ctx, out, rid) {
-  if (!ctx || !ctx.block) return { written: false, recordWritten: false, degraded: ctx ? ctx.degraded : null };
-  try {
-    const r = await conversationState.finishTurn(ctx, out, { store: canonicalStore(), messageId: rid });
-    if (r.degraded) log({ evt: 'canonical-finish', rid, degraded: r.degraded, written: r.written });
-    return r;
-  } catch (e) {
-    return { written: false, recordWritten: false, degraded: 'finish_failed' };
-  }
-}
-
-async function callOrchestrator(messages, clientSessionId, canonicalBlock) {
-  // Story 3: the BFF is a STRUCTURAL transport. It assembles the conversation and forwards it; it
-  // does NOT interpret customer meaning (appliance family, symptom presence, model-vs-error-code
-  // are the orchestrator's single Jev UNDERSTAND, which runs BEFORE routing). The old deriveContext
-  // semantic parsing and the competing extract-intent LLM classifier have been removed — one
-  // semantic authority, no boundary duplication.
-  const ctx = deriveContext(messages);
-  // Prefer the client's stable per-conversation id so the orchestrator's ConversationState persists
-  // across turns; fall back to the deterministic opening-turn fingerprint for clients that send no
-  // observability session.
-  const sessionId = resolveOrchestratorSessionId(clientSessionId, ctx.sessionId);
-  const payload = {
-    // Accumulated conversation (client-carried context) so the orchestrator's single Jev pass sees
-    // the whole thread every turn (retention/correction), now with a STABLE per-conversation session
-    // so already-established facts are retained deterministically instead of re-derived each turn.
-    message: ctx.conversationText || ctx.message, sessionId,
-    includeEnrichment: true,
-    latestMessage: ctx.latestMessage, turnIndex: ctx.turnIndex,
-    conversation: sanitiseConversation(messages),
-    // Forward the latest-turn rating-plate image so the orchestrator/RAG vision can read it.
-    ...(ctx.latestImage ? { image: ctx.latestImage } : {}),
-    // Canonical cs/1 block (mode, allow-list, csid, prior state). Present only when canonical runs this turn.
-    ...(canonicalBlock ? { canonical: canonicalBlock } : {}),
-  };
+let _ac2CallEngine = async (raw, timeoutMs) => {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ORCH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const headers = { 'content-type': 'application/json' };
-    if (ORCHESTRATOR_TOKEN) headers.authorization = 'Bearer ' + ORCHESTRATOR_TOKEN;
-    // A throttled (429) call never ran, so it is retried a bounded number of times inside the same overall timeout; a
-    // throttle that persists is still reported as a failure below.
-    const res = await fetchWithThrottleRetry(fetch, ORCHESTRATOR_URL.replace(/\/$/, '') + '/diagnose', {
-      method: 'POST', headers, body: JSON.stringify(payload), signal: controller.signal,
-    }, { onRetry: ({ attempt, delayMs }) => log({ evt: 'orchestrator-throttled', attempt, delayMs }) });
-    if (!res.ok) throw new Error('orchestrator http ' + res.status);
-    const out = await res.json();
-    out._photoOnly = ctx.photoOnly;
-    // Telemetry only — never customer-facing. Story 3: the BFF no longer derives semantics, so this
-    // reflects what the orchestrator (single Jev authority) resolved, not a boundary re-parse.
-    const understood = (out.understood && typeof out.understood === 'object') ? out.understood : {};
-    out._telemetry = {
-      submitted: {
-        // What the orchestrator ACTUALLY routed/submitted this turn (single Jev authority), not a
-        // boundary re-parse: the customer's displayed code (compound preserved), structural make,
-        // and Jev's appliance family. Falls back to the resolved codeResult for the displayed code.
-        displayedCode: understood.displayedCode || (out.codeResult && out.codeResult.displayed) || null,
-        make: understood.make || null,
-        applianceFamily: understood.appliance || null,
-      },
-    };
-    return out;
+    const res = await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(raw, ENGINE_URL), body: raw, signal: controller.signal });
+    let json = null;
+    try { json = await res.json(); } catch { json = null; }
+    return { status: res.status, json };
   } finally {
     clearTimeout(timer);
   }
+};
+// Recall tool for the ac2 turn: strong matches only (an exact model identifier in a published notice), never a fuzzy
+// resemblance. Published records are cached per container for five minutes.
+let _recallCache = { at: 0, rows: [] };
+async function ac2RecallLookup(messages) {
+  const text = (messages || []).filter((m) => m && m.role === 'user').map((m) => (typeof m.content === 'string' ? m.content : '')).join(' ');
+  const tokens = [...new Set((text.toUpperCase().match(/\b[A-Z0-9][A-Z0-9-]{4,19}\b/g) || []).filter((t) => /\d/.test(t) && /[A-Z]/.test(t)))].slice(0, 6);
+  if (!tokens.length) return [];
+  if (Date.now() - _recallCache.at > 300000) _recallCache = { at: Date.now(), rows: await recallStore().listPublished() };
+  const out = [];
+  for (const r of _recallCache.rows) {
+    for (const t of tokens) {
+      let m;
+      try { m = recallMatch.matchQuery({ brand: r.brand, models: r.models, modelText: r.modelText, productName: r.productName, title: r.title, family: r.family, searchBlob: recallStoreMod.searchBlob(r) }, t); } catch { m = null; }
+      if (m && m.strength === 'strong') { out.push({ title: String(r.title || '').slice(0, 160), url: r.slug ? `/recalls/${r.slug}/` : null, brand: r.brand || null }); break; }
+    }
+    if (out.length >= 3) break;
+  }
+  return out;
 }
 
-// ---- orchestrator response -> retailer-neutral view --------------------------
+async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }) {
+  const t0 = Date.now();
+  const r = await ac2Turn.handle({ body, messages, image: latestImageOf(messages) }, {
+    callEngine: (raw, timeoutMs) => _ac2CallEngine(raw, timeoutMs), secretsLoader: () => _stateTokenSecretsLoader(), store: ac2Store(),
+    recallLookup: (msgs) => ac2RecallLookup(msgs),
+  });
+  if (r.error) {
+    log({ evt: 'whichpart-api', rid, ok: false, ac2: { error: r.error }, liveTest: live ? { session: live.sessionId } : undefined, ms: Date.now() - t0 });
+    const failed = aiUnavailableView(rid);
+    failed.error = true;
+    failed.degraded = r.error;
+    if (r.token) failed.stateToken = r.token;
+    if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, result: r });
+    if (bench) failed.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: false, reason: r.error, session: benchmarkAuth.sessionRef(bench.sessionId) };
+    await persistTranscriptTurn(obs, messages, failed, null, rid, { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: r.error, ms: Date.now() - t0 });
+    return respond(200, failed);
+  }
+  let overlay = null;
+  try { overlay = await loadOverlayCached(); } catch { overlay = null; }
+  const view = toWhichPartView(r.orch, rid, overlay);
+  view.stateToken = r.token;
+  if (live) view.liveTest = liveTest.status({ stateIn: liveStateIn, result: r });
+  if (bench) view.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: true, session: benchmarkAuth.sessionRef(bench.sessionId), audit: r.audit };
+  log({ evt: 'whichpart-api', rid, client: CLIENT_ID, route: 'AC2', outcome: r.orch.outcome,
+    benchmark: bench ? { auth: true, session: benchmarkAuth.sessionRef(bench.sessionId) } : undefined, liveTest: live ? { session: live.sessionId } : undefined,
+    ac2: { turn: r.audit.turn, status: r.audit.status, hazards: r.audit.safety && r.audit.safety.hazards, gates: ((r.audit.safety && r.audit.safety.gates) || []).map((g) => g.gate),
+      claimsRejected: r.audit.claimsRejected.length, regenerated: r.audit.regenerated, partGate: r.audit.partGate && r.audit.partGate.outcome,
+      engineMs: r.ms, timings: r.audit.timings, provider: r.audit.provider },
+    safetyStopUse: Boolean(r.orch.safety && r.orch.safety.stopUse), partCount: view.parts.length, ms: Date.now() - t0 });
+  await persistTranscriptTurn(obs, messages, view, r.orch, rid, r.audit);
+  return respond(200, view);
+}
+
+// ---- state token secrets (the signed session token every ac2 turn carries, state-token.js) ------------
+let _stateTokenSecretsLoader = () => stateTokenMod.loadSecrets();
+function setStateTokenDepsForTests({ secretsLoader } = {}) {
+  _stateTokenSecretsLoader = secretsLoader || (() => stateTokenMod.loadSecrets());
+}
+
+// ---- ac2 turn response -> retailer-neutral view ------------------------------
 function toWhichPartView(orch, rid, overlay) {
   const outcome = orch.outcome || 'ANSWER';
   const codeResult = orch.codeResult || null;
@@ -921,26 +631,13 @@ function toWhichPartView(orch, rid, overlay) {
     components.push({ name: p.name, rank: p.fitStatus === 'MODEL_CONFIRMED' ? 'PRIMARY' : 'PLAUSIBLE' });
   }
 
-  // Rating-plate extraction awaiting confirmation: expose ONLY the candidate model string (never the
-  // vision-read make/appliance, which can be a legal-entity/appliance distractor) so the UI can show
-  // "is this your model?". Parts stay empty until the customer confirms.
-  const ie = orch.imageExtraction;
-  const extractedModel = (ie && ie.status === 'IMAGE_EXTRACTED_UNCONFIRMED' && ie.model) ? String(ie.model) : null;
-
-  // needsModel: only when identity is still missing. A candidate extracted from a photo is
-  // confirmation-in-progress, not a missing model — do not show the generic model-entry control.
-  const needs = (orch.clarification && orch.clarification.needs) || [];
-  const needsStr = needs.map((n) => (n && typeof n === 'object') ? (n.attribute || JSON.stringify(n)) : String(n)).join(' ');
-  const modelNeedRe = /scheme|model|e_?nr|pnc|12nc|serial|plate|identifi|generation|platform|architecture/i;
-  const needsModel = !extractedModel && Boolean(
-    orch.modelRequired
-    || (outcome === 'CLARIFICATION_REQUIRED' && modelNeedRe.test(needsStr))
-  );
+  // needsModel: the part gate needs the customer's model number before it can recommend a part.
+  const needsModel = Boolean(orch.modelRequired);
 
   const label = (codeResult && codeResult.meaning) || (orch.diagnosis && orch.diagnosis.summary) || null;
 
-  // Customer SAFETY INFORMATION — pre-written, evidence-backed text attached to the grounded node by
-  // the RAG (node identity) and passed through the orchestrator verbatim. We surface ONLY the
+  // Customer SAFETY INFORMATION — pre-written, evidence-backed text attached by knowledge id by the
+  // ac2 turn (knowledge/safety-information.json) and passed through verbatim. We surface ONLY the
   // customer-facing fields (text + classification); provenance/source internals stay server-side.
   // The `text` is passed through byte-for-byte (never rewritten). Suppressed on a safety-stop (that
   // reply already leads with the authoritative action). Absent => null (UI renders nothing).
@@ -950,7 +647,7 @@ function toWhichPartView(orch, rid, overlay) {
     : null;
 
   // Customer instructional media (image/diagram/video) supporting a check on the grounded node.
-  // Already a customer-safe subset from the RAG; re-project defensively so no extra field can leak
+  // Already a customer-safe subset from the engine; re-project defensively so no extra field can leak
   // (provenance never passes), suppress entirely on a safety-stop, and HARD-RESTRICT video embeds to
   // the trusted provider host — a curated embed URL from any other host is dropped.
   // Explanatory-media intent (customer-safe): SAFE_CHECK (instructional/check) or ABOUT
@@ -973,23 +670,18 @@ function toWhichPartView(orch, rid, overlay) {
       }).filter(Boolean)
     : [], overlay);
 
-  // Relay the orchestrator's STRUCTURED pending request (customer-safe: slot/purpose/status only) so
-  // a client that can carry conversation state echoes it back next turn. Absent => null.
-  const pr = orch.pendingRequest;
-  const pendingRequest = (pr && typeof pr === 'object' && typeof pr.slot === 'string')
-    ? { slot: pr.slot, purpose: pr.purpose || null, status: pr.status || 'PENDING' }
-    : null;
-
   return {
     requestId: rid,
     traceId: orch.traceId || null,
     reply,
     advisory,
     safety: Boolean(isSafety),
-    pendingRequest,
+    // Retired with the journey controller (no structured pending request, no unconfirmed photo reading); kept null in
+    // the browser contract.
+    pendingRequest: null,
     safetyInformation,
     needsModel,
-    extractedModel,
+    extractedModel: null,
     media,
     diagnosis: {
       faultId: null, // internal scheme/fault ids are never surfaced to the client
@@ -1034,24 +726,7 @@ function firstSentence(text) {
   const m = text.match(/^.*?[.!?](\s|$)/);
   return (m ? m[0] : text).trim();
 }
-/** The canonical-control stage's COMPOSE record (source, violations, error class), for the benchmark status. */
-function composeOf(trace) {
-  const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
-  const c = st && st.detail && st.detail.compose;
-  return c ? { source: c.source || null, violations: Array.isArray(c.violations) ? c.violations.slice(0, 8) : [], error: c.error || null } : null;
-}
-/** #21: true when the canonical-control stage reports a COMPOSE provider failure (structured, not text). */
-function composeProviderFailed(trace) {
-  const st = trace && Array.isArray(trace.stages) ? trace.stages.find((x) => x && x.id === 'canonical-control') : null;
-  const c = st && st.detail && st.detail.compose;
-  return Boolean(c && Array.isArray(c.violations) && c.violations.indexOf('compose_failed') !== -1);
-}
 /** The documented public failure reply (the diagnosis service's "AI service unavailable"), as an error view. */
-// ADR 0016 / 0018: an AC turn whose canonical path could not run. Same customer copy as the AI-unavailable reply; the
-// flag lets the client offer a retry and the transcript count the turn as failed, with the reason.
-function canonicalUnavailableView(rid, reason) {
-  return { ...aiUnavailableView(rid), errorCode: 'canonical_unavailable', degraded: String(reason || 'unknown').slice(0, 60) };
-}
 function aiUnavailableView(rid) {
   return { ...fallbackView(rid), reply: 'AI service unavailable. Please try again in a moment.', errorCode: 'ai_unavailable' };
 }
@@ -1065,19 +740,15 @@ function fallbackView(rid) {
   };
 }
 
-// Exported for deterministic unit tests (no network / orchestrator needed).
+// Exported for deterministic unit tests (no network / engine needed).
 module.exports.toWhichPartView = toWhichPartView;
-module.exports.deriveContext = deriveContext;
-module.exports.sanitiseConversation = sanitiseConversation;
+module.exports.latestImageOf = latestImageOf;
 module.exports.conversationWindow = conversationWindow;
-module.exports.resolveOrchestratorSessionId = resolveOrchestratorSessionId;
 module.exports.setTranscriptStore = setTranscriptStore;
-module.exports.setCanonicalDepsForTests = setCanonicalDepsForTests;
+module.exports.setStateTokenDepsForTests = setStateTokenDepsForTests;
 module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
 module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
 module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
-module.exports.composeProviderFailed = composeProviderFailed;
-module.exports.composeOf = composeOf;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setDiagnosticsDepsForTests = setDiagnosticsDepsForTests;
 module.exports.setSettingsDepsForTests = setSettingsDepsForTests;
@@ -1094,3 +765,4 @@ module.exports.errorCodesAdmin = errorCodesAdmin;
 module.exports.recallAdmin = recallAdmin;
 module.exports.setRecallStore = setRecallStore;
 module.exports.recallStoreMod = recallStoreMod;
+module.exports.setAc2DepsForTests = setAc2DepsForTests;

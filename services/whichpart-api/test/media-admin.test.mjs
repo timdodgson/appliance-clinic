@@ -634,9 +634,15 @@ describe('referential safety: archive vs delete', () => {
     expect(liveItem(st, 'dishwasher:not-draining', 'dishwasher-filter')).toEqual(liveItem(null, 'dishwasher:not-draining', 'dishwasher-filter'));
   });
 
-  it('canonical refs file is current (structured ids from MEDIA_BY_KEY, not text matching)', () => {
-    const { build } = require('../scripts/build-media-canonical-refs.cjs');
-    expect(require('../media-canonical-refs.json')).toEqual(build());
+  it('canonical refs file is frozen data with structured ids (the retired journeys\' MEDIA_BY_KEY, not text matching)', () => {
+    const refs = require('../media-canonical-refs.json');
+    expect(refs.version).toBe(1);
+    const entries = Object.entries(refs.byMediaId);
+    expect(entries.length).toBeGreaterThan(0);
+    for (const [mediaId, uses] of entries) {
+      expect(mediaId).toMatch(/^[a-z][a-z0-9-]+$/);
+      for (const u of uses) expect(u).toEqual({ journey: expect.any(String), family: expect.any(String), actionKey: expect.any(String), knowledgeId: expect.stringMatching(/^[a-z-]+:[a-z0-9-]+$/) });
+    }
   });
 });
 

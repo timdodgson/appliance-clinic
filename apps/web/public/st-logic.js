@@ -161,11 +161,8 @@
   }
   function runtimeStatusHtml(rs) {
     rs = rs || {};
-    var c = rs.canonical;
-    var mode = c ? ((c.mode === 'control' ? 'Control' : c.mode === 'shadow' ? 'Shadow' : c.mode === 'off' ? 'Off' : 'Unknown')
-      + (c.mode === 'control' && c.controlJourneyCount != null ? ' · ' + c.controlJourneyCount + ' journeys enabled' : '')
-      + (c.demoted ? ' · demoted to shadow (empty allow-list)' : '')) : 'Not reported';
-    return readOnlyRowHtml('Canonical conversation mode', mode, 'Deployment environment', rs.canonicalNote || '');
+    var arch = rs.architecture === 'ac2' ? 'ac2 · LLM-led turn inside the guardrail kernel' : 'Not reported';
+    return readOnlyRowHtml('Diagnosis architecture', arch, 'Fixed in code (ADR 0020)', rs.architectureNote || '');
   }
   // Client-side preview of what Apply will change (the server recomputes and is authoritative).
   function reviewChanges(inf, proposed) {

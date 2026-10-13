@@ -1,0 +1,700 @@
+{
+ "id": "TD-08",
+ "system": "ac2",
+ "sessionId": "bm-ac2-td-08-3c9e988795",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "t/d keeps cutting out after 10 mins then starts again if i leave it. vent hose goes out the window. pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "A tumble dryer cutting out after about 10 minutes and restarting once it cools is almost always an overheating protection fault. The most common cause is restricted airflow (a full filter or blocked vent) causing the thermal cut-out to trip. Less commonly, the thermostat or cut-out itself has failed. Please check if the lint filter is clean and ensure the vent hose is not kinked or blocked. If you can, detach the hose from the back of the machine and see if air blows out freely during a short run.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  },
+  {
+   "role": "customer",
+   "text": "filter is clean, i do it every time. the hose is kinked behind the dryer tho, i pushed it back further recently. cabinet gets really hot before it stops"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Restricted airflow causing overheating]\nThe fact that the cabinet gets really hot confirms the dryer is overheating and tripping its safety thermostat. Please unplug the machine first. Detach the vent hose from the back of the dryer and run it for a minute. Check if air blows out strongly from the rear opening. If airflow is strong there but weak when the hose is attached, the hose itself or the wall vent is blocked/kinked. If airflow is weak even without the hose, the blockage or fan failure is inside the machine. Once you've checked this, ensure the hose is reattached with a smooth, straight path to the window—no kinks or tight bends.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  },
+  {
+   "role": "customer",
+   "text": "ok did that, ran it with the hose off the window vent into the room for a bit and it ran the whole 40 mins without cutting out. fluff in the folds of the kinked bit tho"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Restricted airflow due to kinked vent hose and internal fluff blockage]\nThat confirms it was the kinked vent hose causing a blockage. The fluff trapped in the folds restricted airflow, making the dryer overheat and trip its safety cut-out after 10 minutes. Please replace that section of hose or ensure the new routing is completely smooth with no tight bends. Before you put it back, check the wall vent outside to make sure nothing has built up there too. Once the air path is clear, your dryer should run normally again.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "label inside the door says IDV 75. its my landlords dryer tho, do i really need a new hose?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Kinked vent hose causing overheating]\nNo, you do not necessarily need a new hose. The test proved that the kink was the problem; if you can route the existing hose so it lies straight and smooth without any tight bends or fluff traps, it should work fine again. Since this is your landlord's appliance, I would recommend sending them a photo of the current kinked setup and suggesting they either re-route it properly or replace just that section of flexible ducting if it looks damaged. As long as the air path is clear and the filter stays clean, the machine should run without cutting out.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8459,
+     "verifyMs": 376,
+     "totalMs": 8877
+    },
+    "usage": {
+     "promptTokens": 3650,
+     "completionTokens": 613,
+     "totalTokens": 4263
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:thermostat",
+       "vacuum:cuts-out",
+       "tumble-dryer:overheating"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Restricted airflow causing overheating (blocked filter or vent)",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Failing thermal cut-out or thermostat",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "status": "inferred",
+      "quote": "t/d",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "Cuts out after 10 mins then starts again if left to cool",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "t/d keeps cutting out after 10 mins then starts again if i leave it."
+      },
+      {
+       "id": "f2",
+       "field": "vent_configuration",
+       "value": "Vent hose goes out the window",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "vent hose goes out the window."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_and_vent",
+       "text": "To narrow this down, please do two quick checks (switched off and unplugged first):\n1. Is the lint filter in the door opening clean? \n2. With the vent hose detached from the back of the machine, does ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8932
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9589,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10410,
+     "verifyMs": 1757,
+     "totalMs": 12204
+    },
+    "usage": {
+     "promptTokens": 3311,
+     "completionTokens": 794,
+     "totalTokens": 4105
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:tripping-electrics",
+       "tumble-dryer:heat-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since the lint filter is clean, the kinked hose you mentioned is almost certainly restricting airflow, causing heat to build up inside the cabinet.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Restricted airflow due to kinked vent hose or internal blockage",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f2",
+       "newFacts[1]",
+       "newFacts[2]"
+      ]
+     },
+     {
+      "cause": "Failed thermal cut-out or thermostat (less likely as root cause)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "status": "inferred",
+      "quote": "t/d",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "Cuts out after 10 mins then starts again if left to cool",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "t/d keeps cutting out after 10 mins then starts again if i leave it."
+      },
+      {
+       "id": "f2",
+       "field": "vent_configuration",
+       "value": "Vent hose goes out the window",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "vent hose goes out the window."
+      },
+      {
+       "id": "f3",
+       "field": "filter_status",
+       "value": "Filter is clean and checked every time",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "filter is clean, i do it every time."
+      },
+      {
+       "id": "f4",
+       "field": "vent_condition",
+       "value": "Hose was kinked behind dryer; pushed back further recently",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "the hose is kinked behind the dryer tho, i pushed it back further recently."
+      },
+      {
+       "id": "f5",
+       "field": "temperature_symptom",
+       "value": "Cabinet gets really hot before stopping",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "cabinet gets really hot before it stops"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_and_vent",
+       "text": "To narrow this down, please do two quick checks (switched off and unplugged first):\n1. Is the lint filter in the door opening clean? \n2. With the vent hose detached from the back of the machine, does ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_vent_flow_free",
+       "text": "Please unplug the dryer, detach the vent hose from the back of the machine, and run a short cycle (or just turn it on). Does air blow out strongly from the rear opening? If yes, reattach the hose ensu",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12269
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13157,
+   "retried": false,
+   "label": "Restricted airflow causing overheating",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7663,
+     "verifyMs": 1730,
+     "totalMs": 9428
+    },
+    "usage": {
+     "promptTokens": 3699,
+     "completionTokens": 546,
+     "totalTokens": 4245
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WHOLE40",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:tripping-electrics",
+       "tumble-dryer:heat-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "model_needed",
+     "component": "vent hose",
+     "failed": [],
+     "matcher": null,
+     "cited": [
+      "f4"
+     ]
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Restricted airflow due to kinked vent hose and internal fluff blockage",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f4",
+       "f5",
+       "vent_flow_test_result"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "status": "inferred",
+      "quote": "t/d",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "Cuts out after 10 mins then starts again if left to cool",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "t/d keeps cutting out after 10 mins then starts again if i leave it."
+      },
+      {
+       "id": "f2",
+       "field": "vent_configuration",
+       "value": "Vent hose goes out the window",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "vent hose goes out the window."
+      },
+      {
+       "id": "f3",
+       "field": "filter_status",
+       "value": "Filter is clean and checked every time",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "filter is clean, i do it every time."
+      },
+      {
+       "id": "f4",
+       "field": "vent_condition",
+       "value": "Hose was kinked behind dryer; pushed back further recently",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "the hose is kinked behind the dryer tho, i pushed it back further recently."
+      },
+      {
+       "id": "f5",
+       "field": "temperature_symptom",
+       "value": "Cabinet gets really hot before stopping",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "cabinet gets really hot before it stops"
+      },
+      {
+       "id": "f6",
+       "field": "vent_flow_test_result",
+       "value": "Ran 40 mins with hose detached from wall vent (into room) without cutting out; found fluff in the kinked section of the hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ok did that, ran it with the hose off the window vent into the room for a bit and it ran the whole 40 mins without cutting out. fluff in the folds of the kinked bit tho"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_and_vent",
+       "text": "To narrow this down, please do two quick checks (switched off and unplugged first):\n1. Is the lint filter in the door opening clean? \n2. With the vent hose detached from the back of the machine, does ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_vent_flow_free",
+       "text": "Please unplug the dryer, detach the vent hose from the back of the machine, and run a short cycle (or just turn it on). Does air blow out strongly from the rear opening? If yes, reattach the hose ensu",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9531
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 9972,
+   "retried": false,
+   "label": "Restricted airflow due to kinked vent hose and internal fluff blockage",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7475,
+     "verifyMs": 1797,
+     "totalMs": 9301
+    },
+    "usage": {
+     "promptTokens": 3998,
+     "completionTokens": 506,
+     "totalTokens": 4504
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WHOLE40",
+        "families": [
+         "washing-machine"
+        ]
+       },
+       {
+        "token": "IDV75",
+        "families": [
+         "tumble-dryer",
+         "hobs"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:tripping-electrics",
+       "tumble-dryer:heat-pump"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Restricted airflow due to kinked vent hose",
+      "likelihood": "high",
+      "evidence": [
+       "f6"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "status": "stated",
+      "quote": "label inside the door says IDV 75. its my landlords dryer tho",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Indesit",
+      "status": "stated",
+      "quote": "IDV 75",
+      "turn": 4
+     },
+     "model": {
+      "value": "IDV 75 SERIES",
+      "status": "stated",
+      "quote": "label inside the door says IDV 75",
+      "turn": 4
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "Cuts out after 10 mins then starts again if left to cool",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "t/d keeps cutting out after 10 mins then starts again if i leave it."
+      },
+      {
+       "id": "f2",
+       "field": "vent_configuration",
+       "value": "Vent hose goes out the window",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "vent hose goes out the window."
+      },
+      {
+       "id": "f3",
+       "field": "filter_status",
+       "value": "Filter is clean and checked every time",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "filter is clean, i do it every time."
+      },
+      {
+       "id": "f4",
+       "field": "vent_condition",
+       "value": "Hose was kinked behind dryer; pushed back further recently",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "the hose is kinked behind the dryer tho, i pushed it back further recently."
+      },
+      {
+       "id": "f5",
+       "field": "temperature_symptom",
+       "value": "Cabinet gets really hot before stopping",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "cabinet gets really hot before it stops"
+      },
+      {
+       "id": "f6",
+       "field": "vent_flow_test_result",
+       "value": "Ran 40 mins with hose detached from wall vent (into room) without cutting out; found fluff in the kinked section of the hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ok did that, ran it with the hose off the window vent into the room for a bit and it ran the whole 40 mins without cutting out. fluff in the folds of the kinked bit tho"
+      },
+      {
+       "id": "f7",
+       "field": "ownership",
+       "value": "It is a landlord's appliance",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "its my landlords dryer tho"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_and_vent",
+       "text": "To narrow this down, please do two quick checks (switched off and unplugged first):\n1. Is the lint filter in the door opening clean? \n2. With the vent hose detached from the back of the machine, does ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_vent_flow_free",
+       "text": "Please unplug the dryer, detach the vent hose from the back of the machine, and run a short cycle (or just turn it on). Does air blow out strongly from the rear opening? If yes, reattach the hose ensu",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9359
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 9691,
+   "retried": false,
+   "label": "Kinked vent hose causing overheating",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0452665,
+ "finishedAt": "2026-10-12T21:57:57.479Z"
+}

@@ -1,5 +1,5 @@
 /**
- * ADR 0017: orchestrator-only engine fields are honoured only with a valid AC signature over the exact body.
+ * ADR 0017: internal engine fields are honoured only with a valid AC signature over the exact body.
  * ADR 0019: there is no unsigned request path; the handler refuses any request without a valid signature
  * (engine-signed-boundary.test.mjs).
  * ADR 0018: internal fields without a valid signature are refused, never dropped into a plain request.
@@ -13,7 +13,7 @@ const W = require('../../whichpart-api/engine-signature.js');
 const KEY = 'k0123456789abcdef0123456789abcdef0123456789abcdef';
 const NOW = 1760000000;
 const ev = (sig, origin) => ({ headers: { ...(sig ? { 'x-ac-engine-signature': sig } : {}), ...(origin ? { origin } : {}) } });
-const internalBody = { messages: [{ role: 'user', content: 'x' }], mode: 'understand' };
+const internalBody = { messages: [{ role: 'user', content: 'x' }], mode: 'turn' };
 const raw = JSON.stringify(internalBody);
 const gate = (body, rawBody, sig) => A.gateInternalFields(body, ev(sig), rawBody, { key: KEY, nowS: NOW });
 
@@ -21,14 +21,14 @@ describe('signature', () => {
   it('a valid signature verifies (constant-time compare)', () => {
     expect(A.verify(ev(A.sign(KEY, raw, NOW)), raw, KEY, NOW)).toBe('valid');
   });
-  it('the orchestrator (Python) and whichpart-api signers produce the header the engine verifies', () => {
-    expect('t=1760000000,v1=80dcc066b6ae45059ddfceef809cdc8475691b38ed215bddc136a83e6acbba18').toBe(A.sign(KEY, raw, NOW));
+  it('the recorded signature and the whichpart-api signer produce the header the engine verifies', () => {
+    expect('t=1760000000,v1=962f81275cc379a23cc8ed160107a8fb63e4a2edf4ca708a5933967e88a27d67').toBe(A.sign(KEY, raw, NOW));
     expect(W.engineSignature(raw, KEY, NOW)).toBe(A.sign(KEY, raw, NOW));
-    expect(A.verify(ev('t=1760000000,v1=80dcc066b6ae45059ddfceef809cdc8475691b38ed215bddc136a83e6acbba18'), raw, KEY, NOW)).toBe('valid');
+    expect(A.verify(ev('t=1760000000,v1=962f81275cc379a23cc8ed160107a8fb63e4a2edf4ca708a5933967e88a27d67'), raw, KEY, NOW)).toBe('valid');
   });
   it('a tampered body fails verification', () => {
     const sig = A.sign(KEY, raw, NOW);
-    expect(A.verify(ev(sig), raw.replace('understand', 'understane'), KEY, NOW)).toBe('invalid');
+    expect(A.verify(ev(sig), raw.replace('turn', 'tern'), KEY, NOW)).toBe('invalid');
   });
   it('a wrong key, a stale timestamp and a malformed header are each rejected', () => {
     expect(A.verify(ev(A.sign('x'.repeat(48), raw, NOW)), raw, KEY, NOW)).toBe('invalid');
@@ -46,10 +46,10 @@ describe('enforcement (ADR 0018: refused, never stripped into a plain request)',
     expect(g.record).toMatchObject({ signature: 'valid', rejected: false, present: ['mode'] });
   });
   it('unsigned internal fields mark the request rejected (the handler refuses it)', () => {
-    const forged = { messages: internalBody.messages, mode: 'understand', understand: { _requestClass: 'appliance_request' }, canonical: { schema: 'cs/1' }, established: { applianceFamily: 'oven' }, seed: 7 };
+    const forged = { messages: internalBody.messages, mode: 'turn', ac2: { state: { schema: 'ac2/1' } }, image: 'data:image/png;base64,AAAA' };
     const g = gate(forged, JSON.stringify(forged), null);
     expect(g.record).toMatchObject({ signature: 'missing', rejected: true });
-    expect(g.record.present.sort()).toEqual(['canonical', 'established', 'mode', 'seed', 'understand']);
+    expect(g.record.present.sort()).toEqual(['ac2', 'image', 'mode']);
   });
   it('an invalid signature is treated like no signature', () => {
     const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW));

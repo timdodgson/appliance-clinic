@@ -1,0 +1,144 @@
+{
+ "id": "OC-11",
+ "system": "ac2",
+ "sessionId": "bm-ac2-oc-11-d2ced36eab",
+ "endReason": "concluded",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, the light in my Neff oven has stopped working (model B1ACE4HN0B). Oven works fine otherwise. Can I change the bulb myself and what bulb do I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blown oven light bulb]\nYes, you can replace the bulb yourself. For your Neff model B1ACE4HN0B, you need a 25W, 230V heat-resistant glass bulb with an SES (small Edison screw/E14) cap. These are rated for high temperatures (usually up to 300°C or 600°F). 1. Ensure the oven is switched off and cool.\n2. Unscrew the old bulb carefully (it may be hot if used recently).\n3. Screw in the new heat-resistant SES/E14 bulb. If you buy a standard household bulb, it will likely blow very quickly or even shatter due to the heat inside the oven cavity."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7684,
+     "verifyMs": 1045,
+     "totalMs": 8765
+    },
+    "usage": {
+     "promptTokens": 3243,
+     "completionTokens": 572,
+     "totalTokens": 3815
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "B1ACE4HN0B",
+        "families": [
+         "oven-cooker"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "oven-cooker:lighting",
+       "oven-cooker:element",
+       "oven-cooker:ignition"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since the oven heats normally, this is almost certainly just a blown bulb.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "not_justified",
+     "component": "oven light bulb",
+     "failed": [
+      "G1-no-recorded-evidence"
+     ],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Blown interior light bulb",
+      "likelihood": "high",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "my Neff oven",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Neff",
+      "status": "stated",
+      "quote": "Neff oven",
+      "turn": 1
+     },
+     "model": {
+      "value": "B1ACE4HN0B",
+      "status": "stated",
+      "quote": "model B1ACE4HN0B",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "Interior light stopped working, oven works fine otherwise",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the light in my Neff oven has stopped working (model B1ACE4HN0B). Oven works fine otherwise."
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 8825
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9384,
+   "retried": false,
+   "label": "Blown oven light bulb",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0102753,
+ "finishedAt": "2026-10-12T22:49:57.133Z"
+}
