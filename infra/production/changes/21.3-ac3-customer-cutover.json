@@ -1,0 +1,84 @@
+{
+  "id": "21.3-ac3-customer-cutover",
+  "description": "Customer cut-over (owner decision): whichpart-api sends every customer turn to the diagnosis engine's turn pipeline (change 21.2) and stores the ac3/1 record; the journey controller path and its configuration are removed from the BFF (AC2_MODE, CANONICAL_MODE, CANONICAL_CONTROL_JOURNEYS, ORCHESTRATOR_URL, ORCHESTRATOR_TOKEN, orchestrator-bearer marker). Code and environment of whichpart-api. Previous code: phase8/whichpart-api-M-PSU7X0Yu7IYrK6jK0pvzf-1I3-_svZy2h4Tdgs6-g.zip; rollback = restore that s3Key and the previous environment (git revert of this change's overrides).",
+  "classification": "SAFE AC CHANGE (code and environment of the AC BFF whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    },
+    {
+      "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-*",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-*"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "whichpart-api code from the staged phase8 artefact and its environment (PassRole of its unchanged role, which UpdateFunctionConfiguration requires); CloudFormation resolves the pinned dynamic references.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
