@@ -1,6 +1,8 @@
 # 0020. LLM-led diagnosis inside a deterministic guardrail kernel
 
-- **Status:** Accepted
+- **Status:** Accepted; implemented dormant (`AC2_MODE=benchmark`). **Not cut over**: the final evaluation missed its
+  targets ([results](../evaluation/llm-led-rebuild.md)), so customers stay on the journey architecture and points 4–5 below
+  are not carried out
 - **Date:** 2026-10-12
 - **Supersedes:** the diagnostic-control parts of [0010](0010-deterministic-policy-around-llm.md) (code decides the
   diagnosis), [0014](0014-cs1-is-the-only-conversation-state.md) (cs/1), [0015](0015-one-owner-per-decision.md) for
@@ -75,7 +77,8 @@ and the part gate. Those are worth keeping; the journey controller is not.
 - Latency rises from about 3 s to roughly 8–20 s per turn (one reasoning pass and one claim-extraction pass, a second
   reasoning pass when the kernel rejects the first).
 - The provider is a single point of failure by design (no fallback); its availability is monitored.
-- Results of the replacement: [rebuild evaluation](../evaluation/llm-led-rebuild.md).
+- Results of the replacement: [rebuild evaluation](../evaluation/llm-led-rebuild.md). It beat the journey architecture
+  83–17 but lost to the general assistant 17–83 (held-out: 27–4 and 4–27), missing the cut-over targets.
 
 ## Alternatives considered
 

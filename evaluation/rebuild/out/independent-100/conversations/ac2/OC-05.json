@@ -1,0 +1,157 @@
+{
+ "id": "OC-05",
+ "system": "ac2",
+ "sessionId": "bm-ac2-oc-05-2eb5f2e688",
+ "endReason": "escalated",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Stoves gas cooker oven lights fine but as soon as I let go of the knob the flame goes out. Hob burners all fine. It's a Richmond something, freestanding. Is this a DIY job?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty flame failure device (thermocouple)]\nThis is almost certainly a fault with the flame failure device (the thermocouple) or its positioning, rather than a simple DIY fix like cleaning a burner cap. The fact that it lights but dies when you release the knob means the safety sensor isn't detecting enough heat to keep the gas valve open. Because this involves the gas supply and internal safety mechanisms of a cooker, I cannot advise you to dismantle or repair it yourself. You need a Gas Safe registered engineer to inspect the thermocouple, check its wiring, and test the gas valve. Please do not attempt to bypass the safety device."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8965,
+     "verifyMs": 2384,
+     "totalMs": 11390
+    },
+    "usage": {
+     "promptTokens": 2472,
+     "completionTokens": 706,
+     "totalTokens": 3178
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "hobs:ignition",
+       "hobs:overheating",
+       "hobs:gas-burner"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "gas_safe",
+     "reason": "Gas appliances require a Gas Safe registered engineer for internal repairs. The symptom of the flame going out when the knob is released indicates the safety system (thermocouple) is not detecting hea"
+    },
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty flame failure device (thermocouple) or dirty pilot assembly",
+      "likelihood": "high",
+      "evidence": [
+       "oven_will_not_hold_light"
+      ]
+     },
+     {
+      "cause": "Gas valve issue",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "status": "stated",
+      "quote": "gas cooker oven",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Stoves",
+      "status": "stated",
+      "quote": "Stoves gas cooker",
+      "turn": 1
+     },
+     "model": {
+      "value": "RICHMOND SOMETHING",
+      "status": "stated",
+      "quote": "It's a Richmond something, freestanding.",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "oven_will_not_hold_light",
+       "value": "Oven lights fine but as soon as I let go of the knob the flame goes out.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Our Stoves gas cooker oven lights fine but as soon as I let go of the knob the flame goes out."
+      },
+      {
+       "id": "f2",
+       "field": "hob_status",
+       "value": "Hob burners all fine.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Hob burners all fine."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_thermocouple_condition",
+       "text": "Is the pilot light small and steady, or does it flicker/wave? Also, is the thermocouple tip (the copper bullet near the pilot) clean and positioned directly in the flame?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11433
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12146,
+   "retried": false,
+   "label": "Faulty flame failure device (thermocouple)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0094978,
+ "finishedAt": "2026-10-12T22:44:09.193Z"
+}

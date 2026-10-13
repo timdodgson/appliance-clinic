@@ -49,7 +49,8 @@ async function runCase(kase) {
       const v = r.view || {};
       meta.push({ ac2: SYSTEM === 'ac2' && v.benchmark ? v.benchmark.audit || { ok: v.benchmark.ok, reason: v.benchmark.reason } : undefined, turn, status: r.status, ms: r.ms, retried: Boolean(r.retried), label: v.diagnosis && v.diagnosis.label, safety: Boolean(v.safety), parts: (v.parts || []).map((p) => ({ name: p.name, fit: p.fitStatus, url: p.offers && p.offers[0] && p.offers[0].url })), media: (v.media || []).length, needsModel: Boolean(v.needsModel), error: v.error || null });
       if (r.status === 402 || (r.view && /402|payment/i.test(JSON.stringify(r.view.error || '')))) stop = 'AC returned a credit error';
-      if (r.status !== 200) { acBad += 1; if (acBad >= 3) stop = `AC returned ${acBad} errors (last HTTP ${r.status})`; } else acBad = 0;
+      // A 200 carrying an explicit error view (provider unavailable) counts as an error too: three in a row stop the run.
+      if (r.status !== 200 || v.error) { acBad += 1; if (acBad >= 3) stop = `AC returned ${acBad} errors in a row (last HTTP ${r.status}, ${v.degraded || v.errorCode || 'error'})`; } else acBad = 0;
       if (r.status !== 200) { endReason = 'service-error'; break; }
     } else {
       meta.push({ turn, status: r.status, ms: r.ms, costUsd: r.costUsd || 0, error: r.error || null });

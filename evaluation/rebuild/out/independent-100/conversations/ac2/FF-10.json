@@ -1,0 +1,848 @@
+{
+ "id": "FF-10",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ff-10-a21b7afa0c",
+ "endReason": "concluded",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch KGN34NL3AG - some days it's fine, other days it just clicks every few minutes at the back and doesn't seem to run, and the freezer starts getting soft. Then it starts working again by itself. What's going on?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Compressor start relay or overload failure]\nThat clicking sound followed by the freezer warming up strongly suggests the compressor is trying to start but failing, likely due to a faulty start relay or overload protector. This is a common issue where the component gets hot and trips, then cools down enough to try again, which explains why it sometimes starts working on its own. Before we look at internal parts, let's rule out a simple power issue. Please check that the plug is pushed firmly into the socket and that the socket is switched on. Can you try plugging another appliance (like a lamp) into that same socket to confirm it has power?"
+  },
+  {
+   "role": "customer",
+   "text": "The fridge is plugged directly into the wall socket and I have tried it in another socket, with the same result, so I don't think it's the power. The lights and fans work on the bad days as well. Is there something else I should check?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty compressor start relay or overload protector]\nThe most likely culprit is a faulty start relay or overload protector; these are inexpensive parts that fail frequently and cause exactly this 'click-hum-click' pattern as they overheat and reset. A less common possibility is that the compressor itself is mechanically seizing, which would require an engineer to replace. To distinguish between the two, we need to inspect the start relay. Please unplug the fridge, pull it away from the wall (it's heavy, so get help if needed), and look at the back for a small black or grey plastic box clipped onto the side of the metal compressor cylinder. Check if it looks burnt, cracked, or smells of burning plastic. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Right, I've pulled it out and the clicking comes from the box on the side of the compressor at the bottom back. The compressor itself feels very hot to touch when it's clicking. There's no burning smell and nothing has tripped. What should I do next?"
+  },
+  {
+   "role": "assistant",
+   "text": "AI service unavailable. Please try again in a moment."
+  },
+  {
+   "role": "customer",
+   "text": "I think your reply didn't come through, it just says the AI service is unavailable. Could you send it again? I've still got the fridge pulled out from the wall and it's unplugged."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty start relay or overload protector]\nThe clicking from that box confirms the compressor is trying to start but failing. The most likely cause is a faulty start relay or overload protector (a small plastic component clipped onto the compressor). These are inexpensive and often fail in this exact way. Would you like instructions on how to safely replace it yourself, or would you prefer me to advise you on calling an engineer?"
+  },
+  {
+   "role": "customer",
+   "text": "Thank you. I would like instructions on how to replace it myself, please, as I'm fairly practical and would rather try that first. I'd want to be sure it's safe and that I buy the right part for my model, so please tell me exactly what to do."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty start relay or overload protector]\nSince you are practical and the fridge is unplugged, here is how to replace the start relay/overload protector. First, locate the small black or grey plastic box clipped onto the side of the compressor at the back bottom. You will see three wires (usually red, white, and yellow/black) plugged into pins on top of it. Carefully pull these wires straight off their pins; do not pull by the wire itself. Then unclip or unscrew the old unit from the compressor casing. Note exactly how the new part is oriented before fitting it in the same position. Reconnect the wires to the corresponding pins (match colours if possible) and ensure they are pushed on firmly. Finally, push the fridge back into place, leaving a few centimetres of space at the back for ventilation, and plug it in. Listen for a single click followed by a steady hum; if it clicks repeatedly again after this fix, the compressor itself may be seized, and you will need an engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8965,
+     "verifyMs": 2361,
+     "totalMs": 11372
+    },
+    "usage": {
+     "promptTokens": 3298,
+     "completionTokens": 721,
+     "totalTokens": 4019
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "KGN34NL3AG",
+        "families": [
+         "fridge-freezer"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:evaporator-fan"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "ff-compressor-click"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Compressor start relay or overload failure",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Failing compressor (mechanical seizure)",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "inferred",
+      "quote": "Bosch KGN34NL3AG",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 1
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "status": "stated",
+      "quote": "KGN34NL3AG",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_clicking",
+       "value": "Clicks every few minutes at the back and doesn't seem to run",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "clicks every few minutes at the back and doesn't seem to run"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_temp_drop",
+       "value": "Freezer starts getting soft when it stops running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the freezer starts getting soft"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_recovery",
+       "value": "Starts working again by itself after a while",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Then it starts working again by itself"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_electrical_supply",
+       "text": "To rule out a simple power issue, please check that the plug is pushed firmly into the socket and that the socket is switched on. Can you try plugging another appliance (like a lamp) into that same so",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11477
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12011,
+   "retried": false,
+   "label": "Compressor start relay or overload failure",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10517,
+     "verifyMs": 3453,
+     "totalMs": 14043
+    },
+    "usage": {
+     "promptTokens": 3951,
+     "completionTokens": 767,
+     "totalTokens": 4718
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "KGN34NL3AG",
+        "families": [
+         "fridge-freezer"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:defrost-system"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "ff-compressor-click"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "the unit cycles on and off",
+      "source": "extractor"
+     },
+     {
+      "claim": "the unit cycles on and off with clicking",
+      "source": "extractor"
+     },
+     {
+      "claim": "no cooling",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty compressor start relay or overload protector",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f2",
+       "f3"
+      ]
+     },
+     {
+      "cause": "Failing compressor (mechanical seizure)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f2",
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "stated",
+      "quote": "Bosch KGN34NL3AG",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 2
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "status": "stated",
+      "quote": "KGN34NL3AG",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_clicking",
+       "value": "Clicks every few minutes at the back and doesn't seem to run",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "clicks every few minutes at the back and doesn't seem to run"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_temp_drop",
+       "value": "Freezer starts getting soft when it stops running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the freezer starts getting soft"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_recovery",
+       "value": "Starts working again by itself after a while",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Then it starts working again by itself"
+      },
+      {
+       "id": "f4",
+       "field": "power_checked",
+       "value": "Plugged directly into wall socket, tried in another socket with same result; lights and fans work on bad days",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The fridge is plugged directly into the wall socket and I have tried it in another socket, with the same result... The lights and fans work on the bad days as well."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_electrical_supply",
+       "text": "To rule out a simple power issue, please check that the plug is pushed firmly into the socket and that the socket is switched on. Can you try plugging another appliance (like a lamp) into that same so",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_compressor_start_relay",
+       "text": "The clicking is the compressor trying to start but tripping its thermal protection. The most common cause is a failed start relay (a small plastic box on the side of the compressor at the back). Can y",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14103
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14603,
+   "retried": false,
+   "label": "Faulty compressor start relay or overload protector",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "ok": false,
+    "reason": "engine_unreachable"
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 28726,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": true
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9632,
+     "verifyMs": 2458,
+     "totalMs": 12134
+    },
+    "usage": {
+     "promptTokens": 4330,
+     "completionTokens": 740,
+     "totalTokens": 5070
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "KGN34NL3AG",
+        "families": [
+         "fridge-freezer"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "ff-compressor-click"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty compressor start relay / overload protector",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f3",
+       "relay_location_sound"
+      ]
+     },
+     {
+      "cause": "Mechanically seized compressor",
+      "likelihood": "medium",
+      "evidence": [
+       "compressor_temp_during_fault"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "stated",
+      "quote": "Bosch KGN34NL3AG",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 3
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "status": "stated",
+      "quote": "KGN34NL3AG",
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_clicking",
+       "value": "Clicks every few minutes at the back and doesn't seem to run",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "clicks every few minutes at the back and doesn't seem to run"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_temp_drop",
+       "value": "Freezer starts getting soft when it stops running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the freezer starts getting soft"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_recovery",
+       "value": "Starts working again by itself after a while",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Then it starts working again by itself"
+      },
+      {
+       "id": "f4",
+       "field": "power_checked",
+       "value": "Plugged directly into wall socket, tried in another socket with same result; lights and fans work on bad days",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The fridge is plugged directly into the wall socket and I have tried it in another socket, with the same result... The lights and fans work on the bad days as well."
+      },
+      {
+       "id": "f5",
+       "field": "relay_location_sound",
+       "value": "Clicking comes from the box on the side of the compressor at the bottom back",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "the clicking comes from the box on the side of the compressor at the bottom back"
+      },
+      {
+       "id": "f6",
+       "field": "compressor_temp_during_fault",
+       "value": "Compressor feels very hot to touch when it's clicking",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "The compressor itself feels very hot to touch when it's clicking"
+      },
+      {
+       "id": "f7",
+       "field": "relay_visual_smell",
+       "value": "No burning smell and nothing has tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "There's no burning smell and nothing has tripped"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_electrical_supply",
+       "text": "To rule out a simple power issue, please check that the plug is pushed firmly into the socket and that the socket is switched on. Can you try plugging another appliance (like a lamp) into that same so",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_compressor_start_relay",
+       "text": "The clicking is the compressor trying to start but tripping its thermal protection. The most common cause is a failed start relay (a small plastic box on the side of the compressor at the back). Can y",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_relay_replacement",
+       "text": "The clicking from that box confirms the compressor is trying to start but failing. The most likely cause is a faulty start relay or overload protector (a small plastic component clipped onto the compr",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12256
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 13005,
+   "retried": false,
+   "label": "Faulty start relay or overload protector",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10390,
+     "verifyMs": 1398,
+     "totalMs": 15631
+    },
+    "usage": {
+     "promptTokens": 4657,
+     "completionTokens": 717,
+     "totalTokens": 5374
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "KGN34NL3AG",
+        "families": [
+         "fridge-freezer"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "ff-compressor-click"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "start relay / overload protector",
+     "failed": [
+      "G4-model-not-in-catalogue"
+     ],
+     "matcher": null,
+     "cited": [
+      "f1",
+      "f5",
+      "f6"
+     ]
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty compressor start relay / overload protector",
+      "likelihood": "high",
+      "evidence": [
+       "f1",
+       "f2",
+       "f3",
+       "f5",
+       "f6"
+      ]
+     },
+     {
+      "cause": "Seized compressor",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f6"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "status": "stated",
+      "quote": "Bosch KGN34NL3AG",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 4
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "status": "stated",
+      "quote": "KGN34NL3AG",
+      "turn": 4
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_clicking",
+       "value": "Clicks every few minutes at the back and doesn't seem to run",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "clicks every few minutes at the back and doesn't seem to run"
+      },
+      {
+       "id": "f2",
+       "field": "symptom_temp_drop",
+       "value": "Freezer starts getting soft when it stops running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "the freezer starts getting soft"
+      },
+      {
+       "id": "f3",
+       "field": "symptom_recovery",
+       "value": "Starts working again by itself after a while",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Then it starts working again by itself"
+      },
+      {
+       "id": "f4",
+       "field": "power_checked",
+       "value": "Plugged directly into wall socket, tried in another socket with same result; lights and fans work on bad days",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "The fridge is plugged directly into the wall socket and I have tried it in another socket, with the same result... The lights and fans work on the bad days as well."
+      },
+      {
+       "id": "f5",
+       "field": "relay_location_sound",
+       "value": "Clicking comes from the box on the side of the compressor at the bottom back",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "the clicking comes from the box on the side of the compressor at the bottom back"
+      },
+      {
+       "id": "f6",
+       "field": "compressor_temp_during_fault",
+       "value": "Compressor feels very hot to touch when it's clicking",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "The compressor itself feels very hot to touch when it's clicking"
+      },
+      {
+       "id": "f7",
+       "field": "relay_visual_smell",
+       "value": "No burning smell and nothing has tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "There's no burning smell and nothing has tripped"
+      },
+      {
+       "id": "f8",
+       "field": "customer_wants_replacement_instructions",
+       "value": "Wants instructions to replace the start relay/overload protector themselves as they are practical",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "I would like instructions on how to replace it myself, please, as I'm fairly practical and would rather try that first."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_electrical_supply",
+       "text": "To rule out a simple power issue, please check that the plug is pushed firmly into the socket and that the socket is switched on. Can you try plugging another appliance (like a lamp) into that same so",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_compressor_start_relay",
+       "text": "The clicking is the compressor trying to start but tripping its thermal protection. The most common cause is a failed start relay (a small plastic box on the side of the compressor at the back). Can y",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_relay_replacement",
+       "text": "The clicking from that box confirms the compressor is trying to start but failing. The most likely cause is a faulty start relay or overload protector (a small plastic component clipped onto the compr",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15698
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 16260,
+   "retried": false,
+   "label": "Faulty start relay or overload protector",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.059690799999999995,
+ "finishedAt": "2026-10-12T22:33:40.280Z"
+}

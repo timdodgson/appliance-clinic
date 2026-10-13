@@ -1,0 +1,899 @@
+{
+ "id": "WM-01",
+ "system": "ac2",
+ "sessionId": "bm-ac2-wm-01-cc639df88f",
+ "endReason": "concluded",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?"
+  },
+  {
+   "role": "assistant",
+   "text": "Error E18 on your Bosch washing machine means it has detected a drainage fault — it tried to pump the water out but couldn't do so in time. Since there is still water in the drum, the most likely cause is a blockage in the pump filter or drain hose, rather than a failed part. The safest and most common fix is to clear the pump filter, which is located behind a small flap at the bottom right of the machine front. Please switch off and unplug the appliance first. Place towels down, open the flap, and slowly unscrew the filter (counter-clockwise) allowing any water to drain into your towels/basin. Once removed, check if it's clogged with lint/debris or if you find a foreign object like a coin or button. Let me know exactly what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks, I've unplugged it and emptied the water out using the small emergency drain hose, which took a while with a baking tray and towels. I've unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff. The floor got a little wet while I did it, but there's no burning smell and no water near the socket. What should I do next?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Blocked pump filter (foreign objects)]\nThat explains the E18 error perfectly — the sock and hair grip were blocking the pump from draining the water. Once reassembled, plug the machine back in and run a short drain or spin-only programme (or just restart your wash from where you left off). It should now pump out the water and complete the cycle normally. If the error returns or it still won't drain after this test, let me know."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I've put the filter back and plugged it in. Should I check anything else before running the drain programme?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Residual blockage or impeller jam]\nPlease shine a torch into the filter hole and gently turn the plastic vanes with your finger. If it spins freely, screw the filter cap back on tightly (hand-tight only), plug the machine in, and run a drain/spin programme to confirm the E18 is gone."
+  },
+  {
+   "role": "customer",
+   "text": "I've turned the vanes with my finger (power off) and they turn, slightly notchy at first and then free. I'll screw the cap on hand-tight and run the drain programme now."
+  },
+  {
+   "role": "assistant",
+   "text": "That sounds perfect. The slight notchiness is normal for the impeller vanes before they spin freely. Go ahead and run that drain programme now. If it drains and spins without showing E18 again, you are all done — just remember to check the filter occasionally if you wash items like socks or towels often. If the error returns or it still won't drain, let me know what happens."
+  },
+  {
+   "role": "customer",
+   "text": "I ran the drain programme and it drained quickly, E18 has gone and it spins normally now. Thanks!"
+  },
+  {
+   "role": "assistant",
+   "text": "The blockage from the sock and hair grip was definitely the cause. You can now resume your laundry as normal. Just keep an eye on the filter occasionally if you wash items like socks or towels often, to prevent this happening again."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10806,
+     "verifyMs": 1854,
+     "totalMs": 12757
+    },
+    "usage": {
+     "promptTokens": 4262,
+     "completionTokens": 782,
+     "totalTokens": 5044
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAN28281GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:not-draining",
+       "washer-dryer:not-draining",
+       "dishwasher:poor-clean-results"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Blocked pump filter or foreign object in the drain path",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Kinked or blocked drain hose",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty drain pump",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB ... wash",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "showing E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "stopped mid-wash with water in drum and error code E18",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "stopped half way through a wash and is showing E18. Water still in the drum."
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_access",
+       "text": "To fix this, we need to clear the blockage. First, please switch off and unplug the machine. Place some towels on the floor in front of the bottom-right kickplate (where the filter is). Open the flap ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12915
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 13776,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9273,
+     "verifyMs": 2069,
+     "totalMs": 11439
+    },
+    "usage": {
+     "promptTokens": 4919,
+     "completionTokens": 614,
+     "totalTokens": 5533
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAN28281GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you've already cleared the blockage and drained the machine, please rinse the filter under a tap to remove any remaining fluff, then screw it back in firmly until it is sealed tight.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "not_justified",
+     "component": "pump filter clearance",
+     "failed": [
+      "G1-no-recorded-evidence"
+     ],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Blocked pump filter (foreign objects)",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "filter_clearance_result"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB has stopped half way through a wash",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 2
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "showing E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "stopped mid-wash with water in drum and error code E18",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "stopped half way through a wash and is showing E18. Water still in the drum."
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "filter_clearance_result",
+       "value": "Found a child's sock and hair grip wrapped around the filter, plus fluff. Water drained via emergency hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I've unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_access",
+       "text": "To fix this, we need to clear the blockage. First, please switch off and unplug the machine. Place some towels on the floor in front of the bottom-right kickplate (where the filter is). Open the flap ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11501
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12166,
+   "retried": false,
+   "label": "Blocked pump filter (foreign objects)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9111,
+     "verifyMs": 1971,
+     "totalMs": 11174
+    },
+    "usage": {
+     "promptTokens": 5128,
+     "completionTokens": 588,
+     "totalTokens": 5716
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAN28281GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "you've already cleared the main blockage",
+      "source": "extractor"
+     },
+     {
+      "claim": "Since you've already cleared the main blockage and drained the water, the next most useful check is to ensure nothing small (like a fragment of the sock or hair grip) is still caught in the pump impeller behind the filter.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Residual blockage or impeller jam",
+      "likelihood": "medium",
+      "evidence": [
+       "f3"
+      ]
+     },
+     {
+      "cause": "Seating issue with filter cap causing leak",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB has stopped half way through a wash",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 3
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "showing E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "stopped mid-wash with water in drum and error code E18",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "stopped half way through a wash and is showing E18. Water still in the drum."
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "filter_clearance_result",
+       "value": "Found a child's sock and hair grip wrapped around the filter, plus fluff. Water drained via emergency hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I've unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_access",
+       "text": "To fix this, we need to clear the blockage. First, please switch off and unplug the machine. Place some towels on the floor in front of the bottom-right kickplate (where the filter is). Open the flap ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_impeller_free_rotation",
+       "text": "Before you replace the cap and run the test, please shine a torch into the filter hole and gently turn the small plastic impeller (the vanes) with your finger. Does it spin freely, or is there anythin",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11233
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11820,
+   "retried": false,
+   "label": "Residual blockage or impeller jam",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7426,
+     "verifyMs": 1794,
+     "totalMs": 9224
+    },
+    "usage": {
+     "promptTokens": 5259,
+     "completionTokens": 425,
+     "totalTokens": 5684
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAN28281GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Drain blockage (sock/hair grip)",
+      "likelihood": "high",
+      "evidence": [
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB has stopped half way through a wash",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 4
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 4
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "showing E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "stopped mid-wash with water in drum and error code E18",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "stopped half way through a wash and is showing E18. Water still in the drum."
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "filter_clearance_result",
+       "value": "Found a child's sock and hair grip wrapped around the filter, plus fluff. Water drained via emergency hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I've unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_access",
+       "text": "To fix this, we need to clear the blockage. First, please switch off and unplug the machine. Place some towels on the floor in front of the bottom-right kickplate (where the filter is). Open the flap ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_impeller_free_rotation",
+       "text": "Before you replace the cap and run the test, please shine a torch into the filter hole and gently turn the small plastic impeller (the vanes) with your finger. Does it spin freely, or is there anythin",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9355
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 9953,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6944,
+     "verifyMs": 1810,
+     "totalMs": 8773
+    },
+    "usage": {
+     "promptTokens": 5377,
+     "completionTokens": 409,
+     "totalTokens": 5786
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAN28281GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining"
+      ]
+     },
+     {
+      "tool": "normal-behaviour",
+      "results": [
+       "wm-unbalanced-no-spin"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "That’s excellent news — the E18 error is resolved and the machine is draining and spinning correctly.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Blocked pump filter (sock and hair grip)",
+      "likelihood": "high",
+      "evidence": [
+       "f3"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB has stopped half way through a wash",
+      "turn": 5,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 5
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "status": "stated",
+      "quote": "Bosch WAN28281GB",
+      "turn": 5
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "quote": "showing E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "appliance_status",
+       "value": "stopped mid-wash with water in drum and error code E18",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "stopped half way through a wash and is showing E18. Water still in the drum."
+      },
+      {
+       "id": "f2",
+       "field": "error_code_e18_meaning",
+       "value": "No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f3",
+       "field": "filter_clearance_result",
+       "value": "Found a child's sock and hair grip wrapped around the filter, plus fluff. Water drained via emergency hose.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "I've unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filter_access",
+       "text": "To fix this, we need to clear the blockage. First, please switch off and unplug the machine. Place some towels on the floor in front of the bottom-right kickplate (where the filter is). Open the flap ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_impeller_free_rotation",
+       "text": "Before you replace the cap and run the test, please shine a torch into the filter hole and gently turn the small plastic impeller (the vanes) with your finger. Does it spin freely, or is there anythin",
+       "turn": 3,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8833
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 9194,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0592742,
+ "finishedAt": "2026-10-12T21:21:23.300Z"
+}

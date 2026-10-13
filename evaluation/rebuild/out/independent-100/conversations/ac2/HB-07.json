@@ -1,0 +1,479 @@
+{
+ "id": "HB-07",
+ "system": "ac2",
+ "sessionId": "bm-ac2-hb-07-1cd0cbc8a2",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hob not working properly"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help you troubleshoot that. To start, could you tell me if your hob is induction (digital touch controls) or traditional ceramic/glass with knobs? Also, are all cooking zones not working, or just one specific area? Finally, please check if the child lock (often a key or padlock symbol) is active on the display.\n[Helpful to see: image \"About the hob heating parts\" — When a hob zone won't heat or heats unevenly, the parts involved are the heating element/zone, the temperature sensor and the control board — and on an induction hob, the pan itself must be suitable. This reference shows where they sit and the safe checks (use the right pan, keep the surface clean, try a reset). Replacing hob parts is a job for a qualified engineer.]"
+  },
+  {
+   "role": "customer",
+   "text": "It's a ceramic hob with touch controls, a Zanussi. Just the rear right zone isn't working, the other three are fine. I haven't noticed a child lock symbol on the display."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty rear right element or control switch]\nPlease try this owner-safe check: place a metal pan you know works on another zone onto the rear right zone. Turn just that zone on to medium heat for about 2 minutes. Does the bottom of the pan get warm/hot (meaning it is heating but perhaps slowly), or does it stay cold and possibly show an error code like 'U' or 'H'?"
+  },
+  {
+   "role": "customer",
+   "text": "I tried it and the pan stays cold, no glow at all on that zone. The display shows the power number fine though, no U or H codes."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Failed heating element for the rear right zone]\nThe most likely cause is that the resistance coil inside the rear right zone has burnt out and needs replacing. Because accessing it requires lifting the heavy glass ceramic top (which carries a significant risk of cracking), I recommend calling an engineer to replace the element safely.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6370,
+     "verifyMs": 311,
+     "totalMs": 6720
+    },
+    "usage": {
+     "promptTokens": 2556,
+     "completionTokens": 504,
+     "totalTokens": 3060
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:overheating"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Child lock or control issue",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty heating element (ceramic/solid) or power module (induction)",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Power supply issue (isolator/trip)",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "status": "stated",
+      "quote": "hob",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "issue_description",
+       "value": "not working properly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "hob not working properly"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_lock_and_type",
+       "text": "To help narrow this down, is your hob an induction type (with digital touch controls) or a traditional ceramic/glass top with knobs? Also, do you see any symbols like a key or padlock on the display, ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 6944
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7618,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8018,
+     "verifyMs": 2628,
+     "totalMs": 10695
+    },
+    "usage": {
+     "promptTokens": 2608,
+     "completionTokens": 617,
+     "totalTokens": 3225
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "hobs:touch-control",
+       "hobs:element",
+       "hobs:power-module"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "only the rear right zone failing",
+      "source": "extractor"
+     },
+     {
+      "claim": "the other three zones work fine",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty radiant element or its control switch for the rear right zone",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     },
+     {
+      "cause": "Touch control panel fault specific to that zone's input",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "status": "stated",
+      "quote": "hob",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Zanussi",
+      "status": "stated",
+      "quote": "a Zanussi",
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "issue_description",
+       "value": "not working properly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "hob not working properly"
+      },
+      {
+       "id": "f2",
+       "field": "hob_type",
+       "value": "ceramic hob with touch controls",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "It's a ceramic hob with touch controls"
+      },
+      {
+       "id": "f3",
+       "field": "affected_zone",
+       "value": "rear right zone only",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Just the rear right zone isn't working, the other three are fine."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_lock_and_type",
+       "text": "To help narrow this down, is your hob an induction type (with digital touch controls) or a traditional ceramic/glass top with knobs? Also, do you see any symbols like a key or padlock on the display, ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_pan_heating",
+       "text": "To confirm it's a hardware fault and not just a setting, place a metal pan you know works on the other zones onto this rear right zone. Turn that specific zone on to medium heat for 2 minutes. Does th",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10739
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 11160,
+   "retried": false,
+   "label": "Faulty rear right element or control switch",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7473,
+     "verifyMs": 2451,
+     "totalMs": 9973
+    },
+    "usage": {
+     "promptTokens": 2731,
+     "completionTokens": 565,
+     "totalTokens": 3296
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "U",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "hobs:touch-control",
+       "hobs:overheating",
+       "hobs:energy-regulator"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "the others work fine",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "model_needed",
+     "component": "heating element (rear right)",
+     "failed": [],
+     "matcher": null,
+     "cited": [
+      "f3"
+     ]
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "Replacing a ceramic hob heating element requires removing the glass top, which is heavy and fragile. This involves disconnecting mains power and handling broken glass risks, so it should be done by a "
+    },
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Failed heating element (resistance coil) for the rear right zone",
+      "likelihood": "high",
+      "evidence": [
+       "f3",
+       "zone_status"
+      ]
+     },
+     {
+      "cause": "Faulty triac or relay on the main PCB controlling that specific zone",
+      "likelihood": "medium",
+      "evidence": [
+       "f3",
+       "zone_status"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "status": "stated",
+      "quote": "hob",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Zanussi",
+      "status": "stated",
+      "quote": "a Zanussi",
+      "turn": 3
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "issue_description",
+       "value": "not working properly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "hob not working properly"
+      },
+      {
+       "id": "f2",
+       "field": "hob_type",
+       "value": "ceramic hob with touch controls",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "It's a ceramic hob with touch controls"
+      },
+      {
+       "id": "f3",
+       "field": "affected_zone",
+       "value": "rear right zone only",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Just the rear right zone isn't working, the other three are fine."
+      },
+      {
+       "id": "f4",
+       "field": "zone_status",
+       "value": "rear right zone stays cold with no glow and no error code on display",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I tried it and the pan stays cold, no glow at all on that zone. The display shows the power number fine though, no U or H codes."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_lock_and_type",
+       "text": "To help narrow this down, is your hob an induction type (with digital touch controls) or a traditional ceramic/glass top with knobs? Also, do you see any symbols like a key or padlock on the display, ",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_pan_heating",
+       "text": "To confirm it's a hardware fault and not just a setting, place a metal pan you know works on the other zones onto this rear right zone. Turn that specific zone on to medium heat for 2 minutes. Does th",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10016
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 10455,
+   "retried": false,
+   "label": "Failed heating element for the rear right zone",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0291148,
+ "finishedAt": "2026-10-12T22:54:48.824Z"
+}

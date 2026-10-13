@@ -1,0 +1,794 @@
+{
+ "id": "DW-10",
+ "system": "ac2",
+ "sessionId": "bm-ac2-dw-10-e8e68e4de8",
+ "endReason": "escalated",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "dishwasher wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "If a dishwasher shows no signs of life at all—no lights, no display, no sound—it usually points to a power issue rather than an internal mechanical fault. Please check that the plug is securely inserted into the wall socket and verify that the corresponding circuit breaker (fuse) in your consumer unit hasn't tripped. If the power is confirmed but it still won't start, we can look at other possibilities."
+  },
+  {
+   "role": "customer",
+   "text": "its hardwired I think, no plug to check. nothing tripped in the consumer unit and the switch above the worktop is on with the light lit. other sockets work fine"
+  },
+  {
+   "role": "assistant",
+   "text": "Thanks for clarifying. Since the isolator switch is on and lit but the dishwasher has no life at all, the issue is likely either a faulty switch mechanism (the light circuit works but the power contacts don't) or a loose connection inside the spur unit itself. Please turn the switch off first. Then, carefully remove the faceplate of that wall switch/box to check if any wires are loose or have melted/discoloured at the terminals. If you're comfortable doing so, you can also try plugging in another small appliance (like a kettle or heater) into that same socket to confirm if power is actually present there. If the wires look secure and another appliance works in that spot, then the fault is likely internal to your dishwasher's control board or mains input module, which would require an engineer."
+  },
+  {
+   "role": "customer",
+   "text": "I'm not taking the faceplate off, I've no meter and don't know about wiring. Is there anything simpler I can check? Could it be a fuse in the spur?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty spur switch or connection]\nYou're right to be cautious with wiring; please don't remove that faceplate yourself. The light on your switch usually only shows power is present at the box, not necessarily that it's switched through to the appliance. The simplest check is to plug a small working appliance (like a kettle or lamp) into that same socket. If it doesn't work, the spur switch contacts are likely faulty and need replacing by an electrician. If other appliances do work there, the issue is likely inside the dishwasher's internal power board, which will require an engineer."
+  },
+  {
+   "role": "customer",
+   "text": "there's no socket, it's a switch above the worktop, hardwired. so I can't plug a kettle in. anything else I can try?"
+  },
+  {
+   "role": "assistant",
+   "text": "Understood—since there's no socket to test with another appliance, we need to check if power is actually getting through that switch. Many hardwired dishwashers are protected by a small glass fuse inside the wall switch box itself. Please turn the isolator switch OFF first for safety, then carefully remove the faceplate (usually just two screws) and look inside at the terminals. Is there a glass tube fuse visible, and if so, is it intact or blown? If you're not comfortable doing this, an electrician can check it quickly."
+  },
+  {
+   "role": "customer",
+   "text": "I already said I'm not taking the faceplate off, I don't know about wiring. So is it an electrician or an engineer I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Faulty spur switch contacts or internal dishwasher power supply failure]\nYou need an electrician first. An electrician can safely replace that spur unit. If they confirm the power is fine at the switch, then they will advise you to call an appliance engineer for the dishwasher's internal electronics."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6610,
+     "verifyMs": 315,
+     "totalMs": 6926
+    },
+    "usage": {
+     "promptTokens": 3280,
+     "completionTokens": 461,
+     "totalTokens": 3741
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:heating",
+       "dishwasher:conductivity-sensor",
+       "dishwasher:poor-clean-results"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Power supply issue (tripped RCD/fuse or loose plug)",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Control panel/PCB fault",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "dishwasher wont come on",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "won't come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "dishwasher wont come on"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_power_supply",
+       "text": "When you say it won't come on, do the lights or display stay completely dark? If so, is the plug firmly in the socket and have you checked that the circuit breaker (fuse) hasn't tripped?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7042
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7525,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10106,
+     "verifyMs": 2122,
+     "totalMs": 12271
+    },
+    "usage": {
+     "promptTokens": 3668,
+     "completionTokens": 660,
+     "totalTokens": 4328
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:leak-flood",
+       "dishwasher:door",
+       "dishwasher:conductivity-sensor"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Faulty spur switch or loose connection at the terminal block",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     },
+     {
+      "cause": "Internal control board failure (no power reaching PCB)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "dishwasher wont come on",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "won't come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "dishwasher wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_connection_type",
+       "value": "hardwired via spur switch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "its hardwired I think, no plug to check. nothing tripped in the consumer unit and the switch above the worktop is on with the light lit."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_power_supply",
+       "text": "When you say it won't come on, do the lights or display stay completely dark? If so, is the plug firmly in the socket and have you checked that the circuit breaker (fuse) hasn't tripped?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_spur_switch_continuity_or_swap",
+       "text": "Since the switch has a light but no power is reaching the dishwasher, the switch contacts themselves may be faulty or there could be a loose wire at the terminal block. Could you please turn the isola",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12323
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12731,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9300,
+     "verifyMs": 443,
+     "totalMs": 9788
+    },
+    "usage": {
+     "promptTokens": 4148,
+     "completionTokens": 607,
+     "totalTokens": 4755
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:door-loom",
+       "dishwasher:leak-flood",
+       "dishwasher:door"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Faulty spur switch contacts or internal wiring connection",
+      "likelihood": "high",
+      "evidence": [
+       "f2"
+      ]
+     },
+     {
+      "cause": "Internal dishwasher fault (mains input board/PCB)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f2"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "dishwasher wont come on",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "won't come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "dishwasher wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_connection_type",
+       "value": "hardwired via spur switch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "its hardwired I think, no plug to check. nothing tripped in the consumer unit and the switch above the worktop is on with the light lit."
+      },
+      {
+       "id": "f3",
+       "field": "customer_capability",
+       "value": "not comfortable removing faceplate or using a multimeter; wants simpler checks",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I'm not taking the faceplate off, I've no meter and don't know about wiring. Is there anything simpler I can check? Could it be a fuse in the spur?"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_power_supply",
+       "text": "When you say it won't come on, do the lights or display stay completely dark? If so, is the plug firmly in the socket and have you checked that the circuit breaker (fuse) hasn't tripped?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_spur_switch_continuity_or_swap",
+       "text": "Since the switch has a light but no power is reaching the dishwasher, the switch contacts themselves may be faulty or there could be a loose wire at the terminal block. Could you please turn the isola",
+       "turn": 2,
+       "times": 1,
+       "resolution": "declined"
+      },
+      {
+       "key": "test_spur_socket_load",
+       "text": "To confirm if the spur is actually delivering power (the light on the switch often only shows the circuit is live, not that it's switched through), please plug a small working appliance like a kettle ",
+       "turn": 3,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9830
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 10543,
+   "retried": false,
+   "label": "Faulty spur switch or connection",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9010,
+     "verifyMs": 475,
+     "totalMs": 9487
+    },
+    "usage": {
+     "promptTokens": 4412,
+     "completionTokens": 569,
+     "totalTokens": 4981
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:door-loom",
+       "dishwasher:leak-flood",
+       "dishwasher:door"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Faulty isolator switch contacts (power not reaching appliance)",
+      "likelihood": "high",
+      "evidence": [
+       "f2"
+      ]
+     },
+     {
+      "cause": "Internal dishwasher fault (PCB or mains input module)",
+      "likelihood": "medium",
+      "evidence": [
+       "f1"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "dishwasher wont come on",
+      "turn": 4,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "won't come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "dishwasher wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_connection_type",
+       "value": "hardwired via spur switch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "its hardwired I think, no plug to check. nothing tripped in the consumer unit and the switch above the worktop is on with the light lit."
+      },
+      {
+       "id": "f3",
+       "field": "customer_capability",
+       "value": "not comfortable removing faceplate or using a multimeter; wants simpler checks",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I'm not taking the faceplate off, I've no meter and don't know about wiring. Is there anything simpler I can check? Could it be a fuse in the spur?"
+      },
+      {
+       "id": "f4",
+       "field": "spur_type",
+       "value": "switch only, no socket outlet for other appliances",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "there's no socket, it's a switch above the worktop, hardwired. so I can't plug a kettle in."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_power_supply",
+       "text": "When you say it won't come on, do the lights or display stay completely dark? If so, is the plug firmly in the socket and have you checked that the circuit breaker (fuse) hasn't tripped?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_spur_switch_continuity_or_swap",
+       "text": "Since the switch has a light but no power is reaching the dishwasher, the switch contacts themselves may be faulty or there could be a loose wire at the terminal block. Could you please turn the isola",
+       "turn": 2,
+       "times": 1,
+       "resolution": "declined"
+      },
+      {
+       "key": "test_spur_socket_load",
+       "text": "To confirm if the spur is actually delivering power (the light on the switch often only shows the circuit is live, not that it's switched through), please plug a small working appliance like a kettle ",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_spur_fuse",
+       "text": "Since you can't plug anything into that switch, the next simplest check is to see if there's a small glass fuse inside the switch box itself. Please turn the switch OFF first. Then, carefully remove t",
+       "turn": 4,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9533
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 10181,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 7778,
+     "verifyMs": 3348,
+     "totalMs": 11129
+    },
+    "usage": {
+     "promptTokens": 4199,
+     "completionTokens": 518,
+     "totalTokens": 4717
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "dishwasher:conductivity-sensor",
+       "dishwasher:door-loom",
+       "dishwasher:leak-flood"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "your dishwasher is hardwired via a wall switch",
+      "source": "extractor"
+     },
+     {
+      "claim": "you cannot test it with another appliance",
+      "source": "extractor"
+     },
+     {
+      "claim": "the light works",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "electrician",
+     "reason": "The appliance is hardwired via a wall switch. Since you cannot test the socket and the switch light is on but the dishwasher has no power, the isolator switch contacts may be faulty (light circuit wor"
+    },
+    "status": "needs_engineer",
+    "candidates": [
+     {
+      "cause": "Faulty spur switch contacts or internal dishwasher power supply failure",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "f3",
+       "f4"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "status": "stated",
+      "quote": "dishwasher wont come on",
+      "turn": 5,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "fault_description",
+       "value": "won't come on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "dishwasher wont come on"
+      },
+      {
+       "id": "f2",
+       "field": "power_connection_type",
+       "value": "hardwired via spur switch",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "its hardwired I think, no plug to check. nothing tripped in the consumer unit and the switch above the worktop is on with the light lit."
+      },
+      {
+       "id": "f3",
+       "field": "customer_capability",
+       "value": "not comfortable removing faceplate or using a multimeter; wants simpler checks",
+       "source": "customer",
+       "status": "contradicted",
+       "turn": 3,
+       "quote": "I'm not taking the faceplate off, I've no meter and don't know about wiring. Is there anything simpler I can check? Could it be a fuse in the spur?"
+      },
+      {
+       "id": "f4",
+       "field": "spur_type",
+       "value": "switch only, no socket outlet for other appliances",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": "there's no socket, it's a switch above the worktop, hardwired. so I can't plug a kettle in."
+      },
+      {
+       "id": "f5",
+       "field": "customer_capability",
+       "value": "refuses to remove faceplate or check wiring; wants definitive answer on who to call",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": "I already said I'm not taking the faceplate off, I don't know about wiring. So is it an electrician or an engineer I need?"
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_power_supply",
+       "text": "When you say it won't come on, do the lights or display stay completely dark? If so, is the plug firmly in the socket and have you checked that the circuit breaker (fuse) hasn't tripped?",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "check_spur_switch_continuity_or_swap",
+       "text": "Since the switch has a light but no power is reaching the dishwasher, the switch contacts themselves may be faulty or there could be a loose wire at the terminal block. Could you please turn the isola",
+       "turn": 2,
+       "times": 1,
+       "resolution": "declined"
+      },
+      {
+       "key": "test_spur_socket_load",
+       "text": "To confirm if the spur is actually delivering power (the light on the switch often only shows the circuit is live, not that it's switched through), please plug a small working appliance like a kettle ",
+       "turn": 3,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_spur_fuse",
+       "text": "Since you can't plug anything into that switch, the next simplest check is to see if there's a small glass fuse inside the switch box itself. Please turn the switch OFF first. Then, carefully remove t",
+       "turn": 4,
+       "times": 1,
+       "resolution": "declined"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11253
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 12004,
+   "retried": false,
+   "label": "Faulty spur switch contacts or internal dishwasher power supply failure",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.053813999999999994,
+ "finishedAt": "2026-10-12T22:14:59.706Z"
+}

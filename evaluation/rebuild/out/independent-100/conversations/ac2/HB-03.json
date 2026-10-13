@@ -1,0 +1,127 @@
+{
+ "id": "HB-03",
+ "system": "ac2",
+ "sessionId": "bm-ac2-hb-03-ca1e7f13a1",
+ "endReason": "escalated",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Dropped a cast iron pan on my ceramic hob and there's a crack right across the front left ring. It still heats up. Can I keep using it until I get a new one?"
+  },
+  {
+   "role": "assistant",
+   "text": "No, you should stop using it immediately. A crack in the ceramic surface exposes the internal electrical components to moisture and spills, which creates a serious shock hazard and potential fire risk. Even though it still heats up, the structural integrity of the insulation is compromised. You will need an engineer to replace the glass top; please do not attempt to use it further or try to repair the crack yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 6126,
+     "verifyMs": 1000,
+     "totalMs": 7170
+    },
+    "usage": {
+     "promptTokens": 2417,
+     "completionTokens": 492,
+     "totalTokens": 2909
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": []
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "hobs:cracked-surface",
+       "hobs:overheating",
+       "hobs:element"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "not_justified",
+     "component": "ceramic hob top",
+     "failed": [
+      "G1-no-recorded-evidence"
+     ],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "A cracked ceramic hob surface is a safety and electrical risk. Moisture or food spills can reach live electrical components underneath, creating a shock hazard or fire risk. The glass top typically ne"
+    },
+    "status": "needs_engineer",
+    "candidates": [
+     {
+      "cause": "Cracked ceramic/glass hob top",
+      "likelihood": "high",
+      "evidence": [
+       "customer"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "status": "stated",
+      "quote": "ceramic hob",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "damage_description",
+       "value": "Dropped a cast iron pan on my ceramic hob and there's a crack right across the front left ring. It still heats up.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Dropped a cast iron pan on my ceramic hob and there's a crack right across the front left ring. It still heats up."
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 7215
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7596,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0092951,
+ "finishedAt": "2026-10-12T22:51:35.265Z"
+}

@@ -1,0 +1,510 @@
+{
+ "id": "VC-04",
+ "system": "ac2",
+ "sessionId": "bm-ac2-vc-04-47ff7f60ab",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Shark NZ801UK anti hair wrap upright - suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin. Any ideas before I buy a new one?"
+  },
+  {
+   "role": "assistant",
+   "text": "Weak suction is almost always caused by restricted airflow rather than a broken motor. 1. Have you washed the pre-motor and HEPA filters recently? If they are dirty, wash them in cold water only and leave them to dry for at least 24 hours before using again.\n2. Detach the hose and wand and look through each one to ensure there is no blockage (like a coin or large debris) stopping airflow. Let me know if the filters were dirty/clogged, if you found any blockages, and whether the filters are now fully dry.\n[Helpful to see: image \"Poor suction — what to check first\" — Lost suction is usually a full bin, a dirty filter or a blockage in the hose, tube or floor head — check and clear those before suspecting the motor. Switch off and unplug first. Typical layout — your model may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Never washed the filters, didn't know they were there. Foam one is grey, felt one is caked with fine dust. Hose and wand are clear, coin went through the hose fine. No burning smell, by the way."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Clogged filters restricting airflow]\nThat confirms it: clogged filters are almost certainly why your suction has dropped. Please wash both filters in cold water only—do not use soap or put them in a dishwasher—and leave them to dry completely for at least 24 hours. It is vital they are bone-dry before you put them back, as moisture will still block airflow and can damage the motor. Once they are dry and reassembled, test the vacuum on a hard floor. If suction returns to normal, that was the only issue. If it remains weak after clean, dry filters, let me know; we would then need to check for a blockage in the brush bar or internal seals."
+  },
+  {
+   "role": "customer",
+   "text": "Washed both in lukewarm water, left them 24 hours to dry. Massive difference, suction is back to like new. Cheers."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Clogged filters restricting airflow]\nExcellent news. It was definitely the clogged filters choking the airflow; cleaning and drying them has restored full suction. You should be all set to carry on using it without needing a replacement. Just remember to check those filters every few months to keep performance up."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 8194,
+     "verifyMs": 979,
+     "totalMs": 9199
+    },
+    "usage": {
+     "promptTokens": 2239,
+     "completionTokens": 741,
+     "totalTokens": 2980
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "NZ801UK",
+        "families": [
+         "vacuum"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "vacuum:lost-suction"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you've already emptied the bin, the next most likely culprit is clogged filters or a blockage further down the system.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Clogged filters",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Blockage in hose or floorhead",
+      "likelihood": "medium",
+      "evidence": []
+     },
+     {
+      "cause": "Tangled brush bar",
+      "likelihood": "low",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "status": "stated",
+      "quote": "Shark NZ801UK anti hair wrap upright",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Shark",
+      "status": "stated",
+      "quote": "Shark",
+      "turn": 1
+     },
+     "model": {
+      "value": "NZ801UK",
+      "status": "stated",
+      "quote": "NZ801UK",
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filters_and_blockages",
+       "text": "With the vacuum switched off and unplugged (or battery removed), please check two things:\n1. Have you washed the pre-motor and HEPA filters recently? If they are dirty, wash them in cold water only an",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9274
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9664,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9318,
+     "verifyMs": 2222,
+     "totalMs": 11608
+    },
+    "usage": {
+     "promptTokens": 2577,
+     "completionTokens": 791,
+     "totalTokens": 3368
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "NZ801UK",
+        "families": [
+         "vacuum"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "vacuum:lost-suction"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "The foam and felt (HEPA) filters trap fine dust",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Clogged filters restricting airflow",
+      "likelihood": "high",
+      "evidence": [
+       "f1"
+      ]
+     },
+     {
+      "cause": "Brush bar tangled with hair/debris",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "status": "stated",
+      "quote": "Shark NZ801UK anti hair wrap upright",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Shark",
+      "status": "stated",
+      "quote": "Shark",
+      "turn": 2
+     },
+     "model": {
+      "value": "NZ801UK",
+      "status": "stated",
+      "quote": "NZ801UK",
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin."
+      },
+      {
+       "id": "f2",
+       "field": "filters_dirty",
+       "value": "Foam filter is grey, felt (HEPA) filter is caked with fine dust",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Never washed the filters, didn't know they were there. Foam one is grey, felt one is caked with fine dust."
+      },
+      {
+       "id": "f3",
+       "field": "hose_wand_clear",
+       "value": "Hose and wand are clear, coin went through the hose fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Hose and wand are clear, coin went through the hose fine."
+      },
+      {
+       "id": "f4",
+       "field": "no_burning_smell",
+       "value": "No burning smell",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "No burning smell, by the way."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filters_and_blockages",
+       "text": "With the vacuum switched off and unplugged (or battery removed), please check two things:\n1. Have you washed the pre-motor and HEPA filters recently? If they are dirty, wash them in cold water only an",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "wash_and_dry_filters",
+       "text": "Please wash both the foam and felt filters in cold water only (no detergent) and leave them to dry completely for at least 24 hours. Do not use the vacuum until they are fully dry, as a damp filter wi",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11663
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12434,
+   "retried": false,
+   "label": "Clogged filters restricting airflow",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 5841,
+     "verifyMs": 1591,
+     "totalMs": 7458
+    },
+    "usage": {
+     "promptTokens": 2948,
+     "completionTokens": 465,
+     "totalTokens": 3413
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": []
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "NZ801UK",
+        "families": [
+         "vacuum"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "vacuum:lost-suction"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Clogged filters restricting airflow",
+      "likelihood": "high",
+      "evidence": [
+       "f2",
+       "filters_cleaned_and_dried"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "status": "stated",
+      "quote": "Shark NZ801UK anti hair wrap upright",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Shark",
+      "status": "stated",
+      "quote": "Shark",
+      "turn": 3
+     },
+     "model": {
+      "value": "NZ801UK",
+      "status": "stated",
+      "quote": "NZ801UK",
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom",
+       "value": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "suction has gone really weak over the last couple of weeks, barely picks up crumbs. Have emptied the bin."
+      },
+      {
+       "id": "f2",
+       "field": "filters_dirty",
+       "value": "Foam filter is grey, felt (HEPA) filter is caked with fine dust",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Never washed the filters, didn't know they were there. Foam one is grey, felt one is caked with fine dust."
+      },
+      {
+       "id": "f3",
+       "field": "hose_wand_clear",
+       "value": "Hose and wand are clear, coin went through the hose fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "Hose and wand are clear, coin went through the hose fine."
+      },
+      {
+       "id": "f4",
+       "field": "no_burning_smell",
+       "value": "No burning smell",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "No burning smell, by the way."
+      },
+      {
+       "id": "f5",
+       "field": "filters_cleaned_and_dried",
+       "value": "Washed both in lukewarm water, left them 24 hours to dry. Massive difference, suction is back to like new.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "Washed both in lukewarm water, left them 24 hours to dry. Massive difference, suction is back to like new."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_filters_and_blockages",
+       "text": "With the vacuum switched off and unplugged (or battery removed), please check two things:\n1. Have you washed the pre-motor and HEPA filters recently? If they are dirty, wash them in cold water only an",
+       "turn": 1,
+       "times": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": "wash_and_dry_filters",
+       "text": "Please wash both the foam and felt filters in cold water only (no detergent) and leave them to dry completely for at least 24 hours. Do not use the vacuum until they are fully dry, as a damp filter wi",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7561
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 8051,
+   "retried": false,
+   "label": "Clogged filters restricting airflow",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.035055,
+ "finishedAt": "2026-10-12T23:00:49.882Z"
+}

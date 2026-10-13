@@ -1,0 +1,588 @@
+{
+ "id": "HO-WM-01",
+ "system": "ac2",
+ "sessionId": "bm-ac2-ho-wm-01-c4ced57f00",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch WAJ28001GB washing machine just beeps and shows E17 a few minutes into every wash. Drum hardly has any water in it. What's E17?"
+  },
+  {
+   "role": "assistant",
+   "text": "E17 on Bosch machines means the water supply time was exceeded — it didn't fill fast enough. To narrow this down: 1. Is the hot and cold tap handles behind the machine fully turned on? 2. Could you check the small mesh filter inside the cold water inlet hose connection (where it screws into the back of the machine) for debris or grit?"
+  },
+  {
+   "role": "customer",
+   "text": "I'm not sure about the tap handles behind the machine. There's a little lever on the pipe the blue hose connects to, and it's at an angle, about half way. Should it be in line with the pipe? I'd rather not take the hose filter out unless it's really needed."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Tap or valve not fully open]\nE17 means the machine didn't fill with water fast enough within the time it allowed. Since your drum has hardly any water, this is definitely a supply issue. Regarding that lever: on these types of valves, 'open' usually means the handle is in line (parallel) with the pipe. If it's at an angle or across the pipe, flow is restricted. Please turn it so it lines up with the pipe to ensure full water pressure reaches the machine. Once you've aligned that valve, try a short wash again. If E17 returns even with the valve fully open, we will likely need to check the inlet filter for debris, but let's see if opening the tap resolves it first."
+  },
+  {
+   "role": "customer",
+   "text": "I've turned the lever in line with the pipe so it's fully open, and ran a rinse programme. It filled quickly, no E17, and the rinse completed. Does that mean it's sorted?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Restricted water supply due to partially closed isolation valve]\nYes, that confirms it was sorted. The E17 error happened because the lever on your water supply pipe wasn't fully open, which restricted the flow of water into the machine and caused a delay in filling. Since the rinse cycle now fills quickly without any errors, the issue is resolved. Just keep an eye on it for the next few washes to be sure. If you ever see E17 again, check that lever is fully parallel with the pipe (fully open) first."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9240,
+     "verifyMs": 1047,
+     "totalMs": 10351
+    },
+    "usage": {
+     "promptTokens": 3900,
+     "completionTokens": 700,
+     "totalTokens": 4600
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E17",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAJ28001GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:odour",
+       "washing-machine:heater",
+       "washing-machine:not-draining"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you mentioned there is hardly any water in the drum, this points to a filling issue rather than a drainage one.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "gathering",
+    "candidates": [
+     {
+      "cause": "Blocked inlet filter or low water pressure",
+      "likelihood": "high",
+      "evidence": []
+     },
+     {
+      "cause": "Faulty water inlet valve",
+      "likelihood": "medium",
+      "evidence": []
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAJ28001GB washing machine",
+      "turn": 1,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 1
+     },
+     "model": {
+      "value": "WAJ28001GB",
+      "status": "stated",
+      "quote": "WAJ28001GB",
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E17",
+       "quote": "shows E17",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_water_level",
+       "value": "Drum hardly has any water in it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Drum hardly has any water in it."
+      },
+      {
+       "id": "f2",
+       "field": "timing_of_fault",
+       "value": "A few minutes into every wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a few minutes into every wash"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e17_meaning",
+       "value": "Water supply time exceeded - did not reach level in time (tap/inlet/pressure/valve)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_inlet_filter_and_tap",
+       "text": "E17 on Bosch machines means the water supply time was exceeded — it didn't fill fast enough. Since you mentioned there is hardly any water in the drum, this points to a filling issue rather than a dra",
+       "turn": 1,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10406
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11152,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 10748,
+     "verifyMs": 1757,
+     "totalMs": 12506
+    },
+    "usage": {
+     "promptTokens": 4391,
+     "completionTokens": 772,
+     "totalTokens": 5163
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E17",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAJ28001GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:odour",
+       "washing-machine:leak-drain",
+       "washing-machine:excessive-vibration"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "narrowed",
+    "candidates": [
+     {
+      "cause": "Tap or valve not fully open (restricting flow)",
+      "likelihood": "high",
+      "evidence": [
+       "f3"
+      ]
+     },
+     {
+      "cause": "Blocked inlet filter due to debris",
+      "likelihood": "medium",
+      "evidence": [
+       "f1",
+       "f2"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAJ28001GB washing machine",
+      "turn": 2,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 2
+     },
+     "model": {
+      "value": "WAJ28001GB",
+      "status": "stated",
+      "quote": "WAJ28001GB",
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "E17",
+       "quote": "shows E17",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_water_level",
+       "value": "Drum hardly has any water in it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Drum hardly has any water in it."
+      },
+      {
+       "id": "f2",
+       "field": "timing_of_fault",
+       "value": "A few minutes into every wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a few minutes into every wash"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e17_meaning",
+       "value": "Water supply time exceeded - did not reach level in time (tap/inlet/pressure/valve)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "tap_valve_position",
+       "value": "Lever on the pipe for the blue hose is at an angle, about half way",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "There's a little lever on the pipe the blue hose connects to, and it's at an angle, about half way."
+      },
+      {
+       "id": "f5",
+       "field": "customer_restraint",
+       "value": "Would rather not take the hose filter out unless really needed",
+       "source": "customer",
+       "status": "uncertain",
+       "turn": 2,
+       "quote": "I'd rather not take the hose filter out unless it's really needed."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_inlet_filter_and_tap",
+       "text": "E17 on Bosch machines means the water supply time was exceeded — it didn't fill fast enough. Since you mentioned there is hardly any water in the drum, this points to a filling issue rather than a dra",
+       "turn": 1,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_valve_orientation",
+       "text": "On that lever-style valve, it should be in line with the pipe (parallel) to be fully open. If it's at an angle or perpendicular, please turn it so it lines up with the pipe. Once you've done that, try",
+       "turn": 2,
+       "times": 1,
+       "resolution": "open"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12549
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13185,
+   "retried": false,
+   "label": "Tap or valve not fully open",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "reasonMs": 9161,
+     "verifyMs": 2148,
+     "totalMs": 11312
+    },
+    "usage": {
+     "promptTokens": 4670,
+     "completionTokens": 612,
+     "totalTokens": 5282
+    },
+    "toolCalls": [
+     {
+      "tool": "error-codes",
+      "results": [
+       {
+        "code": "E17",
+        "status": "RESOLVED"
+       }
+      ]
+     },
+     {
+      "tool": "model-hints",
+      "results": [
+       {
+        "token": "WAJ28001GB",
+        "families": [
+         "washing-machine"
+        ]
+       }
+      ]
+     },
+     {
+      "tool": "knowledge",
+      "results": [
+       "washing-machine:inlet-valve",
+       "washing-machine:odour",
+       "washing-machine:heater"
+      ]
+     }
+    ],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none",
+     "component": null,
+     "failed": [],
+     "matcher": null,
+     "cited": []
+    },
+    "escalation": null,
+    "status": "resolved",
+    "candidates": [
+     {
+      "cause": "Restricted water supply due to partially closed isolation valve",
+      "likelihood": "high",
+      "evidence": [
+       "f4",
+       "tap_valve_position_corrected",
+       "test_result_rinse_cycle"
+      ]
+     }
+    ],
+    "scope": null,
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "status": "stated",
+      "quote": "Bosch WAJ28001GB washing machine",
+      "turn": 3,
+      "confidence": null
+     },
+     "brand": {
+      "value": "Bosch",
+      "status": "stated",
+      "quote": "Bosch",
+      "turn": 3
+     },
+     "model": {
+      "value": "WAJ28001GB",
+      "status": "stated",
+      "quote": "WAJ28001GB",
+      "turn": 3
+     },
+     "codes": [
+      {
+       "code": "E17",
+       "quote": "shows E17",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "f1",
+       "field": "symptom_water_level",
+       "value": "Drum hardly has any water in it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "Drum hardly has any water in it."
+      },
+      {
+       "id": "f2",
+       "field": "timing_of_fault",
+       "value": "A few minutes into every wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": "a few minutes into every wash"
+      },
+      {
+       "id": "f3",
+       "field": "error_code_e17_meaning",
+       "value": "Water supply time exceeded - did not reach level in time (tap/inlet/pressure/valve)",
+       "source": "tool",
+       "status": "observed",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "f4",
+       "field": "tap_valve_position",
+       "value": "Lever on the pipe for the blue hose is at an angle, about half way",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": "There's a little lever on the pipe the blue hose connects to, and it's at an angle, about half way."
+      },
+      {
+       "id": "f5",
+       "field": "customer_restraint",
+       "value": "Would rather not take the hose filter out unless really needed",
+       "source": "customer",
+       "status": "uncertain",
+       "turn": 2,
+       "quote": "I'd rather not take the hose filter out unless it's really needed."
+      },
+      {
+       "id": "f6",
+       "field": "tap_valve_position_corrected",
+       "value": "Lever turned in line with pipe so fully open",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "I've turned the lever in line with the pipe so it's fully open"
+      },
+      {
+       "id": "f7",
+       "field": "test_result_rinse_cycle",
+       "value": "Rinse programme filled quickly, no E17 error, completed successfully",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": "ran a rinse programme. It filled quickly, no E17, and the rinse completed."
+      }
+     ],
+     "asked": [
+      {
+       "key": "check_inlet_filter_and_tap",
+       "text": "E17 on Bosch machines means the water supply time was exceeded — it didn't fill fast enough. Since you mentioned there is hardly any water in the drum, this points to a filling issue rather than a dra",
+       "turn": 1,
+       "times": 1,
+       "resolution": "unknown"
+      },
+      {
+       "key": "check_valve_orientation",
+       "text": "On that lever-style valve, it should be in line with the pipe (parallel) to be fully open. If it's at an angle or perpendicular, please turn it so it lines up with the pipe. Once you've done that, try",
+       "turn": 2,
+       "times": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11479
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11940,
+   "retried": false,
+   "label": "Restricted water supply due to partially closed isolation valve",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0325198,
+ "finishedAt": "2026-10-12T23:10:03.110Z"
+}
