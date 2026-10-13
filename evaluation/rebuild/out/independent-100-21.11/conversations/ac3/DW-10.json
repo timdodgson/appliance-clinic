@@ -1,0 +1,787 @@
+{
+ "id": "DW-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-10-bb5cfcf729",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "dishwasher wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "A dishwasher that won't 'come on' (no lights or display) usually points to a power supply issue rather than an internal fault. First, please check that the plug is firmly in the socket and that no circuit breaker or fuse has tripped at your consumer unit. If the power is fine but it still doesn't respond, could you tell me if there are any flashing lights or error codes on the display?"
+  },
+  {
+   "role": "customer",
+   "text": "Nothing tripped at the consumer unit, and there are no lights or codes at all. It's hardwired via a switch above the worktop which is on and the little light is lit."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the switch light is on but the machine itself is completely dead (no display or lights), it suggests that while power is reaching the spur unit, it may not be getting through to the dishwasher's control board. This could be due to a blown fuse in the hardwired connection box (spur) under the sink, or an internal safety fuse on the appliance itself. To help me guide you further, could you tell me the make and model number of your dishwasher? It is usually found on a label on the side edge of the door.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "It's a Neff. Model on the door edge label is S513G60X0G."
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. This usually points to a blown 3A fast-blow fuse located either in the hardwired spur box under your sink or, more commonly, inside the dishwasher's own terminal block behind the kickplate. To help narrow this down: if you are comfortable doing so, please turn off the water supply and remove the plastic kickplate at the bottom of the door. Look for a small glass fuse (usually 3 Amps) in the wiring compartment. Has that fuse blown? If you cannot access it or the fuse is intact, the fault is likely on the main control PCB itself, which would require an engineer to replace."
+  },
+  {
+   "role": "customer",
+   "text": "I can't pull the dishwasher out and I don't have a meter or spare fuse, so I can't check any fuse. Is there anything else I can try, or do I need an engineer?"
+  },
+  {
+   "role": "assistant",
+   "text": "Since you cannot safely check the internal fuse without moving the machine, and it is hardwired into your home's electrics, this is now an engineer job. The fact that the spur switch light is on but the dishwasher itself is dead strongly suggests the 3A safety fuse inside the machine has blown or its connection has failed. This requires opening the appliance to replace the fuse or inspect the mains input module, which involves working with live electrical connections and should be done by a qualified engineer for your safety."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1231,
+     "labelMs": 337,
+     "enrichMs": 0,
+     "reasonMs": 10831,
+     "verifyMs": 459,
+     "replyLabelMs": 327,
+     "totalMs": 13238
+    },
+    "usage": {
+     "promptTokens": 3306,
+     "completionTokens": 504,
+     "totalTokens": 3810
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't come on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:conductivity-sensor",
+       "dishwasher:poor-clean-results"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "If the power is fine but it still doesn't respond, could you tell me if there are any flashing lights or error codes on the display?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13294
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 13578,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2077,
+     "labelMs": 437,
+     "enrichMs": 0,
+     "reasonMs": 11045,
+     "verifyMs": 3530,
+     "replyLabelMs": 307,
+     "totalMs": 17445
+    },
+    "usage": {
+     "promptTokens": 3837,
+     "completionTokens": 535,
+     "totalTokens": 4372
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.54
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.96
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't come on (no lights or display)"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:door",
+       "dishwasher:conductivity-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: consumer unit - nothing tripped; hardwired switch above worktop - on and little light is lit.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the make and model number so we can find the right part; say it is usually on the side edge of the door. If the label cannot be reached right now (for example the door will not open), say it can wait."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "consumer unit: nothing tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "hardwired switch above worktop: on and little light is lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "If the power is fine but it still doesn't respond, could you tell me if there are any flashing lights or error codes on the display?",
+       "turn": 1,
+       "resolution": "no lights or codes at all"
+      },
+      {
+       "key": null,
+       "text": "To help me guide you further, could you tell me the make and model number of your dishwasher?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 17497
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 17918,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1390,
+     "labelMs": 351,
+     "enrichMs": 0,
+     "reasonMs": 15626,
+     "verifyMs": 3351,
+     "replyLabelMs": 487,
+     "totalMs": 21287
+    },
+    "usage": {
+     "promptTokens": 4104,
+     "completionTokens": 805,
+     "totalTokens": 4909
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.8
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "S513G60X0G",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Neff",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Neff",
+      "model": "S513G60X0G",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.97
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:door",
+       "dishwasher:conductivity-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: asks question.",
+     "Checks they have done and what they found: consumer unit - nothing tripped; hardwired switch above worktop - on and little light is lit.",
+     "Already given by the customer, never ask for it again: make Neff; model S513G60X0G.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Neff",
+      "confidence": 1,
+      "turn": 3
+     },
+     "model": {
+      "value": "S513G60X0G",
+      "confidence": 1,
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "consumer unit: nothing tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "hardwired switch above worktop: on and little light is lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "If the power is fine but it still doesn't respond, could you tell me if there are any flashing lights or error codes on the display?",
+       "turn": 1,
+       "resolution": "no lights or codes at all"
+      },
+      {
+       "key": null,
+       "text": "To help me guide you further, could you tell me the make and model number of your dishwasher?",
+       "turn": 2,
+       "resolution": "Neff S513G60X0G"
+      },
+      {
+       "key": null,
+       "text": "Has that fuse blown?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21326
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 21902,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2275,
+     "labelMs": 351,
+     "enrichMs": 0,
+     "reasonMs": 15382,
+     "verifyMs": 3833,
+     "replyLabelMs": 331,
+     "totalMs": 22262
+    },
+    "usage": {
+     "promptTokens": 4456,
+     "completionTokens": 683,
+     "totalTokens": 5139
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.5
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.06
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:door",
+       "dishwasher:conductivity-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can try, or do I need an engineer?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: asks question; turn 3: gives check.",
+     "Checks they have done and what they found: consumer unit - nothing tripped; hardwired switch above worktop - on and little light is lit.",
+     "Already given by the customer, never ask for it again: make Neff; model S513G60X0G.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Has that fuse blown?\".",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Neff",
+      "confidence": 1,
+      "turn": 3
+     },
+     "model": {
+      "value": "S513G60X0G",
+      "confidence": 1,
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "consumer unit: nothing tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "hardwired switch above worktop: on and little light is lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "If the power is fine but it still doesn't respond, could you tell me if there are any flashing lights or error codes on the display?",
+       "turn": 1,
+       "resolution": "no lights or codes at all"
+      },
+      {
+       "key": null,
+       "text": "To help me guide you further, could you tell me the make and model number of your dishwasher?",
+       "turn": 2,
+       "resolution": "Neff S513G60X0G"
+      },
+      {
+       "key": null,
+       "text": "Has that fuse blown?",
+       "turn": 3,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 22312
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 22575,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0377896,
+ "finishedAt": "2026-10-13T17:00:58.094Z"
+}

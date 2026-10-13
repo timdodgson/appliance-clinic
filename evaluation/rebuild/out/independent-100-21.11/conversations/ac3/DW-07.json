@@ -1,0 +1,413 @@
+{
+ "id": "DW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-07-1882b2a38e",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch SMS25AW00G, came back to E:09 on the display and the dishes are washed but stone cold. Is this an expensive fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "Regarding your question: yes, this is likely to be an expensive fix because the SMS25AW00G uses a flow-through heater integrated into the circulation pump assembly rather than a simple replaceable element. Replacing that unit requires significant labour and parts cost. The E:09 code specifically indicates a failure in the heating circuit. To confirm this is the issue, please run an intensive or 65°C programme with a normal load. At the end of that cycle, are the dishes hot and steamy, or still cold to the touch?"
+  },
+  {
+   "role": "customer",
+   "text": "Tried the hot programme and the eco one, both come out cold. Water felt cold to the touch mid-cycle too."
+  },
+  {
+   "role": "assistant",
+   "text": "Since both programmes resulted in stone-cold water and you have the E:09 error code, this suggests a genuine no-heat fault rather than just poor drying. On your model, the heater is integrated into the circulation pump assembly at the bottom of the machine; it is not a simple replaceable element. Because the repair involves dismantling the appliance base and replacing an electrical heating component, this must be done by a qualified engineer. I recommend contacting Bosch support or a local appliance repair technician to arrange a visit."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2012,
+     "labelMs": 371,
+     "enrichMs": 504,
+     "reasonMs": 8456,
+     "verifyMs": 1779,
+     "replyLabelMs": 389,
+     "totalMs": 13561
+    },
+    "usage": {
+     "promptTokens": 3163,
+     "completionTokens": 501,
+     "totalTokens": 3664
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.86
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMS25AW00G",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:09",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMS25AW00G",
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes washed but stone cold"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.76
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:temperature-sensor",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is this an expensive fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "At the end of that cycle, are the dishes hot and steamy, or still cold to the touch?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13687
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14194,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3402,
+     "labelMs": 358,
+     "enrichMs": 0,
+     "reasonMs": 9986,
+     "verifyMs": 2516,
+     "replyLabelMs": 309,
+     "totalMs": 16607
+    },
+    "usage": {
+     "promptTokens": 3974,
+     "completionTokens": 576,
+     "totalTokens": 4550
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": "SMS25AW00G",
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes cold to touch, water cold mid-cycle"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:not-draining",
+       "dishwasher:poor-drying"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: ran intensive programme - dishes came out cold; ran eco programme - dishes came out cold.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ran intensive programme: dishes came out cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "ran eco programme: dishes came out cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "At the end of that cycle, are the dishes hot and steamy, or still cold to the touch?",
+       "turn": 1,
+       "resolution": "both come out cold. Water felt cold to the touch mid-cycle too."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16654
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 16863,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0171038,
+ "finishedAt": "2026-10-13T16:57:34.199Z"
+}
