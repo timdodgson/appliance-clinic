@@ -1,0 +1,55 @@
+{
+ "id": "WD-07.ac3",
+ "case": "WD-07",
+ "system": "ac3",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 1,
+  "calibration": 3,
+  "noRepetition": 1,
+  "escalation": 3,
+  "partQuality": 3,
+  "languageUnderstanding": 3,
+  "overall": 2
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "After the customer said 'it's already unplugged now. I left it out for over 10 minutes', the assistant twice more told him 'Please ensure the washer-dryer is switched off at the wall before proceeding. Unplug the appliance from the mains supply' and offered nothing else in that turn."
+  }
+ },
+ "outcome": "useful-safe-escalation",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The conversation ended in the right place - internal fault (PCB/wiring/mains filter) remaining uncertain, no part pushed, engineer or Candy service recommended - and nothing unsafe was instructed. However it wasted turns: the unplug instruction was repeated twice after the customer explicitly said the machine was already unplugged and reset, and one whole assistant turn contained no new step at all. It also never asked about warranty (a key unknown in the ground truth), never asked about a bang or burnt smell, and the first message framed the exchange around finding 'the correct repair part' before any diagnosis, which is premature. The customer had to drive the diagnosis himself, so the service was adequate but not good.",
+ "costUsd": 0.20491000000000004
+}
