@@ -361,3 +361,13 @@ describe('safety kernel (shared)', () => {
     expect(g.text).toBe('Never remove the outer casing yourself.');
   });
 });
+
+describe('evaluation-only ablation: the reply model alone', () => {
+  it('sends only a generic assistant prompt and the chat (no briefing, no plan)', async () => {
+    const { writePlain, PLAIN_SYSTEM } = require('../ac2/runtime.js');
+    const q = qwen({ reply: 'Try cleaning the filter.' });
+    const out = await writePlain(q, [user('dishwasher wont drain')]);
+    expect(out.text).toBe('Try cleaning the filter.');
+    expect(q.calls[0].messages).toEqual([{ role: 'system', content: PLAIN_SYSTEM }, { role: 'user', content: 'dishwasher wont drain' }]);
+  });
+});

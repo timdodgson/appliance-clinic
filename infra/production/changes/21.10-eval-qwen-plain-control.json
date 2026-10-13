@@ -1,0 +1,76 @@
+{
+  "id": "21.10-eval-qwen-plain-control",
+  "description": "Code only, engine and whichpart-api (proof of concept, no real customers): an evaluation-only ablation. An authenticated benchmark request may set control 'qwen-plain': the engine answers with the reply model alone (a generic assistant prompt and the chat, nothing from the pipeline) and the record is left untouched, so the pipeline's contribution can be measured. Customer requests cannot set it. Previous code: engine phase8/applianceclinic-diagnosis-engine-AkhERavL2AlQzdl-XwiCWSYVljpLIa92yRlAookZxYg.zip, whichpart-api phase8/whichpart-api-0mprWYInyXb1Q11p2ozdyF8h4VvUI2dWs-FQxZYH0ow.zip; rollback = restore those s3Keys.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine and whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code updates of the AC engine and whichpart-api from staged phase8 artefacts. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

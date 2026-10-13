@@ -71,7 +71,12 @@ function auditOf(out, extra = {}) {
  * `session`: { fresh, rejected } — whether this turn started a new conversation state, and why a presented token was
  * not accepted (for the admin Live Test continuity status; never the token or the csid).
  */
-async function handle({ body, messages, image }, deps) {
+/**
+ * control: an evaluation-only ablation, set by the caller only for an authenticated benchmark request. 'qwen-plain' runs
+ * the reply model alone (a generic assistant prompt, the chat, no record, labels, tools or plan) so the pipeline's
+ * contribution can be measured against the model's. The record is left as it was.
+ */
+async function handle({ body, messages, image, control = null }, deps) {
   const secrets = await deps.secretsLoader().catch(() => null);
   const sess = ac2State.session(body, secrets);
   if (sess.error) return { error: sess.error };
@@ -85,7 +90,7 @@ async function handle({ body, messages, image }, deps) {
 
   let recalls = [];
   try { recalls = deps.recallLookup ? await deps.recallLookup(messages) : []; } catch { recalls = []; }
-  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior, tools: { recalls } }, ...(image ? { image } : {}) });
+  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior, tools: { recalls }, ...(control ? { control } : {}) }, ...(image ? { image } : {}) });
   const t0 = Date.now();
   let res;
   try {
@@ -97,7 +102,8 @@ async function handle({ body, messages, image }, deps) {
     return { error: res && res.json && res.json.errorCode ? res.json.errorCode : `engine_http_${res ? res.status : 0}`, token: sess.token, ms: Date.now() - t0, session };
   }
   const out = res.json;
-  const saved = await store.save(sess.csid, out.state, priorVersion);
+  // The evaluation-only ablation does not touch the record.
+  const saved = control ? { ok: true } : await store.save(sess.csid, out.state, priorVersion);
   if (!saved.ok) return { error: `state_save_${saved.reason}`, token: sess.token, ms: Date.now() - t0, session };
   const orch = orchShape(out.response || {});
   return { orch, token: sess.token, audit: auditOf(out, { ms: Date.now() - t0 }), response: out.response, ms: Date.now() - t0, session };
