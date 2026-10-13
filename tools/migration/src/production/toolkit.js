@@ -28,9 +28,9 @@ export const policyArn = (name) => `arn:aws:iam::${A}:policy/${name}`;
 export const AC = {
   // applianceclinic-diagnosis-engine: ADR 0019, created by AcRuntimeStack (changes 15.1a to 15.1d).
   // The shared engine spares4repairs-part-finder and its role ac-diagnosis-role were released from AC (change 15.3).
-  // applianceclinic-error-code-mcp: ADR 0022, created by AcRuntimeStack (changes 22.1a and 22.1b).
-  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp', 'applianceclinic-diagnosis-engine',
-    'applianceclinic-error-code-mcp'],
+  // applianceclinic-error-code-mcp: ADR 0022, created by AcRuntimeStack (changes 22.1a and 22.1b). It replaced the image
+  // function spares4repairs-error-code-mcp, released from AC in change 22.3 (its ECR repository stays in AcDataStack).
+  functions: ['whichpart-api', 'spares4repairs-diag-orchestrator', 'applianceclinic-diagnosis-engine', 'applianceclinic-error-code-mcp'],
   // ac-diagnosis-engine-role: created by AcRuntimeStack (change 15.1a).
   roles: ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'],
   // ADR 0019: the dedicated engine's log group and alarms (AcRuntimeStack, changes 15.1b and 15.1c).
