@@ -15,7 +15,7 @@ rm -rf "$DIR"
 mkdir -p "$DIR"
 "$PY" -m pip install --disable-pip-version-check -q ${PIP_CERT:+--cert "$PIP_CERT"} \
   --target "$DIR" --no-compile --no-deps --require-hashes \
-  --platform manylinux2014_aarch64 --platform manylinux_2_17_aarch64 \
+  --platform manylinux2014_aarch64 --platform manylinux_2_17_aarch64 --platform manylinux_2_28_aarch64 --platform manylinux_2_34_aarch64 \
   --implementation cp --python-version 3.12 --abi cp312 --only-binary=:all: \
   -r build/python/error-code-mcp.lambda-arm64.lock
 # Console scripts are not part of the Lambda (the image's /usr/local/bin is not mirrored); run.sh starts uvicorn as a module.
