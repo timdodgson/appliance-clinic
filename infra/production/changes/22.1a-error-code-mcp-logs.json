@@ -1,0 +1,81 @@
+{
+  "id": "22.1a-error-code-mcp-logs",
+  "description": "DRAFT (ADR 0022, step 1 of 3): the log group of the new error-code MCP Zip Lambda, /aws/lambda/applianceclinic-error-code-mcp (90-day retention, Retain), and the role it will reuse, error-code-mcp-role, allowed to write to it: its inline policy ac-function-logs names both /aws/lambda/spares4repairs-error-code-mcp and the new log group. runtime-overrides.json: functions.applianceclinic-error-code-mcp.create with resources [\"logs\"] (declaration in ADR 0022), and rolePolicies[\"error-code-mcp-role/ac-function-logs\"] with the added log group. Nothing runs yet. The live image function spares4repairs-error-code-mcp is not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpLogs",
+      "type": "AWS::Logs::LogGroup",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Modify",
+      "logicalId": "errorcodemcproleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-function-logs|error-code-mcp-role",
+      "replacement": "False",
+      "details": [
+        "Properties.PolicyDocument"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:TagResource",
+        "logs:TagLogGroup"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp",
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp:*"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one log group and its retention; the one inline policy of the reused error-code MCP role. No metric filters (the engine's are specific to it), no Lambda writes.",
+  "writes": {
+    "types": [
+      "AWS::Logs::LogGroup",
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "logs:CreateLogGroup",
+      "logs:PutRetentionPolicy",
+      "iam:PutRolePolicy"
+    ],
+    "forbidden": [
+      "logs:DeleteLogGroup",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "lambda:CreateFunction",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "/aws/lambda/applianceclinic-error-code-mcp",
+      "error-code-mcp-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

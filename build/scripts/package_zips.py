@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Build the two Lambda zips from this repository.
+"""Build the Lambda zips from this repository.
 
-    python3 build/scripts/package_zips.py [--out-dir build/out]
+    python3 build/scripts/package_zips.py [--out-dir build/out] [--mcp-site build/out/error-code-mcp-site]
 
   - applianceclinic-diagnosis-engine: services/diagnosis-engine (the ac2 diagnosis engine, ADR 0019, ADR 0020)
   - whichpart-api:                    services/whichpart-api, plus the engine files it ships (listed below)
+  - applianceclinic-error-code-mcp:   only with --mcp-site (ADR 0022). The files build/images/error-code-mcp.Dockerfile
+                                      copies into /app/error-codes, at error-codes/ in the zip; the Python dependencies
+                                      (build/scripts/fetch_error_code_mcp_site.sh) at the zip root; and run.sh (0755),
+                                      which the Lambda Web Adapter layer starts (AWS_LAMBDA_EXEC_WRAPPER=/opt/bootstrap).
 It makes no AWS call.
 
-The archives are deterministic: entries sorted, a fixed timestamp, mode 0644 and deflate. That makes
+The archives are deterministic: entries sorted, a fixed timestamp, mode 0644 (run.sh 0755) and deflate. That makes
 rebuilds byte-stable, but their CodeSha256 differs from the hand-built production zips. Equivalence is
 proven entry by entry (build/scripts/compare_zip.py).
 """
@@ -20,6 +24,8 @@ import zipfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DE = os.path.join(ROOT, 'services', 'diagnosis-engine')
+EC = os.path.join(ROOT, 'error-codes')
+MCP_DOCKERFILE = os.path.join(ROOT, 'build', 'images', 'error-code-mcp.Dockerfile')
 WP = os.path.join(ROOT, 'services', 'whichpart-api')
 FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
@@ -84,6 +90,67 @@ def whichpart_api_entries(generated):
     return entries
 
 
+# The error-code MCP Zip Lambda (ADR 0022). The Lambda Web Adapter (layer) runs this as the handler and proxies
+# requests to port 8080, as the image's adapter extension did; the image ran the same uvicorn command in this directory.
+MCP_RUN_SH = b"""#!/bin/bash
+cd "$LAMBDA_TASK_ROOT/error-codes/mcp/deploy"
+PYTHONPATH="$LAMBDA_TASK_ROOT" exec python3 -m uvicorn asgi:app --host 0.0.0.0 --port 8080 --log-level info
+"""
+EXECUTABLE = {'run.sh'}
+# The image's .dockerignore: never copied from error-codes/.
+SKIP_PARTS = {'__pycache__', '.venv', 'tests'}
+
+
+def dockerfile_copies(dockerfile=MCP_DOCKERFILE):
+    """The (sources, destination) of each build-context COPY in the Dockerfile (COPY --from=... is the adapter, which
+    the Zip Lambda takes from a layer instead). Sources are relative to the build context, error-codes/."""
+    copies = []
+    for line in open(dockerfile):
+        parts = line.split()
+        if not parts or parts[0] != 'COPY' or any(p.startswith('--') for p in parts[1:]):
+            continue
+        copies.append((parts[1:-1], parts[-1]))
+    return copies
+
+
+def error_code_mcp_entries(site):
+    """{zip path: source path}: what the Dockerfile copies under /app/error-codes (at error-codes/), and the installed
+    dependencies in `site` at the root. /app/requirements.txt is only pip's input in the image and is not shipped."""
+    entries = {}
+
+    def add(src, name, skip=SKIP_PARTS):
+        if skip & set(name.split('/')) or name.endswith('.pyc'):
+            return
+        entries[name] = src
+
+    for sources, dest in dockerfile_copies():
+        if not dest.startswith('/app/error-codes/'):
+            continue
+        dest = dest[len('/app/'):]
+        for s in sources:
+            src = os.path.join(EC, s)
+            if not os.path.exists(src):
+                raise SystemExit(f'{MCP_DOCKERFILE}: COPY source error-codes/{s} does not exist')
+            if os.path.isdir(src):
+                for p in sorted(glob.glob(os.path.join(src, '**', '*'), recursive=True)):
+                    if os.path.isfile(p):
+                        add(p, dest.rstrip('/') + '/' + os.path.relpath(p, src).replace(os.sep, '/'))
+            elif dest.endswith('/'):
+                add(src, dest + os.path.basename(s))
+            else:
+                add(src, dest)
+    if not glob.glob(os.path.join(site, '*.dist-info')):
+        raise SystemExit(f'{site} has no installed dependencies: run build/scripts/fetch_error_code_mcp_site.sh first')
+    for p in sorted(glob.glob(os.path.join(site, '**', '*'), recursive=True)):
+        rel = os.path.relpath(p, site).replace(os.sep, '/')
+        if rel.split('/')[0] in ('error-codes', 'run.sh'):
+            raise SystemExit(f'{site}: {rel} would overwrite the application')
+        # As pip installed them in the image: packages keep their own tests; only bytecode and console scripts are left out.
+        if os.path.isfile(p) and rel.split('/')[0] != 'bin':
+            add(p, rel, skip={'__pycache__'})
+    return entries
+
+
 def write_zip(path, entries, generated):
     names = sorted(set(entries) | set(generated))
     with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -91,21 +158,31 @@ def write_zip(path, entries, generated):
             data = generated[name] if name in generated else open(entries[name], 'rb').read()
             info = zipfile.ZipInfo(name, FIXED_TIME)
             info.compress_type = zipfile.ZIP_DEFLATED
-            info.external_attr = 0o100644 << 16
+            info.external_attr = (0o100755 if name in EXECUTABLE else 0o100644) << 16
             z.writestr(info, data)
     return names
+
+
+def build_error_code_mcp(path, site):
+    return write_zip(path, error_code_mcp_entries(site), {'run.sh': MCP_RUN_SH})
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out-dir', default=os.path.join(ROOT, 'build', 'out'))
-    out = ap.parse_args().out_dir
+    ap.add_argument('--mcp-site', help='installed dependencies of the error-code MCP (fetch_error_code_mcp_site.sh); '
+                    'builds applianceclinic-error-code-mcp.zip')
+    a = ap.parse_args()
+    out = a.out_dir
     os.makedirs(out, exist_ok=True)
     de = write_zip(os.path.join(out, 'applianceclinic-diagnosis-engine.zip'), diagnosis_engine_entries(), {})
     gen = {}
     wp = write_zip(os.path.join(out, 'whichpart-api.zip'), whichpart_api_entries(gen), gen)
     print(f'applianceclinic-diagnosis-engine.zip: {len(de)} files')
     print(f'whichpart-api.zip: {len(wp)} files')
+    if a.mcp_site:
+        ec = build_error_code_mcp(os.path.join(out, 'applianceclinic-error-code-mcp.zip'), a.mcp_site)
+        print(f'applianceclinic-error-code-mcp.zip: {len(ec)} files')
 
 
 if __name__ == '__main__':

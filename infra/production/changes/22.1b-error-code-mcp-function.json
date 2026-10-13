@@ -1,0 +1,116 @@
+{
+  "id": "22.1b-error-code-mcp-function",
+  "description": "DRAFT (ADR 0022, step 2 of 3): the error-code MCP as a Zip Lambda, applianceclinic-error-code-mcp: python3.12, arm64, handler run.sh, role error-code-mcp-role (reused), layer arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:22 (Lambda Web Adapter 0.8.4, as in the image), code build/out/applianceclinic-error-code-mcp.zip staged at phase8/applianceclinic-error-code-mcp-<CodeSha256>.zip (to be filled in at staging; built by package_zips.py --mcp-site from build/python/error-code-mcp.lambda-arm64.lock, equivalence report from build/scripts/compare_zip_to_image.py). Environment: AWS_LAMBDA_EXEC_WRAPPER=/opt/bootstrap, AWS_LWA_PORT=8080, PORT=8080, PYTHONUNBUFFERED=1, PYTHONDONTWRITEBYTECODE=1 (the image's ENV), and AC_BEARER_VERSIONS, LEARNING_BUCKET and MCP_BEARER_TOKEN exactly as on spares4repairs-error-code-mcp; memorySize and timeout as the live function (from the capture at review). Its Function URL is auth NONE, BUFFERED, no CORS (bearer-gated in asgi.py, as today), with the two statements a public URL needs: lambda:InvokeFunctionUrl with FunctionUrlAuthType NONE, and lambda:InvokeFunction with InvokedViaFunctionUrl. Nothing calls it until 22.2. Before 22.2: /health shows mappingCount 847 and the dataset/enrichment anchors of integrity.py, and a resolve-error-code call with the bearer returns RESOLVED (arm64 runtime smoke). spares4repairs-error-code-mcp is not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcp",
+      "type": "AWS::Lambda::Function",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpFunctionURLInvokeAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": null,
+      "replacement": null
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:CreateFunctionUrlConfig",
+        "lambda:AddPermission",
+        "lambda:TagResource"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-error-code-mcp"
+      ]
+    },
+    {
+      "Action": [
+        "lambda:GetLayerVersion"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:22"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    },
+    {
+      "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-*"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one function, its URL and its two URL statements; read of the public adapter layer version; PassRole of the reused error-code MCP role only; read of the staged phase8 artefacts; resolution of the mcp-bearer dynamic reference (as for the image function's environment).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function",
+      "AWS::Lambda::Url",
+      "AWS::Lambda::Permission"
+    ],
+    "expected": [
+      "lambda:CreateFunction",
+      "lambda:CreateFunctionUrlConfig",
+      "lambda:AddPermission"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:DeleteFunction",
+      "lambda:UpdateFunctionUrlConfig",
+      "lambda:RemovePermission",
+      "iam:PutRolePolicy"
+    ],
+    "resources": [
+      "applianceclinic-error-code-mcp"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp"
+    ]
+  }
+}
