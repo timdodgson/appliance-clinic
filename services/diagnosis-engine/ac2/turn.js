@@ -43,8 +43,8 @@ const SCOPE_POINTER = [
   [/tv|television|laptop|computer|pc|monitor|phone|printer/i, ' The manufacturer\'s support line or a specialist electronics repairer is the best place to start; please don\'t open the case, as the power supply inside can hold a dangerous charge.'],
 ];
 const ATTACK_COPY = 'I can only help with household appliance faults. What\'s going on with your appliance?';
-// whichpart-api waits 28 s for the engine (AC2_ENGINE_TIMEOUT_MS); the reply labels and media after the claim check
-// take about a second, so a regeneration must be expected to finish by 26 s.
+// A regeneration must be expected to finish by 26 s, so it never makes a customer wait much over half a minute.
+// whichpart-api waits up to 45 s for the engine (AC2_ENGINE_TIMEOUT_MS), which covers a slow single reasoning pass.
 const REGENERATION_BUDGET_MS = 26000;
 const BLOCKING = new Set(['gas', 'fire', 'burning', 'battery', 'electric_shock', 'microwave_arcing', 'supply_trip']);
 // Hazards after which the appliance must not be used until an engineer (or the manufacturer) has checked it.

@@ -9,7 +9,7 @@
  */
 const ac2State = require('./ac2-state');
 
-const ENGINE_TIMEOUT_MS = Number(process.env.AC2_ENGINE_TIMEOUT_MS || 28000);
+const ENGINE_TIMEOUT_MS = Number(process.env.AC2_ENGINE_TIMEOUT_MS || 45000);
 
 /** The engine's structured response, in the shape toWhichPartView projects for the browser. */
 function orchShape(r) {

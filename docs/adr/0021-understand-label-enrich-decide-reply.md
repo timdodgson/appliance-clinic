@@ -91,3 +91,8 @@ never reported, which 0020's claim verifier existed to stop. Change 21.11 keeps 
    record does not support are objections; one regeneration with them when removing them would damage the reply (or it
    copies an earlier one), then any sentence still carrying one is removed. If the reasoner or the claim extractor
    cannot run, the turn fails explicitly.
+
+Changes 21.14–21.17 tune that step and the final check from the judged failures of the 21.11 and 21.15 evaluations
+(regeneration only within a 26 s budget; water-near-plug isolation at the consumer unit; no part purchase or
+replacement before the fault is narrowed; no "no recall" claims; no dismantling advice; wider certainty softening) and
+let whichpart-api wait up to 45 s for the engine. Results: [ac3 pipeline results](../evaluation/ac3-pipeline-results.md).

@@ -1,0 +1,622 @@
+{
+ "id": "DW-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-02-22ddcc10b9",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My Samsung dishwasher DW60M6050FS keeps showing 4C and beeping, won't do anything"
+  },
+  {
+   "role": "assistant",
+   "text": "The '4C' code on your Samsung dishwasher indicates a water supply issue—specifically that little to no fresh water is entering the machine. This usually happens because the tap isn't fully open, the inlet hose is kinked or blocked, or there's an issue with the inlet valve filter. To narrow this down, please check two things:\n1) Is the tap behind or under the dishwasher fully turned on?\n2) Look at the flexible water inlet hose at the back of the machine—is it kinked, crushed, or blocked? Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Checked the hose, no kinks anywhere. Water pressure at the kitchen tap is fine too. There's a screwdriver-slot valve under the sink for the dishwasher, it's at 90 degrees to the pipe. Is that meant to be like that? A plumber fitted a new kitchen tap yesterday."
+  },
+  {
+   "role": "assistant",
+   "text": "That orientation means the valve is closed. On these quarter-turn valves, the handle must be parallel to the pipe for water to flow. Since you had new taps fitted yesterday, it's likely this isolation valve was left off or bumped shut. Please turn that valve so the slot lines up with the pipe (parallel), then try starting a programme again. If it still shows 4C after opening the valve, we'll need to check for debris in the inlet filter at the back of the machine."
+  },
+  {
+   "role": "customer",
+   "text": "Turned the valve so it's parallel to the pipe and started a programme. It's filling and running normally now, thanks!"
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news. Since the plumber fitted a new tap yesterday, it was very likely that the isolation valve was left in the closed position or bumped by accident. Just keep an eye on it to ensure the handle stays parallel to the pipe so water can flow freely next time you run it. If you need any more help with your dishwasher, just let me know."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1819,
+     "labelMs": 299,
+     "enrichMs": 355,
+     "reasonMs": 11866,
+     "verifyMs": 507,
+     "replyLabelMs": 338,
+     "totalMs": 15219
+    },
+    "usage": {
+     "promptTokens": 3878,
+     "completionTokens": 579,
+     "totalTokens": 4457
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Water supply issue (kinked inlet hose or blocked filter) (high)",
+     "Tap turned off or low water pressure (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "DW60M6050FS",
+       "confidence": 1
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Samsung",
+      "model": "DW60M6050FS",
+      "codes": [
+       "4C"
+      ],
+      "symptom": "beeping, won't do anything"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.92
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:pressure-switch"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Samsung; model DW60M6050FS; code 4C.",
+     "The fault they reported is: \"beeping, won't do anything\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "2) Look at the flexible water inlet hose at the back of the machine—is it kinked, crushed, or blocked?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15344
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15539,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2879,
+     "labelMs": 295,
+     "enrichMs": 1,
+     "reasonMs": 13525,
+     "verifyMs": 1126,
+     "replyLabelMs": 298,
+     "totalMs": 18154
+    },
+    "usage": {
+     "promptTokens": 4320,
+     "completionTokens": 701,
+     "totalTokens": 5021
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Water supply valve closed (high)",
+     "Debris in inlet filter due to recent plumbing work (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.48
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.88
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.83
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.02
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Samsung",
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": "water supply issue"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:circulation-pump",
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is that meant to be like that?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: checked the hose for kinks - no kinks anywhere; checked water pressure at kitchen tap - fine.",
+     "Already given by the customer, never ask for it again: make Samsung; model DW60M6050FS; code 4C.",
+     "The fault they reported is: \"beeping, won't do anything\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked the hose for kinks: no kinks anywhere",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked water pressure at kitchen tap: fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "2) Look at the flexible water inlet hose at the back of the machine—is it kinked, crushed, or blocked?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18233
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18678,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3701,
+     "labelMs": 282,
+     "enrichMs": 0,
+     "reasonMs": 8570,
+     "verifyMs": 1481,
+     "replyLabelMs": 299,
+     "totalMs": 14368
+    },
+    "usage": {
+     "promptTokens": 4339,
+     "completionTokens": 405,
+     "totalTokens": 4744
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Isolation valve closed (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.58
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.37
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 1
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.67
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:circulation-pump",
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked the hose for kinks: no kinks anywhere",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked water pressure at kitchen tap: fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "turned the isolation valve so the slot lines up with the pipe (parallel): it is filling and running normally now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "2) Look at the flexible water inlet hose at the back of the machine—is it kinked, crushed, or blocked?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14431
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14692,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0277557,
+ "finishedAt": "2026-10-13T22:09:56.769Z"
+}

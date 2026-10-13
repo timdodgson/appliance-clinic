@@ -1,0 +1,76 @@
+{
+  "id": "21.17-engine-wait-45s",
+  "description": "Code only, whichpart-api and the engine (proof of concept, no real customers): whichpart-api waits up to 45 s for the engine instead of 28 s (AC2_ENGINE_TIMEOUT_MS default; the CloudFront origin read timeout is 120 s and the browser sets none). Since 21.14 no regeneration ran past 26 s, but a slow single reasoning pass (17-19 s) or a slow Jev call still took 4 of 470 turns past 28 s, and each reached the customer as 'AI service unavailable'. The engine change is a comment only. Previous code: phase8/applianceclinic-diagnosis-engine-O8ffOVSrp-eyRVglktzhI5xGMq0Wgzui_WKC51p7zq0.zip, phase8/whichpart-api-DJY--gL3VOMIlGSgmOABwho8hjH6yK944tgOuwwxs_s.zip; rollback = restore those s3Keys.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine and whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code updates of the AC engine and whichpart-api from staged phase8 artefacts. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
