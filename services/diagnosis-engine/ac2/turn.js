@@ -43,6 +43,9 @@ const SCOPE_POINTER = [
   [/tv|television|laptop|computer|pc|monitor|phone|printer/i, ' The manufacturer\'s support line or a specialist electronics repairer is the best place to start; please don\'t open the case, as the power supply inside can hold a dangerous charge.'],
 ];
 const ATTACK_COPY = 'I can only help with household appliance faults. What\'s going on with your appliance?';
+// whichpart-api waits 28 s for the engine (AC2_ENGINE_TIMEOUT_MS); the reply labels and media after the claim check
+// take about a second, so a regeneration must be expected to finish by 26 s.
+const REGENERATION_BUDGET_MS = 26000;
 const BLOCKING = new Set(['gas', 'fire', 'burning', 'battery', 'electric_shock', 'microwave_arcing', 'supply_trip']);
 // Hazards after which the appliance must not be used until an engineer (or the manufacturer) has checked it.
 const MUST_BE_CHECKED = new Set(['burning', 'battery', 'electric_shock', 'microwave_arcing', 'electrical_water', 'supply_trip']);
@@ -289,10 +292,11 @@ function lastQuestion(reply) {
 
 /**
  * input: { messages, state, tools: { recalls } }
- * deps:  { qwen: provider, jev: { evaluate({state, questions}) }, resolveCode, lookupParts, mediaCandidates }
+ * deps:  { qwen: provider, jev: { evaluate({state, questions}) }, resolveCode, lookupParts, mediaCandidates, now? }
  */
 async function runTurn(input, deps) {
-  const t0 = Date.now();
+  const now = deps.now || Date.now;
+  const t0 = now();
   const messages = (input.messages || []).filter((m) => m && (m.role === 'user' || m.role === 'assistant'));
   const rec = Rec.load(input.state);
   rec.turn += 1;
@@ -309,7 +313,7 @@ async function runTurn(input, deps) {
     rec.outcome = 'safety_stop';
     audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: early.type, gates: [] };
     audit.tags = { replyAction: { value: 'safety_stop', confidence: null } };
-    audit.timings.totalMs = Date.now() - t0;
+    audit.timings.totalMs = now() - t0;
     const policy = S.POLICY[early.type];
     return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(early.type), safety: { class: early.type, stopUse: true, message: S.copyFor(early.type) }, escalation: { to: policy.escalate, reason: early.type } }, audit };
   }
@@ -334,7 +338,7 @@ async function runTurn(input, deps) {
     rec.outcome = 'safety_stop';
     audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: hazard.type, gates: [] };
     audit.tags = { ...tags, replyAction: { value: 'safety_stop', confidence: null } };
-    audit.timings.totalMs = Date.now() - t0;
+    audit.timings.totalMs = now() - t0;
     return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(hazard.type), safety: { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) }, escalation: { to: hazard.policy.escalate, reason: hazard.type } }, audit };
   }
 
@@ -347,7 +351,7 @@ async function runTurn(input, deps) {
     for (const h of rec.hazards) h.shown = true;
     audit.scope = { status: attack ? 'attack' : 'out' };
     audit.tags = { ...tags, replyAction: { value: 'answers_only', confidence: null } };
-    audit.timings.totalMs = Date.now() - t0;
+    audit.timings.totalMs = now() - t0;
     return { state: rec, response: { outcome: 'ANSWER', message: attack ? ATTACK_COPY : `${hz}${SCOPE_COPY}${pointer}`.trim() }, audit };
   }
 
@@ -397,8 +401,13 @@ async function runTurn(input, deps) {
   audit.plan = plan;
   let check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
   // One regeneration with the objections when the clean-up would damage the reply, or when it copies an earlier one;
-  // never replaced by fixed text.
-  if (needsRegeneration(r.proposal.reply, check)) {
+  // never replaced by fixed text. Only when another reasoning pass and claim check (estimated from this turn's) fit in
+  // the turn's time budget: otherwise the claim check's clean-up stands, as a reply that never arrives helps nobody.
+  const elapsed = now() - t0;
+  const fits = elapsed + r.ms + (audit.timings.verifyMs || 0) <= REGENERATION_BUDGET_MS;
+  if (needsRegeneration(r.proposal.reply, check) && !fits) {
+    audit.safety.gates.push({ gate: 'regeneration-skipped', reason: 'time-budget', elapsedMs: elapsed });
+  } else if (needsRegeneration(r.proposal.reply, check)) {
     audit.regenerated = true;
     if (check.issues.some((i) => i.kind === 'copied')) audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
     r = await reason(check.issues.map((i) => i.text));
@@ -461,7 +470,7 @@ async function runTurn(input, deps) {
     enrichment: { knowledgeIds: rec.knowledge.knowledgeIds, codes: found.codeMeanings.map((x) => ({ code: x.code, status: x.status })), recalls: recalls.length, parts: parts ? parts.outcome : 'none' } };
   audit.partGate = parts ? { outcome: parts.outcome, component: parts.component, reason: parts.reason || null } : { outcome: 'none' };
   audit.escalation = escalation;
-  audit.timings.totalMs = Date.now() - t0;
+  audit.timings.totalMs = now() - t0;
 
   const response = {
     outcome: 'ANSWER',

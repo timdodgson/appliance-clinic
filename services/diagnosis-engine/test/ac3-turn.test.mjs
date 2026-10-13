@@ -416,6 +416,18 @@ describe('the reasoning step and the claim check (restored from the first rebuil
     expect(out.response.message).toMatch(/Is the drain hose kinked behind the machine\?$/);
   });
 
+  it('no time for a regeneration: the claim check\'s clean-up stands and the turn says why (whichpart-api waits 28 s)', async () => {
+    const q = qwen({ reading: { appliance: 'washing machine' }, reply: 'You\'ve already cleaned the pump filter, so is the drain hose kinked? Check behind the machine for a sharp bend in the grey hose.' });
+    let n = 0;
+    const slow = () => (n++ === 0 ? 0 : 26001);
+    const out = await runTurn({ messages: [user('my washing machine is full of water')] }, deps(q, jev({ appliance: 'washing-machine' }), { now: slow }));
+    expect(q.reasons).toHaveLength(1);
+    expect(out.audit.regenerated).toBeUndefined();
+    expect(out.audit.safety.gates).toEqual(expect.arrayContaining([expect.objectContaining({ gate: 'regeneration-skipped', reason: 'time-budget' })]));
+    expect(out.response.message).not.toMatch(/already cleaned/);
+    expect(out.response.message).toMatch(/sharp bend in the grey hose/);
+  });
+
   it('the claim extractor down: an explicit error, no unchecked reply', async () => {
     const q = qwen({ reading: { appliance: 'washing machine' } });
     const infer = q.infer.bind(q);

@@ -1,0 +1,64 @@
+{
+  "id": "21.14-regeneration-time-budget",
+  "description": "Engine code only (proof of concept, no real customers): the claim check's one regeneration runs only when another reasoning pass and claim check, estimated from the turn's own, fit within 26 s; otherwise the claim check's clean-up (unsupported sentences removed) stands and the audit records regeneration-skipped. Every turn over whichpart-api's 28 s engine wait since 21.11 was a regeneration turn (4 of 673), and each reached the customer as 'AI service unavailable'. Previous code: phase8/applianceclinic-diagnosis-engine-vUaIZkg95NAauYBokl4c_7XvTMaCGknqBmTS_w96Kp8.zip; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the AC engine from the staged phase8 artefact. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
