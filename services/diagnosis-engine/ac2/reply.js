@@ -1,7 +1,9 @@
 'use strict';
 /**
  * Step 8: Qwen writes the reply as a normal chat. The whole conversation goes in as real user / assistant turns; the
- * briefing (what we know, what our tools found, the plan for this turn, safety notes) goes in the system message.
+ * briefing (what we know, what our tools found, safety notes) goes in the system message. The plan for this turn is
+ * also attached to the latest customer message as a marked note, so it is the last thing Qwen reads: with the plan only
+ * at the top of a long system message, a small model sometimes copied its own previous reply from the history.
  * Plain text out: no form to fill in.
  */
 const { textOf, stripThinking, ProviderUnavailableError } = require('./util.js');
@@ -31,16 +33,21 @@ function briefing({ known, knowledge, codeMeanings, normal, plan, safetyNotes, r
   return lines.join('\n');
 }
 
-function chatHistory(messages) {
-  return messages.slice(-16).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: textOf(m.content).slice(0, 2000) }));
+const NOTE = '[Note for the assistant, not from the customer] PLAN FOR THIS REPLY:';
+
+function chatHistory(messages, plan = null) {
+  const out = messages.slice(-16).map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: textOf(m.content).slice(0, 2000) }));
+  const last = out[out.length - 1];
+  if (plan && plan.length && last && last.role === 'user') last.content = `${last.content}\n\n${NOTE} ${plan.join(' ')} Write a new reply that moves the conversation forward; do not reuse an earlier reply.`;
+  return out;
 }
 
-async function writeReply(provider, { messages, brief }, { timeoutMs = 45000 } = {}) {
+async function writeReply(provider, { messages, brief }, { timeoutMs = 45000, temperature = 0.4 } = {}) {
   const system = REPLY_SYSTEM + briefing(brief);
   const t0 = Date.now();
   let res;
   try {
-    res = await provider.infer({ messages: [{ role: 'system', content: system }, ...chatHistory(messages)], maxTokens: 600, temperature: 0.4, timeoutMs, stream: false });
+    res = await provider.infer({ messages: [{ role: 'system', content: system }, ...chatHistory(messages, brief.plan)], maxTokens: 600, temperature, timeoutMs, stream: false });
   } catch (e) {
     throw new ProviderUnavailableError('reply model unavailable', e);
   }
@@ -49,4 +56,4 @@ async function writeReply(provider, { messages, brief }, { timeoutMs = 45000 } =
   return { text, ms: Date.now() - t0, usage: res.usage || null };
 }
 
-module.exports = { writeReply, briefing, chatHistory, REPLY_SYSTEM };
+module.exports = { writeReply, briefing, chatHistory, REPLY_SYSTEM, NOTE };

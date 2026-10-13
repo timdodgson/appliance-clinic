@@ -80,7 +80,7 @@ function buildLabelRequest({ latest, priorAssistant, reading, known, candidates,
   // Confirmations: Qwen's reading is a hint until Jev finds it in the customer's own words.
   (reading.checksReported || []).slice(0, 4).forEach((c, i) => {
     plan.checks.push(i);
-    questions[`check_${i}`] = { type: 'noul', instructions: `Does ${LATEST} say the customer actually did this check or fix: "${c.check}"${c.result ? ` (result: "${c.result}")` : ''}? Not one they plan to do, ask about or have not done.${ONLY}`, criteria: { true: 'They did it', false: 'Not done, or not said' } };
+    questions[`check_${i}`] = { type: 'noul', instructions: `Does ${LATEST} say the customer actually did this check or fix on the appliance: "${c.check}"${c.result ? ` (result: "${c.result}")` : ''}? Not one they plan to do, ask about or have not done, and not a safety step such as switching it off or unplugging it.${ONLY}`, criteria: { true: 'They did it', false: 'Not done, or not said' } };
   });
   (reading.facts || []).slice(0, 4).forEach((f, i) => {
     plan.facts.push(i);

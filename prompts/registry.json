@@ -121,7 +121,7 @@
       ],
       "input": "The assistant's previous message and the latest customer message.",
       "output": "JSON (json_schema ac3_understand).",
-      "version": 2,
+      "version": 3,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -135,6 +135,12 @@
           "date": "2026-10-13",
           "fingerprint": "6cf3c00b8175ebe3122ff00d52633fef417d12b80791d89f39f0aba6d3feb9d4",
           "change": "Also reads the facts the customer states (including what is not happening); checksReported excludes checks only planned or asked about."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-13",
+          "fingerprint": "29b7eb30e7e4d94d3cb6177220c516568d4da49ee81b3dd65638131bcf4ed433",
+          "change": "checksReported excludes safety steps (switching off, unplugging, finding the fuse box)."
         }
       ]
     },
@@ -159,7 +165,7 @@
       ],
       "input": "The latest customer message, the previous assistant message, Qwen's reading as a hint, what is already known, candidate tokens; or the reply and candidate media.",
       "output": "Jev answers (choice with confidence, noul).",
-      "version": 3,
+      "version": 4,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -179,6 +185,12 @@
           "date": "2026-10-13",
           "fingerprint": "56d2528e07b59283b734f33392e1dfa12f45a96337c9670f36d6001f0624848e",
           "change": "Confirms each check and fact Qwen read against the customer's own words (noul per item); hazard label excludes questions, things to look for and food burnt while cooking."
+        },
+        {
+          "version": 4,
+          "date": "2026-10-13",
+          "fingerprint": "d007f17ef02f0f5cfea1865a0b944b3344815034b5aded9d5309a3d6023ca014",
+          "change": "Check confirmation excludes safety steps such as switching it off or unplugging it."
         }
       ]
     },

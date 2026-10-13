@@ -1,6 +1,6 @@
 # 0021. One turn: Qwen understands, Jev labels, tools enrich, code decides, Qwen replies
 
-- **Status:** Implemented (changes 21.2–21.7, 2026-10-13); the journey controller is removed
+- **Status:** Implemented (changes 21.2–21.9, 2026-10-13); the journey controller is removed
 - **Date:** 2026-10-13
 - **Amends:** [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md): replaces its single reasoning pass and
   mandatory claim verifier
@@ -37,7 +37,9 @@ Each customer message (`services/diagnosis-engine/ac2/turn.js`):
    already in the record, or a question the customer could not answer. Build on what earlier replies already told them
    (the record keeps each reply's action, the check it gave and the question it asked); keep to the symptom they
    reported; after a hazard that needs an engineer, say so plainly.
-8. **Reply (Qwen).** The conversation as a normal chat plus a briefing (what we know, knowledge, plan).
+8. **Reply (Qwen).** The conversation as a normal chat plus a briefing (what we know, knowledge); the plan for this
+   reply is attached to the latest customer message as a marked note, so it is the last thing Qwen reads. A reply that
+   copies an earlier one is written again once, told why; it is never replaced by fixed text.
 9. **Final check.** Prohibited advice, unverified part numbers or prices, and (after such a hazard) any suggestion that
    it is safe to use or may not need an engineer, are removed; certainty no check has proved ("confirms",
    "definitely") is softened; a part card only when the catalogue confirms it for the customer's model.
@@ -67,6 +69,11 @@ Smoke chats on the live site after each release (2026-10-13), multi-turn through
   a question ("look for scorch marks"). Fixed in 21.6 (facts and check results in the record, confirmed by Jev; stage 2
   only on a reported check; plan wording; question-aware word list) and 21.7 (no guessed code meanings; certainty
   softened in the final check);
+- the evaluation of 21.7 (2.48) showed the next class: blocking loops (14), mostly a reply copied word for word from an
+  earlier one, or a model number asked for again after it was given. The record was right in each case; Qwen followed
+  the chat history and copied our own earlier question, which the plan quoted back to it. Fixed in 21.8 (plan attached
+  to the latest message; make, model and codes named as never to be asked again; safety steps not counted as checks)
+  and 21.9 (earlier questions no longer quoted; a copied reply is written again once);
 - turn time 4–8 s (Qwen understand about 1 s, Jev labels about 0.3 s, reply 2–3 s).
 
 The full evaluation is in the [evaluation index](../evaluation/README.md).

@@ -227,7 +227,7 @@ Results on the independent 100, the held-out set and a new real-journey add-on s
 | **Every turn needs Jev; no credit or quota monitoring** | Running out of Jev credit took the service down on 2026-10-11 ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev error rate and remaining credit |
 | **The LLM provider is a single point of failure** | Qwen runs on LM Studio over a private tunnel, one request at a time; when the tunnel dropped on 2026-10-12 turns failed explicitly, by design |
 | **No alarm notification target** | The engine alarms go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription |
-| **Error-code service not released with the repaired dataset** | 64 records restored and the Beko hob `U` added in the repo; the live service still runs the earlier data, and CI's `images` check stays red until it is released |
+| **Error-code service not released with the repaired dataset** | 64 records restored and the Beko hob `U` added in the repo. The image is built from the repo and tested (232 error-code tests pass; only the 16 repaired files differ from the live image), but uploading it needs the account owner. Until then the live service runs the earlier data and CI's `images` check stays red |
 | **The old shared engine still runs in AC's account** | It serves S4R; moving it is S4R's change ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)) |
 | **The orchestrator function still exists** | No traffic since change 21.3; removing it from the stack is a separate reviewed change |
 | **Evaluation shares production's providers** | Benchmark runs use the same LM Studio and Jev account as the live service |

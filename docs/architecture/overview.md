@@ -1,6 +1,6 @@
 # Architecture overview
 
-This is the one current-state architecture document: the system as it runs since changes 21.2–21.7 (2026-10-13).
+This is the one current-state architecture document: the system as it runs since changes 21.2–21.9 (2026-10-13).
 The decision is [ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md); the history that led to it is at the end.
 
 Appliance Clinic is a proof of concept with no real customers yet.
@@ -99,7 +99,7 @@ sequenceDiagram
 | Enrich | RAG over fault notes, the old journeys as knowledge and normal-behaviour notes; error codes via MCP; recalls; model info; parts (stage 2) | `ac2/knowledge.js`, `ac2/mcp.js`, `ac2/models.js`, `ac2/parts.js` |
 | Safety | Jev's hazard label plus the word-list backstop; fixed wording once; gas or fire stops before any model | `ac2/safety.js`, `ac2/turn.js` |
 | Decide | The plan for the reply (below) | `decide()` in `ac2/turn.js` |
-| Reply | Qwen writes from the conversation and a briefing | `ac2/reply.js` |
+| Reply | Qwen writes from the conversation and a briefing; this turn's plan is attached to the latest customer message as a marked note, so it is the last thing Qwen reads. A reply that copies an earlier one is written again once, told why (never replaced by fixed text) | `ac2/reply.js`, `ac2/turn.js` |
 | Final check | Banned advice, reassurance after a hazard, certainty no check has proved ("confirms", "definitely" softened), unverified part numbers and prices | `ac2/turn.js`, `ac2/safety.js` |
 | Media and tags | Jev picks the matching picture or video and labels what the reply did and which check it gave | `ac2/labels.js` |
 
@@ -180,7 +180,8 @@ The plan for each reply is decided in code (`decide()`), from the record:
 - an error code the catalogue cannot resolve: say its meaning cannot be confirmed, never guess;
 - stage 2: ask for the make and model (saying where the label usually is) if it is missing and reachable; otherwise the
   next discriminating check, or the part when the catalogue confirms one for that model;
-- never ask for anything already in the record, or a question they could not answer.
+- name the make, model and codes already given as never to be asked again; never ask for anything already in the
+  record, or a question they could not answer. Our own earlier questions are not quoted back to Qwen (it copied them).
 
 ## Safety
 

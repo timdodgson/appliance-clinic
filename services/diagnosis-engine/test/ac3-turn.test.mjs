@@ -85,7 +85,11 @@ describe('turn: the two stages', () => {
     expect(out.audit.plan.join(' ')).not.toMatch(/model number so we can/);
     const system = q.calls[1].messages[0].content;
     expect(system).toMatch(/ALREADY KNOWN: .*"model":"V6"/);
-    expect(q.calls[1].messages.slice(1)).toEqual([{ role: 'user', content: 'dyson v6 pulsing' }]); // a real chat, not a JSON blob
+    // A real chat, not a JSON blob; this turn's plan is attached to the latest customer message as a marked note.
+    const chat = q.calls[1].messages.slice(1);
+    expect(chat).toHaveLength(1);
+    expect(chat[0].role).toBe('user');
+    expect(chat[0].content).toMatch(/^dyson v6 pulsing\n\n\[Note for the assistant, not from the customer\] PLAN FOR THIS REPLY: .*Stage 1/);
     expect(out.response.media).toEqual(media);
     expect(out.response.message).toMatch(/^Switch it off and unplug it \(or take the battery off\) first\. Pulsing/);
   });
@@ -153,6 +157,43 @@ describe('turn: the two stages', () => {
     expect(out.state.stage).toBe(2);
     expect(Rec.checksAwaitingResult(out.state).filter((c) => c === 'Clean the pump filter')).toEqual([]);
     expect(out.audit.plan.join(' ')).toMatch(/Checks they have done and what they found: pump filter - empty, still full of water/);
+  });
+
+  it('a model the customer already gave is named in the plan as never to be asked again', async () => {
+    const rec = Rec.empty();
+    Rec.setValue(rec, 'appliance', 'washing-machine', 0.9, 1);
+    Rec.setValue(rec, 'brand', 'Beko', 1, 1);
+    Rec.setValue(rec, 'model', 'WTK72041W', 1, 2);
+    rec.stage = 2;
+    const plan = decide(rec, normalise({}), null, null, null).join(' ');
+    expect(plan).toMatch(/Already given by the customer, never ask for it again: make Beko; model WTK72041W\./);
+    expect(plan).not.toMatch(/ask for the .*model number/);
+  });
+
+  it('a reply that copies an earlier one is written again once, told why (never replaced by fixed text)', async () => {
+    const earlier = 'E:15 is the anti-flood code: water has reached the base pan, so the pump runs to clear it. Check the door seal and filter first.';
+    let n = 0;
+    const q = qwen({ reading: { appliance: 'dishwasher' }, reply: () => (n++ === 0 ? earlier : 'Since the seal and filter are fine, look under the plinth with a torch for water in the base tray.') });
+    const out = await runTurn({ messages: [user('bosch dishwasher E:15'), bot(earlier), user('seal and filter are fine, what next?')] }, deps(q, jev({ appliance: 'dishwasher' })));
+    expect(out.response.message).toMatch(/look under the plinth/);
+    expect(out.audit.safety.gates).toEqual(expect.arrayContaining([{ gate: 'copied-earlier-reply', rewritten: true }]));
+    const second = q.calls[q.calls.length - 1];
+    expect(second.temperature).toBe(0.8);
+    expect(second.messages[second.messages.length - 1].content).toMatch(/first draft repeated one of your earlier replies/);
+  });
+
+  it('the plan never quotes our own earlier questions (the reply model copied them)', () => {
+    const rec = Rec.empty();
+    Rec.noteAdvice(rec, { turn: 1, action: 'asks_question', check: null, question: 'To guide you to the correct part, could you give the model number?' });
+    expect(Rec.adviceSummary(rec)).toEqual(['turn 1: asks question']);
+  });
+
+  it('the plan is the last thing the reply model reads; earlier turns stay as they were', () => {
+    const { chatHistory } = require('../ac2/reply.js');
+    const out = chatHistory([user('my dishwasher shows E:15'), bot('Check the seal.'), user('seal is fine, what next?')], ['Stage 2: give the next check.']);
+    expect(out.map((m) => m.role)).toEqual(['user', 'assistant', 'user']);
+    expect(out[1].content).toBe('Check the seal.');
+    expect(out[2].content).toMatch(/^seal is fine, what next\?\n\n\[Note for the assistant, not from the customer\] PLAN FOR THIS REPLY: Stage 2: give the next check\. Write a new reply/);
   });
 
   it('carries on without the model when the label cannot be reached', async () => {

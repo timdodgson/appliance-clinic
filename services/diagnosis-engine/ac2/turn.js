@@ -171,6 +171,8 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
     if (nothingNew) plan.push('Their latest message adds no new facts about the fault. Give the next step after what you already told them: if a check you gave is still outstanding, ask how it went; if an engineer is needed, explain how to arrange one.');
   }
   if (c.checks.length) plan.push(`Checks they have done and what they found: ${c.checks.map((x) => `${x.check} - ${x.result || 'done'}`).join('; ')}.`);
+  const knownIds = [c.brand && `make ${c.brand.value}`, model && `model ${model}`, c.codes.length && `code${c.codes.length > 1 ? 's' : ''} ${c.codes.map((x) => x.code).join(', ')}`].filter(Boolean);
+  if (knownIds.length) plan.push(`Already given by the customer, never ask for it again: ${knownIds.join('; ')}.`);
   const symptom = c.symptom && c.symptom.value;
   if (symptom) plan.push(`The fault they reported is: "${symptom}". Keep to it: never describe a symptom, result or state they have not told you.`);
   if (unsafe) plan.push(`They asked about something unsafe (${unsafe.replace(/_/g, ' ')}): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.`);
@@ -233,6 +235,13 @@ function stepPrecaution(reply, recentText, appliance) {
   if (appliance === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
   if (appliance === 'oven-cooker' || appliance === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
   return 'Before you start, switch it off and unplug it.';
+}
+
+/** True when a reply copies one of our earlier replies (same opening, ignoring case, spacing and punctuation). */
+const norm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 160);
+function copiesEarlier(reply, messages) {
+  const r = norm(reply);
+  return r.length >= 60 && messages.some((m) => m.role === 'assistant' && norm(textOf(m.content)) === r);
 }
 
 function lastQuestion(reply) {
@@ -329,7 +338,14 @@ async function runTurn(input, deps) {
   const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
   if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
   const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew });
-  const r = await writeReply(deps.qwen, { messages, brief: { known: Rec.known(rec), knowledge: found.knowledge, codeMeanings: found.codeMeanings, normal: found.normal, plan, safetyNotes, recalls: found.recalls } });
+  const brief = { known: Rec.known(rec), knowledge: found.knowledge, codeMeanings: found.codeMeanings, normal: found.normal, plan, safetyNotes, recalls: found.recalls };
+  let r = await writeReply(deps.qwen, { messages, brief });
+  // A reply that copies an earlier one is written again once, told why; it is never replaced by fixed text.
+  if (copiesEarlier(r.text, messages)) {
+    audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
+    const again = { ...brief, plan: [...plan, 'Your first draft repeated one of your earlier replies word for word. Do not repeat it: respond to what they just said and give a different next step (or say plainly that an engineer is needed and why).'] };
+    r = await writeReply(deps.qwen, { messages, brief: again }, { temperature: 0.8 });
+  }
   audit.timings.replyMs = r.ms;
   audit.usage = r.usage;
   audit.plan = plan;
@@ -405,4 +421,4 @@ async function runTurn(input, deps) {
   return { state: rec, response, audit };
 }
 
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, stepPrecaution, lastQuestion };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, copiesEarlier, stepPrecaution, lastQuestion };

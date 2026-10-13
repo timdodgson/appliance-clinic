@@ -96,9 +96,12 @@ function checksAwaitingResult(rec) {
   return rec.advice.filter((a) => a.check && !a.reported).map((a) => a.check);
 }
 
-/** Our earlier replies in one line each, for the plan. */
+/**
+ * Our earlier replies in one line each, for the plan. The questions we asked are not quoted: quoting our own earlier
+ * wording made the reply model copy it (asking again for a model it had been given). What was answered is in the record.
+ */
 function adviceSummary(rec) {
-  return rec.advice.map((a) => [`turn ${a.turn}: ${String(a.action || 'reply').replace(/_/g, ' ')}`, a.check ? `suggested the check "${a.check}"${a.reported ? '' : ' (no result reported yet)'}` : null, a.question ? `asked: "${a.question}"` : null].filter(Boolean).join(', '));
+  return rec.advice.map((a) => [`turn ${a.turn}: ${String(a.action || 'reply').replace(/_/g, ' ')}`, a.check ? `suggested the check "${a.check}"${a.reported ? '' : ' (no result reported yet)'}` : null].filter(Boolean).join(', '));
 }
 
 /** What we already know, for the prompts: the reply must never ask for any of it. */
