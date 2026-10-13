@@ -78,7 +78,7 @@ The full picture is in [docs/architecture/overview.md](docs/architecture/overvie
 | **Web front end** | `apps/web` | Static files in S3 `whichpart-web-<account>`, behind CloudFront at applianceclinic.ai | Chat, admin console, help pages, recall search ([apps/web/README.md](apps/web/README.md)) |
 | **whichpart-api** (BFF) | `services/whichpart-api` | Lambda zip `whichpart-api`, behind CloudFront `/api*` | Turns, sessions and record storage, transcripts with per-turn tags, recalls, admin, scheduled jobs |
 | **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | The turn pipeline above |
-| **Error-code service** | `error-codes/mcp` (Python) | Lambda image `spares4repairs-error-code-mcp` | Error-code meanings (MCP over HTTP) and the admin catalogue editor |
+| **Error-code service** | `error-codes/mcp` (Python) | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings (MCP over HTTP) and the admin catalogue editor |
 
 The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the request path. Its function still exists in the stack and receives no traffic.
 
@@ -93,7 +93,7 @@ The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the
 
 The Spares4Repairs (S4R) parts catalogue and shop are third-party services to Appliance Clinic. The only relationship is outbound: AC calls them as a client.
 
-**Naming.** Some production names predate the separation (`whichpart-api`, `spares4repairs-error-code-mcp`, the `ac2/` folder). They were kept on purpose: renaming a Lambda function or a table means replacing it.
+**Naming.** Some production names predate the separation (`whichpart-api`, the `ac2/` folder). They were kept on purpose: renaming a Lambda function or a table means replacing it.
 
 ## Where the models are, and are not
 
@@ -162,11 +162,11 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - **The LLM provider is a single point of failure.** Production reasoning runs on Qwen 3.6 served by LM Studio over a private tunnel; when the tunnel dropped on 2026-10-12 (about 20:25–21:19 UTC) turns failed explicitly, by design. Evaluation runs share the same provider, which serves one request at a time.
-- **The error-code service has not been released with the repaired dataset** (64 records restored, Beko hob `U`). The image is built from this repository and tested (232 error-code tests pass; it differs from the live image only in the 16 repaired files), but uploading it to ECR needs the account owner. Until then live lookups use the unrepaired catalogue and CI's `images` check stays red.
+- **The retired error-code image function still exists.** Since change 22.2 every caller uses the Zip Lambda `applianceclinic-error-code-mcp` with the repaired dataset ([ADR 0022](docs/adr/0022-error-code-service-as-zip-lambda.md)); `spares4repairs-error-code-mcp` and its ECR repository get no traffic. Removing them from the stack is a separate reviewed change.
 
 ## Working on it
 
-You need Node 20 (`>=20 <23`), Python 3.12 and, for images only, Docker with arm64 emulation.
+You need Node 20 (`>=20 <23`) and Python 3.12 (the error-code zip also fetches its pinned wheels from PyPI).
 
 ```bash
 npm ci                    # root test and typecheck dependencies

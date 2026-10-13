@@ -46,7 +46,7 @@ Green is deterministic code, orange is a model, blue is persistent state, dashed
 | Web front end | `apps/web` | S3 + CloudFront | Chat, admin console, help pages, recall search |
 | whichpart-api (BFF) | `services/whichpart-api` | Lambda zip | Sessions, the `ac3/1` record (`ac2-state.js`), the turn call (`ac2-turn.js`), transcripts with per-turn tags, recalls, admin, scheduled jobs |
 | Diagnosis engine | `services/diagnosis-engine` | Lambda zip, IAM Function URL | The turn pipeline (`ac2/turn.js`) and its steps |
-| Error-code service | `error-codes/mcp` | Lambda image | Error-code meanings over MCP; the admin catalogue editor |
+| Error-code service | `error-codes/mcp` | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings over MCP; the admin catalogue editor |
 
 The Python orchestrator function still exists in the stack but is no longer called. The `ac2/` folder name is
 historical: it now holds the ADR 0021 pipeline.

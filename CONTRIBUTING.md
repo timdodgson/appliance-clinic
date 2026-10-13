@@ -36,7 +36,7 @@ npm run build:zips        # build the applianceclinic-diagnosis-engine and which
 ```
 
 - **No credentials needed.** None of these commands needs AWS or model credentials. The runtime runner replaces AWS variables with fake values and strips proxy variables, so a test cannot reach production.
-- **Images.** Build them as CI does (`.github/workflows/build-images.yml`). Each rebuild must equal its `build/reference/*.image.json`.
+- **Error-code service.** Build its zip as CI does (`.github/workflows/build-images.yml`: `fetch_error_code_mcp_site.sh`, then `package_zips.py --mcp-site`). It must equal `build/reference/applianceclinic-error-code-mcp.zip.json`.
 - **Every runtime test passes.** There is no accepted-failure list, xfail or skip. A failing test is fixed in the product, rewritten to the current contract, or removed (recorded under `removed` in `docs/migration/runtime-changes.json` with its reason) in the same change.
 - **One decision path** ([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md), [ADR 0018](docs/adr/0018-no-ac-legacy-fallback.md)). Every turn goes through the one pipeline or is an explicit error. Do not add a second diagnosis path, an unsigned engine request, a hard-coded reply or a silent fallback.
 - **Retired suites stay retired.** Do not re-enable tests the runner excludes. Do not use the legacy ACQ-100 benchmark for evaluation; it is labelled non-authoritative.
