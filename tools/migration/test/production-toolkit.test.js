@@ -87,6 +87,11 @@ describe('ac-cfn-execution', () => {
     // ADR 0019: the dedicated engine, created after the import, is read too; the released shared engine is not.
     expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine')).toBe(true);
     expect(allows('iam:GetRole', 'arn:aws:iam::800960611664:role/ac-diagnosis-engine-role')).toBe(true);
+    // ADR 0022: the error-code MCP Zip Lambda, its log group and its alarms.
+    expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-error-code-mcp')).toBe(true);
+    expect(allows('lambda:GetPolicy', 'arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-error-code-mcp')).toBe(true);
+    expect(allows('logs:DescribeLogGroups', 'arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp:*')).toBe(true);
+    expect(allows('cloudwatch:ListTagsForResource', 'arn:aws:cloudwatch:eu-west-1:800960611664:alarm:applianceclinic-error-code-mcp-Errors')).toBe(true);
     expect(allows('lambda:GetFunction', 'arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-part-finder')).toBe(false);
   });
   it('reads no object in an AC bucket (customer data), and no S4R resource', () => {

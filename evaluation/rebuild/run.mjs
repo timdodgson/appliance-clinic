@@ -1,6 +1,7 @@
 // Rebuild evaluation runner: the independent-100 runner (unchanged semantics: same simulator, same 8-message limit),
-// extended with system `ac2` (the LLM-led engine on live production via the benchmark envelope) and any frozen case set.
-//   node evaluation/rebuild/run.mjs --system ac2|ac|ga --set independent-100|heldout-25 [--only ...] [--concurrency N]
+// extended with system `ac2` (the first LLM-led engine, frozen results), `ac3` (the live pipeline of ADR 0021, through the
+// same benchmark envelope) and any frozen case set.
+//   node evaluation/rebuild/run.mjs --system ac3|ac2|ac|ga --set independent-100|heldout-25 [--only ...] [--concurrency N]
 // Writes evaluation/rebuild/out/<set>/conversations/<system>/<id>.json. The original runner and its outputs are untouched.
 // Original header:
 // Run the 100 conversations for one or both systems. Each conversation: the case opener, then the shared customer
@@ -19,10 +20,10 @@ import { nextCustomerTurn, MAX_CUSTOMER_TURNS } from '../independent-100/lib/sim
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const SYSTEM = arg('--system');
-if (!['ac', 'ac2', 'ga'].includes(SYSTEM)) throw new Error('--system ac|ac2|ga');
+if (!['ac', 'ac2', 'ac3', 'ga'].includes(SYSTEM)) throw new Error('--system ac|ac2|ac3|ga');
 const SET = arg('--set', 'independent-100');
-if (!['independent-100', 'heldout-25'].includes(SET)) throw new Error('--set independent-100|heldout-25');
-const LIVE = SYSTEM === 'ac' || SYSTEM === 'ac2';
+if (!['independent-100', 'heldout-25', 'real-journeys-13'].includes(SET)) throw new Error('--set independent-100|heldout-25|real-journeys-13');
+const LIVE = SYSTEM === 'ac' || SYSTEM === 'ac2' || SYSTEM === 'ac3';
 const DIR = new URL('.', import.meta.url).pathname;
 const OUT = `${arg('--out', `${DIR}out/${SET}`)}/conversations/${SYSTEM}`;
 mkdirSync(OUT, { recursive: true });
@@ -36,7 +37,7 @@ let stop = null; let acBad = 0;
 const START = new Date().toISOString();
 
 async function runCase(kase) {
-  const sys = SYSTEM === 'ac' ? AC : (SYSTEM === 'ac2' ? AC2 : GA);
+  const sys = SYSTEM === 'ac' ? AC : (SYSTEM === 'ac2' || SYSTEM === 'ac3' ? AC2 : GA);
   const conv = sys.conversation(kase.id);
   const transcript = []; const meta = []; let simCost = 0; let endReason = null;
   let message = kase.opener;
@@ -47,7 +48,7 @@ async function runCase(kase) {
     transcript.push({ role: 'assistant', text: shown });
     if (LIVE) {
       const v = r.view || {};
-      meta.push({ ac2: SYSTEM === 'ac2' && v.benchmark ? v.benchmark.audit || { ok: v.benchmark.ok, reason: v.benchmark.reason } : undefined, turn, status: r.status, ms: r.ms, retried: Boolean(r.retried), label: v.diagnosis && v.diagnosis.label, safety: Boolean(v.safety), parts: (v.parts || []).map((p) => ({ name: p.name, fit: p.fitStatus, url: p.offers && p.offers[0] && p.offers[0].url })), media: (v.media || []).length, needsModel: Boolean(v.needsModel), error: v.error || null });
+      meta.push({ ac2: (SYSTEM === 'ac2' || SYSTEM === 'ac3') && v.benchmark ? v.benchmark.audit || { ok: v.benchmark.ok, reason: v.benchmark.reason } : undefined, turn, status: r.status, ms: r.ms, retried: Boolean(r.retried), label: v.diagnosis && v.diagnosis.label, safety: Boolean(v.safety), parts: (v.parts || []).map((p) => ({ name: p.name, fit: p.fitStatus, url: p.offers && p.offers[0] && p.offers[0].url })), media: (v.media || []).length, needsModel: Boolean(v.needsModel), error: v.error || null });
       if (r.status === 402 || (r.view && /402|payment/i.test(JSON.stringify(r.view.error || '')))) stop = 'AC returned a credit error';
       // A 200 carrying an explicit error view (provider unavailable) counts as an error too: three in a row stop the run.
       if (r.status !== 200 || v.error) { acBad += 1; if (acBad >= 3) stop = `AC returned ${acBad} errors in a row (last HTTP ${r.status}, ${v.degraded || v.errorCode || 'error'})`; } else acBad = 0;
@@ -76,7 +77,7 @@ function jevErrorsSinceStart() {
 }
 
 if (SYSTEM === 'ac') await AC.init();
-if (SYSTEM === 'ac2') await AC2.init();
+if (SYSTEM === 'ac2' || SYSTEM === 'ac3') await AC2.init();
 log(`${SYSTEM}: ${todo.length} cases to run (concurrency ${CONC})`);
 let next = 0; let done = 0; const baselineJev = LIVE ? jevErrorsSinceStart() : 0;
 async function worker() {

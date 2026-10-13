@@ -1,0 +1,608 @@
+{
+ "id": "DW-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-04-c158b88ab1",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+  },
+  {
+   "role": "assistant",
+   "text": "E:15 on a Bosch dishwasher means the anti-flood (Aquastop) system has detected water in the base of the machine and activated the drain pump to remove it. This is a safety feature triggered by a leak or overflow. The most common causes are:\n1. A leak from the door seal, spray arm, or internal hoses.\n2. Over-sudsing (too much foam) caused by using washing-up liquid instead of dishwasher salt/detergent.\n3. A blocked filter causing water to back up and overflow into the base tray. To diagnose this safely, please turn off the water tap and unplug the machine first. Then pull it out slightly to check if there is standing water in the bottom casing (base pan). Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "I can't pull it out, it's fully integrated under the worktop and the kitchen plinth is glued at the ends. I did look through a gap with a torch and can see a little shine of water in the base tray. Filter is fairly clean and I use tablets, so no foam."
+  },
+  {
+   "role": "assistant",
+   "text": "E:15 suggests the anti-flood system has detected water in the base pan, which is why the pump runs continuously to remove it. Please open the door and inspect the rubber gasket around the tub opening for splits or trapped items. Also, look under your sink at the inlet hose connection (at the tap) and the drain hose entry point for any signs of dripping water. If you find a loose or split hose, tightening it may stop the leak. If everything looks dry but the error persists after you've manually dried the base tray (if accessible), the leak is likely internal to the machine's sump area, which will require an engineer to replace the seal or pump."
+  },
+  {
+   "role": "customer",
+   "text": "Door seal looks okay. The socket is in the adjacent cupboard behind the unit. I haven't checked under the sink hoses yet. Will do, but if the leak's inside the machine what are my options?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. If the leak is inside the machine, your options are limited because accessing the pump seals or internal hoses requires removing the door, base pan, and often the tub—work that involves mains electricity and water connections. You should call a qualified engineer to diagnose and replace the faulty component; they will need to remove the appliance from under the worktop to do so safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1644,
+     "labelMs": 334,
+     "enrichMs": 460,
+     "reasonMs": 10286,
+     "verifyMs": 572,
+     "replyLabelMs": 417,
+     "totalMs": 13828
+    },
+    "usage": {
+     "promptTokens": 3900,
+     "completionTokens": 694,
+     "totalTokens": 4594
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMV4HTX31E",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:15",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMV4HTX31E",
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "pump keeps running"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.97
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:drain-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 13867
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14246,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2628,
+     "labelMs": 427,
+     "enrichMs": 0,
+     "reasonMs": 17931,
+     "verifyMs": 5512,
+     "replyLabelMs": 309,
+     "totalMs": 26877
+    },
+    "usage": {
+     "promptTokens": 4416,
+     "completionTokens": 1019,
+     "totalTokens": 5435
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "leak",
+       "confidence": 0.9
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.62
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.79
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.69
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.13
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.38
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "water in the base tray"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: looked through a gap with a torch at the base tray - saw a little shine of water; checked filter - fairly clean.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked through a gap with a torch at the base tray: saw a little shine of water",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked filter: fairly clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 26920
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 27068,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2251,
+     "labelMs": 332,
+     "enrichMs": 0,
+     "reasonMs": 14256,
+     "verifyMs": 4534,
+     "replyLabelMs": 337,
+     "totalMs": 21786
+    },
+    "usage": {
+     "promptTokens": 4809,
+     "completionTokens": 613,
+     "totalTokens": 5422
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.78
+      },
+      "symptomArea": {
+       "value": "leak",
+       "confidence": 0.94
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.72
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.49
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.52
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.09
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.72
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E:15"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.94
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:water-matrix"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"if the leak's inside the machine what are my options?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Checks they have done and what they found: looked through a gap with a torch at the base tray - saw a little shine of water; checked filter - fairly clean.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked through a gap with a torch at the base tray: saw a little shine of water",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked filter: fairly clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 21844
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 22277,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.030545700000000002,
+ "finishedAt": "2026-10-13T16:56:40.520Z"
+}

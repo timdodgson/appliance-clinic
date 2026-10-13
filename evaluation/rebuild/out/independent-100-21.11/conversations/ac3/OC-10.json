@@ -1,0 +1,744 @@
+{
+ "id": "OC-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-10-723f182feb",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my belling cooker keeps burnin stuff 1 day then next day its undercookd on same temp. been like it a cuple months. thermastat??"
+  },
+  {
+   "role": "assistant",
+   "text": "It is unlikely to be a simple 'thermostat' in the traditional sense if you have an electronic oven; modern ovens use a temperature sensor and a control board. If it's mechanical, it could be a drifting thermostat. The fact that it swings from too hot to too cold on the same setting strongly suggests a regulation fault (sensor or control) rather than just a dirty oven. First, please tell me: does your cooker have a digital display with buttons, or just rotary dials? This determines whether we look at a sensor/probe or a mechanical thermostat."
+  },
+  {
+   "role": "customer",
+   "text": "just dials, no digital display. knobs and a little orange light that comes on. its the main oven thats doin it, top oven is fine"
+  },
+  {
+   "role": "assistant",
+   "text": "Since your main oven has mechanical dials and no digital display, the temperature is controlled by a mechanical thermostat (often with a capillary tube) rather than an electronic sensor. The fact that it swings from burning to undercooking on the same setting strongly suggests this thermostat is drifting or failing to regulate accurately. To confirm whether the heating elements are working correctly while the thermostat fails, please do this safe check: set the main oven to 180°C (or mid-range) on the fan function. Wait for the orange light to go off (meaning it has reached temperature), then carefully look through the glass door at the heating elements inside. Do you see the top element glowing bright red? Also, does the bottom element glow as well, or is it barely warm/dark?"
+  },
+  {
+   "role": "customer",
+   "text": "ive not looked at the elements properly so im not sure what they look like, sorry. the orange light is odd tho, sometimes it goes off after about 10 mins and other times it seems to stay on for ages. i use it most days for roast dinners and lasagne and stuff so its really annoying"
+  },
+  {
+   "role": "assistant",
+   "text": "That inconsistent light cycle is a classic sign of a mechanical thermostat that has lost its calibration or is failing internally; it’s cycling on and off at random rather than holding a steady temperature. If the thermometer shows a very different temperature, you’ve confirmed the thermostat is faulty and needs replacing."
+  },
+  {
+   "role": "customer",
+   "text": "i dont have an oven thermometer sorry. so do i need a new thermostat then? the knob is a bit wobbly too if that matters"
+  },
+  {
+   "role": "assistant",
+   "text": "The wobbly knob suggests that the control mechanism has been taking a beating or is physically loose due to age and use. Because replacing this part requires accessing the internal wiring at the back of the oven (which involves mains voltage), you will need to call an engineer to fit the new thermostat safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3162,
+     "labelMs": 349,
+     "enrichMs": 1,
+     "reasonMs": 11355,
+     "verifyMs": 1459,
+     "replyLabelMs": 286,
+     "totalMs": 16663
+    },
+    "usage": {
+     "promptTokens": 3464,
+     "completionTokens": 590,
+     "totalTokens": 4054
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "poor_results",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Belling",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "cooker",
+      "brand": "Belling",
+      "model": null,
+      "codes": [],
+      "symptom": "keeps burning stuff one day then undercooking the next on same temperature"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:temperature-probe",
+       "oven-cooker:element",
+       "oven-cooker:thermostat"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"thermostat??\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Belling.",
+     "The fault they reported is: \"keeps burning stuff one day then undercooking the next on same temperature\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me: does your cooker have a digital display with buttons, or just rotary dials?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16798
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 17140,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2612,
+     "labelMs": 1314,
+     "enrichMs": 1,
+     "reasonMs": 13946,
+     "verifyMs": 3181,
+     "replyLabelMs": 302,
+     "totalMs": 21436
+    },
+    "usage": {
+     "promptTokens": 3594,
+     "completionTokens": 681,
+     "totalTokens": 4275
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.33
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "cooker",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "main oven temperature swings from too hot to too cold on the same setting"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:selector-switch",
+       "oven-cooker:temperature-probe"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "Already given by the customer, never ask for it again: make Belling.",
+     "The fault they reported is: \"keeps burning stuff one day then undercooking the next on same temperature\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me: does your cooker have a digital display with buttons, or just rotary dials?",
+       "turn": 1,
+       "resolution": "just dials, no digital display. knobs and a little orange light that comes on."
+      },
+      {
+       "key": null,
+       "text": "Also, does the bottom element glow as well, or is it barely warm/dark?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21492
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 21743,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2740,
+     "labelMs": 357,
+     "enrichMs": 1,
+     "reasonMs": 11491,
+     "verifyMs": 2438,
+     "replyLabelMs": 314,
+     "totalMs": 17384
+    },
+    "usage": {
+     "promptTokens": 4320,
+     "completionTokens": 696,
+     "totalTokens": 5016
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unverified-identifier",
+       "ids": [
+        "£5",
+        "£10"
+       ]
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.61
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "does_not_know",
+       "confidence": 0.85
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.77
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "main oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "temperature swings from burning to undercooking; orange light goes off after about 10 mins or stays on for ages"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.62
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:thermostat",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: gives check.",
+     "Already given by the customer, never ask for it again: make Belling.",
+     "The fault they reported is: \"keeps burning stuff one day then undercooking the next on same temperature\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Also, does the bottom element glow as well, or is it barely warm/dark?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me: does your cooker have a digital display with buttons, or just rotary dials?",
+       "turn": 1,
+       "resolution": "just dials, no digital display. knobs and a little orange light that comes on."
+      },
+      {
+       "key": null,
+       "text": "Also, does the bottom element glow as well, or is it barely warm/dark?",
+       "turn": 2,
+       "resolution": "does_not_know"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 17501
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 17856,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1757,
+     "labelMs": 320,
+     "enrichMs": 0,
+     "reasonMs": 8044,
+     "verifyMs": 4329,
+     "replyLabelMs": 342,
+     "totalMs": 14835
+    },
+    "usage": {
+     "promptTokens": 4555,
+     "completionTokens": 532,
+     "totalTokens": 5087
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "controls_or_display",
+       "confidence": 0.88
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.47
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "inconsistent light cycle, cycling on and off at random"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:thermostat",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"do i need a new thermostat then?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: gives check; turn 3: suggests part.",
+     "Checks they have done and what they found: knob is wobbly - yes.",
+     "Already given by the customer, never ask for it again: make Belling.",
+     "The fault they reported is: \"keeps burning stuff one day then undercooking the next on same temperature\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Also, does the bottom element glow as well, or is it barely warm/dark?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "knob is wobbly: yes",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me: does your cooker have a digital display with buttons, or just rotary dials?",
+       "turn": 1,
+       "resolution": "just dials, no digital display. knobs and a little orange light that comes on."
+      },
+      {
+       "key": null,
+       "text": "Also, does the bottom element glow as well, or is it barely warm/dark?",
+       "turn": 2,
+       "resolution": "does_not_know"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15034
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 15536,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.04751760000000001,
+ "finishedAt": "2026-10-13T17:22:57.999Z"
+}

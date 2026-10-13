@@ -17,8 +17,8 @@
           "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
-          "MCP_HEALTH_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/health",
-          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws",
+          "MCP_HEALTH_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/health",
+          "MCP_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai",
           "RATE_LIMIT_MODE": "enforce",
           "RATE_LIMIT_TABLE": "applianceclinic-rate-limits",
@@ -47,7 +47,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/whichpart-api-0mprWYInyXb1Q11p2ozdyF8h4VvUI2dWs-FQxZYH0ow.zip"
+        "s3Key": "phase8/whichpart-api-ehE-KhWb5WiPtPQ1K3LVbo_NSmTZ-5co2-OwFmpczJw.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -69,7 +69,7 @@
           "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
-          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws/",
+          "MCP_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/",
           "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
           "DIAGNOSIS_ENGINE_URL": "https://le2kq7wvkhtgsrzsqwqutz3aau0xqkhi.lambda-url.eu-west-1.on.aws/"
         },
@@ -124,7 +124,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/applianceclinic-diagnosis-engine-gYsR7dYGXWvG6qknBKK6bTJACYXHc8kwIN0y_sREgG8.zip"
+        "s3Key": "phase8/applianceclinic-diagnosis-engine-vUaIZkg95NAauYBokl4c_7XvTMaCGknqBmTS_w96Kp8.zip"
       },
       "env": {
         "set": {
@@ -134,11 +134,83 @@
           "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
-          "MCP_URL": "https://657tahkrqxc72sxbt775wrbqnu0tasav.lambda-url.eu-west-1.on.aws",
+          "MCP_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai"
         },
         "digests": {
           "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
+        }
+      }
+    },
+    "applianceclinic-error-code-mcp": {
+      "create": {
+        "description": "Appliance Clinic error-code MCP service, Zip Lambda run by the Lambda Web Adapter (ADR 0022).",
+        "role": "arn:aws:iam::800960611664:role/error-code-mcp-role",
+        "runtime": "python3.12",
+        "handler": "run.sh",
+        "architectures": [
+          "arm64"
+        ],
+        "memorySize": 512,
+        "timeout": 30,
+        "layers": [
+          "arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:23"
+        ],
+        "url": {
+          "authType": "NONE",
+          "invokeMode": "BUFFERED"
+        },
+        "statements": [
+          {
+            "Sid": "FunctionURLAllowPublicAccess",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "lambda:InvokeFunctionUrl",
+            "Condition": {
+              "StringEquals": {
+                "lambda:FunctionUrlAuthType": "NONE"
+              }
+            }
+          },
+          {
+            "Sid": "FunctionURLInvokeAllowPublicAccess",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "lambda:InvokeFunction",
+            "Condition": {
+              "Bool": {
+                "lambda:InvokedViaFunctionUrl": "true"
+              }
+            }
+          }
+        ],
+        "logRetentionDays": 90,
+        "alarms": true,
+        "tags": [
+          {
+            "Key": "ac:owner",
+            "Value": "applianceclinic"
+          }
+        ],
+        "resources": [
+          "logs",
+          "alarms",
+          "function"
+        ]
+      },
+      "code": {
+        "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
+        "s3Key": "phase8/applianceclinic-error-code-mcp-bdqHIz1eh4mJwwSJ-Fp3sB24GEVaI8k5eEZrOi3yO7s.zip"
+      },
+      "env": {
+        "set": {
+          "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb",
+          "AWS_LAMBDA_EXEC_WRAPPER": "/opt/bootstrap",
+          "AWS_LWA_PORT": "8080",
+          "LEARNING_BUCKET": "whichpart-learning-800960611664",
+          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONUNBUFFERED": "1"
         }
       }
     }
@@ -226,7 +298,9 @@
           ],
           "Resource": [
             "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp",
-            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp:*"
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-error-code-mcp:*",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp",
+            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp:*"
           ]
         }
       ]

@@ -99,6 +99,10 @@ AcRuntimeStack with its last deployed image until it is decommissioned. Its vari
 | `LEARNING_BUCKET`, `ERROR_CODE_OVERLAY_KEY`, `ERROR_CODE_OVERLAY_TTL_MS`, `ERROR_CODE_LAST_GOOD` | Optional | empty (overlay off), `error-code-admin/state.json`, 10000, `/tmp/error-code-overlay-last-good.json` | `LEARNING_BUCKET` |
 | `AWS_REGION`, `AWS_DEFAULT_REGION` | Lambda | `eu-west-1` | Lambda sets them |
 
+The Zip Lambda `applianceclinic-error-code-mcp` ([ADR 0022](../adr/0022-error-code-service-as-zip-lambda.md)) reads the same variables. It also sets, for the Lambda Web Adapter layer and not read by the service:
+`AWS_LAMBDA_EXEC_WRAPPER` = `/opt/bootstrap` (the adapter starts `run.sh`) and `AWS_LWA_PORT` = `8080`; and the
+image's `PYTHONUNBUFFERED` and `PYTHONDONTWRITEBYTECODE`.
+
 ## Defaults that point at production or S4R
 
 Production sets each of these explicitly, so its behaviour does not depend on a default. They are listed because a

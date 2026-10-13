@@ -143,3 +143,18 @@ describe('ac2-state', () => {
     expect((await store.load('cs_y')).status).toBe('ok');
   });
 });
+
+describe('evaluation-only ablation (control)', () => {
+  it('passes the control to the engine only when given, and leaves the record untouched', async () => {
+    const store = memStore();
+    const engine = engineReturning({ outcome: 'ANSWER', message: 'Plain answer.' });
+    const r = await T.handle({ body: {}, messages: [{ role: 'user', content: 'dishwasher E:15' }], control: 'qwen-plain' }, deps(engine, store));
+    expect(r.error).toBeUndefined();
+    expect(engine.calls[0].ac2.control).toBe('qwen-plain');
+    expect(store.items.size).toBe(0);
+    const normal = await T.handle({ body: {}, messages: [{ role: 'user', content: 'dishwasher E:15' }] }, deps(engine, store));
+    expect(normal.error).toBeUndefined();
+    expect(engine.calls[1].ac2.control).toBeUndefined();
+    expect(store.items.size).toBe(1);
+  });
+});

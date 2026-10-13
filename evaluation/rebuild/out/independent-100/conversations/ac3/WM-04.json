@@ -1,0 +1,636 @@
+{
+ "id": "WM-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-04-96a63583c6",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WW90T534DAW keeps coming up with 4C after a couple of minutes. Drum is dry. Any ideas before I call someone out?"
+  },
+  {
+   "role": "assistant",
+   "text": "4C typically indicates a water supply issue where little or no water is entering the drum. The most common causes are simply that the tap isn't fully open, the hose is kinked behind the machine, or the inlet filter is blocked with grit. Please switch off and unplug the machine before checking anything. First, ensure the cold water tap is turned fully on and the fill hose isn't squashed against the wall. Then unscrew the hose from the back of the machine to check if the small mesh filter inside the inlet is clean or blocked by debris.\n[Helpful to see: image \"Where the fill-hose mesh filter is\" — A small mesh filter sits inside the fill-hose connector at the tap/valve end and catches grit. Turn the tap off, unscrew the hose and rinse the mesh. Typical layout — your machine may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Tap was already open, and I turned it fully anticlockwise anyway, no change. Hose isn't kinked. I unscrewed the hose at the machine end and the mesh filter is clogged with grey grit and limescale bits. Should I just clean that and retry?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, please clean that filter thoroughly under running water and reassemble everything before trying again. Once you have done that, turn the tap back on and start a programme to see if it fills normally now or if the 4C code returns. If the error persists after cleaning the filter, the inlet valve itself is likely failing and needs replacing."
+  },
+  {
+   "role": "customer",
+   "text": "Cleaned the filter and put it back, turned the tap on and ran a programme. It fills normally now and the 4C has gone."
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news! It sounds like the blocked filter was most likely the culprit. To help prevent this from happening again, I’d suggest checking that inlet mesh every couple of years or if you notice the fill time slowing down. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 4550,
+     "labelMs": 469,
+     "enrichMs": 413,
+     "replyMs": 3856,
+     "replyLabelMs": 320,
+     "totalMs": 9666
+    },
+    "usage": {
+     "promptTokens": 2475,
+     "completionTokens": 115,
+     "totalTokens": 2590
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.79
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WW90T534DAW",
+       "confidence": 1
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Samsung",
+      "model": "WW90T534DAW",
+      "codes": [
+       "4C"
+      ],
+      "symptom": "error code appears after a couple of minutes"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": "wm-inlet-hose-filter",
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:comms",
+       "washing-machine:foam-suds",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any ideas before I call someone out?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Samsung; model WW90T534DAW; code 4C.",
+     "The fault they reported is: \"error code appears after a couple of minutes\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.86,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 9730
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10129,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 6668,
+     "labelMs": 347,
+     "enrichMs": 0,
+     "replyMs": 3844,
+     "replyLabelMs": 278,
+     "totalMs": 11187
+    },
+    "usage": {
+     "promptTokens": 3070,
+     "completionTokens": 70,
+     "totalTokens": 3140
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "not_filling",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.71
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": "little or no water entering the drum"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:comms",
+       "washing-machine:inlet-valve",
+       "washing-machine:door-lock"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Should I just clean that and retry?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: ensure the cold water tap is turned fully on - Tap was already open, and I turned it fully anticlockwise anyway, no change; fill hose isn't squashed against the wall - Hose isn't kinked; small mesh filter inside the inlet is clean or blocked by debris - the mesh filter is clogged with grey grit and limescale bits.",
+     "Already given by the customer, never ask for it again: make Samsung; model WW90T534DAW; code 4C.",
+     "The fault they reported is: \"error code appears after a couple of minutes\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ensure the cold water tap is turned fully on: Tap was already open, and I turned it fully anticlockwise anyway, no change",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "fill hose isn't squashed against the wall: Hose isn't kinked",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "small mesh filter inside the inlet is clean or blocked by debris: the mesh filter is clogged with grey grit and limescale bits",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11311
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12005,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3954,
+     "labelMs": 342,
+     "enrichMs": 0,
+     "replyMs": 3570,
+     "replyLabelMs": 276,
+     "totalMs": 8205
+    },
+    "usage": {
+     "promptTokens": 2923,
+     "completionTokens": 57,
+     "totalTokens": 2980
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.8
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.77
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.56
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.46
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:inlet-valve",
+       "washing-machine:motor-drum",
+       "washing-machine:comms"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ensure the cold water tap is turned fully on: Tap was already open, and I turned it fully anticlockwise anyway, no change",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "fill hose isn't squashed against the wall: Hose isn't kinked",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "small mesh filter inside the inlet is clean or blocked by debris: the mesh filter is clogged with grey grit and limescale bits",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "cleaned the filter and put it back: null",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "turned the tap on and ran a programme: fills normally now and the 4C has gone",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8255
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 8633,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0324817,
+ "finishedAt": "2026-10-13T15:23:57.046Z"
+}

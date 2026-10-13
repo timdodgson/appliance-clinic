@@ -17,7 +17,7 @@ ROLES=(whichpart-api-role$S diag-orchestrator-role$S error-code-mcp-role$S)
 # engine spares4repairs-part-finder and ac-diagnosis-role were released from the stack (change 15.3) and are not captured.
 [[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-engine-role)
 FUNCTIONS=(spares4repairs-error-code-mcp$S spares4repairs-diag-orchestrator$S whichpart-api$S)
-[[ $PROFILE == production ]] && FUNCTIONS+=(applianceclinic-diagnosis-engine)
+[[ $PROFILE == production ]] && FUNCTIONS+=(applianceclinic-diagnosis-engine applianceclinic-error-code-mcp)
 RULES=(whichpart-recall-ingest-daily$S whichpart-transcript-review$S)
 umask 077
 

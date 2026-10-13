@@ -1,0 +1,664 @@
+{
+ "id": "WM-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-01-7e7d6f332c",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?"
+  },
+  {
+   "role": "assistant",
+   "text": "E18 on a Bosch washing machine means 'No drainage' or 'Drain took too long'. The most common cause is a blockage in the pump filter (often caused by coins, buttons, or lint) or a kinked drain hose. A failed drain pump is less likely but possible. Please switch off and unplug the machine first. Then open the small service flap at the bottom front of the machine. Place some towels underneath as water will spill out when you open it. Slowly unscrew the filter (usually a round cap) to see if it is blocked with debris. Also, look inside the hole where the filter was and try to turn the small plastic impeller (the vanes) with your finger - does it spin freely or is it jammed?"
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. I've emptied the water using the little emergency hose and unscrewed the filter. It had a child's sock and a hair grip wrapped round it, plus lots of fluff. The impeller turns, slightly notchy at first and then free. Also, no burning smell, but the floor got a little wet while I drained it. What should I do next?"
+  },
+  {
+   "role": "assistant",
+   "text": "The 'notchy' feeling suggests an obstruction that hasn't fully cleared. Please put the filter back in securely, plug the machine back in, and run a Drain or Spin Only programme. Listen at the bottom front: does the pump hum/run? And crucially, does the water actually leave the drum? This will tell us if it's just a remaining blockage or if the pump motor has failed."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I've put the filter back and run a drain/spin programme. It drains quickly, E18 has gone and it's spinning normally now."
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news. To help prevent this from happening again, I’d suggest checking that no small items like socks or hair grips are left in pockets or around the drum edge before washing. If you need anything else, just let me know."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1597,
+     "labelMs": 723,
+     "enrichMs": 4213,
+     "reasonMs": 9783,
+     "verifyMs": 1335,
+     "replyLabelMs": 1731,
+     "totalMs": 20052
+    },
+    "usage": {
+     "promptTokens": 3652,
+     "completionTokens": 658,
+     "totalTokens": 4310
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.49
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WAN28281GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": "WAN28281GB",
+      "codes": [
+       "E18"
+      ],
+      "symptom": "stopped half way through a wash, water still in the drum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:heater",
+       "washing-machine:overheating"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What does that mean?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WAN28281GB; code E18.",
+     "The fault they reported is: \"stopped half way through a wash, water still in the drum\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.96,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, look inside the hole where the filter was and try to turn the small plastic impeller (the vanes) with your finger - does it spin freely or is it jammed?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21722
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 22684,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2675,
+     "labelMs": 417,
+     "enrichMs": 1,
+     "reasonMs": 9394,
+     "verifyMs": 2549,
+     "replyLabelMs": 339,
+     "totalMs": 15450
+    },
+    "usage": {
+     "promptTokens": 4839,
+     "completionTokens": 652,
+     "totalTokens": 5491
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.55
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": "No drainage or drain took too long"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What should I do next?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: emptied water using emergency hose - done; unscrewed filter - found a child's sock and hair grip wrapped round it, plus lots of fluff; turned impeller with finger - turns, slightly notchy at first and then free.",
+     "Already given by the customer, never ask for it again: make Bosch; model WAN28281GB; code E18.",
+     "The fault they reported is: \"stopped half way through a wash, water still in the drum\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "emptied water using emergency hose: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "unscrewed filter: found a child's sock and hair grip wrapped round it, plus lots of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "turned impeller with finger: turns, slightly notchy at first and then free",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, look inside the hole where the filter was and try to turn the small plastic impeller (the vanes) with your finger - does it spin freely or is it jammed?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "And crucially, does the water actually leave the drum?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15523
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 16092,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2512,
+     "labelMs": 356,
+     "enrichMs": 0,
+     "reasonMs": 6998,
+     "verifyMs": 2481,
+     "replyLabelMs": 284,
+     "totalMs": 12722
+    },
+    "usage": {
+     "promptTokens": 4993,
+     "completionTokens": 439,
+     "totalTokens": 5432
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.81
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "emptied water using emergency hose: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "unscrewed filter: found a child's sock and hair grip wrapped round it, plus lots of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "turned impeller with finger: turns, slightly notchy at first and then free",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "put filter back in securely: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "ran Drain or Spin Only programme: drains quickly, E18 has gone and it's spinning normally now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, look inside the hole where the filter was and try to turn the small plastic impeller (the vanes) with your finger - does it spin freely or is it jammed?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "And crucially, does the water actually leave the drum?",
+       "turn": 2,
+       "resolution": "pump runs and water leaves the drum"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12788
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 13483,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0324357,
+ "finishedAt": "2026-10-13T16:26:21.187Z"
+}

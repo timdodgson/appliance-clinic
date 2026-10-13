@@ -547,7 +547,9 @@ async function ac2RecallLookup(messages) {
 
 async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }) {
   const t0 = Date.now();
-  const r = await ac2Turn.handle({ body, messages, image: latestImageOf(messages) }, {
+  // An evaluation-only ablation is honoured only on an authenticated benchmark request.
+  const control = bench && body && body.control === 'qwen-plain' ? 'qwen-plain' : null;
+  const r = await ac2Turn.handle({ body, messages, image: latestImageOf(messages), control }, {
     callEngine: (raw, timeoutMs) => _ac2CallEngine(raw, timeoutMs), secretsLoader: () => _stateTokenSecretsLoader(), store: ac2Store(),
     recallLookup: (msgs) => ac2RecallLookup(msgs),
   });

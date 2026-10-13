@@ -1,5 +1,7 @@
 # Orchestrator review
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 **Question.** Is `orchestration/orchestrator.py` (2,345 lines) large because the domain is complex, or because its
 responsibilities are mixed?
 

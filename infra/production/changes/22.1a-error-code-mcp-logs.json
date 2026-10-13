@@ -1,0 +1,112 @@
+{
+  "id": "22.1a-error-code-mcp-logs",
+  "description": "ADR 0022, step 1 of 3: for the error-code MCP Zip Lambda applianceclinic-error-code-mcp (created in 22.1b), its log group /aws/lambda/applianceclinic-error-code-mcp (90-day retention, Retain) and its Lambda Errors and Throttles alarms (>=1 in 5 min; no notification target, as for the engine), and the role it reuses, error-code-mcp-role, allowed to write to the new log group (inline policy ac-function-logs names both log groups). runtime-overrides.json: functions.applianceclinic-error-code-mcp with create.resources [\"logs\", \"alarms\"], and the added log group in rolePolicies[\"error-code-mcp-role/ac-function-logs\"]. Also the first execution of the read-only base that can read the new function, log group and alarms. Nothing runs yet; spares4repairs-error-code-mcp, whichpart-api and the engine are not touched.",
+  "classification": "SAFE AC CHANGE",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpLogs",
+      "type": "AWS::Logs::LogGroup",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpErrorsAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Add",
+      "logicalId": "applianceclinicerrorcodemcpThrottlesAlarm",
+      "type": "AWS::CloudWatch::Alarm",
+      "physicalId": null,
+      "replacement": null
+    },
+    {
+      "action": "Modify",
+      "logicalId": "errorcodemcproleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-function-logs|error-code-mcp-role",
+      "replacement": "False",
+      "details": [
+        "Properties.PolicyDocument"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:TagResource",
+        "logs:TagLogGroup"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp",
+        "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/applianceclinic-error-code-mcp:*"
+      ]
+    },
+    {
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:TagResource"
+      ],
+      "Resource": [
+        "arn:aws:cloudwatch:eu-west-1:800960611664:alarm:applianceclinic-error-code-mcp-*"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/error-code-mcp-role"
+      ]
+    }
+  ],
+  "grantNotes": "Creation of the one log group and its retention, the function's two alarms, and the one inline policy of the reused error-code MCP role. No metric filters (the engine's are specific to it), no Lambda writes.",
+  "writes": {
+    "types": [
+      "AWS::Logs::LogGroup",
+      "AWS::CloudWatch::Alarm",
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "logs:CreateLogGroup",
+      "logs:PutRetentionPolicy",
+      "monitoring:PutMetricAlarm",
+      "iam:PutRolePolicy"
+    ],
+    "forbidden": [
+      "logs:DeleteLogGroup",
+      "logs:PutMetricFilter",
+      "monitoring:DeleteAlarms",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "lambda:CreateFunction",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode"
+    ],
+    "resources": [
+      "/aws/lambda/applianceclinic-error-code-mcp",
+      "applianceclinic-error-code-mcp-",
+      "error-code-mcp-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-part-finder",
+      "ac-diagnosis-role",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "spares4repairs-error-code-mcp",
+      "whichpart-api",
+      "applianceclinic-diagnosis-engine"
+    ]
+  }
+}

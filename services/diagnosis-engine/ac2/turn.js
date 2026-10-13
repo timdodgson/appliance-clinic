@@ -10,14 +10,16 @@
  *   5  record         the BFF saves the record; this turn's labels are the transcript tags
  *   6  safety         Jev's hazard label plus the word-list backstop; fixed wording; stop only for gas or fire
  *   7  decide         what this reply must do: stage 1 broad help, stage 2 narrow / model / part; never ask for
- *                     anything already in the record
- *   8  reply          Qwen writes the reply as a normal chat
- *   9  final check    unsafe advice and unverified part numbers or prices removed; parts only when the catalogue
- *                     confirms them for the customer's model
+ *                     anything already in the record; build on what earlier replies already told them
+ *   8  reason, reply  the first rebuild's reasoner (Qwen) reasons over the record, tools, knowledge and the plan, and
+ *                     writes the reply; the claim verifier removes customer-specific claims the record does not
+ *                     support (one regeneration with its objections when the clean-up would damage the reply)
+ *   9  final check    unsafe advice and unverified part numbers or prices removed; certainty a check has not proved
+ *                     softened; parts only when the catalogue confirms them for the customer's model
  *   10 media          Jev picks the picture or video that matches the reply's check, and tags what the reply does
  *   11 send           response, record and audit back to the BFF
  *
- * If Qwen or Jev cannot run, the turn fails explicitly (ProviderUnavailableError): no fallback answer.
+ * If Qwen, the claim extractor or Jev cannot run, the turn fails explicitly (ProviderUnavailableError): no fallback answer.
  */
 const Rec = require('./record.js');
 const S = require('./safety.js');
@@ -26,7 +28,8 @@ const M = require('./models.js');
 const P = require('./parts.js');
 const J = require('./labels.js');
 const { understand } = require('./understand.js');
-const { writeReply } = require('./reply.js');
+const R = require('./reasoner.js');
+const V = require('./verifier.js');
 const { textOf, ProviderUnavailableError } = require('./util.js');
 
 let EC = null;
@@ -41,6 +44,10 @@ const SCOPE_POINTER = [
 ];
 const ATTACK_COPY = 'I can only help with household appliance faults. What\'s going on with your appliance?';
 const BLOCKING = new Set(['gas', 'fire', 'burning', 'battery', 'electric_shock', 'microwave_arcing', 'supply_trip']);
+// Hazards after which the appliance must not be used until an engineer (or the manufacturer) has checked it.
+const MUST_BE_CHECKED = new Set(['burning', 'battery', 'electric_shock', 'microwave_arcing', 'electrical_water', 'supply_trip']);
+// Under such a hazard, a sentence that says or implies it is safe to use again, or that an engineer may not be needed.
+const UNSAFE_REASSURANCE = /\b(without (?:needing|calling|having to call|the need for) (?:an? )?(?:engineer|electrician|repair)|(?:no|don'?t|won'?t|may not|might not) (?:even )?need (?:to call )?(?:an? )?(?:engineer|electrician)|safe to (?:use|run|switch on|turn on) (?:it )?again|(?:fine|ok|okay) to (?:use|run) (?:it )?(?:again|now)|(?:carry on|continue|keep) using (?:it|the)|before (?:calling|you call) an? (?:engineer|electrician))\b/i;
 const LABEL_WHERE = {
   'washing-machine': 'on a sticker inside the door rim or on the back of the door', 'washer-dryer': 'on a sticker inside the door rim or on the back of the door',
   'tumble-dryer': 'on a sticker inside the door opening', dishwasher: 'on the side edge of the door', 'fridge-freezer': 'on a sticker inside the fridge, usually on a side wall near the salad drawer',
@@ -77,19 +84,26 @@ function applyLabels(rec, L, reading) {
   if (L.make.value) Rec.setValue(rec, 'brand', L.make.value, L.make.confidence, t);
   if (L.model.value) { Rec.setValue(rec, 'model', L.model.value.toUpperCase(), L.model.confidence, t); rec.customer.modelUnavailable = false; }
   if (L.code.value) Rec.addCode(rec, L.code.value, t);
-  if (L.symptomArea.value) {
-    Rec.setValue(rec, 'symptomArea', L.symptomArea.value, L.symptomArea.confidence, t);
-    if (reading.symptom && !rec.customer.symptom) Rec.setValue(rec, 'symptom', reading.symptom, L.symptomArea.confidence, t);
-  }
-  if (L.checkOutcome.value || L.lastAnswer.value === 'answered') for (const c of reading.checksReported) Rec.addCheck(rec, c.check, c.result, t);
+  if (L.symptomArea.value) Rec.setValue(rec, 'symptomArea', L.symptomArea.value, L.symptomArea.confidence, t);
+  // The customer's own description of the fault, kept from the first message that gives one.
+  if (reading.symptom && !rec.customer.symptom) Rec.setValue(rec, 'symptom', reading.symptom, L.symptomArea.confidence, t);
+  // Checks and facts Qwen read are recorded only when Jev finds them in the customer's own words.
+  const checks = (L.checksConfirmed || []).map((i) => reading.checksReported[i]).filter(Boolean);
+  for (const c of checks) Rec.addCheck(rec, c.check, c.result, t);
+  if (checks.length) Rec.markChecksReported(rec, t);
+  for (const i of L.factsConfirmed || []) Rec.addFact(rec, (reading.facts || [])[i], t);
   if (L.lastAnswer.value) Rec.resolveLastAsked(rec, L.lastAnswer.value === 'answered' ? (reading.answerToLastQuestion || 'answered') : L.lastAnswer.value);
   if (L.modelUnreachable.value && !rec.customer.model) rec.customer.modelUnavailable = true;
   if (L.checkOutcome.value === 'fixed') rec.outcome = 'fixed';
-  if (L.checkOutcome.value === 'still_faulty' || L.checkOutcome.value === 'helped_then_returned') rec.stage = 2;
+  // Stage 2 only when a check was actually reported (Qwen and Jev agree) and the fault is still there.
+  if ((L.checkOutcome.value === 'still_faulty' || L.checkOutcome.value === 'helped_then_returned') && checks.length) rec.stage = 2;
   if (L.narrowed.value) { rec.narrowed = { component: L.narrowed.value, confidence: L.narrowed.confidence, turn: t }; rec.stage = 2; }
 }
 
-/** Step 6: hazards from Jev's label and the word-list backstop; they persist for the conversation. */
+/**
+ * Step 6: hazards from Jev's label and the word-list backstop; they persist for the conversation. The backstop is
+ * independent of Jev on purpose: a hazard in the customer's words is active whatever Jev says.
+ */
 function applyHazards(rec, labels, messages, recalls) {
   const add = (type, clause, extra = {}) => { if (type && !rec.hazards.some((h) => h.type === type)) rec.hazards.push({ type, clause: String(clause || '').slice(0, 160), turn: rec.turn, shown: false, ...extra }); };
   if (labels.hazard.value) add(labels.hazard.value, `labelled: ${labels.hazard.value}`, { source: 'jev', confidence: labels.hazard.confidence });
@@ -132,7 +146,7 @@ async function enrich(rec, texts, deps, recalls) {
 }
 
 /** Step 7: the plan for this reply, decided in code. */
-function decide(rec, reading, hazard, unsafe, parts) {
+function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}) {
   const plan = [];
   const c = rec.customer;
   const appliance = c.appliance && c.appliance.value;
@@ -146,27 +160,44 @@ function decide(rec, reading, hazard, unsafe, parts) {
     plan.push('We do not know which appliance this is yet: ask which appliance it is (and the make, if they know it). Keep it short.');
     return plan;
   }
-  if (hazard && !hazard.policy.terminate) plan.push(`Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. Only suggest checks that are safe with the appliance switched off and unplugged, never running or testing it; recommend ${String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ')} where the fault needs one.`);
+  if (hazard && !hazard.policy.terminate) {
+    const who = String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ');
+    plan.push(MUST_BE_CHECKED.has(hazard.type)
+      ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.`
+      : `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. Only suggest checks that are safe with the appliance switched off and unplugged, never running or testing it; recommend ${who} where the fault needs one.`);
+  }
+  // What we have already told them: the reply builds on it instead of repeating it.
+  if (rec.advice.length) {
+    plan.push(`Already told them (do not repeat any of it; build on it): ${Rec.adviceSummary(rec).join('; ')}.`);
+    const waiting = Rec.checksAwaitingResult(rec);
+    if (waiting.length) plan.push(`They have not reported the result of: ${waiting.map((x) => `"${x}"`).join('; ')}. Never say or imply they did it or what it showed.`);
+    if (nothingNew) plan.push('Their latest message adds no new facts about the fault. Give the next step after what you already told them: if a check you gave is still outstanding, ask how it went; if an engineer is needed, explain how to arrange one.');
+  }
+  if (c.checks.length) plan.push(`Checks they have done and what they found: ${c.checks.map((x) => `${x.check} - ${x.result || 'done'}`).join('; ')}.`);
+  const knownIds = [c.brand && `make ${c.brand.value}`, model && `model ${model}`, c.codes.length && `code${c.codes.length > 1 ? 's' : ''} ${c.codes.map((x) => x.code).join(', ')}`].filter(Boolean);
+  if (knownIds.length) plan.push(`Already given by the customer, never ask for it again: ${knownIds.join('; ')}.`);
+  const symptom = c.symptom && c.symptom.value;
+  if (symptom) plan.push(`The fault they reported is: "${symptom}". Keep to it: never describe a symptom, result or state they have not told you.`);
   if (unsafe) plan.push(`They asked about something unsafe (${unsafe.replace(/_/g, ' ')}): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.`);
   const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
   if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
   if (rec.stage === 1) {
-    plan.push('Stage 1 (broad help): say the most likely cause in plain words and give one or two safe checks the owner can do for it, most likely first. Do not ask for the model number in this reply.');
-    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES; if the catalogue could not resolve it, say what it usually means on this appliance and what would confirm it.');
+    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply.');
+    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
     return plan;
   }
   // Stage 2: the owner's checks did not fix it.
   if (!model && !c.modelUnavailable) {
     const where = LABEL_WHERE[appliance] || 'on the rating label';
-    plan.push(`Stage 2: their checks did not fix it. Say what that points to, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
+    plan.push(`Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
   } else if (!model) {
-    plan.push('Stage 2: their checks did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
+    plan.push('Stage 2: the checks they reported did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
   } else if (parts && parts.outcome === 'verified') {
     plan.push(`Stage 2: the checks point to the ${parts.component}. Say that, and that a matching part for model ${parts.catalogueModel} is shown below; they should check the listing matches their model before ordering. Mention when an engineer is the better choice.`);
   } else if (parts && parts.outcome === 'no_catalogue_part') {
     plan.push(`Stage 2: the checks point to the ${parts.component}, but we could not find a confirmed match for model ${model}. Say so, and suggest the manufacturer's spares or an engineer.`);
   } else {
-    plan.push('Stage 2: their checks did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
+    plan.push('Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one.');
   }
   return plan;
 }
@@ -185,6 +216,19 @@ function removeUnverifiedIdentifiers(reply, texts, rec) {
   return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').trim(), removed };
 }
 
+/**
+ * A cause is a possibility until a check proves it: certainty words in the reply ("that confirms a defrost fault",
+ * "it is definitely the pump") are softened, whatever the customer has checked. The customer's own "I confirmed" is
+ * left alone (only the present-tense claim is changed).
+ */
+const CERTAINTY = [[/\bconfirms\b/g, 'suggests'], [/\bConfirms\b/g, 'Suggests'], [/\bdefinitely\b/g, 'most likely'], [/\bDefinitely\b/g, 'Most likely'], [/\bcertainly (?=(?:is|means|points|caused))/g, 'probably '], [/\bwithout (?:a|any) doubt\b/gi, 'most likely']];
+function calibrate(reply) {
+  let text = String(reply);
+  let changed = 0;
+  for (const [re, to] of CERTAINTY) text = text.replace(re, () => { changed += 1; return to; });
+  return { text, changed };
+}
+
 // A physical check without isolation gets the isolation step first.
 const PHYSICAL = /\b(unscrew|remove|take (?:out|off)|pull (?:out|off|back)|open (?:the |up )?(?:filter|flap|panel|cover|back|door seal|pump|sump)|lift (?:out|off)|(?:clean|wash|rinse) (?:the )?(?:filters?|condenser|pump|sump|drain|coils?|brush)|detach (?:the )?(?:wand|hose|head|floorhead|bin)|clear (?:the )?(?:filter|drain|hose|pump|blockage)|turn the impeller|reach (?:in|into)|tilt (?:it|the)|pull (?:it|the machine) (?:out|forward)|check inside|flush (?:the|out))\b/i;
 const ISOLATED = /\b(unplug|unplugged|switch(?:ed)? (?:it |the \w+ )?off|isolat\w+|turn(?:ed)? (?:it )?off at|power off|power is off|off at the (?:wall|socket|fuse|consumer|cooker switch)|remove the battery|take the battery off)\b/i;
@@ -194,6 +238,48 @@ function stepPrecaution(reply, recentText, appliance) {
   if (appliance === 'vacuum') return 'Switch it off and unplug it (or take the battery off) first.';
   if (appliance === 'oven-cooker' || appliance === 'hobs') return 'First switch it off at the wall or cooker switch and let it cool completely.';
   return 'Before you start, switch it off and unplug it.';
+}
+
+/** True when a reply copies one of our earlier replies (same opening, ignoring case, spacing and punctuation). */
+const norm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 160);
+function copiesEarlier(reply, messages) {
+  const r = norm(reply);
+  return r.length >= 60 && messages.some((m) => m.role === 'assistant' && norm(textOf(m.content)) === r);
+}
+
+/**
+ * The claim check (the first rebuild's verifier): customer-specific claims the record does not support are objections
+ * for the regeneration, and their sentences are removed from what is sent. A copied earlier reply is an objection too.
+ * If the claim extractor cannot run, the turn fails explicitly.
+ */
+async function claimCheck(reply, facts, texts, messages, deps, audit) {
+  const issues = [];
+  const extract = async (system, user) => {
+    const res = await deps.qwen.infer({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], maxTokens: 700, temperature: 0, timeoutMs: 30000, responseFormat: V.EXTRACT_FORMAT, stream: false });
+    if (res.status !== 200) { const e = new Error(`extractor http ${res.status}`); e.category = 'HTTP'; e.status = res.status; e.detail = res.errorDetail || null; throw e; }
+    return { json: R.parseJson(res.text), usage: res.usage };
+  };
+  let verdict;
+  try { verdict = await V.verify(reply, facts, texts, { extract }); } catch (e) { throw new ProviderUnavailableError('claim extractor unavailable', e); }
+  audit.claims.checked += verdict.claims.length;
+  audit.timings.verifyMs = (audit.timings.verifyMs || 0) + (verdict.extractor.ms || 0);
+  for (const rj of verdict.rejected) {
+    audit.claims.rejected.push({ claim: rj.claim, source: rj.source });
+    issues.push({ kind: 'claim', text: `Unsupported claim about the customer (they did not say this): "${rj.claim}". Do not state it as fact; ask or hedge instead.` });
+  }
+  if (copiesEarlier(reply, messages)) issues.push({ kind: 'copied', text: 'Your draft repeated one of your earlier replies word for word. Do not repeat it: respond to what they just said and give a different next step (or say plainly that an engineer is needed and why).' });
+  return { reply: verdict.rejected.length ? V.neutralise(verdict) : String(reply).trim(), issues };
+}
+
+/** Regenerate when removing unsupported claims would leave a damaged reply (empty, its question lost, most of it gone). */
+function needsRegeneration(original, check) {
+  if (!check.issues.length) return false;
+  if (check.issues.some((i) => i.kind !== 'claim')) return true;
+  const before = String(original || '').trim();
+  const after = String(check.reply || '').trim();
+  if (!after) return true;
+  if (before.includes('?') && !after.includes('?')) return true;
+  return after.length < before.length * 0.4;
 }
 
 function lastQuestion(reply) {
@@ -235,7 +321,9 @@ async function runTurn(input, deps) {
   const lab = await J.labelMessage(deps.jev, { latest, priorAssistant, reading: u.reading, known: Rec.known(rec), candidates: candidatesFor(latest, u.reading), components: rec.knowledge.components });
   audit.timings.labelMs = lab.ms;
   const labels = lab.labels;
+  const knownBefore = JSON.stringify(Rec.known(rec));
   applyLabels(rec, labels, u.reading);
+  const nothingNew = knownBefore === JSON.stringify(Rec.known(rec)) && !labels.checkOutcome.value && labels.lastAnswer.value !== 'answered';
   const tags = { labels, reading: { appliance: u.reading.appliance, brand: u.reading.brand, model: u.reading.model, codes: u.reading.codes, symptom: u.reading.symptom }, stage: rec.stage };
 
   // 6 (first): safety. Gas or an active fire: fixed wording only.
@@ -283,20 +371,57 @@ async function runTurn(input, deps) {
       : { outcome: 'no_catalogue_part', component: rec.narrowed.component, reason: list.length ? 'no-matching-part' : 'model-not-in-catalogue' };
   }
 
-  // 7. Decide; 8. reply (Qwen).
+  // 7. Decide; 8. reason and reply (Qwen), then the claim check.
   const safetyNotes = [];
   const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
   if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
-  const plan = decide(rec, u.reading, hazard, unsafe, parts);
-  const r = await writeReply(deps.qwen, { messages, brief: { known: Rec.known(rec), knowledge: found.knowledge, codeMeanings: found.codeMeanings, normal: found.normal, plan, safetyNotes, recalls: found.recalls } });
-  audit.timings.replyMs = r.ms;
+  const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew });
+  const facts = Rec.evidence(rec);
+  const context = {
+    turn: rec.turn,
+    messages,
+    ledger: { facts, known: Rec.known(rec), alreadyAsked: rec.asked.map((a) => ({ question: a.question, answer: a.answer })) },
+    tools: { errorCodes: found.codeMeanings, modelHints: rec.knowledge.modelInfo, recalls: found.recalls },
+    knowledge: found.knowledge,
+    normal: found.normal,
+    safety: { activeHazards: rec.hazards.map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
+    plan,
+  };
+  const reason = async (feedback) => {
+    try { return await R.reason(deps.qwen, context, feedback ? { feedback } : {}); } catch (e) { throw new ProviderUnavailableError('diagnostic reasoner unavailable', e); }
+  };
+  audit.claims = { checked: 0, rejected: [] };
+  let r = await reason(null);
+  audit.timings.reasonMs = r.ms;
   audit.usage = r.usage;
   audit.plan = plan;
+  let check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+  // One regeneration with the objections when the clean-up would damage the reply, or when it copies an earlier one;
+  // never replaced by fixed text.
+  if (needsRegeneration(r.proposal.reply, check)) {
+    audit.regenerated = true;
+    if (check.issues.some((i) => i.kind === 'copied')) audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
+    r = await reason(check.issues.map((i) => i.text));
+    audit.timings.regenerateMs = r.ms;
+    check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+  }
+  const a = r.proposal.assessment;
+  audit.reasoning = { status: a.status, confidence: a.confidence, candidates: a.candidates.map((x) => `${x.cause} (${x.likelihood})`), next: r.proposal.next ? r.proposal.next.question : null };
 
   // 9. Final check.
-  const gate = S.gateReply(r.text, { hazards: rec.hazards, appliance });
+  const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: rec.hazards, appliance });
   for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
-  const ids = removeUnverifiedIdentifiers(gate.text, texts, rec);
+  let gated = gate.text;
+  if (hazard && MUST_BE_CHECKED.has(hazard.type)) {
+    const sents = String(gated).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
+    const kept = sents.filter((x) => !UNSAFE_REASSURANCE.test(x));
+    if (kept.length < sents.length) audit.safety.gates.push({ gate: 'unsafe-reassurance', removed: sents.length - kept.length });
+    gated = kept.join('').trim();
+  }
+  const cal = calibrate(gated);
+  if (cal.changed) audit.safety.gates.push({ gate: 'certainty', softened: cal.changed });
+  gated = cal.text;
+  const ids = removeUnverifiedIdentifiers(gated, texts, rec);
   for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
   let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
   const prefix = [];
@@ -319,18 +444,20 @@ async function runTurn(input, deps) {
   if (!stop && kids.length && deps.mediaCandidates) {
     try { pool = await deps.mediaCandidates(kids, { make: rec.customer.brand && rec.customer.brand.value, model, messages }); } catch { pool = []; }
   }
-  const rl = await J.labelReply(deps.jev, { reply, media: pool });
+  const checks = found.knowledge.flatMap((k) => k.ownerSafeChecks || []);
+  const rl = await J.labelReply(deps.jev, { reply, media: pool, checks });
   audit.timings.replyLabelMs = rl.ms;
 
   const q = lastQuestion(reply);
   if (q) Rec.noteAsked(rec, q, rec.turn);
   const action = rl.replyAction.value;
+  Rec.noteAdvice(rec, { turn: rec.turn, action, check: rl.check, question: q });
   if (action === 'recommends_engineer' && rec.outcome !== 'fixed') rec.outcome = 'engineer';
   else if (action === 'suggests_part' && parts && parts.outcome === 'verified') rec.outcome = 'part';
   else if (action === 'says_normal') rec.outcome = 'normal';
 
   const escalation = hazard ? { to: hazard.policy.escalate || 'engineer', reason: hazard.type, forced: true } : (action === 'recommends_engineer' ? { to: 'engineer', reason: 'reply' } : null);
-  audit.tags = { ...tags, stage: rec.stage, replyAction: rl.replyAction, media: rl.media ? rl.media.id || rl.media.title || null : null,
+  audit.tags = { ...tags, stage: rec.stage, replyAction: rl.replyAction, checkGiven: rl.check || null, media: rl.media ? rl.media.id || rl.media.title || null : null,
     enrichment: { knowledgeIds: rec.knowledge.knowledgeIds, codes: found.codeMeanings.map((x) => ({ code: x.code, status: x.status })), recalls: recalls.length, parts: parts ? parts.outcome : 'none' } };
   audit.partGate = parts ? { outcome: parts.outcome, component: parts.component, reason: parts.reason || null } : { outcome: 'none' };
   audit.escalation = escalation;
@@ -352,4 +479,4 @@ async function runTurn(input, deps) {
   return { state: rec, response, audit };
 }
 
-module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, decide, applyLabels, candidatesFor, removeUnverifiedIdentifiers, stepPrecaution, lastQuestion };
+module.exports = { runTurn, ProviderUnavailableError, SCOPE_COPY, UNSAFE_REASSURANCE, decide, claimCheck, needsRegeneration, applyLabels, applyHazards, candidatesFor, removeUnverifiedIdentifiers, calibrate, copiesEarlier, stepPrecaution, lastQuestion };

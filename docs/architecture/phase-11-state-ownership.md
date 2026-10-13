@@ -1,5 +1,7 @@
 # Conversation state ownership, before and after Phase 11 (ADR 0014)
 
+> **Historical.** This describes the journey architecture, which was retired on 2026-10-13 ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)). The current architecture is in [overview.md](overview.md).
+
 **Before:** the orchestrator kept a `ConversationState` per warm container in `InMemoryStateStore` (module level in `lambda_handler.py`, keyed by the client's observability id or an opener hash, never evicted). It was lost on a cold start, not shared across containers, kept advancing on turns whose cs/1 was not persisted, and could disagree with cs/1.
 
 **After (release 11.4):** no store. Each turn builds a fresh `ConversationState` from the request: the BFF's cs/1 block (the state part-finder merged on the previous turn and the BFF persisted) plus this turn's transcript and Jev reading. Nothing survives the invocation.

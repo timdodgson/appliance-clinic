@@ -37,3 +37,4 @@ alongside the code. A record is never rewritten after it is accepted; a later re
 | [0019](0019-dedicated-canonical-diagnosis-engine.md) | Appliance Clinic uses a dedicated canonical diagnosis engine | Implemented (Phase 15) |
 | [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md) | LLM-led diagnosis inside a deterministic guardrail kernel | Accepted; amended by [0021](0021-understand-label-enrich-decide-reply.md) ([evaluation](../evaluation/llm-led-rebuild.md)) |
 | [0021](0021-understand-label-enrich-decide-reply.md) | One turn: Qwen understands, Jev labels, tools enrich, code decides, Qwen replies | Implemented (changes 21.2, 21.3) |
+| [0022](0022-error-code-service-as-zip-lambda.md) | The error-code service runs as a Zip Lambda, applianceclinic-error-code-mcp | Accepted; partly implemented (22.1a, 22.1b executed; 22.2 prepared) |

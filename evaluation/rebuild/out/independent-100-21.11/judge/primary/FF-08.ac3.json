@@ -1,0 +1,55 @@
+{
+ "id": "FF-08.ac3",
+ "case": "FF-08",
+ "system": "ac3",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 3,
+  "fidelity": 1,
+  "noFabrication": 1,
+  "diagnosticUsefulness": 1,
+  "questionQuality": 1,
+  "calibration": 1,
+  "noRepetition": 4,
+  "escalation": 3,
+  "partQuality": 3,
+  "languageUnderstanding": 3,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": true,
+   "evidence": "'Since moving the food hasn't stopped the freezing' - the customer had only just moved the food and reported no result"
+  },
+  "confidentUnsupported": {
+   "flag": true,
+   "evidence": "'the next most likely cause is that the defrost drain at the bottom of the back wall is blocked with ice or debris' - a blocked drain does not cause fridge-compartment freezing and nothing pointed to it; also 'That explains it perfectly'"
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": false,
+   "evidence": ""
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": false,
+ "rationale": "The first reply correctly told the customer to move food away from the rear vent, but the assistant never asked the obvious thermostat question and instead invented that moving food 'hasn't stopped the freezing', then sent the customer hunting for a drain hole (irrelevant to this symptom) and suggested prying off a cover with a screwdriver. When the customer volunteered that the dial was on max, the assistant declared 'That explains it perfectly' yet never actually told her to turn it to a mid setting, nor suggested a thermometer or what to do if freezing persisted. The customer ended up with the right cause by her own discovery but without a clear instruction, so she was poorly served.",
+ "costUsd": 0.19645
+}

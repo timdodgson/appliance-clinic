@@ -12,7 +12,8 @@ const UNDERSTAND_SYSTEM = `You read one message from a customer chatting with a 
 - symptom: the fault in a few plain words.
 - customerQuestion: a question the customer asked, if any.
 - answerToLastQuestion: their answer to the assistant's last question, in a few words, if they answered it.
-- checksReported: checks or fixes they say they did, each with what happened.
+- checksReported: checks or fixes on the appliance they say they actually did, each with what happened. Not checks they plan to do, ask about or have not done yet, and not safety steps (switching it off, unplugging it, finding the fuse box, stepping away from water).
+- facts: other things they state about the appliance, how it is installed or used, or what they observed, including what is NOT happening (e.g. "no burning smell", "static freezer, not frost-free", "about a cupful of clean water in the bottom", "it is 4 years old"). Short phrases in their meaning; at most 4.
 - cannotReachModel: true only if they say they cannot find, reach or read the model number right now.`;
 
 const UNDERSTAND_FORMAT = {
@@ -23,7 +24,7 @@ const UNDERSTAND_FORMAT = {
     schema: {
       type: 'object',
       additionalProperties: false,
-      required: ['appliance', 'brand', 'model', 'codes', 'symptom', 'customerQuestion', 'answerToLastQuestion', 'checksReported', 'cannotReachModel'],
+      required: ['appliance', 'brand', 'model', 'codes', 'symptom', 'customerQuestion', 'answerToLastQuestion', 'checksReported', 'facts', 'cannotReachModel'],
       properties: {
         appliance: { type: ['string', 'null'] },
         brand: { type: ['string', 'null'] },
@@ -33,6 +34,7 @@ const UNDERSTAND_FORMAT = {
         customerQuestion: { type: ['string', 'null'] },
         answerToLastQuestion: { type: ['string', 'null'] },
         checksReported: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['check', 'result'], properties: { check: { type: 'string' }, result: { type: 'string' } } } },
+        facts: { type: 'array', items: { type: 'string' } },
         cannotReachModel: { type: 'boolean' },
       },
     },
@@ -50,6 +52,7 @@ function normalise(j) {
     customerQuestion: clean(o.customerQuestion, 200),
     answerToLastQuestion: clean(o.answerToLastQuestion, 160),
     checksReported: Array.isArray(o.checksReported) ? o.checksReported.filter((c) => c && clean(c.check)).map((c) => ({ check: clean(c.check, 120), result: clean(c.result, 160) || '' })).slice(0, 4) : [],
+    facts: Array.isArray(o.facts) ? o.facts.map((f) => clean(f, 140)).filter(Boolean).slice(0, 4) : [],
     cannotReachModel: o.cannotReachModel === true,
   };
 }

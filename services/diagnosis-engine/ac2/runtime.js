@@ -12,7 +12,8 @@ const { evaluateJevWithRetries } = require('../jev-client.js');
 const media = require('../media.js');
 const { resolveErrorCode } = require('./mcp.js');
 const { runTurn } = require('./turn.js');
-const { ProviderUnavailableError } = require('./util.js');
+const { ProviderUnavailableError, stripThinking } = require('./util.js');
+const { chatHistory } = require('./reply.js');
 
 const JEV_TIMEOUT_MS = Number(process.env.AC3_JEV_TIMEOUT_MS || 12000);
 
@@ -62,4 +63,30 @@ async function turn({ messages, state, tools }) {
   });
 }
 
-module.exports = { turn, ProviderUnavailableError };
+/**
+ * Evaluation-only ablation (benchmark requests only, see whichpart-api ac2-turn.js): the reply model alone, with a
+ * generic assistant prompt and the chat, and nothing from the pipeline. The record passes through unchanged.
+ */
+const PLAIN_SYSTEM = 'You are a helpful AI assistant. The current date is Monday 12 October 2026.';
+async function plain({ messages, state }) {
+  const t0 = Date.now();
+  let qwen;
+  try { qwen = (await getProviders()).compose; } catch (e) { throw new ProviderUnavailableError('inference provider unavailable', e); }
+  const r = await writePlain(qwen, messages);
+  const audit = { schema: 'ac3-audit/1', control: 'qwen-plain', provider: { name: qwen.name || null, model: qwen.model || null }, timings: { replyMs: r.ms, totalMs: Date.now() - t0 }, safety: { hazards: [], gates: [] } };
+  return { state: state || null, response: { outcome: 'ANSWER', message: r.text }, audit };
+}
+async function writePlain(provider, messages) {
+  const t0 = Date.now();
+  let res;
+  try {
+    res = await provider.infer({ messages: [{ role: 'system', content: PLAIN_SYSTEM }, ...chatHistory(messages)], maxTokens: 1500, temperature: 0.4, timeoutMs: 60000, stream: false });
+  } catch (e) {
+    throw new ProviderUnavailableError('reply model unavailable', e);
+  }
+  const text = res && res.status === 200 ? stripThinking(res.text) : '';
+  if (!text) throw new ProviderUnavailableError('reply model unavailable', { category: 'EMPTY' });
+  return { text, ms: Date.now() - t0 };
+}
+
+module.exports = { turn, plain, writePlain, PLAIN_SYSTEM, ProviderUnavailableError };

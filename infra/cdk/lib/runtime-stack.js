@@ -14,6 +14,9 @@
  *   - A function the stack creates (runtime-overrides.json `create`, ADR 0019: applianceclinic-diagnosis-engine) also
  *     gets its log group (retention), metric filters on its failed and refused requests, and alarms. Its Function URL
  *     is AWS_IAM; callers are allowed by their own role policies, so it has no resource-policy statement.
+ *   - A created function may declare layers and resource-policy statements (ADR 0022: applianceclinic-error-code-mcp,
+ *     a Zip function run by the Lambda Web Adapter layer behind a bearer-gated public Function URL, with the two
+ *     statements a public URL needs). Its statements depend on it.
  */
 const fs = require('node:fs');
 const cdk = require('aws-cdk-lib');
@@ -24,9 +27,10 @@ const { applyOverrides, importedSid } = require('./overrides');
 /** Import groups by production name. */
 const FUNCTION_STEP = {
   'spares4repairs-error-code-mcp': '5.7a', 'spares4repairs-diag-orchestrator': '5.7b', 'whichpart-api': '5.7c',
-  'applianceclinic-diagnosis-engine': '5.10',
+  'applianceclinic-diagnosis-engine': '5.10', 'applianceclinic-error-code-mcp': '5.10',
 };
-const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'applianceclinic-diagnosis-engine': '5.10' };
+const URL_STEP = { ...Object.fromEntries(Object.keys(FUNCTION_STEP).map((f) => [f, '5.8'])), 'applianceclinic-diagnosis-engine': '5.10',
+  'applianceclinic-error-code-mcp': '5.10' };
 /** Log metrics of a created function (ApplianceClinic namespace): the text each counted log line contains. */
 const CREATED_METRICS = {
   FailedTurns: '"\\"evt\\":\\"diagnosis-engine\\"" "\\"ok\\":false"',
@@ -109,6 +113,8 @@ class RuntimeStack extends cdk.Stack {
           ...(c.TracingConfig?.Mode && c.TracingConfig.Mode !== 'PassThrough' ? { tracingConfig: { mode: c.TracingConfig.Mode } } : {}),
           ...(c.EphemeralStorage?.Size && c.EphemeralStorage.Size !== 512 ? { ephemeralStorage: { size: c.EphemeralStorage.Size } } : {}),
           ...(c.Description ? { description: c.Description } : {}),
+          // Layers are declared only for a function this stack creates (ADR 0022); imported functions keep their template.
+          ...(f.create && c.Layers && c.Layers.length ? { layers: c.Layers.map((l) => l.Arn) } : {}),
           ...(userTags(Object.entries(f.tags || {}).map(([Key, Value]) => ({ Key, Value }))).length
             ? { tags: userTags(Object.entries(f.tags).map(([Key, Value]) => ({ Key, Value }))).map((t) => ({ key: t.Key, value: t.Value })) } : {}),
           ...(f.reservedConcurrency != null ? { reservedConcurrentExecutions: f.reservedConcurrency } : {}),
@@ -154,6 +160,8 @@ class RuntimeStack extends cdk.Stack {
             ...(sourceArn ? { sourceArn } : {}),
             ...(invokedViaFunctionUrl ? { invokedViaFunctionUrl: true } : {}),
           }));
+          // A created function's statements name it by a literal, so they wait for it.
+          if (f.create) perm.node.addDependency(this.node.findChild(fid));
           // A Permission is replaced to change it. The statement it replaces must go, so it is not retained on update.
           if (overridden[sid]) {
             perm.cfnOptions.updateReplacePolicy = cdk.CfnDeletionPolicy.DELETE;
@@ -201,19 +209,25 @@ class RuntimeStack extends cdk.Stack {
       alarmName: `${name}-${aid}`, comparisonOperator: 'GreaterThanOrEqualToThreshold', evaluationPeriods: 1, period: 300,
       treatMissingData: 'notBreaching', ...props,
     }));
-    if (!parts.has('metrics')) return;
-    for (const [metric, filterPattern] of Object.entries(CREATED_METRICS)) {
-      const mf = retain(new logs.CfnMetricFilter(this, `${fid}${metric}`, {
-        logGroupName, filterPattern, filterName: `${name}-${metric}`,
-        metricTransformations: [{ metricNamespace: 'ApplianceClinic', metricName: `DiagnosisEngine${metric}`, metricValue: '1', defaultValue: 0 }],
-      }));
-      mf.node.addDependency(lg);
+    // The log metrics (and their alarms) are the diagnosis engine's own; a function staged without `metrics` (ADR 0022:
+    // the error-code MCP) gets only the Lambda Errors and Throttles alarms.
+    const metrics = parts.has('metrics');
+    if (metrics) {
+      for (const [metric, filterPattern] of Object.entries(CREATED_METRICS)) {
+        const mf = retain(new logs.CfnMetricFilter(this, `${fid}${metric}`, {
+          logGroupName, filterPattern, filterName: `${name}-${metric}`,
+          metricTransformations: [{ metricNamespace: 'ApplianceClinic', metricName: `DiagnosisEngine${metric}`, metricValue: '1', defaultValue: 0 }],
+        }));
+        mf.node.addDependency(lg);
+      }
     }
     if (!parts.has('alarms') || !c.alarms) return;
-    alarm('FailedTurns', { alarmDescription: 'Diagnosis engine turns that failed (503 engine_unavailable): Jev or COMPOSE provider down, or an engine error.',
-      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineFailedTurns', statistic: 'Sum', threshold: 5 });
-    alarm('RefusedRequests', { alarmDescription: 'Requests refused for a missing or invalid engine signature. AC callers always sign: any refusal is a caller or key fault.',
-      namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineRefusedRequests', statistic: 'Sum', threshold: 1 });
+    if (metrics) {
+      alarm('FailedTurns', { alarmDescription: 'Diagnosis engine turns that failed (503 engine_unavailable): Jev or COMPOSE provider down, or an engine error.',
+        namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineFailedTurns', statistic: 'Sum', threshold: 5 });
+      alarm('RefusedRequests', { alarmDescription: 'Requests refused for a missing or invalid engine signature. AC callers always sign: any refusal is a caller or key fault.',
+        namespace: 'ApplianceClinic', metricName: 'DiagnosisEngineRefusedRequests', statistic: 'Sum', threshold: 1 });
+    }
     for (const m of ['Errors', 'Throttles']) {
       alarm(m, { alarmDescription: `Lambda ${m} on ${name}.`, namespace: 'AWS/Lambda', metricName: m, statistic: 'Sum', threshold: 1,
         dimensions: [{ name: 'FunctionName', value: name }] });

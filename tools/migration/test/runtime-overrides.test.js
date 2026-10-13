@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { REPO_ROOT } from '../src/util/files.js';
@@ -70,7 +70,7 @@ describe('runtime overrides', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
     // The former shared engine spares4repairs-part-finder and its role ac-diagnosis-role are no longer AC's (change 15.3).
     const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'spares4repairs-error-code-mcp',
-      'applianceclinic-diagnosis-engine'];
+      'applianceclinic-diagnosis-engine', 'applianceclinic-error-code-mcp'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
     const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'];
     for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-engine-role'], k).toContain(k);
@@ -100,5 +100,66 @@ describe('runtime overrides', () => {
     const none = { functions: { g: { ...o.functions.g, create: { ...create, carryFrom: undefined } } } };
     expect(() => applyOverrides(l, none)).toThrow(/no live value to carry/);
     expect(() => applyOverrides(l, { functions: { g: { create: { role: 'r' } } } })).toThrow(/needs runtime/);
+  });
+
+  // ADR 0022: applianceclinic-error-code-mcp, a Zip function run by the Lambda Web Adapter layer behind a public URL.
+  const LWA = 'arn:aws:lambda:eu-west-1:753240598075:layer:LambdaAdapterLayerArm64:23';
+  const urlStatements = [
+    { Sid: 'FunctionURLAllowPublicAccess', Effect: 'Allow', Principal: '*', Action: 'lambda:InvokeFunctionUrl',
+      Condition: { StringEquals: { 'lambda:FunctionUrlAuthType': 'NONE' } } },
+    { Sid: 'FunctionURLInvokeAllowPublicAccess', Effect: 'Allow', Principal: '*', Action: 'lambda:InvokeFunction',
+      Condition: { Bool: { 'lambda:InvokedViaFunctionUrl': 'true' } } },
+  ];
+  const zipCreate = { role: 'arn:aws:iam::800960611664:role/error-code-mcp-role', runtime: 'python3.12', handler: 'run.sh',
+    architectures: ['arm64'], memorySize: 1024, timeout: 30, url: { authType: 'NONE', invokeMode: 'BUFFERED' },
+    layers: [LWA], statements: urlStatements, resources: ['logs', 'function'] };
+  it('builds a created Zip function with layers and its URL statements (ADR 0022)', () => {
+    const o = { functions: { g: { create: zipCreate, code: { s3Bucket: 'b', s3Key: 'k' },
+      env: { set: { AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap', AWS_LWA_PORT: '8080' } } } } };
+    const g = applyOverrides(live(), o).functions.g;
+    expect(g.configuration).toMatchObject({ PackageType: 'Zip', Runtime: 'python3.12', Handler: 'run.sh', Architectures: ['arm64'], Layers: [{ Arn: LWA }] });
+    expect(g.configuration.Environment.Variables).toEqual({ AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap', AWS_LWA_PORT: '8080' });
+    expect(g.url).toEqual({ AuthType: 'NONE', InvokeMode: 'BUFFERED', Cors: null });
+    expect(g.statements).toEqual(urlStatements);
+    expect(g.statements).not.toBe(urlStatements);
+    // without layers or statements, a created function has neither
+    const plain = applyOverrides(live(), { functions: { g: { create: { ...zipCreate, layers: undefined, statements: undefined } } } }).functions.g;
+    expect(plain.configuration.Layers).toBeUndefined();
+    expect(plain.statements).toEqual([]);
+    expect(() => applyOverrides(live(), { functions: { g: { create: { ...zipCreate, layers: ['LambdaAdapterLayerArm64'] } } } })).toThrow(/layer version ARNs/);
+    expect(() => applyOverrides(live(), { functions: { g: { create: { ...zipCreate, statements: [{ Sid: 'x' }] } } } })).toThrow(/needs Sid, Action and Principal/);
+  });
+  const cdkLib = join(REPO_ROOT, 'infra', 'cdk', 'node_modules', 'aws-cdk-lib');
+  // Synthesis needs infra/cdk's own dependencies (npm ci --prefix infra/cdk); skipped where they are not installed.
+  it.skipIf(!existsSync(cdkLib))('synthesizes the created Zip function with its layer, and its statements after it (ADR 0022)', () => {
+    const cdk = require(cdkLib);
+    const { RuntimeStack } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'runtime-stack.js'));
+    const { mkdtempSync, writeFileSync } = require('node:fs');
+    const { tmpdir } = require('node:os');
+    const role = { trust: { Version: '2012-10-17', Statement: [] }, path: '/', maxSessionDuration: 3600, description: null, boundary: null, tags: [], managed: [], inline: {} };
+    const path = join(mkdtempSync(join(tmpdir(), 'ecz-')), 'live.json');
+    writeFileSync(path, JSON.stringify({ roles: { 'error-code-mcp-role': role }, functions: {}, rules: {} }));
+    const app = new cdk.App({ analyticsReporting: false });
+    const overrides = { functions: { 'applianceclinic-error-code-mcp': { create: zipCreate, code: { s3Bucket: 'b', s3Key: 'k' },
+      env: { set: { AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap', AWS_LWA_PORT: '8080' } } } } };
+    const stack = new RuntimeStack(app, 'AcRuntimeStack', { env: { account: '800960611664', region: 'eu-west-1' },
+      synthesizer: new cdk.BootstraplessSynthesizer(), step: '5.10', profile: 'production', live: path, overrides });
+    const r = app.synth().getStackByName(stack.stackName).template.Resources;
+    const fid = 'applianceclinicerrorcodemcp';
+    expect(r[fid].Properties).toMatchObject({ FunctionName: 'applianceclinic-error-code-mcp', PackageType: 'Zip', Runtime: 'python3.12',
+      Handler: 'run.sh', Architectures: ['arm64'], Layers: [LWA], Code: { S3Bucket: 'b', S3Key: 'k' } });
+    expect(r[fid].DependsOn).toEqual(expect.arrayContaining(['errorcodemcprole', `${fid}Logs`]));
+    expect(r[`${fid}Url`].Properties).toMatchObject({ AuthType: 'NONE', InvokeMode: 'BUFFERED' });
+    expect(r[`${fid}FunctionURLAllowPublicAccess`].Properties).toEqual({ FunctionName: 'applianceclinic-error-code-mcp',
+      Action: 'lambda:InvokeFunctionUrl', Principal: '*', FunctionUrlAuthType: 'NONE' });
+    expect(r[`${fid}FunctionURLInvokeAllowPublicAccess`].Properties).toEqual({ FunctionName: 'applianceclinic-error-code-mcp',
+      Action: 'lambda:InvokeFunction', Principal: '*', InvokedViaFunctionUrl: true });
+    for (const sid of ['FunctionURLAllowPublicAccess', 'FunctionURLInvokeAllowPublicAccess']) {
+      expect(r[`${fid}${sid}`].DependsOn).toContain(fid);
+      expect(r[`${fid}${sid}`].DeletionPolicy).toBe('Retain');
+    }
+    // logs and function only: no metric filters or alarms
+    expect(Object.keys(r).filter((k) => k.startsWith(fid)).sort()).toEqual([fid, `${fid}FunctionURLAllowPublicAccess`,
+      `${fid}FunctionURLInvokeAllowPublicAccess`, `${fid}Logs`, `${fid}Url`].sort());
   });
 });

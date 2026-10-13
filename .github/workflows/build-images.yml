@@ -1,8 +1,10 @@
 name: Build images
 
-# Phase 3 (#29): rebuilds the error-code MCP image (arm64, under QEMU) from this
-# repository and proves it equivalent to the deployed image (reference data in build/reference/).
-# Base images and the Lambda Web Adapter are pulled by digest from public registries. No AWS
+# The error-code service's build equivalence. Phase 3 (#29) rebuilt the error-code MCP container image and proved it
+# equal to the deployed image; since ADR 0022 (change 22.2) the service runs as the Zip Lambda
+# applianceclinic-error-code-mcp, so this job rebuilds that zip (arm64 wheels from the hashed lock) and proves it equal
+# to the deployed artefact (build/reference/applianceclinic-error-code-mcp.zip.json). The job keeps its name, `images`,
+# because it is a required check. The retired image's reference stays in build/reference/ as the record. No AWS
 # credentials; nothing is pushed or deployed.
 on:
   pull_request:
@@ -18,14 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
+      - uses: actions/setup-python@v5
         with:
-          platforms: arm64
-      - name: Error-code MCP image
+          python-version: '3.12'
+      - name: Error-code MCP zip
         run: |
-          python3 build/scripts/assemble_base.py build/reference/spares4repairs-error-code-mcp.image.json \
-            --tag pinned/mcp-base:2026-10-01 --registry docker.io/library/python
-          docker buildx build --platform linux/arm64 --load -t rebuild/error-code-mcp \
-            --build-arg BASE=pinned/mcp-base:2026-10-01 --build-context constraints=build/python \
-            -f build/images/error-code-mcp.Dockerfile error-codes
-          python3 build/scripts/compare_image.py build/reference/spares4repairs-error-code-mcp.image.json rebuild/error-code-mcp
+          bash build/scripts/fetch_error_code_mcp_site.sh build/out/error-code-mcp-site
+          python3 build/scripts/package_zips.py --out-dir build/out --mcp-site build/out/error-code-mcp-site
+          python3 build/scripts/compare_zip.py build/reference/applianceclinic-error-code-mcp.zip.json build/out/applianceclinic-error-code-mcp.zip

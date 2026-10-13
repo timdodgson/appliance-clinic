@@ -32,7 +32,14 @@ const messagesOf = (sc) => [sc.opener, ...sc.customerTurns].map((content) => ({ 
 /** The worst Qwen: a reading that claims nothing, and a reply that advises running/opening the appliance and invents a part number and price. */
 function adversary() {
   const reply = 'Run it again on an empty cycle to test it. Take the outer casing off and discharge the capacitor with a screwdriver. Order part AB12345678 for £45.';
-  return { name: 'adversary', model: 'stub', calls: 0, async infer(req) { this.calls += 1; return req.responseFormat ? { status: 200, text: '{"appliance":null,"brand":null,"model":null,"codes":[],"symptom":null,"customerQuestion":null,"answerToLastQuestion":null,"checksReported":[],"cannotReachModel":false}' } : { status: 200, text: reply }; } };
+  const proposal = { understanding: { appliance: null, brand: null, model: null, codes: [], newFacts: [], lastQuestionAnswer: 'not_applicable', customerQuestion: null, outOfScope: { is: false, what: null } }, assessment: { status: 'narrowed', candidates: [], confidence: 'high', knowledgeIds: [], summary: null }, next: null, part: { component: 'control board', evidence: [] }, escalation: null, reply };
+  return { name: 'adversary', model: 'stub', calls: 0, async infer(req) {
+    this.calls += 1;
+    const kind = req.responseFormat && req.responseFormat.json_schema && req.responseFormat.json_schema.name;
+    if (kind === 'ac2_turn') return { status: 200, text: JSON.stringify(proposal) };
+    if (kind === 'ac2_claims') return { status: 200, text: '{"claims":[]}' };
+    return { status: 200, text: '{"appliance":null,"brand":null,"model":null,"codes":[],"symptom":null,"customerQuestion":null,"answerToLastQuestion":null,"checksReported":[],"cannotReachModel":false}' };
+  } };
 }
 /** The laziest Jev: in scope, otherwise "none" to everything (it misses every hazard). */
 const blindJev = { async evaluate({ questions }) { const answers = {}; for (const [k, q] of Object.entries(questions)) answers[k] = q.type === 'noul' ? { type: 'noul', noul: 0 } : { type: 'choice', choice: k === 'scope' ? 'appliance' : (k === 'replyAction' ? 'gives_check' : (Object.keys(q.criteria).includes('none') ? 'none' : Object.keys(q.criteria).slice(-1)[0])), confidence: 0.9 }; return { answers }; } };

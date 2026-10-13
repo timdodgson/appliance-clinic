@@ -16,10 +16,13 @@
  *   functions.<name>.role                  the function's execution role ARN
  *   functions.<name>.create                a function this stack creates (ADR 0019), absent from the capture until it
  *                                          exists: {role, runtime, handler, architectures, memorySize, timeout,
- *                                          url: {authType, invokeMode}, logRetentionDays, alarms, tags, carryFrom}. Its
- *                                          configuration is always the declared one; env.digests values are carried
- *                                          from its own live environment, or from `carryFrom` until it exists (the
- *                                          value never appears in git, only its SHA-256)
+ *                                          url: {authType, invokeMode}, logRetentionDays, alarms, tags, carryFrom,
+ *                                          layers, statements}. Its configuration is always the declared one;
+ *                                          env.digests values are carried from its own live environment, or from
+ *                                          `carryFrom` until it exists (the value never appears in git, only its SHA-256)
+ *                                          layers: layer version ARNs (ADR 0022: the Lambda Web Adapter)
+ *                                          statements: its resource-policy statements, in the captured (get-policy)
+ *                                          shape {Sid, Action, Principal, Condition}; none when absent
  */
 const { createHash } = require('node:crypto');
 const sha256 = (v) => `sha256:${createHash('sha256').update(String(v)).digest('hex')}`;
@@ -28,16 +31,23 @@ function createdFunction(name, c, existing, out) {
   for (const k of ['role', 'runtime', 'handler', 'architectures', 'memorySize', 'timeout', 'url']) {
     if (c[k] == null) throw new Error(`created function ${name} needs ${k}`);
   }
+  if (c.layers != null && (!Array.isArray(c.layers) || c.layers.some((l) => !/^arn:aws:lambda:[a-z0-9-]+:\d{12}:layer:[A-Za-z0-9_-]+:\d+$/.test(l)))) {
+    throw new Error(`created function ${name}: layers must be layer version ARNs`);
+  }
+  for (const s of c.statements || []) {
+    if (!s.Sid || !s.Action || !s.Principal) throw new Error(`created function ${name}: a statement needs Sid, Action and Principal`);
+  }
   return {
     configuration: {
       Role: c.role, PackageType: 'Zip', Runtime: c.runtime, Handler: c.handler, Architectures: c.architectures.slice(),
       MemorySize: c.memorySize, Timeout: c.timeout, Description: c.description || '',
       Environment: { Variables: { ...((existing && existing.configuration.Environment && existing.configuration.Environment.Variables) || {}) } },
+      ...(c.layers && c.layers.length ? { Layers: c.layers.map((Arn) => ({ Arn })) } : {}),
     },
     code: {},
     tags: Object.fromEntries((c.tags || []).map((t) => [t.Key, t.Value])),
     url: { AuthType: c.url.authType, InvokeMode: c.url.invokeMode, Cors: null },
-    statements: [],
+    statements: JSON.parse(JSON.stringify(c.statements || [])),
     reservedConcurrency: c.reservedConcurrency != null ? c.reservedConcurrency : null,
     create: c,
     carrySource: existing ? null : (c.carryFrom ? out.functions[c.carryFrom] : null),

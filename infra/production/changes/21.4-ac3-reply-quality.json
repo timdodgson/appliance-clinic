@@ -1,0 +1,64 @@
+{
+  "id": "21.4-ac3-reply-quality",
+  "description": "Engine code only (proof of concept, no real customers): two reply-quality fixes from the 2026-10-13 smoke chats. After a burning smell (and similar hazards) the reply must say the appliance needs an engineer's check before use, and sentences implying otherwise are removed; the reply keeps to the symptom the customer reported. Previous code: phase8/applianceclinic-diagnosis-engine-gYsR7dYGXWvG6qknBKK6bTJACYXHc8kwIN0y_sREgG8.zip; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the AC engine from the staged phase8 artefact. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
