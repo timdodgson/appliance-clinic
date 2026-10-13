@@ -38,6 +38,8 @@ export interface ConversationRecord {
   /** What our tools added, kept apart from customer facts. */
   knowledge: { knowledgeIds: string[]; fault: string | null; causes: string[]; components: string[]; codeMeanings: Array<Record<string, unknown>>; modelInfo: Array<Record<string, unknown>> };
   asked: Array<{ question: string; turn: number; answer: string | null }>;
+  /** What each of our replies did, so the next one builds on it instead of repeating it. */
+  advice: Array<{ turn: number; action: string | null; check: string | null; question: string | null }>;
   hazards: Array<{ type: string; clause: string; turn: number; shown: boolean; [extra: string]: unknown }>;
   /** 1 = broad help and safe checks; 2 = the owner's checks failed: narrow, model, part. */
   stage: 1 | 2;

@@ -11,7 +11,7 @@ const Rec = require('../ac2/record.js');
 const J = require('../ac2/labels.js');
 const { normalise } = require('../ac2/understand.js');
 const { resolveErrorCode } = require('../ac2/mcp.js');
-const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers } = require('../ac2/turn.js');
+const { runTurn, ProviderUnavailableError, decide, removeUnverifiedIdentifiers, UNSAFE_REASSURANCE } = require('../ac2/turn.js');
 
 const user = (content) => ({ role: 'user', content });
 const bot = (content) => ({ role: 'assistant', content });
@@ -154,6 +154,37 @@ describe('turn: safety', () => {
     expect(out.audit.safety.gates.map((g) => g.gate)).toContain('prohibited-advice');
     const again = await runTurn({ messages: [user('my tumble dryer has a burning smell'), bot(out.response.message), user('ok what else')], state: out.state }, deps(qwen(), jev()));
     expect(again.response.message.includes(S.copyFor('burning'))).toBe(false);
+  });
+
+  it('after a burning smell: the plan says it must be checked before use, and reassurance that it may not need an engineer is removed', async () => {
+    const q = qwen({ reading: { appliance: 'tumble dryer', symptom: 'burning smell' }, reply: 'Lint on the heater is the usual cause. Clean the fluff filter with it unplugged. These simple steps often clear it without needing an engineer right away. It should be fine to use again after that.' });
+    const out = await runTurn({ messages: [user('my tumble dryer smells of burning')] }, deps(q, jev({ appliance: 'tumble-dryer', hazard: 'burning' })));
+    expect(out.audit.plan.join(' ')).toMatch(/must not be used again until a qualified engineer has checked it/);
+    expect(out.response.message).not.toMatch(/without needing an engineer|fine to use again/);
+    expect(out.response.message).toMatch(/Clean the fluff filter/);
+    expect(out.audit.safety.gates.map((g) => g.gate)).toContain('unsafe-reassurance');
+    for (const bad of ['you may not need an engineer', "it's safe to use it again", 'you can carry on using it', 'try these before calling an engineer']) expect(UNSAFE_REASSURANCE.test(bad)).toBe(true);
+    for (const ok of ['Please have an engineer check it before using it again.', 'Do not use it until it has been checked.']) expect(UNSAFE_REASSURANCE.test(ok)).toBe(false);
+  });
+
+  it('records what each reply told them, and the next plan builds on it when the customer adds nothing new', async () => {
+    const reply = 'Lint on the heater is the usual cause. Clean the fluff filter in the door opening with it unplugged.';
+    const j1 = jev({ appliance: 'tumble-dryer', symptomArea: 'not_drying' }, { replyAction: 'gives_check', check: 'Clean the lint/fluff filter' });
+    const t1 = await runTurn({ messages: [user('my tumble dryer is not drying')] }, deps(qwen({ reading: { appliance: 'tumble dryer', symptom: 'not drying' }, reply }), j1));
+    expect(t1.state.advice).toHaveLength(1);
+    expect(t1.state.advice[0]).toMatchObject({ turn: 1, action: 'gives_check' });
+    const t2 = await runTurn({ messages: [user('my tumble dryer is not drying'), bot(reply), user('ok what now')], state: t1.state }, deps(qwen({ reading: { customerQuestion: 'what now' } }), jev()));
+    const plan = t2.audit.plan.join(' ');
+    expect(plan).toMatch(/Already told them \(do not repeat any of it; build on it\): turn 1: gives check/);
+    expect(plan).toMatch(/adds no new facts about the fault/);
+    expect(t2.state.advice).toHaveLength(2);
+  });
+
+  it('keeps the reply to the symptom the customer reported', async () => {
+    const t1 = await runTurn({ messages: [user('dyson v6 pulsing')] }, deps(qwen({ reading: { appliance: 'vacuum', brand: 'Dyson', model: 'V6', symptom: 'pulsing on and off' } }), jev({ appliance: 'vacuum', make: 'Dyson', model: 'V6' })));
+    expect(t1.state.customer.symptom.value).toBe('pulsing on and off');
+    const t2 = await runTurn({ messages: [user('dyson v6 pulsing'), bot('Check the filter and wand.'), user('cleaned the filter and checked the wand, still pulsing')], state: t1.state }, deps(qwen(), jev({ checkOutcome: 'still_faulty' })));
+    expect(t2.audit.plan.join(' ')).toMatch(/The fault they reported is: "pulsing on and off"\. Keep to it/);
   });
 
   it('no part card under a blocking hazard, even when narrowed with a known model', async () => {

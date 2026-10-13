@@ -153,7 +153,7 @@
       ],
       "input": "The latest customer message, the previous assistant message, Qwen's reading as a hint, what is already known, candidate tokens; or the reply and candidate media.",
       "output": "Jev answers (choice with confidence, noul).",
-      "version": 1,
+      "version": 2,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -161,6 +161,12 @@
           "date": "2026-10-13",
           "fingerprint": "047b07881506089c77d53ba7e52cc9b20840f84e4ea661a386c7a0d0594d8288",
           "change": "Initial version (change 21.2): the agreed pipeline replacing the single ac2 reasoning pass and the claim verifier."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "d4d6d0a5a79fceb5edb6cace3e56e4dfde619a3859e7c89fb2d24f88bce6dbe3",
+          "change": "The reply labels also record which check the reply gave, so the next reply builds on what the customer was already told."
         }
       ]
     },
@@ -181,7 +187,7 @@
       ],
       "input": "The conversation as user/assistant turns; the briefing in the system message.",
       "output": "Plain text.",
-      "version": 1,
+      "version": 2,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -189,6 +195,12 @@
           "date": "2026-10-13",
           "fingerprint": "3b71b7247567c41b53a3e16ab498634fb01fbd7bea0b7bc232e96d673fb5ff91",
           "change": "Initial version (change 21.2): the agreed pipeline replacing the single ac2 reasoning pass and the claim verifier."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-13",
+          "fingerprint": "c398c65b33bc26fdc046d74645ec49fc7fb2555d9af510744536818b31790d39",
+          "change": "Never describe a symptom, result or state the customer has not reported (smoke-chat finding: a pulsing vacuum described as dead)."
         }
       ]
     }

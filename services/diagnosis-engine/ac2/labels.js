@@ -6,8 +6,8 @@
  *                  tokens, symptom area, hazard, unsafe request, answer to the last question, outcome of a check,
  *                  model label reachable, and (when causes are known and checks were done) whether the fault is
  *                  narrowed to one component.
- *   labelReply     step 10, one Jev call after the reply: what the reply does (for the transcript tags) and which
- *                  picture or video matches the check it gives.
+ *   labelReply     step 10, one Jev call after the reply: what the reply does and which check it gives (recorded, so
+ *                  the next reply builds on it; also the transcript tags) and which picture or video matches it.
  *
  * A label below its confidence threshold is "not stated" (null), never a guess; the reply then asks.
  */
@@ -130,9 +130,15 @@ function adaptLabels(answers, plan) {
 }
 
 /** Build the step-10 Jev request: what the reply does, and which media matches its check. */
-function buildReplyRequest({ reply, media }) {
+function buildReplyRequest({ reply, media, checks }) {
   const questions = { replyAction: { type: 'choice', instructions: 'What does this assistant reply mainly do?', criteria: opts(REPLY_ACTIONS) } };
-  const plan = { media: [] };
+  const plan = { media: [], checks: [] };
+  const cks = tokenOptions((checks || []).map((c) => String(c).slice(0, 140)));
+  if (cks.length) {
+    plan.checks = cks;
+    questions.check = { type: 'choice', instructions: 'Which of these checks does the reply ask the customer to do (the main one)? none = the reply gives none of them.',
+      criteria: { ...Object.fromEntries(cks.map((c) => [c.id, c.value])), none: 'None of these' } };
+  }
   const list = (media || []).slice(0, MAX_OPTIONS).map((m, i) => ({ id: `m${i + 1}`, item: m }));
   if (list.length) {
     plan.media = list;
@@ -147,6 +153,7 @@ function adaptReply(answers, plan) {
   const id = choiceOf(a.media);
   return {
     replyAction: { value: (a.replyAction && a.replyAction.choice) || null, confidence: conf(a.replyAction) },
+    check: pick(plan.checks || [], choiceOf(a.check)),
     media: id ? (plan.media.find((m) => m.id === id) || {}).item || null : null,
     mediaConfidence: conf(a.media),
   };

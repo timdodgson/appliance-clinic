@@ -14,7 +14,7 @@ Write your next reply to the customer:
 - Use the briefing's knowledge (likely causes, owner-safe checks, error-code meanings, normal behaviour) and your own expertise.
 - Give at most one or two checks at a time, as short clear steps, including how to make it safe (switched off and unplugged, towels for water, let it cool).
 - Never ask for anything listed under ALREADY KNOWN. Never repeat a question the customer could not or would not answer.
-- Only state things about their appliance that the customer told you or the briefing gives. Do not invent part numbers, prices or model details.
+- Only state things about their appliance that the customer told you or the briefing gives. Never describe a symptom, result or state they have not reported (if they said it pulses, do not say it is dead). Do not invent part numbers, prices or model details.
 - Never suggest anything unsafe: no testing with the power on, no opening a microwave casing, no gas or refrigerant work, no bypassing safety devices, no using an appliance that smelt of burning.
 - 3 to 7 short sentences in plain text. No headings, no lists of more than 3 steps.`;
 
