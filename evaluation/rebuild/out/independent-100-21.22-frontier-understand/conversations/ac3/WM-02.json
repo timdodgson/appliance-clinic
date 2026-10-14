@@ -1,0 +1,361 @@
+{
+ "id": "WM-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-02-90264b4e3c",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "w/m wont spinn pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — we can narrow this down. Less commonly it is a belt, motor or drum-mechanical fault. 1. First look through the door when it should spin: is there water left in the drum? If there is, the likely issue is drainage rather than the spin motor.\n2. If it was a single heavy item (bath mat, duvet, blanket) or a very small/overfull load, pause it, spread the items evenly or add a couple of ordinary towels, then try Spin again. 3. With the machine switched off and unplugged, turn the empty drum by hand. It should turn smoothly without scraping, grinding or feeling jammed. A stiff or noisy drum needs an engineer rather than forcing it. When it should spin, is there still water in the drum, and can you hear a pump humming or trying to drain?"
+  },
+  {
+   "role": "customer",
+   "text": "no water left in drum, drained fine. it was just a big heavy rubber backed bath mat on its own, it sloshes bout then tries to speed up and gives up. came out dripping"
+  },
+  {
+   "role": "assistant",
+   "text": "That behaviour is very likely normal imbalance protection, not a failed spin motor. A single heavy rubber-backed bath mat holds water and sticks to one side of the drum; the slow sloshing/back-and-forth movement is the machine trying to redistribute it. If it cannot balance the load safely, it gives up the fast spin, so the mat comes out dripping. 1. Don’t spin the bath mat on its own. Check its care label too: many rubber-backed mats are not suitable for machine washing or spinning, as the backing can break up and damage the machine.\n2. For a safe test, run a spin with a normal mixed, evenly spread load — a few ordinary towels/items is suitable. If it spins normally, there is no fault and no part is needed.\n3. If you do wash a suitable mat again, add a couple of towels to help balance it, but avoid overloading. If it also repeatedly aborts spin with normal balanced loads, especially if it bangs hard or walks across the floor, then levelling or worn suspension would need looking at."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1413,
+     "labelMs": 363,
+     "enrichMs": 379,
+     "reasonMs": 4898,
+     "verifyMs": 2078,
+     "replyLabelMs": 298,
+     "totalMs": 10219
+    },
+    "usage": {
+     "promptTokens": 5458,
+     "completionTokens": 367,
+     "totalTokens": 5825
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "A washer will usually refuse to spin",
+      "source": "extractor"
+     },
+     {
+      "claim": "Machines deliberately abort spin on an unbalanced load",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Unbalanced or unsuitable load (medium)",
+     "Drainage fault preventing spin (medium)",
+     "Drive, belt or motor-related fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't spin"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:hall-sensor",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Please help\" - answer that first.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "When it should spin, is there still water in the drum, and can you hear a pump humming or trying to drain?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12222
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14854,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3693,
+     "labelMs": 375,
+     "enrichMs": 2,
+     "reasonMs": 5667,
+     "verifyMs": 8897,
+     "replyLabelMs": 339,
+     "totalMs": 19039
+    },
+    "usage": {
+     "promptTokens": 5813,
+     "completionTokens": 371,
+     "totalTokens": 6184
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Unbalanced single heavy bath-mat load causing the machine to abort spin (high)",
+     "Suspension/levelling issue (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Will not spin the heavy bath mat; sloshes, tries to speed up, then gives up"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.69
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:hall-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "When it should spin, is there still water in the drum, and can you hear a pump humming or trying to drain?",
+       "turn": 1,
+       "resolution": "No water left in the drum; it drained fine"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 19085
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 19616,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.020387799999999998,
+ "finishedAt": "2026-10-14T13:33:19.917Z"
+}

@@ -1,0 +1,591 @@
+{
+ "id": "TD-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-03-90bbce0e7e",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch WTN85201GB condenser dryer not drying properly anymore, clothes still damp after 2 hrs. any ideas"
+  },
+  {
+   "role": "assistant",
+   "text": "The first suspect is restricted airflow rather than a failed part: on a condenser dryer, fluff in the door filter or lower condenser area can make drying take hours. A poor washer spin, an overfull drum, or a low-heat/short programme can do the same. If the airflow is clean but it is genuinely cold, then a heater or thermal protection fault becomes more likely. 1. Switch off and unplug it. Clean the fluff filter in the door opening thoroughly, including the filter housing. Wash the filter if it has a fine film on it, then let it dry before refitting. A blocked filter restricts airflow. 2. Open the lower front flap and remove/clean the condenser or lower filter assembly as applicable. Rinse removable parts under the tap, remove visible fluff, and refit only when they are drip-dry. This is the most useful check for a condenser dryer. 3. Check the next load is no more than about two-thirds of the drum and has been well spun in the washing machine. Use a normal Cotton/Extra Dry-type programme rather than a short, delicate or low-dryness setting. 4. After reassembly, run a normal programme for 10–15 minutes and check whether the air inside feels clearly warm when you open the door. If it is warm, the issue is more likely airflow, loading, programme choice or moisture sensing. If it is still cold, stop there and arrange an engineer: on this type of dryer the heater/thermal cut-out circuit would need diagnosis after the airflow has been cleaned. Do not dismantle panels or test electrical parts yourself. Is it clearly warming after 10–15 minutes once the filters/lower section have been cleaned?"
+  },
+  {
+   "role": "customer",
+   "text": "Cleaned the door filter (waxy film, needed a scrub) and the condenser, which was matted with lint. Before that, it was hot inside the drum after 20 min. Test cycle after cleaning is done, so can I tell you how it went?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — please do. The waxy door-filter film and matted condenser could very plausibly have been the main restriction, especially as the drum was getting hot before cleaning. Tell me whether the test load was dry, improved but still damp, or no better, and whether the programme finished normally or ended unusually early. That will separate a remaining airflow/load issue from a possible moisture-sensing problem."
+  },
+  {
+   "role": "customer",
+   "text": "Much better. Clothes dried in about 100 minutes and the water container was nearly full. Programme finished normally."
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. That looks resolved. The dryer was heating, it now dries the load in about 100 minutes, collected plenty of water and completed normally — all of that points to the wax-coated filter and lint-matted condenser restricting airflow, rather than a failed heater or sensor. To prevent it returning: clean the door filter after every load, and periodically wash it to remove the invisible fabric-conditioner film; clean the condenser/lower area regularly too. Avoid refitting parts until they are drip-dry. No part replacement or engineer is indicated at this point."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1833,
+     "labelMs": 325,
+     "enrichMs": 0,
+     "reasonMs": 7838,
+     "verifyMs": 6957,
+     "replyLabelMs": 356,
+     "totalMs": 17353
+    },
+    "usage": {
+     "promptTokens": 4505,
+     "completionTokens": 541,
+     "totalTokens": 5046
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Restricted airflow from lint filter or condenser/heat-exchanger blockage (high)",
+     "Laundry entering very wet, excessive load, or unsuitable programme/dryness setting (medium)",
+     "Weak or absent heating, such as heater/thermal protection fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WTN85201GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": "Bosch",
+      "model": "WTN85201GB",
+      "codes": [],
+      "symptom": "Not drying properly; clothes still damp after 2 hours"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Run a normal heat programme again for 10–15 minutes. Is it heating now, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any ideas?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"Not drying properly; clothes still damp after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it clearly warming after 10–15 minutes once the filters/lower section have been cleaned?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 17395
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 17873,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3866,
+     "labelMs": 336,
+     "enrichMs": 1,
+     "reasonMs": 3904,
+     "verifyMs": 4131,
+     "replyLabelMs": 342,
+     "totalMs": 12726
+    },
+    "usage": {
+     "promptTokens": 5211,
+     "completionTokens": 261,
+     "totalTokens": 5472
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Restricted airflow from lint-coated filter and condenser (high)",
+     "Laundry load, spin quality or programme setting (medium)",
+     "Moisture/temperature sensing fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.28
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.86
+     },
+     "checkGiven": "Run a normal drying programme with a normal load. Is the laundry coming out dry now, or still damp?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Can I tell you how the test cycle went?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Run a normal heat programme again for 10–15 minutes. Is it heating now, or still cold?\".",
+     "Checks they have done and what they found: Cleaned the door filter - It had a waxy film and needed scrubbing; Cleaned the condenser - It was matted with lint.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"Not drying properly; clothes still damp after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Cleaned the door filter: It had a waxy film and needed scrubbing",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Cleaned the condenser: It was matted with lint",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it clearly warming after 10–15 minutes once the filters/lower section have been cleaned?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12880
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13400,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1846,
+     "labelMs": 341,
+     "enrichMs": 2,
+     "reasonMs": 3236,
+     "verifyMs": 7847,
+     "replyLabelMs": 370,
+     "totalMs": 13724
+    },
+    "usage": {
+     "promptTokens": 5178,
+     "completionTokens": 208,
+     "totalTokens": 5386
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Restricted airflow from a coated door filter and lint-matted condenser (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Drying performance much improved"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.86
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Cleaned the door filter: It had a waxy film and needed scrubbing",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Cleaned the condenser: It was matted with lint",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it clearly warming after 10–15 minutes once the filters/lower section have been cleaned?",
+       "turn": 1,
+       "resolution": "Much better; clothes dried in about 100 minutes, water container nearly full, and programme finished normally"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13775
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14131,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0334957,
+ "finishedAt": "2026-10-14T13:43:03.657Z"
+}

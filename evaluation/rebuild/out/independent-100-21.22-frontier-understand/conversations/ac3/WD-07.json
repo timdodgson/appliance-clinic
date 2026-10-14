@@ -1,0 +1,414 @@
+{
+ "id": "WD-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-07-9e9697200d",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "We had a power cut last night and now our Candy washer dryer is completely dead - no lights, nothing. Everything else in the house came back on. The plug fuse is fine, I swapped it. Help!"
+  },
+  {
+   "role": "assistant",
+   "text": "A sound plug fuse does not prove the washer-dryer is receiving power. After a power cut, the first thing to rule out is the exact socket or any separate switched/fused spur feeding it. 1. Switch the washer-dryer off and unplug it.\n2. Plug a known-working low-power item, such as a lamp or phone charger, into the same wall socket.\n3. Check for a nearby switched spur/fused connection unit and make sure it is switched on.\n4. While unplugged, make sure the washer-dryer plug is fully seated when refitted and inspect the lead for obvious cuts, crushing or scorching. If that socket has no power, it is a house supply/socket issue. These need an appliance engineer, as diagnosis involves internal mains wiring. If there was a pop, bang, burning smell or any scorching around the plug or machine, leave it unplugged and arrange an engineer rather than trying it again."
+  },
+  {
+   "role": "customer",
+   "text": "I've already tried a lamp in that socket and it works fine. No bang or burning smell, lead and plug look fine too. Tried unplugging for 10+ minutes as well, still totally dead. What next?"
+  },
+  {
+   "role": "assistant",
+   "text": "The supply to the socket is proven, so this is now most likely an internal incoming-power fault rather than anything you can reset. A power cut/surge can damage the mains interference suppressor (mains filter), which is the first electrical component inside the machine; the other main possibilities are an incoming connector/wiring fault or the power-supply section of the control PCB. There is no further useful owner-safe check for a completely dead washer-dryer. Leave it unplugged and arrange an appliance engineer/electrician experienced in white goods. Ask them to trace the incoming power path—mains filter, wiring/connectors and any power switch—before condemning the control PCB. The PCB should be the last conclusion, not the first. As there has been no bang, burning smell or visible lead damage, this does not necessarily mean the machine is unsafe to have in the kitchen, but do not keep plugging it in or attempt internal inspection/repair yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2693,
+     "labelMs": 310,
+     "enrichMs": 2,
+     "reasonMs": 6134,
+     "verifyMs": 5550,
+     "replyLabelMs": 293,
+     "totalMs": 15048
+    },
+    "usage": {
+     "promptTokens": 4366,
+     "completionTokens": 437,
+     "totalTokens": 4803
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The Candy washer-dryer remains totally lifeless.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Property socket, switched spur or supply connection (medium)",
+     "Mains interference suppressor/filter damaged by the outage or surge (medium)",
+     "Control PCB power-supply fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Candy",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Candy",
+      "model": null,
+      "codes": [],
+      "symptom": "completely dead, no lights or response"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washer-dryer:tripping-electrics",
+       "washing-machine:tripping-electrics"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Checks they have done and what they found: Swapped the plug fuse - Fuse is fine; washer dryer is still completely dead.",
+     "Already given by the customer, never ask for it again: make Candy.",
+     "The fault they reported is: \"completely dead, no lights or response\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Candy",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Swapped the plug fuse: Fuse is fine; washer dryer is still completely dead",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 15085
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15266,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2781,
+     "labelMs": 338,
+     "enrichMs": 0,
+     "reasonMs": 5601,
+     "verifyMs": 5270,
+     "replyLabelMs": 319,
+     "totalMs": 14371
+    },
+    "usage": {
+     "promptTokens": 5360,
+     "completionTokens": 422,
+     "totalTokens": 5782
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Mains interference suppressor / mains filter failure (high)",
+     "Incoming power wiring or connector fault (medium)",
+     "Control PCB power-supply section failure (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.56
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.47
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "totally dead/no power"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.97
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washer-dryer:drying-heater",
+       "washer-dryer:tripping-electrics"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What next?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: Swapped the plug fuse - Fuse is fine; washer dryer is still completely dead; Tested the wall socket with a lamp - Lamp works fine; Inspected the lead and plug - They look fine; Left it unplugged for over 10 minutes - Still totally dead.",
+     "Already given by the customer, never ask for it again: make Candy.",
+     "The fault they reported is: \"completely dead, no lights or response\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Candy",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Swapped the plug fuse: Fuse is fine; washer dryer is still completely dead",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tested the wall socket with a lamp: Lamp works fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Inspected the lead and plug: They look fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "Left it unplugged for over 10 minutes: Still totally dead",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14489
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14770,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0199898,
+ "finishedAt": "2026-10-14T13:40:57.117Z"
+}
