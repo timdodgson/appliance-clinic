@@ -242,7 +242,7 @@
     },
     {
       "id": "diagnosis.ac2.reason",
-      "version": 3,
+      "version": 4,
       "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
       "owner": "applianceclinic-diagnosis-engine",
       "consumers": [
@@ -279,12 +279,18 @@
           "date": "2026-10-14",
           "fingerprint": "9d18c47df7e6f82843fd72a9599485d274d744abdfd54d80d65bca8f05a46326",
           "change": "Change 21.18: the output is assessment, next and reply only; the understanding, part and escalation fields (never read by the turn; about 75% of output tokens) are removed from the prompt and the schema, and rule 5 names a clearly indicated part in the reply."
+        },
+        {
+          "version": 4,
+          "date": "2026-10-14",
+          "fingerprint": "f45fa5ec24f127c623b3b54fdf7c4b578458a136728750e41ee3d2008db48e06",
+          "change": "Change 21.21: strict structured output (additionalProperties: false on every object) so a hosted model in strict mode can serve the schema; the prompt text is unchanged."
         }
       ]
     },
     {
       "id": "diagnosis.ac2.claims",
-      "version": 1,
+      "version": 2,
       "purpose": "Claim extraction for the claim verifier (restored in the ac3 pipeline, change 21.11): lists the reply's customer-specific claims with their kind and the customer's words or record facts that support them. It decides nothing; deterministic checks do.",
       "owner": "applianceclinic-diagnosis-engine",
       "consumers": [
@@ -307,6 +313,12 @@
           "date": "2026-10-12",
           "fingerprint": "5985f555bd0cc43c3d4c1e83e5dfa6c8c417a25f6d4ef5c31512520bef56b347",
           "change": "Initial version: the prompt of the frozen ac2 candidate (release 20.13) evaluated on the independent-100 and held-out sets."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-14",
+          "fingerprint": "704f07476b37e0411e3ce8cfcc0f880754e8d22b3d9447954b7c12cbc517a638",
+          "change": "Change 21.21: strict structured output (additionalProperties: false on every object); the prompt text is unchanged."
         }
       ]
     }

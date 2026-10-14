@@ -1,0 +1,372 @@
+{
+ "id": "OC-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-05-1707384153",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Stoves gas cooker oven lights fine but as soon as I let go of the knob the flame goes out. Hob burners all fine. It's a Richmond something, freestanding. Is this a DIY job?"
+  },
+  {
+   "role": "assistant",
+   "text": "I can't help with taking apart or adjusting gas parts (valves, thermocouples, regulators or pipework) — that legally needs a Gas Safe registered engineer. Probably not a DIY repair. An oven that lights but goes out as the knob is released is most often the oven’s flame-failure safety device—the thermocouple/flame probe—or a weak/dirty burner flame that is not heating that probe properly. The hob working makes a general gas-supply fault less likely. The only useful owner check is to light it normally and hold the knob fully pressed in for about 10–15 seconds before releasing. If it still goes out, stop using the oven and arrange a Gas Safe registered cooker engineer; the safety device, gas valve and burner assembly are gas components and should not be dismantled or adjusted at home."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. I've tried holding it in for 15, 20 and even 30 seconds and it still goes out. There's no gas smell when it's off, only a brief whiff while I'm trying to light it. Our CO alarm in the kitchen hasn't sounded. Should I stop using the oven then?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — stop using the oven until it has been checked by a Gas Safe registered cooker engineer. A brief smell of gas while lighting can occur before ignition, but the oven should not be repeatedly attempted once it will not remain alight; turn the oven control fully off and ventilate the room if you can smell gas. Holding the knob for up to 30 seconds rules out simply releasing it too soon. The most likely issue is the oven flame-failure device/thermocouple not detecting the flame, with a weak or poorly directed burner flame also possible; less commonly it is the oven gas valve. The hob working and no smell when off are reassuring, but a CO alarm does not diagnose this fault. Do not dismantle, clean internally or adjust the oven gas parts yourself—an engineer can inspect the flame pattern and safety system safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1602,
+     "labelMs": 320,
+     "enrichMs": 0,
+     "reasonMs": 4139,
+     "verifyMs": 3983,
+     "replyLabelMs": 280,
+     "totalMs": 10382
+    },
+    "usage": {
+     "promptTokens": 3366,
+     "completionTokens": 326,
+     "totalTokens": 3692
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unsafe-request",
+       "type": "gas_work"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Flame-failure safety device (thermocouple/probe) not proving the oven flame (high)",
+     "Oven burner flame not heating the safety probe properly due to dirt or poor flame pattern (medium)",
+     "Oven gas valve fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "unsafeRequest": {
+       "value": "gas_work",
+       "confidence": 0.56
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.17
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.28
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Stoves",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "gas cooker",
+      "brand": "Stoves",
+      "model": "Richmond",
+      "codes": [],
+      "symptom": "Oven flame goes out when the control knob is released"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.67
+     },
+     "checkGiven": "Now try lighting it again as normal. Does it light and stay lit now, or still not?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:ignition",
+       "oven-cooker:element",
+       "oven-cooker:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is this a DIY job?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Stoves.",
+     "The fault they reported is: \"Oven flame goes out when the control knob is released\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "They asked about something unsafe (gas work): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Stoves",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10423
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10788,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2847,
+     "labelMs": 324,
+     "enrichMs": 1,
+     "reasonMs": 4263,
+     "verifyMs": 6798,
+     "replyLabelMs": 282,
+     "totalMs": 14633
+    },
+    "usage": {
+     "promptTokens": 3995,
+     "completionTokens": 321,
+     "totalTokens": 4316
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "engineer",
+    "candidates": [
+     "Oven flame-failure safety device / thermocouple not proving the flame (high)",
+     "Oven burner flame not correctly heating the safety probe (medium)",
+     "Oven gas valve fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "gas",
+       "confidence": 0.54
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.55
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "gas oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "oven goes out when the knob is released"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.9
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:ignition",
+       "oven-cooker:thermostat",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Should I stop using the oven then?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: recommends engineer, suggested the check \"Now try lighting it again as normal. Does it light and stay lit now, or still not?\".",
+     "Checks they have done and what they found: Held the oven control knob in for 15, 20 and 30 seconds after lighting - Oven still goes out.",
+     "Already given by the customer, never ask for it again: make Stoves.",
+     "The fault they reported is: \"Oven flame goes out when the control knob is released\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Stoves",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Held the oven control knob in for 15, 20 and 30 seconds after lighting: Oven still goes out",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14677
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14879,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.021349800000000002,
+ "finishedAt": "2026-10-14T09:23:04.374Z"
+}

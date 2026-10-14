@@ -1,0 +1,603 @@
+{
+ "id": "WM-11",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-11-5214583b60",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My Beko keeps stopping randomly in the middle of a wash with water still in it. Sometimes it's fine for a week, then it does it twice in a day. The model starts WTG I think. I've cleaned the filter. Driving me mad."
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. A clean filter does not rule out the drain side: an intermittent pump, something catching behind the filter, or a restriction in the drain hose/waste can still leave water in the drum and stop the programme. The most useful separator is to try a Drain or Spin programme when it has failed. If it hums but does not empty, suspect a restriction or pump impeller; if it is silent and does not empty, the drain pump or its electrical supply becomes more likely. If it drains fully, we would look next at the water-level sensing system rather than assume the pump is faulty."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I can try that next time it stalls. It's not stalled right now though, so I haven't got a result for you yet. Is there anything else I should look at while I wait? I've already done the filter twice (just fluff) and the hose is fine into the standpipe."
+  },
+  {
+   "role": "assistant",
+   "text": "Yes. While it is idle, the worthwhile extra check is the pump impeller behind the filter: an intermittent pump can have a clear filter but a damaged, loose or occasionally sticking impeller. Switch off and unplug it, put towels down, remove the filter, then use a torch and gently turn the small plastic impeller visible in the opening with a finger. It will often move in little magnetic steps rather than spin freely, but it should not be jammed and the vanes should not be broken; do not force it or put tools into it. If it is sound and turns normally, the remaining main possibilities are an intermittent drain pump electrically or the water-level pressure sensing system; the Drain/Spin result when it next stops will separate those more reliably."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I can have a go at turning the impeller with the filter out. I won't take the lid or any panels off though. Anything else, or just that and the drain/spin test next time it stalls?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — just those two checks for now. The impeller check may reveal a loose, damaged or sticking vane, and the Drain/Spin result when it fails is the best way to separate a pump-side problem from a level-sensing fault. With the filter and external hose apparently clear, an intermittent drain pump is currently the leading possibility, but a restriction deeper in the drain path can feel the same. If it hums or strains but does not empty, that points to a blockage around the pump or a weak pump; if it is silent and does not empty, the pump itself or its control circuit is more likely and would need an engineer, given you do not want panels removed. If it drains fully on Drain/Spin after the stall, pressure/level sensing moves higher on the list."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1876,
+     "labelMs": 311,
+     "enrichMs": 0,
+     "reasonMs": 4380,
+     "verifyMs": 3262,
+     "replyLabelMs": 331,
+     "totalMs": 10214
+    },
+    "usage": {
+     "promptTokens": 3631,
+     "completionTokens": 345,
+     "totalTokens": 3976
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Intermittent drain-pump blockage or failing drain pump (high)",
+     "Drain-hose or household waste restriction (medium)",
+     "Water-level sensing fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.08
+      },
+      "model": {
+       "value": "WTG",
+       "confidence": 0.52
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Beko",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Beko",
+      "model": "WTG",
+      "codes": [],
+      "symptom": "stops randomly mid-wash with water still in it"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:cycle-not-progressing",
+       "washing-machine:not-draining",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Checks they have done and what they found: cleaned the filter - still stops randomly mid-wash.",
+     "Already given by the customer, never ask for it again: make Beko; model WTG.",
+     "The fault they reported is: \"stops randomly mid-wash with water still in it\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.96,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTG",
+      "confidence": 0.52,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still stops randomly mid-wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10277
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10699,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2380,
+     "labelMs": 521,
+     "enrichMs": 0,
+     "reasonMs": 5999,
+     "verifyMs": 1886,
+     "replyLabelMs": 333,
+     "totalMs": 11164
+    },
+    "usage": {
+     "promptTokens": 3903,
+     "completionTokens": 412,
+     "totalTokens": 4315
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Intermittent drain pump or obstruction at the pump impeller (high)",
+     "Water-level pressure sensing fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.49
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.33
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:cycle-not-progressing",
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I should look at while I wait?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\".",
+     "Checks they have done and what they found: cleaned the filter - still stops randomly mid-wash; Cleaned the filter twice - Only fluff found; Checked the drain hose into the standpipe - Hose is fine.",
+     "Already given by the customer, never ask for it again: make Beko; model WTG.",
+     "The fault they reported is: \"stops randomly mid-wash with water still in it\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTG",
+      "confidence": 0.52,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still stops randomly mid-wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Cleaned the filter twice: Only fluff found",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked the drain hose into the standpipe: Hose is fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11349
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 11698,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3709,
+     "labelMs": 313,
+     "enrichMs": 0,
+     "reasonMs": 5740,
+     "verifyMs": 5433,
+     "replyLabelMs": 370,
+     "totalMs": 15619
+    },
+    "usage": {
+     "promptTokens": 4263,
+     "completionTokens": 450,
+     "totalTokens": 4713
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Intermittent drain pump or pump impeller fault (high)",
+     "Restriction beyond the accessible filter, such as in the sump hose or household waste (medium)",
+     "Water-level pressure sensing fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.32
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:cycle-not-progressing",
+       "washing-machine:leak-drain"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Anything else, or just the impeller check and Drain/Spin test next time it stalls?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\"; turn 2: gives check, suggested the check \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\" (no result reported yet).",
+     "They have not reported the result of: \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\". Never say or imply they did it or what it showed.",
+     "Checks they have done and what they found: cleaned the filter - still stops randomly mid-wash; Cleaned the filter twice - Only fluff found; Checked the drain hose into the standpipe - Hose is fine.",
+     "Already given by the customer, never ask for it again: make Beko; model WTG.",
+     "The fault they reported is: \"stops randomly mid-wash with water still in it\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTG",
+      "confidence": 0.52,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still stops randomly mid-wash",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Cleaned the filter twice: Only fluff found",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked the drain hose into the standpipe: Hose is fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 15686
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 16121,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.032011700000000004,
+ "finishedAt": "2026-10-14T09:02:04.278Z"
+}

@@ -1,0 +1,600 @@
+{
+ "id": "VC-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-07-6c9350153f",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "vax upright brush thingy stopped spinnin, sucks ok thru the hose but nt pickin up off carpet. smelt like burnin rubber b4 it stopped"
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. Do not use it again: the burning-rubber smell means the brush-drive area has overheated and it needs checking by a qualified engineer before it is switched on again. The suction motor is still doing its job, so the likely fault is local to the floorhead: most commonly a hair/thread jam or a slipping/snapped drive belt; less often the brush-bar motor or drive mechanism has failed. With it unplugged only, turn the head over and look for tightly wound hair or thread around the roller and both ends; see whether the roller will turn freely by hand. That observation will help distinguish a jam from a belt or motor fault, but it must not be used again even if the roller is cleared."
+  },
+  {
+   "role": "customer",
+   "text": "ok its unplugged n i turned it over. brush turns by hand but its tight, theres loads of hair n a bit of tassel wrapped round the ends. the burnin smell was only right when it stopped, no sparks or electrical smell tho"
+  },
+  {
+   "role": "assistant",
+   "text": "That tangle is very likely the original cause. A tight, hair-bound roller can make the rubber drive belt slip and produce a brief burning-rubber smell, while the hose suction stays normal. Keep it unplugged, use scissors carefully (avoid cutting bristles), and remove all hair and tassel from the roller and especially the ends; gloves can help. Once clear, the roller should spin easily rather than feeling tight. If it still binds, or if it becomes free but the brush still will not run, the next likely issue is a heat-damaged, stretched or snapped drive belt and the floorhead will need its belt/drive checked before use."
+  },
+  {
+   "role": "customer",
+   "text": "ok cut all the hair n tassel off, it spins free by hand now. what should i do next?"
+  },
+  {
+   "role": "assistant",
+   "text": "That should have fixed the original problem: the hair and tassel had tightened around the brush roller, making it bind and likely causing the belt to slip briefly, hence the burning-rubber smell. As it now spins freely by hand and there were no sparks or electrical smell, it is reasonable to use it again normally. Check and clear the roller ends regularly—especially after carpets, pet hair or tassels—to prevent it happening again. If the brush still does not rotate during use, stop and unplug it; the drive belt is then the most likely part to have been stretched or damaged by the jam."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1649,
+     "labelMs": 320,
+     "enrichMs": 0,
+     "reasonMs": 4502,
+     "verifyMs": 2287,
+     "replyLabelMs": 328,
+     "totalMs": 9087
+    },
+    "usage": {
+     "promptTokens": 2325,
+     "completionTokens": 332,
+     "totalTokens": 2657
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_1",
+    "candidates": [
+     "Brush bar jammed by hair/thread, overheating the drive (high)",
+     "Failed or slipping brush-drive belt (high)",
+     "Brush-bar motor or floorhead drive fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Vax",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "upright vacuum",
+      "brand": "Vax",
+      "model": null,
+      "codes": [],
+      "symptom": "brush roller stopped spinning and will not pick up from carpet"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.97
+     },
+     "checkGiven": "With it switched off (battery out or unplugged), turn the floorhead over. Cut away hair and thread wrapped round the brush bar (roller) and",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already given by the customer, never ask for it again: make Vax.",
+     "The fault they reported is: \"brush roller stopped spinning and will not pick up from carpet\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Vax",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 9156
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9500,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2687,
+     "labelMs": 320,
+     "enrichMs": 0,
+     "reasonMs": 5567,
+     "verifyMs": 3123,
+     "replyLabelMs": 347,
+     "totalMs": 12141
+    },
+    "usage": {
+     "promptTokens": 3425,
+     "completionTokens": 400,
+     "totalTokens": 3825
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [],
+     "cleared": [
+      "burning"
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Hair/tassel jam overloading the brush roller and making the drive belt slip or overheat (high)",
+     "Drive belt damaged, stretched or snapped after the roller jammed (medium)",
+     "Brush-bar drive motor or mechanism fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 0.47
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.85
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "brush roller is tight and burning smell occurred when it stopped"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "With it switched off (battery out or unplugged), turn the floorhead over. Cut away hair and thread wrapped round the brush bar (roller) and",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar",
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: safety stop, suggested the check \"With it switched off (battery out or unplugged), turn the floorhead over. Cut away hair and thread wrapped round the brush bar (roller) and\".",
+     "Checks they have done and what they found: Turned the floorhead over and turned the brush by hand - Brush turns but is tight; Inspected the brush ends - Loads of hair and some tassel are wrapped around them.",
+     "Already given by the customer, never ask for it again: make Vax.",
+     "The fault they reported is: \"brush roller stopped spinning and will not pick up from carpet\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Vax",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Turned the floorhead over and turned the brush by hand: Brush turns but is tight",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Inspected the brush ends: Loads of hair and some tassel are wrapped around them",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1,
+       "cleared": true,
+       "clearedTurn": 2
+      }
+     ]
+    },
+    "ms": 12267
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12537,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2394,
+     "labelMs": 346,
+     "enrichMs": 0,
+     "reasonMs": 3345,
+     "verifyMs": 7229,
+     "replyLabelMs": 361,
+     "totalMs": 13726
+    },
+    "usage": {
+     "promptTokens": 3455,
+     "completionTokens": 207,
+     "totalTokens": 3662
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [],
+     "cleared": [
+      "burning"
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Brush roller jammed by hair and tassel (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.91
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.85
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.5
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.45
+     },
+     "checkGiven": "With it switched off (battery out or unplugged), turn the floorhead over. Cut away hair and thread wrapped round the brush bar (roller) and",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar",
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what should i do next?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Vax",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Turned the floorhead over and turned the brush by hand: Brush turns but is tight",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Inspected the brush ends: Loads of hair and some tassel are wrapped around them",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Cut all the hair and tassel off the roller: Roller now spins free by hand",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1,
+       "cleared": true,
+       "clearedTurn": 2
+      }
+     ]
+    },
+    "ms": 13763
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 15582,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.038359700000000004,
+ "finishedAt": "2026-10-14T09:30:38.791Z"
+}

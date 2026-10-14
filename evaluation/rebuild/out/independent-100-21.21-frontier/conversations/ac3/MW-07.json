@@ -1,0 +1,717 @@
+{
+ "id": "MW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-07-acbebab737",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "microwave not working"
+  },
+  {
+   "role": "assistant",
+   "text": "Unplug it first and never remove the outer casing. “Not working” can mean anything from a switched-off socket or plug fuse, to the door not registering as shut, a control lock/settings issue, or an internal fault. First, check that the socket is switched on and that another appliance works in it; do not remove the microwave casing to inspect fuses. Then tell me whether its display is completely blank, or whether it powers up but will not start or does not heat a cup of water. That split will point us to the right next check."
+  },
+  {
+   "role": "customer",
+   "text": "display is on, shows the time. beeps when I press buttons but won't start"
+  },
+  {
+   "role": "assistant",
+   "text": "Because the display and buttons are alive, this is unlikely to be a socket or power-fuse problem. The most likely causes are that the door interlock is not detecting the door as properly shut, or a control/child lock is set; less commonly it is a keypad or control fault. Unplug it, then check that the door closes with a firm click and that the plastic hooks and the slots they enter are clean and undamaged—do not remove the casing. Also look for a lock/key symbol, or try the control-lock release shown on the panel (often holding Stop/Cancel for a few seconds). Does the door latch positively, and is any lock symbol showing?"
+  },
+  {
+   "role": "customer",
+   "text": "door shuts fine I think. there's a little L symbol on the display. holding stop for a few secs?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — that is the right first thing to try. The little “L” is very likely the control/child lock, which allows the display and beeps but prevents it starting. Hold Stop/Cancel for around 3–5 seconds (on some panels it can be nearer 5 seconds) until the L disappears, then set a time and press Start. If the L stays on, try holding the button marked with a lock/key symbol instead; if it unlocks but still will not start, the door interlock becomes the next most likely cause."
+  },
+  {
+   "role": "customer",
+   "text": "ok holding stop for 3 secs made the L go away and it works now. thanks"
+  },
+  {
+   "role": "assistant",
+   "text": "That was the control/child lock, not a fault. Is there anything else you need help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1747,
+     "labelMs": 328,
+     "enrichMs": 0,
+     "reasonMs": 3970,
+     "verifyMs": 895,
+     "replyLabelMs": 313,
+     "totalMs": 7309
+    },
+    "usage": {
+     "promptTokens": 2680,
+     "completionTokens": 317,
+     "totalTokens": 2997
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power supply, plug fuse or socket issue (medium)",
+     "Door interlock or latch not engaging (medium)",
+     "Control/settings fault or an internal electrical fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.68
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.94
+     },
+     "checkGiven": "Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:grill-not-heating",
+       "microwave:door",
+       "microwave:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 7443
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7879,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2015,
+     "labelMs": 441,
+     "enrichMs": 1,
+     "reasonMs": 4324,
+     "verifyMs": 3648,
+     "replyLabelMs": 343,
+     "totalMs": 10801
+    },
+    "usage": {
+     "promptTokens": 3102,
+     "completionTokens": 336,
+     "totalTokens": 3438
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door interlock or door latch not registering closed (high)",
+     "Control/child lock or programme setting (medium)",
+     "Control keypad or control-board fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.76
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.59
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.69
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "powers up but will not start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "With it unplugged, look at the plastic hooks on the edge of the door and the slots they click into, and check the door shuts cleanly — food",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:main-pcb",
+       "microwave:door",
+       "microwave:low-voltage"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was\" (no result reported yet).",
+     "They have not reported the result of: \"Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was\". Never say or imply they did it or what it showed.",
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door latch positively, and is any lock symbol showing?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10860
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 11273,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2281,
+     "labelMs": 276,
+     "enrichMs": 1,
+     "reasonMs": 3167,
+     "verifyMs": 5929,
+     "replyLabelMs": 305,
+     "totalMs": 12006
+    },
+    "usage": {
+     "promptTokens": 3734,
+     "completionTokens": 276,
+     "totalTokens": 4010
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Control/child lock enabled (high)",
+     "Door interlock not registering (medium)",
+     "Control panel or PCB fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.72
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.41
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.67
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.59
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop for a few seconds) that stops the buttons working.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:sparking-arcing"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Should I hold Stop for a few seconds?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was\" (no result reported yet); turn 2: gives check, suggested the check \"With it unplugged, look at the plastic hooks on the edge of the door and the slots they click into, and check the door shuts cleanly — food\" (no result reported yet).",
+     "They have not reported the result of: \"Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was\"; \"With it unplugged, look at the plastic hooks on the edge of the door and the slots they click into, and check the door shuts cleanly — food\". Never say or imply they did it or what it showed.",
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door latch positively, and is any lock symbol showing?",
+       "turn": 2,
+       "resolution": "Door shuts fine; a little L symbol is showing"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12122
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 12266,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1484,
+     "labelMs": 294,
+     "enrichMs": 1,
+     "reasonMs": 1650,
+     "verifyMs": 1636,
+     "replyLabelMs": 303,
+     "totalMs": 5371
+    },
+    "usage": {
+     "promptTokens": 3645,
+     "completionTokens": 115,
+     "totalTokens": 3760
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "It happens again.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Control/child lock enabled (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.49
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.78
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.67
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": "L",
+       "confidence": 0.83
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "L"
+      ],
+      "symptom": "Control lock prevented it starting"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:sparking-arcing"
+      ],
+      "codes": [
+       {
+        "code": "L",
+        "status": "NEEDS_CONTEXT"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [
+      {
+       "code": "L",
+       "turn": 4
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Held Stop for 3 seconds: L disappeared and appliance works now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door latch positively, and is any lock symbol showing?",
+       "turn": 2,
+       "resolution": "Door shuts fine; a little L symbol is showing"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else you need help with?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 5510
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 5680,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0375716,
+ "finishedAt": "2026-10-14T09:21:34.547Z"
+}

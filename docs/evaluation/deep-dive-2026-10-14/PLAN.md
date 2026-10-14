@@ -187,3 +187,35 @@ expected finish time. Its measurement (a regeneration fits in 57 of 289 turns) s
   20.13. Changing the plan and the checks around the model moves safety and speed, not usefulness. Phase 2 (a stronger
   reasoning model) is the test the evidence points to.
 
+## 7. Phase 2 result (2026-10-14): the reasoning model is the lever
+
+The same pipeline (21.21: 21.18 plus strict output schemas), with only the AI config's `routing.compose` switched from
+`local` (Qwen 3.6 35B-A3B) to `frontier` (`gpt-5.6-terra`); understand stays on Qwen, labels on Jev. Data:
+`evaluation/rebuild/out/independent-100-21.21-frontier/`, `results-independent-100-21.21-frontier.json`.
+
+| | 21.18 (Qwen) | **21.21 frontier** | First rebuild (ac2) | General assistant |
+|---|---|---|---|---|
+| Overall usefulness | 2.79 | **3.24** | 2.73 | 3.48 |
+| Paired vs 21.18 (95% CI) | | **+0.45 (+0.32 to +0.58)**; 40 cases up, 2 down | | |
+| Resolved or usefully escalated / declined | 81% | **92%** | 84% | 91% |
+| Conversations with any critical failure | 16 | **2** | 24 | 6 |
+| Invented customer evidence | 2% | **0%** | 4% | 0% |
+| Looping | 11% | **4%** | 11% | 1% |
+| Unnecessary part | 3% | **0%** | 5% | 1% |
+| Calibration (0–4) | 2.76 | **3.56** | 2.77 | 3.30 |
+| Diagnostic usefulness | 2.83 | **3.28** | 2.76 | 3.60 |
+| Question quality | 2.39 | **2.95** | 2.42 | 3.09 |
+| Pairwise vs general assistant (win–tie–loss) | 16–0–84 | **34–1–65** | 17–0–83 | |
+| Paired vs general assistant (95% CI) | | −0.24 (−0.42 to −0.06) | | |
+| Median / 90th percentile turn | 13.6 / 17.7 s | 13.2 / 18.2 s | 11.5 / 16.4 s | 16.1 / 21.9 s |
+
+- **Gate: passed** (+0.45 paired, gate +0.40). Overall 2.74 → 3.24 is **+18%**; the +25% target (3.40) is not yet
+  reached. AC on the stronger model now beats the general assistant on safety (2 critical failures to 6), calibration,
+  invented evidence, unnecessary parts and resolution rate, and still trails it on usefulness by 0.24.
+- **This confirms the deep dive's main finding** (1.1–1.3): the pipeline, knowledge and guardrails were never the
+  limit; the reasoning model was.
+- **Live is back on Qwen.** The OpenAI key used for the test was supplied for this test only. Running the stronger model
+  in production is a decision for the owner: a permanent key in the admin settings and the per-turn cost.
+- **Next**, per the plan: Phase 3 (pass the full knowledge notes, better retrieval) and Phase 4 (recall and brand data)
+  on the stronger model, then Phase 5 (held-out confirmation) before any +25% claim.
+

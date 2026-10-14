@@ -1,0 +1,64 @@
+{
+  "id": "21.21-strict-schemas",
+  "description": "Engine code only (proof of concept, no real customers): strict structured output for the reasoner and the claim extractor (additionalProperties: false on every object) so a hosted model can serve them (Phase 2 of the improvement plan). Prompt text unchanged. Previous code: phase8/applianceclinic-diagnosis-engine-3Ynn2-QTkTEOa0McFvBaeDU-ZmTVNXquDDAb8gaNlwA.zip; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of the AC engine from the staged phase8 artefact. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
