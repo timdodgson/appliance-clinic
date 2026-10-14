@@ -27,8 +27,8 @@ const PROVIDERS_TTL_MS = Number(process.env.AI_CONFIG_CACHE_TTL_MS || 60000);
 async function getProviders() {
   const now = Date.now();
   if (_providers && now - _providersAt < PROVIDERS_TTL_MS) return _providers;
-  const { config, openaiKey } = await loadAdminInference({ now });
-  _providers = resolveProvidersFromAdminConfig(config, openaiKey, process.env);
+  const { config, openaiKey, anthropicKey } = await loadAdminInference({ now });
+  _providers = resolveProvidersFromAdminConfig(config, openaiKey, process.env, { anthropicKey });
   _providersAt = now;
   return _providers;
 }

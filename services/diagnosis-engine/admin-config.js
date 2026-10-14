@@ -71,6 +71,7 @@ async function loadAdminInference(opts = {}) {
   const env = opts.env || process.env;
   let config = null;
   let openaiKey = null;
+  let anthropicKey = null; // evaluation: frontier.provider 'anthropic' (a field of the same secret)
 
   try {
     const s = await fetchSecret(AI_CONFIG_SECRET_ID);
@@ -87,6 +88,7 @@ async function loadAdminInference(opts = {}) {
       if (s) {
         const parsed = JSON.parse(s);
         openaiKey = (typeof parsed.apiKey === 'string' && parsed.apiKey.trim()) ? parsed.apiKey : null;
+        anthropicKey = (typeof parsed.anthropicApiKey === 'string' && parsed.anthropicApiKey.trim()) ? parsed.anthropicApiKey : null;
       }
     } catch {
       openaiKey = null;
@@ -100,7 +102,7 @@ async function loadAdminInference(opts = {}) {
     jev = parseJevSecret(null, env);
   }
 
-  _cache = { at: now, config, openaiKey, jev, jevConfigured: Boolean(jev) };
+  _cache = { at: now, config, openaiKey, anthropicKey, jev, jevConfigured: Boolean(jev) };
   return _cache;
 }
 

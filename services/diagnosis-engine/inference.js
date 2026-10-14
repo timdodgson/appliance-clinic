@@ -276,6 +276,63 @@ class OpenAIProvider extends OpenAICompatibleProvider {
   }
 }
 
+/**
+ * Anthropic Messages API (evaluation of Claude models inside the pipeline). It takes the engine's generic
+ * OpenAI-style request and maps it: system messages become `system`, a json_schema response format becomes
+ * `output_config.format`, and the reply is the text blocks. Claude Opus 5.5 always thinks (thinking cannot be turned
+ * off and `temperature` is not accepted), so `max_tokens` leaves room for thinking on top of the caller's cap, and
+ * effort is `medium` for the reasoner's reply and `low` for the small structured steps. No server-side fallback to
+ * another model: an evaluation must measure this model alone. A refusal is returned as a non-200.
+ */
+class AnthropicProvider {
+  constructor({ baseUrl = 'https://api.anthropic.com/v1', apiKey, model, transport, stage = null } = {}) {
+    this.name = 'anthropic';
+    this.endpoint = baseUrl.replace(/\/$/, '') + '/messages';
+    this._headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
+    this.model = model || null;
+    this.stage = stage;
+    this._transport = transport || defaultTransport;
+    this.capabilities = { structuredOutput: true, vision: true, seed: false, streaming: false };
+  }
+
+  _body(req) {
+    const text = (c) => (Array.isArray(c) ? c.filter((p) => p && p.type === 'text').map((p) => p.text).join('\n') : String(c == null ? '' : c));
+    const system = req.messages.filter((m) => m.role === 'system').map((m) => text(m.content)).join('\n\n');
+    const messages = req.messages.filter((m) => m.role === 'user' || m.role === 'assistant').map((m) => ({ role: m.role, content: text(m.content) }));
+    const fmt = req.responseFormat && req.responseFormat.json_schema;
+    const body = {
+      model: this.model,
+      max_tokens: (req.maxTokens || 1500) + 16000,
+      messages,
+      output_config: { effort: !fmt || fmt.name === 'ac2_turn' ? 'medium' : 'low' },
+    };
+    if (system) body.system = system;
+    if (fmt && fmt.schema) body.output_config.format = { type: 'json_schema', schema: fmt.schema };
+    return body;
+  }
+
+  async infer(req, { onDelta } = {}) {
+    const errCtx = { provider: this.name, stage: this.stage, model: this.model };
+    let res;
+    try {
+      res = await this._transport.request(this.endpoint, { method: 'POST', headers: this._headers, body: JSON.stringify(this._body(req)), timeoutMs: req.timeoutMs });
+    } catch (err) {
+      throw new InferenceError(`${this.name} request failed: ${err.message}`, { ...errCtx, category: /timeout/i.test(err.message) ? 'TIMEOUT' : 'NETWORK' });
+    }
+    if (res.status !== 200) {
+      return { status: res.status, text: '', usage: null, errorDetail: String(res.body || '').replace(/\s+/g, ' ').slice(0, 300) };
+    }
+    let parsed;
+    try { parsed = JSON.parse(res.body); } catch { return { status: res.status, text: '', usage: null }; }
+    if (parsed.stop_reason === 'refusal') return { status: 422, text: '', usage: null, errorDetail: `refusal ${(parsed.stop_details && parsed.stop_details.category) || ''}`.trim() };
+    const out = (parsed.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');
+    const u = parsed.usage || {};
+    const usage = { promptTokens: u.input_tokens ?? null, completionTokens: u.output_tokens ?? null, totalTokens: u.input_tokens != null && u.output_tokens != null ? u.input_tokens + u.output_tokens : null };
+    if (req.stream && onDelta && out) onDelta(out);
+    return { status: 200, text: out, usage };
+  }
+}
+
 // --- Per-stage configuration resolver ---------------------------------------
 
 const KNOWN_PROVIDERS = ['lmstudio', 'openai'];
@@ -355,11 +412,16 @@ function resolveProvidersFromAdminConfig(aiConfig, openaiKey, env = process.env,
 
   const pick = (stage, kind) => {
     if (kind === 'frontier') {
-      if (!openaiKey) {
+      if (!openaiKey && frontier.provider !== 'anthropic') {
         throw new InferenceError(`${stage} routed to frontier but no OpenAI API key is available`, { provider: 'openai', stage, category: 'CONFIG' });
       }
       if (!frontier.model) {
         throw new InferenceError(`${stage} routed to frontier but no frontier model is configured`, { provider: 'openai', stage, category: 'CONFIG' });
+      }
+      // frontier.provider 'anthropic' (evaluation): the Anthropic key is a field of the same credential secret.
+      if (frontier.provider === 'anthropic') {
+        if (!deps.anthropicKey) throw new InferenceError(`${stage} routed to frontier (anthropic) but no Anthropic API key is available`, { provider: 'anthropic', stage, category: 'CONFIG' });
+        return new AnthropicProvider({ apiKey: deps.anthropicKey, model: frontier.model, transport: deps.transport, stage });
       }
       return new OpenAIProvider({ baseUrl: env.OPENAI_BASE_URL || 'https://api.openai.com/v1', apiKey: openaiKey, model: frontier.model, transport: deps.transport, stage });
     }
@@ -377,6 +439,7 @@ module.exports = {
   OpenAICompatibleProvider,
   LMStudioProvider,
   OpenAIProvider,
+  AnthropicProvider,
   resolveStageProvider,
   resolveProviders,
   resolveProvidersFromAdminConfig,

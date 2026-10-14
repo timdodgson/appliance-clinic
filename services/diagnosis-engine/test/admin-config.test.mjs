@@ -44,7 +44,8 @@ describe("loadAdminInference — secret loading & fallback", () => {
     const r = await loadAdminInference({ now: 1, env: {}, fetchSecret: fakeSecrets({ config: undefined }) });
     expect(r.config).toBe(null);
     expect(r.openaiKey).toBe(null);
-    expect(Object.keys(r).sort()).toEqual(["at", "config", "jev", "jevConfigured", "openaiKey"]);
+    expect(Object.keys(r).sort()).toEqual(["anthropicKey", "at", "config", "jev", "jevConfigured", "openaiKey"]);
+    expect(r.anthropicKey).toBe(null);
     expect(r.jev).toBe(null);
   });
 

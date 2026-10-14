@@ -223,3 +223,36 @@ describe('capabilities + usage normalisation', () => {
     expect(normaliseUsage({ prompt_tokens: 4, completion_tokens: 6 })).toEqual({ promptTokens: 4, completionTokens: 6, totalTokens: 10 });
   });
 });
+
+describe('AnthropicProvider (evaluation: Claude inside the pipeline)', () => {
+  const { AnthropicProvider: AP, resolveProvidersFromAdminConfig: resolveAdmin } = require('../inference.js');
+  const fake = (status, body) => { const calls = []; return { calls, request: async (url, opts) => { calls.push({ url, ...opts, body: JSON.parse(opts.body) }); return { status, body: JSON.stringify(body) }; } }; };
+  const schema = { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false };
+
+  it('maps system messages, the json_schema format and effort; returns the text blocks', async () => {
+    const t = fake(200, { content: [{ type: 'thinking', thinking: '' }, { type: 'text', text: '{"ok":true}' }], stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 } });
+    const p = new AP({ apiKey: 'k', model: 'claude-opus-5-5', transport: t });
+    const r = await p.infer({ messages: [{ role: 'system', content: 'S' }, { role: 'user', content: 'hi' }], maxTokens: 400, temperature: 0, responseFormat: { type: 'json_schema', json_schema: { name: 'ac3_understand', strict: true, schema } } });
+    const { url, headers, body } = t.calls[0];
+    expect(url).toBe('https://api.anthropic.com/v1/messages');
+    expect(headers).toMatchObject({ 'x-api-key': 'k', 'anthropic-version': '2023-06-01' });
+    expect(body).toMatchObject({ model: 'claude-opus-5-5', system: 'S', messages: [{ role: 'user', content: 'hi' }], output_config: { effort: 'low', format: { type: 'json_schema', schema } } });
+    expect(body).not.toHaveProperty('temperature');
+    expect(body.max_tokens).toBeGreaterThan(400);
+    expect(r).toEqual({ status: 200, text: '{"ok":true}', usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 } });
+  });
+
+  it('the reasoner reply runs at medium effort; a refusal is a non-200', async () => {
+    const t = fake(200, { content: [], stop_reason: 'refusal', stop_details: { category: 'cyber' } });
+    const p = new AP({ apiKey: 'k', model: 'claude-opus-5-5', transport: t });
+    const r = await p.infer({ messages: [{ role: 'user', content: 'x' }], maxTokens: 1500, responseFormat: { type: 'json_schema', json_schema: { name: 'ac2_turn', schema } } });
+    expect(t.calls[0].body.output_config.effort).toBe('medium');
+    expect(r.status).not.toBe(200);
+  });
+
+  it('frontier.provider anthropic needs the Anthropic key, not the OpenAI one', () => {
+    const cfg = { routing: { compose: 'frontier' }, frontier: { provider: 'anthropic', model: 'claude-opus-5-5' } };
+    expect(resolveAdmin(cfg, null, {}, { anthropicKey: 'k' }).compose.name).toBe('anthropic');
+    expect(() => resolveAdmin(cfg, 'openai-key', {}, {})).toThrow(/Anthropic API key/);
+  });
+});
