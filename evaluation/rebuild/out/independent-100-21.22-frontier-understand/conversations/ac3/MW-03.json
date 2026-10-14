@@ -1,0 +1,421 @@
+{
+ "id": "MW-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-03-10d84e4698",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "panasonic nn h98 not heating anymore, any fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "The simple possibilities are that it is set to defrost/low power, grill or combination rather than microwave heating. 1. Check the display/mode: select normal microwave cooking, not grill, combi or defrost, set full power, and use a microwave-safe cup of water.\n2. Run it for one minute. Check whether the water is hot and whether the timer, light and turntable operate normally. This separates a settings issue from a heating-circuit or door-interlock fault.\n3. Make sure the door closes firmly and the latch area is free of crumbs or damage. Do not force it. With a microwave-safe cup of water, does a one-minute cook on full microwave power leave it completely cold, and does the oven otherwise run normally (light/timer/turntable)?"
+  },
+  {
+   "role": "customer",
+   "text": "water stays cold, stops after about 10-15 seconds with h98. fan, turntable and clock all work. grill heats fine. the model on the back is NN-CD87KSBPQ, h98 is just what the screen says"
+  },
+  {
+   "role": "assistant",
+   "text": "H98, no microwave heat, and a repeatable stop after 10–15 seconds point to the microwave high-voltage inverter/power circuit—not an overheating problem. The leading suspect is the inverter board; the magnetron is the next possibility and needs testing alongside it. The working grill, fan and turntable do not rule this out, as they are separate functions. There is no safe DIY internal fix for this. Do not remove the casing or try to test components: a microwave can retain lethal high voltage even unplugged. Avoid further microwave-heating tests and arrange a microwave engineer/Panasonic service assessment, quoting model NN-CD87KSBPQ and error H98. They should diagnose the inverter board and magnetron/feedback circuit before any parts are fitted. Whether it is worth repairing depends on the engineer’s quote, particularly if both the inverter and magnetron are implicated; if it is only the inverter module, repair can still be reasonable.\n[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1438,
+     "labelMs": 479,
+     "enrichMs": 0,
+     "reasonMs": 5753,
+     "verifyMs": 1965,
+     "replyLabelMs": 347,
+     "totalMs": 10028
+    },
+    "usage": {
+     "promptTokens": 4908,
+     "completionTokens": 429,
+     "totalTokens": 5337
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      },
+      {
+       "gate": "prohibited-advice",
+       "rule": "hv-microwave"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "It runs normally but food stays cold on full power.",
+      "source": "extractor"
+     },
+     {
+      "claim": "It will not start properly or reacts to the door.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Incorrect cooking mode or low power setting (medium)",
+     "High-voltage heating circuit fault (medium)",
+     "Door latch/interlock fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "nn h98",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "panasonic",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "panasonic",
+      "model": "nn h98",
+      "codes": [],
+      "symptom": "not heating anymore"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "Heat a cup of water for a minute on full power. Is the water hot now, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:grill-not-heating",
+       "microwave:not-heating",
+       "microwave:turntable"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make panasonic; model NN H98.",
+     "The fault they reported is: \"not heating anymore\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN H98",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "With a microwave-safe cup of water, does a one-minute cook on full microwave power leave it completely cold, and does the oven otherwise run normally (light/timer/turntable)?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10176
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10372,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3003,
+     "labelMs": 305,
+     "enrichMs": 807,
+     "reasonMs": 6755,
+     "verifyMs": 9364,
+     "replyLabelMs": 262,
+     "totalMs": 20556
+    },
+    "usage": {
+     "promptTokens": 5477,
+     "completionTokens": 467,
+     "totalTokens": 5944
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "High-voltage inverter board / inverter power circuit fault (high)",
+     "Magnetron fault or its high-voltage feedback path (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN-CD87KSBPQ",
+       "confidence": 1
+      },
+      "code": {
+       "value": "h98",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": "NN-CD87KSBPQ",
+      "codes": [
+       "h98"
+      ],
+      "symptom": "microwave does not heat and stops after 10–15 seconds with H98"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.89
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:not-heating",
+       "microwave:grill-not-heating",
+       "microwave:cutting-out"
+      ],
+      "codes": [
+       {
+        "code": "H98",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Heat a cup of water for a minute on full power. Is the water hot now, or still cold?\".",
+     "Checks they have done and what they found: Ran microwave with water - Water stayed cold and it stopped after about 10–15 seconds with H98; Tested grill - Grill heats fine.",
+     "Already given by the customer, never ask for it again: make panasonic; model NN-CD87KSBPQ; code H98.",
+     "The fault they reported is: \"not heating anymore\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-CD87KSBPQ",
+      "confidence": 1,
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "H98",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Ran microwave with water: Water stayed cold and it stopped after about 10–15 seconds with H98",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tested grill: Grill heats fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With a microwave-safe cup of water, does a one-minute cook on full microwave power leave it completely cold, and does the oven otherwise run normally (light/timer/turntable)?",
+       "turn": 1,
+       "resolution": "Water stays cold; fan, turntable and clock work normally"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20593
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20807,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.019741799999999997,
+ "finishedAt": "2026-10-14T13:57:24.658Z"
+}
