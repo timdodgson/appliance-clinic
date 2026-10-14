@@ -53,3 +53,23 @@ describe('data fixes (D9)', () => {
     expect(r).toMatchObject({ code: 'EO3', status: 'RESOLVED', matchedAs: 'E03', faultId: 'drain' });
   });
 });
+
+describe('choose (experiment: Jev picks the cause and the next check from the notes)', () => {
+  const J = require('../ac2/labels.js');
+  const notes = K.retrieve({ appliance: 'washing-machine', text: 'water left in the drum, wont drain, pump hums' });
+  it('offers the notes\' causes and checks, never a check already given', () => {
+    const given = [notes[0].ownerSafeChecks[0]];
+    const req = J.buildChooseRequest({ texts: ['wont drain, pump hums'], known: {}, notes, given });
+    expect(Object.keys(req.questions)).toEqual(['cause', 'check']);
+    expect(req.plan.causes.length).toBeGreaterThan(0);
+    expect(req.plan.checks.map((c) => c.full)).not.toContain(given[0]);
+    expect(req.state.guidance[0].discriminators.length).toBeGreaterThan(0);
+  });
+  it('returns the chosen cause and the full text of the chosen check', async () => {
+    const jev = { evaluate: async () => ({ answers: { cause: { type: 'choice', choice: 't1', confidence: 0.9 }, check: { type: 'choice', choice: 'k1', confidence: 0.8 } } }) };
+    const r = await J.chooseNext(jev, { texts: ['wont drain'], known: {}, notes, given: [] });
+    const req = J.buildChooseRequest({ texts: ['wont drain'], known: {}, notes, given: [] });
+    expect(r.cause).toBe(req.plan.causes[0].value);
+    expect(r.check).toBe(req.plan.checks[0].full);
+  });
+});

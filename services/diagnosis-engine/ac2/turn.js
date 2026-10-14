@@ -182,7 +182,7 @@ function codeFault(code, brand, appliance) {
 }
 
 /** Step 7: the plan for this reply, decided in code. */
-function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}) {
+function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false, chosen = null } = {}) {
   const plan = [];
   const c = rec.customer;
   const appliance = c.appliance && c.appliance.value;
@@ -219,6 +219,14 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   if (unsafe) plan.push(`They asked about something unsafe (${unsafe.replace(/_/g, ' ')}): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.`);
   const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
   if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
+  // The cause and check Jev chose (experiment): the reply leads with them instead of choosing its own.
+  if (chosen && chosen.cause) plan.push(`The most likely cause, chosen from the evidence: ${chosen.cause}. Lead with it and why it fits what they said; mention at most one alternative.`);
+  if (chosen && chosen.check) plan.push(`The next check, chosen from the evidence: "${chosen.check}". Give this check, and only this one, as short safe steps, with what each result would mean.`);
+  if (rec.stage === 1 && chosen && chosen.check) {
+    plan.push('Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.');
+    if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
+    return plan;
+  }
   if (rec.stage === 1) {
     plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.');
     if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
@@ -450,7 +458,19 @@ async function runTurn(input, deps) {
   const safetyNotes = [];
   const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
   if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
-  const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew });
+  // 7a. Choose (experiment, AI config pipeline.jevChooses): Jev picks the likely cause and the next check from the notes.
+  let chosen = null;
+  if (deps.flags && deps.flags.jevChooses && appliance && found.knowledge.length && rec.outcome !== 'fixed' && !(hazard && BLOCKING.has(hazard.type))) {
+    try {
+      chosen = await J.chooseNext(deps.jev, { texts, known: Rec.known(rec), notes: found.knowledge, given: Rec.adviceSummary(rec) });
+    } catch (e) {
+      chosen = null;
+      audit.safety.gates.push({ gate: 'choose-unavailable' });
+    }
+    audit.chosen = chosen;
+    if (chosen) audit.timings.chooseMs = chosen.ms;
+  }
+  const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew, chosen });
   const facts = Rec.evidence(rec);
   const context = {
     turn: rec.turn,

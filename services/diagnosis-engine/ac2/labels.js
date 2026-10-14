@@ -174,6 +174,47 @@ function adaptReply(answers, plan) {
   };
 }
 
+/**
+ * Choose (experiment, AI config pipeline.jevChooses): Jev picks, from the retrieved knowledge notes, the most likely
+ * cause and the one next check, judged from everything the customer has said and the checks they reported, using the
+ * notes' own discriminators. Code then tells the reply to lead with that cause and give that check.
+ * notes: the retrieved notes (enrich); given: checks already given to the customer (not offered again).
+ */
+function buildChooseRequest({ texts, known, notes, given }) {
+  const causes = tokenOptions(notes.flatMap((n) => (n.componentEvidence && n.componentEvidence.length
+    ? n.componentEvidence.map((c) => c.name) : (n.causes || []))), 140).slice(0, 16);
+  const already = new Set((given || []).map((g) => String(g).toLowerCase().slice(0, 60)));
+  const fullChecks = [...new Set(notes.flatMap((n) => [...(n.ownerSafeChecks || []), ...(n.beforeReplacingAPart || [])]))]
+    .filter((c) => !already.has(String(c).toLowerCase().slice(0, 60))).slice(0, 16);
+  const checks = fullChecks.map((c, i) => ({ id: `k${i + 1}`, value: c.length > 220 ? `${c.slice(0, 219)}…` : c, full: c }));
+  const questions = {};
+  if (causes.length) {
+    questions.cause = { type: 'choice', instructions: 'From everything the customer has said (customerMessages) and the checks they reported (knownSoFar), which of these is the MOST LIKELY cause of the fault? Use the guidance (the knowledge notes\' discriminators and the evidence for and against each component). Prefer a simple, common cause unless the customer\'s evidence rules it out. none = none of these fits.',
+      criteria: { ...Object.fromEntries(causes.map((c) => [c.id, c.value])), none: 'None fits' } };
+  }
+  if (checks.length) {
+    questions.check = { type: 'choice', instructions: 'Which ONE of these checks should the customer do NEXT to confirm or rule out the most likely cause? Prefer the simplest, safest check that best separates the likely causes. Never one the customer already did or reported (knownSoFar.checksDone) or was already given. none = no check fits (for example it is already narrowed down or needs an engineer).',
+      criteria: { ...Object.fromEntries(checks.map((c) => [c.id, c.value])), none: 'No check fits' } };
+  }
+  const guidance = notes.map((n) => ({ fault: n.fault, discriminators: n.discriminators, evidence: n.componentEvidence, clarifyingQuestion: n.clarifyingQuestion }));
+  return { state: { customerMessages: texts, knownSoFar: known, alreadyGivenChecks: given || [], guidance }, questions, plan: { causes, checks } };
+}
+
+async function chooseNext(jev, input) {
+  const req = buildChooseRequest(input);
+  if (!Object.keys(req.questions).length) return { cause: null, check: null, ms: 0 };
+  const t0 = Date.now();
+  const r = await ask(jev, req);
+  const a = r.answers || {};
+  const cid = choiceOf(a.cause);
+  const kid = choiceOf(a.check);
+  return {
+    cause: pick(req.plan.causes, cid), causeConfidence: conf(a.cause),
+    check: kid ? (req.plan.checks.find((c) => c.id === kid) || {}).full || null : null, checkConfidence: conf(a.check),
+    ms: Date.now() - t0,
+  };
+}
+
 async function ask(jev, req) {
   try {
     return await jev.evaluate({ state: req.state, questions: req.questions });
@@ -196,4 +237,4 @@ async function labelReply(jev, input) {
   return { ...adaptReply(r.answers, req.plan), ms: Date.now() - t0 };
 }
 
-module.exports = { labelMessage, labelReply, buildLabelRequest, adaptLabels, buildReplyRequest, adaptReply, APPLIANCES, HAZARDS, UNSAFE, SYMPTOM_AREAS, REPLY_ACTIONS, CHOICE_MIN, NOUL_TRUE };
+module.exports = { labelMessage, labelReply, chooseNext, buildChooseRequest, buildLabelRequest, adaptLabels, buildReplyRequest, adaptReply, APPLIANCES, HAZARDS, UNSAFE, SYMPTOM_AREAS, REPLY_ACTIONS, CHOICE_MIN, NOUL_TRUE };

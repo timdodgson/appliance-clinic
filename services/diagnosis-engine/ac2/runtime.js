@@ -46,8 +46,12 @@ async function turn({ messages, state, tools }) {
   let qwen;
   try { qwen = (await getProviders()).compose; } catch (e) { qwen = unavailable('inference provider', e); }
   let jev;
+  let flags = {};
   try {
-    const creds = (await loadAdminInference()).jev;
+    const admin = await loadAdminInference();
+    // Experiment switches in the AI config (pipeline.*); off unless set.
+    flags = { jevChooses: Boolean(admin.config && admin.config.pipeline && admin.config.pipeline.jevChooses) };
+    const creds = admin.jev;
     if (!creds || !creds.accountId || !creds.apiToken) throw Object.assign(new Error('Jev not configured'), { category: 'CONFIG' });
     jev = { evaluate: ({ state: s, questions }) => evaluateJevWithRetries({ accountId: creds.accountId, apiToken: creds.apiToken, gatewayId: creds.gatewayId, state: s, questions, timeoutMs: JEV_TIMEOUT_MS, attempts: 2 }) };
   } catch (e) {
@@ -56,6 +60,7 @@ async function turn({ messages, state, tools }) {
   const mcp = { url: process.env.MCP_URL || null, token: process.env.MCP_BEARER_TOKEN || null };
   return runTurn({ messages, state, tools }, {
     qwen,
+    flags,
     jev,
     resolveCode: (q) => resolveErrorCode(q, mcp),
     lookupParts: (model) => getPartsForModel(model),
