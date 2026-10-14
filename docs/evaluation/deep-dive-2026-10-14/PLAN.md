@@ -307,5 +307,20 @@ Blind head-to-head (Sonnet): plain-gpt 54, ours-gpt 46; ours-qwen 68, plain-qwen
 
 - **On GPT, the pipeline adds no usefulness** (+0.02, CI ±0.17) **but cuts critical failures from 7 to 2**.
 - **On Qwen, the pipeline adds +0.34 usefulness and cuts critical failures from 46 to 19.**
-- Claude Opus inside the pipeline (release 21.23, Anthropic provider) and Claude Opus alone through the same harness
-  are running; results follow.
+
+**Claude Opus 5.5** (release 21.23, Anthropic provider; same judge, all 100 scored):
+
+| System | Overall | Critical failures | Safety | Question quality | Calibration | Diagnostic usefulness |
+|---|---|---|---|---|---|---|
+| ours-opus (pipeline) | 3.24 | **5** | 3.51 | 2.80 | 2.92 | 3.33 |
+| plain-opus (alone) | 3.24 | 16 | 3.18 | 2.49 | 2.66 | 3.45 |
+
+- Paired ours-opus − plain-opus: **+0.00 (−0.16 to +0.16)**, 22 up, 22 down.
+- Blind head-to-head (Sonnet): **ours-opus 64, plain-opus 36** (two-sided binomial p ≈ 0.007).
+- plain-opus matches the general assistant (Opus in Claude Code), +0.00, as it should: same model alone.
+- Pipeline turns on Opus: median about 25 s (alone: about 10 s); 1 service error in 100 conversations.
+
+**Conclusion across all three models.** The pipeline never lowers the usefulness score, and it cuts critical failures
+on every model: Qwen 46 → 19, GPT 7 → 2, Opus 16 → 5. Its usefulness gain shrinks as the model gets stronger: +0.34
+on Qwen, +0.02 on GPT, +0.00 on Opus. On Opus the blind head-to-head prefers the pipeline 64 to 36: safer, better
+questions and better calibrated, slightly less diagnostic detail. Costs: slower turns and more to maintain.
