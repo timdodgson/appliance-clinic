@@ -249,13 +249,18 @@ the first write-up used 96: 3.29, +0.06).
   question quality 2.94 → 2.91 (3.09), fidelity 3.67 → 3.61 (3.82). The understand step (reading the customer's
   message) still runs on Qwen; it is the one model step not yet tested on the stronger model, and the next lever.
 
-## 9. The understand step on the stronger model, and the model-alone controls (2026-10-14)
+## 9. A repeat run of 21.22, and the model-alone controls (2026-10-14)
 
-Release 21.22 unchanged; the AI config's `routing.understand` also switched to `frontier` (so every LLM step except Jev
-labels runs on `gpt-5.6-terra`). Data: `out/independent-100-21.22-frontier-understand/`,
+**Correction (verified in code):** the engine sends every model step (understand, reasoner, claim extractor) to the one
+`routing.compose` provider (`inference.js` `resolveProvidersFromAdminConfig` reads only `compose`; `understand.js:65`
+uses the same provider). `routing.understand` is a legacy setting the engine never reads. So the understand step was
+already on the stronger model in §7 and §8 (§7's "understand stays on Qwen" is wrong), and the run below is **a
+repeat of the same 21.22 configuration**, not a different one. Its 3.39 against §8's 3.32 is run-to-run noise.
+
+Release 21.22 unchanged (the `routing.understand` switch had no effect, above). Data: `out/independent-100-21.22-frontier-understand/`,
 `results-independent-100-21.22-frontier-understand.json`.
 
-| | 21.21 frontier | 21.22 frontier | **21.22, understand also frontier** | General assistant |
+| | 21.21 frontier | 21.22 frontier | **21.22 frontier, repeat run** | General assistant |
 |---|---|---|---|---|
 | Overall | 3.24 | 3.32 | **3.39** | 3.48 |
 | Paired vs 21.22 (95% CI) | | | +0.07 (−0.05 to +0.19) | |
@@ -276,3 +281,31 @@ labels runs on `gpt-5.6-terra`). Data: `out/independent-100-21.22-frontier-under
   (`out/independent-100-plain-gpt/`) and Qwen alone (`out/independent-100-plain-qwen/`), **not yet scored**: the judge's
   usage credits ran out. Example, WM-02 "w/m wont spinn pls help": Qwen alone answered about a Windows mouse.
 - **Live:** set to this configuration (understand and compose on the stronger model) while the temporary key lasts.
+
+## 10. Does RAG and Jev add anything on top of a strong model? (2026-10-14)
+
+Same 100 cases, same simulated customers, **one judge for every system: Claude Sonnet 5.5** (the primary judge, Fable,
+was out of credits). "Plain" is the model alone with a generic assistant prompt and the chat, nothing else (change
+21.10's control, runner `--control qwen-plain`). Data: `evaluation/rebuild/out/rag-vs-plain/`.
+
+| System | Model | RAG, Jev, plan, checks | Overall (0–4) | Conversations with a critical failure |
+|---|---|---|---|---|
+| ours-gpt | gpt-5.6-terra | yes | 3.16 | **2** |
+| plain-gpt | gpt-5.6-terra | no | 3.14 | 7 |
+| ours-qwen | Qwen 3.6 35B-A3B | yes | 2.70 | **19** |
+| plain-qwen | Qwen 3.6 35B-A3B | no | 2.40 | 46 |
+| general assistant | Claude Opus 5.5 (Claude Code) | no | 3.26 | 15 |
+
+| Paired difference (same cases) | Mean (95% CI) | Cases up / down |
+|---|---|---|
+| ours-gpt − plain-gpt | **+0.02 (−0.14 to +0.19)** | 15 / 18 |
+| ours-qwen − plain-qwen | **+0.34 (+0.16 to +0.53)** | 38 / 12 |
+| ours-gpt − general assistant | −0.10 (−0.27 to +0.07) | 18 / 25 |
+
+Blind head-to-head (Sonnet): plain-gpt 54, ours-gpt 46; ours-qwen 68, plain-qwen 32. 93–98 of 100 scored per system
+(the judge returned unparseable output on the rest after three tries).
+
+- **On GPT, the pipeline adds no usefulness** (+0.02, CI ±0.17) **but cuts critical failures from 7 to 2**.
+- **On Qwen, the pipeline adds +0.34 usefulness and cuts critical failures from 46 to 19.**
+- Claude Opus inside the pipeline (release 21.23, Anthropic provider) and Claude Opus alone through the same harness
+  are running; results follow.

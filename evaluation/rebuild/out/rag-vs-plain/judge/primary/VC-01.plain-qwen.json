@@ -1,0 +1,55 @@
+{
+ "id": "VC-01.plain-qwen",
+ "case": "VC-01",
+ "system": "plain-qwen",
+ "judge": "claude-sonnet-5-5",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 2,
+  "diagnosticUsefulness": 1,
+  "questionQuality": 1,
+  "calibration": 1,
+  "noRepetition": 1,
+  "escalation": 1,
+  "partQuality": 3,
+  "languageUnderstanding": 2,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": true,
+   "evidence": "'Most Likely Cause: Brush Bar Strain or Blockage in the Head' and 'this changes things significantly' after customer's evidence pointed to normal Auto behaviour"
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "Three consecutive replies cut off at the same 'Check for Vibration or Rattling' point and never delivered the content, blocking progress"
+  }
+ },
+ "outcome": "unresolved",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant never asked which power mode the screen shows and never identified Auto mode as the cause, even though the customer's Boost result and symptoms pointed to normal behaviour. It pushed blockage, battery and brush bar theories and urged a warranty claim, which the ground truth lists as unsupported, and it said the change was caused by the Laser head after the customer reported a Motorbar. The later turns were repeatedly truncated, so the customer got no useful next step.",
+ "costUsd": 0.036258
+}
