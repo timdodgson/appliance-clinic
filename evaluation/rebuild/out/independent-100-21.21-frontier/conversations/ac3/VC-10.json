@@ -1,0 +1,624 @@
+{
+ "id": "VC-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-10-b553514141",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Dyson (one of the V ones, purple bits) keeps cutting out after about 5-10 seconds. Not every time - some days it does a whole room fine. It's maybe 5 years old. Already cleaned the filter and checked for blockages. Battery or something else?"
+  },
+  {
+   "role": "assistant",
+   "text": "A worn battery or its protection circuit can stop the machine within seconds, whereas a fault or restriction in the wand/floorhead can do the same even when the obvious airway looks clear. After a full charge, switch it off, remove the wand and floorhead, then run the handheld unit briefly on normal mode. If it runs reliably that way, the issue is in the wand, floorhead or brush bar; if it still stops after 5–10 seconds, the battery is the leading suspect, with the motor/control electronics a less common alternative. Ensure the filter is completely dry before testing—after washing it needs at least 24 hours to air-dry."
+  },
+  {
+   "role": "customer",
+   "text": "Tried it as a handheld with no wand or floorhead. It still cuts out sometimes, just less often than with the tools on. The battery isn't swollen or hot, by the way. Does that point to the battery?"
+  },
+  {
+   "role": "assistant",
+   "text": "A five-year-old cordless battery can have enough charge to start the motor but its voltage drops under load, so its protection cuts power after a few seconds; the fact it can sometimes complete a room fits that intermittent weak-battery pattern. The floorhead/brush bar or a minor remaining airflow restriction may be adding enough load to bring the cut-out on sooner, but it does not explain it fully if the handheld unit also does it. The light pattern and whether it immediately restarts will help distinguish battery protection from an airflow/overload issue."
+  },
+  {
+   "role": "customer",
+   "text": "When it stops the blue lights sometimes flash 3 times, sometimes nothing. It's a clean stop, no pulsing. Can you give me a straight answer on whether a new battery is worth the £60+?"
+  },
+  {
+   "role": "assistant",
+   "text": "Straight answer: the battery is the leading suspect, and a five-year-old pack that cuts out even with no wand or floorhead fitted is a plausible £60+ repair. The three blue flashes also support a battery/protection issue on many Dyson cordless models. A floorhead load/restriction is still a secondary possibility; an internal motor/control fault is less likely, but is the reason not to gamble on a battery blindly."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1737,
+     "labelMs": 358,
+     "enrichMs": 0,
+     "reasonMs": 7874,
+     "verifyMs": 5498,
+     "replyLabelMs": 372,
+     "totalMs": 15897
+    },
+    "usage": {
+     "promptTokens": 2703,
+     "completionTokens": 569,
+     "totalTokens": 3272
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The cutting-out problem is intermittent.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Worn battery or battery-protection fault (medium)",
+     "Restriction or fault in the wand/floorhead, including a jammed brush bar (medium)",
+     "Motor/control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.07
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Dyson",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": "Dyson",
+      "model": null,
+      "codes": [],
+      "symptom": "cuts out after 5-10 seconds intermittently"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Battery or something else?\" - answer that first.",
+     "Checks they have done and what they found: cleaned the filter - problem continues; checked for blockages - no blockage reported.",
+     "Already given by the customer, never ask for it again: make Dyson.",
+     "The fault they reported is: \"cuts out after 5-10 seconds intermittently\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: problem continues",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: no blockage reported",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 15934
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16152,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3214,
+     "labelMs": 334,
+     "enrichMs": 0,
+     "reasonMs": 6418,
+     "verifyMs": 5217,
+     "replyLabelMs": 303,
+     "totalMs": 15535
+    },
+    "usage": {
+     "promptTokens": 3049,
+     "completionTokens": 453,
+     "totalTokens": 3502
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The battery is neither hot nor swollen.",
+      "source": "extractor"
+     },
+     {
+      "claim": "It happens more often with the tools fitted.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Worn battery / battery protection cutting out under load (high)",
+     "Floorhead brush-bar load or a remaining airflow restriction (medium)",
+     "Motor or control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.57
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.57
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Cuts out intermittently, less often without wand or floorhead"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "answers_only",
+      "confidence": 0.66
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Does that point to the battery?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: cleaned the filter - problem continues; checked for blockages - no blockage reported; Ran it as a handheld without the wand or floorhead - It still cut out sometimes, but less often than with the tools fitted.",
+     "Already given by the customer, never ask for it again: make Dyson.",
+     "The fault they reported is: \"cuts out after 5-10 seconds intermittently\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: problem continues",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: no blockage reported",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Ran it as a handheld without the wand or floorhead: It still cut out sometimes, but less often than with the tools fitted",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 15578
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15760,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3825,
+     "labelMs": 299,
+     "enrichMs": 1,
+     "reasonMs": 10129,
+     "verifyMs": 9202,
+     "replyLabelMs": 359,
+     "totalMs": 23898
+    },
+    "usage": {
+     "promptTokens": 3871,
+     "completionTokens": 726,
+     "totalTokens": 4597
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Worn battery or battery protection circuit (high)",
+     "Extra load from the floorhead/brush bar or a remaining restriction (medium)",
+     "Motor/control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.5
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.68
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.4
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "blue lights flas"
+      ],
+      "symptom": "stops cleanly without pulsing"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "answers_only",
+      "confidence": 0.53
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out",
+       "vacuum:wont-run"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is a new battery worth £60+?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: answers only.",
+     "Checks they have done and what they found: cleaned the filter - problem continues; checked for blockages - no blockage reported; Ran it as a handheld without the wand or floorhead - It still cut out sometimes, but less often than with the tools fitted.",
+     "Already given by the customer, never ask for it again: make Dyson.",
+     "The fault they reported is: \"cuts out after 5-10 seconds intermittently\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: problem continues",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: no blockage reported",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Ran it as a handheld without the wand or floorhead: It still cut out sometimes, but less often than with the tools fitted",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 23948
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 24288,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.034771699999999996,
+ "finishedAt": "2026-10-14T09:31:53.045Z"
+}

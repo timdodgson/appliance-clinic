@@ -1,0 +1,624 @@
+{
+ "id": "OC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-09-f73063d675",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hotpoint SA2 oven not heatin on fan, grill ok. wat does SA2 mean??"
+  },
+  {
+   "role": "assistant",
+   "text": "SA2 is the Hotpoint oven series/range prefix, rather than an error code or an explanation of the fault. An exact model normally has extra letters/numbers after it on the rating label. Because the grill works but fan cooking does not heat, the fan-oven element is the leading possibility, followed by the function selector/temperature control. First rule out the simple control-state issue: with the oven cool, select the fan symbol with a ring around it (not the fan-only/defrost symbol), set about 180°C, and make sure the clock is showing manual mode rather than AUTO or a flashing timer. Does the temperature indicator come on, and after 10–15 minutes is there any warmth at all?"
+  },
+  {
+   "role": "customer",
+   "text": "clock is in manual yes. conventional top+bottom does heat but slowly. on fan setting barely warms, fan at back isnt spinning just a low hum"
+  },
+  {
+   "role": "assistant",
+   "text": "The low hum with the rear cooking fan not turning points first to a seized or failing fan-oven motor; a blade catching the rear cover is the other possibility. Do not keep running it while it hums, as that can overheat the motor. With the oven completely cool, switched off and isolated, see whether the blade turns freely and smoothly through the rear guard openings—do not remove the rear panel or force it. If it is stiff, stuck or scraping, the motor/blade assembly needs an engineer; if it turns freely but only hums when selected, the motor or its start circuit is still likely. The weak fan heat may also mean the fan-oven element needs testing, so an engineer should assess both rather than assuming only one fault."
+  },
+  {
+   "role": "customer",
+   "text": "isolated it at the cooker switch first. blade is very stiff n feels gritty when i turn it by hand. had a slight hot smell from the back once but not now"
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. The fan-oven motor is very likely seized: a gritty, stiff blade together with a hum is the usual bearing/motor failure pattern. The engineer should also test the fan-oven element, as the lack of fan circulation explains the weak fan cooking but does not fully rule out an element fault. The slow conventional heating may be a separate element/control issue, so mention that at the same visit."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1494,
+     "labelMs": 324,
+     "enrichMs": 0,
+     "reasonMs": 4237,
+     "verifyMs": 1181,
+     "replyLabelMs": 298,
+     "totalMs": 7582
+    },
+    "usage": {
+     "promptTokens": 3295,
+     "completionTokens": 321,
+     "totalTokens": 3616
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Fan-oven heating element not heating (high)",
+     "Fan function/temperature setting or oven timer in automatic mode (medium)",
+     "Function selector, thermostat/control or wiring fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.84
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "SA2",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "not heating on fan setting; grill works"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:cooling-fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What does SA2 mean?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan setting; grill works\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the temperature indicator come on, and after 10–15 minutes is there any warmth at all?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7703
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7916,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2079,
+     "labelMs": 313,
+     "enrichMs": 0,
+     "reasonMs": 8052,
+     "verifyMs": 2094,
+     "replyLabelMs": 362,
+     "totalMs": 12940
+    },
+    "usage": {
+     "promptTokens": 3859,
+     "completionTokens": 584,
+     "totalTokens": 4443
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Fan-oven motor seized or failing (high)",
+     "Fan blade fouling the rear cover or obstructed (medium)",
+     "Fan-oven heating element or its supply circuit fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.56
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.68
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.24
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "fan setting barely warms and rear fan only hums without spinning"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.7
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:fan-motor",
+       "oven-cooker:thermostat"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?\".",
+     "Checks they have done and what they found: Tried conventional top and bottom heat - It heats, but slowly; Tried fan setting - It barely warms; rear fan does not spin and gives a low hum.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan setting; grill works\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tried conventional top and bottom heat: It heats, but slowly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tried fan setting: It barely warms; rear fan does not spin and gives a low hum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the temperature indicator come on, and after 10–15 minutes is there any warmth at all?",
+       "turn": 1,
+       "resolution": "Clock is in manual; fan setting barely warms and the rear fan hums but does not spin"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13076
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13448,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2812,
+     "labelMs": 301,
+     "enrichMs": 1,
+     "reasonMs": 5110,
+     "verifyMs": 5207,
+     "replyLabelMs": 282,
+     "totalMs": 13715
+    },
+    "usage": {
+     "promptTokens": 4063,
+     "completionTokens": 356,
+     "totalTokens": 4419
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "There was a hot smell from the rear/back of the oven.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 6,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Seized or failing fan-oven motor/bearings (high)",
+     "Fan-oven element or its connections also faulty (medium)",
+     "Overheated connection at the rear of the oven (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.94
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.74
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "rear cooking fan blade is very stiff and gritty when turned by hand"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:terminal-block"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?\"; turn 2: gives check.",
+     "Checks they have done and what they found: Tried conventional top and bottom heat - It heats, but slowly; Tried fan setting - It barely warms; rear fan does not spin and gives a low hum; Turned the fan blade by hand - It is very stiff and feels gritty..",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan setting; grill works\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tried conventional top and bottom heat: It heats, but slowly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tried fan setting: It barely warms; rear fan does not spin and gives a low hum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Turned the fan blade by hand: It is very stiff and feels gritty.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the temperature indicator come on, and after 10–15 minutes is there any warmth at all?",
+       "turn": 1,
+       "resolution": "Clock is in manual; fan setting barely warms and the rear fan hums but does not spin"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 3,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.74
+      }
+     ]
+    },
+    "ms": 13772
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14165,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0334257,
+ "finishedAt": "2026-10-14T09:24:10.964Z"
+}

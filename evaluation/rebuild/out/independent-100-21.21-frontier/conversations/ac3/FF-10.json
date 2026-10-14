@@ -1,0 +1,600 @@
+{
+ "id": "FF-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ff-10-486cf61b08",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch KGN34NL3AG - some days it's fine, other days it just clicks every few minutes at the back and doesn't seem to run, and the freezer starts getting soft. Then it starts working again by itself. What's going on?"
+  },
+  {
+   "role": "assistant",
+   "text": "That is not normal compressor cycling: a single click with a steady running hum can be normal, but repeated clicking every few minutes while the freezer softens means the cooling system is failing to start. The most likely cause is the compressor start/overload device repeatedly trying and failing to start it; next is the compressor itself beginning to seize or overheat. A socket or control fault is less likely, but still possible because it recovers by itself. When it next does it, listen from the lower rear: does each click follow a brief hum or buzz, or is it click-only? In the meantime, keep the doors shut as much as possible and move vulnerable food to another freezer if it is softening; repeated failed starts can eventually become a permanent no-cool fault."
+  },
+  {
+   "role": "customer",
+   "text": "Yes, each click is followed by a very brief hum, and then it goes silent for a few minutes before clicking again. There is no burning smell and nothing has tripped."
+  },
+  {
+   "role": "assistant",
+   "text": "The leading possibility is the compressor start relay/overload device; the other possibility is that the compressor itself is becoming hard to start. Poor ventilation or a dust-clogged condenser can make either problem worse, especially when it later recovers by itself. Switch it off and unplug it, then gently vacuum any accessible dust from the rear/lower grille and make sure it is not tight against the wall; do not remove electrical covers or disturb anything attached to the compressor. Is that area dusty or short of clearance? If it is clean with good space and the hum-click cycle continues, it needs a refrigeration engineer to test the start device and compressor rather than guess at parts."
+  },
+  {
+   "role": "customer",
+   "text": "I pulled it out and the back is a bit dusty, but there is a gap between it and the wall. I'll give it a gentle vacuum. If it carries on after that, is it likely to be the start device or the compressor itself? I'd pay up to about £150 for a repair."
+  },
+  {
+   "role": "assistant",
+   "text": "If it carries on after the dust is cleared, the start relay/overload device is the more likely and usually more economical fault. The compressor itself is the second possibility, but that is only established when an engineer tests it with a known-good start device and checks the compressor windings—this symptom alone cannot separate them reliably. Your £150 ceiling may be realistic if it is the start device and access/labour are straightforward; a compressor replacement is normally unlikely to be worthwhile at that budget. If the hum-click cycle returns after cleaning, arrange a refrigeration engineer and describe it as “compressor hums briefly, clicks off every few minutes, then the freezer warms”; ask them to test the start/overload device before condemning the compressor. Keep food elsewhere if it starts softening again."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2020,
+     "labelMs": 296,
+     "enrichMs": 0,
+     "reasonMs": 5489,
+     "verifyMs": 7683,
+     "replyLabelMs": 299,
+     "totalMs": 15836
+    },
+    "usage": {
+     "promptTokens": 3429,
+     "completionTokens": 426,
+     "totalTokens": 3855
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Compressor start device/overload tripping (high)",
+     "Compressor struggling or failing intermittently (medium)",
+     "Power supply, socket or control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.77
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "KGN34NL3AG",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": "Bosch",
+      "model": "KGN34NL3AG",
+      "codes": [],
+      "symptom": "Intermittent clicking at the back; appliance does not seem to run and freezer contents start softening, then it starts working again."
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.74
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:evaporator-fan",
+       "fridge-freezer:not-cooling"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What's going on?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model KGN34NL3AG.",
+     "The fault they reported is: \"Intermittent clicking at the back; appliance does not seem to run and freezer contents start softening, then it starts working again.\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "When it next does it, listen from the lower rear: does each click follow a brief hum or buzz, or is it click-only?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15979
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16171,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1955,
+     "labelMs": 265,
+     "enrichMs": 0,
+     "reasonMs": 6997,
+     "verifyMs": 8379,
+     "replyLabelMs": 307,
+     "totalMs": 17965
+    },
+    "usage": {
+     "promptTokens": 3554,
+     "completionTokens": 473,
+     "totalTokens": 4027
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "There was a brief hum followed by a click and a few minutes’ silence.",
+      "source": "extractor"
+     },
+     {
+      "claim": "The fridge-freezer is unreliable.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Compressor start relay/overload device failing or tripping (high)",
+     "Compressor struggling to start or overheating (medium)",
+     "Restricted ventilation/dust causing overheating (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 0.82
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.66
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "repeated clicking followed by a brief hum, then silence; freezer softening"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.86
+     },
+     "checkGiven": "Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or grille at the back or underneath, and leave a few",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:evaporator-fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Bosch; model KGN34NL3AG.",
+     "The fault they reported is: \"Intermittent clicking at the back; appliance does not seem to run and freezer contents start softening, then it starts working again.\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "When it next does it, listen from the lower rear: does each click follow a brief hum or buzz, or is it click-only?",
+       "turn": 1,
+       "resolution": "Each click is followed by a very brief hum, then silence for a few minutes"
+      },
+      {
+       "key": null,
+       "text": "Is that area dusty or short of clearance?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18022
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18554,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 4038,
+     "labelMs": 290,
+     "enrichMs": 0,
+     "reasonMs": 6838,
+     "verifyMs": 8612,
+     "replyLabelMs": 291,
+     "totalMs": 20132
+    },
+    "usage": {
+     "promptTokens": 4008,
+     "completionTokens": 485,
+     "totalTokens": 4493
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The brief hum followed by a click",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Compressor start relay/overload device failing intermittently (high)",
+     "Compressor becoming mechanically difficult to start or overheating internally (medium)",
+     "Dust contributing to overheating (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 0.51
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.47
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.6
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.92
+     },
+     "checkGiven": "Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or grille at the back or underneath, and leave a few",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:compressor",
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:evaporator-fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"If it carries on after vacuuming, is it likely to be the start device or the compressor itself?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check, suggested the check \"Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or grille at the back or underneath, and leave a few\".",
+     "Checks they have done and what they found: Pulled it out and inspected the back - Back is a bit dusty; there is a gap between it and the wall.",
+     "Already given by the customer, never ask for it again: make Bosch; model KGN34NL3AG.",
+     "The fault they reported is: \"Intermittent clicking at the back; appliance does not seem to run and freezer contents start softening, then it starts working again.\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "KGN34NL3AG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Pulled it out and inspected the back: Back is a bit dusty; there is a gap between it and the wall",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "When it next does it, listen from the lower rear: does each click follow a brief hum or buzz, or is it click-only?",
+       "turn": 1,
+       "resolution": "Each click is followed by a very brief hum, then silence for a few minutes"
+      },
+      {
+       "key": null,
+       "text": "Is that area dusty or short of clearance?",
+       "turn": 2,
+       "resolution": "The back is a bit dusty, but there is a gap to the wall."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 20180
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 20462,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.032599699999999995,
+ "finishedAt": "2026-10-14T09:18:47.838Z"
+}

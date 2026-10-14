@@ -1,0 +1,422 @@
+{
+ "id": "WM-08",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-08-cafa249949",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Every so often when I put the washing machine on the whole kitchen power goes off and I have to go to the fuse box and flick the switch back up. It doesn't happen every time. Indesit, IWE 7 something."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nPlease don't keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again. This is most likely an intermittent electrical earth fault, not normal behaviour. Do not use the washing machine again until it has been checked by a qualified appliance engineer; repeatedly resetting the breaker is unsafe. If it trips later in a wash, the heater element is the usual suspect; if it trips immediately, the mains lead/plug, mains filter, wiring, pump or motor become more likely. With the machine switched off and unplugged, you can only safely look for obvious damage to the plug and lead, or signs of water around the machine—do not remove panels. Does it trip as soon as the machine is switched on/started, or only later in the wash (often around 10–30 minutes, when it begins heating)?"
+  },
+  {
+   "role": "customer",
+   "text": "Thanks, I've been keeping notes, so I can answer that. It only trips a few minutes into the wash, never as soon as I switch it on. It has only happened on the 40 and 60 degree washes. It has never happened on a cold wash, the quick 30, or rinse and spin. Over the last month it's been roughly 1 wash in 4.\n\nI should admit I have been resetting it each time and carrying on, as I didn't realise that was a problem. I haven't smelled any burning or seen any sparks, and the plug looks fine and isn't warm."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nPlease don't keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again. That pattern points very strongly to the heater element developing an intermittent earth fault: it occurs on the hotter programmes, a few minutes into the cycle when heating begins, and not on cold/rinse-and-spin cycles. The less likely alternatives are the heater wiring or its control circuit. Please leave the machine unplugged and arrange a qualified appliance engineer; they can insulation-test the heater and associated wiring with the appliance isolated, which will confirm it. Do not run further test washes or reset the breaker to continue a cycle."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1929,
+     "labelMs": 315,
+     "enrichMs": 0,
+     "reasonMs": 4295,
+     "verifyMs": 1686,
+     "replyLabelMs": 345,
+     "totalMs": 8574
+    },
+    "usage": {
+     "promptTokens": 3038,
+     "completionTokens": 336,
+     "totalTokens": 3374
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "supply_trip"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "electrician-or-engineer",
+     "reason": "supply_trip",
+     "forced": true
+    },
+    "status": "stage_1",
+    "candidates": [
+     "Heater element insulation fault to earth (high)",
+     "Damaged mains lead, plug, interference filter or internal wiring (medium)",
+     "Drain pump or motor electrical fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "supply_trip",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": "repeated_reset",
+       "confidence": 0.48
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.41
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.08
+      },
+      "model": {
+       "value": "IWE 7 something",
+       "confidence": 0.85
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Indesit",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Indesit",
+      "model": "IWE 7 something",
+      "codes": [],
+      "symptom": "Kitchen power intermittently trips when the washing machine is turned on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.9
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:tripping-electrics",
+       "washing-machine:odour",
+       "washing-machine:low-voltage"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a supply trip hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already given by the customer, never ask for it again: make Indesit; model IWE 7 SOMETHING.",
+     "The fault they reported is: \"Kitchen power intermittently trips when the washing machine is turned on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "They asked about something unsafe (repeated reset): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "IWE 7 SOMETHING",
+      "confidence": 0.85,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it trip as soon as the machine is switched on/started, or only later in the wash (often around 10–30 minutes, when it begins heating)?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": [
+      {
+       "type": "supply_trip",
+       "clause": "labelled: supply_trip",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 8732
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9270,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3042,
+     "labelMs": 286,
+     "enrichMs": 1,
+     "reasonMs": 4813,
+     "verifyMs": 8944,
+     "replyLabelMs": 293,
+     "totalMs": 17381
+    },
+    "usage": {
+     "promptTokens": 3660,
+     "completionTokens": 336,
+     "totalTokens": 3996
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "supply_trip"
+     ],
+     "gates": [
+      {
+       "gate": "unsafe-request",
+       "type": "repeated_reset"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "electrician-or-engineer",
+     "reason": "supply_trip",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Heater element leaking current to earth when heating (high)",
+     "Heater wiring or heating-control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "supply_trip",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": "repeated_reset",
+       "confidence": 0.89
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.73
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Intermittently trips a few minutes into 40°C or 60°C washes"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.67
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:tripping-electrics",
+       "washing-machine:heater",
+       "washing-machine:odour"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a supply trip hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: safety stop.",
+     "Checks they have done and what they found: Checked the plug - Looks fine and is not warm.",
+     "Already given by the customer, never ask for it again: make Indesit; model IWE 7 SOMETHING.",
+     "The fault they reported is: \"Kitchen power intermittently trips when the washing machine is turned on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "They asked about something unsafe (repeated reset): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "IWE 7 SOMETHING",
+      "confidence": 0.85,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Checked the plug: Looks fine and is not warm",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it trip as soon as the machine is switched on/started, or only later in the wash (often around 10–30 minutes, when it begins heating)?",
+       "turn": 1,
+       "resolution": "A few minutes into the wash, not immediately on switch-on"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "supply_trip",
+       "clause": "labelled: supply_trip",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 17426
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 17921,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0249038,
+ "finishedAt": "2026-10-14T09:00:57.026Z"
+}

@@ -1,0 +1,424 @@
+{
+ "id": "WD-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-06-caa2c932cb",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hoover washer drier showing EO3 wont drain, ive done the filter its clean. H3DS4965DACE. pump just buzzes. do i need a new pump??"
+  },
+  {
+   "role": "assistant",
+   "text": "A pump that buzzes but does not drain, with a clean filter, is most often either something jammed in the impeller/pump or a failed pump; a kinked or blocked drain hose can give the same result. Switch it off and unplug it, put towels and a shallow tray down, remove the filter, then use a torch to look through the opening and gently turn the small plastic impeller with a finger. If it is jammed or the vanes are damaged, the drain pump is the likely faulty component; if it turns freely, check the drain hose and its waste connection next before condemning the pump."
+  },
+  {
+   "role": "customer",
+   "text": "done that with power off. impeller spins totally freely, no resistance at all, feels like its not connected to anything. torch shows one fin looks snapped. drain hose is clear too, disconnected and checked"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drain pump (jammed or failed)]\nYes — on that evidence the drain pump is the likely failed part. A buzzing pump with a clear filter and drain hose, plus an impeller that spins freely with a snapped vane and feels disconnected, points to damage inside the pump rather than a remaining blockage. EO3 is consistent with a drain fault, although I cannot confirm that code specifically for this exact model. The pump will need replacing; it is not normally repairable internally. I could not confirm an exact parts match for H3DS4965DACE, so use the full model and product/serial number from the rating plate when checking Hoover spares, or book an appliance engineer to supply and fit it. Keep the machine unplugged and avoid running further cycles until it is repaired, as it will not be able to empty properly."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1624,
+     "labelMs": 290,
+     "enrichMs": 403,
+     "reasonMs": 3773,
+     "verifyMs": 6277,
+     "replyLabelMs": 358,
+     "totalMs": 12786
+    },
+    "usage": {
+     "promptTokens": 3125,
+     "completionTokens": 330,
+     "totalTokens": 3455
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Jammed or failed drain pump (high)",
+     "Blocked or kinked drain hose/waste connection (medium)",
+     "Obstruction in the sump hose (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "H3DS4965DACE",
+       "confidence": 1
+      },
+      "code": {
+       "value": "EO3",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Hoover",
+       "confidence": 0.94
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washer drier",
+      "brand": "Hoover",
+      "model": "H3DS4965DACE",
+      "codes": [
+       "EO3"
+      ],
+      "symptom": "Won't drain; pump just buzzes"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drain-pump",
+       "washer-dryer:not-draining",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [
+       {
+        "code": "EO3",
+        "status": "NOT_FOUND"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Do I need a new pump?\" - answer that first.",
+     "Checks they have done and what they found: Cleaned the filter - Filter is clean.",
+     "Already given by the customer, never ask for it again: make Hoover; model H3DS4965DACE; code EO3.",
+     "The fault they reported is: \"Won't drain; pump just buzzes\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hoover",
+      "confidence": 0.94,
+      "turn": 1
+     },
+     "model": {
+      "value": "H3DS4965DACE",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "EO3",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Cleaned the filter: Filter is clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12834
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 13439,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3506,
+     "labelMs": 312,
+     "enrichMs": 393,
+     "reasonMs": 3979,
+     "verifyMs": 8557,
+     "replyLabelMs": 344,
+     "totalMs": 18466
+    },
+    "usage": {
+     "promptTokens": 3668,
+     "completionTokens": 277,
+     "totalTokens": 3945
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump (jammed or failed)",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Failed drain pump / damaged impeller (high)",
+     "Pump wiring or control fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.42
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.63
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.55
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drain pump (jammed or failed)",
+       "confidence": 0.6
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "impeller spins freely with no resistance"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.78
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drain-pump",
+       "washer-dryer:leak-flood",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "EO3",
+        "status": "NOT_FOUND"
+       }
+      ],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\".",
+     "Checks they have done and what they found: Cleaned the filter - Filter is clean; Checked the impeller through the filter opening with a torch - It spins totally freely with no resistance; one fin looks snapped; Disconnected and checked the drain hose - Hose is clear.",
+     "Already given by the customer, never ask for it again: make Hoover; model H3DS4965DACE; code EO3.",
+     "The fault they reported is: \"Won't drain; pump just buzzes\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the drain pump (jammed or failed), but we could not find a confirmed match for model H3DS4965DACE. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hoover",
+      "confidence": 0.94,
+      "turn": 1
+     },
+     "model": {
+      "value": "H3DS4965DACE",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "EO3",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Cleaned the filter: Filter is clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked the impeller through the filter opening with a torch: It spins totally freely with no resistance; one fin looks snapped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Disconnected and checked the drain hose: Hose is clear",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 18527
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18902,
+   "retried": false,
+   "label": "Likely cause: drain pump (jammed or failed)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.018979799999999998,
+ "finishedAt": "2026-10-14T09:05:10.227Z"
+}
