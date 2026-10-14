@@ -1,0 +1,385 @@
+{
+ "id": "OC-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-05-6906d89b36",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Stoves gas cooker oven lights fine but as soon as I let go of the knob the flame goes out. Hob burners all fine. It's a Richmond something, freestanding. Is this a DIY job?"
+  },
+  {
+   "role": "assistant",
+   "text": "I can't help with taking apart or adjusting gas parts (valves, thermocouples, regulators or pipework) — that legally needs a Gas Safe registered engineer. This is a gas safety issue, so I cannot advise on internal repairs or part replacement. However, this symptom (flame lights but dies when you release the knob) is very commonly caused by the flame-failure device not getting hot enough because the burner cap is slightly misaligned, wet, or dirty from recent cleaning. Before calling an engineer, please ensure the oven is off and cool, then check that the burner cap sits perfectly flat and dry. If it looks correct but the problem persists, you will need a Gas Safe registered engineer to inspect the thermocouple and gas valve."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. I can't see anything out of place with the burner, and I've held the knob in for up to 30 seconds with no luck. There's also some burnt-on fat around the base of the burner. Is that worth cleaning, or should I just get an engineer?"
+  },
+  {
+   "role": "assistant",
+   "text": "First switch it off at the wall or cooker switch and let it cool completely. Yes, please clean it. Grease and fat can insulate the thermocouple (the safety probe), preventing it from getting hot enough to keep the gas valve open. Once cool, carefully remove any burnt-on residue from around the burner base and ensure the flame holes are clear. Because these involve sealed gas components, I cannot advise on their replacement; please call a Gas Safe registered engineer to fix it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1460,
+     "labelMs": 333,
+     "enrichMs": 0,
+     "reasonMs": 8483,
+     "verifyMs": 1495,
+     "replyLabelMs": 322,
+     "totalMs": 12143
+    },
+    "usage": {
+     "promptTokens": 3392,
+     "completionTokens": 320,
+     "totalTokens": 3712
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "unsafe-request",
+       "type": "gas_work"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Flame failure device (thermocouple) issue (high)",
+     "Dirty or misaligned burner cap (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "unsafeRequest": {
+       "value": "gas_work",
+       "confidence": 0.54
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.22
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Richmond",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "gas cooker",
+      "brand": "Richmond",
+      "model": null,
+      "codes": [],
+      "symptom": "oven flame goes out when knob is released"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.6
+     },
+     "checkGiven": "The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy after cleaning. Lift off the cap and crown, dry and c",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:ignition",
+       "oven-cooker:element",
+       "oven-cooker:thermostat"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is this a DIY job?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Richmond.",
+     "The fault they reported is: \"oven flame goes out when knob is released\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "They asked about something unsafe (gas work): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Richmond",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12202
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12432,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2281,
+     "labelMs": 271,
+     "enrichMs": 1,
+     "reasonMs": 7366,
+     "verifyMs": 2507,
+     "replyLabelMs": 330,
+     "totalMs": 12847
+    },
+    "usage": {
+     "promptTokens": 3615,
+     "completionTokens": 261,
+     "totalTokens": 3876
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "However, since you have already held the knob in for 30 seconds with no success, this is almost certainly a failing thermocouple or a faulty gas valve.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Faulty flame-failure device (thermocouple/probe) or gas valve (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.96
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.48
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "flame lights but dies when you release the knob"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.83
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:ignition",
+       "oven-cooker:element",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is that worth cleaning, or should I just get an engineer?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy after cleaning. Lift off the cap and crown, dry and c\".",
+     "Checks they have done and what they found: checked burner cap sits perfectly flat and dry - can't see anything out of place; held the knob in for up to 30 seconds - no luck.",
+     "Already given by the customer, never ask for it again: make Richmond.",
+     "The fault they reported is: \"oven flame goes out when knob is released\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Richmond",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked burner cap sits perfectly flat and dry: can't see anything out of place",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "held the knob in for up to 30 seconds: no luck",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12929
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13282,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.020517800000000003,
+ "finishedAt": "2026-10-14T01:23:10.982Z"
+}

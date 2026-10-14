@@ -1,0 +1,409 @@
+{
+ "id": "DW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-07-f2847ac8cf",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch SMS25AW00G, came back to E:09 on the display and the dishes are washed but stone cold. Is this an expensive fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "On your Bosch SMS25AW00G, E:09 indicates a flow-through heating element or heating circuit failure. This is typically not an expensive fix; it usually involves checking the heater assembly (often integrated with the circulation pump) or the temperature sensor, rather than the main control board. However, to be certain this isn't just a setting issue, I need to confirm if the machine is genuinely failing to heat water. Could you run an intensive or 65°C programme with a normal load and tell me if the dishes come out hot and steamy, or still cold?"
+  },
+  {
+   "role": "customer",
+   "text": "Both the hot programme and eco come out cold. Last three runs it's been the same, and the water felt cold to the touch mid-cycle too. Does that point to the heater?"
+  },
+  {
+   "role": "assistant",
+   "text": "The fact that the water was genuinely cold mid-cycle suggests a genuine heating failure rather than just poor drying. On your Bosch model, E:09 specifically points to the flow-through heating element or its circuit. Because this machine uses a flow-through heater integrated into the circulation pump assembly (rather than a separate exposed element at the bottom), the most likely cause is that the heater unit itself has failed. This is typically not an expensive fix; it involves checking the pump/heater assembly or, less commonly, checking the temperature sensor or wiring loom. I would recommend calling an engineer to check the flow-through heater/pump assembly."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1505,
+     "labelMs": 303,
+     "enrichMs": 351,
+     "reasonMs": 8129,
+     "verifyMs": 3912,
+     "replyLabelMs": 290,
+     "totalMs": 14524
+    },
+    "usage": {
+     "promptTokens": 2836,
+     "completionTokens": 335,
+     "totalTokens": 3171
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "replace-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Heating element / flow-through heater assembly failure (high)",
+     "NTC temperature sensor or wiring fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.87
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMS25AW00G",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:09",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMS25AW00G",
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes washed but stone cold"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.65
+     },
+     "checkGiven": "To check the heating, run an intensive or 65°C programme with a normal load. At the end, are the dishes hot and steamy, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:temperature-sensor",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is this an expensive fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Could you run an intensive or 65°C programme with a normal load and tell me if the dishes come out hot and steamy, or still cold?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14627
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14943,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1968,
+     "labelMs": 292,
+     "enrichMs": 0,
+     "reasonMs": 6400,
+     "verifyMs": 7501,
+     "replyLabelMs": 316,
+     "totalMs": 16539
+    },
+    "usage": {
+     "promptTokens": 3806,
+     "completionTokens": 354,
+     "totalTokens": 4160
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "replace-before-confirmed"
+      },
+      {
+       "gate": "replace-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Faulty flow-through heater assembly (integrated with circulation pump) (high)",
+     "Faulty NTC temperature sensor or its wiring (including door loom) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.87
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.59
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.85
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.26
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMS25AW00G",
+      "codes": [
+       "E:09"
+      ],
+      "symptom": "dishes come out cold, water felt cold to the touch mid-cycle"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:not-draining",
+       "dishwasher:poor-drying"
+      ],
+      "codes": [
+       {
+        "code": "E:09",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"To check the heating, run an intensive or 65°C programme with a normal load. At the end, are the dishes hot and steamy, or still cold?\" (no result reported yet).",
+     "They have not reported the result of: \"To check the heating, run an intensive or 65°C programme with a normal load. At the end, are the dishes hot and steamy, or still cold?\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMS25AW00G; code E:09.",
+     "The fault they reported is: \"dishes washed but stone cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMS25AW00G",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:09",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Could you run an intensive or 65°C programme with a normal load and tell me if the dishes come out hot and steamy, or still cold?",
+       "turn": 1,
+       "resolution": "Both programmes come out cold"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16590
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 16856,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0176398,
+ "finishedAt": "2026-10-14T01:06:37.902Z"
+}

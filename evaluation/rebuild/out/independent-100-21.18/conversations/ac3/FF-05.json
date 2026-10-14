@@ -1,0 +1,437 @@
+{
+ "id": "FF-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ff-05-b23fb25b1b",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My fridge freezer has been making a funny smell in the kitchen the last couple of days, I've cleaned it out but it's still there. Any ideas?"
+  },
+  {
+   "role": "assistant",
+   "text": "A funny smell usually comes from two very different places: either a small amount of food has dripped into a hidden drain or drip tray and is spoiling, or there is an electrical fault causing a burning smell. To separate these safely, please tell me if the odour smells like rotting food or more acrid/burning like hot plastic? If it’s burning, stop using it immediately and unplug it.\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer."
+  },
+  {
+   "role": "customer",
+   "text": "It's not like rotten food, it's more like hot plastic, an electrical sort of smell. It seems stronger round the back and side of the fridge than inside it. The plug also feels a bit warm, and I sometimes hear a buzzing from the back."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. The plug is warm, and there is buzzing from the back, this is an active electrical safety hazard. You must stop using the fridge-freezer immediately and leave it unplugged. Do not attempt to reset it or use it again until a qualified engineer has inspected the mains lead, plug, compressor start relay/overload, and internal wiring. These are live electrical components that require specialist testing and repair."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1531,
+     "labelMs": 289,
+     "enrichMs": 0,
+     "reasonMs": 4838,
+     "verifyMs": 348,
+     "replyLabelMs": 685,
+     "totalMs": 7733
+    },
+    "usage": {
+     "promptTokens": 3289,
+     "completionTokens": 260,
+     "totalTokens": 3549
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Spoilt food trapped in a drain or drip tray (high)",
+     "Electrical fault (burning smell) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "funny smell in the kitchen"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.81
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:defrost-system"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any ideas?\" - answer that first.",
+     "Checks they have done and what they found: cleaned it out - smell is still there.",
+     "The fault they reported is: \"funny smell in the kitchen\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned it out: smell is still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To separate these safely, please tell me if the odour smells like rotting food or more acrid/burning like hot plastic?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7863
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8182,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 4857,
+     "labelMs": 377,
+     "enrichMs": 0,
+     "reasonMs": 4709,
+     "verifyMs": 3023,
+     "replyLabelMs": 308,
+     "totalMs": 13276
+    },
+    "usage": {
+     "promptTokens": 3959,
+     "completionTokens": 230,
+     "totalTokens": 4189
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the smell is of hot plastic and electrical burning",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Electrical fault (mains lead, plug, compressor start relay/overload, or internal wiring) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "fridge",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "smell of hot plastic/electrical, warm plug, buzzing from the back"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:defrost-system"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "Checks they have done and what they found: cleaned it out - smell is still there; checked odour type - smells like hot plastic, not rotten food; checked odour location - stronger round the back and side than inside; checked plug temperature - plug feels a bit warm; listened for noises - sometimes hear buzzing from the back.",
+     "The fault they reported is: \"funny smell in the kitchen\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned it out: smell is still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked odour type: smells like hot plastic, not rotten food",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked odour location: stronger round the back and side than inside",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "checked plug temperature: plug feels a bit warm",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "listened for noises: sometimes hear buzzing from the back",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To separate these safely, please tell me if the odour smells like rotting food or more acrid/burning like hot plastic?",
+       "turn": 1,
+       "resolution": "hot plastic/electrical smell"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 13324
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13722,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0203058,
+ "finishedAt": "2026-10-14T01:12:50.548Z"
+}

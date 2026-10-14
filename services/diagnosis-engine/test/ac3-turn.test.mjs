@@ -506,16 +506,23 @@ describe('Phase 1 of the improvement plan (change 21.18)', () => {
     expect(Object.values(req.questions.check.criteria)).toContain('Clean the pump filter behind the small flap at the bottom front');
   });
   it('D2: a hazard the customer denies is cleared, stops forcing escalation, and comes back if reported again', async () => {
-    const t1 = await runTurn({ messages: [user('my tumble dryer smells of burning')] }, deps(qwen({ reading: { appliance: 'tumble dryer' } }), jev({ appliance: 'tumble-dryer' })));
-    expect(t1.response.escalation).toMatchObject({ reason: 'burning', forced: true });
-    const h1 = [user('my tumble dryer smells of burning'), bot(t1.response.message)];
-    const t2 = await runTurn({ messages: [...h1, user('sorry, there is no burning smell, it was the iron. it just isnt drying')], state: t1.state }, deps(qwen(), jev()));
-    expect(t2.state.hazards.find((h) => h.type === 'burning')).toMatchObject({ cleared: true });
+    const t1 = await runTurn({ messages: [user('my washing machine leaked and the water is near the plug socket')] }, deps(qwen({ reading: { appliance: 'washing machine' } }), jev({ appliance: 'washing-machine' })));
+    expect(t1.response.escalation).toMatchObject({ reason: 'electrical_water', forced: true });
+    const h1 = [user('my washing machine leaked and the water is near the plug socket'), bot(t1.response.message)];
+    const t2 = await runTurn({ messages: [...h1, user('sorry, the water is nowhere near the plug, its by the door. it just leaks')], state: t1.state }, deps(qwen(), jev()));
+    expect(t2.state.hazards.find((h) => h.type === 'electrical_water')).toMatchObject({ cleared: true });
     expect(t2.response.escalation).toBeNull();
-    expect(t2.audit.safety.cleared).toEqual(['burning']);
-    const t3 = await runTurn({ messages: [...h1, user('sorry, there is no burning smell, it was the iron. it just isnt drying'), bot(t2.response.message), user('now it really does smell of burning plastic')], state: t2.state }, deps(qwen(), jev()));
-    expect(t3.state.hazards.find((h) => h.type === 'burning').cleared).toBe(false);
-    expect(t3.response.message).toContain(S.copyFor('burning'));
+    expect(t2.audit.safety.cleared).toEqual(['electrical_water']);
+    const t3 = await runTurn({ messages: [...h1, user('sorry, the water is nowhere near the plug, its by the door. it just leaks'), bot(t2.response.message), user('now theres water around the plug socket too')], state: t2.state }, deps(qwen(), jev()));
+    expect(t3.state.hazards.find((h) => h.type === 'electrical_water').cleared).toBe(false);
+    expect(t3.response.message).toContain(S.copyFor('electrical_water'));
+  });
+  it('burning smell: owner checks with it unplugged are part of the plan, and it is not a forced escalation (the cases\' safety boundaries)', async () => {
+    const out = await runTurn({ messages: [user('my tumble dryer smells of burning')] }, deps(qwen({ reading: { appliance: 'tumble dryer' } }), jev({ appliance: 'tumble-dryer', hazard: 'burning' })));
+    const plan = out.audit.plan.join(' ');
+    expect(plan).toMatch(/Give the owner checks that are safe with it unplugged and cool/);
+    expect(plan).toMatch(/must not be used again until a qualified engineer has checked it; and for a dryer, have an engineer check it before drying again/);
+    expect(out.response.escalation).toBeNull();
   });
   it('D3: the gas emergency wording is given once; the next turn answers under it instead of repeating the card', async () => {
     const t1 = await runTurn({ messages: [user('i can smell gas from the hob')] }, deps(qwen(), jev()));

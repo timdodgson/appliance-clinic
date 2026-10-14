@@ -1,0 +1,391 @@
+{
+ "id": "MW-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-03-eb89453a43",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "panasonic nn h98 not heating anymore, any fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "On your Panasonic NN-H98, no heat usually points to either a settings issue (like being on 'defrost' or low power) or a fault in the high-voltage heating circuit. Because microwaves contain dangerous voltages even when unplugged, I cannot advise you to open it up; however, we can quickly rule out simple causes. Please check if it was set to full power and let me know if a cup of water heated up during that one-minute test.\n[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer."
+  },
+  {
+   "role": "customer",
+   "text": "h98 is what the screen says when it stops, the model on the back is NN-CD87KSBPQ. did a cup of water, stops after 10-15 secs with h98 and the water's still cold"
+  },
+  {
+   "role": "assistant",
+   "text": "The H98 code suggests a fault in the high-voltage power circuit. Because these are internal high-voltage components that require specialist testing and carry a risk of lethal shock even when unplugged, this cannot be safely fixed at home. You will need to contact an engineer or Panasonic support for a repair.\n[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1452,
+     "labelMs": 291,
+     "enrichMs": 0,
+     "reasonMs": 8242,
+     "verifyMs": 504,
+     "replyLabelMs": 297,
+     "totalMs": 10842
+    },
+    "usage": {
+     "promptTokens": 2339,
+     "completionTokens": 321,
+     "totalTokens": 2660
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Incorrect power setting or mode selected (medium)",
+     "High-voltage heating circuit fault (magnetron, HV diode, capacitor or inverter board) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.94
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN-H98",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Panasonic",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "Panasonic",
+      "model": "NN-H98",
+      "codes": [],
+      "symptom": "not heating"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": "Heat a cup of water for a minute on full power. Is the water hot now, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:not-heating",
+       "microwave:grill-not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Panasonic; model NN-H98.",
+     "The fault they reported is: \"not heating\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.94,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-H98",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10890
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11234,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3685,
+     "labelMs": 311,
+     "enrichMs": 415,
+     "reasonMs": 7774,
+     "verifyMs": 2200,
+     "replyLabelMs": 303,
+     "totalMs": 14735
+    },
+    "usage": {
+     "promptTokens": 3393,
+     "completionTokens": 293,
+     "totalTokens": 3686
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "it runs for 10–15 seconds then stops with no heat",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "HV Inverter Board fault (high)",
+     "Magnetron failure (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.54
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN-CD87KSBPQ",
+       "confidence": 1
+      },
+      "code": {
+       "value": "h98",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Panasonic",
+       "confidence": 0.76
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "Panasonic",
+      "model": "NN-CD87KSBPQ",
+      "codes": [
+       "h98"
+      ],
+      "symptom": "stops after 10-15 secs with h98 and the water's still cold"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:not-heating",
+       "microwave:cutting-out",
+       "microwave:main-pcb"
+      ],
+      "codes": [
+       {
+        "code": "H98",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Heat a cup of water for a minute on full power. Is the water hot now, or still cold?\".",
+     "Checks they have done and what they found: heated a cup of water for one minute - stops after 10-15 secs with h98 and the water's still cold.",
+     "Already given by the customer, never ask for it again: make Panasonic; model NN-CD87KSBPQ; code H98.",
+     "The fault they reported is: \"not heating\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-CD87KSBPQ",
+      "confidence": 1,
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "H98",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "heated a cup of water for one minute: stops after 10-15 secs with h98 and the water's still cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14853
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15181,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.018499799999999997,
+ "finishedAt": "2026-10-14T01:18:32.043Z"
+}

@@ -1,0 +1,637 @@
+{
+ "id": "VC-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-10-3fa6401b89",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Dyson (one of the V ones, purple bits) keeps cutting out after about 5-10 seconds. Not every time - some days it does a whole room fine. It's maybe 5 years old. Already cleaned the filter and checked for blockages. Battery or something else?"
+  },
+  {
+   "role": "assistant",
+   "text": "It could be the battery, but given your filters are clean and blockages checked, we need to distinguish between a power issue and an airflow protection issue. If the vacuum cuts out after just 5-10 seconds even when fully charged on normal mode (not Boost), it is likely the battery has lost its capacity or the protection circuit is triggering due to age. However, if the charging light never comes on, the charger or contacts might be at fault. Does the charging light come on when you plug it in?"
+  },
+  {
+   "role": "customer",
+   "text": "Yes, the charger light comes on and the plug goes in properly. It shows full blue lights when charged. It's mostly worse on Max, and no burning smell or anything like that."
+  },
+  {
+   "role": "assistant",
+   "text": "Since it cuts out so quickly even when charged, we need to see if this happens on all settings or just high power. Boost/Max mode drains a five-year-old battery very fast, which can look like a fault but is often normal behaviour under load. Please try running it on the standard (normal) setting for a full room and tell me how long it lasts before cutting out."
+  },
+  {
+   "role": "customer",
+   "text": "On normal it's better, sometimes it does a whole room, but it still cuts out now and then. It's more likely to stop when the battery's partly used rather than straight off the charger. The battery isn't swollen or hot, by the way."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: battery — flat or failed (cordless)]\nAt five years old, the cells will have lost capacity and can no longer sustain the voltage required for consistent operation. This is a known wear-out pattern for cordless vacuums of this age. You would need to replace the battery pack; as I cannot confirm the exact part compatibility for 'V ONES', please check Dyson’s official support site or contact their customer service for the correct replacement unit."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2252,
+     "labelMs": 277,
+     "enrichMs": 0,
+     "reasonMs": 7422,
+     "verifyMs": 1998,
+     "replyLabelMs": 297,
+     "totalMs": 12302
+    },
+    "usage": {
+     "promptTokens": 2540,
+     "completionTokens": 293,
+     "totalTokens": 2833
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Battery protection or degraded battery (high)",
+     "Thermal cut-out due to residual blockage or damp filter (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.07
+      },
+      "model": {
+       "value": "V ones",
+       "confidence": 0.84
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Dyson",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": "Dyson",
+      "model": "V ones",
+      "codes": [],
+      "symptom": "keeps cutting out after about 5-10 seconds"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.53
+     },
+     "checkGiven": "Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Battery or something else?\" - answer that first.",
+     "Checks they have done and what they found: cleaned the filter - done; checked for blockages - done.",
+     "Already given by the customer, never ask for it again: make Dyson; model V ONES.",
+     "The fault they reported is: \"keeps cutting out after about 5-10 seconds\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V ONES",
+      "confidence": 0.84,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the charging light come on when you plug it in?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12353
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12595,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2144,
+     "labelMs": 276,
+     "enrichMs": 0,
+     "reasonMs": 9005,
+     "verifyMs": 2539,
+     "replyLabelMs": 315,
+     "totalMs": 14331
+    },
+    "usage": {
+     "promptTokens": 3382,
+     "completionTokens": 328,
+     "totalTokens": 3710
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Thanks for confirming the charging light is fine.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Battery degradation / protection circuit (high)",
+     "Thermal cut-out tripping due to internal restriction or motor wear (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.89
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "cuts out after 5-10 seconds on normal mode, worse on Max"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.83
+     },
+     "checkGiven": "Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out",
+       "vacuum:wont-run"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?\" (no result reported yet).",
+     "They have not reported the result of: \"Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?\". Never say or imply they did it or what it showed.",
+     "Checks they have done and what they found: cleaned the filter - done; checked for blockages - done.",
+     "Already given by the customer, never ask for it again: make Dyson; model V ONES.",
+     "The fault they reported is: \"keeps cutting out after about 5-10 seconds\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V ONES",
+      "confidence": 0.84,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the charging light come on when you plug it in?",
+       "turn": 1,
+       "resolution": "charging light comes on and shows full blue lights when charged"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14376
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14601,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2408,
+     "labelMs": 298,
+     "enrichMs": 0,
+     "reasonMs": 5773,
+     "verifyMs": 2958,
+     "replyLabelMs": 298,
+     "totalMs": 12352
+    },
+    "usage": {
+     "promptTokens": 3682,
+     "completionTokens": 242,
+     "totalTokens": 3924
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since the vacuum runs fine on normal mode sometimes but cuts out when the charge drops or under higher demand (Max), and you have already cleared filters and blockages, this points to a worn battery.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "battery — flat or failed (cordless)",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Worn battery losing capacity under load (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.94
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 0.65
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "battery — flat or failed (cordless)",
+       "confidence": 0.54
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "cuts out now and then, more likely to stop when battery is partly used rather than straight off charger"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.67
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out",
+       "vacuum:wont-run"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?\"; turn 2: gives check, suggested the check \"Charge it fully and use it on the normal mode. Is it running for its normal time now, or still short?\".",
+     "Checks they have done and what they found: cleaned the filter - done; checked for blockages - done; ran on standard (normal) setting - better, sometimes does a whole room.",
+     "Already given by the customer, never ask for it again: make Dyson; model V ONES.",
+     "The fault they reported is: \"keeps cutting out after about 5-10 seconds\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the battery — flat or failed (cordless), but we could not find a confirmed match for model V ONES. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V ONES",
+      "confidence": 0.84,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked for blockages: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "ran on standard (normal) setting: better, sometimes does a whole room",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the charging light come on when you plug it in?",
+       "turn": 1,
+       "resolution": "charging light comes on and shows full blue lights when charged"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12415
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 12823,
+   "retried": false,
+   "label": "Likely cause: battery — flat or failed (cordless)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0344237,
+ "finishedAt": "2026-10-14T01:34:53.753Z"
+}
