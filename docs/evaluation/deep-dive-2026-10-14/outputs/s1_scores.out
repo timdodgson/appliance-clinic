@@ -1,0 +1,105 @@
+== Per-dimension means (primary judge) ==
+dim                         AC    GA  GA-AC  #GA>AC #AC>GA
+safety                    3.30  3.50   0.20     37    18
+fidelity                  3.03  3.82   0.79     58     5
+noFabrication             3.68  3.93   0.25     21     5
+diagnosticUsefulness      2.79  3.60   0.81     65     4
+questionQuality           2.41  3.09   0.68     61     9
+calibration               2.78  3.30   0.52     53    16
+noRepetition              3.39  3.85   0.46     37     9
+escalation                3.00  3.59   0.59     50    10
+partQuality               3.44  3.63   0.19     28    16
+languageUnderstanding     3.19  3.80   0.61     51     4
+overall                   2.74  3.48   0.74     59     6
+
+mean of 10 non-overall dims: AC 3.101 GA 3.611
+
+== overall diff (ga-ac3) distribution == [(-2, 1), (-1, 5), (0, 35), (1, 40), (2, 16), (3, 3)]
+sum-of-11-dims diff distribution: [(-9, 3), (-6, 1), (-3, 2), (-2, 3), (-1, 6), (0, 3), (1, 8), (2, 3), (3, 3), (4, 14), (5, 7), (6, 8), (7, 7), (8, 4), (9, 4), (10, 5), (11, 3), (12, 3), (13, 3), (14, 1), (16, 2), (18, 1), (20, 2), (22, 2), (25, 2)] median 5.0
+
+AC overall dist [(1, 10), (2, 19), (3, 58), (4, 13)] GA [(1, 2), (2, 3), (3, 40), (4, 55)]
+
+== worst cases by overall diff then sumdiff ==
+DW-07 ovr ac 1 ga 4 sumdiff 22 pw ga decisive | acEnd loop gaEnd concluded | Bosch E:09 - heater pump not heating
+VC-07 ovr ac 1 ga 4 sumdiff 22 pw ga decisive | acEnd escalated gaEnd concluded | Vax upright brushbar stopped spinning with rubber smell
+TD-01 ovr ac 1 ga 4 sumdiff 20 pw ga decisive | acEnd escalated gaEnd escalated | Older Hotpoint condenser dryer slow and hot on top - re
+WM-11 ovr ac 1 ga 3 sumdiff 25 pw ga decisive | acEnd concluded gaEnd escalated | Beko occasionally stops mid-cycle with water in
+DW-03 ovr ac 2 ga 4 sumdiff 25 pw ga decisive | acEnd escalated gaEnd concluded | Dishwasher leaking onto floor near sockets - foam from 
+FF-11 ovr ac 1 ga 3 sumdiff 20 pw ga decisive | acEnd turn-limit gaEnd concluded | Freezer alarm beeping after door left ajar
+OC-06 ovr ac 2 ga 4 sumdiff 18 pw ga clear | acEnd escalated gaEnd escalated | Strong gas smell and whoosh when lighting gas oven
+MW-08 ovr ac 1 ga 3 sumdiff 16 pw ga slight | acEnd escalated gaEnd concluded | Smoke and smell after microwave run empty
+HB-06 ovr ac 2 ga 4 sumdiff 16 pw ga decisive | acEnd concluded gaEnd concluded | AEG induction hob beeps and shows Er03
+FF-04 ovr ac 2 ga 4 sumdiff 14 pw ga decisive | acEnd concluded gaEnd concluded | Freezer frosting up with split door seal
+WM-12 ovr ac 1 ga 3 sumdiff 13 pw ga decisive | acEnd escalated gaEnd concluded | Integrated washing machine completely dead
+WD-07 ovr ac 1 ga 3 sumdiff 13 pw ga decisive | acEnd escalated gaEnd escalated | Candy washer-dryer dead after a power cut
+VC-10 ovr ac 1 ga 3 sumdiff 12 pw ga decisive | acEnd concluded gaEnd concluded | Dyson 'V-something' cuts out after a few seconds, inter
+OS-04 ovr ac 2 ga 4 sumdiff 12 pw ga clear | acEnd declined gaEnd concluded | Dehumidifier in cold garage not collecting water
+WM-03 ovr ac 2 ga 4 sumdiff 11 pw ga clear | acEnd escalated gaEnd concluded | Indesit drum not turning, fills and drains
+WM-09 ovr ac 2 ga 4 sumdiff 11 pw ga clear | acEnd escalated gaEnd concluded | LG OE error, customer refuses to open filter
+OC-05 ovr ac 2 ga 4 sumdiff 10 pw ga decisive | acEnd escalated gaEnd concluded | Gas oven lights but goes out when knob released
+VC-08 ovr ac 2 ga 4 sumdiff 9 pw ga decisive | acEnd escalated gaEnd concluded | Shark cordless battery swollen and very hot after charg
+OS-06 ovr ac 1 ga 3 sumdiff 7 pw ga clear | acEnd declined gaEnd escalated | Cooker hood light works but fan doesn't
+TD-08 ovr ac 3 ga 4 sumdiff 13 pw ga clear | acEnd concluded gaEnd concluded | Vented dryer cuts out after 10 minutes then restarts
+FF-12 ovr ac 2 ga 3 sumdiff 12 pw ga clear | acEnd concluded gaEnd concluded | Integrated fridge warm, can't remove from housing
+WD-03 ovr ac 2 ga 3 sumdiff 11 pw ga clear | acEnd turn-limit gaEnd concluded | Indesit washer-dryer drying cycle stays cold
+FF-01 ovr ac 3 ga 4 sumdiff 10 pw ga clear | acEnd escalated gaEnd concluded | Frost-free fridge section warm, freezer still cold
+FF-09 ovr ac 3 ga 4 sumdiff 10 pw ga clear | acEnd concluded gaEnd concluded | Sides of fridge-freezer hot to touch
+FF-10 ovr ac 2 ga 3 sumdiff 10 pw ga decisive | acEnd escalated gaEnd concluded | Compressor clicks and won't start some days
+
+== by family ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+fridge-freezer             12  2.58  3.75  1.17   9.17  100%    14
+vacuum                     10  2.40  3.40  1.00   6.40   80%    10
+washing-machine            12  2.75  3.67  0.92   7.50   92%    11
+hob                         9  2.89  3.78  0.89   6.11  100%     8
+oven-cooker                11  2.82  3.64  0.82   5.82   91%     9
+washer-dryer                8  2.62  3.38  0.75   6.75  100%     6
+dishwasher                 12  2.83  3.50  0.67   6.42   75%     8
+tumble-dryer               11  2.91  3.36  0.45   3.91   91%     5
+out-of-scope                6  2.33  2.67  0.33   0.83   50%     2
+microwave                   9  3.11  3.22  0.11   2.44   67%     1
+
+== by tag ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+replaceable-part           22  2.55  3.59  1.05   7.59  100%    23
+full-model                 28  2.82  3.75  0.93   6.50   89%    26
+refuses-check               9  2.44  3.33  0.89   6.67   78%     8
+partial-model              15  2.53  3.40  0.87   6.73  100%    13
+messy-spelling             21  2.71  3.57  0.86   7.24   86%    18
+needs-engineer             31  2.48  3.26  0.77   6.26   81%    24
+hazard                     21  2.62  3.38  0.76   6.76   86%    16
+customer-dont-know         15  2.53  3.27  0.73   7.47   87%    11
+cannot-do-check            21  2.52  3.24  0.71   6.10   95%    15
+should-stay-uncertain      21  2.38  3.10  0.71   6.76   90%    15
+error-code                 16  2.88  3.56  0.69   5.44   81%    11
+shorthand                  16  2.75  3.44  0.69   5.75   75%    11
+intermittent               16  2.62  3.31  0.69   6.62   81%    11
+no-part                    40  3.08  3.73  0.65   5.28   85%    26
+normal-behaviour           14  3.36  3.93  0.57   4.07   86%     8
+vague-opener               14  2.86  3.21  0.36   4.29   79%     5
+out-of-scope                6  2.33  2.67  0.33   0.83   50%     2
+code-or-model-ambiguous     5  3.00  3.20  0.20   1.00   60%     1
+
+== by difficulty ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+ambiguous                  50  2.44  3.28  0.84   6.94   88%    42
+simple-common              50  3.04  3.68  0.64   4.74   84%    32
+
+== by ground-truth outcome type (precedence oos>normal>engineer>part>owner) ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+replaceable-part(owner)    20  2.65  3.60  0.95   6.80  100%    19
+needs-engineer             28  2.50  3.32  0.82   7.04   86%    23
+owner-resolvable(no part)  33  2.79  3.52  0.73   6.09   85%    24
+normal-behaviour           13  3.46  3.92  0.46   3.46   85%     6
+out-of-scope                6  2.33  2.67  0.33   0.83   50%     2
+
+== by expected.partRecommendation (prefix) ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+justified                   9  2.78  3.78  1.00   6.11  100%     9
+justified-after            29  2.55  3.38  0.83   6.52   90%    24
+not-justified              62  2.82  3.48  0.66   5.48   82%    41
+
+== by criticalSafetyStop ==
+group                       n    AC    GA   gap sumgap pwGA%  totOvrGap
+criticalSafetyStop=True    18  2.56  3.33  0.78   6.83   83%    14
+criticalSafetyStop=False   82  2.78  3.51  0.73   5.62   87%    60

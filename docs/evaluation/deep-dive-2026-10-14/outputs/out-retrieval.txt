@@ -1,0 +1,38 @@
+
+== 3. RETRIEVAL (live retrieve() on case text; gold-kb cases only) ==
+A opener, appliance given: top1 49/88 (55.7%)  top3 73/88 (83.0%)  empty 2
+  misses A:
+   WM-02[none]
+   WM-03[washing-machine:inlet-valve,washing-machine:odour,washing-machine:pressure-switch]
+   WM-04[washing-machine:motor-drum,washing-machine:foam-suds,washing-machine:not-draining]
+   WM-07[washing-machine:heater,washing-machine:door-lock,washing-machine:low-voltage]
+   WD-08[washer-dryer:drying-heater,washer-dryer:drying-poor,washer-dryer:tripping-electrics]
+   TD-11[tumble-dryer:fan,tumble-dryer:not-heating,tumble-dryer:overheating]
+   DW-02[dishwasher:not-draining,dishwasher:leak-flood,dishwasher:pressure-switch]
+   DW-10[dishwasher:heating,dishwasher:conductivity-sensor,dishwasher:poor-clean-results]
+   FF-04[fridge-freezer:defrost-system,fridge-freezer:tripping-electrics,fridge-freezer:drainage-blocked]
+   OC-01[oven-cooker:fan-motor,oven-cooker:tripping-electrics,oven-cooker:thermostat]
+   OC-04[oven-cooker:temperature-probe,oven-cooker:element,oven-cooker:ignition]
+   HB-06[hobs:tripping-electrics,hobs:overheating,hobs:cookware-user]
+   VC-06[none]
+   VC-08[vacuum:cuts-out]
+   VC-09[vacuum:brush-bar]
+B opener, no appliance (applianceHints): top1 37/88 (42.0%)  top3 63/88 (71.6%)  empty 1
+C opener+symptom+codes+sounds+whatDoesNotWork, appliance given: top1 52/88 (59.1%)  top3 80/88 (90.9%)  empty 0
+normalNotes() on opener (appliance given): 7/13 (53.8%); misses: WM-02[none] TD-10[none] FF-09[ff-new-settle] MW-05[none] OC-01[none] VC-02[none]
+Score detail for misses (variant A): query terms matching the gold note vs the winners
+  WM-02 opener="w/m wont spinn pls help" gold-overlap=washing-machine:unbalanced-load:0
+  WM-03 opener="My indesit washing machine fills with water and drains but the drum just doesn't go round " gold-overlap=washing-machine:motor-drum:washing/fills/drum/all washing-machine:tacho:drum washing-machine:motor-triac:0
+  WM-04 opener="Samsung WW90T534DAW keeps coming up with 4C after a couple of minutes. Drum is dry. Any id" gold-overlap=washing-machine:inlet-valve:keeps/coming washing-machine:flow-meter:0
+  WM-07 opener="I've just bought an AEG L7FEE865R and the Eco 40-60 wash says 3:39 and seems to take forev" gold-overlap=washing-machine:cycle-not-progressing:forever
+  WD-08 opener="my samsung washer dryer is making evrything smell damp/musty even after its washed, its gr" gold-overlap=washing-machine:odour:smell/damp/musty/after
+  TD-11 opener="tumble dryer not working" gold-overlap=tumble-dryer:door:dryer
+  DW-02 opener="My Samsung dishwasher DW60M6050FS keeps showing 4C and beeping, won't do anything" gold-overlap=dishwasher:fill:0
+  DW-10 opener="dishwasher wont come on" gold-overlap=dishwasher:low-voltage:0 dishwasher:main-pcb:0 dishwasher:door:0
+  FF-04 opener="f/f freezer keeps icing up bottom drawer wont shut proper, defrosted it 2wks ago already f" gold-overlap=fridge-freezer:door-seal:icing
+  OC-01 opener="my oven fan keeps going after ive turned the oven off, been about 20 mins now. is it broke" gold-overlap=oven-cooker:cooling-fan:oven/fan/after
+  OC-04 opener="Bosch HBS534BS0B oven displaying E011 and won't let me do anything. Beeping. Help!" gold-overlap=oven-cooker:control-panel:0
+  HB-06 opener="AEG IKB64301FB induction hob keeps beeping and showing Er03 then switches off. Pan of past" gold-overlap=hobs:touch-control:0
+  VC-06 opener="roomba e5 wont charge properly, sometimes it does sometimes it doesnt" gold-overlap=vacuum:wont-run:0
+  VC-08 opener="My Shark cordless battery got really hot on charge last night and this morning it looks pu" gold-overlap=vacuum:wont-run:0
+  VC-09 opener="my hoover's stopped working" gold-overlap=vacuum:wont-run:0

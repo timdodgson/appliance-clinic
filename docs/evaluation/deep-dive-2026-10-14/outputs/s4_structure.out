@@ -1,0 +1,32 @@
+== per reply (heuristic text metrics) ==
+metric                              AC med AC mean  GA med GA mean
+words (AC body excl. [panels])       100.5  101.83   336.0  321.44
+question marks / reply                 0.0    0.50     0.0    0.48
+checks offered (max(list items, im     0.0    0.80     9.5    9.36
+list items                             0.0    0.18     9.0    9.15
+markdown headings                      0.0    0.00     2.0    1.83
+AC bracket panels                      0.0    0.34     0.0    0.00
+% replies with causal explanation       43%              44%
+% replies with canned stop card         11%               0%
+% replies with part panel/card          15%               0%
+replies: AC 302 GA 258
+
+first reply only: words AC med 113 GA med 388 ; checks AC med 1.0 GA med 11.0; q AC med 1.0 GA med 0.0
+final reply: words AC med 86 GA med 297; cause-explained AC 38% GA 33%
+total assistant words per conversation: AC med 286 GA med 775
+AC replies with 0 q: 60%, 1 q: 29%, >=2 q: 9%
+GA replies with 0 q: 72%, 1 q: 17%, >=2 q: 10%
+
+AC conversations with a part panel/card: 34 of 100; in no-part/not-justified cases: 19 of 63
+AC conversations with canned stop card: 19; with the same stop card in >=2 replies: 11
+
+AC Spearman vs overall: meanWords/reply -0.04, finalReplyWords -0.01, totalWords -0.22, meanChecks -0.07, causeShare +0.13; meanWords vs diagnosticUsefulness +0.02
+  AC words/reply quartile 1: words  28- 85  mean overall 2.68  GA-AC gap 0.56  pwGA 19/25
+  AC words/reply quartile 2: words  86-100  mean overall 2.92  GA-AC gap 0.72  pwGA 22/25
+  AC words/reply quartile 3: words 100-116  mean overall 2.72  GA-AC gap 0.88  pwGA 22/25
+  AC words/reply quartile 4: words 116-214  mean overall 2.64  GA-AC gap 0.80  pwGA 23/25
+
+GA Spearman vs overall: meanWords/reply -0.09, finalReplyWords -0.01, totalWords -0.29, meanChecks -0.10, causeShare -0.11; meanWords vs diagnosticUsefulness -0.02
+
+AC excl hazard/out-of-scope (n=74): Spearman meanWords -0.13 finalWords -0.08
+GA/AC words-per-reply ratio: median 3.2x; AC longer than GA in 0 cases (AC won 0 of them)

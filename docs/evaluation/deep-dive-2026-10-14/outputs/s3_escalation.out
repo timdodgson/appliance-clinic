@@ -1,0 +1,29 @@
+AC escalated: 42
+verdict       n  AC ovr  GA ovr   gap sumGap  ACesc  GAesc  GA ended escalated  cases
+REQUIRED     22    2.64    3.18    12    5.1   3.09   3.50  11/22  WM-08 WD-01 WD-07 TD-02 DW-04 DW-09 FF-06 FF-10 MW-02 MW-03 MW-06 MW-08 MW-09 OC-03 OC-06 OC-07 HB-03 HB-05 HB-07 HB-08 VC-05 VC-08
+COND_MET      5    3.00    3.40     2    5.0   3.20   3.20   0/5  WM-06 TD-06 DW-08 FF-01 HB-09
+WRONG_ROUTE   4    2.25    3.75     6   10.0   2.25   4.00   3/4  TD-01 FF-05 OC-05 VC-09
+PREMATURE     4    2.25    3.25     4    6.2   2.50   3.50   1/4  WM-09 TD-09 DW-10 OC-10
+UNNECESSARY   7    2.14    3.71    11   12.6   2.00   3.71   0/7  WM-03 WM-12 DW-03 MW-01 OC-09 VC-07 OS-02
+
+unjustified (PREMATURE+UNNECESSARY): 11 of 42; overall gap sum 15; mean AC 2.18 vs GA 3.55
+GA outcomes on those: Counter({'resolved': 7, 'partial': 2, 'useful-safe-escalation': 2}) GA endReason: Counter({'concluded': 10, 'escalated': 1})
+
+needs-engineer tagged: 31; AC escalated 22, GA escalated 16
+needs-engineer but AC not escalated: [('WM-10', 'concluded', 3, 4), ('WM-11', 'concluded', 1, 3), ('TD-07', 'concluded', 2, 2), ('DW-07', 'loop', 1, 4), ('FF-07', 'concluded', 3, 4), ('FF-12', 'concluded', 2, 3), ('OS-01', 'declined', 3, 3), ('OS-03', 'declined', 3, 2), ('OS-06', 'declined', 1, 3)]
+
+Judge outcome useful-safe-escalation: AC 34 GA 27
+Escalation dim mean among AC-escalated: AC 2.79 GA 3.55
+Escalation dim mean among AC-not-escalated: AC 3.16 GA 3.62
+AC escalation trigger (any turn): Counter({'reply': 20, 'forced': 17, 'none-in-meta': 5})
+  UNNECESSARY WM-03 [None, 'burning', 'burning', 'burning']
+  UNNECESSARY WM-12 [None, None, 'reply']
+  UNNECESSARY DW-03 ['electrical_water', 'electrical_water', 'electrical_water']
+  UNNECESSARY MW-01 ['microwave_arcing', 'microwave_arcing']
+  UNNECESSARY OC-09 [None, 'reply']
+  UNNECESSARY VC-07 ['burning', 'burning', 'burning']
+  UNNECESSARY OS-02 [None]
+  PREMATURE WM-09 [None, None, None, 'reply']
+  PREMATURE TD-09 [None, None, None, None, 'reply']
+  PREMATURE DW-10 [None, None, 'reply']
+  PREMATURE OC-10 [None, None, None, None, None, None, 'reply']
