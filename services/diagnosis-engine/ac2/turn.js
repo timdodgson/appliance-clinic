@@ -25,6 +25,7 @@ const Rec = require('./record.js');
 const S = require('./safety.js');
 const K = require('./knowledge.js');
 const M = require('./models.js');
+const E = require('./errorcodes.js');
 const P = require('./parts.js');
 const J = require('./labels.js');
 const { understand } = require('./understand.js');
@@ -141,16 +142,9 @@ function activeHazards(rec) {
 async function enrich(rec, texts, deps, recalls) {
   const appliance = rec.customer.appliance && rec.customer.appliance.value;
   const symptomText = [rec.customer.symptom && rec.customer.symptom.value, texts.slice(-3).join(' ')].filter(Boolean).join(' ');
-  const knowledge = appliance ? K.retrieve({ appliance, text: symptomText }) : [];
-  const normal = appliance ? K.normalNotes({ appliance, text: symptomText }) : [];
-  if (knowledge.length) {
-    rec.knowledge.knowledgeIds = knowledge.map((k) => k.knowledgeId);
-    rec.knowledge.fault = knowledge[0].fault || null;
-    rec.knowledge.causes = [...new Set(knowledge.flatMap((k) => k.causes || []))].slice(0, 8);
-    rec.knowledge.components = [...new Set(knowledge.flatMap((k) => k.likelyComponents || []))].slice(0, 12);
-  }
   const brand = rec.customer.brand && rec.customer.brand.value;
   const model = rec.customer.model && rec.customer.model.value;
+  // Error codes first: a resolved code names the fault, and that chooses the knowledge note (D8).
   const codeMeanings = [];
   for (const c of rec.customer.codes.slice(-3)) {
     const prior = rec.knowledge.codeMeanings.find((x) => x.code === c.code);
@@ -159,12 +153,32 @@ async function enrich(rec, texts, deps, recalls) {
     codeMeanings.push(r);
     rec.knowledge.codeMeanings = rec.knowledge.codeMeanings.filter((x) => x.code !== c.code).concat(r);
   }
-  for (const r of codeMeanings) {
-    if (r.status === 'RESOLVED' && r.components && r.components.length) rec.knowledge.components = [...new Set([...r.components, ...rec.knowledge.components])].slice(0, 12);
+  const resolved = codeMeanings.filter((r) => r.status === 'RESOLVED');
+  const faultIds = resolved.map((r) => r.faultId || codeFault(r.code, brand, appliance)).filter(Boolean);
+  const codeComponents = resolved.flatMap((r) => r.components || []);
+  const knowledge = appliance ? K.retrieve({ appliance, text: symptomText, components: codeComponents, faultIds }) : [];
+  const normal = appliance ? K.normalNotes({ appliance, text: symptomText }) : [];
+  if (knowledge.length) {
+    rec.knowledge.knowledgeIds = knowledge.map((k) => k.knowledgeId);
+    rec.knowledge.fault = knowledge[0].fault || null;
+    rec.knowledge.causes = [...new Set(knowledge.flatMap((k) => k.causes || []))].slice(0, 8);
+    rec.knowledge.components = [...new Set(knowledge.flatMap((k) => k.likelyComponents || []))].slice(0, 12);
   }
+  if (codeComponents.length) rec.knowledge.components = [...new Set([...codeComponents, ...rec.knowledge.components])].slice(0, 12);
   rec.knowledge.modelInfo = model ? M.hints(model, brand ? brand.toLowerCase() : null) : [];
-  const compactKnowledge = knowledge.map((k) => ({ fault: k.fault, likelyCauses: k.causes, components: k.likelyComponents, ownerSafeChecks: k.ownerSafeChecks, discriminators: k.discriminators, commonConfusion: k.commonConfusion }));
+  // The whole note (D5): causes, the questions that separate them, the evidence for and against each component, owner
+  // checks, common confusions and what to rule out before replacing a part.
+  const compactKnowledge = knowledge.map(({ score, appliance: _a, ...k }) => k);
   return { knowledge: compactKnowledge, normal, codeMeanings, recalls };
+}
+
+/** The fault a resolved code names, from the engine's own copy of the error-code data (the service does not return it). */
+function codeFault(code, brand, appliance) {
+  try {
+    const r = E.lookup({ code, brand, appliance });
+    const ids = [...new Set((r.candidates || []).map((x) => x.faultId).filter(Boolean))];
+    return r.status === 'RESOLVED' && ids.length === 1 ? ids[0] : null;
+  } catch { return null; }
 }
 
 /** Step 7: the plan for this reply, decided in code. */
@@ -206,7 +220,7 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   const declined = rec.asked.filter((a) => a.answer === 'does_not_know' || a.answer === 'cannot_or_will_not').map((a) => a.question);
   if (declined.length) plan.push(`Do not ask again (they could not or would not answer): ${declined.map((q) => `"${q}"`).join('; ')}.`);
   if (rec.stage === 1) {
-    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.');
+    plan.push('Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.');
     if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
     return plan;
   }

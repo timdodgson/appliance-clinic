@@ -3,8 +3,23 @@
  * Error-code MCP client (the deployed error-code service: Streamable HTTP, stateless JSON mode, bearer).
  * One JSON-RPC tools/call per code. The service is the single source of code meanings, including admin edits.
  */
+const { o0Variants } = require('./errorcodes.js');
 
-async function resolveErrorCode({ make, appliance, code, model }, { url, token, fetchFn = fetch, timeoutMs = 8000 } = {}) {
+/**
+ * Resolve a code; when the service has no mapping for it, retry with the letter O and digit 0 swapped (customers type
+ * EO3 for E03; D9), fewest swaps first, and say which form matched.
+ */
+async function resolveErrorCode(q, opts = {}) {
+  const first = await resolveOnce(q, opts);
+  if (first.status !== 'NOT_FOUND') return first;
+  for (const v of o0Variants(q.code).slice(0, 3)) {
+    const r = await resolveOnce({ ...q, code: v.code }, opts);
+    if (r.status === 'RESOLVED' || r.status === 'AMBIGUOUS' || r.status === 'NEEDS_CONTEXT') return { ...r, code: q.code, matchedAs: v.code };
+  }
+  return first;
+}
+
+async function resolveOnce({ make, appliance, code, model }, { url, token, fetchFn = fetch, timeoutMs = 8000 } = {}) {
   if (!url || !token) return { code, status: 'UNAVAILABLE', reason: 'error-code service not configured' };
   if (!make || !appliance || !code) return { code, status: 'NEEDS_CONTEXT', reason: !make ? 'make unknown' : 'appliance unknown' };
   const args = { make, appliance, code };
@@ -41,6 +56,7 @@ function compact(r) {
     return {
       status: 'RESOLVED',
       meaning: r.meaning || null,
+      faultId: r.faultId || null,
       confidence: r.confidence || null,
       components: e ? e.components || [] : [],
       likelyCauses: e ? e.likelyCauses || [] : [],

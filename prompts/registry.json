@@ -242,7 +242,7 @@
     },
     {
       "id": "diagnosis.ac2.reason",
-      "version": 4,
+      "version": 5,
       "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
       "owner": "applianceclinic-diagnosis-engine",
       "consumers": [
@@ -285,6 +285,12 @@
           "date": "2026-10-14",
           "fingerprint": "f45fa5ec24f127c623b3b54fdf7c4b578458a136728750e41ee3d2008db48e06",
           "change": "Change 21.21: strict structured output (additionalProperties: false on every object) so a hosted model in strict mode can serve the schema; the prompt text is unchanged."
+        },
+        {
+          "version": 5,
+          "date": "2026-10-14",
+          "fingerprint": "fb349786eb63f9396c2888dec688763194e3f50657bb7ffb580641842fb644f6",
+          "change": "Change 22.4 (deep-dive Phase 3, D5/D6): rule 2 gives the checks that separate the likely causes, as the plan says, and uses the whole knowledge note (discriminators, clarifying questions, component evidence, checks before replacing a part); the style line gives the reply a structure (cause and why, numbered checks with what each result means, fallback, when an engineer is better) instead of \"usually 3-8 sentences\"."
         }
       ]
     },
