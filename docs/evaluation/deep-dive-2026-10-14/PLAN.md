@@ -224,21 +224,20 @@ The same pipeline (21.21: 21.18 plus strict output schemas), with only the AI co
 
 Release 21.22 (D5 whole notes, D8 BM25 and error-code-led note choice, D9 washer-dryer and letter-O fixes, D6 plan
 and reply structure), compose on `gpt-5.6-terra` as in §7. Data: `evaluation/rebuild/out/independent-100-21.22-frontier/`,
-`results-independent-100-21.22-frontier.json`. The primary judge reached its usage limit with 96 of 100 conversations
-scored (DW-05, FF-08, MW-04, OC-01 unscored); paired figures use those 96.
+`results-independent-100-21.22-frontier.json`. All 100 scored (the last 4 after the primary judge's usage limit reset;
+the first write-up used 96: 3.29, +0.06).
 
 | | 21.21 frontier | **21.22 frontier** |
 |---|---|---|
-| Overall (96 paired) | 3.23 | **3.29** |
-| Paired vs 21.21 (95% CI) | | +0.06 (−0.06 to +0.20); 18 up, 13 down |
-| Paired vs 21.18 (Qwen) | +0.45 | **+0.52 (+0.38 to +0.67)** |
-| Paired vs general assistant | −0.24 | −0.17 (−0.37 to +0.03) |
+| Overall | 3.24 | **3.32** |
+| Paired vs 21.21 (95% CI) | | +0.08 (−0.05 to +0.21); 20 up, 13 down |
+| Paired vs general assistant | −0.24 | −0.16 (−0.35 to +0.03) |
 | Pairwise vs general assistant (win–tie–loss) | 34–1–65 | **40–0–60** |
 | Critical failures (confirmed) | 2 (2) | 2 (2) |
 | Looping | 4% | 6% |
-| Median / 90th percentile turn | 13.1 / 18.1 s | 16.0 / 21.0 s |
+| Median turn | 13.1 s | 15.7 s |
 
-- **Gate: not cleared.** +0.06 over 21.21 is within noise (needs ≥ 0.17). Overall 3.29 is +20% on 2.74; the +25%
+- **Gate: not cleared.** +0.08 over 21.21 is within noise (needs ≥ 0.17). Overall 3.32 is +21% on 2.74; the +25%
   target (3.40) is not reached. The gap to the general assistant is no longer significant (CI crosses 0).
 - **Retrieval improved as measured offline** (`scripts/rag.js retrieval`, openers, appliance given): top-1 55.7% → 69.3%,
   top-3 83.0% → 86.4%; DW-02 4C now chooses the fill note and WD-06 EO3 resolves as E03 on live. This did not move the
@@ -246,6 +245,34 @@ scored (DW-05, FF-08, MW-04, OC-01 unscored); paired figures use those 96.
 - **Cost:** larger notes add about 3 s to the median turn (13.1 → 16.0 s, level with the general assistant's 16.1 s).
 - **Correction to D9:** hob part matching stays empty. The `hob`/`hobs` name mismatch is real and fixed, but the four
   hob journeys hold no part rules, so there were never any matchers to find.
-- **Where the remaining gap is** (same 96, 21.21 → 21.22): language understanding 3.43 → 3.40 (general assistant 3.80),
+- **Where the remaining gap was** (first 96, 21.21 → 21.22): language understanding 3.43 → 3.40 (general assistant 3.80),
   question quality 2.94 → 2.91 (3.09), fidelity 3.67 → 3.61 (3.82). The understand step (reading the customer's
   message) still runs on Qwen; it is the one model step not yet tested on the stronger model, and the next lever.
+
+## 9. The understand step on the stronger model, and the model-alone controls (2026-10-14)
+
+Release 21.22 unchanged; the AI config's `routing.understand` also switched to `frontier` (so every LLM step except Jev
+labels runs on `gpt-5.6-terra`). Data: `out/independent-100-21.22-frontier-understand/`,
+`results-independent-100-21.22-frontier-understand.json`.
+
+| | 21.21 frontier | 21.22 frontier | **21.22, understand also frontier** | General assistant |
+|---|---|---|---|---|
+| Overall | 3.24 | 3.32 | **3.39** | 3.48 |
+| Paired vs 21.22 (95% CI) | | | +0.07 (−0.05 to +0.19) | |
+| Paired vs 21.21 (95% CI) | | +0.08 (−0.05 to +0.21) | **+0.15 (+0.01 to +0.29)** | |
+| Paired vs 21.18, all Qwen (95% CI) | +0.45 | | **+0.60 (+0.45 to +0.75)**; 54 up, 6 down | |
+| Paired vs general assistant (95% CI) | −0.24 | −0.16 (−0.35 to +0.03) | **−0.09 (−0.25 to +0.08)** | |
+| Critical failures (confirmed) | 2 (2) | 2 (2) | **1 (1)** | 6 (4) |
+| Question quality / language understanding | 2.95 / 3.43 | 2.93 / 3.42 | 3.06 / 3.45 | 3.09 / 3.80 |
+| Median turn | 13.1 s | 15.7 s | 16.5 s | 16.1 s |
+
+- **Overall 3.39 is +23.7% on the 2.74 baseline**: 0.01 short of the 3.40 target, and level with the general assistant
+  within noise (−0.09, CI crosses 0), with fewer critical failures (1 to 6). Neither Phase 3 nor the understand switch
+  clears the 0.17 gate alone; together, on top of 21.21, they are +0.15 with a CI just above 0.
+- **Not yet claimed:** the +25% target. 3.39 is one run on the development set; Phase 5 (held-out set) is required first
+  (§3).
+- **Model-alone controls** (the chat to the model with a generic assistant prompt, nothing else; change 21.10's
+  control, runner flag `--control qwen-plain`): all 100 conversations are run for `gpt-5.6-terra` alone
+  (`out/independent-100-plain-gpt/`) and Qwen alone (`out/independent-100-plain-qwen/`), **not yet scored**: the judge's
+  usage credits ran out. Example, WM-02 "w/m wont spinn pls help": Qwen alone answered about a Windows mouse.
+- **Live:** set to this configuration (understand and compose on the stronger model) while the temporary key lasts.
