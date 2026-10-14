@@ -1,0 +1,421 @@
+{
+ "id": "WM-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-01-3b99666071",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?"
+  },
+  {
+   "role": "assistant",
+   "text": "E18 means the washer has not drained within the allowed time. With water still in the drum, this is a drainage fault rather than a spin or motor fault. Most often it is a blocked pump filter/coin trap or an item caught at the pump. A kinked or blocked drain hose or waste connection is next most likely; the pump itself is less common until those are ruled out. 1. Switch off and unplug the machine. Put towels and a shallow tray under the small lower-front service flap. Use the machine’s residual-water drain procedure if fitted, then loosen the pump filter slowly—there may be quite a lot of water.\n2. Remove lint, coins, hair grips or other objects from the filter. Shine a torch into the opening and gently check whether the small pump impeller behind it can move; do not force it. A trapped object or jam points to the likely free fix.\n3. Check the drain hose at the back is not crushed or kinked, and that its connection to the standpipe/sink waste is not blocked. If dirty water backs up into a sink or standpipe, the household waste plumbing may be the restriction. Once the filter is refitted securely, try a drain or spin-only programme. If it still will not empty despite a clear filter and hose, or the pump only hums/makes harsh noises, a pump-path blockage or drain-pump fault is more likely and an engineer may be needed."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks, I've tried all of that. The drain hose behind looks fine, not squashed, and the sink drains normally. I emptied the water through the small hose with a baking tray and towels, which took several trays, and it was grey and smelled a bit. The filter had a child's sock and a hair grip wrapped round it, plus a lot of fluff. The impeller turns by finger, slightly notchy and then free. After refitting the filter I ran a rinse and spin: it drained quickly, E18 has gone and it spins normally. There was no burning smell, and the floor only got a little wet while I was draining the filter."
+  },
+  {
+   "role": "assistant",
+   "text": "That has fixed it. The sock, hair grip and fluff were restricting the pump filter, which caused the E18 drain-time error; the successful rinse-and-spin suggests the machine is now draining and spinning normally. The slightly notchy feel of the impeller can be normal, and the grey, stale-smelling drained water is expected after water has been sitting in the machine. Just make sure the filter cap is fully screwed in straight and its seal is clean, then keep an eye on the floor for the next wash because it was opened. Cleaning the filter periodically—and checking pockets and small children’s items—will help prevent a repeat. No pump replacement or engineer is indicated unless E18 returns despite the filter being clear."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1950,
+     "labelMs": 390,
+     "enrichMs": 326,
+     "reasonMs": 5894,
+     "verifyMs": 7425,
+     "replyLabelMs": 366,
+     "totalMs": 16406
+    },
+    "usage": {
+     "promptTokens": 7105,
+     "completionTokens": 498,
+     "totalTokens": 7603
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked pump filter or foreign object in the pump path (high)",
+     "Kinked or blocked drain hose, waste connection or household plumbing (medium)",
+     "Drain pump obstructed or failed (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WAN28281GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": "WAN28281GB",
+      "codes": [
+       "E18"
+      ],
+      "symptom": "Stopped halfway through a wash with water left in the drum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:dispenser",
+       "washing-machine:poor-wash-results"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What does E18 mean?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WAN28281GB; code E18.",
+     "The fault they reported is: \"Stopped halfway through a wash with water left in the drum\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16572
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 17226,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 4438,
+     "labelMs": 423,
+     "enrichMs": 3,
+     "reasonMs": 3672,
+     "verifyMs": 9508,
+     "replyLabelMs": 323,
+     "totalMs": 18429
+    },
+    "usage": {
+     "promptTokens": 8275,
+     "completionTokens": 228,
+     "totalTokens": 8503
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Blocked pump filter / foreign objects in the drain path (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.71
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 0.98
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": "drainage fault now resolved; machine drains and spins normally"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.9
+     },
+     "checkGiven": "The pump filter cap at the bottom front is a common leak, especially if it's been opened recently. Check it's screwed in fully and straight,",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Checked drain hose behind the machine: Looks fine and not squashed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked sink drainage: Sink drains normally",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Drained water through the small hose: Took several trays; water was grey and smelled a bit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "Cleaned the pump filter: Removed a child's sock, a hair grip and a lot of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 18477
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18760,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.025783800000000003,
+ "finishedAt": "2026-10-14T12:07:59.810Z"
+}
