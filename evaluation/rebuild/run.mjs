@@ -2,6 +2,7 @@
 // extended with system `ac2` (the first LLM-led engine, frozen results), `ac3` (the live pipeline of ADR 0021, through the
 // same benchmark envelope) and any frozen case set.
 //   node evaluation/rebuild/run.mjs --system ac3|ac2|ac|ga --set independent-100|heldout-25 [--only ...] [--concurrency N]
+//     [--control qwen-plain]   ac3 only: the reply model the AI config routes `compose` to, alone (no pipeline)
 // Writes evaluation/rebuild/out/<set>/conversations/<system>/<id>.json. The original runner and its outputs are untouched.
 // Original header:
 // Run the 100 conversations for one or both systems. Each conversation: the case opener, then the shared customer
@@ -21,6 +22,8 @@ import { nextCustomerTurn, MAX_CUSTOMER_TURNS } from '../independent-100/lib/sim
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
 const SYSTEM = arg('--system');
 if (!['ac', 'ac2', 'ac3', 'ga'].includes(SYSTEM)) throw new Error('--system ac|ac2|ac3|ga');
+const CONTROL = arg('--control', null);
+if (CONTROL && (CONTROL !== 'qwen-plain' || SYSTEM !== 'ac3')) throw new Error('--control qwen-plain needs --system ac3');
 const SET = arg('--set', 'independent-100');
 if (!['independent-100', 'heldout-25', 'real-journeys-13'].includes(SET)) throw new Error('--set independent-100|heldout-25|real-journeys-13');
 const LIVE = SYSTEM === 'ac' || SYSTEM === 'ac2' || SYSTEM === 'ac3';
@@ -38,7 +41,7 @@ const START = new Date().toISOString();
 
 async function runCase(kase) {
   const sys = SYSTEM === 'ac' ? AC : (SYSTEM === 'ac2' || SYSTEM === 'ac3' ? AC2 : GA);
-  const conv = sys.conversation(kase.id);
+  const conv = sys.conversation(kase.id, { control: CONTROL });
   const transcript = []; const meta = []; let simCost = 0; let endReason = null;
   let message = kase.opener;
   for (let turn = 1; ; turn += 1) {

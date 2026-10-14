@@ -21,13 +21,15 @@ export async function init() {
 }
 
 /** One AC conversation. send(text) -> { view, status, ms } ; history mirrors the browser's `messages`. */
-export function conversation(caseId) {
+export function conversation(caseId, { control = null } = {}) {
   const sessionId = `bm-ac2-${caseId.toLowerCase()}-${rid(5)}`;
   let stateToken = null; let n = 0; const history = [];
   async function post() {
     n += 1;
     const body = { messages: Session.buildApiMessages(history), engine: 'ac2', benchmark: { sessionId, clientTurnId: `bt-${n}-${rid(4)}` } };
     if (stateToken) body.stateToken = stateToken;
+    // Evaluation-only ablation (change 21.10): 'qwen-plain' sends the chat to the reply model alone, nothing else.
+    if (control) body.control = control;
     const raw = JSON.stringify(body);
     const t0 = Date.now();
     const res = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json', [benchmarkAuth.HEADER]: benchmarkAuth.signRequest(secrets.current, raw) }, body: raw });

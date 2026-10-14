@@ -1,0 +1,424 @@
+{
+ "id": "TD-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-09-ee1cec2771",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Bosch dryer keeps stopping with the empty water container light on but the container is empty?? We've emptied it like 5 times"
+  },
+  {
+   "role": "assistant",
+   "text": "Emptying the container repeatedly will not cure this if water is not being pumped up to it. The most likely causes are fluff/sludge blocking the lower condensate path, followed by a condensate pump or its float switch sticking. 1. Switch the dryer off, unplug it and let it cool. Pull out the water container, check it is not cracked and push it back fully home.\n2. Open the lower front flap and clean any accessible lower fluff filters. If there is a removable condenser, rinse only that removable part under the tap and let it drain before refitting. Do not poke tools into any fixed heat-exchanger area.\n3. Look for damp fluff or standing water in the accessible lower area. That points to a blocked sump/drain path rather than the top container. If the lower area/filter is clean, the container is seated properly, and it still stops with an empty container, the likely fault is the condensate pump or float/level switch. Those normally need an engineer, as access involves internal dismantling and water seals."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I've re-seated the container and it clicks in firmly. The filters were fairly clean, but the little filter in the container was slimy so I cleaned that. I also found a small cover low down with some grey slimy water and fluff behind it, and wiped out what I could reach. It ran longer after that (about an hour) but the light came on again. I can't pull the dryer out as it's stacked on the washer. Is it the pump then?"
+  },
+  {
+   "role": "assistant",
+   "text": "Not most likely the pump. The grey slimy water and fluff, plus it running for about an hour after you cleared some of it, point more strongly to a partly blocked lower condensate sump/drain path. As that builds up again, the lower float can trigger the container warning even though the top container remains empty. The pump is still a real possibility, but it cannot be separated from a blocked sump or sticking float without accessing and cleaning the lower collection area properly. A failed pump would leave the water down below rather than lifting it to the container; a sticking float can produce the same warning. Because the dryer is stacked and the remaining work involves internal access, I would book an appliance engineer rather than trying to dismantle it in place. Describe it as: “Bosch condenser/heat-pump dryer stops on the water-container warning with an empty tank; there is slimy water and lint in the lower area; partial cleaning made it run longer.” Ask them to check and clean the condensate sump, float switch, pump and pump outlet hose before condemning the pump itself. Until then, avoid repeatedly restarting it after the warning: standing condensate can overflow into areas it should not reach."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1946,
+     "labelMs": 320,
+     "enrichMs": 1,
+     "reasonMs": 7326,
+     "verifyMs": 6851,
+     "replyLabelMs": 304,
+     "totalMs": 16816
+    },
+    "usage": {
+     "promptTokens": 4337,
+     "completionTokens": 525,
+     "totalTokens": 4862
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "A tank warning on its own does not prove the pump has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Fluff/sludge blockage in the condensate path or lower filter/condenser area (high)",
+     "Condensate pump or its float/level switch fault (medium)",
+     "Water container not fully engaging with its sensor (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.68
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "keeps stopping with the empty water container light on although the container is empty"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "Slide the water container out, empty it, check it isn't cracked and that the lid / float is clean, then push it firmly all the way home unti",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:tripping-electrics",
+       "tumble-dryer:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Checks they have done and what they found: Emptied the water container about 5 times - dryer still stops and empty water container light remains on.",
+     "Already given by the customer, never ask for it again: make Bosch.",
+     "The fault they reported is: \"keeps stopping with the empty water container light on although the container is empty\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Emptied the water container about 5 times: dryer still stops and empty water container light remains on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16990
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 17186,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3834,
+     "labelMs": 355,
+     "enrichMs": 1,
+     "reasonMs": 7110,
+     "verifyMs": 9188,
+     "replyLabelMs": 323,
+     "totalMs": 20864
+    },
+    "usage": {
+     "promptTokens": 5067,
+     "completionTokens": 527,
+     "totalTokens": 5594
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Fluff-sludge blockage in the lower condensate sump/path, causing the float to trigger (high)",
+     "Condensate pump not lifting water to the container (medium)",
+     "Sticking float/level switch (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.52
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.52
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.08
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.69
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "water container light comes on again after about an hour"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:heat-pump",
+       "tumble-dryer:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it the pump then?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Slide the water container out, empty it, check it isn't cracked and that the lid / float is clean, then push it firmly all the way home unti\".",
+     "Checks they have done and what they found: Emptied the water container about 5 times - dryer still stops and empty water container light remains on; Re-seated the water container - It clicks in firmly; Cleaned the small filter in the container - It was slimy; Wiped out accessible grey slimy water and fluff behind a low cover - The dryer ran for about an hour before the light came on again.",
+     "Already given by the customer, never ask for it again: make Bosch.",
+     "The fault they reported is: \"keeps stopping with the empty water container light on although the container is empty\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Emptied the water container about 5 times: dryer still stops and empty water container light remains on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Re-seated the water container: It clicks in firmly",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Cleaned the small filter in the container: It was slimy",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "Wiped out accessible grey slimy water and fluff behind a low cover: The dryer ran for about an hour before the light came on again",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 21009
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 21385,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0243818,
+ "finishedAt": "2026-10-14T13:45:09.011Z"
+}

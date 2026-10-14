@@ -1,0 +1,526 @@
+{
+ "id": "TD-11",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-11-e08cf12bfc",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "tumble dryer not working"
+  },
+  {
+   "role": "assistant",
+   "text": "“Not working” can mean a few quite different faults: no power or a door/control issue if it will not start at all; restricted airflow if it runs but stops or dries badly; or a heating fault if the drum turns but there is no warmth. First, please tell me what happens when you select a programme and press Start: are there any display lights, does the drum turn, or is it completely dead? If there is an error code, include that too. Before further testing, make sure the door closes firmly and the machine is plugged directly into a working wall socket rather than an extension lead."
+  },
+  {
+   "role": "customer",
+   "text": "Lights come on but when I press start nothing happens, no sound and the drum doesn't turn. No error code. It's been like this since this morning."
+  },
+  {
+   "role": "assistant",
+   "text": "A broken belt is less likely than a start-permission fault: most commonly the door catch/interlock is not registering as shut. A stiff or jammed drum can also prevent starting; if both are normal, the start/control circuit becomes more likely. 1. Switch off and unplug the dryer. Check the door catch and the slot it closes into for fluff, a loose catch, or damage. Close the empty door firmly: it should latch positively. A weak latch or no positive click points to the door catch/interlock.\n2. With it still unplugged and empty, turn the drum by hand. It should move smoothly with some normal resistance. If it is stiff, stuck, grinding, or very loose, do not keep trying to start it; that points to a drum support/obstruction issue. If the latch feels positive and the drum turns normally, this is more likely an internal interlock, control or wiring fault and is usually an engineer job rather than a part to guess at."
+  },
+  {
+   "role": "customer",
+   "text": "Door doesn't click shut, it swings back slightly open. The plastic tongue on the door has snapped off, I found the piece on the floor. Drum I haven't turned by hand yet."
+  },
+  {
+   "role": "assistant",
+   "text": "The snapped plastic tongue is very likely the reason it will not start. The dryer needs the door to latch properly so it can operate the door safety switch; with the tongue missing, it cannot do that. 1. Switch off and unplug it. Do not try to wedge, tape or bypass the door closed—this safety switch is there to stop the dryer running with the door open.\n2. Check that no fabric or fluff is caught around the door opening, and look for obvious hinge damage or a door sitting out of line. If it is simply the broken tongue/catch and the door otherwise aligns properly, the usual repair is the mechanical door handle/catch assembly.\n3. While it is unplugged and empty, turn the drum by hand as previously suggested. This is separate from the no-start fault, but a smooth normal turn would make an additional drum problem unlikely. If the door still will not stay shut after the mechanical catch is repaired, the next suspect would be the door interlock/switch or its wiring, which is normally an engineer repair. At present, though, the visibly broken catch is the clear first fault."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1691,
+     "labelMs": 311,
+     "enrichMs": 1,
+     "reasonMs": 5727,
+     "verifyMs": 1570,
+     "replyLabelMs": 428,
+     "totalMs": 9762
+    },
+    "usage": {
+     "promptTokens": 3772,
+     "completionTokens": 360,
+     "totalTokens": 4132
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power supply, door catch or control fault (medium)",
+     "Blocked airflow or overheating protection (medium)",
+     "Heating-system fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.52
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.9
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:fan",
+       "tumble-dryer:sensor",
+       "tumble-dryer:not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me what happens when you select a programme and press Start: are there any display lights, does the drum turn, or is it completely dead?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9802
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10242,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1974,
+     "labelMs": 288,
+     "enrichMs": 0,
+     "reasonMs": 9303,
+     "verifyMs": 6228,
+     "replyLabelMs": 335,
+     "totalMs": 18182
+    },
+    "usage": {
+     "promptTokens": 3792,
+     "completionTokens": 646,
+     "totalTokens": 4438
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "It is completely silent when Start is pressed.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door catch/interlock not registering closed (high)",
+     "Drum obstruction or stiff drum support (medium)",
+     "Start/control circuit fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.78
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.67
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Lights come on but it will not start; no sound and drum does not turn"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:motor",
+       "tumble-dryer:fan",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me what happens when you select a programme and press Start: are there any display lights, does the drum turn, or is it completely dead?",
+       "turn": 1,
+       "resolution": "Lights come on; pressing Start does nothing, with no sound or drum movement"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18219
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18546,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2770,
+     "labelMs": 648,
+     "enrichMs": 0,
+     "reasonMs": 5228,
+     "verifyMs": 5433,
+     "replyLabelMs": 327,
+     "totalMs": 14460
+    },
+    "usage": {
+     "promptTokens": 4443,
+     "completionTokens": 382,
+     "totalTokens": 4825
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Broken door handle/catch preventing the door switch from being engaged (high)",
+     "Door interlock/switch fault in addition to the broken catch (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "door_or_lid",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.59
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.64
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "door does not click shut and swings back open"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and chec",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:motor",
+       "tumble-dryer:door",
+       "tumble-dryer:fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: gives check, suggested the check \"With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round\" (no result reported yet).",
+     "They have not reported the result of: \"With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round\". Never say or imply they did it or what it showed.",
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "First, please tell me what happens when you select a programme and press Start: are there any display lights, does the drum turn, or is it completely dead?",
+       "turn": 1,
+       "resolution": "Lights come on; pressing Start does nothing, with no sound or drum movement"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14498
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14875,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.028769700000000002,
+ "finishedAt": "2026-10-14T13:46:10.722Z"
+}
