@@ -1,0 +1,413 @@
+{
+ "id": "TD-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-07-d20a1baf28",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Beko vented dryer, drum goes round fine but it's just blowing cold air. Had it about 6 years. What part do I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. Straight answer: I can't name the part yet, because the most common cause of a vented dryer that tumbles but blows cold isn't a broken part at all. 1. Restricted airflow. A clogged fluff filter or a kinked or fluffed-up vent hose makes the dryer overheat, and a safety thermal cut-out then kills the heat. Cleaning it out is free, and on some machines the cut-out resets itself once it cools.\n2. Dryer elements commonly just go open-circuit and stop heating. When that happens, the thermal cut-out and thermostat are usually checked or replaced at the same time, because they're cheap and often fail together.\n3. A cool-air, refresh or low-heat setting has been selected. This is easy to rule out. 1. Programme: make sure it's on a normal heat programme, not cool or refresh, and that no low-heat option is selected.\n2. Fluff filter: pull out the filter in the door opening and clean it thoroughly. If it was caked, that's a strong sign overheating tripped the heat.\n3. Vent hose: check the hose out of the back. It should be short, with no kinks or squashed sections, and clear of fluff all the way to the outside vent. Shake or clear out any lint build-up.\n4. Test run: leave it to cool for 30 minutes or so, then run a normal heat programme empty for 10 to 15 minutes. If it now heats, the airflow was the problem. If it's still stone cold with the filter and hose clear, the heater element becomes the prime suspect, with the thermal cut-out and thermostat checked alongside it. If it does come back to heat but goes cold again later, that points to airflow still being restricted further in, for example fluff around the fan or a tired cut-out. If it stays cold, I'll help you pin down the element and cut-out. That repair is usually well worth doing on a 6-year-old dryer, since the parts are relatively inexpensive. One safety point: some Beko dryers have been subject to a manufacturer safety recall in the past. It's worth putting your model number into Beko's recall checker, or checking the GOV.UK product safety alerts, just to be sure yours isn't covered."
+  },
+  {
+   "role": "customer",
+   "text": "Tried all that. Cleaned the filter (it was fairly full) and the vent hose had a sag full of fluff which I cleared out. Airflow at the hose end is decent now but it's still cold after 20 min. It's a DV7110, can't read the rest of the label as it's wedged in an alcove. No multimeter either. So which part do I order?"
+  },
+  {
+   "role": "assistant",
+   "text": "With good airflow at the hose and still cold after 20 minutes on a heat programme, the fault is probably in the heating circuit. I can't tell you for certain which single part to order without a test, though. Here's how the suspects rank. 1. Heater element. This is the most likely. Dryer elements commonly just go open-circuit and stop heating completely, which fits a drum that turns happily but blows cold.\n2. Thermal cut-out. A filter that was fairly full plus a hose sag packed with fluff is exactly what makes a dryer overheat and trip its cut-out. Some cut-outs reset when they cool. Others are one-shot, or get weakened and stop resetting. Since it's still cold after cooling and a clear-airflow run, it may have stayed open. Overheating like that can also burn out the element, which is why the two are usually checked and replaced together.\n3. Thermostat. This is less likely, but it's in the same circuit and is cheap, so it's normally checked at the same time. What would tell them apart is a simple continuity check on each part. 1. Unplug the dryer and pull it out of the alcove.\n2. Remove the rear panel. On many vented dryers the element and cut-outs sit behind it, but check yours.\n3. Test each part with a meter on continuity or resistance. - An element showing no continuity (open circuit) has failed.\n• A cut-out or thermostat showing open at room temperature has failed.\n• If all three read fine, the fault is in the wiring or control side, and that's one for an engineer. Without a meter, buying all three on a guess would probably fix it. The risk is spending money on parts you didn't need, so a cheap borrowed or bought meter is worth it first. To match parts you'll need the full model number. DV7110 alone usually isn't enough. On many dryers there's a second label just inside the door rim, which is easier to reach than the back. If you'd rather not take the back off, an engineer can test and fit in one visit. On a 6-year-old vented dryer that's normally a repair worth doing rather than replacing the machine."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1716,
+     "labelMs": 285,
+     "enrichMs": 1,
+     "reasonMs": 11071,
+     "verifyMs": 2791,
+     "replyLabelMs": 437,
+     "totalMs": 16382
+    },
+    "usage": {
+     "promptTokens": 6900,
+     "completionTokens": 1096,
+     "totalTokens": 7996
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The heater element has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked lint filter or vent hose tripping the thermal cut-out (high)",
+     "Heater element failed open-circuit (often with thermal cut-out/thermostat) (high)",
+     "Cool-air or low-heat programme selected (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Beko",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": "Beko",
+      "model": null,
+      "codes": [],
+      "symptom": "blowing cold air, no heat"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What part do I need?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Beko.",
+     "The fault they reported is: \"blowing cold air, no heat\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16419
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16844,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3180,
+     "labelMs": 320,
+     "enrichMs": 1,
+     "reasonMs": 24884,
+     "verifyMs": 9605,
+     "replyLabelMs": 318,
+     "totalMs": 38413
+    },
+    "usage": {
+     "promptTokens": 8150,
+     "completionTokens": 1608,
+     "totalTokens": 9758
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "You've ruled out the free fixes well.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 9,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Heater element gone open-circuit (high)",
+     "Thermal cut-out tripped by the earlier blocked filter and hose and not resetting (often fails alongside the element) (medium)",
+     "Cycling thermostat failed (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.29
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": true,
+       "confidence": 0.92
+      },
+      "model": {
+       "value": "DV7110",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.04
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": "Beko",
+      "model": "DV7110",
+      "codes": [],
+      "symptom": "tumbles but blows cold, no heat"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Which part do I order?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: Cleaned fluff filter - it was fairly full; still no heat; Cleared vent hose sag full of fluff - airflow at hose end decent now; Test run - still cold after 20 minutes.",
+     "Already given by the customer, never ask for it again: make Beko; model DV7110.",
+     "The fault they reported is: \"blowing cold air, no heat\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "DV7110",
+      "confidence": 1,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Cleaned fluff filter: it was fairly full; still no heat",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Cleared vent hose sag full of fluff: airflow at hose end decent now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Test run: still cold after 20 minutes",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 38519
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 38925,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0280058,
+ "finishedAt": "2026-10-14T20:17:46.879Z"
+}

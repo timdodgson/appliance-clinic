@@ -1,0 +1,567 @@
+{
+ "id": "OC-08",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-08-b26866c086",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "oven wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "\"Won't come on\" can mean a few different things, so the first job is working out which kind of dead it is. 1. The clock/programmer is stuck in automatic (timed) mode. This is very common, especially after a power cut or the cooker being switched off at the wall. It's a free fix, not a fault.\n2. No power is reaching the cooker. This could be the cooker switch (the big red isolator on the wall), a tripped breaker in the consumer unit, or a blown fuse. If so, everything will be dead: no clock, no light, no fan.\n3. Less often, there's a problem at the mains connection on the back of the cooker or with the control board. These come last, once the simple causes are ruled out. 1. Look at the clock. If it's flashing, shows AUTO or \"A\", or has a hand symbol that isn't lit, set it to manual. On most ovens you press the manual (hand) button, or press two buttons together. Then set the time and try the oven again. If it heats, there's no fault. Afterwards, avoid switching it off at the wall, because that can send it back to AUTO.\n2. If the display and light are completely dead, check the cooker switch is on and look at the consumer unit for a tripped breaker labelled cooker or oven. If one has tripped and won't stay on when you reset it, leave it off. That points to an electrical fault, and an engineer or electrician should look at it.\n3. Have a sniff around the cooker and the wall switch. A burning or hot-plastic smell suggests a scorched connection. If you notice one, switch it off at the isolator and don't use it until it's been checked. If you tell me which of these you're seeing, I can narrow it down from there. Also worth knowing: does the hob or grill still work, and is it gas or electric?"
+  },
+  {
+   "role": "customer",
+   "text": "clock is flashing 0.00 and a little symbol. hob works fine. its electric. power went off last night for an hour"
+  },
+  {
+   "role": "assistant",
+   "text": "That pattern fits the clock reset very well. A clock flashing 0.00 the morning after an hour-long power cut, with the hob still working, almost always means the programmer has dropped back into its automatic/timed state. Many ovens simply won't heat until the clock is set and manual mode is selected. It isn't a fault and no part is needed. The \"little symbol\" is often the AUTO indicator, or the manual (hand) symbol waiting to be selected. 1. Set it to manual. On many clocks you press the hand-symbol button, or press and hold two buttons together (often the two outer ones, or + and −) until the flashing stops. Then use + / − to set the correct time. When it's done the display should show the time steadily, not flashing, and AUTO/A should be gone. If the buttons are unmarked, the user manual for your cooker will show the exact combination, and the manual is usually free online.\n2. Try the oven. Set it to a normal heating function, such as the fan symbol with a ring around it, and turn the temperature up to around 180°C. The temperature light should come on, and the oven should be warm within 10–15 minutes. If it heats, that suggests it was just the clock.\n3. If it still won't heat, check whether the clock is still showing AUTO or flashing. If it is, it hasn't fully gone into manual yet, so try the button sequence again. If the clock refuses to set at all, or sits steadily in manual but the oven stays cold, that points away from settings and towards the timer itself or the heating path. Let me know which you're seeing and we'll go from there."
+  },
+  {
+   "role": "customer",
+   "text": "ok i set the time and it came on, its heating now"
+  },
+  {
+   "role": "assistant",
+   "text": "That's sorted then. It was just the clock resetting after last night's power cut, so nothing is wrong with the oven and no part is needed. One tip to stop it happening again: try not to switch the cooker off at the wall isolator, because every time the power drops the clock can reset and the oven won't heat until you set it again. If the oven ever refuses to heat with the clock set and steady, not flashing, that would be worth looking into. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1592,
+     "labelMs": 291,
+     "enrichMs": 0,
+     "reasonMs": 9729,
+     "verifyMs": 1738,
+     "replyLabelMs": 297,
+     "totalMs": 13705
+    },
+    "usage": {
+     "promptTokens": 6394,
+     "completionTokens": 925,
+     "totalTokens": 7319
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The display works, but the oven won't heat until the clock is put back to manual.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clock/programmer left in AUTO (often after a power cut) – needs setting to MANUAL (high)",
+     "No power reaching the cooker (cooker switch/isolator, fuse or breaker) (medium)",
+     "Mains terminal block / connection fault or control board (later candidates) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't come on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also worth knowing: does the hob or grill still work, and is it gas or electric?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13878
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14454,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1994,
+     "labelMs": 306,
+     "enrichMs": 0,
+     "reasonMs": 11742,
+     "verifyMs": 6995,
+     "replyLabelMs": 303,
+     "totalMs": 21384
+    },
+    "usage": {
+     "promptTokens": 10302,
+     "completionTokens": 847,
+     "totalTokens": 11149
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The customer switched the cooker off at the wall isolator",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clock/programmer reset into automatic (timed) mode after the power cut (high)",
+     "Function/temperature setting not on a heating mode (low)",
+     "Genuine timer/programmer fault (only if it can't be set to manual) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.52
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "oven won't come on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.97
+     },
+     "checkGiven": "Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also worth knowing: does the hob or grill still work, and is it gas or electric?",
+       "turn": 1,
+       "resolution": "clock flashing 0.00 with symbol; hob works; electric"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21428
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 21849,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2094,
+     "labelMs": 286,
+     "enrichMs": 0,
+     "reasonMs": 5530,
+     "verifyMs": 3251,
+     "replyLabelMs": 285,
+     "totalMs": 11494
+    },
+    "usage": {
+     "promptTokens": 10713,
+     "completionTokens": 330,
+     "totalTokens": 11043
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The customer set manual mode today",
+      "source": "extractor"
+     },
+     {
+      "claim": "If there's another power cut, just set the time (and manual mode if it asks) the same way you did today.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Clock/programmer reset to automatic mode after the power cut (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.81
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "oven not heating after power cut"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.65
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "set the clock time: oven came on and is heating",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also worth knowing: does the hob or grill still work, and is it gas or electric?",
+       "turn": 1,
+       "resolution": "clock flashing 0.00 with symbol; hob works; electric"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11630
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11921,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.036693699999999996,
+ "finishedAt": "2026-10-14T20:45:08.050Z"
+}
