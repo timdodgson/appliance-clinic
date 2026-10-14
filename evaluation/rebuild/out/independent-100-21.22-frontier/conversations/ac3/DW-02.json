@@ -1,0 +1,420 @@
+{
+ "id": "DW-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-02-f6da41c241",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My Samsung dishwasher DW60M6050FS keeps showing 4C and beeping, won't do anything"
+  },
+  {
+   "role": "assistant",
+   "text": "The common causes are a partly shut tap, a kinked inlet hose, or grit/scale in the inlet mesh filter. Less commonly, it is the inlet valve or a flood-protection condition. 1. Check the water tap feeding the dishwasher is fully open, and that the inlet hose has not been squashed or kinked behind the machine. If it has an AquaStop box at the tap end, look for any red indicator or obvious damage. 2. Switch the dishwasher off, unplug it, turn off the water tap and put towels down. Unscrew the inlet hose at the dishwasher end and inspect the small mesh filter in the connection. Rinse away any grit or scale; do not poke it hard or remove it if it will not come out easily. A blocked mesh is a very plausible cause of 4C. 3. Reconnect the hose securely, turn the water back on and start a programme. If it still immediately shows 4C, listen for whether it is continuously trying to drain with an otherwise empty tub. Continuous draining can point to flood protection rather than a supply blockage. If the tap, hose and inlet filter are all clear but it still will not take water, the next suspects are the inlet valve or its fill sensing/control circuit, which is usually an engineer job."
+  },
+  {
+   "role": "customer",
+   "text": "I checked the tap first. It's a screwdriver-slot valve under the sink and the slot was at 90 degrees to the pipe, so it looks like it was turned off. There are no kinks in the inlet hose. I turned the valve on, started a programme, and it now fills and runs normally."
+  },
+  {
+   "role": "assistant",
+   "text": "The dishwasher filling and running normally once it was opened rules out an appliance fault. For future reference, on a screwdriver-slot isolation valve the slot normally runs in line with the pipe when open, and across it when closed. If 4C returns, check that valve first before looking at filters or parts."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1662,
+     "labelMs": 423,
+     "enrichMs": 402,
+     "reasonMs": 6850,
+     "verifyMs": 5349,
+     "replyLabelMs": 338,
+     "totalMs": 15078
+    },
+    "usage": {
+     "promptTokens": 5953,
+     "completionTokens": 563,
+     "totalTokens": 6516
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "It will stop and beep rather than start a wash.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Restricted or absent water supply at the tap, inlet hose or inlet filter (high)",
+     "Anti-flood protection active due to water in the base (low)",
+     "Inlet valve or fill sensing fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "DW60M6050FS",
+       "confidence": 1
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Samsung",
+      "model": "DW60M6050FS",
+      "codes": [
+       "4C"
+      ],
+      "symptom": "keeps showing 4C and beeping, won't do anything"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Check the tap the dishwasher hose connects to is fully on, the hose isn't kinked behind the machine, and if the hose has an AquaStop box at",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:fill",
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Samsung; model DW60M6050FS; code 4C.",
+     "The fault they reported is: \"keeps showing 4C and beeping, won't do anything\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 15246
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15650,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2132,
+     "labelMs": 450,
+     "enrichMs": 2,
+     "reasonMs": 2725,
+     "verifyMs": 2358,
+     "replyLabelMs": 312,
+     "totalMs": 8028
+    },
+    "usage": {
+     "promptTokens": 4957,
+     "completionTokens": 168,
+     "totalTokens": 5125
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "That has resolved it",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Water supply isolation valve was turned off (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:fill",
+       "dishwasher:not-draining",
+       "dishwasher:diverter-valve"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Checked the water tap under the sink: The screwdriver slot was at 90 degrees to the pipe, indicating it was turned off",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked the inlet hose for kinks: No kinks found",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Turned the water valve on and started a programme: Dishwasher now fills and runs normally",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 8093
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 8574,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.023259799999999997,
+ "finishedAt": "2026-10-14T12:20:30.546Z"
+}

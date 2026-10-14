@@ -1,0 +1,433 @@
+{
+ "id": "DW-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-04-18fb7152bb",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+  },
+  {
+   "role": "assistant",
+   "text": "E:15 means the dishwasher’s anti-flood system has operated. The constantly running pump is expected in that condition: it is trying to protect the machine, not necessarily a failed drain pump. Close the water tap feeding the dishwasher and do not keep trying programmes, as the underlying leak may continue to wet the base. Turning it off and on will not clear it while the base remains wet. 1. Switch off and unplug it. Open the door and inspect the rubber seal all around the tub edge for food debris, splits or flattened areas. Clean off any debris with a damp cloth.\n2. Check the lower spray arm turns freely and is not cracked or split. Also check that no tall item in the lower basket could have stopped it or deflected water at the door. If the seal and spray arm look sound, or the fault returns after drying/clearing, it needs an appliance engineer to locate the internal leak. Do not treat drying the base tray as a repair: it may run briefly, then E:15 will return if the leak source remains."
+  },
+  {
+   "role": "customer",
+   "text": "Door seal looks okay and the filter's fairly clean. I can see a bit of water shining in the base tray through a gap by the plinth, but I can't pull the unit out as it's fitted. Is there anything else I can check from the front?"
+  },
+  {
+   "role": "assistant",
+   "text": "1. Switch it off and unplug it. Remove the lower basket and turn the lower spray arm by hand. Check it is not catching on anything and inspect its underside and ends for a split or crack. A damaged arm can jet water towards the door and end up in the base tray. 2. Close the door and look along its edges against the surrounding unit. It should sit level and evenly closed, without one corner sitting proud or needing lifting to latch. Also make sure no tall item or tray has been able to foul the lower spray arm or direct water at the door. The water visible in the base explains both E:15 and the pump running continuously; the flood protection is doing its job, rather than pointing to a failed drain pump. If the spray arm is sound and the door sits square, the most likely causes are an internal sump/pump seal or hose connection. Those need the integrated dishwasher pulled out and inspected with the water isolated, so an appliance engineer is the sensible next step. Keep the water tap to the dishwasher closed and do not run further cycles."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1582,
+     "labelMs": 332,
+     "enrichMs": 525,
+     "reasonMs": 7985,
+     "verifyMs": 5403,
+     "replyLabelMs": 319,
+     "totalMs": 16196
+    },
+    "usage": {
+     "promptTokens": 4761,
+     "completionTokens": 650,
+     "totalTokens": 5411
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Anti-flood protection triggered by water in the base tray (high)",
+     "Leak from the door seal, misaligned door, or a damaged/obstructed spray arm (medium)",
+     "Internal leak from a pump seal, sump or hose connection (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMV4HTX31E",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:15",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "integrated dishwasher",
+      "brand": "Bosch",
+      "model": "SMV4HTX31E",
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "pump keeps running"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.91
+     },
+     "checkGiven": "Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections o",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:drain-pump",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Checks they have done and what they found: turned it off and on - E:15 remains and pump keeps running.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned it off and on: E:15 remains and pump keeps running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16239
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16560,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2094,
+     "labelMs": 457,
+     "enrichMs": 1,
+     "reasonMs": 8093,
+     "verifyMs": 8182,
+     "replyLabelMs": 314,
+     "totalMs": 19235
+    },
+    "usage": {
+     "promptTokens": 5736,
+     "completionTokens": 604,
+     "totalTokens": 6340
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The machine is fitted.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Internal leak from a sump, pump seal or internal hose (high)",
+     "Split or obstructed lower spray arm directing water at the door (medium)",
+     "Door alignment/load deflecting water past the seal (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "leak",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.66
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.49
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.81
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.06
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 1
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "water visible in the base tray"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.89
+     },
+     "checkGiven": "Tall trays or items hanging below the lower rack can deflect the spray straight at the door seal. With the racks loaded, turn each spray arm",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:drain-pump",
+       "dishwasher:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can check from the front?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections o\".",
+     "Checks they have done and what they found: turned it off and on - E:15 remains and pump keeps running; Inspected the door seal - looks okay; Checked the filter - fairly clean.",
+     "Already given by the customer, never ask for it again: make Bosch; model SMV4HTX31E; code E:15.",
+     "The fault they reported is: \"pump keeps running\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned it off and on: E:15 remains and pump keeps running",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Inspected the door seal: looks okay",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked the filter: fairly clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 19345
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 19828,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0203618,
+ "finishedAt": "2026-10-14T12:21:31.535Z"
+}

@@ -1,0 +1,401 @@
+{
+ "id": "HB-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-hb-02-2abcce6107",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Just had a new induction hob fitted, Beko. When I put my saucepan on it just flashes a U and doesn't heat. Is it faulty? It's brand new!!"
+  },
+  {
+   "role": "assistant",
+   "text": "It is unlikely to be faulty from that alone. On a Beko induction hob, a flashing “U” normally means the zone cannot detect a suitable pan, rather than an electrical fault. Induction needs a pan with a magnetic, flat base and one large enough for the cooking zone. Aluminium, copper and some stainless-steel pans will look like normal saucepans but will not heat on induction. 1. Let the hob cool if it has been used, then place a fridge magnet against the pan’s base. It needs to stick firmly.\n2. Put the pan centrally on the zone and try another pan that is known to work on induction, ideally similar in size to the zone. If the other magnetic pan heats, the hob is fine and the original saucepan is unsuitable, too small, or has a warped base. If a suitable, correctly sized magnetic pan still shows U on every zone, contact the retailer/installer while it is new; that would point to an installation or hob fault rather than cookware."
+  },
+  {
+   "role": "customer",
+   "text": "The magnet doesn't stick to my saucepans, they're aluminium! It does stick to my cast-iron casserole though, and that heated up fine on the hob. So is it the pans?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — it is the aluminium pans, not a fault with the hob. The cast-iron casserole heating proves the hob is detecting compatible cookware and working correctly. For new pans, look for an induction-compatible symbol on the base/packaging, or use the magnet test: it should stick firmly and the base should be flat and suitably sized for the zone. You do not need an engineer or replacement hob."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1682,
+     "labelMs": 382,
+     "enrichMs": 550,
+     "reasonMs": 6107,
+     "verifyMs": 1764,
+     "replyLabelMs": 362,
+     "totalMs": 10878
+    },
+    "usage": {
+     "promptTokens": 2898,
+     "completionTokens": 362,
+     "totalTokens": 3260
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Pan not suitable for induction or not being detected (high)",
+     "Induction zone or power module fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.67
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": "U",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Beko",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "induction hob",
+      "brand": "Beko",
+      "model": null,
+      "codes": [
+       "U"
+      ],
+      "symptom": "flashes U and does not heat when a saucepan is placed on it"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:power-module",
+       "hobs:cookware-user",
+       "hobs:energy-regulator"
+      ],
+      "codes": [
+       {
+        "code": "U",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it faulty?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Beko; code U.",
+     "The fault they reported is: \"flashes U and does not heat when a saucepan is placed on it\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [
+      {
+       "code": "U",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10929
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11142,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2283,
+     "labelMs": 322,
+     "enrichMs": 1,
+     "reasonMs": 3452,
+     "verifyMs": 8267,
+     "replyLabelMs": 395,
+     "totalMs": 14773
+    },
+    "usage": {
+     "promptTokens": 3301,
+     "completionTokens": 201,
+     "totalTokens": 3502
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The hob flashes a U when the saucepan is placed on it.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Aluminium saucepans are not induction-compatible (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.72
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.37
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.65
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "induction hob",
+      "brand": "Beko",
+      "model": null,
+      "codes": [],
+      "symptom": "aluminium saucepans not heating on the hob"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.71
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:cookware-user",
+       "hobs:energy-regulator",
+       "hobs:power-module"
+      ],
+      "codes": [
+       {
+        "code": "U",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"So is it the pans?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: Tested saucepans with a magnet - magnet does not stick; they are aluminium; Tested cast-iron casserole with a magnet and on the hob - magnet sticks and casserole heated up fine.",
+     "Already given by the customer, never ask for it again: make Beko; code U.",
+     "The fault they reported is: \"flashes U and does not heat when a saucepan is placed on it\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [
+      {
+       "code": "U",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested saucepans with a magnet: magnet does not stick; they are aluminium",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tested cast-iron casserole with a magnet and on the hob: magnet sticks and casserole heated up fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14902
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15268,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0187998,
+ "finishedAt": "2026-10-14T12:36:01.347Z"
+}

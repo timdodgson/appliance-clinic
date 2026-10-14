@@ -1,0 +1,389 @@
+{
+ "id": "DW-11",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-11-d6e5510b2f",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Just got a new Siemens dishwasher and there's always a bit of water left in the bottom under the filter after it finishes. Is it draining properly?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — if it is only a small amount of clean water sitting in the sump underneath the filter, and it is below the filter level, that is normally correct. Dishwashers retain a little water there to keep the pump and seals from drying out. It would suggest a drainage problem only if the water is dirty or smells, rises above the filter/base, or the machine leaves water visible across the bottom of the tub after a programme. 1. With the dishwasher switched off, lift out the filter and look at the water level and condition. A small, clean amount only in the well underneath is normal.\n2. If there is more than that, rinse the filter and clear any food debris from the sump beneath it. A partial blockage is the common simple cause.\n3. If it is newly installed and has standing water after cycles, check the drain hose is not kinked and that the connection under the sink drains freely; an installation restriction can prevent proper draining. Is the water only a small, clean amount below the filter level, or is it dirty/smelly or sitting above the filter?\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. I checked: it's a small amount of clean water, roughly a cupful, just in the well under the filter. None in the main tub. The filter itself is clean and the water level is the same the next day, not rising. Is that normal then?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — that is normal. A cupful of clean water held in the sump well beneath the filter, with no water in the main tub and no rise overnight, is the normal residual water that keeps the pump and seals from drying out. It is draining properly based on those signs. No action is needed. Only investigate if water starts appearing across the tub base, rises above the filter, becomes dirty or smelly, or the dishwasher reports a drain fault."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2117,
+     "labelMs": 368,
+     "enrichMs": 1,
+     "reasonMs": 5148,
+     "verifyMs": 2135,
+     "replyLabelMs": 300,
+     "totalMs": 10109
+    },
+    "usage": {
+     "promptTokens": 4820,
+     "completionTokens": 357,
+     "totalTokens": 5177
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Normal residual water in the sump beneath the filter (high)",
+     "Partial drainage restriction (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Siemens",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Siemens",
+      "model": null,
+      "codes": [],
+      "symptom": "water left in the bottom under the filter after finishing"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.7
+     },
+     "checkGiven": "Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or g",
+     "media": "dishwasher-filter",
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:foreign-object"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it draining properly?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Siemens.",
+     "The fault they reported is: \"water left in the bottom under the filter after finishing\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Siemens",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water only a small, clean amount below the filter level, or is it dirty/smelly or sitting above the filter?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10166
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10549,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2636,
+     "labelMs": 356,
+     "enrichMs": 0,
+     "reasonMs": 2647,
+     "verifyMs": 1712,
+     "replyLabelMs": 293,
+     "totalMs": 7688
+    },
+    "usage": {
+     "promptTokens": 5369,
+     "completionTokens": 201,
+     "totalTokens": 5570
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Normal residual sump water (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.84
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.64
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:water-matrix",
+       "dishwasher:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is that normal then?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or g\".",
+     "Checks they have done and what they found: Checked the water under the filter - Roughly a cupful of clean water in the well, with none in the main tub; Checked the filter - Filter is clean; Checked the water level the next day - It was the same and not rising.",
+     "Already given by the customer, never ask for it again: make Siemens.",
+     "The fault they reported is: \"water left in the bottom under the filter after finishing\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Siemens",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Checked the water under the filter: Roughly a cupful of clean water in the well, with none in the main tub",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked the filter: Filter is clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked the water level the next day: It was the same and not rising",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water only a small, clean amount below the filter level, or is it dirty/smelly or sitting above the filter?",
+       "turn": 1,
+       "resolution": "A small, clean amount below the filter level"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7745
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 8108,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.018713800000000003,
+ "finishedAt": "2026-10-14T12:23:57.733Z"
+}

@@ -1,0 +1,394 @@
+{
+ "id": "MW-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-03-b118218e3b",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "panasonic nn h98 not heating anymore, any fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "Possibly, but if it runs normally and simply no longer heats, the repair is usually in the microwave’s high-voltage heating system. That is not a safe DIY area: dangerous stored voltage can remain even when it is unplugged, so do not remove the casing or attempt to test internal parts. First rule out the simple causes:\n1. Use a microwave-safe cup with water, select normal microwave cooking (not grill, combination, defrost or low power) and full power, then run it for one minute. If the water is hot, it was a setting/mode issue. If it is still cold, there is a genuine heating fault.\n2. Check that the door closes firmly and latches cleanly, with no debris around the latch. If it will not start, stops when the door is touched, or behaves as if the door is open, the door interlock is more likely than the heating circuit. If it runs, the timer counts down and the turntable/light operate but the water stays cold, arrange a microwave engineer or consider replacement depending on its age and repair quote. The likely internal causes include the inverter/high-voltage module or magnetron, but the exact failed part cannot be safely identified from outside. With a microwave-safe cup of water, does it run for one minute on full microwave power and leave the water cold, or does it fail to start/cut out? Also, is there an unusually loud heavy buzz?"
+  },
+  {
+   "role": "customer",
+   "text": "tried water, stops after about 10-15 seconds with H98 and the water is still cold. door closes fine. no loud buzz, no smell"
+  },
+  {
+   "role": "assistant",
+   "text": "H98 on a Panasonic, together with stopping after 10–15 seconds and no heat, points to a fault in the microwave high-voltage heating system rather than overheating or a simple setting issue. The leading suspects are the inverter/high-voltage power module, then the magnetron or its feedback circuit. Do not keep running test cycles, and do not remove the casing: hazardous voltage can remain stored inside even unplugged. This needs a microwave engineer to test safely; the external symptoms cannot prove which of those internal parts has failed. The door is less likely because it closes properly and the fault appears consistently after a short run, rather than when the door is moved. Whether repair is worthwhile will depend mainly on the full model and the engineer’s quote, as inverter or magnetron repairs can be relatively costly.\n[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1521,
+     "labelMs": 347,
+     "enrichMs": 16,
+     "reasonMs": 6106,
+     "verifyMs": 2249,
+     "replyLabelMs": 415,
+     "totalMs": 10719
+    },
+    "usage": {
+     "promptTokens": 4907,
+     "completionTokens": 465,
+     "totalTokens": 5372
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Incorrect cooking mode or low power setting (medium)",
+     "High-voltage heating circuit fault (medium)",
+     "Door latch/interlock issue (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN H98",
+       "confidence": 0.95
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Panasonic",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "Panasonic",
+      "model": "NN H98",
+      "codes": [],
+      "symptom": "not heating anymore"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.93
+     },
+     "checkGiven": "Heat a cup of water for a minute on full power. Is the water hot now, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:grill-not-heating",
+       "microwave:not-heating",
+       "microwave:turntable"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Panasonic; model NN H98.",
+     "The fault they reported is: \"not heating anymore\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN H98",
+      "confidence": 0.95,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, is there an unusually loud heavy buzz?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10775
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11198,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 3530,
+     "labelMs": 382,
+     "enrichMs": 0,
+     "reasonMs": 6927,
+     "verifyMs": 8195,
+     "replyLabelMs": 411,
+     "totalMs": 19521
+    },
+    "usage": {
+     "promptTokens": 5432,
+     "completionTokens": 520,
+     "totalTokens": 5952
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Inverter/high-voltage power module fault (high)",
+     "Magnetron or its high-voltage feedback circuit fault (medium)",
+     "Door interlock fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.93
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.47
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "H98",
+       "confidence": 0.88
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.28
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "H98"
+      ],
+      "symptom": "stops after 10–15 seconds and does not heat"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.76
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:not-heating",
+       "microwave:grill-not-heating",
+       "microwave:cutting-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Heat a cup of water for a minute on full power. Is the water hot now, or still cold?\".",
+     "Checks they have done and what they found: Tried heating water - Stopped after about 10–15 seconds with H98; water stayed cold; Checked door closure - Door closes fine.",
+     "Already given by the customer, never ask for it again: make Panasonic; model H98.",
+     "The fault they reported is: \"not heating anymore\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "H98",
+      "confidence": 0.88,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tried heating water: Stopped after about 10–15 seconds with H98; water stayed cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked door closure: Door closes fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, is there an unusually loud heavy buzz?",
+       "turn": 1,
+       "resolution": "It stops after 10–15 seconds with H98; water stays cold. No loud buzz."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 19655
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 19884,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.020685799999999997,
+ "finishedAt": "2026-10-14T12:30:11.600Z"
+}

@@ -1,0 +1,439 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-472dc0931c",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "With the filter cleaned, the two main possibilities are a blocked/kinked drain hose or waste connection, and a jammed or failed drain pump. Both can give exactly the same “not draining” symptom. 1. Switch off and unplug the washer. Check the drain hose along the back for crushing or kinks, then check where it enters the standpipe or sink waste for an obvious blockage. Towels handy in case water escapes.\n2. Then run a drain or spin programme and listen at the lower front: is there a hum/whirring from the pump, or is it completely silent? A humming pump with no water leaving points first to a restriction in the hose/waste connection or something still trapped around the pump. A silent pump, once the hose and waste route are clear, makes the drain pump the likely failed part. If the external route is clear but it hums and still cannot shift water, an internal sump-hose blockage or jammed pump is more likely and is usually an engineer job."
+  },
+  {
+   "role": "customer",
+   "text": "hose behind looks ok and the sink drains fine. pump hums but no water moves, with a bit of a rattle. so is it the pump I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drain pump]\nMost likely, yes: the drain pump is the part implicated. I would not call it certain until an engineer has ruled out an obstruction in the internal sump hose (between drum and pump), as that can produce the same result and is not normally an owner-safe strip-down job. If the pump is replaced while that hose is blocked, the new pump will still not drain. FD 9409 is a Bosch production/date identifier rather than a full appliance model reference, so it is not enough to select a compatible pump. Use the complete E-number from the rating plate—usually around the door opening or on the rear—with Bosch spares, or give it to an appliance engineer. Ask them to check the sump hose and pump impeller first, then replace the drain pump if the water path is clear. Given the rattle and no discharge, a pump replacement is a reasonable expectation, but have the internal blockage ruled out at the same visit."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1725,
+     "labelMs": 352,
+     "enrichMs": 2,
+     "reasonMs": 5039,
+     "verifyMs": 1205,
+     "replyLabelMs": 736,
+     "totalMs": 9111
+    },
+    "usage": {
+     "promptTokens": 5308,
+     "completionTokens": 404,
+     "totalTokens": 5712
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Drain hose or household waste connection blocked or kinked (medium)",
+     "Drain pump obstructed, jammed or failed (medium)",
+     "Internal sump-hose obstruction (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD9409",
+       "confidence": 0.92
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what part do i need?\" - answer that first.",
+     "Checks they have done and what they found: cleaned the filter - still not draining.",
+     "Already given by the customer, never ask for it again: make bosch; model FD9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD9409",
+      "confidence": 0.92,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still not draining",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Then run a drain or spin programme and listen at the lower front: is there a hum/whirring from the pump, or is it completely silent?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9334
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9698,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2077,
+     "labelMs": 343,
+     "enrichMs": 1,
+     "reasonMs": 4877,
+     "verifyMs": 9771,
+     "replyLabelMs": 334,
+     "totalMs": 17997
+    },
+    "usage": {
+     "promptTokens": 5823,
+     "completionTokens": 354,
+     "totalTokens": 6177
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "A hum with rattling but no water movement, after the filter has been cleaned and the visible hose/waste route looks clear, is typical of a pump with a damaged or jammed impeller.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Drain pump obstructed, jammed or failed (high)",
+     "Internal sump-hose obstruction before the pump (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.9
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drain pump",
+       "confidence": 0.47
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Pump hums and rattles but no water drains"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.69
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it the pump I need?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste.\".",
+     "Checks they have done and what they found: cleaned the filter - still not draining; Checked drain hose behind the washing machine - Looks OK; Checked sink drainage - Sink drains fine; Ran drain or spin and listened to the pump - Pump hums with a bit of a rattle, but no water moves.",
+     "Already given by the customer, never ask for it again: make bosch; model FD9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the drain pump, but we could not find a confirmed match for model FD9409. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD9409",
+      "confidence": 0.92,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still not draining",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Checked drain hose behind the washing machine: Looks OK",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked sink drainage: Sink drains fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "Ran drain or spin and listened to the pump: Pump hums with a bit of a rattle, but no water moves",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Then run a drain or spin programme and listen at the lower front: is there a hum/whirring from the pump, or is it completely silent?",
+       "turn": 1,
+       "resolution": "Pump hums with a bit of a rattle; no water moves"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18050
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 18299,
+   "retried": false,
+   "label": "Likely cause: drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0223118,
+ "finishedAt": "2026-10-14T12:08:59.811Z"
+}

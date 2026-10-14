@@ -1,0 +1,55 @@
+{
+ "id": "VC-10.ac3",
+ "case": "VC-10",
+ "system": "ac3",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 4,
+  "fidelity": 1,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 1,
+  "calibration": 3,
+  "noRepetition": 0,
+  "escalation": 3,
+  "partQuality": 2,
+  "languageUnderstanding": 2,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": "Minor assumption only: 'If the roller is free, filters are fully dry' - customer said cleaned, not dry, but this was framed as a condition rather than a fact."
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "Customer: 'I already said it still cuts out as a bare handheld' - yet the final reply again says 'After a full charge, use it on normal power as a bare handheld... If it still stops within 5-10 seconds' - the same test requested in turns 1, 4 and 7."
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": true,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant correctly identified a worn battery as the leading but unconfirmed suspect and sensibly pointed to Dyson diagnosis or a known-good battery before buying, with appropriately hedged confidence. However it never asked for the model label (so SV11/V7 was never established) nor whether it pulsed or stopped cleanly, and it ignored the customer's clear statement that the vacuum cuts out as a bare handheld, re-requesting that exact test three times. After a service error the final reply still failed to answer the direct yes/no question the customer had asked four times, leaving a frustrated homeowner with no actionable decision.",
+ "costUsd": 0.23076
+}

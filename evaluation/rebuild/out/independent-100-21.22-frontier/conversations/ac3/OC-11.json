@@ -1,0 +1,375 @@
+{
+ "id": "OC-11",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-11-4db2ce0a1f",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, the light in my Neff oven has stopped working (model B1ACE4HN0B). Oven works fine otherwise. Can I change the bulb myself and what bulb do I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, changing the cavity bulb is normally a straightforward owner job, provided the oven is fully cool and isolated at the cooker switch/fuse box first. Because the oven otherwise works normally, the bulb itself is by far the most likely cause; the next possibilities are the lamp holder or its local wiring. 1. Switch off and isolate the oven, then let it cool completely. Remove shelves if they obstruct access.\n2. Locate the glass cover over the lamp inside the oven. It commonly unscrews anti-clockwise; use a dry cloth or gloves for grip rather than forcing it.\n3. Check the bulb is not loose, blackened or with a broken filament. A loose bulb may simply need carefully refitting.\n4. Take the old bulb with you, or read the markings on it and match them exactly. Use only a heat-resistant oven lamp rated to 300°C, with the same cap fitting, voltage and wattage as the original. These are often SES/E14 screw bulbs, but do not assume that fitting or wattage without checking the old lamp/oven documentation. Refit the glass cover before restoring power. If a matching new oven-rated bulb still does not light, or it blows again soon afterwards, the lamp holder or local wiring needs an appliance engineer; it is not usually a control-board fault."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks, I've isolated it at the cooker switch and let it cool first. The glass cover came off with a rubber glove for grip. The old bulb says E14, 25W, 300C and the filament looks broken. Is a matching one all I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes. The broken filament makes the bulb the very likely fault, so a like-for-like E14, 25 W, 300°C oven-rated lamp is the appropriate replacement. With the oven still isolated, screw it in gently—firm enough to make contact, but do not overtighten—then refit the glass cover before switching the oven back on. Do not use an ordinary appliance/fridge bulb: it needs the 300°C oven rating. If the new matching bulb does not illuminate, or it fails again soon after fitting, stop there: the likely next cause is the lamp holder or its local wiring, which is an engineer repair."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1741,
+     "labelMs": 350,
+     "enrichMs": 2,
+     "reasonMs": 7513,
+     "verifyMs": 1307,
+     "replyLabelMs": 281,
+     "totalMs": 11231
+    },
+    "usage": {
+     "promptTokens": 3496,
+     "completionTokens": 412,
+     "totalTokens": 3908
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blown oven lamp/bulb (high)",
+     "Lamp holder or local wiring fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "B1ACE4HN0B",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Neff",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Neff",
+      "model": "B1ACE4HN0B",
+      "codes": [],
+      "symptom": "oven light has stopped working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:lighting",
+       "oven-cooker:cooling-fan",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Can I change the bulb myself and what bulb do I need?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Neff; model B1ACE4HN0B.",
+     "The fault they reported is: \"oven light has stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Neff",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "B1ACE4HN0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11386
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11740,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 2312,
+     "labelMs": 343,
+     "enrichMs": 0,
+     "reasonMs": 3959,
+     "verifyMs": 1306,
+     "replyLabelMs": 324,
+     "totalMs": 8279
+    },
+    "usage": {
+     "promptTokens": 4349,
+     "completionTokens": 279,
+     "totalTokens": 4628
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Blown oven lamp / bulb (high)",
+     "Lamp holder or local wiring (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.56
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "oven light not working; bulb filament looks broken"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.47
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:lighting",
+       "oven-cooker:cooling-fan",
+       "oven-cooker:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is a matching one all I need?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: Removed the glass lamp cover using a rubber glove - Cover came off; Inspected the old bulb - It is marked E14, 25W, 300C and the filament looks broken.",
+     "Already given by the customer, never ask for it again: make Neff; model B1ACE4HN0B.",
+     "The fault they reported is: \"oven light has stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Neff",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "B1ACE4HN0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Removed the glass lamp cover using a rubber glove: Cover came off",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Inspected the old bulb: It is marked E14, 25W, 300C and the filament looks broken",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 8422
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 8630,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0214938,
+ "finishedAt": "2026-10-14T12:35:13.997Z"
+}

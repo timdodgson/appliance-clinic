@@ -1,0 +1,418 @@
+{
+ "id": "OC-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-02-bee3a8e733",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "indesit oven stoped heating, fan goes round n light on but its stone cold after 20 mins. grill werks fine tho. any ideas b4 i call some1 out"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes — the most likely fault is the fan-oven heating element: the fan and light can still work normally while the rear circular element has failed. A working grill points away from a total power-supply fault, but does not prove the element on its own. Before calling someone, two worthwhile checks:\n1. Check the clock/display is not flashing or left on AUTO after a power cut. Set it to manual/time-of-day, then select the fan-oven symbol (fan with a ring around it) and a temperature such as 180°C. Defrost runs the fan but deliberately produces no heat.\n2. With the cooker switched off and isolated at the wall/cooker switch, look at the circular element around the fan at the back of the oven. A split, blister, hole or burnt patch makes the element the very likely culprit. Do not remove panels or touch wiring. If the clock is in manual mode and the element looks intact but the oven remains stone cold, it still may be the element, but an engineer should test the element and its connections, then the thermostat and function selector. Those are mains-wiring repairs rather than a safe DIY job."
+  },
+  {
+   "role": "customer",
+   "text": "clock is on manual, time set n nothing flashing. orange light stays on all the time tho. its hardwired thru a cooker switch on the wall, i know where it is so can isolate it. cant see the element properly with the back panel on tho, ok to take it off if its off at the switch?"
+  },
+  {
+   "role": "assistant",
+   "text": "No — I would not advise taking the rear panel off just because the cooker switch is off. A cooker switch is intended to isolate it, but you cannot safely verify that it has done so without proper test equipment, and removing the panel exposes mains terminals and wiring. Leave that panel in place. The fan running, the oven remaining stone cold, and the grill working, the fan-oven element is still the leading suspect. The orange light staying on supports the oven still calling for heat, so it is less suggestive of a normal thermostat cycling situation. However, a burnt element terminal, selector-switch contact, or thermostat/control fault can give the same symptom. The sensible next step is an appliance engineer. That will distinguish the element from the control path before any part is fitted."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 1935,
+     "labelMs": 324,
+     "enrichMs": 0,
+     "reasonMs": 9622,
+     "verifyMs": 4086,
+     "replyLabelMs": 319,
+     "totalMs": 16350
+    },
+    "usage": {
+     "promptTokens": 5682,
+     "completionTokens": 650,
+     "totalTokens": 6332
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Fan-oven rear ring heating element failure (high)",
+     "Fan-oven selector switch, thermostat/control path or burnt element connection (medium)",
+     "Clock/programmer left in automatic mode (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.85
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Indesit",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Indesit",
+      "model": null,
+      "codes": [],
+      "symptom": "Oven is not heating; fan and light work, but it stays cold."
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:cooling-fan",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any ideas before I call someone out?\" - answer that first.",
+     "Checks they have done and what they found: Ran the oven for 20 minutes - It was still stone cold.; Tested the grill - Grill works fine..",
+     "Already given by the customer, never ask for it again: make Indesit.",
+     "The fault they reported is: \"Oven is not heating; fan and light work, but it stays cold.\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Ran the oven for 20 minutes: It was still stone cold.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tested the grill: Grill works fine.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16496
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16667,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "openai",
+     "model": "gpt-5.6-terra"
+    },
+    "timings": {
+     "understandMs": 4518,
+     "labelMs": 309,
+     "enrichMs": 2,
+     "reasonMs": 6855,
+     "verifyMs": 7584,
+     "replyLabelMs": 319,
+     "totalMs": 19648
+    },
+    "usage": {
+     "promptTokens": 6492,
+     "completionTokens": 486,
+     "totalTokens": 6978
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The clock is correctly on manual.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 5,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Fan-oven heating element or its terminal connections (high)",
+     "Fan-oven selector/control or thermostat circuit (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.79
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.52
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.73
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.53
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "fan oven not heating; orange light stays on"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:selector-switch",
+       "oven-cooker:clock-timer"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it okay to take the back panel off if it is switched off at the cooker switch?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and\".",
+     "Checks they have done and what they found: Ran the oven for 20 minutes - It was still stone cold.; Tested the grill - Grill works fine.; Checked clock/display mode - On manual with time set; nothing flashing.",
+     "Already given by the customer, never ask for it again: make Indesit.",
+     "The fault they reported is: \"Oven is not heating; fan and light work, but it stays cold.\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Ran the oven for 20 minutes: It was still stone cold.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Tested the grill: Grill works fine.",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Checked clock/display mode: On manual with time set; nothing flashing",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 19807
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20170,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0255598,
+ "finishedAt": "2026-10-14T12:32:50.136Z"
+}
