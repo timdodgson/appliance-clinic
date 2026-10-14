@@ -55,21 +55,24 @@ Return ONLY a JSON object with exactly these keys:
 // Structured output: a JSON schema (LM Studio and OpenAI both accept `json_schema`; LM Studio rejects `json_object`).
 const str = { type: 'string' };
 const nstr = { type: ['string', 'null'] };
+// Strict structured output (OpenAI strict mode needs additionalProperties: false on every object; LM Studio accepts it).
 const SCHEMA = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     assessment: {
       type: 'object',
+      additionalProperties: false,
       properties: {
         status: { type: 'string', enum: ['gathering', 'narrowed', 'probably_normal', 'needs_engineer', 'resolved'] },
-        candidates: { type: 'array', items: { type: 'object', properties: { cause: str, likelihood: { type: 'string', enum: ['high', 'medium', 'low'] }, evidence: { type: 'array', items: str } }, required: ['cause', 'likelihood', 'evidence'] } },
+        candidates: { type: 'array', items: { type: 'object', additionalProperties: false, properties: { cause: str, likelihood: { type: 'string', enum: ['high', 'medium', 'low'] }, evidence: { type: 'array', items: str } }, required: ['cause', 'likelihood', 'evidence'] } },
         confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
         knowledgeIds: { type: 'array', items: str },
         summary: nstr,
       },
       required: ['status', 'candidates', 'confidence', 'knowledgeIds', 'summary'],
     },
-    next: { type: ['object', 'null'], properties: { key: str, question: str }, required: ['key', 'question'] },
+    next: { type: ['object', 'null'], additionalProperties: false, properties: { key: str, question: str }, required: ['key', 'question'] },
     reply: str,
   },
   required: ['assessment', 'next', 'reply'],
