@@ -108,7 +108,7 @@ describe('turn: the two stages', () => {
     expect(out.response.message).toMatch(/^Switch it off and unplug it \(or take the battery off\) first\. Pulsing/);
   });
 
-  it('washing machine full of water: broad help first; after a failed check, ask for the model and say where the label is; then the part', async () => {
+  it('washing machine full of water: broad help first; after a failed check, the next check (no model yet); once narrowed, ask for the model and say where the label is; then the part', async () => {
     const j1 = jev({ appliance: 'washing-machine', symptomArea: 'not_draining' });
     const t1 = await runTurn({ messages: [user('my washing machine is full of water')] }, deps(qwen({ reading: { appliance: 'washing machine', symptom: 'full of water' } }), j1));
     expect(t1.state.stage).toBe(1);
@@ -121,14 +121,25 @@ describe('turn: the two stages', () => {
       deps(qwen({ reading: { checksReported: [{ check: 'pump filter', result: 'clear, still will not empty' }] } }), j2));
     expect(t2.state.stage).toBe(2);
     expect(t2.state.customer.checks[0]).toMatchObject({ check: 'pump filter' });
-    expect(t2.audit.plan.join(' ')).toMatch(/make and model number .*inside the door rim/);
-    expect(t2.response.modelRequired).toBe(true);
+    // Not narrowed yet: the next check, and no model number (DW-06: a cleaning fix got a model request).
+    expect(t2.audit.plan.join(' ')).toMatch(/Give the next check that best separates/);
+    expect(t2.audit.plan.join(' ')).not.toMatch(/model number so we can find/);
+    expect(t2.response.modelRequired).toBe(false);
     expect(t2.response.parts).toBeNull();
 
-    const history2 = [...history, user('checked the filter, nothing in it, still wont empty'), bot('That points to the drain pump. What is the make and model?')];
+    // Narrowed to the drain pump: now the model number, with where the label is.
+    const history15 = [...history, user('checked the filter, nothing in it, still wont empty'), bot('Listen while it tries to drain: can you hear the pump hum?')];
+    const j25 = jev({ narrowed: 'drain pump', checkOutcome: 'still_faulty', lastAnswer: 'answered' });
+    const t25 = await runTurn({ messages: [...history15, user('it hums but nothing happens')], state: t2.state },
+      deps(qwen({ reading: { checksReported: [{ check: 'listen for the pump', result: 'hums, no water moves' }] } }), j25));
+    expect(t25.state.narrowed).toMatchObject({ component: 'drain pump' });
+    expect(t25.audit.plan.join(' ')).toMatch(/point to the drain pump.*make and model number .*inside the door rim/);
+    expect(t25.response.modelRequired).toBe(true);
+
+    const history2 = [...history15, user('it hums but nothing happens'), bot('That points to the drain pump. What is the make and model?')];
     const j3 = jev({ make: 'bosch', model: 'WAT28371GB', narrowed: 'drain pump', lastAnswer: 'answered' });
     const lookup = catalogue([{ partNo: 'P1', title: 'Drain Pump Assembly' }, { partNo: 'P2', title: 'Door Seal' }]);
-    const t3 = await runTurn({ messages: [...history2, user('its a bosch WAT28371GB')], state: t2.state },
+    const t3 = await runTurn({ messages: [...history2, user('its a bosch WAT28371GB')], state: t25.state },
       deps(qwen({ reading: { brand: 'Bosch', model: 'WAT28371GB' } }), j3, { lookupParts: lookup }));
     expect(t3.state.narrowed).toMatchObject({ component: 'drain pump' });
     expect(t3.response.parts.map((p) => p.partNo)).toEqual(['P1']);
@@ -212,7 +223,7 @@ describe('turn: the two stages', () => {
   it('carries on without the model when the label cannot be reached', async () => {
     const rec = Rec.empty();
     Rec.setValue(rec, 'appliance', 'washing-machine', 0.9, 1);
-    rec.stage = 2; rec.customer.modelUnavailable = true;
+    rec.stage = 2; rec.customer.modelUnavailable = true; rec.narrowed = { component: 'drain pump', confidence: 0.9, turn: 1 };
     const plan = decide(rec, normalise({}), null, null, null).join(' ');
     expect(plan).toMatch(/cannot reach the model label/);
     expect(plan).not.toMatch(/ask for the/);
@@ -484,6 +495,55 @@ describe('judged failures of the 21.15 evaluation (change 21.16)', () => {
   });
   it('softens "strongly points to", "highly likely" and "the most reliable fix is to"', () => {
     expect(calibrate('This strongly points to a defrost fault and it is highly likely the pump. The most reliable fix is to replace it.').text).toBe('This points to a defrost fault and it is likely the pump. The likely fix may be to replace it.');
+  });
+});
+
+describe('Phase 1 of the improvement plan (change 21.18)', () => {
+  const V = require('../ac2/verifier.js');
+  const R = require('../ac2/reasoner.js');
+  it('D1: checks longer than 40 characters reach Jev, so the check each reply gives is recorded', () => {
+    const req = J.buildReplyRequest({ reply: 'Clean the pump filter behind the flap.', media: [], checks: ['Clean the pump filter behind the small flap at the bottom front'] });
+    expect(Object.values(req.questions.check.criteria)).toContain('Clean the pump filter behind the small flap at the bottom front');
+  });
+  it('D2: a hazard the customer denies is cleared, stops forcing escalation, and comes back if reported again', async () => {
+    const t1 = await runTurn({ messages: [user('my tumble dryer smells of burning')] }, deps(qwen({ reading: { appliance: 'tumble dryer' } }), jev({ appliance: 'tumble-dryer' })));
+    expect(t1.response.escalation).toMatchObject({ reason: 'burning', forced: true });
+    const h1 = [user('my tumble dryer smells of burning'), bot(t1.response.message)];
+    const t2 = await runTurn({ messages: [...h1, user('sorry, there is no burning smell, it was the iron. it just isnt drying')], state: t1.state }, deps(qwen(), jev()));
+    expect(t2.state.hazards.find((h) => h.type === 'burning')).toMatchObject({ cleared: true });
+    expect(t2.response.escalation).toBeNull();
+    expect(t2.audit.safety.cleared).toEqual(['burning']);
+    const t3 = await runTurn({ messages: [...h1, user('sorry, there is no burning smell, it was the iron. it just isnt drying'), bot(t2.response.message), user('now it really does smell of burning plastic')], state: t2.state }, deps(qwen(), jev()));
+    expect(t3.state.hazards.find((h) => h.type === 'burning').cleared).toBe(false);
+    expect(t3.response.message).toContain(S.copyFor('burning'));
+  });
+  it('D3: the gas emergency wording is given once; the next turn answers under it instead of repeating the card', async () => {
+    const t1 = await runTurn({ messages: [user('i can smell gas from the hob')] }, deps(qwen(), jev()));
+    expect(t1.response.outcome).toBe('SAFETY_STOP');
+    const q = qwen({ reading: { appliance: 'hob' }, reply: 'Leave the gas off at the meter and keep the windows open until the Gas Safe engineer has been.' });
+    const t2 = await runTurn({ messages: [user('i can smell gas from the hob'), bot(t1.response.message), user('ok ive called the gas line, what do i do while i wait')], state: t1.state }, deps(q, jev({ appliance: 'hobs' })));
+    expect(t2.response.outcome).toBe('ANSWER');
+    expect(t2.response.message).not.toBe(S.copyFor('gas'));
+    expect(t2.audit.plan.join(' ')).toMatch(/reported a gas smell earlier .*Do not repeat it/);
+  });
+  it('D12: an out-of-scope appliance gets a pointer, never a bare refusal', async () => {
+    const out = await runTurn({ messages: [user('dehumidifer in the garage hasnt collected any water for weeks')] }, deps(qwen(), jev({ appliance: 'other_appliance' })));
+    expect(out.response.message).toMatch(/manufacturer's support line/);
+    const other = await runTurn({ messages: [user('my electric gate opener has stopped')] }, deps(qwen(), jev({ appliance: 'other_appliance' })));
+    expect(other.response.message).toMatch(/local appliance repairer/);
+  });
+  it('D13: the reasoner returns only what the turn uses', () => {
+    const schema = R.RESPONSE_FORMAT.json_schema.schema;
+    expect(schema.required).toEqual(['assessment', 'next', 'reply']);
+    expect(Object.keys(schema.properties)).toEqual(['assessment', 'next', 'reply']);
+    expect(R.SYSTEM).not.toMatch(/understanding\.newFacts|"part":|"escalation":/);
+  });
+  it('D4: the claim check removes an unsupported premise but keeps the advice; thanks and the assistant\'s own reasoning are not claims', async () => {
+    const v = await V.verify('Since you have already cleaned the filters, please try this next: remove the battery pack. Because the light never turns green, the battery isn\'t taking a full charge. Thanks for checking that.', [], ['my vacuum keeps pulsing'], { extract: null });
+    expect(v.rejected.map((r) => r.sentence)).toEqual([1]);
+    expect(V.neutralise(v)).toBe("Please try this next: remove the battery pack. Because the light never turns green, the battery isn't taking a full charge. Thanks for checking that.");
+    const w = await V.verify('Thanks for checking the sump hose.', [], ['my dishwasher wont drain'], { extract: null });
+    expect(w.rejected).toHaveLength(1);
   });
 });
 
