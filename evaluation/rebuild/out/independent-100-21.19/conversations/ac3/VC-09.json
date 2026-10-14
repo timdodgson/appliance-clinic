@@ -1,0 +1,765 @@
+{
+ "id": "VC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-09-ee73e39652",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my hoover's stopped working"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help you track this down. 'Stopped working' usually points to one of three things: it's not getting power (plug, cord, or battery), a safety cut-out has tripped because it got blocked or hot, or an internal component has failed. To start, is your vacuum corded or battery-powered? If it's corded, please check that the plug is secure in the wall and that other devices work at that socket."
+  },
+  {
+   "role": "customer",
+   "text": "its corded. the lamp works in the socket so its not that. its the red Henry one"
+  },
+  {
+   "role": "assistant",
+   "text": "Right, so the socket is fine. With a Henry vacuum that suddenly stops completely with no sound, the most common cause is the thermal cut-out tripping because the machine got too hot or blocked up. First, look for a reset button (often red) near where the cord enters the body and press it firmly. Then try switching it on again. If there is absolutely no sign of life—no hum, no lights—it could be the fuse in the plug or an internal cable break."
+  },
+  {
+   "role": "customer",
+   "text": "I don't know where a reset button would be, I can't turn it over because of my back. There's black tape on the cable near the plug that my son did ages ago, and it came on for a second once when I moved the wire, then went off."
+  },
+  {
+   "role": "assistant",
+   "text": "The fact that it only ran for a second when you moved the wire near the plug suggests an intermittent break in the mains cable or a loose connection inside the plug. Since you cannot turn the vacuum over, we need to check the plug end first. Please unplug the machine. If the fuse looks fine, the break is likely in the cable itself near that taped section or inside the plug entry point."
+  },
+  {
+   "role": "customer",
+   "text": "I haven't got a screwdriver or a spare fuse so I can't open the plug. What should I do?"
+  },
+  {
+   "role": "assistant",
+   "text": "Because the vacuum only ran for a second when you moved that taped section of the cord and you don't have tools to open the plug or replace the fuse, this is probably an internal break in the mains cable near where it enters the machine. This is a safety hazard as exposed wires can cause a shock or fire if used. Please stop using it immediately and contact a qualified appliance repair engineer to replace the lead or repair the entry point safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1475,
+     "labelMs": 274,
+     "enrichMs": 0,
+     "reasonMs": 7294,
+     "verifyMs": 460,
+     "replyLabelMs": 292,
+     "totalMs": 9822
+    },
+    "usage": {
+     "promptTokens": 1948,
+     "completionTokens": 325,
+     "totalTokens": 2273
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power supply issue (cord, plug, or battery) (high)",
+     "Thermal cut-out tripped due to blockage or overheating (medium)",
+     "Internal fault (motor, switch, or electronics) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.71
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.64
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "hoover",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stopped working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.47
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "To start, is your vacuum corded or battery-powered?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9863
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10058,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1831,
+     "labelMs": 264,
+     "enrichMs": 0,
+     "reasonMs": 8120,
+     "verifyMs": 1268,
+     "replyLabelMs": 280,
+     "totalMs": 11866
+    },
+    "usage": {
+     "promptTokens": 2251,
+     "completionTokens": 346,
+     "totalTokens": 2597
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Thermal cut-out tripped due to blockage or overheating (high)",
+     "Internal fuse blown in plug or appliance cable (medium)",
+     "Main motor failure (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Henry",
+       "confidence": 0.48
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "vacuum cleaner",
+      "brand": "Henry",
+      "model": null,
+      "codes": [],
+      "symptom": "stopped working"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: checked plug is secure in the wall and that other devices work at that socket - lamp works in the socket.",
+     "Already given by the customer, never ask for it again: make Henry.",
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Henry",
+      "confidence": 0.48,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked plug is secure in the wall and that other devices work at that socket: lamp works in the socket",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To start, is your vacuum corded or battery-powered?",
+       "turn": 1,
+       "resolution": "corded"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11929
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12378,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2469,
+     "labelMs": 293,
+     "enrichMs": 0,
+     "reasonMs": 9586,
+     "verifyMs": 4971,
+     "replyLabelMs": 290,
+     "totalMs": 17649
+    },
+    "usage": {
+     "promptTokens": 3085,
+     "completionTokens": 358,
+     "totalTokens": 3443
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the fuse is blown (a blackened glass element)",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Damaged mains cable (internal break) (high)",
+     "Faulty plug fuse (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.82
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.17
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "Henry vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "suddenly stops completely with no sound"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:wont-run",
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Checks they have done and what they found: checked plug is secure in the wall and that other devices work at that socket - lamp works in the socket; moved the wire near the plug - came on for a second once then went off.",
+     "Already given by the customer, never ask for it again: make Henry.",
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Henry",
+      "confidence": 0.48,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked plug is secure in the wall and that other devices work at that socket: lamp works in the socket",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "moved the wire near the plug: came on for a second once then went off",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To start, is your vacuum corded or battery-powered?",
+       "turn": 1,
+       "resolution": "corded"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 17690
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 18016,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1648,
+     "labelMs": 296,
+     "enrichMs": 0,
+     "reasonMs": 7132,
+     "verifyMs": 4315,
+     "replyLabelMs": 271,
+     "totalMs": 13722
+    },
+    "usage": {
+     "promptTokens": 3280,
+     "completionTokens": 201,
+     "totalTokens": 3481
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Damaged mains cable near the plug entry (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.74
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.63
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.85
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:wont-run",
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What should I do?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check; turn 3: gives check.",
+     "Checks they have done and what they found: checked plug is secure in the wall and that other devices work at that socket - lamp works in the socket; moved the wire near the plug - came on for a second once then went off.",
+     "Already given by the customer, never ask for it again: make Henry.",
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Henry",
+      "confidence": 0.48,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked plug is secure in the wall and that other devices work at that socket: lamp works in the socket",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "moved the wire near the plug: came on for a second once then went off",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "To start, is your vacuum corded or battery-powered?",
+       "turn": 1,
+       "resolution": "corded"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13763
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 14170,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.044241600000000006,
+ "finishedAt": "2026-10-14T03:28:33.914Z"
+}

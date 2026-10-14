@@ -1,0 +1,17 @@
+
+== 2. COVERAGE (94 in-scope cases) ==
+Deterministic D1: hiddenTruth term regex (gold.json terms) found in a same-family note's likelyComponents/components/journey causes/label, OR in a same-family normal-operation note: 89/94 (94.7%)
+Deterministic D2: same regex found anywhere in the compactDoc that retrieve() returns (or normal note): 93/94 (98.9%)
+Deterministic D3: same regex found in one of the MANUAL gold notes (compactDoc) or gold normal note: 92/94 (97.9%)
+Manual: full 85 partial 8 none 1 => full coverage 85/94 (90.4%) ; full+partial 93/94 (98.9%)
+Cases with a gold fault note: 88 | with a gold normal-operation note: 13
+id | manualQ | D1-fault-note | D1-normal | gold notes | gold normal
+  WD-05 | partial | Y | Y | washer-dryer:drying-poor | 
+  WD-08 | partial | - | - | washing-machine:odour | 
+  TD-01 | partial | - | - | tumble-dryer:overheating,tumble-dryer:filter-blocked,tumble-dryer:poor-drying | 
+  DW-12 | partial | Y | - | dishwasher:not-draining | 
+  FF-05 | partial | Y | - | fridge-freezer:defrost-system | 
+  OC-06 | partial | - | - | oven-cooker:ignition | 
+  VC-01 | none | - | - | (none) | 
+  VC-06 | partial | Y | Y | vacuum:wont-run | 
+  VC-08 | partial | - | - | vacuum:wont-run | 

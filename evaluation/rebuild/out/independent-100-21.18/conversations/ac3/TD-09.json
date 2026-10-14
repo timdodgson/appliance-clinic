@@ -1,0 +1,618 @@
+{
+ "id": "TD-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-09-2147dd8bcb",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Our Bosch dryer keeps stopping with the empty water container light on but the container is empty?? We've emptied it like 5 times"
+  },
+  {
+   "role": "assistant",
+   "text": "The issue is likely that the sensor isn't detecting the water level correctly rather than the tank actually being full. This often happens if the container isn't pushed all the way home or if a small plastic float inside it gets stuck with limescale or fluff. Please slide the container out, check that the internal float moves freely up and down, and then reinsert it firmly until it clicks into place. Let me know if this resolves the error."
+  },
+  {
+   "role": "customer",
+   "text": "Yes I've re-seated it firmly, it clicks in. I cleaned the little filter/sieve in the container too, it was slimy. Still stops with the light on, any other ideas?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: float switch]\nSince the container is most likely empty but the light stays on, the sensor that detects the water level (the float switch or electronic sensor) is likely failing to register that it's clear. To identify the correct replacement part for your specific Bosch model, I need the full model number from the rating plate inside the door opening.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "I only know it starts WTG8 from the front of the manual. The full label is on the back and the dryer is stacked on the washer so I can't get at it or move it. Is there anything else I can check from the front?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: float switch]\nThis points to a failure in the appliance's detection system rather than an actual water issue. On Bosch heat-pump dryers, there is often a small float switch inside the bottom sump (the reservoir at the base of the machine) that tells the electronics when the tank is full; if this gets stuck with limescale or sludge, it will falsely trigger the light even if the tank is empty. Because your model label is unreachable and the internal components require dismantling to access and clean safely, I recommend contacting Bosch Customer Support or a qualified engineer. They can diagnose whether the float switch needs cleaning or replacing, or if there is an issue with the electronic control board."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2261,
+     "labelMs": 311,
+     "enrichMs": 0,
+     "reasonMs": 9075,
+     "verifyMs": 4057,
+     "replyLabelMs": 286,
+     "totalMs": 16072
+    },
+    "usage": {
+     "promptTokens": 3155,
+     "completionTokens": 353,
+     "totalTokens": 3508
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "emptying the tank hasn't cleared the light",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Water container not seated correctly or faulty float switch in the tank (high)",
+     "Clogged condenser causing poor drainage and sensor confusion (medium)",
+     "Faulty condensate pump or internal blockage (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.71
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "keeps stopping with the empty water container light on but the container is empty"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Slide the water container out, empty it, check it isn't cracked and that the lid / float is clean, then push it firmly all the way home unti",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:overheating",
+       "tumble-dryer:motor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Checks they have done and what they found: emptied the water container - done like 5 times.",
+     "Already given by the customer, never ask for it again: make Bosch.",
+     "The fault they reported is: \"keeps stopping with the empty water container light on but the container is empty\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "emptied the water container: done like 5 times",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16125
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16496,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2877,
+     "labelMs": 324,
+     "enrichMs": 1,
+     "reasonMs": 8102,
+     "verifyMs": 2288,
+     "replyLabelMs": 285,
+     "totalMs": 13927
+    },
+    "usage": {
+     "promptTokens": 3386,
+     "completionTokens": 281,
+     "totalTokens": 3667
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Faulty water level float switch or sensor (high)",
+     "Blocked condensate pump inlet or internal hose (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.93
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.91
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "float switch",
+       "confidence": 0.58
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stops with the light on"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.55
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:overheating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any other ideas?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Slide the water container out, empty it, check it isn't cracked and that the lid / float is clean, then push it firmly all the way home unti\".",
+     "Checks they have done and what they found: emptied the water container - done like 5 times; re-seated container firmly - it clicks in; cleaned the little filter/sieve in the container - it was slimy.",
+     "Already given by the customer, never ask for it again: make Bosch.",
+     "The fault they reported is: \"keeps stopping with the empty water container light on but the container is empty\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the float switch. Say that, then ask for the model number so we can find the right part; say it is usually on a sticker inside the door opening. If the label cannot be reached right now (for example the door will not open), say it can wait."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "emptied the water container: done like 5 times",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "re-seated container firmly: it clicks in",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "cleaned the little filter/sieve in the container: it was slimy",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14043
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14492,
+   "retried": false,
+   "label": "Likely cause: float switch",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1748,
+     "labelMs": 302,
+     "enrichMs": 0,
+     "reasonMs": 9826,
+     "verifyMs": 4081,
+     "replyLabelMs": 331,
+     "totalMs": 16902
+    },
+    "usage": {
+     "promptTokens": 3654,
+     "completionTokens": 330,
+     "totalTokens": 3984
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the container is definitely empty and correctly seated",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "float switch",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Faulty water-level sensor (float switch) or electronic detection circuit (high)",
+     "Blocked condensate sump or internal hose preventing proper drainage/sensing (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.88
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": true,
+       "confidence": 0.95
+      },
+      "model": {
+       "value": "WTG8",
+       "confidence": 0.96
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.62
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": "Bosch",
+      "model": "WTG8",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-emptying-condensate",
+       "tumble-dryer:overheating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can check from the front?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Slide the water container out, empty it, check it isn't cracked and that the lid / float is clean, then push it firmly all the way home unti\"; turn 2: asks question.",
+     "Checks they have done and what they found: emptied the water container - done like 5 times; re-seated container firmly - it clicks in; cleaned the little filter/sieve in the container - it was slimy.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTG8.",
+     "The fault they reported is: \"keeps stopping with the empty water container light on but the container is empty\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the float switch, but we could not find a confirmed match for model WTG8. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTG8",
+      "confidence": 0.96,
+      "turn": 3
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "emptied the water container: done like 5 times",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "re-seated container firmly: it clicks in",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "cleaned the little filter/sieve in the container: it was slimy",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16957
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 17191,
+   "retried": false,
+   "label": "Likely cause: float switch",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.029389699999999998,
+ "finishedAt": "2026-10-14T01:00:26.364Z"
+}

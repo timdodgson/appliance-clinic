@@ -1,0 +1,574 @@
+{
+ "id": "TD-08",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-08-7010721124",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "t/d keeps cutting out after 10 mins then starts again if i leave it. vent hose goes out the window. pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "That pattern—running for about 10 minutes then stopping until it cools down—is classic behaviour when a tumble dryer overheats and trips its safety thermostat. The most common cause is restricted airflow, meaning the machine can't get rid of the heat fast enough. Please check two things while the machine is switched off and unplugged:\n1. Is the main fluff filter (usually in the door opening) clean?\n2. If you have a condenser or heat-pump model, is the condenser unit (behind the bottom flap) free of fluff? Let me know if either was blocked with lint.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  },
+  {
+   "role": "customer",
+   "text": "filter gets cleaned regularly. its a vented one i think, no condenser. the cabinet gets really hot before it stops tho"
+  },
+  {
+   "role": "assistant",
+   "text": "Since the filter is clean but the cabinet gets very hot before cutting out, the heat is being trapped because it can't escape through the vent. This points strongly to a blockage in the hose or at the outside wall outlet. Please unplug the machine, pull it away from the wall and check the flexible vent hose at the back for kinks or fluff buildup. Also, go outside where the hose exits and make sure the external flap isn't blocked by a bird's nest or lint. If the path is clear but it still overheats, we'll need to look at the thermal cut-out itself.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  },
+  {
+   "role": "customer",
+   "text": "ok i pushed the dryer back further recently and the hose is crushed behind it. theres fluff in the folds of it too. what should i do"
+  },
+  {
+   "role": "assistant",
+   "text": "That explains it perfectly. Also check the outside wall vent is free of debris. Once you've restored a clear air path, plug it back in and run a cycle; if it runs through to completion without overheating, the problem is solved.\n[Safety panel] Overheating can be a fire risk. Clean the lint filter and make sure the airflow/vent isn't blocked, and don't leave the dryer running unattended. If it smells of burning, stop using it and unplug it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1902,
+     "labelMs": 313,
+     "enrichMs": 0,
+     "reasonMs": 9133,
+     "verifyMs": 484,
+     "replyLabelMs": 273,
+     "totalMs": 12156
+    },
+    "usage": {
+     "promptTokens": 2757,
+     "completionTokens": 385,
+     "totalTokens": 3142
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Restricted airflow causing overheating and thermal cut-out (high)",
+     "Moisture sensor error or small load ending cycle early (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.69
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.48
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "keeps cutting out after 10 mins then starts again if left"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "A blocked filter makes the dryer overheat, and it then cuts out to protect itself. Clean the fluff filter in the door opening (heat-pump mod",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:tripping-electrics",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"pls help\" - answer that first.",
+     "The fault they reported is: \"keeps cutting out after 10 mins then starts again if left\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.69,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "If you have a condenser or heat-pump model, is the condenser unit (behind the bottom flap) free of fluff?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12202
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12436,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1933,
+     "labelMs": 288,
+     "enrichMs": 1,
+     "reasonMs": 9063,
+     "verifyMs": 3464,
+     "replyLabelMs": 290,
+     "totalMs": 15092
+    },
+    "usage": {
+     "promptTokens": 3129,
+     "completionTokens": 366,
+     "totalTokens": 3495
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Blocked vent hose or external flue (high)",
+     "Faulty thermal cut-out (overheat protection) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.67
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stops after running for about 10 minutes because cabinet gets really hot"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside v",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:heat-pump",
+       "tumble-dryer:tripping-electrics"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A blocked filter makes the dryer overheat, and it then cuts out to protect itself. Clean the fluff filter in the door opening (heat-pump mod\".",
+     "Checks they have done and what they found: main fluff filter cleaned regularly - clean.",
+     "The fault they reported is: \"keeps cutting out after 10 mins then starts again if left\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "main fluff filter cleaned regularly: clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "If you have a condenser or heat-pump model, is the condenser unit (behind the bottom flap) free of fluff?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15234
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15623,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2714,
+     "labelMs": 285,
+     "enrichMs": 0,
+     "reasonMs": 8361,
+     "verifyMs": 2198,
+     "replyLabelMs": 262,
+     "totalMs": 13881
+    },
+    "usage": {
+     "promptTokens": 3739,
+     "completionTokens": 293,
+     "totalTokens": 4032
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "that section of the hose lies flat without kinks",
+      "source": "extractor"
+     },
+     {
+      "claim": "The crushed hose and fluff buildup are restricting airflow, which traps heat inside the cabinet until the safety thermostat trips to prevent a fire.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Restricted airflow due to crushed/blocked vent hose causing overheating (high)",
+     "Blocked external wall vent (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "suction_or_airflow",
+       "confidence": 0.74
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.35
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside v",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:overheating",
+       "tumble-dryer:heat-pump",
+       "tumble-dryer:not-emptying-condensate"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what should i do\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A blocked filter makes the dryer overheat, and it then cuts out to protect itself. Clean the fluff filter in the door opening (heat-pump mod\"; turn 2: gives check, suggested the check \"Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside v\".",
+     "Checks they have done and what they found: main fluff filter cleaned regularly - clean; pushed the dryer back further recently and checked the hose - the hose is crushed behind it; checked the folds of the hose - there's fluff in the folds of it too.",
+     "The fault they reported is: \"keeps cutting out after 10 mins then starts again if left\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "main fluff filter cleaned regularly: clean",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "pushed the dryer back further recently and checked the hose: the hose is crushed behind it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked the folds of the hose: there's fluff in the folds of it too",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "If you have a condenser or heat-pump model, is the condenser unit (behind the bottom flap) free of fluff?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13987
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 14217,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0296337,
+ "finishedAt": "2026-10-14T02:49:03.660Z"
+}

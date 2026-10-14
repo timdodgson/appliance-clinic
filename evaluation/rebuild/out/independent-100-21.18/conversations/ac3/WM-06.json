@@ -1,0 +1,866 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-56e7f98947",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "I cannot tell you which part to buy yet because 'not draining' has several causes even after cleaning the filter. The most common next possibilities are a blockage further down the drain hose, something jammed in the pump impeller, or a failed pump motor. To separate these, please run a Drain or Spin cycle and listen at the bottom front of the machine while it tries to empty. Does the pump make a humming/buzzing noise (meaning it's trying but blocked), or is it completely silent (suggesting an electrical fault in the pump)?"
+  },
+  {
+   "role": "customer",
+   "text": "It hums but the water doesn't go anywhere. Loud hum with a little rattle. No burning smell."
+  },
+  {
+   "role": "assistant",
+   "text": "A loud hum with a rattle usually means the pump motor is working but something—like a coin, button, or hair grip—is jammed in the impeller blades. To confirm this, please switch the machine off and unplug it. Tell me if it spins freely or if you feel resistance/jamming."
+  },
+  {
+   "role": "customer",
+   "text": "Filter's already out and the impeller turns but feels a bit stiff and gritty in places. Also E18 shows on the display when it stalls."
+  },
+  {
+   "role": "assistant",
+   "text": "This is most often caused by a foreign object like a coin, button, or hair grip caught in the impeller blades. To confirm this and see if you can clear it yourself, please reach inside the pump housing (past where the filter was) and feel if there is a specific hard object blocking the vanes, or does it just feel generally gritty? If you find an object, remove it carefully; if it's just gritty but no object is found, the impeller itself may be damaged or the pump motor failing."
+  },
+  {
+   "role": "customer",
+   "text": "It just feels gritty and stiff in places, I can't feel any coin or hard object. I'm not taking it apart any further, I haven't got the tools for the sump. So is it the pump I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. Yes, the symptoms point to a faulty drain pump. Since you do not have the tools to remove the sump housing for a full inspection or replacement, this requires an engineer to fit the new part safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1587,
+     "labelMs": 283,
+     "enrichMs": 0,
+     "reasonMs": 10038,
+     "verifyMs": 1477,
+     "replyLabelMs": 336,
+     "totalMs": 13762
+    },
+    "usage": {
+     "promptTokens": 3344,
+     "completionTokens": 392,
+     "totalTokens": 3736
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Blockage in drain hose or waste pipe (high)",
+     "Faulty drain pump (impeller jammed or motor failed) (medium)",
+     "Blocked sump hose between tub and pump (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD 9409",
+       "confidence": 0.99
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washer",
+      "brand": "Bosch",
+      "model": "FD 9409",
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.46
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what part do i need?\" - answer that first.",
+     "Checks they have done and what they found: cleaned the filter - done.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the pump make a humming/buzzing noise (meaning it's trying but blocked), or is it completely silent (suggesting an electrical fault in the pump)?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13822
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14245,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2351,
+     "labelMs": 327,
+     "enrichMs": 0,
+     "reasonMs": 8987,
+     "verifyMs": 2945,
+     "replyLabelMs": 317,
+     "totalMs": 14963
+    },
+    "usage": {
+     "promptTokens": 4294,
+     "completionTokens": 288,
+     "totalTokens": 4582
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Look inside the filter housing and try to turn the small plastic fan (impeller) with your finger.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Foreign object jammed in pump impeller (high)",
+     "Failed drain pump motor (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.83
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.58
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\" (no result reported yet).",
+     "They have not reported the result of: \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\". Never say or imply they did it or what it showed.",
+     "Checks they have done and what they found: cleaned the filter - done.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the pump make a humming/buzzing noise (meaning it's trying but blocked), or is it completely silent (suggesting an electrical fault in the pump)?",
+       "turn": 1,
+       "resolution": "hums but water doesn't go anywhere"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15035
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15397,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 4378,
+     "labelMs": 304,
+     "enrichMs": 838,
+     "reasonMs": 9536,
+     "verifyMs": 3991,
+     "replyLabelMs": 287,
+     "totalMs": 19387
+    },
+    "usage": {
+     "promptTokens": 4632,
+     "completionTokens": 349,
+     "totalTokens": 4981
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The customer hears a humming sound from the appliance.",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Foreign object jammed in pump impeller (high)",
+     "Failed drain pump motor (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.82
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.48
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": "loud hum with a rattle; impeller feels stiff and gritty; stalls"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.97
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\"; turn 2: gives check, suggested the check \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\".",
+     "Checks they have done and what they found: cleaned the filter - done; filter out and impeller spins - turns but feels a bit stiff and gritty.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409; code E18.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "filter out and impeller spins: turns but feels a bit stiff and gritty",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the pump make a humming/buzzing noise (meaning it's trying but blocked), or is it completely silent (suggesting an electrical fault in the pump)?",
+       "turn": 1,
+       "resolution": "hums but water doesn't go anywhere"
+      },
+      {
+       "key": null,
+       "text": "To confirm this and see if you can clear it yourself, please reach inside the pump housing (past where the filter was) and feel if there is a specific hard object blocking the vanes, or does it just f",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 19523
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 19794,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3512,
+     "labelMs": 295,
+     "enrichMs": 2,
+     "reasonMs": 6809,
+     "verifyMs": 5618,
+     "replyLabelMs": 304,
+     "totalMs": 16600
+    },
+    "usage": {
+     "promptTokens": 4542,
+     "completionTokens": 205,
+     "totalTokens": 4747
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the humming noise",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 5,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Failed drain pump (internal mechanical wear or motor fault) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.52
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.3
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.85
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:pressure-switch",
+       "washing-machine:leak-drain"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"is it the pump I need?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\"; turn 2: gives check, suggested the check \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\"; turn 3: gives check, suggested the check \"With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur\".",
+     "Checks they have done and what they found: cleaned the filter - done; filter out and impeller spins - turns but feels a bit stiff and gritty; reached inside pump housing to feel for blockage - felt gritty and stiff, no specific hard object found.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409; code E18.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "filter out and impeller spins: turns but feels a bit stiff and gritty",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "reached inside pump housing to feel for blockage: felt gritty and stiff, no specific hard object found",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the pump make a humming/buzzing noise (meaning it's trying but blocked), or is it completely silent (suggesting an electrical fault in the pump)?",
+       "turn": 1,
+       "resolution": "hums but water doesn't go anywhere"
+      },
+      {
+       "key": null,
+       "text": "To confirm this and see if you can clear it yourself, please reach inside the pump housing (past where the filter was) and feel if there is a specific hard object blocking the vanes, or does it just f",
+       "turn": 3,
+       "resolution": "it just feels gritty and stiff in places, no coin or hard object"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16656
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 16908,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.04316160000000001,
+ "finishedAt": "2026-10-14T00:45:23.997Z"
+}

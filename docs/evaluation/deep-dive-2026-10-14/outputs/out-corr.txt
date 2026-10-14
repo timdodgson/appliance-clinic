@@ -1,0 +1,31 @@
+
+== 4. CORRELATION with judge overall (ac3 run 21.16, primary judge) ==
+  all in-scope                         n= 94 mean overall=2.77  (<=2: 26)
+  GA all in-scope                      n= 94 mean overall=3.53  (<=2: 3)
+  gold note retrieved (any turn)       n= 84 mean overall=2.73  (<=2: 23)
+    GA same cases                      n= 84 mean overall=3.5  (<=2: 3)
+  coverage=full                        n= 85 mean overall=2.79  (<=2: 22)
+  coverage=partial                     n=  8 mean overall=2.5  (<=2: 4)
+  gold note NOT retrieved              n=  4 mean overall=2.5  (<=2: 3)
+    GA same cases                      n=  4 mean overall=3.75  (<=2: 0)
+  no gold fault note (normal/none)     n=  6 mean overall=3.5  (<=2: 0)
+  coverage=none                        n=  1 mean overall=3  (<=2: 0)
+
+Error-code cases (tag error-code):
+  WM-01 Bosch code=E18 live=[E18:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=drain "No drainage / drain took too long (clogged coin-trap/pump fi" | overall ac3=4 ga=4
+  WM-04 Samsung code=4C live=[4C:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=fill "Water supply issue - little or no water entering (tap/pressu" | overall ac3=4 ga=4
+  WM-09 LG code=OE live=[OE:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=drain "Cannot drain - no drain for ~13 min (kinked/clogged drain ho" | overall ac3=2 ga=4
+  WD-04 LG code=dE live=[DE:NOT_FOUND, DE:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=door "Door not locked / not closed (door lock switch)" | overall ac3=3 ga=3
+  WD-06 Hoover code=E03 live=[EO3:NOT_FOUND] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=drain "Drain fault (pump/hose/filter)" | overall ac3=3 ga=3
+  DW-01 Bosch code=E24 live=[E:24:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=drain "Not draining - blocked drain filter / hose (kinked)" | overall ac3=3 ga=3
+  DW-02 Samsung code=4C live=[4C:RESOLVED] goldNoteRetrieved=false offlineLookup=RESOLVED faultId=fill "Water supply issue - little/no fresh water enters (supply va" | overall ac3=4 ga=4
+  DW-04 Bosch code=E15 live=[E:15:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=leak-protection "Water-protection (anti-flood) system activated - water in ba" | overall ac3=3 ga=3
+  DW-07 Bosch code=E09 live=[E:09:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=heating "Flow-through heating element / heating circuit failure" | overall ac3=1 ga=4
+  FF-07 Samsung code=22E live=[22E:AMBIGUOUS] goldNoteRetrieved=true offlineLookup=AMBIGUOUS faultId=cooling-fan "Fridge evaporator fan error (ice buildup / stuck fan / fan m" | overall ac3=3 ga=4
+  MW-03 Panasonic code=H98 live=[H98:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=magnetron "Magnetron/HV inverter power fault (same family as H97; inver" | overall ac3=3 ga=3
+  OC-04 Bosch code=E011 live=[E011:AMBIGUOUS] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=control "Control button stuck/held (press keys individually) OR no te" | overall ac3=3 ga=4
+  HB-02 Beko code=U live=[U:RESOLVED] goldNoteRetrieved=true offlineLookup=RESOLVED faultId=cookware "Pan not detected / unsuitable cookware (display shows U on i" | overall ac3=3 ga=4
+  HB-06 AEG code=Er03 live=[ER03:NOT_FOUND] goldNoteRetrieved=false offlineLookup=NOT_FOUND | overall ac3=2 ga=4
+  VC-03 Dyson code=- live=[RED LIGHT FLASHI:NOT_FOUND, FLASHING RED:NOT_FOUND] goldNoteRetrieved=true offlineLookup=n/a | overall ac3=2 ga=3
+  VC-06 iRobot code=5 live=[none extracted] goldNoteRetrieved=true offlineLookup=NOT_FOUND | overall ac3=3 ga=3
+  RESOLVED at some turn: n=10 mean=3 | not resolved/no code: n=6 mean=2.67

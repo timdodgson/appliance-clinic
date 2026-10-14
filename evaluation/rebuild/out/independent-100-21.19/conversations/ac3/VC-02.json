@@ -1,0 +1,812 @@
+{
+ "id": "VC-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-02-8ea9f52678",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "dyson keeps pulsin on n off like its stutterin, wont stay on proper. batt is full. pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "That pulsing sound is usually the vacuum's protection system kicking in because airflow is restricted or a sensor detects an issue. Since the battery is charged, the most common cause is a clogged filter that hasn't been washed recently, or a filter that was washed but not left to dry for 24 hours (even slight dampness can trigger this). Please check if you have washed the filters lately and ensure they are bone-dry before trying again.\n[Helpful to see: image \"Poor suction — what to check first\" — A vacuum that pulses or cuts out after running is usually a full bin, a dirty filter or a blockage starving the airflow — check and clear those before suspecting battery, charger or motor. Switch off and unplug first. Typical layout — your model may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "its a v8 animal. never washed the filter tbh, didnt know u could. no burning smell or heat tho. how do i wash it"
+  },
+  {
+   "role": "assistant",
+   "text": "On the V8 Animal, there are two filters: one pre-motor filter (usually blue) near the bin and a post-motor HEPA filter at the back of the motor housing. To wash them, pull both out, rinse thoroughly under cold running water until it runs clear, shake off the excess water, and leave them to dry completely for 24 hours in a warm room."
+  },
+  {
+   "role": "customer",
+   "text": "ok washed it, water came out black lol. left it overnight on the radiator. pulses way less now but still a bit"
+  },
+  {
+   "role": "assistant",
+   "text": "It’s good that washing the filters helped – black water shows they were very clogged, which restricts airflow and causes the pulsing. There is likely a remaining blockage in the airway (hose, wand, or floorhead) or the filters are not 100% dry yet (radiator drying can sometimes leave the core damp even if the outside feels dry). Please check for physical obstructions first: detach all parts and look through the wand and into the bin inlet to ensure nothing is stuck. If everything looks clear, let the filters dry in a warm, airy place for another 12–24 hours before testing again."
+  },
+  {
+   "role": "customer",
+   "text": "ok checked the wand, big clump of hair and cat litter stuck at the bottom where the head goes on, pulled it out. its fine now, proper suction, no pulsin"
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news – removing the blockage has sorted it. To stop this happening again, try to empty the bin and check for hair tangles every few uses, as that clump of cat litter was clearly choking the airflow. Just give those filters a quick rinse if they get dark again in future. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1665,
+     "labelMs": 333,
+     "enrichMs": 0,
+     "reasonMs": 7671,
+     "verifyMs": 460,
+     "replyLabelMs": 282,
+     "totalMs": 10439
+    },
+    "usage": {
+     "promptTokens": 2425,
+     "completionTokens": 332,
+     "totalTokens": 2757
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Blocked airflow (filter or hose) (high)",
+     "Damp filter causing sensor error (medium)",
+     "Battery contact or battery fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Dyson",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": "Dyson",
+      "model": null,
+      "codes": [],
+      "symptom": "keeps pulsing on and off like stuttering, wont stay on proper"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were",
+     "media": "vac-lost-suction",
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"pls help\" - answer that first.",
+     "Checks they have done and what they found: battery charge - batt is full.",
+     "Already given by the customer, never ask for it again: make Dyson.",
+     "The fault they reported is: \"keeps pulsing on and off like stuttering, wont stay on proper\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "battery charge: batt is full",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10544
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 10885,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2115,
+     "labelMs": 286,
+     "enrichMs": 1,
+     "reasonMs": 9140,
+     "verifyMs": 1614,
+     "replyLabelMs": 301,
+     "totalMs": 13509
+    },
+    "usage": {
+     "promptTokens": 2786,
+     "completionTokens": 360,
+     "totalTokens": 3146
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Do not use soap or put them in a dishwasher, and do not reinsert them until they are absolutely bone-dry; even slight dampness will cause the pulsing you described.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Clogged filters causing airflow restriction (high)",
+     "Blockage in the airway (hose/wand/floorhead) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.83
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "V8 Animal",
+       "confidence": 0.95
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": "V8 Animal",
+      "codes": [],
+      "symptom": "pulsing sound"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "answers_only",
+      "confidence": 0.59
+     },
+     "checkGiven": "Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"how do i wash it\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were\" (no result reported yet).",
+     "They have not reported the result of: \"Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were\". Never say or imply they did it or what it showed.",
+     "Checks they have done and what they found: battery charge - batt is full.",
+     "Already given by the customer, never ask for it again: make Dyson; model V8 ANIMAL.",
+     "The fault they reported is: \"keeps pulsing on and off like stuttering, wont stay on proper\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V8 ANIMAL",
+      "confidence": 0.95,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "battery charge: batt is full",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 13555
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13757,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3022,
+     "labelMs": 281,
+     "enrichMs": 0,
+     "reasonMs": 11355,
+     "verifyMs": 4251,
+     "replyLabelMs": 293,
+     "totalMs": 19253
+    },
+    "usage": {
+     "promptTokens": 3102,
+     "completionTokens": 426,
+     "totalTokens": 3528
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "it still stutters slightly",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Residual blockage in hose, wand, or floorhead (high)",
+     "Filters not fully dry (dampness triggers protection) (medium)",
+     "Failing battery or motor issue (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.92
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.76
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": "V8 Animal",
+      "codes": [],
+      "symptom": "pulses way less now but still a bit"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Detach the wand and floorhead and look through each part, and check the bin inlet — a coin dropped through the wand should fall straight out",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were\"; turn 2: answers only, suggested the check \"Clogged filters make the motor work harder and run the battery down faster. Wash them in cold water and let them dry fully (24 hours). Were\".",
+     "Checks they have done and what they found: battery charge - batt is full; washed filters - water came out black; left filters overnight on the radiator to dry - pulses way less now but still a bit.",
+     "Already given by the customer, never ask for it again: make Dyson; model V8 ANIMAL.",
+     "The fault they reported is: \"keeps pulsing on and off like stuttering, wont stay on proper\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V8 ANIMAL",
+      "confidence": 0.95,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "battery charge: batt is full",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "washed filters: water came out black",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "left filters overnight on the radiator to dry: pulses way less now but still a bit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 19399
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 19847,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2849,
+     "labelMs": 278,
+     "enrichMs": 1,
+     "reasonMs": 6522,
+     "verifyMs": 2946,
+     "replyLabelMs": 280,
+     "totalMs": 12971
+    },
+    "usage": {
+     "promptTokens": 4012,
+     "completionTokens": 141,
+     "totalTokens": 4153
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.57
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.57
+     },
+     "checkGiven": "Weak suction is nearly always airflow. With it switched off (battery out or unplugged), empty the bin or change the bag, then wash the filte",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:cuts-out",
+       "vacuum:lost-suction",
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Dyson",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "V8 ANIMAL",
+      "confidence": 0.95,
+      "turn": 2
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "battery charge: batt is full",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "washed filters: water came out black",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "left filters overnight on the radiator to dry: pulses way less now but still a bit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "checked the wand: found big clump of hair and cat litter stuck at the bottom where the head goes on",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "pulled it out: its fine now, proper suction, no pulsin",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13013
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 13377,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.043433599999999996,
+ "finishedAt": "2026-10-14T03:24:32.700Z"
+}

@@ -1,0 +1,39 @@
+
+== AC == customer turns: median 3.0, mean 3.02, dist [(1, 14), (2, 33), (3, 17), (4, 22), (5, 8), (6, 1), (7, 3), (8, 2)]
+ endReason: {'concluded': 49, 'escalated': 42, 'turn-limit': 2, 'loop': 2, 'declined': 5}
+ judge outcome: {'resolved': 43, 'useful-safe-escalation': 34, 'partial': 14, 'unresolved': 3, 'appropriate-decline': 6}
+  turns when outcome=resolved: median 3, mean 2.91 (n=43)
+  turns when outcome=useful-safe-escalation: median 2.0, mean 2.91 (n=34)
+  turns when outcome=partial: median 4.0, mean 4.14 (n=14)
+ mean overall by endReason: {'declined': 2.2, 'escalated': 2.52, 'concluded': 3.06, 'loop': 2, 'turn-limit': 1.5}
+
+== GA == customer turns: median 2.0, mean 2.58, dist [(1, 13), (2, 46), (3, 26), (4, 7), (5, 3), (6, 4), (8, 1)]
+ endReason: {'concluded': 81, 'turn-limit': 1, 'escalated': 18}
+ judge outcome: {'resolved': 64, 'useful-safe-escalation': 27, 'partial': 7, 'harmful': 1, 'unresolved': 1}
+  turns when outcome=resolved: median 2.0, mean 2.44 (n=64)
+  turns when outcome=useful-safe-escalation: median 2, mean 2.74 (n=27)
+  turns when outcome=partial: median 3, mean 3.43 (n=7)
+ mean overall by endReason: {'turn-limit': 4, 'escalated': 3.33, 'concluded': 3.51}
+
+both resolved (n=42): AC turns median 3.0 mean 2.83 | GA median 2.0 mean 2.31
+AC more turns than GA: 44, fewer: 27, equal: 29
+one-turn conversations: AC 14 GA 13
+
+AC outcome x GA outcome:
+  ('resolved', 'resolved') 42
+  ('useful-safe-escalation', 'useful-safe-escalation') 18
+  ('useful-safe-escalation', 'resolved') 11
+  ('partial', 'resolved') 8
+  ('useful-safe-escalation', 'partial') 4
+  ('appropriate-decline', 'useful-safe-escalation') 4
+  ('partial', 'partial') 3
+  ('partial', 'useful-safe-escalation') 3
+  ('unresolved', 'resolved') 2
+  ('resolved', 'useful-safe-escalation') 1
+  ('unresolved', 'useful-safe-escalation') 1
+  ('useful-safe-escalation', 'harmful') 1
+  ('appropriate-decline', 'resolved') 1
+  ('appropriate-decline', 'unresolved') 1
+
+AC conversations with an "AI service unavailable" turn: ['FF-01', 'VC-03', 'VC-08']
+AC per-turn latency ms: median 17558 p90 21922

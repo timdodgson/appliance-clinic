@@ -41,7 +41,9 @@ const SCOPE_POINTER = [
   [/boiler|central heating|radiator|combi|immersion/i, ' For a boiler or heating fault, a Gas Safe registered engineer is the right person (and if you ever smell gas, call 0800 111 999).'],
   [/\b(car|van|engine|boat|caravan|e-?bike)\b/i, ' A garage or the manufacturer\'s support line is the best place to start.'],
   [/tv|television|laptop|computer|pc|monitor|phone|printer/i, ' The manufacturer\'s support line or a specialist electronics repairer is the best place to start; please don\'t open the case, as the power supply inside can hold a dangerous charge.'],
+  [/dehumidif|air ?con|cooker hood|extractor|kettle|toaster|coffee|air ?fryer|heater|fan\b/i, ' The manufacturer\'s support line is the best place to start (many have troubleshooting guides online), and if it is still under guarantee, use that first. Please keep it unplugged rather than opening it up.'],
 ];
+const SCOPE_DEFAULT_POINTER = ' The manufacturer\'s support line, or a local appliance repairer, is the best place to start; if it is still under guarantee, use that first.';
 const ATTACK_COPY = 'I can only help with household appliance faults. What\'s going on with your appliance?';
 // A regeneration must be expected to finish by 26 s, so it never makes a customer wait much over half a minute.
 // whichpart-api waits up to 45 s for the engine (AC2_ENGINE_TIMEOUT_MS), which covers a slow single reasoning pass.
@@ -108,14 +110,31 @@ function applyLabels(rec, L, reading) {
  * independent of Jev on purpose: a hazard in the customer's words is active whatever Jev says.
  */
 function applyHazards(rec, labels, messages, recalls) {
-  const add = (type, clause, extra = {}) => { if (type && !rec.hazards.some((h) => h.type === type)) rec.hazards.push({ type, clause: String(clause || '').slice(0, 160), turn: rec.turn, shown: false, ...extra }); };
-  if (labels.hazard.value) add(labels.hazard.value, `labelled: ${labels.hazard.value}`, { source: 'jev', confidence: labels.hazard.confidence });
   // The word list needs the appliance for appliance-specific hazards (microwave arcing): the record's, else a hint from the words.
   const appliance = (rec.customer.appliance && rec.customer.appliance.value) || K.applianceHints(customerTexts(messages).join(' '))[0] || null;
+  const texts = customerTexts(messages);
+  const latest = texts[texts.length - 1] || '';
+  // A hazard the latest message denies ("there is no burning smell") is cleared; one it reports again is active again.
+  const denied = S.deniedHazards(latest, appliance);
+  for (const h of rec.hazards) if (denied.has(h.type) && !h.cleared) { h.cleared = true; h.clearedTurn = rec.turn; }
+  const add = (type, clause, extra = {}, { reactivate = false } = {}) => {
+    if (!type || denied.has(type)) return;
+    const prior = rec.hazards.find((h) => h.type === type);
+    if (!prior) { rec.hazards.push({ type, clause: String(clause || '').slice(0, 160), turn: rec.turn, shown: false, ...extra }); return; }
+    if (prior.cleared && reactivate) { prior.cleared = false; prior.shown = false; prior.turn = rec.turn; prior.clause = String(clause || '').slice(0, 160); }
+  };
+  if (labels.hazard.value) add(labels.hazard.value, `labelled: ${labels.hazard.value}`, { source: 'jev', confidence: labels.hazard.confidence }, { reactivate: true });
+  for (const h of S.detectHazards([{ role: 'user', content: latest }], appliance)) add(h.type, h.clause, { source: 'words' }, { reactivate: true });
+  // Earlier messages only add what was never recorded (a record that was lost); they never undo a denial.
   for (const h of S.detectHazards(messages, appliance)) add(h.type, h.clause, { source: 'words' });
   if (recalls.length) add('recall', recalls[0].title || 'recall notice', { url: recalls[0].url || null, source: 'recall-store' });
-  const top = S.mostSerious(rec.hazards);
+  const top = S.mostSerious(activeHazards(rec));
   return top ? { ...top, policy: S.POLICY[top.type] || {} } : null;
+}
+
+/** Hazards still in force: recorded and not denied since. */
+function activeHazards(rec) {
+  return rec.hazards.filter((h) => !h.cleared);
 }
 
 /** Step 4: tools. */
@@ -163,7 +182,9 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
     plan.push('We do not know which appliance this is yet: ask which appliance it is (and the make, if they know it). Keep it short.');
     return plan;
   }
-  if (hazard && !hazard.policy.terminate) {
+  if (hazard && hazard.policy.terminate) {
+    plan.push(`Safety: they reported ${hazard.type === 'gas' ? 'a gas smell' : 'a fire'} earlier and were given the emergency advice. Do not repeat it. Do not suggest any check or use of the appliance; answer what they ask now, and make sure they know to keep following that advice until ${hazard.type === 'gas' ? 'a Gas Safe engineer' : 'the fire service or an engineer'} has made it safe.`);
+  } else if (hazard) {
     const who = String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ');
     plan.push(MUST_BE_CHECKED.has(hazard.type)
       ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off ${hazard.type === 'electrical_water' ? 'at the consumer unit (fuse box), never touching the plug or socket while anything is wet' : 'and unplugged'}, but never say or imply that a check could make it safe to use, or that they might not need an engineer.`
@@ -189,10 +210,14 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
     if (c.codes.length) plan.push('Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms.');
     return plan;
   }
-  // Stage 2: the owner's checks did not fix it.
-  if (!model && !c.modelUnavailable) {
+  // Stage 2: the owner's checks did not fix it. The model number is asked for only once a part is implicated (the
+  // fault narrowed to one component): it is needed to find that part, not to carry on diagnosing.
+  const NEXT_CHECK = 'Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it.';
+  if (!rec.narrowed && !(parts && parts.outcome)) {
+    plan.push(NEXT_CHECK);
+  } else if (!model && !c.modelUnavailable) {
     const where = LABEL_WHERE[appliance] || 'on the rating label';
-    plan.push(`Stage 2: the checks they reported did not fix it. Say what that suggests, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
+    plan.push(`Stage 2: the checks point to the ${rec.narrowed.component}. Say that, then ask for the ${c.brand ? '' : 'make and '}model number so we can find the right part; say it is usually ${where}. If the label cannot be reached right now (for example the door will not open), say it can wait.`);
   } else if (!model) {
     plan.push('Stage 2: the checks they reported did not fix it and they cannot reach the model label right now. Carry on without it: give the next check or say what the likely part is, and tell them where to find the model number later.');
   } else if (parts && parts.outcome === 'verified') {
@@ -200,7 +225,7 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   } else if (parts && parts.outcome === 'no_catalogue_part') {
     plan.push(`Stage 2: the checks point to the ${parts.component}, but we could not find a confirmed match for model ${model}. Say so, and suggest the manufacturer's spares or an engineer.`);
   } else {
-    plan.push('Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it.');
+    plan.push(NEXT_CHECK);
   }
   return plan;
 }
@@ -298,6 +323,7 @@ async function claimCheck(reply, facts, texts, messages, deps, audit) {
     issues.push({ kind: 'claim', text: `Unsupported claim about the customer (they did not say this): "${rj.claim}". Do not state it as fact; ask or hedge instead.` });
   }
   if (copiesEarlier(reply, messages)) issues.push({ kind: 'copied', text: 'Your draft repeated one of your earlier replies word for word. Do not repeat it: respond to what they just said and give a different next step (or say plainly that an engineer is needed and why).' });
+  if (verdict.rejected.length) audit.safety.gates.push({ gate: 'claim-removed', claims: verdict.rejected.length });
   return { reply: verdict.rejected.length ? V.neutralise(verdict) : String(reply).trim(), issues };
 }
 
@@ -334,9 +360,12 @@ async function runTurn(input, deps) {
   const audit = { schema: 'ac3-audit/1', turn: rec.turn, timings: {}, provider: deps.qwen ? { name: deps.qwen.name || null, model: deps.qwen.model || null } : null, safety: { hazards: [], gates: [] } };
 
   // Gas or an active fire in the customer's words: the fixed emergency wording at once, before (and without) any model.
-  const early = S.mostSerious(S.detectHazards(messages, rec.customer.appliance && rec.customer.appliance.value).filter((h) => (S.POLICY[h.type] || {}).terminate));
+  // Only the latest message: an emergency reported earlier was answered then, and the chat carries on under it.
+  const early = S.mostSerious(S.detectHazards([{ role: 'user', content: latest }], rec.customer.appliance && rec.customer.appliance.value).filter((h) => (S.POLICY[h.type] || {}).terminate));
   if (early) {
-    if (!rec.hazards.some((h) => h.type === early.type)) rec.hazards.push({ type: early.type, clause: String(early.clause || '').slice(0, 160), turn: rec.turn, shown: true, source: 'words' });
+    const prior = rec.hazards.find((h) => h.type === early.type);
+    if (prior) Object.assign(prior, { cleared: false, shown: true, turn: rec.turn });
+    else rec.hazards.push({ type: early.type, clause: String(early.clause || '').slice(0, 160), turn: rec.turn, shown: true, source: 'words' });
     rec.outcome = 'safety_stop';
     audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: early.type, gates: [] };
     audit.tags = { replyAction: { value: 'safety_stop', confidence: null } };
@@ -360,7 +389,8 @@ async function runTurn(input, deps) {
   // 6 (first): safety. Gas or an active fire: fixed wording only.
   let hazard = applyHazards(rec, labels, messages, recalls);
   const unsafe = labels.unsafeRequest.value || S.detectUnsafeRequest(latest, rec.customer.appliance && rec.customer.appliance.value);
-  if (hazard && hazard.policy.terminate) {
+  // A new gas or fire hazard (from Jev) gets the emergency wording once; after it, the chat carries on under it.
+  if (hazard && hazard.policy.terminate && !hazard.shown) {
     for (const h of rec.hazards) h.shown = true;
     rec.outcome = 'safety_stop';
     audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: hazard.type, gates: [] };
@@ -373,7 +403,7 @@ async function runTurn(input, deps) {
   const supported = rec.customer.appliance && SUPPORTED.has(rec.customer.appliance.value);
   if (labels.scope.value === 'prompt_attack' || (!supported && (labels.scope.value === 'unrelated' || labels.appliance.value === 'other_appliance'))) {
     const attack = labels.scope.value === 'prompt_attack';
-    const pointer = (SCOPE_POINTER.find(([re]) => re.test(latest)) || [null, ''])[1];
+    const pointer = (SCOPE_POINTER.find(([re]) => re.test(latest)) || [null, SCOPE_DEFAULT_POINTER])[1];
     const hz = hazard ? `${S.copyFor(hazard.type)} ` : '';
     for (const h of rec.hazards) h.shown = true;
     audit.scope = { status: attack ? 'attack' : 'out' };
@@ -415,7 +445,7 @@ async function runTurn(input, deps) {
     tools: { errorCodes: found.codeMeanings, modelHints: rec.knowledge.modelInfo, recalls: found.recalls },
     knowledge: found.knowledge,
     normal: found.normal,
-    safety: { activeHazards: rec.hazards.map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
+    safety: { activeHazards: activeHazards(rec).map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
     plan,
   };
   const reason = async (feedback) => {
@@ -445,7 +475,7 @@ async function runTurn(input, deps) {
   audit.reasoning = { status: a.status, confidence: a.confidence, candidates: a.candidates.map((x) => `${x.cause} (${x.likelihood})`), next: r.proposal.next ? r.proposal.next.question : null };
 
   // 9. Final check.
-  const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: rec.hazards, appliance });
+  const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: activeHazards(rec), appliance });
   for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
   let gated = gate.text;
   if (hazard && MUST_BE_CHECKED.has(hazard.type)) {
@@ -464,17 +494,19 @@ async function runTurn(input, deps) {
   for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
   let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
   const prefix = [];
-  for (const h of rec.hazards) {
+  for (const h of activeHazards(rec)) {
     if (h.shown) continue;
     prefix.push(h.type === 'recall' ? `${S.copyFor('recall')} Notice: ${h.clause}${h.url ? ` (https://applianceclinic.ai${h.url})` : ''}.` : S.copyFor(h.type));
     h.shown = true;
   }
   const unsafeCopy = unsafe === 'repeated_reset' ? S.copyFor('supply_trip') : (unsafe ? S.copyFor(unsafe) : null);
   if (unsafe && unsafeCopy && !prefix.includes(unsafeCopy)) { prefix.push(unsafeCopy); audit.safety.gates.push({ gate: 'unsafe-request', type: unsafe }); }
-  const caution = stepPrecaution(reply, `${texts.slice(-2).join(' ')} ${priorAssistant || ''}`, appliance, rec.hazards);
+  const caution = stepPrecaution(reply, `${texts.slice(-2).join(' ')} ${priorAssistant || ''}`, appliance, activeHazards(rec));
   if (caution) { prefix.push(caution); audit.safety.gates.push({ gate: 'step-precaution' }); }
   if (prefix.length) reply = `${prefix.filter(Boolean).join(' ')} ${reply}`;
-  audit.safety.hazards = rec.hazards.map((h) => h.type);
+  audit.safety.hazards = activeHazards(rec).map((h) => h.type);
+  const cleared = rec.hazards.filter((h) => h.cleared).map((h) => h.type);
+  if (cleared.length) audit.safety.cleared = cleared;
 
   // 10. Media and reply tags (Jev).
   const stop = Boolean(hazard && BLOCKING.has(hazard.type));
@@ -508,7 +540,7 @@ async function runTurn(input, deps) {
     diagnosis: rec.narrowed ? { summary: `Likely cause: ${rec.narrowed.component}`, likelyArea: rec.narrowed.component, confidenceBand: 'likely' } : null,
     parts: parts && parts.outcome === 'verified' ? parts.parts : null,
     resolvedModel: parts && parts.outcome === 'verified' ? parts.catalogueModel : null,
-    modelRequired: rec.stage === 2 && !model && !rec.customer.modelUnavailable,
+    modelRequired: rec.stage === 2 && Boolean(rec.narrowed) && !model && !rec.customer.modelUnavailable,
     safety: stop ? { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) } : null,
     safetyInformation: !stop && kids.length ? K.safetyInformation(kids[0]) : null,
     media: rl.media ? [rl.media] : null,

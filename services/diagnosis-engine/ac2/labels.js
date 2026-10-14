@@ -47,12 +47,13 @@ const ONLY = ' Judge only what the latest customer message says; the other conte
 
 function opts(map) { return { ...map }; }
 
-function tokenOptions(list) {
+/** Options for a Jev choice. Tokens (makes, models, codes) are short; checks are sentences, so they pass a larger maxLength. */
+function tokenOptions(list, maxLength = 40) {
   const seen = new Set();
   const out = [];
   for (const v of list) {
     const s = String(v || '').trim();
-    if (!s || s.length > 40 || seen.has(s.toLowerCase())) continue;
+    if (!s || s.length > maxLength || seen.has(s.toLowerCase())) continue;
     seen.add(s.toLowerCase());
     out.push({ id: `t${out.length + 1}`, value: s });
     if (out.length >= MAX_OPTIONS) break;
@@ -147,7 +148,7 @@ function adaptLabels(answers, plan) {
 function buildReplyRequest({ reply, media, checks }) {
   const questions = { replyAction: { type: 'choice', instructions: 'What does this assistant reply mainly do?', criteria: opts(REPLY_ACTIONS) } };
   const plan = { media: [], checks: [] };
-  const cks = tokenOptions((checks || []).map((c) => String(c).slice(0, 140)));
+  const cks = tokenOptions((checks || []).map((c) => String(c).slice(0, 140)), 140);
   if (cks.length) {
     plan.checks = cks;
     questions.check = { type: 'choice', instructions: 'Which of these checks does the reply ask the customer to do (the main one)? none = the reply gives none of them.',

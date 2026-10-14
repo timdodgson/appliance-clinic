@@ -1,0 +1,44 @@
+== 1. INVENTORY ==
+knowledge-docs notes: 171 distinct faultIds: 103 distinct knowledgeIds: 171
+per appliance: {"washing-machine":34,"washer-dryer":25,"tumble-dryer":15,"dishwasher":27,"oven-cooker":19,"fridge-freezer":21,"hobs":15,"microwave":10,"vacuum":5}
+journey-knowledge entries: 63 {"washing-machine":9,"dishwasher":6,"fridge-freezer":7,"tumble-dryer":7,"oven-cooker":8,"hob":4,"microwave":6,"vacuum":6,"washer-dryer":10} docs with >=1 journey: 56
+normal-operation entries: 28 {"washing-machine":5,"washer-dryer":7,"dishwasher":4,"fridge-freezer":6,"hobs":3,"oven-cooker":3,"microwave":3,"tumble-dryer":3,"vacuum":2}
+safety-information entries: 11
+doc fields (count of notes having it): {"knowledgeId":171,"version":171,"applianceFamily":171,"faultId":171,"make":171,"platform":171,"label":171,"outcome":171,"componentFamilies":171,"likelyComponents":171,"symptoms":171,"discriminators":171,"alternatives":171,"clarifyingQuestion":171,"checks":171,"provenance":171,"components":171,"commonConfusion":171,"secondaryQuestion":171,"adviceBeforeReplacement":171,"text":171,"mediaInformation":16,"safetyInformation":11}
+avg JSON size/doc chars: 5728.43 min 740 max 25136
+avg doc.text chars: 2628.82 | avg compactDoc (what retrieve returns) chars: 1442.05 | what the reasoner receives (turn.js enrich drops beforeReplacingAPart): 1273.55
+avg list lengths: symptoms 12.24 likelyComponents 3.6 discriminators 3.4 components 2.5 commonConfusion 0.96 adviceBeforeReplacement 1.25 checks(doc) 0
+notes with empty likelyComponents: 10 washing-machine:drum-position,washing-machine:odour,washing-machine:poor-wash-results,washing-machine:cycle-not-progressing,tumble-dryer:filter-blocked,dishwasher:odour,dishwasher:foam-suds,oven-cooker:door-glass-dirty,hobs:cookware-user,microwave:noisy
+notes with make != null: 0 | platform != null: 0
+  if-then discriminators ("If ..." in discriminators): 74/171
+  ordered stepwise checks in a journey (>=2 ask_check): 53/171
+  components with supports/against evidence: 77/171
+  brand name mentioned anywhere: 12/171
+  error code string mentioned (e.g. E18, F05, 4C): 9/171
+  part number pattern (e.g. 00144978, 481010...): 1/171
+  recall / safety notice mentioned: 0/171
+  model number pattern (e.g. WAN28281GB): 1/171
+examples with brand mention: washing-machine:not-draining, washing-machine:motor-drum, washing-machine:hall-sensor, dishwasher:fill, dishwasher:flow-meter, dishwasher:heating, dishwasher:water-matrix, vacuum:lost-suction
+example compactDoc (washing-machine:drain-pump):
+{
+ "knowledgeId": "washing-machine:drain-pump",
+ "appliance": "washing-machine",
+ "fault": "Drain pump fault",
+ "likelyComponents": [
+  "blocked pump filter / foreign object in the pump (clear first)",
+  "kinked or blocked drain hose / waste connection",
+  "drain pump (jammed impeller or failed motor)",
+  "internal sump hose obstruction",
+  "pump wiring / connector",
+  "control PCB (last)"
+ ],
+ "causes": [],
+ "discriminators": [
+  "If the pump hums but little/no water leaves, the impeller is jammed or the filter/hose is blocked — clear those before condemning the pump."
+ ],
+ "commonConfusion": [
+  "won't pump out = replace the drain pump: A pump that hums or is noisy does NOT prove a failed pump. A blocked pump filter, a trapped foreign object, a kinked/blocked drain hose or a sump obstruction gives the same symptom - clear those first. Condemn the pump "
+ ],
+ "ownerSafeChecks": [],
+ "beforeReplacingAPart": []
+}

@@ -1,0 +1,55 @@
+{
+ "id": "TD-09.ac3",
+ "case": "TD-09",
+ "system": "ac3",
+ "judge": "claude-fable-5-1",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 1,
+  "questionQuality": 1,
+  "calibration": 1,
+  "noRepetition": 3,
+  "escalation": 2,
+  "partQuality": 1,
+  "languageUnderstanding": 2,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": true,
+   "evidence": "'[Heading: Likely cause: float switch]' shown twice, and 'This points to a failure in the appliance's detection system rather than an actual water issue' after only a container re-seat and sieve clean, with no pump/sump or pump-running check"
+  },
+  "unjustifiedPart": {
+   "flag": true,
+   "evidence": "'To identify the correct replacement part for your specific Bosch model, I need the full model number' / panel 'To check a suitable replacement' - steering to a float switch replacement after two basic checks"
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": false,
+   "evidence": ""
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": true,
+ "unnecessaryPart": true,
+ "looped": false,
+ "rationale": "The opening advice (re-seat container, check float, clean) was sensible, but after the customer reported those done the assistant jumped straight to 'Likely cause: float switch' and a replacement-part flow instead of directing them to the front-accessible pump sump/compartment, which is the expected next step and which the customer explicitly asked about ('anything else I can check from the front?'). It then escalated to Bosch/an engineer prematurely, before the cheap and doable sump clean, and mislabelled the machine as a heat-pump dryer. Escalation is not wrong in principle and nothing unsafe was advised, but the diagnosis was overconfident on thin evidence and the homeowner was left without the most useful check they could have done themselves.",
+ "costUsd": 0.22297
+}

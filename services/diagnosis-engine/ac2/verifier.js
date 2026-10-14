@@ -50,6 +50,8 @@ const STATE = /\b(?:your|the|its)\s+(?:[a-z-]+\s+){0,3}(?:is|are|was|were|has be
 const GENERAL = /\b(if|when|whether|unless|usually|typically|generally|often|sometimes|most|many|some|can|could|may|might|should|would|check|make sure|ensure|see if|look for|tends?|common|likely|probably|possibly|perhaps|sounds like|suggests|means)\b/i;
 // "If you've cleaned the filter…", "Once you have checked…": conditional, not an attribution.
 const CONDITIONAL_ATTRIBUTION = /\b(if|once|when|after|before|until|unless|whether)\s+(?:\w+\s+){0,2}you(?:'ve| have| had)?\b/i;
+const POLITE = /^\s*(?:thanks|thank you)(?: so much)? for (?:checking|confirming|trying|testing|looking|letting me know)(?: (?:that|this|it|for me))?\s*[.!]?\s*$/i;
+const REASONING = /\b(?:because|since|so|therefore|which means|this means|confirms?|confirming|causing|caused|points? to|due to|consistent with|indicat\w+)\b/i;
 function attributes(sentence) {
   return ATTRIBUTION.test(sentence) && !CONDITIONAL_ATTRIBUTION.test(sentence);
 }
@@ -194,7 +196,11 @@ async function verify(reply, facts, customerTexts, { extract = null } = {}) {
   // appliance, is a claim checked by the strict rule, whatever the extractor said about it. The extractor's quote for
   // that sentence (if any) may still support it, but only with majority coverage.
   sents.forEach((s, i) => {
-    if (attributes(s) || stateClaim(s)) {
+    // Measured on the 150 claims the 21.16 run rejected (75% were true or not claims): a polite thank-you is not a claim,
+    // and a sentence that only states an appliance state as the assistant's own reasoning ("because…", "…confirms…",
+    // "…causing…") is a conclusion, not something attributed to the customer. Attributions are always checked.
+    if (POLITE.test(s)) return;
+    if (attributes(s) || (stateClaim(s) && !REASONING.test(s))) {
       const ex = claims.find((c) => c.sentence === i + 1 && c.quote);
       claims.push({ sentence: i + 1, claim: s.trim(), cited: [], quote: ex ? ex.quote : null, source: 'detector' });
     }
@@ -212,9 +218,20 @@ async function verify(reply, facts, customerTexts, { extract = null } = {}) {
 }
 
 /** Remove the sentences that carry rejected claims. Questions in a removed sentence are lost too, by design. */
+/**
+ * Remove what carries a rejected claim. A sentence that opens with an unsupported premise ("Since you have already
+ * cleaned the filter, try the hose next.") keeps its advice: only the premise is removed, unless the rest attributes
+ * something to the customer too. Any other such sentence is removed whole; questions in it are lost too, by design.
+ */
+const LEAD_PREMISE = /^(\s*)(?:since|as|because|now that|given that|seeing as|with)\b[^,]{3,220},\s*(\S[\s\S]*)$/i;
 function neutralise(verdict) {
   const drop = new Set(verdict.rejected.map((r) => r.sentence));
-  return verdict.sentences.filter((_, i) => !drop.has(i + 1)).join('').replace(/\s{2,}/g, ' ').trim();
+  return verdict.sentences.map((s, i) => {
+    if (!drop.has(i + 1)) return s;
+    const m = s.match(LEAD_PREMISE);
+    if (m && !attributes(m[2])) return `${m[1]}${m[2].charAt(0).toUpperCase()}${m[2].slice(1)}`;
+    return '';
+  }).join('').replace(/\s{2,}/g, ' ').trim();
 }
 
 module.exports = { verify, neutralise, sentences, supported, stateClaim, content, grounded, EXTRACT_SYSTEM, EXTRACT_FORMAT, ATTRIBUTION };

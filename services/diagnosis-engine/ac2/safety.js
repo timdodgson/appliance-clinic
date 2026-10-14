@@ -128,6 +128,24 @@ function detectHazards(messages, appliance) {
   return found;
 }
 
+/**
+ * Hazards the text denies: a detector matches only in a negated clause ("there is no burning smell", "the water is
+ * nowhere near the plug") and nowhere affirmed. Used to clear a hazard recorded earlier in the conversation.
+ */
+function deniedHazards(text, appliance) {
+  const out = new Set();
+  const parts = (scope) => (scope === 'sentence' ? String(text || '').toLowerCase().replace(/[’]/g, "'").split(/[.!?\n]+/) : clauses(text)).map((x) => x.trim()).filter(Boolean);
+  for (const d of DETECT) {
+    if (d.appliance && !(appliance && d.appliance.includes(appliance))) continue;
+    if (affirmed(text, d.re, d.scope)) continue;
+    for (const c of parts(d.scope)) {
+      const m = c.match(d.re);
+      if (m && (NEG.test(c.slice(Math.max(0, m.index - 28), m.index)) || (m[0].includes(' ') && NEG.test(m[0])))) { out.add(d.type); break; }
+    }
+  }
+  return out;
+}
+
 /** Unsafe requests in the latest customer message. */
 function detectUnsafeRequest(latest, appliance) {
   const t = String(latest || '').toLowerCase();
@@ -173,4 +191,4 @@ function copyFor(type) {
   return COPY[type] || null;
 }
 
-module.exports = { COPY, POLICY, detectHazards, detectUnsafeRequest, mostSerious, gateReply, copyFor, affirmed, customerTexts };
+module.exports = { COPY, POLICY, detectHazards, deniedHazards, detectUnsafeRequest, mostSerious, gateReply, copyFor, affirmed, customerTexts };

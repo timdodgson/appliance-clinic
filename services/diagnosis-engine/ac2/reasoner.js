@@ -1,7 +1,7 @@
 'use strict';
 /**
  * The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline by change 21.11. It reasons
- * over the whole turn (differential, next question or check, part, escalation) and writes the reply, from the ac3
+ * over the whole turn (differential, next question or check) and writes the reply, from the ac3
  * record (as `ledger`), tool results, knowledge, the active safety constraints and the plan code decided for this reply.
  * Nothing it proposes reaches the customer before the claim verifier and the final check (turn.js).
  *
@@ -21,7 +21,7 @@ How to respond each turn:
 2. Then move the diagnosis forward with the single most useful next step: the question or owner-safe check that best separates the remaining likely causes (ask at most two closely related questions; give a check as short clear steps, including how to make it safe: switched off and unplugged/isolated, towels for water, gloves for glass, cool down for hot parts).
 3. If they cannot or will not answer something, or already tried it, do not ask it again: reason around it and use another route.
 4. Recognise normal behaviour (see normalBehaviour notes) and say so when it fits, with the warning signs that would make it a fault.
-5. Keep a differential: until a check or a clear symptom pattern separates them, name the two or three most likely causes in order and say what would tell them apart. Commit to one cause only when the customer's evidence really supports it, and say how sure you are. Once it is settled, say what to do next and don't keep asking. If a replaceable part is clearly indicated by that evidence, name the component in "part" (the system checks the model and the parts catalogue).
+5. Keep a differential: until a check or a clear symptom pattern separates them, name the two or three most likely causes in order and say what would tell them apart. Commit to one cause only when the customer's evidence really supports it, and say how sure you are. Once it is settled, say what to do next and don't keep asking. If a replaceable part is clearly indicated by that evidence, name the component in the reply (the system checks the model and the parts catalogue).
 6. If the fault needs an engineer (sealed refrigerant system, gas parts, mains wiring, internal microwave work, a part that needs dismantling beyond basic owner checks), say so plainly.
 7. If the appliance type is not clear (e.g. a brand and a code only), confirm it before giving appliance-specific steps. Use error-code results from the tool when they match the brand and appliance; if a code could mean different things, say what it most likely means and what would confirm it. A short token like "V6", "WW90" or "S7" may be a model or series rather than an error code: decide from context.
 8. Model numbers: a model-series hint is provisional. Never claim an exact model identity, part compatibility, price or availability. Never give part numbers, and never describe how a specific model is built ("on your model the pump is…"); say what is typical and how to check.
@@ -31,7 +31,6 @@ How to respond each turn:
 Evidence rules (strict, checked by the system):
 - Only state something as a fact about THIS customer's appliance, situation or actions if it is in ledger.facts with source "customer" or "tool" (or is in their message this turn). Otherwise hedge it ("if the filter is clear…", "it may be…").
 - Never say "you said/mentioned/confirmed/checked/tried …" unless the customer actually did.
-- Record new customer facts from their latest message in understanding.newFacts with the customer's exact words as the quote (copy them exactly). Reuse existing field names from the ledger when it is the same thing.
 
 Safety rules (strict, checked by the system):
 - Follow every constraint in "safety". Never advise anything listed as prohibited.
@@ -42,16 +41,6 @@ Style: warm, direct, plain UK English, like a knowledgeable engineer who explain
 
 Return ONLY a JSON object with exactly these keys:
 {
- "understanding": {
-   "appliance": {"value": one of ${JSON.stringify(APPLIANCE_ENUM)}, "quote": exact customer words that show it or null, "basis": "stated"|"inferred"},
-   "brand": {"value": string, "quote": exact words} or null,
-   "model": {"value": string, "quote": exact words} or null,
-   "codes": [{"code": string, "quote": exact words}],
-   "newFacts": [{"field": snake_case, "value": string, "quote": exact customer words, "status": "stated"|"uncertain"}],
-   "lastQuestionAnswer": "answered"|"unknown"|"declined"|"not_applicable",
-   "customerQuestion": the direct question the customer asked this turn, or null,
-   "outOfScope": {"is": boolean, "what": string or null}
- },
  "assessment": {
    "status": "gathering"|"narrowed"|"probably_normal"|"needs_engineer"|"resolved",
    "candidates": [{"cause": string, "likelihood": "high"|"medium"|"low", "evidence": [fact ids]}],
@@ -60,32 +49,15 @@ Return ONLY a JSON object with exactly these keys:
    "summary": short customer-facing name of the most likely cause (or "Probably normal"), or null while gathering
  },
  "next": {"key": snake_case id of the question/check you are asking for, "question": the question text} or null,
- "part": {"component": e.g. "drain pump", "evidence": [fact ids]} or null,
- "escalation": {"to": "engineer"|"gas_safe"|"electrician"|"manufacturer"|"refrigeration_engineer", "reason": string} or null,
  "reply": the message to the customer
 }`;
 
 // Structured output: a JSON schema (LM Studio and OpenAI both accept `json_schema`; LM Studio rejects `json_object`).
 const str = { type: 'string' };
 const nstr = { type: ['string', 'null'] };
-const quoted = (extra = {}) => ({ type: ['object', 'null'], properties: { value: str, quote: nstr, ...extra }, required: ['value', 'quote', ...Object.keys(extra)] });
 const SCHEMA = {
   type: 'object',
   properties: {
-    understanding: {
-      type: 'object',
-      properties: {
-        appliance: quoted({ basis: { type: 'string', enum: ['stated', 'inferred'] } }),
-        brand: quoted(),
-        model: quoted(),
-        codes: { type: 'array', items: { type: 'object', properties: { code: str, quote: str }, required: ['code', 'quote'] } },
-        newFacts: { type: 'array', items: { type: 'object', properties: { field: str, value: str, quote: str, status: { type: 'string', enum: ['stated', 'uncertain'] } }, required: ['field', 'value', 'quote', 'status'] } },
-        lastQuestionAnswer: { type: 'string', enum: ['answered', 'unknown', 'declined', 'not_applicable'] },
-        customerQuestion: nstr,
-        outOfScope: { type: 'object', properties: { is: { type: 'boolean' }, what: nstr }, required: ['is', 'what'] },
-      },
-      required: ['appliance', 'brand', 'model', 'codes', 'newFacts', 'lastQuestionAnswer', 'customerQuestion', 'outOfScope'],
-    },
     assessment: {
       type: 'object',
       properties: {
@@ -98,11 +70,9 @@ const SCHEMA = {
       required: ['status', 'candidates', 'confidence', 'knowledgeIds', 'summary'],
     },
     next: { type: ['object', 'null'], properties: { key: str, question: str }, required: ['key', 'question'] },
-    part: { type: ['object', 'null'], properties: { component: str, evidence: { type: 'array', items: str } }, required: ['component', 'evidence'] },
-    escalation: { type: ['object', 'null'], properties: { to: { type: 'string', enum: ['engineer', 'gas_safe', 'electrician', 'manufacturer', 'refrigeration_engineer'] }, reason: str }, required: ['to', 'reason'] },
     reply: str,
   },
-  required: ['understanding', 'assessment', 'next', 'part', 'escalation', 'reply'],
+  required: ['assessment', 'next', 'reply'],
 };
 const RESPONSE_FORMAT = { type: 'json_schema', json_schema: { name: 'ac2_turn', strict: true, schema: SCHEMA } };
 
@@ -182,20 +152,8 @@ function sumUsage(a, b) {
 
 const arr = (x) => (Array.isArray(x) ? x : []);
 function normalise(p) {
-  const u = p.understanding && typeof p.understanding === 'object' ? p.understanding : {};
   const a = p.assessment && typeof p.assessment === 'object' ? p.assessment : {};
-  const appliance = u.appliance && typeof u.appliance === 'object' ? u.appliance : null;
   return {
-    understanding: {
-      appliance: appliance && APPLIANCE_ENUM.includes(appliance.value) ? appliance : null,
-      brand: u.brand && u.brand.value ? u.brand : null,
-      model: u.model && u.model.value ? u.model : null,
-      codes: arr(u.codes).filter((c) => c && c.code),
-      newFacts: arr(u.newFacts).filter((f) => f && f.field && f.value !== undefined).slice(0, 12),
-      lastQuestionAnswer: ['answered', 'unknown', 'declined', 'not_applicable'].includes(u.lastQuestionAnswer) ? u.lastQuestionAnswer : 'not_applicable',
-      customerQuestion: typeof u.customerQuestion === 'string' && u.customerQuestion.trim() ? u.customerQuestion.slice(0, 300) : null,
-      outOfScope: u.outOfScope && typeof u.outOfScope === 'object' ? { is: u.outOfScope.is === true, what: u.outOfScope.what || null } : { is: false, what: null },
-    },
     assessment: {
       status: ['gathering', 'narrowed', 'probably_normal', 'needs_engineer', 'resolved'].includes(a.status) ? a.status : 'gathering',
       candidates: arr(a.candidates).filter((c) => c && c.cause).slice(0, 5).map((c) => ({ cause: String(c.cause).slice(0, 120), likelihood: ['high', 'medium', 'low'].includes(c.likelihood) ? c.likelihood : 'low', evidence: arr(c.evidence).map(String).slice(0, 8) })),
@@ -204,8 +162,6 @@ function normalise(p) {
       summary: typeof a.summary === 'string' && a.summary.trim() ? a.summary.slice(0, 120) : null,
     },
     next: p.next && typeof p.next === 'object' && p.next.question ? { key: String(p.next.key || '').slice(0, 60), question: String(p.next.question).slice(0, 300) } : null,
-    part: p.part && typeof p.part === 'object' && p.part.component ? { component: String(p.part.component).slice(0, 80), evidence: arr(p.part.evidence).map(String).slice(0, 8) } : null,
-    escalation: p.escalation && typeof p.escalation === 'object' && p.escalation.to ? { to: String(p.escalation.to), reason: String(p.escalation.reason || '').slice(0, 200) } : null,
     reply: stripThinking(p.reply).slice(0, 2400),
   };
 }

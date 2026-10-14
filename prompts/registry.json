@@ -165,7 +165,7 @@
       ],
       "input": "The latest customer message, the previous assistant message, Qwen's reading as a hint, what is already known, candidate tokens; or the reply and candidate media.",
       "output": "Jev answers (choice with confidence, noul).",
-      "version": 4,
+      "version": 5,
       "owner": "applianceclinic-diagnosis-engine",
       "changelog": [
         {
@@ -191,6 +191,12 @@
           "date": "2026-10-13",
           "fingerprint": "d007f17ef02f0f5cfea1865a0b944b3344815034b5aded9d5309a3d6023ca014",
           "change": "Check confirmation excludes safety steps such as switching it off or unplugging it."
+        },
+        {
+          "version": 5,
+          "date": "2026-10-14",
+          "fingerprint": "5b857bc3ff8024899149f3e682de99c3584963f70bf1069bbe60e8f7d91da239",
+          "change": "Change 21.18: the reply's check options may be up to 140 characters (tokenOptions maxLength); before, every owner check (52+ characters) was dropped, so Jev was never asked which check a reply gave and checkGiven was null in 302/302 turns of the 21.16 run."
         }
       ]
     },
@@ -236,7 +242,7 @@
     },
     {
       "id": "diagnosis.ac2.reason",
-      "version": 2,
+      "version": 3,
       "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
       "owner": "applianceclinic-diagnosis-engine",
       "consumers": [
@@ -267,6 +273,12 @@
           "date": "2026-10-13",
           "fingerprint": "a09eb77f91b7a96fb5b6d8773df0197f0875aaa63e4a75e74a92bcc2ed1e46d9",
           "change": "Restored in the ac3 pipeline (change 21.11): rule 0 says to follow the plan code decided for this reply (the plan wins over the reasoner's own next step); the plan is part of the input. The rest of the prompt is v1 unchanged."
+        },
+        {
+          "version": 3,
+          "date": "2026-10-14",
+          "fingerprint": "9d18c47df7e6f82843fd72a9599485d274d744abdfd54d80d65bca8f05a46326",
+          "change": "Change 21.18: the output is assessment, next and reply only; the understanding, part and escalation fields (never read by the turn; about 75% of output tokens) are removed from the prompt and the schema, and rule 5 names a clearly indicated part in the reply."
         }
       ]
     },
