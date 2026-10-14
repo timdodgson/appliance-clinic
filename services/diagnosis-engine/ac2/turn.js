@@ -184,15 +184,10 @@ function decide(rec, reading, hazard, unsafe, parts, { nothingNew = false } = {}
   }
   if (hazard && hazard.policy.terminate) {
     plan.push(`Safety: they reported ${hazard.type === 'gas' ? 'a gas smell' : 'a fire'} earlier and were given the emergency advice. Do not repeat it. Do not suggest any check or use of the appliance; answer what they ask now, and make sure they know to keep following that advice until ${hazard.type === 'gas' ? 'a Gas Safe engineer' : 'the fire service or an engineer'} has made it safe.`);
-  } else if (hazard && hazard.type === 'burning') {
-    // The cases' own safety boundaries: stop and unplug; owner checks with it unplugged and cool are expected and often
-    // find the cause (lint, a blocked vent, a jammed belt or brush bar); an engineer when the smell was electrical, there
-    // was smoke, or nothing simple is found; and before drying again for a dryer.
-    plan.push(`Safety: a burning smell was reported. The fixed safety warning is shown separately, do not repeat it. It stays switched off and unplugged. Give the owner checks that are safe with it unplugged and cool and could show the cause (fluff or lint, a blocked or crushed vent, a jammed belt or brush bar, a food spill), as clear steps. Say plainly that if the smell was electrical (hot plastic or wiring), there was smoke or there are scorch marks, or the checks find no simple cause, it must not be used again until a qualified engineer has checked it${appliance === 'tumble-dryer' || appliance === 'washer-dryer' ? '; and for a dryer, have an engineer check it before drying again' : ''}. Never say or imply that it is safe to use again.`);
   } else if (hazard) {
     const who = String(hazard.policy.escalate || 'an engineer').replace(/-/g, ' ');
     plan.push(MUST_BE_CHECKED.has(hazard.type)
-      ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. Explain the likely cause, and give as clear steps the checks that are safe with it switched off ${hazard.type === 'electrical_water' ? 'at the consumer unit (fuse box), never touching the plug or socket while anything is wet' : 'and unplugged'} and could show the cause${hazard.type === 'battery' ? ' (for a swollen or damaged battery there are none: do not suggest any)' : hazard.type === 'supply_trip' ? ' (for example, unplugging it and resetting the trip once to see whether this appliance is the cause)' : ''}. Never say or imply that a check could make it safe to use, or that they might not need an engineer.`
+      ? `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off ${hazard.type === 'electrical_water' ? 'at the consumer unit (fuse box), never touching the plug or socket while anything is wet' : 'and unplugged'}, but never say or imply that a check could make it safe to use, or that they might not need an engineer.`
       : `Safety: a ${hazard.type.replace(/_/g, ' ')} hazard is active. The fixed safety warning is shown separately, do not repeat it. Only suggest checks that are safe with the appliance switched off and unplugged, never running or testing it; recommend ${who} where the fault needs one.`);
   }
   // What we have already told them: the reply builds on it instead of repeating it.
@@ -532,8 +527,7 @@ async function runTurn(input, deps) {
   else if (action === 'suggests_part' && parts && parts.outcome === 'verified') rec.outcome = 'part';
   else if (action === 'says_normal') rec.outcome = 'normal';
 
-  // A burning smell is not a forced escalation: the reply gives owner checks first (see the plan) and escalates itself.
-  const escalation = hazard && hazard.type !== 'burning' ? { to: hazard.policy.escalate || 'engineer', reason: hazard.type, forced: true } : (action === 'recommends_engineer' ? { to: 'engineer', reason: hazard ? hazard.type : 'reply' } : null);
+  const escalation = hazard ? { to: hazard.policy.escalate || 'engineer', reason: hazard.type, forced: true } : (action === 'recommends_engineer' ? { to: 'engineer', reason: 'reply' } : null);
   audit.tags = { ...tags, stage: rec.stage, replyAction: rl.replyAction, checkGiven: rl.check || null, media: rl.media ? rl.media.id || rl.media.title || null : null,
     enrichment: { knowledgeIds: rec.knowledge.knowledgeIds, codes: found.codeMeanings.map((x) => ({ code: x.code, status: x.status })), recalls: recalls.length, parts: parts ? parts.outcome : 'none' } };
   audit.partGate = parts ? { outcome: parts.outcome, component: parts.component, reason: parts.reason || null } : { outcome: 'none' };

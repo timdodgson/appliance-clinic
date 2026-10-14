@@ -1,0 +1,766 @@
+{
+ "id": "HB-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-hb-07-d554ac952e",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hob not working properly"
+  },
+  {
+   "role": "assistant",
+   "text": "To help narrow this down, could you tell me if your hob is induction (digital touch controls) or ceramic/radiant? If it's induction, please check if a 'key' or 'padlock' icon is lit on the display, as the child lock can disable all zones. Also, are any specific zones failing to heat, or is the entire hob unresponsive?"
+  },
+  {
+   "role": "customer",
+   "text": "It's a ceramic one I think, a Zanussi. Only the rear right ring isn't heating, the other three are fine."
+  },
+  {
+   "role": "assistant",
+   "text": "On these models, a single dead zone is most often either the child lock being active (which can sometimes disable individual zones) or a failed element/control switch for that specific ring. Before we assume hardware failure, could you check if there is a key or padlock icon lit on the display? If so, hold that button down for 3–5 seconds to unlock it, then try the rear right zone again."
+  },
+  {
+   "role": "customer",
+   "text": "I can't see any key or padlock on the display. The number for that ring shows fine when I select it, it just doesn't heat up or glow."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the display shows the setting but there is no heat or glow on that specific zone, it points to a hardware failure rather than a settings issue. On ceramic hobs, this is most commonly either the radiant element itself has failed (burnt out) or the energy regulator (the switch that controls power to that zone) has failed. To help distinguish between these, please check if you can see any cracks in the heating coil under the glass for that ring. If there are visible cracks, the element needs replacing; if it looks fine, the issue is likely the internal control switch or wiring."
+  },
+  {
+   "role": "customer",
+   "text": "I can't really see any coil properly through the glass, so I can't tell if there are cracks. It doesn't glow red at all on that ring though. It did smell slightly burnt once a couple of weeks ago from that ring, but not since."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. First switch it off at the wall or cooker switch and let it cool completely. On ceramic hobs, once an element burns out, it will never heat again and cannot be repaired—only replaced. Because this involves disconnecting mains electricity to access the internal wiring and mounting nuts under the glass top, I recommend you call a qualified appliance engineer to check the rear-right radiant element. They will also check that the control switch hasn't been damaged by the initial fault. Please do not attempt to remove the hob yourself unless you are comfortable working with live electrical connections."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1542,
+     "labelMs": 310,
+     "enrichMs": 0,
+     "reasonMs": 5528,
+     "verifyMs": 321,
+     "replyLabelMs": 288,
+     "totalMs": 8041
+    },
+    "usage": {
+     "promptTokens": 2357,
+     "completionTokens": 318,
+     "totalTokens": 2675
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Child lock engaged (medium)",
+     "Incorrect cookware (induction) (low)",
+     "Faulty heating element or control module (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.87
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working properly"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.98
+     },
+     "checkGiven": "Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, are any specific zones failing to heat, or is the entire hob unresponsive?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8087
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8494,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1866,
+     "labelMs": 292,
+     "enrichMs": 1,
+     "reasonMs": 7690,
+     "verifyMs": 1809,
+     "replyLabelMs": 305,
+     "totalMs": 12004
+    },
+    "usage": {
+     "promptTokens": 2690,
+     "completionTokens": 302,
+     "totalTokens": 2992
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Thanks for confirming it’s a Zanussi ceramic hob with just the rear right zone failing.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Child lock engaged for that zone (medium)",
+     "Faulty radiant element or its control switch (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Zanussi",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": "Zanussi",
+      "model": null,
+      "codes": [],
+      "symptom": "only rear right ring not heating"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa\" (no result reported yet).",
+     "They have not reported the result of: \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Zanussi.",
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Zanussi",
+      "confidence": 1,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, are any specific zones failing to heat, or is the entire hob unresponsive?",
+       "turn": 1,
+       "resolution": "ceramic"
+      },
+      {
+       "key": null,
+       "text": "Before we assume hardware failure, could you check if there is a key or padlock icon lit on the display?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12157
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12529,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2075,
+     "labelMs": 287,
+     "enrichMs": 0,
+     "reasonMs": 8795,
+     "verifyMs": 1566,
+     "replyLabelMs": 265,
+     "totalMs": 13040
+    },
+    "usage": {
+     "promptTokens": 2982,
+     "completionTokens": 364,
+     "totalTokens": 3346
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Failed radiant element for the rear right zone (high)",
+     "Faulty energy regulator (simmerstat) or control switch for that zone (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.77
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "rear right zone does not heat up or glow"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:overheating",
+       "hobs:power-module"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa\" (no result reported yet); turn 2: gives check, suggested the check \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\" (no result reported yet).",
+     "They have not reported the result of: \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa\"; \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Zanussi.",
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Zanussi",
+      "confidence": 1,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, are any specific zones failing to heat, or is the entire hob unresponsive?",
+       "turn": 1,
+       "resolution": "ceramic"
+      },
+      {
+       "key": null,
+       "text": "Before we assume hardware failure, could you check if there is a key or padlock icon lit on the display?",
+       "turn": 2,
+       "resolution": "no key or padlock icon on the display"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13085
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 13457,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3745,
+     "labelMs": 295,
+     "enrichMs": 1,
+     "reasonMs": 5887,
+     "verifyMs": 1753,
+     "replyLabelMs": 291,
+     "totalMs": 11974
+    },
+    "usage": {
+     "promptTokens": 3354,
+     "completionTokens": 272,
+     "totalTokens": 3626
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "replace-before-confirmed"
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The burnt smell you noticed a couple of weeks ago strongly suggests the heating element itself has failed internally.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Failed radiant heating element (high)",
+     "Failed energy regulator (switch) for that zone (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.58
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.21
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.77
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "ceramic hob",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "ring does not glow red at all"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.85
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:overheating",
+       "hobs:power-module"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning smell was reported. The fixed safety warning is shown separately, do not repeat it. It stays switched off and unplugged. Give the owner checks that are safe with it unplugged and cool and could show the cause (fluff or lint, a blocked or crushed vent, a jammed belt or brush bar, a food spill), as clear steps. Say plainly that if the smell was electrical (hot plastic or wiring), there was smoke or there are scorch marks, or the checks find no simple cause, it must not be used again until a qualified engineer has checked it. Never say or imply that it is safe to use again.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Wa\"; turn 2: gives check, suggested the check \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\"; turn 3: gives check.",
+     "Checks they have done and what they found: checked for cracks in the heating coil under the glass - could not see clearly to tell if there are cracks.",
+     "Already given by the customer, never ask for it again: make Zanussi.",
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Zanussi",
+      "confidence": 1,
+      "turn": 2
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked for cracks in the heating coil under the glass: could not see clearly to tell if there are cracks",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Also, are any specific zones failing to heat, or is the entire hob unresponsive?",
+       "turn": 1,
+       "resolution": "ceramic"
+      },
+      {
+       "key": null,
+       "text": "Before we assume hardware failure, could you check if there is a key or padlock icon lit on the display?",
+       "turn": 2,
+       "resolution": "no key or padlock icon on the display"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 4,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.58
+      }
+     ]
+    },
+    "ms": 12025
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 12258,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0378656,
+ "finishedAt": "2026-10-14T03:21:45.462Z"
+}

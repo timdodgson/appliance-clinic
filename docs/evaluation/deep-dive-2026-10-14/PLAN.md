@@ -166,3 +166,24 @@ not used: pipeline.md finding 3 says the regeneration budget at `turn.js:434` co
 not: `elapsed` is time spent so far, and `r.ms + verifyMs` estimates the cost of the next pass; their sum is the
 expected finish time. Its measurement (a regeneration fits in 57 of 289 turns) stands and reflects real latency.
 
+## 6. Phase 1 result (2026-10-14)
+
+| Release | What | Overall | Paired vs 21.16 (95% CI) | Confirmed critical | Unsafe DIY | Blocking loops | Median turn |
+|---|---|---|---|---|---|---|---|
+| 21.16 | baseline | 2.74 | | 14 | 1 | 4 | 18.1 s |
+| **21.18** | Phase 1: D1–D4, D7, D12, D13 | **2.79** | +0.05 (−0.10 to +0.21) | **11** | 1 | **2** | **13.6 s** |
+| 21.19 | 21.18 + owner checks under hazards | 2.70 | −0.04 (−0.21 to +0.13); −0.09 vs 21.18 | 13 | 3 | 6 | 13.0 s |
+
+- **Phase 1 did not clear its gate** (+0.17 paired). It made AC safer and faster (fewest confirmed critical failures
+  so far, unjustified parts 6 → 3, median turn −4.5 s from D13) but not more useful. The estimate of +0.20 to +0.25 for
+  the mechanical defects did not hold.
+- **Why the escalation estimate failed:** forced escalations were unchanged (20 → 21 conversations). D2 clears denied
+  hazards, but in this run every forced escalation came from a hazard the customer really reported, so nothing was
+  denied (`out/independent-100-21.18/conversations/ac3`, meta escalation.forced).
+- **21.19 tried the next step** (the plan asks for the owner checks the cases' safety boundaries allow under a hazard).
+  It was worse on the measures that matter (unsafe DIY 1 → 3, blocking loops 2 → 6, −0.09 vs 21.18) and was rolled
+  back in 21.20 (byte-identical to 21.18).
+- **What this confirms:** with four more releases, usefulness stays at 2.70–2.79, the same band as every release since
+  20.13. Changing the plan and the checks around the model moves safety and speed, not usefulness. Phase 2 (a stronger
+  reasoning model) is the test the evidence points to.
+

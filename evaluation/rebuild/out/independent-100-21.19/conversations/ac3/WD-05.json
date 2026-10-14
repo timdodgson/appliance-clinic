@@ -1,0 +1,569 @@
+{
+ "id": "WD-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-05-331f0bbdb5",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "I think my washer dryer has a fault - I put it on just a drying programme with dry-ish clothes and I can hear water running into it and draining the whole time. Surely it shouldn't use water to dry? It's a Beko."
+  },
+  {
+   "role": "assistant",
+   "text": "It is actually normal for a Beko washer-dryer to use water during a drying programme. Most models use a trickle of cold water to cool down the condenser, which turns the steam from your clothes back into liquid so it can be pumped away. This explains why you hear water running and draining. Please tell me: 1. Was the load small enough for drying (usually about half the washing capacity)? 2."
+  },
+  {
+   "role": "customer",
+   "text": "Thank you. The message seems to have cut off after your first question. As for that one, I put in a small load of dry-ish clothes, so I believe it was within the limit. What was your second question?"
+  },
+  {
+   "role": "assistant",
+   "text": "My apologies for the cut-off. My second question was: once the drying programme finished, were the clothes actually dry or did they come out damp? If they are damp, we need to check if the machine drained properly during the spin phase before it started heating."
+  },
+  {
+   "role": "customer",
+   "text": "The clothes came out dry, yes. The machine isn't damp or leaking anywhere either, so it all seems to work - I just wanted to be sure that the water noise is normal for a machine only two months old."
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, that is completely normal for a Beko washer-dryer. As I mentioned, the machine uses a trickle of cold water during drying to cool down the condenser and turn steam back into liquid so it can be pumped away. Since your clothes came out dry and there are no leaks, the appliance is working exactly as designed. You don't need to do anything further."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2087,
+     "labelMs": 303,
+     "enrichMs": 0,
+     "reasonMs": 9644,
+     "verifyMs": 1924,
+     "replyLabelMs": 325,
+     "totalMs": 14339
+    },
+    "usage": {
+     "promptTokens": 3292,
+     "completionTokens": 386,
+     "totalTokens": 3678
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the clothes are coming out wet or soaking",
+      "source": "extractor"
+     },
+     {
+      "claim": "Have you cleaned the lint filter at the bottom front and the condenser recently?",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Normal condensation process (water used for cooling) (high)",
+     "Blocked lint filter or condenser causing poor drying and water backup (medium)",
+     "Overloaded drum for the drying cycle (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.89
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Beko",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Beko",
+      "model": null,
+      "codes": [],
+      "symptom": "water running into and draining during drying programme"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.99
+     },
+     "checkGiven": "A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:not-draining",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Beko.",
+     "The fault they reported is: \"water running into and draining during drying programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the load small enough for drying (usually about half the washing capacity)?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14502
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14723,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1913,
+     "labelMs": 740,
+     "enrichMs": 1,
+     "reasonMs": 7005,
+     "verifyMs": 530,
+     "replyLabelMs": 300,
+     "totalMs": 10529
+    },
+    "usage": {
+     "promptTokens": 3806,
+     "completionTokens": 251,
+     "totalTokens": 4057
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "If they are dry, then the water you heard was just the normal condenser cooling process working correctly.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Normal condenser cooling water usage (high)",
+     "Drain pump running due to residual water or error (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.47
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.08
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": "Beko",
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What was your second question?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: says normal, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\" (no result reported yet).",
+     "They have not reported the result of: \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Beko.",
+     "The fault they reported is: \"water running into and draining during drying programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the load small enough for drying (usually about half the washing capacity)?",
+       "turn": 1,
+       "resolution": "small load of dry-ish clothes"
+      },
+      {
+       "key": null,
+       "text": "My second question was: once the drying programme finished, were the clothes actually dry or did they come out damp?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10640
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 11023,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1755,
+     "labelMs": 294,
+     "enrichMs": 1,
+     "reasonMs": 4661,
+     "verifyMs": 4586,
+     "replyLabelMs": 262,
+     "totalMs": 11620
+    },
+    "usage": {
+     "promptTokens": 4212,
+     "completionTokens": 145,
+     "totalTokens": 4357
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.49
+      },
+      "symptomArea": {
+       "value": "noise",
+       "confidence": 0.92
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.31
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "water noise"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:leak-flood"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"is the water noise normal for a machine only two months old?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: says normal, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\" (no result reported yet); turn 2: asks question.",
+     "They have not reported the result of: \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Beko.",
+     "The fault they reported is: \"water running into and draining during drying programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the load small enough for drying (usually about half the washing capacity)?",
+       "turn": 1,
+       "resolution": "small load of dry-ish clothes"
+      },
+      {
+       "key": null,
+       "text": "My second question was: once the drying programme finished, were the clothes actually dry or did they come out damp?",
+       "turn": 2,
+       "resolution": "dry"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11670
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 12088,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0267777,
+ "finishedAt": "2026-10-14T02:41:55.916Z"
+}

@@ -1,0 +1,201 @@
+{
+ "id": "MW-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-06-3bbc4df6c7",
+ "endReason": "escalated",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "micrwave keeps tripping the eletric, not every time but like 1 in 3 when i press start, whole kitchen goes off. had to reset the fuse box 4 times today"
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nPlease don't keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again. Because the trip is intermittent but repeats (1 in 3 starts) and cuts out the whole kitchen, this points to an internal electrical fault—most likely a failing high-voltage component like the magnetron or capacitor causing a surge that trips your RCD. The appliance must be unplugged immediately and left disconnected until a qualified engineer can inspect it safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2262,
+     "labelMs": 294,
+     "enrichMs": 1,
+     "reasonMs": 4993,
+     "verifyMs": 2238,
+     "replyLabelMs": 278,
+     "totalMs": 10068
+    },
+    "usage": {
+     "promptTokens": 2833,
+     "completionTokens": 289,
+     "totalTokens": 3122
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "supply_trip"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "This is a serious safety hazard involving mains voltage and high-energy capacitors; please do not attempt to open the casing or reset the fuse repeatedly as you have been doing, as this risks electric shock or fire.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "electrician-or-engineer",
+     "reason": "supply_trip",
+     "forced": true
+    },
+    "status": "stage_1",
+    "candidates": [
+     "Internal short circuit (magnetron, HV capacitor, or diode) (high)",
+     "Faulty internal mains fuse due to component failure (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "supply_trip",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": "repeated_reset",
+       "confidence": 0.85
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.56
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "keeps tripping the electric when pressing start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.87
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:low-voltage",
+       "microwave:door",
+       "microwave:cutting-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a supply trip hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. Explain the likely cause, and give as clear steps the checks that are safe with it switched off and unplugged and could show the cause (for example, unplugging it and resetting the trip once to see whether this appliance is the cause). Never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "The fault they reported is: \"keeps tripping the electric when pressing start\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "They asked about something unsafe (repeated reset): do not explain how to do it; the fixed safety wording is shown separately. Offer the safe alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": [
+      {
+       "type": "supply_trip",
+       "clause": "labelled: supply_trip",
+       "turn": 1,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 10408
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12613,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0086899,
+ "finishedAt": "2026-10-14T03:12:45.362Z"
+}

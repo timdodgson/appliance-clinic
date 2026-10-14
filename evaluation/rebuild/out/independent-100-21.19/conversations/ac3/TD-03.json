@@ -1,0 +1,606 @@
+{
+ "id": "TD-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-03-c497a278a4",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch WTN85201GB condenser dryer not drying properly anymore, clothes still damp after 2 hrs. any ideas"
+  },
+  {
+   "role": "assistant",
+   "text": "That model is a heat-pump dryer, which relies on good airflow to dry clothes efficiently. The most common reason for damp laundry after two hours is restricted airflow due to blocked filters or the condenser unit. Please switch off and unplug the machine first, then check the lint filter in the door opening and remove the condenser unit from behind the bottom flap to rinse it under a tap. Let me know if they were clogged with fluff or if they looked clean."
+  },
+  {
+   "role": "customer",
+   "text": "Door filters had fluff and a waxy film, water barely went through until I scrubbed them. Condenser at the bottom had never been cleaned and the front was matted with lint, but it rinsed clean with the shower head. Also vacuumed fluff out of the slot behind it. What next?"
+  },
+  {
+   "role": "assistant",
+   "text": "Since they are now clean, the next most common cause for poor drying on this model is either residual moisture on the filters/condenser (which can happen if you refitted them while damp) or coated moisture sensors inside the drum that stop the cycle early. Please wipe the metal sensor strips with a damp cloth and a little white vinegar to remove any remaining residue, ensure everything is bone dry before putting it back together, and run another normal programme. If they are still damp after this, we should check how wet your clothes were coming out of the washing machine."
+  },
+  {
+   "role": "customer",
+   "text": "Wiped the sensor bars with vinegar (they were a bit dull) and ran a test cycle. Clothes dried in about 100 minutes and the container was nearly full. Seems sorted?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, that sounds exactly right. The combination of a blocked lint filter and a dirty condenser was restricting the airflow enough to stop the heat-pump system from working efficiently. Cleaning those components restored the necessary air circulation, which is why your test cycle completed successfully in 100 minutes. To keep it running well, try to empty the lint filter after every use and give the condenser a quick rinse every few months. If you have any other questions or need help with anything else, just let me know."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1439,
+     "labelMs": 325,
+     "enrichMs": 0,
+     "reasonMs": 9690,
+     "verifyMs": 500,
+     "replyLabelMs": 291,
+     "totalMs": 12271
+    },
+    "usage": {
+     "promptTokens": 3199,
+     "completionTokens": 338,
+     "totalTokens": 3537
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clogged condenser or fluff filters (high)",
+     "Restricted vent hose or poor airflow (medium)",
+     "Coated moisture sensors (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.02
+      },
+      "model": {
+       "value": "WTN85201GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": "Bosch",
+      "model": "WTN85201GB",
+      "codes": [],
+      "symptom": "not drying properly, clothes still damp after 2 hrs"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Damp laundry is most often an airflow problem, and the first free check is the fluff filter in the door opening — heat-pump models often hav",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any ideas\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"not drying properly, clothes still damp after 2 hrs\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12393
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12792,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2462,
+     "labelMs": 388,
+     "enrichMs": 1,
+     "reasonMs": 12456,
+     "verifyMs": 3812,
+     "replyLabelMs": 370,
+     "totalMs": 19515
+    },
+    "usage": {
+     "promptTokens": 3871,
+     "completionTokens": 444,
+     "totalTokens": 4315
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "You've done the right job cleaning those heavily blocked parts; that 'waxy film' is likely fabric conditioner residue which traps fluff and reduces airflow.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Residual moisture on condenser or lint filter reducing efficiency (high)",
+     "Moisture sensor coated with fabric conditioner residue (medium)",
+     "Poor spin speed in the washing machine leaving clothes too wet (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "suction_or_airflow",
+       "confidence": 0.65
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.23
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "heat-pump dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "damp laundry after two hours"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundry is dry. Fabric conditioner can coat them so it s",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:not-emptying-condensate"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What next?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Damp laundry is most often an airflow problem, and the first free check is the fluff filter in the door opening — heat-pump models often hav\".",
+     "Checks they have done and what they found: lint filter in the door opening - had fluff and a waxy film, water barely went through until scrubbed; condenser unit from behind the bottom flap - never been cleaned and front was matted with lint, rinsed clean with shower head; vacuumed fluff out of the slot behind condenser - cleaned.",
+     "Already given by the customer, never ask for it again: make Bosch; model WTN85201GB.",
+     "The fault they reported is: \"not drying properly, clothes still damp after 2 hrs\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "lint filter in the door opening: had fluff and a waxy film, water barely went through until scrubbed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "condenser unit from behind the bottom flap: never been cleaned and front was matted with lint, rinsed clean with shower head",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "vacuumed fluff out of the slot behind condenser: cleaned",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 19597
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20039,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2695,
+     "labelMs": 318,
+     "enrichMs": 1,
+     "reasonMs": 7206,
+     "verifyMs": 2153,
+     "replyLabelMs": 270,
+     "totalMs": 12679
+    },
+    "usage": {
+     "promptTokens": 3879,
+     "completionTokens": 218,
+     "totalTokens": 4097
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Restricted airflow due to blocked lint filter and dirty condenser (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.85
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.56
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.64
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.84
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.87
+     },
+     "checkGiven": "A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:not-emptying-condensate"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Seems sorted?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WTN85201GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "lint filter in the door opening: had fluff and a waxy film, water barely went through until scrubbed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "condenser unit from behind the bottom flap: never been cleaned and front was matted with lint, rinsed clean with shower head",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "vacuumed fluff out of the slot behind condenser: cleaned",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "wiped sensor bars with vinegar: they were a bit dull",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "ran a test cycle: clothes dried in about 100 minutes and the container was nearly full",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12743
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 13038,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0294817,
+ "finishedAt": "2026-10-14T02:46:16.818Z"
+}

@@ -1,0 +1,399 @@
+{
+ "id": "MW-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-09-d8cc70ad55",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch built-in microwave BFL524MS0B randomly stops part way through cooking, time still on the display. Opening and closing the door lets it carry on. Maybe once every few days."
+  },
+  {
+   "role": "assistant",
+   "text": "This behaviour suggests the microwave thinks the door has opened during cooking. The most common cause is a dirty or worn door latch mechanism not engaging fully, though it could also be an intermittent electrical fault in the door interlock switches. Please check the following safely:\n1. Unplug the microwave.\n2. Look closely at the plastic hooks on the edge of the door and the slots they click into. Is there any food or grease blocking them?\n3. Close the door gently and see if it clicks firmly into place, or if it feels loose/floppy. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "There was some grease around the door hooks and latch slots, so I cleaned it off, but it's still stopped once since. It does seem to happen more when I close the door gently. No smell, sparks or tripping anything."
+  },
+  {
+   "role": "assistant",
+   "text": "The plastic latch hook on the door is likely worn or slightly misaligned so it doesn't push the internal switch far enough in during a soft close. Please try closing the door firmly with a bit more snap for a few cooking cycles to see if that stops the fault."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1588,
+     "labelMs": 278,
+     "enrichMs": 0,
+     "reasonMs": 8732,
+     "verifyMs": 536,
+     "replyLabelMs": 245,
+     "totalMs": 11435
+    },
+    "usage": {
+     "promptTokens": 3240,
+     "completionTokens": 336,
+     "totalTokens": 3576
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door interlock / latch fault (high)",
+     "Control board glitch (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "BFL524MS0B",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "built-in microwave",
+      "brand": "Bosch",
+      "model": "BFL524MS0B",
+      "codes": [],
+      "symptom": "randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "With it unplugged, look at the plastic hooks on the edge of the door and the slots they click into, and check the door shuts cleanly — food",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:not-heating",
+       "microwave:sparking-arcing"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Bosch; model BFL524MS0B.",
+     "The fault they reported is: \"randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the one or two safe checks, or the one question, that would best tell those causes apart. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BFL524MS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there any food or grease blocking them?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11504
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11715,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2397,
+     "labelMs": 308,
+     "enrichMs": 1,
+     "reasonMs": 8618,
+     "verifyMs": 2897,
+     "replyLabelMs": 298,
+     "totalMs": 14574
+    },
+    "usage": {
+     "promptTokens": 3602,
+     "completionTokens": 308,
+     "totalTokens": 3910
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "cleaning didn't fix it",
+      "source": "extractor"
+     },
+     {
+      "claim": "it still fails even with a firm close",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Worn door latch hook or misalignment (high)",
+     "Intermittent door interlock switch fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.85
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.69
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.89
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.48
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stopped once since cleaning grease from door hooks and latch slots; happens more when closing door gently"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:sparking-arcing",
+       "microwave:door",
+       "microwave:main-pcb"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"With it unplugged, look at the plastic hooks on the edge of the door and the slots they click into, and check the door shuts cleanly — food\".",
+     "Checks they have done and what they found: cleaned grease from door hooks and latch slots - still stopped once since.",
+     "Already given by the customer, never ask for it again: make Bosch; model BFL524MS0B.",
+     "The fault they reported is: \"randomly stops part way through cooking, time still on the display; opening and closing the door lets it carry on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BFL524MS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned grease from door hooks and latch slots: still stopped once since",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there any food or grease blocking them?",
+       "turn": 1,
+       "resolution": "cleaned off grease around door hooks and latch slots"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14681
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15048,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0215278,
+ "finishedAt": "2026-10-14T03:14:18.507Z"
+}
