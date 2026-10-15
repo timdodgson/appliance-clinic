@@ -1,0 +1,386 @@
+{
+ "id": "MW-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-03-e9773cf1df",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "panasonic nn h98 not heating anymore, any fix?"
+  },
+  {
+   "role": "assistant",
+   "text": "For a Panasonic NN-H98 that isn't heating, there are two main possibilities: either it's set to a mode that doesn't use the microwave energy (like a grill-only or defrost setting), or there is a fault in the high-voltage heating circuit. To narrow this down, please try these owner-safe checks:\n1. Ensure it is set to a standard microwave mode (e.g. Auto Cook or 100% Power) and not 'Grill', 'Combi' or a low power level.\n2. Place a cup of water inside and run it for one minute on full power. Please tell me: did the water get hot, or is it still cold? And do you hear any abnormal buzzing or humming when it tries to heat?"
+  },
+  {
+   "role": "customer",
+   "text": "its on microwave mode. water stops after about 10-15 secs with h98 on the screen and the water's still cold. not sure about any humming. also h98 is the code, the model on the back is NN-CD87KSBPQ"
+  },
+  {
+   "role": "assistant",
+   "text": "The H98 code on your Panasonic NN-CD87KSBPQ specifically indicates a fault with the high-voltage power circuit—most commonly the inverter board that drives the magnetron, or the magnetron itself. Because this appliance uses an inverter system (standard for Panasonic), and because the error code appears immediately while the water remains cold, the machine is detecting that it cannot generate microwave energy. This is a high-voltage fault involving lethal voltages stored in capacitors even when unplugged. It requires specialist testing and replacement of internal components by an engineer; there are no owner-safe fixes for this specific error code once settings have been confirmed correct. Please stop using the appliance to avoid further damage or safety risks. You will need to contact a qualified microwave repair technician or Panasonic support for a diagnosis and repair.\n[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1229,
+     "labelMs": 320,
+     "enrichMs": 0,
+     "reasonMs": 8485,
+     "verifyMs": 403,
+     "replyLabelMs": 276,
+     "totalMs": 10774
+    },
+    "usage": {
+     "promptTokens": 4816,
+     "completionTokens": 424,
+     "totalTokens": 5240
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "prohibited-advice",
+       "rule": "hv-microwave"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Incorrect mode/power level selected (medium)",
+     "High-voltage circuit fault (magnetron, inverter board or HV components) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN-H98",
+       "confidence": 0.97
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Panasonic",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "Panasonic",
+      "model": "NN-H98",
+      "codes": [],
+      "symptom": "not heating"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "Heat a cup of water for a minute on full power. Is the water hot now, or still cold?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:grill-not-heating",
+       "microwave:not-heating",
+       "microwave:turntable"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"any fix?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Panasonic; model NN-H98.",
+     "The fault they reported is: \"not heating\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-H98",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "And do you hear any abnormal buzzing or humming when it tries to heat?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10897
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11376,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2772,
+     "labelMs": 315,
+     "enrichMs": 3223,
+     "reasonMs": 7321,
+     "verifyMs": 469,
+     "replyLabelMs": 284,
+     "totalMs": 14472
+    },
+    "usage": {
+     "promptTokens": 5475,
+     "completionTokens": 348,
+     "totalTokens": 5823
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "HV Inverter Board fault (H98 error) (high)",
+     "Magnetron failure (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.42
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.89
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "NN-CD87KSBPQ",
+       "confidence": 1
+      },
+      "code": {
+       "value": "h98",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Panasonic",
+       "confidence": 0.66
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": "Panasonic",
+      "model": "NN-CD87KSBPQ",
+      "codes": [
+       "h98"
+      ],
+      "symptom": "water stops after about 10-15 secs and is still cold"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.75
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:not-heating",
+       "microwave:grill-not-heating",
+       "microwave:cutting-out"
+      ],
+      "codes": [
+       {
+        "code": "H98",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Heat a cup of water for a minute on full power. Is the water hot now, or still cold?\" (no result reported yet).",
+     "They have not reported the result of: \"Heat a cup of water for a minute on full power. Is the water hot now, or still cold?\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Panasonic; model NN-CD87KSBPQ; code H98.",
+     "The fault they reported is: \"not heating\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Panasonic",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "NN-CD87KSBPQ",
+      "confidence": 1,
+      "turn": 2
+     },
+     "codes": [
+      {
+       "code": "H98",
+       "turn": 2
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "And do you hear any abnormal buzzing or humming when it tries to heat?",
+       "turn": 1,
+       "resolution": "water stops after about 10-15 secs with h98 on the screen and the water's still cold. not sure about any humming."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14565
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14980,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0222918,
+ "finishedAt": "2026-10-15T08:54:33.075Z"
+}

@@ -1,0 +1,412 @@
+{
+ "id": "OC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-09-03c9aac541",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hotpoint SA2 oven not heatin on fan, grill ok. wat does SA2 mean??"
+  },
+  {
+   "role": "assistant",
+   "text": "The 'SA2' is simply Hotpoint's model series code for this double oven; it doesn't indicate an error code. The element in the fan oven is separate from the one used for grilling, so it's quite common for one to fail while the other still works. 1. Also ensure the temperature knob is turned up so that the 'heat on' indicator light comes on.\n2. Visual inspection: With the oven completely cold and switched off at the wall, look at the circular element behind the fan in the main cavity. Is it visibly damaged (cracked, blistered, or holed)? Please let me know if you see any damage to that ring element, and confirm whether the 'heat on' light comes on when you turn the temperature up."
+  },
+  {
+   "role": "customer",
+   "text": "its a single oven not double btw. havent looked at the element yet, will do it with the oven isolated at the cooker switch. not sure about the heat on light, cant tell if it comes on. there was a slight hot smell from the back once but not now"
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. This is no longer just a simple 'part has failed' situation. That smell suggests an electrical connection inside may have overheated or burnt, which can cause the fan oven to stop working but also poses a fire risk. Please do not use the oven for cooking until it has been inspected by a qualified engineer. The grill still works because it uses a different heating element and circuit path, so that part is likely fine, but the fault in the fan oven section needs a professional diagnosis to ensure there isn't damaged wiring or a risk of further overheating. If you are comfortable doing so with the cooker isolated at the mains, you can look at the back of the fan oven element (the circular ring behind the fan) to see if any wires connected to it look melted, blackened, or loose. However, do not attempt to fix this yourself; simply noting what you see can help the engineer. The safest course of action is to book an engineer to check the internal wiring and components."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1305,
+     "labelMs": 347,
+     "enrichMs": 0,
+     "reasonMs": 9937,
+     "verifyMs": 1279,
+     "replyLabelMs": 682,
+     "totalMs": 13590
+    },
+    "usage": {
+     "promptTokens": 5941,
+     "completionTokens": 536,
+     "totalTokens": 6477
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Regarding the fault: if the grill works but the fan oven does not heat (even though you can hear the fan running), the most likely cause is a failed fan-oven heating element.",
+      "source": "detector"
+     },
+     {
+      "claim": "**Check the settings**: Ensure you have selected a heating function (usually a symbol of a fan inside a circle) rather than 'Defrost' or 'Light', which run the fan without heat.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Fan oven element faulty (open circuit) (high)",
+     "Function selector switch fault (medium)",
+     "Oven thermostat or temperature sensor faulty (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "SA2",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "not heating on fan, grill ok"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what does SA2 mean??\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it visibly damaged (cracked, blistered, or holed)?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13635
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14056,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1792,
+     "labelMs": 307,
+     "enrichMs": 1,
+     "reasonMs": 9563,
+     "verifyMs": 1857,
+     "replyLabelMs": 322,
+     "totalMs": 13845
+    },
+    "usage": {
+     "promptTokens": 6461,
+     "completionTokens": 384,
+     "totalTokens": 6845
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "you noticed a hot smell from the back of the oven",
+      "source": "extractor"
+     },
+     {
+      "claim": "Because you noticed a hot smell from the back of the oven, this is no longer just a simple 'part has failed' situation.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_1",
+    "candidates": [
+     "Internal wiring fault / burnt connection causing overheating and loss of fan oven function (high)",
+     "Failed fan oven element or selector switch (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 0.65
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.76
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "lastAnswer": {
+       "value": "does_not_know",
+       "confidence": 0.73
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "single oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.92
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Is it visibly damaged (cracked, blistered, or holed)?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it visibly damaged (cracked, blistered, or holed)?",
+       "turn": 1,
+       "resolution": "does_not_know"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.76
+      }
+     ]
+    },
+    "ms": 13893
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14366,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.025151800000000002,
+ "finishedAt": "2026-10-15T09:06:49.230Z"
+}

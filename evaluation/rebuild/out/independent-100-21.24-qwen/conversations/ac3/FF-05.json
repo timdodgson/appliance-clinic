@@ -1,0 +1,386 @@
+{
+ "id": "FF-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ff-05-798adbdc60",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My fridge freezer has been making a funny smell in the kitchen the last couple of days, I've cleaned it out but it's still there. Any ideas?"
+  },
+  {
+   "role": "assistant",
+   "text": "A persistent funny smell after cleaning usually points to one of three things: hidden food residue in places you can't easily see (like the drip tray at the back or under the shelves), mould growing in the air vents or evaporator area, or less commonly, an electrical issue. First, please check if there is any burning smell or scorching marks near the plug or the back of the unit; if so, unplug it immediately and do not use it again. If it smells like rotting food or damp/musty, it’s likely a blockage in the defrost drain (which empties into a tray at the bottom rear) or mould in the vents. If it smells like burning plastic, it could be an electrical fault. Could you tell me:\n1. Does the smell resemble rotting food/eggs, or does it smell like burning plastic/electrics?\n2. Are the fridge and freezer compartments still getting cold as they should?\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer."
+  },
+  {
+   "role": "customer",
+   "text": "It smells like hot plastic, an electrical sort of burning smell, not rotten food. It's stronger round the back of the fridge than inside it. The fridge and freezer are both still cold, and the plug feels a bit warm."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. Because the smell is of hot plastic/electrics and it is strongest at the back with a warm plug, this is an electrical safety fault. The appliance must not be used again until a qualified engineer has checked it. The most likely causes are:\n1. A failing compressor start relay or overload protector inside (often near the plug/back) which can overheat and smell of burning plastic before failing completely.\n2. An internal wiring insulation breakdown causing a short or earth leak as components heat up.\n3. The mains lead or plug itself overheating due to poor contact or damage. Please unplug the fridge-freezer immediately from the wall socket. Do not try to reset any trips repeatedly, and do not attempt to open the back panel or test electrical parts yourself. Isolate it safely and arrange for a qualified engineer to diagnose and repair the fault."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1579,
+     "labelMs": 328,
+     "enrichMs": 1,
+     "reasonMs": 6696,
+     "verifyMs": 408,
+     "replyLabelMs": 277,
+     "totalMs": 9344
+    },
+    "usage": {
+     "promptTokens": 2626,
+     "completionTokens": 461,
+     "totalTokens": 3087
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Spoilt food residue in hidden areas (drain pan, drip tray, seals) (high)",
+     "Electrical fault causing burning smell (medium)",
+     "Mould/mildew in the evaporator compartment or air ducts (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "funny smell in the kitchen"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.71
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:ice-maker"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Any ideas?\" - answer that first.",
+     "Checks they have done and what they found: cleaned it out - smell is still there.",
+     "The fault they reported is: \"funny smell in the kitchen\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned it out: smell is still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Are the fridge and freezer compartments still getting cold as they should?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9394
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 9748,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2116,
+     "labelMs": 290,
+     "enrichMs": 1,
+     "reasonMs": 6377,
+     "verifyMs": 3089,
+     "replyLabelMs": 347,
+     "totalMs": 12224
+    },
+    "usage": {
+     "promptTokens": 4588,
+     "completionTokens": 311,
+     "totalTokens": 4899
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [
+     "Electrical fault (mains lead, plug, internal wiring, or compressor start relay) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.75
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "fridge",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "smells like hot plastic/electrical burning, stronger at the back, plug feels warm"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:fridge-airflow"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: cleaned it out - smell is still there.",
+     "The fault they reported is: \"funny smell in the kitchen\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned it out: smell is still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Are the fridge and freezer compartments still getting cold as they should?",
+       "turn": 1,
+       "resolution": "smell is like burning plastic/electrics; fridge and freezer are still cold"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 1
+      }
+     ]
+    },
+    "ms": 12277
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12682,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0227178,
+ "finishedAt": "2026-10-15T08:40:10.327Z"
+}

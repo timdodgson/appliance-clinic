@@ -1,0 +1,575 @@
+{
+ "id": "VC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-vc-09-d999c23e66",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my hoover's stopped working"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help with that. When an appliance 'stops working' completely, it usually points to one of three things: a simple power supply issue (like a loose plug or a tripped socket), a safety cut-out having triggered, or an internal fault. Let's start with the basics:\n1. Check the plug and socket: Ensure the plug is firmly in the wall socket. If your UK plug has a fuse, check if it's blown (the metal wire inside will be broken). Try plugging the vacuum into a different, known-working socket to see if it powers on.\n2. Listen for signs of life: When you press the power button or switch, do you hear any click, hum, or smell anything burning? Or is it completely silent? Please let me know what happens when you try these steps."
+  },
+  {
+   "role": "customer",
+   "text": "The socket works, my lamp works in it. Hoover is completely silent, no smell. There's tape on the cable near the plug, my son did it ages ago."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the socket works but the vacuum is completely silent with no signs of life at all, we are looking for an interruption in the power supply. The fact that there was tape applied to the cable ages ago raises a specific concern: cables can break internally where they have been bent or crushed, even if the outer plastic looks okay from the outside. Please do two things:\n1. Inspect the taped area carefully. Is the plastic casing cracked, flattened, or are any wires visible?\n2. Gently wiggle the cable at the tape and near the plug end while the vacuum is switched on (or try to switch it on). Does it ever start working when you move that part of the cable? If the cable looks damaged or if wiggling it makes no difference, the issue is likely a broken wire inside the cable or a failed internal switch. If the cable looks pristine and wiggling does nothing, we will need to check the plug fuse next."
+  },
+  {
+   "role": "customer",
+   "text": "The tape is a bit bent near the plug, no wires showing I think. Once it came on for a second when I moved the wire then went off. I'm not doing that again, it frightened me."
+  },
+  {
+   "role": "assistant",
+   "text": "That intermittent start when you moved the cable is a common sign of a broken internal wire. The copper strands inside have snapped due to age and stress at that taped point, so it only connects when bent just right. Because this involves the mains power supply and requires opening the plug or replacing the entire cable (which needs soldering or crimping), this is not an owner-safe repair. You should stop using it immediately, as a loose live wire can cause a short circuit or fire hazard. You will need to take it to a local appliance repair shop for a new lead fitted, or replace the vacuum if it is old and cheap. If you are handy with tools and have a spare cable of the correct rating (H05VV-F 3G 1mm²), I can explain how to safely isolate it and swap the plug, but otherwise, an engineer or replacement is the safest route."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1209,
+     "labelMs": 307,
+     "enrichMs": 1,
+     "reasonMs": 5875,
+     "verifyMs": 374,
+     "replyLabelMs": 450,
+     "totalMs": 8244
+    },
+    "usage": {
+     "promptTokens": 2090,
+     "completionTokens": 423,
+     "totalTokens": 2513
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power supply issue (plug, socket, or cord) (high)",
+     "Safety cut-out or thermal trip engaged (medium)",
+     "Internal fault (motor, switch, or wiring) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.7
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.68
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "hoover",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "stopped working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Or is it completely silent?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8381
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8750,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1874,
+     "labelMs": 348,
+     "enrichMs": 0,
+     "reasonMs": 6839,
+     "verifyMs": 2346,
+     "replyLabelMs": 306,
+     "totalMs": 11766
+    },
+    "usage": {
+     "promptTokens": 3443,
+     "completionTokens": 432,
+     "totalTokens": 3875
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Damaged mains cable (internal break) (high)",
+     "Failed on/off switch or internal wiring fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "cordless vacuum",
+      "brand": "Hoover",
+      "model": null,
+      "codes": [],
+      "symptom": "completely silent, no smell"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar",
+       "vacuum:wont-run",
+       "vacuum:lost-suction"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: tested socket with lamp - socket works.",
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "tested socket with lamp: socket works",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Or is it completely silent?",
+       "turn": 1,
+       "resolution": "completely silent, no smell"
+      },
+      {
+       "key": null,
+       "text": "Does it ever start working when you move that part of the cable?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11833
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12245,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2643,
+     "labelMs": 310,
+     "enrichMs": 1,
+     "reasonMs": 6763,
+     "verifyMs": 4814,
+     "replyLabelMs": 302,
+     "totalMs": 14889
+    },
+    "usage": {
+     "promptTokens": 4288,
+     "completionTokens": 344,
+     "totalTokens": 4632
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Broken internal wire in the mains cable (high)",
+     "Failed on/off switch or internal connection (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "vacuum",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "cuts_out",
+       "confidence": 0.94
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.49
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "vacuum",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "completely silent with no signs of life"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.63
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "vacuum:brush-bar",
+       "vacuum:wont-run",
+       "vacuum:cuts-out"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check; turn 2: gives check.",
+     "Checks they have done and what they found: tested socket with lamp - socket works; inspected taped area near plug - tape is bent, no wires showing; moved/wiggled the cable while switched on - came on for a second then went off.",
+     "The fault they reported is: \"stopped working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "vacuum",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "tested socket with lamp: socket works",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "inspected taped area near plug: tape is bent, no wires showing",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "moved/wiggled the cable while switched on: came on for a second then went off",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Or is it completely silent?",
+       "turn": 1,
+       "resolution": "completely silent, no smell"
+      },
+      {
+       "key": null,
+       "text": "Does it ever start working when you move that part of the cable?",
+       "turn": 2,
+       "resolution": "came on for a second when moved the wire then went off"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14956
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 15353,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0347597,
+ "finishedAt": "2026-10-15T09:24:48.701Z"
+}

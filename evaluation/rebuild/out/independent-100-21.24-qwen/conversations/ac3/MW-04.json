@@ -1,0 +1,415 @@
+{
+ "id": "MW-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-04-5ecc53b767",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "microwve plate wont go round anymore, food hot on one side cold on other. still heats tho"
+  },
+  {
+   "role": "assistant",
+   "text": "This is almost always a mechanical issue with the turntable drive, not the heating system. 1. 2. The roller ring underneath has become dirty or dislodged.\n3. The turntable motor itself has failed (less common, but possible). Before we look at parts, let's check the simple stuff first. Please unplug the microwave for safety. - Is the small three-pronged coupler in the centre cracked or loose?\n• Is the roller ring underneath clean and intact?\n• When you put it back, does it sit flat without catching on anything? Let me know what you find with those checks."
+  },
+  {
+   "role": "customer",
+   "text": "ok unplugged. the plastic 3 pronged bit in the middle has a crack and the hole looks rounded. roller ring is in place and the wheels turn fine. plate sits on it but wobbles"
+  },
+  {
+   "role": "assistant",
+   "text": "The crack and rounded hole in the central three-pronged coupler is most likely the cause. That part transfers the rotation from the motor to your plate; because it’s cracked and worn, it slips instead of turning the tray, which leaves one side of your food cold. You will need a replacement turntable coupler (sometimes sold as part of a 'turntable repair kit' with rollers). Check if that is just because the coupler isn't holding it level, or if the glass tray itself has a chip/crack on its underside. If the glass is intact, checking the coupler should fix the rotation and the uneven heating. 1. Ensure the microwave is still unplugged.\n2. Remove the roller ring and lift out the glass plate.\n3. Pull off the old cracked coupler from the central spindle.\n4. Fit the new coupler firmly onto the spindle.\n5. Replace the roller ring, then set the glass plate back on top so it sits flat.\n6. Plug in and test. If you can't find a specific coupler for your model, look for a universal turntable repair kit that includes a compatible coupler and rollers."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1385,
+     "labelMs": 284,
+     "enrichMs": 1,
+     "reasonMs": 9483,
+     "verifyMs": 1568,
+     "replyLabelMs": 291,
+     "totalMs": 13071
+    },
+    "usage": {
+     "promptTokens": 5616,
+     "completionTokens": 489,
+     "totalTokens": 6105
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 3
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the plate won't turn",
+      "source": "extractor"
+     },
+     {
+      "claim": "The fact that your microwave still heats but the plate won't turn explains why one side of the food gets hot while the other stays cold – the microwaves are hitting the same spot repeatedly.",
+      "source": "detector"
+     },
+     {
+      "claim": "The glass tray isn't seated correctly on the coupler (the little plastic piece in the middle) or something is jamming it.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Turntable coupler or roller ring issue (high)",
+     "Obstruction or improper seating of the glass tray (medium)",
+     "Turntable motor failure (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "plate wont go round anymore, food hot on one side cold on other"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.95
+     },
+     "checkGiven": "Lift the glass tray out, clean the roller ring and the floor under it, check the coupler in the middle isn't cracked, and refit the tray on",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:turntable",
+       "microwave:not-heating",
+       "microwave:sparking-arcing"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"plate wont go round anymore, food hot on one side cold on other\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "- When you put it back, does it sit flat without catching on anything?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13129
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 13488,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2241,
+     "labelMs": 320,
+     "enrichMs": 1,
+     "reasonMs": 9262,
+     "verifyMs": 2531,
+     "replyLabelMs": 313,
+     "totalMs": 14719
+    },
+    "usage": {
+     "promptTokens": 6055,
+     "completionTokens": 419,
+     "totalTokens": 6474
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "replace-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you mentioned the plate wobbles, check if that is just because the coupler isn't holding it level, or if the glass tray itself has a chip/crack on its underside.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Cracked turntable coupler (high)",
+     "Misaligned or damaged glass plate (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.92
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.9
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.54
+     },
+     "checkGiven": "Lift the glass tray out. Check the small three-pronged coupler in the middle isn't cracked, clean the roller ring and the floor under it, th",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:sparking-arcing",
+       "microwave:turntable",
+       "microwave:not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Lift the glass tray out, clean the roller ring and the floor under it, check the coupler in the middle isn't cracked, and refit the tray on\".",
+     "Checks they have done and what they found: small three-pronged coupler in the centre - has a crack and the hole looks rounded; roller ring underneath - in place and the wheels turn fine; plate sits on it - wobbles.",
+     "The fault they reported is: \"plate wont go round anymore, food hot on one side cold on other\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "small three-pronged coupler in the centre: has a crack and the hole looks rounded",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "roller ring underneath: in place and the wheels turn fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "plate sits on it: wobbles",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "- When you put it back, does it sit flat without catching on anything?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14858
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15309,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0202818,
+ "finishedAt": "2026-10-15T08:55:20.658Z"
+}
