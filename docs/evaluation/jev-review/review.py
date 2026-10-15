@@ -18,6 +18,8 @@ for i,m in enumerate(d['meta']):
     for s in off['situations']: print(f"    - {s[:150]}")
     print(f"  next steps ({len(off['next'])}):")
     for s in off['next']: print(f"    - {s[:150]}")
+    if off.get('removed'): print(f"  removed before Jev picked (done / refused / pointless): {len(off['removed'])}"); [print(f"    x {r}") for r in off['removed']]
+    if 'note' in ch: print(f"  note: {ch.get('note')} | findings settle it: {ch.get('settled')}")
     sit=ch.get('situation'); nx=ch.get('next')
     print(f"JEV PICKED: situation = {sit if isinstance(sit,str) else (sit or {}).get('text')}")
     print(f"            next      = {(nx or {}).get('text','-')[:200]}")

@@ -27,3 +27,28 @@ Jev was offered (situations and next steps), what Jev picked, the reply, and the
 4. **Missing options**: the decisive check is sometimes not in any note (WM-03 carbon brushes).
 5. **Qwen's answers to the customer's direct questions are often poor or wrong** (WM-02, WM-04, WM-09).
 6. **Note text written for a sequence reads badly on its own** ("change that (switch the option off...)").
+
+## Round 2 (release 21.31: one note, clean options, done/refused/pointless steps removed, settled findings end the diagnosis)
+
+Reviews in `round2/`. Customer messages to the end, round 1 → round 2:
+
+| Test | R1 | R2 | Change |
+|---|---|---|---|
+| WM-01 | 3, fixed | 3, fixed | same; turn 2 recognised the finding ("settled") and went straight to the re-test |
+| WM-02 | 5, fixed | **3**, fixed | better: normal out-of-balance by turn 2, no wrong advice to run the mat alone |
+| WM-03 | 5, escalated | 3, escalated | turn 1 picked the drive belt (truth: brushes; still no brush check in the note); safety stop on the old smell |
+| WM-04 | 4, fixed | **3**, fixed | better: supply → inlet mesh, no "power-cycle" pick |
+| WM-05 | 7, part shown | **4, loop** | worse: the leak notes' cause lists are not causes ("leak location / cycle stage...", "check the door seal folds...") and, with no steps left, the fallback "tell me a bit more" repeated |
+| WM-06 | 2, part path | **1, engineer** | worse: "needs an engineer" was allowed because the customer had cleaned the filter, and Jev chose it on the first reply |
+| WM-07 | 4 | **6** | worse: Jev kept a 60 °C test in play; Qwen's answers argued for it |
+| WM-08 | safety stop | safety stop | same |
+| WM-09 | 5 | **7, stuck** | worse: the customer's refusal now removes the filter steps (good), but questions they had already answered were asked again and it ended on "tell me a bit more" |
+| WM-10 | 5, part path | 5, part path | same outcome; turn 1 started at load imbalance |
+
+What round 2 shows:
+1. The filtering works for checks (WM-09 refused filter steps removed; WM-01, WM-02 and WM-04 shorter).
+2. **"Already answered" is not caught for questions** (WM-09 turns 5-7).
+3. **Some notes' cause lists are not causes** (leak-flood, leak-door): Jev has nothing proper to pick.
+4. **The fallback "tell me a bit more" loops** when no step is left: it needs a real end (engineer, or a summary).
+5. **"Needs an engineer" opens too early**: one reported check is not enough.
+6. Qwen's answers to direct questions still pull the wrong way (WM-07, WM-02 turn 1).
