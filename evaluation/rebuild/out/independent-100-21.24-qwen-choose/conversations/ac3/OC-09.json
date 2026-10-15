@@ -1,0 +1,584 @@
+{
+ "id": "OC-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-09-a1c674d0dd",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hotpoint SA2 oven not heatin on fan, grill ok. wat does SA2 mean??"
+  },
+  {
+   "role": "assistant",
+   "text": "SA2 is a model series code for Hotpoint ovens; it identifies the specific design but isn't an error code. It is very common for these elements to burn out internally while other parts of the oven remain functional. 1. Is the clock/timer set to 'Manual' mode? (If there was a recent power cut, ovens often default to 'Auto' and won't heat until reset).\n2. With the oven off and cool, look at the back element inside the fan cavity. Do you see any visible cracks or damage? Please let me know if the clock is set correctly and what you see on that element."
+  },
+  {
+   "role": "customer",
+   "text": "yes clock is in manual. the fan at the back isnt spinning tho, just a low hum from it. grill still works fine"
+  },
+  {
+   "role": "assistant",
+   "text": "The low hum combined with a non-spinning fan suggests the fan motor has seized up—likely due to worn bearings—or there is something jamming the blade. The grill working suggests the main power supply to the oven is fine, but because the fan isn't turning, the element (which sits behind it) cannot circulate heat. Please do this check:\n1. Ensure the oven is switched off at the wall and completely cool.\n2. Reach into the back of the oven cavity and try to turn the fan blade by hand. 3. If you can, remove the rear cover (usually held by a few screws) to see if anything is stuck or if the blade spins freely once unobstructed. If it feels stiff, gritty, or won't turn at all, the motor needs replacing. If it spins freely but still hums and doesn't start when switched on, the motor's internal capacitor may have failed (also requiring a new motor). Let me know if it is stuck or free."
+  },
+  {
+   "role": "customer",
+   "text": "isolated it at the cooker switch and tried the blade by hand. its very stiff and feels gritty"
+  },
+  {
+   "role": "assistant",
+   "text": "The gritty, stiff feeling suggests that the fan motor bearings have seized. This is why it hums but won't turn; the motor is trying to start but can't overcome the friction. Because the fan isn't spinning, the hot air isn't circulating around the element, so your oven doesn't heat on the fan setting. The grill works because it uses a different heating path that doesn't rely on this fan. This involves removing the rear panel inside the oven and disconnecting the electrical terminals. If you are comfortable working with isolated mains wiring and replacing internal components, you can source a compatible Hotpoint SA2 fan motor kit. If not, please call an engineer to carry out this replacement safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1317,
+     "labelMs": 335,
+     "enrichMs": 0,
+     "chooseMs": 306,
+     "reasonMs": 7933,
+     "verifyMs": 433,
+     "replyLabelMs": 270,
+     "totalMs": 10635
+    },
+    "usage": {
+     "promptTokens": 5979,
+     "completionTokens": 389,
+     "totalTokens": 6368
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Regarding the fault: if the grill works but the fan oven does not heat (even though you can hear the fan running), the most likely cause is that the circular heating element at the back of the fan oven cavity has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Fan oven element failure (high)",
+     "Function selector switch fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": "SA2",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "not heating on fan, grill ok"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.86
+     },
+     "checkGiven": "Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:tripping-electrics",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what does SA2 mean??\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: fan / rear ring element [fan-oven mode]. Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you see any visible cracks or damage?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10674
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11006,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2290,
+     "labelMs": 355,
+     "enrichMs": 0,
+     "chooseMs": 301,
+     "reasonMs": 9763,
+     "verifyMs": 2329,
+     "replyLabelMs": 270,
+     "totalMs": 15394
+    },
+    "usage": {
+     "promptTokens": 6232,
+     "completionTokens": 443,
+     "totalTokens": 6675
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 2
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Fan motor bearing failure (seized) (high)",
+     "Foreign object jamming the fan blade (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.57
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.08
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Hotpoint",
+      "model": "SA2",
+      "codes": [],
+      "symptom": "fan not spinning, low hum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:fan-motor",
+       "oven-cooker:tripping-electrics"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and\" (no result reported yet).",
+     "They have not reported the result of: \"Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: cavity fan motor. Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you see any visible cracks or damage?",
+       "turn": 1,
+       "resolution": "clock is in manual; fan at the back isn't spinning, just a low hum from it; grill still works fine"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15501
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15724,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1846,
+     "labelMs": 315,
+     "enrichMs": 0,
+     "chooseMs": 309,
+     "reasonMs": 8106,
+     "verifyMs": 4049,
+     "replyLabelMs": 311,
+     "totalMs": 14979
+    },
+    "usage": {
+     "promptTokens": 6407,
+     "completionTokens": 316,
+     "totalTokens": 6723
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Fan motor seized bearings (high)",
+     "Obstruction fouling the fan blade (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "fan motor seized up"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.52
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:element",
+       "oven-cooker:fan-motor",
+       "oven-cooker:selector-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Some cookers won't heat until the clock is set or manual mode is selected after a power cut. Was the clock flashing or an auto mode set (and\"; turn 2: gives check.",
+     "Checks they have done and what they found: tried the blade by hand - very stiff and feels gritty.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model SA2.",
+     "The fault they reported is: \"not heating on fan, grill ok\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: obstruction / fan blade fouling the rear cover. Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SA2",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "tried the blade by hand: very stiff and feels gritty",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you see any visible cracks or damage?",
+       "turn": 1,
+       "resolution": "clock is in manual; fan at the back isn't spinning, just a low hum from it; grill still works fine"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15024
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 15273,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0335757,
+ "finishedAt": "2026-10-15T06:54:13.680Z"
+}

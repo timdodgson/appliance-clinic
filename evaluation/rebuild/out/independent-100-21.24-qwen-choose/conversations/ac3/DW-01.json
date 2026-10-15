@@ -1,0 +1,370 @@
+{
+ "id": "DW-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-01-6de643d966",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch 24 not draining, water sitting in bottom. help"
+  },
+  {
+   "role": "assistant",
+   "text": "Water sitting at the bottom of a Bosch dishwasher usually means the drain pump can't push the water out because something is blocking the flow. The most common cause is food, grease, or debris trapped in the filter or sump area. Let's start with the simplest and most effective check:\n1. Turn off the dishwasher (switch it off at the wall if possible).\n2. Remove the lower rack to access the bottom of the tub.\n3. Twist the cylindrical filter unit counter-clockwise and lift it out.\n4. Rinse the filter under warm water with a brush or old toothbrush to remove any sludge or particles.\n5. Look into the sump (the hole where the filter was) with a torch. Check for any foreign objects like glass shards, bones, or plastic fragments that might be jamming the impeller underneath. Please let me know if you found debris blocking the filter or sump, and whether it is now clear.\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "filter was clogged with food gunk and a bit of broken glass. cleaned it out, sump looks clear now"
+  },
+  {
+   "role": "assistant",
+   "text": "That is excellent news. It sounds like the blockage was exactly what was stopping it from draining. A quick tip for next time: try to scrape plates into the bin before loading them rather than rinsing them under the tap; this reduces the amount of food waste that ends up in the filter and helps prevent these clogs. Please let me know if you need anything else."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1315,
+     "labelMs": 288,
+     "enrichMs": 1,
+     "chooseMs": 348,
+     "reasonMs": 8329,
+     "verifyMs": 452,
+     "replyLabelMs": 278,
+     "totalMs": 11093
+    },
+    "usage": {
+     "promptTokens": 5667,
+     "completionTokens": 441,
+     "totalTokens": 6108
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked drain filter or sump debris (high)",
+     "Kinked or blocked drain hose (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "24",
+       "confidence": 0.82
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "24",
+      "codes": [],
+      "symptom": "not draining, water sitting in bottom"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or g",
+     "media": "dishwasher-filter",
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:fill"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"help\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model 24.",
+     "The fault they reported is: \"not draining, water sitting in bottom\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: drain filter (twist out and clean - first thing). Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or glass from the sump underneath. Was the filter or sump blocked (and is it clean now), or was it already clean?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "24",
+      "confidence": 0.82,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11197
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11682,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2462,
+     "labelMs": 358,
+     "enrichMs": 0,
+     "reasonMs": 5189,
+     "verifyMs": 1414,
+     "replyLabelMs": 288,
+     "totalMs": 9744
+    },
+    "usage": {
+     "promptTokens": 4921,
+     "completionTokens": 149,
+     "totalTokens": 5070
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.93
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.63
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.84
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.34
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "water sitting at the bottom"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.93
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:foreign-object",
+       "dishwasher:leak-flood"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "24",
+      "confidence": 0.82,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned filter: was clogged with food gunk",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked sump: found broken glass, cleaned it out; sump looks clear now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 9794
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 10264,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0234278,
+ "finishedAt": "2026-10-15T06:08:30.176Z"
+}

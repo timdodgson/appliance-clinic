@@ -1,0 +1,616 @@
+{
+ "id": "TD-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-01-7a05f4ad59",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Hotpoint Aquarius dryer is taking forever to dry and the top gets really hot. Model is TCM580GUK if that helps"
+  },
+  {
+   "role": "assistant",
+   "text": "That sounds like an airflow issue rather than a broken part. When air can't flow freely through the machine, heat builds up (making the top hot) but the moisture stays in the clothes because it isn't being vented out. The most common cause is a blocked lint filter or condenser unit. Even if you think they are clean, fluff can pack into the mesh and block airflow significantly. 1. Unplug the machine for safety.\n2. Remove the lint filter from the door opening and rinse it under warm water to remove all fluff. Let it dry completely before putting it back.\n3. Shake off excess water and let it drip dry for a few minutes before refitting it securely. Once that is done, try running a normal drying cycle with a moderate load of well-spun laundry. If the machine still gets very hot but takes ages to dry, or if the clothes come out damp, let me know exactly what happens."
+  },
+  {
+   "role": "customer",
+   "text": "Thank you. I unplugged it and took the filter out, and it had a really thick layer of fluff on it, I'll admit I sometimes forget to clean it. I've rinsed it and I'm letting it dry. I should also say I often run the dryer while I'm out at work, if that matters."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the lint filter was very blocked, there is probably fluff buildup in the condenser unit as well. On your Hotpoint Aquarius TCM580GUK (a condenser dryer), this unit sits behind a small flap at the bottom front of the door opening. It needs to be removed and rinsed clean just like the lint filter. Once both filters are clean and dry, try a normal drying cycle with a moderate load of well-spun laundry. If you find the condenser was clogged or if the machine still takes ages to dry after cleaning both filters, let me know exactly what happens."
+  },
+  {
+   "role": "customer",
+   "text": "Thanks. I found the condenser unit at the front bottom and it had lint packed on the fins. I've rinsed it and it looks much cleaner now. Is there anything else I should check before I run it again?"
+  },
+  {
+   "role": "assistant",
+   "text": "Cleaning both the lint filter and the condenser unit should restore proper airflow, which will stop the overheating and allow the dryer to work efficiently again. A quick tip for next time: since you often run it while out at work, try to give the condenser a quick rinse every few weeks if you can. It only takes a minute and stops that thick fluff buildup from happening in the first place. Go ahead and run your cycle when everything is dry."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1469,
+     "labelMs": 289,
+     "enrichMs": 1,
+     "chooseMs": 317,
+     "reasonMs": 9614,
+     "verifyMs": 478,
+     "replyLabelMs": 306,
+     "totalMs": 12509
+    },
+    "usage": {
+     "promptTokens": 4917,
+     "completionTokens": 490,
+     "totalTokens": 5407
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Open the small flap at the bottom front of the machine, pull out the condenser unit (the plastic block with fins), and rinse it thoroughly under the tap until the water runs clear.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked lint filter or condenser restricting airflow (high)",
+     "Overloaded drum or laundry entering too wet from the washer (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.86
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "TCM580GUK",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": "Hotpoint",
+      "model": "TCM580GUK",
+      "codes": [],
+      "symptom": "taking forever to dry and the top gets really hot"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Hotpoint; model TCM580GUK.",
+     "The fault they reported is: \"taking forever to dry and the top gets really hot\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: Clean the lint filter and the condenser/heat exchanger. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluff (and is it clean now), or was it already clean?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "TCM580GUK",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 12558
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12877,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2116,
+     "labelMs": 512,
+     "enrichMs": 1,
+     "chooseMs": 324,
+     "reasonMs": 8322,
+     "verifyMs": 2377,
+     "replyLabelMs": 358,
+     "totalMs": 14075
+    },
+    "usage": {
+     "promptTokens": 4714,
+     "completionTokens": 482,
+     "totalTokens": 5196
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "That explains a lot - running the dryer while you're out means that filter can build up significantly without you noticing, which restricts airflow and causes the overheating you described.",
+      "source": "detector"
+     },
+     {
+      "claim": "Please unplug the machine, remove that condenser unit, rinse it thoroughly under warm water until the water runs clear, and let it drip-dry completely before refitting it securely.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked condenser restricting airflow (high)",
+     "Poor washer spin leaving laundry too wet (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.4
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.77
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off u",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:not-heating",
+       "tumble-dryer:filter-blocked"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: removed lint filter - had a really thick layer of fluff on it; rinsed filter - letting it dry.",
+     "Already given by the customer, never ask for it again: make Hotpoint; model TCM580GUK.",
+     "The fault they reported is: \"taking forever to dry and the top gets really hot\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: Clean the lint filter and the condenser/heat exchanger. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off under the tap, then let it drip-dry and refit it. Was it clogged with fluff (and is it clean now), or was it already clean?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "TCM580GUK",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "removed lint filter: had a really thick layer of fluff on it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "rinsed filter: letting it dry",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 14162
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14426,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1758,
+     "labelMs": 297,
+     "enrichMs": 2,
+     "reasonMs": 6077,
+     "verifyMs": 2442,
+     "replyLabelMs": 318,
+     "totalMs": 10952
+    },
+    "usage": {
+     "promptTokens": 4683,
+     "completionTokens": 303,
+     "totalTokens": 4986
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "it still feels excessively hot or doesn't dry properly after this clean",
+      "source": "extractor"
+     },
+     {
+      "claim": "You've done exactly the right thing.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [
+     "Blocked lint filter and condenser restricting airflow (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.64
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.61
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.14
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 1
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "condenser dryer",
+      "brand": "Hotpoint",
+      "model": "Aquarius TCM580GUK",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.97
+     },
+     "checkGiven": "Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off u",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:poor-drying",
+       "tumble-dryer:filter-blocked"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I should check before I run it again?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "TCM580GUK",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "removed lint filter: had a really thick layer of fluff on it",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "rinsed filter: letting it dry",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "rinsed condenser unit: looks much cleaner now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 10994
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11368,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0391617,
+ "finishedAt": "2026-10-15T05:50:16.641Z"
+}

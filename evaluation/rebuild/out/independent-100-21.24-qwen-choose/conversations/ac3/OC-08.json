@@ -1,0 +1,530 @@
+{
+ "id": "OC-08",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-08-98d4b4e9c6",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "oven wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "When an oven suddenly won't come on, especially if there has been a recent power cut or the mains was switched off at the wall, the most common cause is simply that the clock/timer has reset into 'Automatic' mode. In this state, the oven will not heat until you switch it to 'Manual' (often shown as a hand symbol) and set the correct time. Please check your control panel:\n1. Look at the clock or timer display. Is it flashing, showing 'AUTO', or is the screen completely blank?\n2. If there is any display, try switching the mode to MANUAL (hand symbol) and setting the current time.\n3. Once set, try turning the oven on as normal. If the display is completely dead (no lights at all), this suggests a power supply issue rather than a timer setting. Let me know what you see on the clock."
+  },
+  {
+   "role": "customer",
+   "text": "its flashing 0.00 and a little symbol. how do i set the time? no manual"
+  },
+  {
+   "role": "assistant",
+   "text": "A flashing 0:00 with a small symbol usually means the clock has reset after a power interruption and is waiting for you to set the time. Even if there isn't a button explicitly labelled 'Manual', most ovens will not heat until the clock is fully set. Please try this:\n1. Look for a dial or buttons that let you change the hour and minute (sometimes marked with arrows or +/-).\n2. Set the current time on the display so it stops flashing.\n3. Once the time is set, look for a 'Manual', 'Hand' symbol, or simply try turning the oven function knob to heat as normal. If the oven starts heating after setting the time, that was the only issue. If it still won't come on even with the correct time set, let me know exactly what happens when you turn the dial."
+  },
+  {
+   "role": "customer",
+   "text": "ok got it set, once I put the time in it came on and heated. thanks"
+  },
+  {
+   "role": "assistant",
+   "text": "That’s great news. It was just the clock resetting after a power interruption and leaving the oven in 'Automatic' mode. To stop this from happening again, try not to switch the oven off at the wall or isolate it unless you have to; doing so will reset the clock back to flashing 0:00 every time. If you do need to cut the power, just remember to set the time and ensure it’s in Manual mode when you turn it back on. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1144,
+     "labelMs": 1084,
+     "enrichMs": 0,
+     "chooseMs": 291,
+     "reasonMs": 7320,
+     "verifyMs": 721,
+     "replyLabelMs": 422,
+     "totalMs": 11035
+    },
+    "usage": {
+     "promptTokens": 3636,
+     "completionTokens": 402,
+     "totalTokens": 4038
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clock/timer set to AUTO after power interruption (high)",
+     "No mains power reaching the control board (isolator/trip) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't come on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: clock/timer set to AUTO - set to MANUAL (free fix). Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"set the clock/timer to MANUAL (hand symbol) and the correct time first\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it flashing, showing 'AUTO', or is the screen completely blank?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11501
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14256,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1665,
+     "labelMs": 272,
+     "enrichMs": 0,
+     "chooseMs": 327,
+     "reasonMs": 6355,
+     "verifyMs": 405,
+     "replyLabelMs": 312,
+     "totalMs": 9388
+    },
+    "usage": {
+     "promptTokens": 3957,
+     "completionTokens": 365,
+     "totalTokens": 4322
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Clock/timer set to AUTO (power-cut reset) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.55
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.57
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.83
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.07
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.36
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "0.00"
+      ],
+      "symptom": "flashing display"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"how do i set the time?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: clock/timer set to AUTO - set to MANUAL (free fix). Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"set the clock/timer to MANUAL (hand symbol) and the correct time first\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it flashing, showing 'AUTO', or is the screen completely blank?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9450
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 9875,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1616,
+     "labelMs": 263,
+     "enrichMs": 0,
+     "reasonMs": 4061,
+     "verifyMs": 937,
+     "replyLabelMs": 306,
+     "totalMs": 7225
+    },
+    "usage": {
+     "promptTokens": 4021,
+     "completionTokens": 182,
+     "totalTokens": 4203
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.89
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.59
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.02
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.47
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:ignition"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "set the current time on the display: oven started heating",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it flashing, showing 'AUTO', or is the screen completely blank?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7379
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 8324,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0314057,
+ "finishedAt": "2026-10-15T07:25:31.622Z"
+}

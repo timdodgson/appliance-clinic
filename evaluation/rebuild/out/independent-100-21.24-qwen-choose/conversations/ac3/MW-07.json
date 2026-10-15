@@ -1,0 +1,540 @@
+{
+ "id": "MW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-07-4d2dc685e8",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "microwave not working"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help with that. 'Not working' usually points to one of three things: it's not getting power at all, a safety feature like a child lock is stopping it, or an internal component has failed. To narrow this down quickly, please check the following:\n1. Look at the display when you press any button. Does it light up?\n2. Do you hear any beep or see the interior light turn on? If the display stays completely blank and there is no sound or light, it's likely a power supply issue (plug, socket, or internal fuse). If the display lights up but nothing happens when you try to start it, we'll look at settings or controls. Please let me know what you see."
+  },
+  {
+   "role": "customer",
+   "text": "Display is on, shows the time. It beeps when I press buttons and the light comes on when I open the door, but it won't start."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the display is on and it beeps normally, but won't start when you press Start, this usually points to one of two things: either a safety feature like a child lock is active, or the microwave doesn't think the door is properly closed (even if it looks like it is). First, please check for a 'Child Lock' or key symbol on the display. If you see one, try turning it off by holding the 'Stop', 'Lock', or 'Key' button for about 3 seconds. If there's no lock symbol and it still won't start after trying to begin cooking, we need to check if the door is engaging correctly. Please let me know if the child lock was on or not."
+  },
+  {
+   "role": "customer",
+   "text": "Yes there's a little L symbol on the display. Holding the Stop button for 3 seconds now.. ok the L has gone and it works now!"
+  },
+  {
+   "role": "assistant",
+   "text": "That's excellent news. It was simply the child lock being active. To stop this from happening again by accident, just remember that holding the 'Stop' button for a few seconds is usually how you toggle it on and off. If you ever find the buttons are unresponsive but the display is still lit, check for that little 'L' or key symbol first before worrying about faults. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1192,
+     "labelMs": 286,
+     "enrichMs": 0,
+     "chooseMs": 271,
+     "reasonMs": 5921,
+     "verifyMs": 370,
+     "replyLabelMs": 303,
+     "totalMs": 8377
+    },
+    "usage": {
+     "promptTokens": 3268,
+     "completionTokens": 392,
+     "totalTokens": 3660
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power supply issue (plug/socket/fuse) (high)",
+     "Control lock or settings preventing start (medium)",
+     "Internal fault (PCB, magnetron, high voltage) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.62
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.89
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:lighting",
+       "microwave:main-pcb",
+       "microwave:grill-not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you hear any beep or see the interior light turn on?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8421
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8759,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1757,
+     "labelMs": 279,
+     "enrichMs": 0,
+     "chooseMs": 339,
+     "reasonMs": 6710,
+     "verifyMs": 2202,
+     "replyLabelMs": 290,
+     "totalMs": 11617
+    },
+    "usage": {
+     "promptTokens": 4124,
+     "completionTokens": 387,
+     "totalTokens": 4511
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door interlock / monitor microswitch (electrical start path) (high)",
+     "Control lock / demo mode active (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.74
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.82
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.48
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop for a few seconds) that stops the buttons working.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:lighting"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "The fault they reported is: \"not working\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: door interlock / monitor microswitch (electrical start path). Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you hear any beep or see the interior light turn on?",
+       "turn": 1,
+       "resolution": "display is on, shows time, beeps when buttons pressed, light comes on when door opened"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11666
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12133,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1737,
+     "labelMs": 373,
+     "enrichMs": 0,
+     "reasonMs": 4018,
+     "verifyMs": 1419,
+     "replyLabelMs": 312,
+     "totalMs": 7964
+    },
+    "usage": {
+     "promptTokens": 4229,
+     "completionTokens": 163,
+     "totalTokens": 4392
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.68
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "L",
+       "confidence": 0.92
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "L"
+      ],
+      "symptom": "won't start when you press Start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.61
+     },
+     "checkGiven": "Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop for a few seconds) that stops the buttons working.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:lighting"
+      ],
+      "codes": [
+       {
+        "code": "L",
+        "status": "NEEDS_CONTEXT"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [
+      {
+       "code": "L",
+       "turn": 3
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned off child lock by holding Stop button for 3 seconds: L has gone and it works now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Do you hear any beep or see the interior light turn on?",
+       "turn": 1,
+       "resolution": "display is on, shows time, beeps when buttons pressed, light comes on when door opened"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8093
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 8366,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0290117,
+ "finishedAt": "2026-10-15T06:45:19.437Z"
+}

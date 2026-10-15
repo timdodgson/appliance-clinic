@@ -1,0 +1,753 @@
+{
+ "id": "WM-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-02-745b9ff282",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "w/m wont spinn pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help with that. A washing machine refusing to spin usually comes down to one of two things: either the load inside has become unbalanced (the machine pauses to redistribute heavy items like towels or a duvet), or it cannot drain the water first because it won't spin until the drum is empty. To narrow this down, please run a 'Drain' or 'Spin Only' programme. While it runs, listen near the bottom front of the machine:\n1. Can you hear the pump humming or running?\n2. Is the water actually draining out into the waste pipe? Let me know what happens with both the sound and the water flow."
+  },
+  {
+   "role": "customer",
+   "text": "it drained fine, no water left in the drum. its just the one thing came out dripping, a big bath mat. didnt try a drain programme tho, do i need to?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. You don't need to run a separate drain programme since you've confirmed there's no water left in the drum. The fact that it drained fine but won't spin with just one big bath mat is classic unbalanced-load behaviour. When a single heavy item like a bath mat soaks up all the water, it sticks to one side of the drum. The machine detects this imbalance and refuses to spin at high speed because the weight would make it bang around dangerously. It may try to tumble slowly back and forth to redistribute it, but often gives up. Please open the door, take out that bath mat and shake it out so it isn't stuck to one side. Add a couple of smaller items like towels or t-shirts to help balance it, then close the door and try running just the 'Spin' programme again."
+  },
+  {
+   "role": "customer",
+   "text": "ok will try it with the mat plus a couple of towels. what do i do after that?"
+  },
+  {
+   "role": "assistant",
+   "text": "Run the Spin programme. If it spins normally with that mix of items, then it was just the bath mat causing an imbalance and your machine is fine. If it still refuses to spin or keeps trying to redistribute without success, please let me know exactly what happens (does it stay silent, make a humming noise, or bang around?). That will tell us if we need to look at the motor or suspension."
+  },
+  {
+   "role": "customer",
+   "text": "tried it with the mat plus a couple of towels and it spun up fine. mat came out damp not dripping. so is it ok?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, it is perfectly ok. Your washing machine is fine; the issue was simply that single heavy bath mat causing an imbalance, which is a normal safety feature to prevent damage. To stop this happening again, try not to wash one very heavy item on its own. If you must wash something like a bath mat or duvet cover, add a couple of towels or similar items to help balance the weight in the drum. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1205,
+     "labelMs": 302,
+     "enrichMs": 1,
+     "chooseMs": 302,
+     "reasonMs": 3916,
+     "verifyMs": 384,
+     "replyLabelMs": 275,
+     "totalMs": 6418
+    },
+    "usage": {
+     "promptTokens": 5400,
+     "completionTokens": 323,
+     "totalTokens": 5723
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Unbalanced load or drainage issue preventing spin (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't spin"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.81
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:hall-sensor",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"pls help\" - answer that first.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: unbalanced / uneven load. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water actually draining out into the waste pipe?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 6466
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 6831,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1989,
+     "labelMs": 279,
+     "enrichMs": 2,
+     "chooseMs": 295,
+     "reasonMs": 8903,
+     "verifyMs": 2077,
+     "replyLabelMs": 389,
+     "totalMs": 13993
+    },
+    "usage": {
+     "promptTokens": 5830,
+     "completionTokens": 406,
+     "totalTokens": 6236
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Unbalanced load (single heavy item) (high)",
+     "Drain pump or filter blockage preventing spin initiation (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.53
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.56
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "refusing to spin"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.93
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:unbalanced-load",
+       "washing-machine:hall-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"do i need to?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\".",
+     "Checks they have done and what they found: ran a cycle (implied by 'it drained fine') - drained fine, no water left in the drum.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: unbalanced / uneven load. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"reduce/redistribute the load and retry; with the power off, hand-spin the drum to check for a jam; power-cycle reset\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ran a cycle (implied by 'it drained fine'): drained fine, no water left in the drum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water actually draining out into the waste pipe?",
+       "turn": 1,
+       "resolution": "answered"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14121
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14699,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1280,
+     "labelMs": 302,
+     "enrichMs": 2,
+     "chooseMs": 335,
+     "reasonMs": 6487,
+     "verifyMs": 432,
+     "replyLabelMs": 317,
+     "totalMs": 9200
+    },
+    "usage": {
+     "promptTokens": 6085,
+     "completionTokens": 204,
+     "totalTokens": 6289
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Unbalanced load (bath mat) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 1
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:hall-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what do i do after that?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\"; turn 2: gives check.",
+     "Their latest message adds no new facts about the fault. Give the next step after what you already told them: if a check you gave is still outstanding, ask how it went; if an engineer is needed, explain how to arrange one.",
+     "Checks they have done and what they found: ran a cycle (implied by 'it drained fine') - drained fine, no water left in the drum.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: unbalanced / uneven load. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"try a normal, evenly-distributed load before suspecting a part\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ran a cycle (implied by 'it drained fine'): drained fine, no water left in the drum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water actually draining out into the waste pipe?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "If it still refuses to spin or keeps trying to redistribute without success, please let me know exactly what happens (does it stay silent, make a humming noise, or bang around?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 9245
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 9664,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1857,
+     "labelMs": 295,
+     "enrichMs": 1,
+     "reasonMs": 8084,
+     "verifyMs": 2073,
+     "replyLabelMs": 295,
+     "totalMs": 12650
+    },
+    "usage": {
+     "promptTokens": 8193,
+     "completionTokens": 223,
+     "totalTokens": 8416
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Unbalanced load (bath mat) (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.77
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.91
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"is it ok?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "ran a cycle (implied by 'it drained fine'): drained fine, no water left in the drum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "ran spin programme with bath mat and towels: spun up fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the water actually draining out into the waste pipe?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "If it still refuses to spin or keeps trying to redistribute without success, please let me know exactly what happens (does it stay silent, make a humming noise, or bang around?",
+       "turn": 3,
+       "resolution": "it spun up fine"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12697
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 13197,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.04457560000000001,
+ "finishedAt": "2026-10-15T05:32:12.438Z"
+}

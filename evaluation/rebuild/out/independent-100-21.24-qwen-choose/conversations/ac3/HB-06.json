@@ -1,0 +1,207 @@
+{
+ "id": "HB-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-hb-06-bd0dc6cced",
+ "endReason": "concluded",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "AEG IKB64301FB induction hob keeps beeping and showing Er03 then switches off. Pan of pasta boiled over just before."
+  },
+  {
+   "role": "assistant",
+   "text": "Induction hobs have internal cooling fans and temperature sensors; if liquid gets inside or vents are blocked, the system shuts down to prevent damage. Since the pasta boiled over just before this happened, the most likely cause is that moisture has entered the control area or under the glass, causing a temporary fault or triggering an overheating safeguard. 1. Ensure the hob is switched off at the wall (isolate it if possible) and leave it completely undisturbed.\n2. Allow it to dry out fully for at least 24 hours. Do not try to use it sooner, as residual moisture can cause further shorting or corrosion.\n3. After 24 hours, restore power and test a single zone with a suitable pan. If the error returns immediately even after drying, it suggests a component like the cooling fan may have failed or moisture has caused a persistent fault on the main PCB, which would require an engineer to diagnose safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1554,
+     "labelMs": 579,
+     "enrichMs": 4039,
+     "chooseMs": 269,
+     "reasonMs": 7371,
+     "verifyMs": 2351,
+     "replyLabelMs": 292,
+     "totalMs": 16497
+    },
+    "usage": {
+     "promptTokens": 3392,
+     "completionTokens": 457,
+     "totalTokens": 3849
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "your description of a boil-over",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overheating protection triggered by spillage/moisture or blocked ventilation (high)",
+     "Faulty cooling fan or temperature sensor (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.51
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "IKB64301FB",
+       "confidence": 1
+      },
+      "code": {
+       "value": "Er03",
+       "confidence": 1
+      },
+      "make": {
+       "value": "AEG",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "induction hob",
+      "brand": "AEG",
+      "model": "IKB64301FB",
+      "codes": [
+       "Er03"
+      ],
+      "symptom": "keeps beeping and showing Er03 then switches off"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:overheating",
+       "hobs:cookware-user",
+       "hobs:tripping-electrics"
+      ],
+      "codes": [
+       {
+        "code": "ER03",
+        "status": "NOT_FOUND"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make AEG; model IKB64301FB; code ER03.",
+     "The fault they reported is: \"keeps beeping and showing Er03 then switches off\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: the hob's cooling / ventilation. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"if a spill or clean preceded it, let the hob dry fully before assuming a failed part\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "IKB64301FB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "ER03",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16542
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16899,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0114499,
+ "finishedAt": "2026-10-15T07:01:12.457Z"
+}

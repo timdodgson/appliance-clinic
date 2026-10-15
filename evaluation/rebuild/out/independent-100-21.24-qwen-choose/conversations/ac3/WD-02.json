@@ -1,0 +1,385 @@
+{
+ "id": "WD-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-02-2ce08956d1",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WD90T534DBW washer dryer - clothes are still damp at the end of the wash and dry programme. It's not that old. Is the heater going?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. It is unlikely to be a heater fault at this stage. The most common reason clothes come out damp in a washer-dryer is simply that the load was too big for the drying cycle. A machine like yours can wash 9kg, but it can only dry about half of that (around 5kg). If you put a full wet wash straight onto the drying programme, there isn't enough air circulation to remove all the moisture. 1. Was the load within the dry capacity? If it was very full, try drying half of it next time.\n2. Fluff buildup here stops air from flowing, which is essential for drying. If the load was small enough and those parts are clean, we can then check if the machine is actually heating up."
+  },
+  {
+   "role": "customer",
+   "text": "I put in a full 9kg drum and wash and dry in one go, using Wash+Dry with Cupboard Dry. The manual says 6kg for drying, so I guess that's over. Should I try a smaller load?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, absolutely. You should try a smaller load. Your machine can wash 9kg but only dry about 6kg. Putting a full 9kg wet load straight onto the drying programme simply doesn't give the clothes enough room for hot air to circulate properly, so they come out damp regardless of how well the heater works. That said, it is still worth doing two quick checks before you run that smaller load next time:\n1. Check the lint filter (usually at the bottom front) and clean it if there is any fluff.\n2. If your model has a condenser unit (often behind a small panel near the filter or inside the door rim), remove it and rinse it under warm water to clear out any trapped lint. Restricted airflow makes drying much slower, so keeping these clear ensures your smaller load dries efficiently."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1571,
+     "labelMs": 296,
+     "enrichMs": 1,
+     "chooseMs": 294,
+     "reasonMs": 8227,
+     "verifyMs": 468,
+     "replyLabelMs": 294,
+     "totalMs": 11192
+    },
+    "usage": {
+     "promptTokens": 4244,
+     "completionTokens": 421,
+     "totalTokens": 4665
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Have you cleaned the lint filter (usually behind a small flap at the bottom front) and the condenser (a plastic unit usually just above or beside the filter)?",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloading (load too big for drying capacity) (high)",
+     "Blocked lint filter or condenser restricting airflow (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WD90T534DBW",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Samsung",
+      "model": "WD90T534DBW",
+      "codes": [],
+      "symptom": "clothes are still damp at the end of the wash and dry programme"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-poor",
+       "washer-dryer:drying-heater",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is the heater going?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: a drying load bigger than the dry capacity. Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the load within the dry capacity?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11280
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11707,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2074,
+     "labelMs": 516,
+     "enrichMs": 2,
+     "chooseMs": 289,
+     "reasonMs": 7519,
+     "verifyMs": 1285,
+     "replyLabelMs": 296,
+     "totalMs": 12012
+    },
+    "usage": {
+     "promptTokens": 4742,
+     "completionTokens": 403,
+     "totalTokens": 5145
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Overloaded drying capacity (high)",
+     "Restricted airflow (blocked filter/condenser) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.67
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes come out damp"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Should I try a smaller load?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\" (no result reported yet).",
+     "They have not reported the result of: \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Samsung; model WD90T534DBW.",
+     "The fault they reported is: \"clothes are still damp at the end of the wash and dry programme\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: a drying load bigger than the dry capacity. Lead with it and why it fits what they said; mention at most one alternative.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the load within the dry capacity?",
+       "turn": 1,
+       "resolution": "I put in a full 9kg drum and wash and dry in one go, using Wash+Dry with Cupboard Dry. The manual says 6kg for drying, so I guess that's over."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12132
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12544,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0204098,
+ "finishedAt": "2026-10-15T05:41:21.168Z"
+}
