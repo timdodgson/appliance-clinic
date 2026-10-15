@@ -480,7 +480,10 @@ async function runTurn(input, deps) {
       codeMeanings: found.codeMeanings, hazardBlocking: Boolean(hazard && BLOCKING.has(hazard.type)), parts, appliance, model, labelWhere: LABEL_WHERE[appliance] || 'on the rating label', evidenceNote });
     audit.timings.composeMs = Date.now() - tC;
     audit.led = led.chosen;
-    audit.plan = [`${mode}: ${JSON.stringify(led.chosen)}`];
+    audit.plan = [`${mode}: ${JSON.stringify(led.chosen)}`,
+      // The whole turn, step by step, for review: what Qwen read (1), Jev's labels (2), the notes found (3).
+      `trace: ${JSON.stringify({ understood: u.reading, labels: Object.fromEntries(Object.entries(labels).map(([k, v]) => [k, v && typeof v === 'object' && 'value' in v ? `${JSON.stringify(v.value)} (${v.confidence})` : v])),
+        notes: found.knowledge.map((k) => k.knowledgeId), normal: found.normal.map((n) => n.id), codes: found.codeMeanings.map((m) => `${m.code}: ${m.status} ${m.meaning || ''}`.trim()), stage: rec.stage })}`];
     const gate = S.gateReply(led.reply, { hazards: activeHazards(rec), appliance });
     for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
     reply = gate.text || led.reply;

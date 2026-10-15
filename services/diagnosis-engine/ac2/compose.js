@@ -14,7 +14,7 @@ const EV = require('./evidence.js');
 
 // The one free-text part (the owner's design, 2026-10-15): a direct question the customer asked ("is it worth fixing?")
 // is answered by Qwen in a few sentences, above the fixed diagnosis. It answers that question only.
-const QUESTION_SYSTEM = `You are Appliance Clinic, a UK home-appliance repair advisor. The customer asked a direct question. Answer ONLY that question, honestly and plainly, in 1 to 3 short sentences. Do not diagnose the fault, give checks or repeat what follows (the system adds the diagnosis and the next check after your answer). Use only what the customer said and the facts given; if the answer depends on something unknown, say what it depends on. Never suggest anything unsafe (no testing with the power on, no opening a microwave, no gas or refrigerant work, no bypassing safety devices). Do not invent part numbers, prices or model details. Plain text, no greeting.`;
+const QUESTION_SYSTEM = `You are Appliance Clinic, a UK home-appliance repair advisor. The customer asked a direct question. Answer ONLY that question, honestly and plainly, in 1 to 3 short sentences. Do not diagnose the fault, give checks or repeat what follows (the system adds the diagnosis and the next check after your answer, given to you as ADVICE). Your answer must agree with the ADVICE and never contradict it or suggest a different step. Use only what the customer said and the facts given; if the answer depends on something unknown, say what it depends on. Never suggest anything unsafe (no testing with the power on, no opening a microwave, no gas or refrigerant work, no bypassing safety devices). Do not invent part numbers, prices or model details. Plain text, no greeting.`;
 
 const FIXED = 'Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?';
 const ASK_APPLIANCE = 'Which appliance is this (for example washing machine, dishwasher, oven), and what make is it?';
@@ -80,10 +80,10 @@ function words({ situation, next }) {
 }
 
 /** Qwen answers the customer's direct question only; on any failure the reply goes without it. */
-async function answerQuestion(qwen, { question, known }) {
+async function answerQuestion(qwen, { question, known, advice = '' }) {
   if (!qwen || !question) return null;
   try {
-    const res = await qwen.infer({ messages: [{ role: 'system', content: QUESTION_SYSTEM }, { role: 'user', content: `What we know: ${JSON.stringify(known)}\n\nThe customer's question: ${question}` }], maxTokens: 220, temperature: 0.2, timeoutMs: 20000, stream: false });
+    const res = await qwen.infer({ messages: [{ role: 'system', content: QUESTION_SYSTEM }, { role: 'user', content: `What we know: ${JSON.stringify(known)}\n\nADVICE (what follows your answer): ${advice}\n\nThe customer's question: ${question}` }], maxTokens: 220, temperature: 0.2, timeoutMs: 20000, stream: false });
     const t = res && res.status === 200 ? stripThinking(res.text).trim() : '';
     // At most two sentences: the answer, not a diagnosis.
     const sents = (t.replace(/\s+/g, ' ').match(/[^.!?]+[.!?]+/g) || [t]).slice(0, 2).join(' ').trim();
@@ -92,17 +92,25 @@ async function answerQuestion(qwen, { question, known }) {
 }
 
 /**
- * Compose one reply. Returns { reply, given: { check, question }, chosen } (given = what to record so it is never
- * offered again).
+ * Compose one reply: the body (Jev chooses, code writes), then Qwen's answer to a direct question, written after the
+ * choice and given the body so it agrees with it. Returns { reply, given: { check, question }, chosen }.
  */
-async function composeLed({ jev, qwen, question, rec, texts, known, notes, normal, codeMeanings, hazardBlocking, parts, appliance, model, labelWhere, evidenceNote = null }) {
+async function composeLed(args) {
+  const { rec, question, qwen, known } = args;
+  const out = await composeBody(args);
   const c = rec.customer;
-  // Qwen answers a direct question, except where code already answers it: a fixed fault, or an error code given this turn
-  // (its meaning is the first line).
   const codeNow = c.codes.some((x) => x.turn === rec.turn);
   // A generic "what next?" is answered by the next step itself, not by Qwen.
   const generic = /\b(what (should|do|can) i (do|check|try)( next| now)?|what next|what now|anything else|is there (anything|something) else)\b/i.test(String(question || ''));
-  const answer = rec.outcome === 'fixed' || codeNow || generic ? null : await answerQuestion(qwen, { question, known });
+  if (!question || rec.outcome === 'fixed' || codeNow || generic) return out;
+  const answer = await answerQuestion(qwen, { question, known, advice: out.reply });
+  if (!answer) return out;
+  return { ...out, reply: `${answer} ${out.reply}`, chosen: { ...out.chosen, answered: true, answer } };
+}
+
+async function composeBody({ jev, qwen, question, rec, texts, known, notes, normal, codeMeanings, hazardBlocking, parts, appliance, model, labelWhere, evidenceNote = null }) {
+  const c = rec.customer;
+  const answer = null;
   const lead = answer ? [answer] : [];
   if (rec.outcome === 'fixed') return { reply: [...lead, FIXED].join(' '), given: {}, chosen: { state: 'fixed', answered: Boolean(answer) } };
   if (!appliance) return { reply: [...lead, ASK_APPLIANCE].join(' '), given: { question: ASK_APPLIANCE }, chosen: { state: 'no-appliance', answered: Boolean(answer) } };
@@ -168,11 +176,15 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   // Round 2 (the review of tests 1-10): one note, clean options, steps the customer did, answered, refused or made
   // pointless are removed before Jev picks, and once the findings show the fault no more diagnostic steps.
   const t0 = Date.now();
-  const note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
+  // A note whose cause list is not causes (a triage note: "leak location / cycle stage...") gives Jev nothing to pick:
+  // the next retrieved note with real causes is used instead.
+  let note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
+  if (note && causesOf(note).length < 2) note = notes.find((n) => n !== note && causesOf(n).length >= 2) || note;
   const o = cleanOptions({ note, normal, given, afterFindings: c.checks.length > 0 });
   const sit = o.situations.map((x, i) => ({ id: `s${i + 1}`, ...x }));
   const steps = o.steps.map((x, i) => ({ id: `n${i + 1}`, ...x }));
-  const allowEngineer = c.checks.length > 0 || rec.stage === 2;
+  // "Needs an engineer" only after at least two reported checks (one cleaned filter is not enough).
+  const allowEngineer = c.checks.length >= 2 || rec.stage === 2;
   const state = { customerMessages: texts, knownSoFar: known, errorCodeMeanings: (codeMeanings || []).filter((m) => m.status === 'RESOLVED').map((m) => `${m.code}: ${m.meaning}`),
     alreadyGiven: given, guidance: note ? { fault: note.fault, discriminators: note.discriminators, evidence: note.componentEvidence } : null, normalBehaviour: normal || [] };
   const show = (x) => (x.length > 220 ? `${x.slice(0, 219)}…` : x);
@@ -182,7 +194,9 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
     settled: { type: 'noul', instructions: 'Do the customer\'s own findings already show what the fault is (for example they found the blockage, the damaged part, or the cause is clearly confirmed)?', criteria: { true: 'Yes, the findings show it', false: 'Not yet' } },
   };
   steps.forEach((x) => {
-    q2[`done_${x.id}`] = { type: 'noul', instructions: `Has the customer already done this, or already given the answer (customerMessages): "${show(x.text)}"?`, criteria: { true: 'Already done or answered', false: 'No' } };
+    q2[`done_${x.id}`] = { type: 'noul', instructions: x.kind === 'question'
+      ? `Has the customer already answered this question, even partly or in other words, anywhere in customerMessages: "${show(x.text)}"?`
+      : `Has the customer already done this, or already reported what it showed (customerMessages): "${show(x.text)}"?`, criteria: { true: 'Already done or answered', false: 'No' } };
     q2[`refused_${x.id}`] = { type: 'noul', instructions: `Has the customer said they cannot or will not do this: "${show(x.text)}"?`, criteria: { true: 'Cannot or will not', false: 'No' } };
     q2[`pointless_${x.id}`] = { type: 'noul', instructions: `Does what the customer has already said make this step pointless or contradict it (for example it checks something they already ruled out): "${show(x.text)}"?`, criteria: { true: 'Pointless now', false: 'Still useful' } };
   });
@@ -191,7 +205,11 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   const sId = top(a2.situation);
   const situation = sId === 'engineer' ? 'engineer' : sit.find((x) => x.id === sId) || null;
   const settled = yes(a2.settled);
-  const usable = steps.filter((x) => !yes(a2[`done_${x.id}`]) && !yes(a2[`refused_${x.id}`]) && !yes(a2[`pointless_${x.id}`]));
+  const p = (v) => (v && typeof v.noul === 'number' ? Math.round(v.noul * 100) / 100 : null);
+  // A question counts as answered from 0.5 (asking again annoys more than missing one).
+  const isDone = (x) => { const v = a2[`done_${x.id}`]; return x.kind === 'question' ? Boolean(v && typeof v.noul === 'number' && v.noul >= 0.5) : yes(v); };
+  const usable = steps.filter((x) => !isDone(x) && !yes(a2[`refused_${x.id}`]) && !yes(a2[`pointless_${x.id}`]));
+  const verdicts = steps.map((x) => ({ step: `${x.kind}: ${x.text.slice(0, 90)}`, done: p(a2[`done_${x.id}`]), refused: p(a2[`refused_${x.id}`]), pointless: p(a2[`pointless_${x.id}`]), kept: usable.includes(x) }));
   const removed = steps.length - usable.length;
 
   let next = null;
@@ -221,8 +239,12 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
     } else next = usable[0] || null;
     lines.push(...words({ situation: sameCause ? null : situation, next: situation === 'engineer' ? null : next }));
     if (!next && situation !== 'engineer') {
-      next = { kind: 'question', text: (note && note.clarifyingQuestion && !given.some((g) => key(g) === key(note.clarifyingQuestion))) ? note.clarifyingQuestion : MORE };
-      lines.push(next.text);
+      // Nothing left to check: the note's own question if not asked yet; asking for "more" once at most; then an end.
+      const cq = note && note.clarifyingQuestion && !given.some((g) => key(g) === key(note.clarifyingQuestion)) ? note.clarifyingQuestion : null;
+      const askedMore = given.some((g) => key(g) === key(MORE));
+      if (cq) { next = { kind: 'question', text: cq }; lines.push(cq); }
+      else if (!askedMore && c.checks.length < 2) { next = { kind: 'question', text: MORE }; lines.push(MORE); }
+      else lines.push(ENGINEER);
     }
   }
   return {
@@ -231,7 +253,7 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
     chosen: { state: 'chosen', answered: Boolean(answer), note: note && note.knowledgeId, settled, situation: situation === 'engineer' ? 'engineer' : situation && { kind: situation.kind, text: situation.text },
       next: next && { kind: next.kind, text: next.text }, ms: Date.now() - t0,
       // What Jev had to choose from (for review), and how many steps were removed as done, refused or pointless.
-      offered: { situations: sit.map((x) => `${x.kind}: ${x.text}`), next: usable.map((x) => `${x.kind}: ${x.text}`), removed: steps.filter((x) => !usable.includes(x)).map((x) => x.text.slice(0, 80)), engineerAllowed: allowEngineer } },
+      offered: { situations: sit.map((x) => `${x.kind}: ${x.text}`), next: usable.map((x) => `${x.kind}: ${x.text}`), removed: steps.filter((x) => !usable.includes(x)).map((x) => x.text.slice(0, 80)), engineerAllowed: allowEngineer, verdicts } },
   };
 }
 
@@ -243,12 +265,20 @@ async function askJev(jev, state, questions) {
 const IN_SEQUENCE = /^if you haven'?t already\b|\b(change|do) that\b|\bthat option\b/i;
 const RETEST = /^now that\b|^now (turn|run|start)\b|\bagain\b.*\?$|^(turn|run) .* (back on|again)/i;
 
+// Entries that are triage steps or labels, not causes.
+const NOT_A_CAUSE = /\(establish|establish first|^(check|confirm|look|inspect|identify|find)\b|\blocation\b.*\bstage\b|^STAGE\b/i;
+/** A note's causes in one wording: component evidence, else the journeys' causes, else the likely components. */
+function causesOf(note) {
+  const list = (note.componentEvidence || []).length ? note.componentEvidence.map((x) => x.name) : (note.causes || []).length ? note.causes : (note.likelyComponents || []);
+  return list.filter((x) => x && !NOT_A_CAUSE.test(x));
+}
+
 /** One note's options, cleaned: causes in one wording, steps that stand on their own, nothing already given. */
 function cleanOptions({ note, normal, given, afterFindings }) {
   const old = new Set((given || []).map(key));
   const seen = new Set();
   const once = (t) => { const k = key(t); if (!t || seen.has(k) || old.has(k)) return false; seen.add(k); return true; };
-  const causes = note ? ((note.componentEvidence || []).length ? note.componentEvidence.map((x) => x.name) : (note.causes || []).length ? note.causes : (note.likelyComponents || [])) : [];
+  const causes = note ? causesOf(note) : [];
   const situations = [...causes.slice(0, 10).map((text) => ({ kind: 'cause', text })), ...(normal || []).slice(0, 3).map((n) => ({ kind: 'normal', text: n.normal, warning: n.warningSigns }))];
   const raw = note ? [
     ...(note.ownerSafeChecks || []).map((text) => ({ kind: 'check', text: String(text).replace(/^next,\s*/i, '') })),
@@ -260,4 +290,4 @@ function cleanOptions({ note, normal, given, afterFindings }) {
   return { situations, steps };
 }
 
-module.exports = { composeLed, answerQuestion, chooseRequest, options, cleanOptions, words, QUESTION_SYSTEM, FIXED, ENGINEER, ASK_APPLIANCE };
+module.exports = { composeLed, composeBody, causesOf, answerQuestion, chooseRequest, options, cleanOptions, words, QUESTION_SYSTEM, FIXED, ENGINEER, ASK_APPLIANCE };
