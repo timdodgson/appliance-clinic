@@ -1,0 +1,229 @@
+{
+ "id": "WM-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-02-72af710e8b",
+ "endReason": "stuck",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "w/m wont spinn pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help with that. The most common reason for this is an unbalanced load (e.g., a single heavy item like a duvet or bath mat sticking to one side), which causes the machine to abort the spin to protect itself. Another very common cause is that it hasn't drained the water yet, as machines won't spin if there's still water in the drum. To narrow this down, please run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?"
+  },
+  {
+   "role": "customer",
+   "text": "no water left in the drum, it drained fine. it was just a big heavy bath mat on its own, came out dripping. didnt listen for the pump tho"
+  },
+  {
+   "role": "assistant",
+   "text": "AI service unavailable. Please try again in a moment."
+  },
+  {
+   "role": "customer",
+   "text": "hi it just says ai service unavailable?? can u try again pls"
+  },
+  {
+   "role": "assistant",
+   "text": "AI service unavailable. Please try again in a moment."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2231,
+     "labelMs": 591,
+     "enrichMs": 1,
+     "chooseMs": 289,
+     "reasonMs": 7871,
+     "verifyMs": 1044,
+     "replyLabelMs": 426,
+     "totalMs": 12528
+    },
+    "usage": {
+     "promptTokens": 5400,
+     "completionTokens": 341,
+     "totalTokens": 5741
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Unbalanced load (spin aborted) (high)",
+     "Drainage fault (water not drained before spin) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't spin"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.67
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:hall-sensor",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"pls help\" - answer that first.",
+     "The fault they reported is: \"won't spin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The most likely cause, chosen from the evidence: unbalanced / uneven load. Lead with it and why it fits what they said; mention at most one alternative.",
+     "The next check, chosen from the evidence: \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12820
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 13279,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "ok": false,
+    "reason": "reasoner_unavailable"
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 37708,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": true
+  },
+  {
+   "ac2": {
+    "ok": false,
+    "reason": "reasoner_unavailable"
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 32265,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": true
+  }
+ ],
+ "simCostUsd": 0.0305317,
+ "finishedAt": "2026-10-14T21:48:26.787Z"
+}
