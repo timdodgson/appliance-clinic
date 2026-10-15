@@ -469,7 +469,7 @@ async function runTurn(input, deps) {
   let evidenceNote = null;
   if (mode === 'jev-evidence' && appliance && found.knowledge.length && rec.outcome !== 'fixed' && !rec.narrowed && !(hazard && BLOCKING.has(hazard.type))) {
     evidenceNote = await EV.pickNote(deps.jev, { texts, known: Rec.known(rec), notes: found.knowledge });
-    if (evidenceNote && !(evidenceNote.componentEvidence || []).length) evidenceNote = null;
+    if (evidenceNote && !EV.scorable(evidenceNote)) evidenceNote = null;
     audit.evidenceNote = evidenceNote ? evidenceNote.knowledgeId : null;
   }
   const evidenceTurn = mode === 'jev-evidence' && (evidenceNote || (rec.led && rec.led.evidence && (rec.narrowed || rec.outcome === 'fixed')));

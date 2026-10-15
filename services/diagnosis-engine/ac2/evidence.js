@@ -36,6 +36,12 @@ async function pickNote(jev, { texts, known, notes }) {
   return (opts.find((o) => o.id === id) || {}).note || null;
 }
 
+/** Whether a note's component evidence names causes (a routing note names stages, "STAGE = draining", instead). */
+function scorable(note) {
+  const comps = (note && note.componentEvidence) || [];
+  return comps.length > 0 && !comps.some((c) => /^[A-Z][A-Z /-]+ = /.test(c.name));
+}
+
 /** The evidence items of a note (deduplicated), and the candidate steps. */
 function itemsOf(note) {
   const seen = new Map();
@@ -99,4 +105,4 @@ function nextStep(ranked, steps, given) {
   return { kind: 'engineer' };
 }
 
-module.exports = { pickNote, readEvidence, rank, nextStep, itemsOf };
+module.exports = { pickNote, readEvidence, rank, nextStep, itemsOf, scorable };
