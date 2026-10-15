@@ -324,3 +324,23 @@ Blind head-to-head (Sonnet): plain-gpt 54, ours-gpt 46; ours-qwen 68, plain-qwen
 on every model: Qwen 46 → 19, GPT 7 → 2, Opus 16 → 5. Its usefulness gain shrinks as the model gets stronger: +0.34
 on Qwen, +0.02 on GPT, +0.00 on Opus. On Opus the blind head-to-head prefers the pipeline 64 to 36: safer, better
 questions and better calibrated, slightly less diagnostic detail. Costs: slower turns and more to maintain.
+
+## 11. Experiment: Jev chooses the cause and the next check (2026-10-15)
+
+Release 21.24, Qwen for every model step, the AI config switch `pipeline.jevChooses` on against off, same release,
+same 100 cases, Sonnet judge, all 100 scored per arm (run one conversation at a time: at three, the local Qwen server
+timed out). Data: `out/independent-100-21.24-qwen-choose/`, `out/independent-100-21.24-qwen/`,
+`out/rag-vs-plain/judge/`.
+
+| | Jev chooses | Off |
+|---|---|---|
+| Overall | 2.59 | 2.65 |
+| Paired difference | −0.06 (−0.21 to +0.09); 18 up, 24 down | |
+| Critical failures | 21 | 24 |
+| Named the part when one was needed | **15 / 38** | 8 / 38 |
+| Blind head-to-head | 53 | 40 (7 ties) |
+
+- **No measurable gain in usefulness or safety**: every difference is inside the noise.
+- **It does reach the part twice as often** (15 against 8 of the 38 cases that need one), without naming a part
+  where none is needed.
+- Not adopted on its own: the score does not move. The parts result is worth keeping in view for the parts problem.
