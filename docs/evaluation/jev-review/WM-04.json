@@ -1,0 +1,785 @@
+{
+ "id": "WM-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-04-ed6d63c50c",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WW90T534DAW keeps coming up with 4C after a couple of minutes. Drum is dry. Any ideas before I call someone out?"
+  },
+  {
+   "role": "assistant",
+   "text": "4C on your Samsung means: Water supply issue - little or no water entering (tap/pressure/inlet mesh/hose). From what you have described, the most likely cause is power-cycle / reset. Next: Power-cycle the machine to clear a transient glitch. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I'll switch it off at the wall and turn it back on. Anything else worth checking while I do that? Also, there was no water sound when it should be filling, just a faint buzz from the back."
+  },
+  {
+   "role": "assistant",
+   "text": "Since you have not specified what task \"that\" refers to, I cannot provide relevant checks. Please clarify which specific repair or inspection step you are currently performing so I can advise appropriately. From what you have described, the most likely cause is blocked inlet mesh / filter. Check the tap the fill hose connects to is turned fully on, and that the hose behind the machine isn't kinked or squashed against the wall. Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?"
+  },
+  {
+   "role": "customer",
+   "text": "Tap was open, I turned it fully anticlockwise anyway and no change. Hose isn't kinked either. Still 4C."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is a blocked inlet mesh filter. Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?"
+  },
+  {
+   "role": "customer",
+   "text": "Mesh filter was blocked, full of grey grit and limescale bits. I've cleaned it and refitted the hose, and now it fills normally and the 4C has gone."
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1700,
+     "labelMs": 576,
+     "enrichMs": 3237,
+     "composeMs": 338,
+     "replyLabelMs": 316,
+     "totalMs": 6311
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WW90T534DAW",
+       "confidence": 1
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Samsung",
+      "model": "WW90T534DAW",
+      "codes": [
+       "4C"
+      ],
+      "symptom": "error code appears after a couple of minutes, drum is dry"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:comms",
+       "washing-machine:not-draining",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"power-cycle / reset\"},\"next\":{\"kind\":\"step\",\"text\":\"power-cycle the machine to clear a transient glitch\"},\"ms\":317,\"offered\":{\"situations\":[\"cause: power-cycle / reset\",\"cause: wiring / connector between UI and main board\",\"cause: user-interface / control panel board\",\"cause: main control PCB\",\"cause: a blockage in the pump filter\",\"cause: something caught in the pump impeller\",\"cause: a kink or blockage in the drain hose or waste pipe\",\"cause: a blockage in the household waste plumbing\",\"cause: too much foam from the detergent\",\"cause: the drain pump\",\"cause: the water-level (pressure) sensing system\",\"cause: the control circuit that drives the pump\",\"cause: a blockage at the pump that can't be reached from the filter opening\",\"cause: blocked pump filter / foreign object in the pump path\"],\"next\":[\"step: power-cycle the machine to clear a transient glitch\",\"step: reseat and inspect the loom/connectors between the control panel and the main board before replacing either board\",\"check: The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water\",\"step: inspect and clean the accessible pump filter where the model design allows\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump\",\"check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clicks and start a programme. Does the door click locked now?\",\"check: Check the tap the fill hose connects to is turned fully on, and that the hose behind the machine isn't kinked or squashed against the wall. Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?\",\"check: Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?\",\"check: Now turn the tap back on and start a programme. Does it fill normally now, or is it still not taking water?\",\"question: Is there a specific communication error code shown, and is the display otherwise lit and responding?\",\"question: Has the machine recently been repaired or moved (a disturbed connector between the panel and the main board)?\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\",\"question: Does no water come in at all, does it fill very slowly, or does it keep filling until the water level gets too high?\",\"question: Are the other cold taps in the property working normally, and does the door lock when you start the programme?\"],\"engineerAllowed\":false}}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.81,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 6576
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7273,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2392,
+     "labelMs": 343,
+     "enrichMs": 2,
+     "composeMs": 1626,
+     "replyLabelMs": 248,
+     "totalMs": 4649
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.89
+      },
+      "symptomArea": {
+       "value": "not_filling",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.51
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.14
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Samsung",
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": "little or no water entering"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.49
+     },
+     "checkGiven": "Check the tap the fill hose connects to is turned fully on, and that the hose behind the machine isn't kinked or squashed against the wall.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:inlet-valve",
+       "washing-machine:not-draining",
+       "washing-machine:leak-fill"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked inlet mesh / filter\"},\"next\":{\"kind\":\"check\",\"text\":\"Check the tap the fill hose connects to is turned fully on, and that the hose behind the machine isn't kinked or squashed against the wall. Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?\"},\"ms\":287,\"offered\":{\"situations\":[\"cause: the household water supply\",\"cause: the tap or the fill hose\",\"cause: a blocked inlet mesh filter\",\"cause: the door lock (the machine won't fill until the door locks)\",\"cause: the inlet (fill) valve\",\"cause: the water-level sensing or the control side\",\"cause: the inlet (fill) valve sticking open\",\"cause: the drain hose installation (siphoning)\",\"cause: too much detergent foam upsetting the level sensing\",\"cause: waste water backing up from the household plumbing\",\"cause: property / local cold-water supply\",\"cause: appliance isolation tap / supply\",\"cause: kinked / crushed / restricted fill hose\",\"cause: blocked inlet mesh / filter\"],\"next\":[\"check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clicks and start a programme. Does the door click locked now?\",\"check: Check the tap the fill hose connects to is turned fully on, and that the hose behind the machine isn't kinked or squashed against the wall. Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?\",\"check: Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?\",\"check: Now turn the tap back on and start a programme. Does it fill normally now, or is it still not taking water?\",\"check: With the machine switched off at the socket, turn the tap back on and watch the detergent drawer and the drum for a minute. Did any water run in while the machine was switched off?\",\"check: Check how the grey drain hose is fitted at the back: it should rise high (hooked near the top of the machine or the standpipe) and go no more than a hand's width down the standpipe or sink waste. If it hangs low or is pushed far in, water can siphon away as it fills. Was it low or pushed in too far (and have you refitted it), or was it already fitted correctly?\",\"check: Turn the tap back on and start a short programme. Does it fill to a normal level and stop now, or does it still keep taking water?\",\"step: check the other cold taps in the property before suspecting the appliance\",\"step: check the appliance isolation tap is fully open\",\"step: check the fill hose for kinks/crushing (especially after a move) - replace the hose only if it is physically damaged\",\"step: inspect and clean the inlet mesh/filter\",\"step: confirm the door locks and the programme actually reaches the fill stage before recommending the inlet valve\",\"check: The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\",\"question: Does no water come in at all, does it fill very slowly, or does it keep filling until the water level gets too high?\",\"question: Are the other cold taps in the property working normally, and does the door lock when you start the programme?\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"engineerAllowed\":false}}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.89,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4728
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 5260,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2187,
+     "labelMs": 363,
+     "enrichMs": 2,
+     "composeMs": 333,
+     "replyLabelMs": 262,
+     "totalMs": 3181
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.66
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.71
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 0.92
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.58
+     },
+     "checkGiven": "Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at t",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:inlet-valve",
+       "washing-machine:leak-fill",
+       "washing-machine:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"a blocked inlet mesh filter\"},\"next\":{\"kind\":\"check\",\"text\":\"Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?\"},\"ms\":333,\"offered\":{\"situations\":[\"cause: the household water supply\",\"cause: the tap or the fill hose\",\"cause: a blocked inlet mesh filter\",\"cause: the door lock (the machine won't fill until the door locks)\",\"cause: the inlet (fill) valve\",\"cause: the water-level sensing or the control side\",\"cause: the inlet (fill) valve sticking open\",\"cause: the drain hose installation (siphoning)\",\"cause: too much detergent foam upsetting the level sensing\",\"cause: waste water backing up from the household plumbing\",\"cause: property / local cold-water supply\",\"cause: appliance isolation tap / supply\",\"cause: kinked / crushed / restricted fill hose\",\"cause: blocked inlet mesh / filter\"],\"next\":[\"check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clicks and start a programme. Does the door click locked now?\",\"check: Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?\",\"check: Now turn the tap back on and start a programme. Does it fill normally now, or is it still not taking water?\",\"check: With the machine switched off at the socket, turn the tap back on and watch the detergent drawer and the drum for a minute. Did any water run in while the machine was switched off?\",\"check: Check how the grey drain hose is fitted at the back: it should rise high (hooked near the top of the machine or the standpipe) and go no more than a hand's width down the standpipe or sink waste. If it hangs low or is pushed far in, water can siphon away as it fills. Was it low or pushed in too far (and have you refitted it), or was it already fitted correctly?\",\"check: Turn the tap back on and start a short programme. Does it fill to a normal level and stop now, or does it still keep taking water?\",\"step: check the other cold taps in the property before suspecting the appliance\",\"step: check the appliance isolation tap is fully open\",\"step: check the fill hose for kinks/crushing (especially after a move) - replace the hose only if it is physically damaged\",\"step: inspect and clean the inlet mesh/filter\",\"step: confirm the door locks and the programme actually reaches the fill stage before recommending the inlet valve\",\"check: The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"question: Does no water come in at all, does it fill very slowly, or does it keep filling until the water level gets too high?\",\"question: Are the other cold taps in the property working normally, and does the door lock when you start the programme?\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"engineerAllowed\":true}}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.89,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned tap fully anticlockwise: no change",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked hose for kinks: hose isn't kinked",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?",
+       "turn": 2,
+       "resolution": "tap was open and fully turned; hose is not kinked"
+      },
+      {
+       "key": null,
+       "text": "Was the mesh blocked (and is it clean now), or was it already clean?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3226
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 3624,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1692,
+     "labelMs": 289,
+     "enrichMs": 3,
+     "composeMs": 0,
+     "replyLabelMs": 262,
+     "totalMs": 2362
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.82
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.72
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 0.98
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.56
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:leak-fill",
+       "washing-machine:inlet-valve",
+       "washing-machine:not-draining"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"fixed\",\"answered\":false}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.89,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "WW90T534DAW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned tap fully anticlockwise: no change",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked hose for kinks: hose isn't kinked",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "cleaned mesh filter and refitted hose: fills normally and error code gone",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was the tap fully on and the hose clear, did you find it off or kinked (and sort it), or is the hose itself damaged?",
+       "turn": 2,
+       "resolution": "tap was open and fully turned; hose is not kinked"
+      },
+      {
+       "key": null,
+       "text": "Was the mesh blocked (and is it clean now), or was it already clean?",
+       "turn": 3,
+       "resolution": "blocked"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 2396
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 2553,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.040479600000000004,
+ "finishedAt": "2026-10-15T22:46:04.123Z"
+}
