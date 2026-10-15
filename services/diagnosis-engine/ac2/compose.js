@@ -72,7 +72,7 @@ function words({ situation, next }) {
   } else if (situation) out.push(`From what you have described, the most likely cause is ${stop(lower(situation.text))}`);
   if (situation !== 'engineer' && next) {
     if (next.kind === 'check' || next.kind === 'question') out.push(sentence(next.text));
-    else out.push(`Next, please ${stop(lower(next.text)).replace(/\.$/, '')}, and let me know what you find.`);
+    else out.push(`Next: ${stop(sentence(next.text))} Let me know what you find.`);
   }
   return out;
 }
@@ -83,7 +83,9 @@ async function answerQuestion(qwen, { question, known }) {
   try {
     const res = await qwen.infer({ messages: [{ role: 'system', content: QUESTION_SYSTEM }, { role: 'user', content: `What we know: ${JSON.stringify(known)}\n\nThe customer's question: ${question}` }], maxTokens: 220, temperature: 0.2, timeoutMs: 20000, stream: false });
     const t = res && res.status === 200 ? stripThinking(res.text).trim() : '';
-    return t ? t.replace(/\s+/g, ' ').slice(0, 600) : null;
+    // At most two sentences: the answer, not a diagnosis.
+    const sents = (t.replace(/\s+/g, ' ').match(/[^.!?]+[.!?]+/g) || [t]).slice(0, 2).join(' ').trim();
+    return sents ? sents.slice(0, 400) : null;
   } catch { return null; }
 }
 
@@ -93,7 +95,10 @@ async function answerQuestion(qwen, { question, known }) {
  */
 async function composeLed({ jev, qwen, question, rec, texts, known, notes, normal, codeMeanings, hazardBlocking, parts, appliance, model, labelWhere }) {
   const c = rec.customer;
-  const answer = await answerQuestion(qwen, { question, known });
+  // Qwen answers a direct question, except where code already answers it: a fixed fault, or an error code given this turn
+  // (its meaning is the first line).
+  const codeNow = c.codes.some((x) => x.turn === rec.turn);
+  const answer = rec.outcome === 'fixed' || codeNow ? null : await answerQuestion(qwen, { question, known });
   const lead = answer ? [answer] : [];
   if (rec.outcome === 'fixed') return { reply: [...lead, FIXED].join(' '), given: {}, chosen: { state: 'fixed', answered: Boolean(answer) } };
   if (!appliance) return { reply: [...lead, ASK_APPLIANCE].join(' '), given: { question: ASK_APPLIANCE }, chosen: { state: 'no-appliance', answered: Boolean(answer) } };
@@ -144,7 +149,11 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
     next = req.plan.nxt.find((x) => x.id === n) || null;
   }
   const ms = Date.now() - t0;
-  lines.push(...words({ situation, next }));
+  // The cause is said when it is new or has changed; the next step is new every turn.
+  const sitKey = situation === 'engineer' ? 'engineer' : situation ? key(situation.text) : null;
+  const sameCause = sitKey && sitKey !== 'engineer' && rec.led && rec.led.situation === sitKey;
+  lines.push(...words({ situation: sameCause ? null : situation, next }));
+  rec.led = { situation: sitKey };
   if (!next && situation !== 'engineer') {
     // Nothing left to check: the top note's own question, if not asked yet, else ask for more.
     const q = notes.map((n) => n.clarifyingQuestion).find((x) => x && !given.some((g) => key(g) === key(x)));
