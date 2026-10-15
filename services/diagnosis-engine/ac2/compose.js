@@ -11,6 +11,7 @@
  */
 const { stripThinking, ProviderUnavailableError } = require('./util.js');
 const EV = require('./evidence.js');
+const K = require('./knowledge.js');
 
 // The one free-text part (the owner's design, 2026-10-15): a direct question the customer asked ("is it worth fixing?")
 // is answered by Qwen in a few sentences, above the fixed diagnosis. It answers that question only.
@@ -178,13 +179,22 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   const t0 = Date.now();
   // A note whose cause list is not causes (a triage note: "leak location / cycle stage...") gives Jev nothing to pick:
   // the next retrieved note with real causes is used instead.
-  let note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
+  // The fault note stays the same unless the customer now describes a different fault (round 3: stray words such as
+  // "refitted the hose" switched a fill fault to a leak note).
+  const prev = rec.led && rec.led.note ? K.noteById(rec.led.note) : null;
+  let note = null;
+  if (prev) {
+    const same = await askJev(jev, { customerMessages: texts, knownSoFar: known }, {
+      same: { type: 'noul', instructions: `Is the customer still describing the same fault as before ("${prev.fault}"), rather than a different, new fault?`, criteria: { true: 'Same fault', false: 'A different fault' } } });
+    if (!(same.same && typeof same.same.noul === 'number' && same.same.noul < 0.35)) note = prev;
+  }
+  if (!note) note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
   if (note && causesOf(note).length < 2) note = notes.find((n) => n !== note && causesOf(n).length >= 2) || note;
   const o = cleanOptions({ note, normal, given, afterFindings: c.checks.length > 0 });
   const sit = o.situations.map((x, i) => ({ id: `s${i + 1}`, ...x }));
   const steps = o.steps.map((x, i) => ({ id: `n${i + 1}`, ...x }));
   // "Needs an engineer" only after at least two reported checks (one cleaned filter is not enough).
-  const allowEngineer = c.checks.length >= 2 || rec.stage === 2;
+  const allowEngineer = (c.checks.length >= 2 && rec.advice.length >= 2) || rec.stage === 2;
   const state = { customerMessages: texts, knownSoFar: known, errorCodeMeanings: (codeMeanings || []).filter((m) => m.status === 'RESOLVED').map((m) => `${m.code}: ${m.meaning}`),
     alreadyGiven: given, guidance: note ? { fault: note.fault, discriminators: note.discriminators, evidence: note.componentEvidence } : null, normalBehaviour: normal || [] };
   const show = (x) => (x.length > 220 ? `${x.slice(0, 219)}…` : x);
@@ -208,15 +218,30 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   const p = (v) => (v && typeof v.noul === 'number' ? Math.round(v.noul * 100) / 100 : null);
   // A question counts as answered from 0.5 (asking again annoys more than missing one).
   const isDone = (x) => { const v = a2[`done_${x.id}`]; return x.kind === 'question' ? Boolean(v && typeof v.noul === 'number' && v.noul >= 0.5) : yes(v); };
-  const usable = steps.filter((x) => !isDone(x) && !yes(a2[`refused_${x.id}`]) && !yes(a2[`pointless_${x.id}`]));
+  // A re-test ("now that the blockage is cleared...") only after a finding that shows the fault.
+  const usable = steps.filter((x) => !isDone(x) && !yes(a2[`refused_${x.id}`]) && !yes(a2[`pointless_${x.id}`]) && (x.kind !== 'retest' || yes(a2.settled)));
   const verdicts = steps.map((x) => ({ step: `${x.kind}: ${x.text.slice(0, 90)}`, done: p(a2[`done_${x.id}`]), refused: p(a2[`refused_${x.id}`]), pointless: p(a2[`pointless_${x.id}`]), kept: usable.includes(x) }));
   const removed = steps.length - usable.length;
 
   let next = null;
   const sitKey = situation === 'engineer' ? 'engineer' : situation ? key(situation.text) : null;
   const sameCause = sitKey && sitKey !== 'engineer' && rec.led && rec.led.situation === sitKey;
-  rec.led = { situation: sitKey };
+  rec.led = { situation: sitKey, note: note ? note.knowledgeId : null };
   const ev = note && situation && situation !== 'engineer' && situation.kind === 'cause' ? (note.componentEvidence || []).find((x) => key(x.name) === key(situation.text)) : null;
+  if (situation && situation.kind === 'normal' && settled) {
+    // Settled as normal behaviour: say so, say what would make it a fault, and close (round 3: WM-02 went on to checks
+    // and the engineer line).
+    if (sameCause) {
+      // Already explained: close.
+      lines.push('Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.');
+      return { reply: lines.join(' '), given: {}, chosen: { state: 'settled-normal-closed', answered: Boolean(answer), note: note && note.knowledgeId, ms: Date.now() - t0 } };
+    }
+    lines.push(`This sounds like normal behaviour rather than a fault: ${stop(situation.text)}`);
+    if (situation.warning) lines.push(`It would only be worth a closer look if ${stop(lower(situation.warning))}`);
+    lines.push('Does that match what you are seeing?');
+    return { reply: lines.join(' '), given: { question: 'Does that match what you are seeing?' }, chosen: { state: 'settled-normal', answered: Boolean(answer), note: note && note.knowledgeId, situation: { kind: 'normal', text: situation.text }, ms: Date.now() - t0,
+      offered: { situations: sit.map((x) => `${x.kind}: ${x.text}`), next: usable.map((x) => `${x.kind}: ${x.text}`), removed: steps.filter((x) => !usable.includes(x)).map((x) => x.text.slice(0, 80)), engineerAllowed: allowEngineer, verdicts } } };
+  }
   if (settled && situation && situation !== 'engineer' && situation.kind === 'cause') {
     // The findings show the fault: no more diagnosis. A part: the parts path (model number). A check-type cause: test it.
     if (ev && ev.type === 'part') {
@@ -243,7 +268,7 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
       const cq = note && note.clarifyingQuestion && !given.some((g) => key(g) === key(note.clarifyingQuestion)) ? note.clarifyingQuestion : null;
       const askedMore = given.some((g) => key(g) === key(MORE));
       if (cq) { next = { kind: 'question', text: cq }; lines.push(cq); }
-      else if (!askedMore && c.checks.length < 2) { next = { kind: 'question', text: MORE }; lines.push(MORE); }
+      else if (!askedMore && !allowEngineer) { next = { kind: 'question', text: MORE }; lines.push(MORE); }
       else lines.push(ENGINEER);
     }
   }

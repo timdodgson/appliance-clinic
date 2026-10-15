@@ -214,4 +214,10 @@ function knownKnowledgeId(id) {
   return kb().docs.some((d) => d.knowledgeId === id);
 }
 
-module.exports = { APPLIANCES, retrieve, normalNotes, partMatchers, safetyInformation, applianceHints, knownKnowledgeId, words };
+/** One note by its id, in the same shape retrieve() returns (null when unknown). */
+function noteById(id) {
+  const e = kb().index.find((x) => x.doc.knowledgeId === id);
+  return e ? compactDoc(e) : null;
+}
+
+module.exports = { APPLIANCES, retrieve, noteById, normalNotes, partMatchers, safetyInformation, applianceHints, knownKnowledgeId, words };
