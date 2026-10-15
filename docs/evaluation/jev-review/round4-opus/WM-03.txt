@@ -1,0 +1,157 @@
+TEST WM-03  (ended: escalated, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: My indesit washing machine fills with water and drains but the drum just doesn't go round at all. Its an IWC something. Had it about 9 years. Is it worth fixing?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Indesit model=IWC codes=[] symptom="drum doesn't turn" question='Is it worth fixing?'
+   checks reported: []  facts: ['fills with water and drains', 'about 9 years old', 'model starts with IWC, rest unknown']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.95); modelUnreachable=false (0.15); model=null (0.3); code=null (1); make="Indesit" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:inlet-valve', 'washing-machine:pressure-switch']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.06 p=0.29  check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr
+    KEPT    d=0.05 r=0.05 p=0.62  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.06 r=0.05 p=0.59  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.05 r=0.04 p=0.64  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.05 r=0.05 p=0.09  check: check how the drum moves by hand. With the machine unplugged and the door open, how does t
+    KEPT    d=0.05 r=0.05 p=0.4  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.05 r=0.05 p=0.63  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.03 r=0.05 p=0.29  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.05 r=0.05 p=0.13  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.04 r=0.05 p=0.42  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    KEPT    d=0.04 r=0.05 p=0.62  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    KEPT    d=0.05 r=0.05 p=0.1  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+  JEV PICKED: situation = drive belt [belt-driven machines ONLY]
+              next      = check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?
+LLM ANSWER TO THEIR QUESTION: It depends on what the fault turns out to be.  If it is the drive belt, that is usually a simple, low-cost repair and generally worth doing even on a 9-year-old machine.
+REPLY: It depends on what the fault turns out to be. If it is the drive belt, that is usually a simple, low-cost repair and generally worth doing even on a 9-year-old machine. From what you have described, the most likely cause is drive belt [belt-driven machines ONLY]. Check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?
+
+--- Turn 2
+CUSTOMER: I've turned it by hand with the power off and it turns freely and quietly, no scraping or rumbling. It feels normal to me.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'turned drum by hand with power off', 'result': 'turns freely and quietly, no scraping or rumbling, feels normal'}]  facts: ['no scraping or rumbling from drum']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.72); symptomArea=null (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.72); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:excessive-vibration', 'washing-machine:inlet-valve']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.06 p=0.28  check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr
+    REMOVED d=0.06 r=0.05 p=0.65  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.06 r=0.05 p=0.47  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.06 r=0.05 p=0.54  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.05 r=0.05 p=0.37  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.06 r=0.05 p=0.57  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.05 p=0.36  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    REMOVED d=0.31 r=0.05 p=0.65  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.07 r=0.05 p=0.63  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.04 r=0.05 p=0.65  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.97 r=0.05 p=0.88  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.11 r=0.07 p=0.32  check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th
+  JEV PICKED: situation = drive belt [belt-driven machines ONLY]
+              next      = Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?
+REPLY: Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?
+
+--- Turn 3
+CUSTOMER: I ran it empty as you suggested and the drum doesn't turn at all in spin either. It fills, drains and the door locks, but there's no rotation. Occasionally a light flashes after a long wait.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='drum does not turn at all' question=None
+   checks reported: [{'check': 'ran spin-only programme with drum empty', 'result': 'drum does not turn at all'}]  facts: ['fills and drains normally', 'door locks', 'occasionally a light flashes after a long wait']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (0.99); lastAnswer="answered" (1); checkOutcome="still_faulty" (1); modelUnreachable=false (0.03); narrowed=null (0.75); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:pressure-switch', 'washing-machine:inlet-valve']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (11):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.17 r=0.06 p=0.79  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    REMOVED d=0.62 r=0.1 p=0.75  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.2 r=0.06 p=0.6  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    REMOVED d=0.69 r=0.06 p=0.84  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    REMOVED d=0.07 r=0.05 p=0.68  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.04 r=0.06 p=0.46  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    REMOVED d=0.31 r=0.06 p=0.65  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    REMOVED d=0.07 r=0.06 p=0.7  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.22 r=0.05 p=0.78  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.97 r=0.04 p=0.88  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.1 r=0.08 p=0.32  check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th
+    REMOVED d=0.1 r=0.06 p=0.56  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+  JEV PICKED: situation = drive belt [belt-driven machines ONLY]
+              next      = With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?
+REPLY: With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?
+
+--- Turn 4
+CUSTOMER: I'm not sure I can judge that very well, as I haven't got a reference for what's normal. There's no obvious clunking or knocking that I can tell, but I haven't tried it yet in a careful way. Is this check likely to tell us much, given the drum turns freely by hand?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom=None question='Is the drum movement check likely to tell us much, given the drum turns freely by hand?'
+   checks reported: []  facts: ['drum turns freely by hand', 'no obvious clunking or knocking noticed']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.86); symptomArea=null (0.88); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.48); checkOutcome=null (0.88); modelUnreachable=false (0.04); narrowed=null (0.78); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:excessive-vibration', 'washing-machine:pressure-switch']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (11):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.14 r=0.08 p=0.77  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    REMOVED d=0.64 r=0.14 p=0.68  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.15 r=0.09 p=0.55  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    REMOVED d=0.63 r=0.07 p=0.84  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    REMOVED d=0.05 r=0.07 p=0.67  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.08 p=0.43  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.26 r=0.1 p=0.64  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    REMOVED d=0.08 r=0.08 p=0.7  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.1 r=0.07 p=0.75  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.95 r=0.11 p=0.82  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    REMOVED d=0.1 r=0.13 p=0.53  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+    REMOVED d=0.58 r=0.06 p=0.72  step: confirm all the water has drained before treating it as a spin fault
+  JEV PICKED: situation = drive belt [belt-driven machines ONLY]
+              next      = It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as "no spin", "rinse hold" or a low spin speed stop the final spin. Was a normal programme with a normal s
+LLM ANSWER TO THEIR QUESTION: Not much more.  A drum that turns freely and quietly by hand rules out a jam or rough bearings, but it can't show whether the machine is actually trying to turn the drum, so that's the part still to narrow down.
+REPLY: Not much more. A drum that turns freely and quietly by hand rules out a jam or rough bearings, but it can't show whether the machine is actually trying to turn the drum, so that's the part still to narrow down. It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as "no spin", "rinse hold" or a low spin speed stop the final spin. Was a normal programme with a normal spin speed selected, or was one of those options set?
+
+--- Turn 5
+CUSTOMER: I can't say I remember which settings I used, but I believe it was a normal cotton wash with the usual spin speed, and I didn't select any no-spin or rinse hold option. The drum didn't turn in the wash part either, not just the spin. Also, I once noticed a faint hot electrical smell a few weeks ago, though not since.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='drum not turning during wash or spin' question=None
+   checks reported: []  facts: ["drum didn't turn during the wash part either, not just spin", 'faint hot electrical smell once a few weeks ago, not since', "doesn't remember settings for certain"]
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="not_spinning_or_turning" (0.98); hazard="burning" (0.97); unsafeRequest=null (1); lastAnswer="answered" (0.76); checkOutcome=null (0.68); modelUnreachable=false (0.04); narrowed=null (0.82); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:not-draining', 'washing-machine:pressure-switch']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 (no Jev choice this turn: hazard)
+REPLY: ⚠ Stop using this appliance
+A burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Worn carbon brushes on the brushed motor (one charred and very short). Replacing the pair is likely to fix it, though armature or control module faults can't be fully excluded.

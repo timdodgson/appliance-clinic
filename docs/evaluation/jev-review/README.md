@@ -84,3 +84,24 @@ What round 3 shows:
 5. **A re-test offered when nothing was cleared** (WM-09: "Now that the blockage is cleared" after a squashed hose
    that did not fix it).
 6. Knowledge gaps unchanged: WM-03 (no carbon-brush check), WM-07 (the 60 °C test keeps being offered).
+
+## Round 4 (release 21.33, Claude Opus 5.5 for the LLM parts)
+
+Reviews in `round4-opus/`. Customer messages to the end, round 3 → round 4 (both Opus):
+
+| Test | R3 Opus | R4 Opus | |
+|---|---|---|---|
+| WM-01 | 3, fixed | 3, fixed | same |
+| WM-02 | 4, engineer | **2, normal, closed** | fixed by the settled-normal close |
+| WM-03 | 4, safety stop | 5, safety stop | same (no carbon-brush check in the notes) |
+| WM-04 | 3, fixed | 3, fixed | same |
+| WM-05 | 7, seal found | **7, loop** | worse: the note now stays on the triage note (leak-flood), whose steps do not fit a door leak; ended on "tell me a bit more" |
+| WM-06 | 1, engineer | 1, engineer | still: stage 2 (filter cleaned, still faulty) opens the engineer option on its own |
+| WM-07 | 5, stuck | **4, concluded** | better: normal Eco cycle explained; one "fill level" step still offered |
+| WM-08 | safety stop | safety stop | same |
+| WM-09 | 6, engineer | 5, engineer | the customer refuses the filter; engineer is a fair end |
+| WM-10 | 5, part path | 5, part path | same |
+
+Left: (1) stage 2 alone must not open "needs an engineer"; (2) a triage note (leak-flood) must hand over to the
+specific note once the customer says where the water comes from - the "stay on the note" fix holds it too tightly;
+(3) the knowledge gaps (carbon brushes; heating checks offered for a normal Eco cycle).
