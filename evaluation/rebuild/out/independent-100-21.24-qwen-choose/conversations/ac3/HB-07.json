@@ -1,0 +1,568 @@
+{
+ "id": "HB-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-hb-07-213663a7f7",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "hob not working properly"
+  },
+  {
+   "role": "assistant",
+   "text": "To help me narrow this down, I need to know exactly what 'not working properly' means. Is one specific zone not heating up, or are none of them working? Also, many hobs have a child safety lock (often shown as a key or padlock symbol) that disables the controls. Was there a lock icon lit up on your display? If so, did you try holding that button for a few seconds to unlock it?"
+  },
+  {
+   "role": "customer",
+   "text": "just the rear right ring isn't heating, the other three are fine. no lock symbol that I noticed, the display shows a number for it as normal"
+  },
+  {
+   "role": "assistant",
+   "text": "Thanks for clarifying. We need to determine if this is an induction hob or a standard ceramic/halogen one, as the cause differs. If it is induction: many zones will not heat at all if the pan isn't magnetic (like some aluminium or copper pans). The hob detects the wrong pan and stays off. If you put a steel pan that works on the other zones onto this rear right ring and it still doesn't heat, then there may be a fault with that zone's internal power module or coil. If it is ceramic/halogen: a single dead zone usually points to a failed heating element under the glass for that specific ring, or potentially a control switch issue. Please try the pan test I mentioned above and let me know if it heats up. Also, please confirm whether your hob is induction or ceramic."
+  },
+  {
+   "role": "customer",
+   "text": "It's a ceramic one, the flat glass type with touch controls, not induction. It's a Zanussi. It doesn't glow red at all on that ring, and it was slow to heat for a while before it stopped. I also noticed a slight burnt smell from that ring once a couple of weeks ago, but not since."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. On ceramic hobs, the element sits under the glass; when it burns out, that specific ring stops working while the others remain fine. For your safety, please do not use this hob again until a qualified engineer has inspected it. Internal repairs on hobs involve mains voltage and high-temperature components that are not safe for DIY repair. You will need to contact an appliance engineer to check the faulty element (and check any associated wiring) for the rear right zone."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1191,
+     "labelMs": 860,
+     "enrichMs": 0,
+     "chooseMs": 279,
+     "reasonMs": 4839,
+     "verifyMs": 620,
+     "replyLabelMs": 267,
+     "totalMs": 8108
+    },
+    "usage": {
+     "promptTokens": 2543,
+     "completionTokens": 353,
+     "totalTokens": 2896
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Child lock engaged (high)",
+     "Unsuitable cookware (if induction) (medium)",
+     "Faulty element or control module (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.86
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working properly"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.99
+     },
+     "checkGiven": "Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:cookware-user"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "The next check, chosen from the evidence: \"Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones coming on — the manual shows which button to hold. Was the lock on (and is it off now), or was there no lock on?\". Give this check, and only this one, as short safe steps, with what each result would mean.",
+     "Stage 1 (broad help): explain the likely cause as a possibility, not a certainty, then give the chosen check. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "If so, did you try holding that button for a few seconds to unlock it?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8286
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8825,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1488,
+     "labelMs": 288,
+     "enrichMs": 0,
+     "chooseMs": 271,
+     "reasonMs": 7007,
+     "verifyMs": 1788,
+     "replyLabelMs": 633,
+     "totalMs": 11515
+    },
+    "usage": {
+     "promptTokens": 2975,
+     "completionTokens": 466,
+     "totalTokens": 3441
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "only the rear right zone is affected",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Incorrect cookware for induction zone (high)",
+     "Faulty heating element (if ceramic/halogen) or power module/coil (if induction) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.76
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "rear right ring not heating"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.94
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:overheating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\" (no result reported yet).",
+     "They have not reported the result of: \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\". Never say or imply they did it or what it showed.",
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "If so, did you try holding that button for a few seconds to unlock it?",
+       "turn": 1,
+       "resolution": "no lock symbol lit up"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 11566
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 12042,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1766,
+     "labelMs": 292,
+     "enrichMs": 1,
+     "reasonMs": 5392,
+     "verifyMs": 3381,
+     "replyLabelMs": 285,
+     "totalMs": 11129
+    },
+    "usage": {
+     "promptTokens": 3252,
+     "completionTokens": 326,
+     "totalTokens": 3578
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 2
+      },
+      {
+       "gate": "replace-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The symptoms you’ve described—a single zone that used to heat slowly and now doesn’t glow at all, preceded by a burnt smell—are classic signs of a failed internal heating element.",
+      "source": "extractor"
+     },
+     {
+      "claim": "However, because you noticed a burnt smell earlier, there is a risk that heat damage has affected the wiring or the control switch behind the panel.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_1",
+    "candidates": [
+     "Failed radiant heating element (high)",
+     "Faulty zone control switch or wiring (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "hobs",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.87
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Zanussi",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "hob",
+      "brand": "Zanussi",
+      "model": null,
+      "codes": [],
+      "symptom": "rear right ring does not heat and does not glow red; was slow to heat before stopping"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.97
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "hobs:element",
+       "hobs:power-module",
+       "hobs:touch-control"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Safety: a burning hazard is active. The fixed safety warning is shown separately, do not repeat it. It must not be used again until a qualified engineer has checked it: say that plainly. You may explain the likely cause and suggest checks that are safe with it switched off and unplugged, but never say or imply that a check could make it safe to use, or that they might not need an engineer.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\" (no result reported yet); turn 2: gives check.",
+     "They have not reported the result of: \"Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually you hold that symbol for a few seconds to unlock i\". Never say or imply they did it or what it showed.",
+     "Already given by the customer, never ask for it again: make Zanussi.",
+     "The fault they reported is: \"not working properly\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "hobs",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Zanussi",
+      "confidence": 1,
+      "turn": 3
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "If so, did you try holding that button for a few seconds to unlock it?",
+       "turn": 1,
+       "resolution": "no lock symbol lit up"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 3,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.98
+      }
+     ]
+    },
+    "ms": 11200
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 11619,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.029697699999999997,
+ "finishedAt": "2026-10-15T07:29:55.313Z"
+}

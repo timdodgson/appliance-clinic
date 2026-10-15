@@ -1,0 +1,820 @@
+{
+ "id": "WD-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-03-843799e3d0",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Indesit washer dryer washes fine but the drying cycle doesn't get warm at all, clothes come out cold and wet after 2 hours. Model is XWDE 96 something."
+  },
+  {
+   "role": "assistant",
+   "text": "Thanks for the details on your Indesit washer-dryer. First, please check these simple things:\n1. Airflow: Unplug the machine. Check the lint filter (usually behind a small door at the bottom front) and clean it thoroughly. If your model has a condenser unit (often accessible by removing the top panel or inside the drum area), ensure that is also clear of fluff.\n2. Load Size: Washer-dryers have a smaller drying capacity than washing capacity (e.g., 9kg wash / 5-6kg dry). If you put a full load in to dry, it will never get fully dry and the clothes may feel cold because the heater cuts out for safety due to lack of airflow.\n3. Spin Speed: Ensure the clothes were spun at a high speed (e.g., 1200+ rpm) before starting the dry cycle. If they are dripping wet, no dryer can handle it efficiently. Once you've checked those, please let me know: did the drum get warm during the drying phase, or was it cold throughout? And were the clothes soaking wet or just damp when you started?"
+  },
+  {
+   "role": "customer",
+   "text": "The drum and door glass stay stone cold the whole time. Load was about 4kg. It's been like this since a dry cycle last week that I stopped part-way through by pulling the plug."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the drum stays stone cold during the drying cycle and the load was reasonable, this points strongly to a heating fault rather than an airflow or drainage issue. The fact that it started after you pulled the plug mid-cycle suggests something may have overheated or tripped due to restricted airflow at that moment. The most likely cause is that the drying heater element has failed (burnt out internally). A secondary possibility is a thermal cut-out (a safety device designed to stop heating if it gets too hot) which may have blown and not reset, or potentially the PCB isn't sending power to the heater. To confirm this, we need to inspect the drying heater element. This requires opening the machine. On many Indesit washer-dryers, you can remove the top panel (usually by unscrewing two screws at the rear) and looking inside; the heating element is typically a metal tube running across the back or side of the drum. Are you comfortable removing the top panel to inspect this? If so, please let me know what you see (e.g., does it look intact, are there any visible breaks in the element, or are the wires connected?). If you prefer not to open the machine, I can advise on getting an engineer."
+  },
+  {
+   "role": "customer",
+   "text": "Yes, I can unplug it and take the top off. I can see a heater box with wires going to it, and a small round button-like part on top, but I can't tell if anything's blown. No multimeter either, so can't test it. What should I look for?"
+  },
+  {
+   "role": "assistant",
+   "text": "The 'small round button' you see is likely the thermal cut-out (a safety device that stops heating if things get too hot), and the heater box contains the actual heating element. Since there is no heat at all, we need to check these two components visually. Please look inside the box:\n1. The heating element usually looks like a metal tube running horizontally or vertically. Look closely at the middle of that tube. Is it intact (one continuous piece), or do you see a clear gap/break in the metal?\n2. Check the wires going into the terminals on top of the element and the thermal cut-out. Are they pushed on firmly, or are any loose/disconnected? If the tube is broken or wires are disconnected, that part needs replacing. If it looks intact but still no heat, the internal safety cut-out may have blown (which often happens after a blockage) and will need replacement."
+  },
+  {
+   "role": "customer",
+   "text": "I'm not really sure which part is which once I'm looking inside, so I can't tell if anything is broken or loose. It's just a heater box with wires and that little round button on top. Is there anything else I can check without a multimeter?"
+  },
+  {
+   "role": "assistant",
+   "text": "Since you can't identify the parts visually and don't have a multimeter to test for continuity (which is the only way to be certain without dismantling further), we have reached the limit of safe owner checks. The fact that the drum stays stone cold during the drying cycle suggests the heating system isn't working at all. Given it started after you interrupted a cycle, it is likely that either the heating element has burnt out internally or the thermal cut-out (the safety button you saw) has blown to prevent overheating. Because these parts are inside the machine and require specific tools and knowledge to replace safely (including dealing with electrical connections and ensuring seals are watertight), this is a job for an engineer. Trying to force it or guessing which part to swap without testing could be unsafe or damage the machine further. I recommend calling a qualified appliance repair engineer. They will test the components electrically and replace whichever one has failed."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1424,
+     "labelMs": 302,
+     "enrichMs": 3,
+     "reasonMs": 10777,
+     "verifyMs": 2255,
+     "replyLabelMs": 275,
+     "totalMs": 15089
+    },
+    "usage": {
+     "promptTokens": 5434,
+     "completionTokens": 560,
+     "totalTokens": 5994
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "part-before-confirmed"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Restricted airflow (blocked lint filter/condenser) (high)",
+     "Drying heater element or thermal cut-out failure (medium)",
+     "Overloaded drum for drying capacity (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 0.81
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.13
+      },
+      "model": {
+       "value": "XWDE 96 something",
+       "confidence": 0.87
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Indesit",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Indesit",
+      "model": "XWDE 96 something",
+      "codes": [],
+      "symptom": "drying cycle doesn't get warm, clothes come out cold and wet after 2 hours"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washing-machine:heater",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Indesit; model XWDE 96 SOMETHING.",
+     "The fault they reported is: \"drying cycle doesn't get warm, clothes come out cold and wet after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "XWDE 96 SOMETHING",
+      "confidence": 0.87,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "And were the clothes soaking wet or just damp when you started?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15162
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15521,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2190,
+     "labelMs": 281,
+     "enrichMs": 2,
+     "reasonMs": 11315,
+     "verifyMs": 1907,
+     "replyLabelMs": 319,
+     "totalMs": 16072
+    },
+    "usage": {
+     "promptTokens": 5950,
+     "completionTokens": 557,
+     "totalTokens": 6507
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Drying heater element failed (open circuit) (high)",
+     "Thermal cut-out tripped or failed (medium)",
+     "Main PCB not switching the heater (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.92
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.14
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": "Indesit",
+      "model": null,
+      "codes": [],
+      "symptom": "drum and door glass stay stone cold during drying cycle"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.75
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washing-machine:heater",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\".",
+     "Checks they have done and what they found: checked drum temperature - stone cold.",
+     "Already given by the customer, never ask for it again: make Indesit; model XWDE 96 SOMETHING.",
+     "The fault they reported is: \"drying cycle doesn't get warm, clothes come out cold and wet after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "XWDE 96 SOMETHING",
+      "confidence": 0.87,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked drum temperature: stone cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "And were the clothes soaking wet or just damp when you started?",
+       "turn": 1,
+       "resolution": "drum was cold throughout; clothes were damp (4kg load)"
+      },
+      {
+       "key": null,
+       "text": ", does it look intact, are there any visible breaks in the element, or are the wires connected?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 16210
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 16589,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2120,
+     "labelMs": 319,
+     "enrichMs": 1,
+     "reasonMs": 9696,
+     "verifyMs": 2408,
+     "replyLabelMs": 325,
+     "totalMs": 14937
+    },
+    "usage": {
+     "promptTokens": 6473,
+     "completionTokens": 430,
+     "totalTokens": 6903
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Failed drying heater element (high)",
+     "Tripped thermal cut-out (safety device) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.61
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.57
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.67
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washing-machine:heater",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What should I look for?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\"; turn 2: gives check.",
+     "Checks they have done and what they found: checked drum temperature - stone cold; removed top panel - saw a heater box with wires going to it and a small round button-like part on top.",
+     "Already given by the customer, never ask for it again: make Indesit; model XWDE 96 SOMETHING.",
+     "The fault they reported is: \"drying cycle doesn't get warm, clothes come out cold and wet after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "XWDE 96 SOMETHING",
+      "confidence": 0.87,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked drum temperature: stone cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "removed top panel: saw a heater box with wires going to it and a small round button-like part on top",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "And were the clothes soaking wet or just damp when you started?",
+       "turn": 1,
+       "resolution": "drum was cold throughout; clothes were damp (4kg load)"
+      },
+      {
+       "key": null,
+       "text": ", does it look intact, are there any visible breaks in the element, or are the wires connected?",
+       "turn": 2,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Are they pushed on firmly, or are any loose/disconnected?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14992
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 15416,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1625,
+     "labelMs": 274,
+     "enrichMs": 10,
+     "reasonMs": 9340,
+     "verifyMs": 4069,
+     "replyLabelMs": 306,
+     "totalMs": 15694
+    },
+    "usage": {
+     "promptTokens": 6826,
+     "completionTokens": 361,
+     "totalTokens": 7187
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 2
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 4,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Drying heater element failed (open circuit) (high)",
+     "Thermal cut-out blown (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.32
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.41
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washing-machine:heater",
+       "washer-dryer:drying-poor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can check without a multimeter?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th\"; turn 2: gives check; turn 3: gives check.",
+     "Checks they have done and what they found: checked drum temperature - stone cold; removed top panel - saw a heater box with wires going to it and a small round button-like part on top.",
+     "Already given by the customer, never ask for it again: make Indesit; model XWDE 96 SOMETHING.",
+     "The fault they reported is: \"drying cycle doesn't get warm, clothes come out cold and wet after 2 hours\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "XWDE 96 SOMETHING",
+      "confidence": 0.87,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked drum temperature: stone cold",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "removed top panel: saw a heater box with wires going to it and a small round button-like part on top",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "And were the clothes soaking wet or just damp when you started?",
+       "turn": 1,
+       "resolution": "drum was cold throughout; clothes were damp (4kg load)"
+      },
+      {
+       "key": null,
+       "text": ", does it look intact, are there any visible breaks in the element, or are the wires connected?",
+       "turn": 2,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Are they pushed on firmly, or are any loose/disconnected?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15751
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 16166,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0543236,
+ "finishedAt": "2026-10-15T07:52:02.743Z"
+}

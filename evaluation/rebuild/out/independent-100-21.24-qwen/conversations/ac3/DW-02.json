@@ -1,0 +1,425 @@
+{
+ "id": "DW-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-02-c33de116a6",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My Samsung dishwasher DW60M6050FS keeps showing 4C and beeping, won't do anything"
+  },
+  {
+   "role": "assistant",
+   "text": "The '4C' code on your Samsung dishwasher indicates a water supply issue - the machine is not detecting that fresh water is entering the tub. This usually means either the water isn't getting to the machine at all, or it's flowing too slowly for the sensor to register. Before we look at internal parts, let's rule out the simple external causes first, as these are very common: 1. Tap and Hose: Please ensure the isolation tap (the small lever on the wall where the hose connects) is fully open. Also check that the inlet hose isn't kinked or crushed behind the machine.\n2. Inlet Filter: At the back of the dishwasher, where the water hose screws in, there is a tiny mesh filter. This often gets blocked with sand or limescale over time. If you are comfortable doing so, turn off the tap, unscrew the hose from the machine end (have a towel ready for any residual water), and check if that small mesh screen is clogged. Please let me know:\n• Was the tap on and the hose straight?\n• Did the inlet filter look blocked or clean? Once you've checked those, try turning the programme back on. If it still shows 4C, please also tell me if there is any water standing in the bottom of the tub, or if the drain pump seems to be running (humming) when you press start."
+  },
+  {
+   "role": "customer",
+   "text": "The valve under the sink is the screwdriver-slot type and the slot was at 90 degrees to the pipe, so I think it was turned off. I turned it so it's open and ran it again. It's filling and running normally now. The hose has no kinks. I haven't looked at the inlet filter."
+  },
+  {
+   "role": "assistant",
+   "text": "That’s excellent news. It sounds like the isolation tap was simply closed (the slot being at 90 degrees to the pipe suggests it was off), which stopped water from reaching the dishwasher and triggered the '4C' error. To prevent this happening again, just remember that for the tap to be open, the handle or slot needs to be parallel with the pipe. If you ever need to turn it off—for example if there's a leak—turn it until the slot is at 90 degrees (crosswise) to the pipe. Is there anything else I can help you with regarding your dishwasher?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1591,
+     "labelMs": 298,
+     "enrichMs": 404,
+     "reasonMs": 10749,
+     "verifyMs": 485,
+     "replyLabelMs": 330,
+     "totalMs": 13917
+    },
+    "usage": {
+     "promptTokens": 5830,
+     "completionTokens": 601,
+     "totalTokens": 6431
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Water supply issue (tap off, kinked hose, or blocked inlet filter) (high)",
+     "Anti-flood state triggered by a leak (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "DW60M6050FS",
+       "confidence": 1
+      },
+      "code": {
+       "value": "4C",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Samsung",
+      "model": "DW60M6050FS",
+      "codes": [
+       "4C"
+      ],
+      "symptom": "beeping, won't do anything"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Where the inlet hose screws onto the dishwasher there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machi",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:fill",
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already given by the customer, never ask for it again: make Samsung; model DW60M6050FS; code 4C.",
+     "The fault they reported is: \"beeping, won't do anything\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "- Did the inlet filter look blocked or clean?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 13997
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 14467,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2873,
+     "labelMs": 507,
+     "enrichMs": 2,
+     "reasonMs": 6497,
+     "verifyMs": 2158,
+     "replyLabelMs": 331,
+     "totalMs": 12394
+    },
+    "usage": {
+     "promptTokens": 6219,
+     "completionTokens": 195,
+     "totalTokens": 6414
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.8
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.92
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.06
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Samsung",
+      "model": null,
+      "codes": [
+       "4C"
+      ],
+      "symptom": "water supply issue"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.42
+     },
+     "checkGiven": "Check the tap the dishwasher hose connects to is fully on, the hose isn't kinked behind the machine, and if the hose has an AquaStop box at",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:fill",
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood"
+      ],
+      "codes": [
+       {
+        "code": "4C",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "DW60M6050FS",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "4C",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned on the isolation tap under the sink: it was closed (slot at 90 degrees to pipe), turned it open",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "ran the machine again after opening the tap: filling and running normally now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked inlet hose for kinks: no kinks",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "- Did the inlet filter look blocked or clean?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with regarding your dishwasher?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 12548
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 13032,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0238038,
+ "finishedAt": "2026-10-15T08:17:50.435Z"
+}

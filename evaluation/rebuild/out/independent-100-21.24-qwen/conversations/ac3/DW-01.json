@@ -1,0 +1,376 @@
+{
+ "id": "DW-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-01-8f0440c9fe",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch 24 not draining, water sitting in bottom. help"
+  },
+  {
+   "role": "assistant",
+   "text": "Water sitting in the bottom of a Bosch dishwasher is almost always caused by a blockage preventing the drain pump from clearing it. The most common culprit is food debris, grease, or glass caught in the filter or sump area. Less commonly, the drain hose itself might be kinked or blocked, or the pump motor has failed. To fix this safely, please follow these steps:\n1. Switch off and unplug the dishwasher.\n2. Remove the lower rack and twist out the main filter assembly at the bottom of the tub.\n3. Rinse the filter under warm water to remove any food or grease.\n4. Look into the sump (the hole where the filter was) with a torch. Check for any foreign objects like glass, stones, or bones that might be jamming the small impeller fan inside. You can gently try to turn the impeller with your finger to see if it moves freely. Let me know what you find in the filter and sump.\n[Helpful to see: image \"Where the filter is\" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]"
+  },
+  {
+   "role": "customer",
+   "text": "filter was clogged with food and a bit of broken glass. cleaned it, drains fine now, E:24 gone. also bit of a bad smell and humming at the end before"
+  },
+  {
+   "role": "assistant",
+   "text": "That is excellent news. The E:24 code and the humming sound were caused by that debris jamming the pump impeller; once you cleared it, the drain path was restored. Regarding the bad smell: this is very common after a blockage because food waste has been sitting in the sump area. To get rid of it, I recommend running an empty hot cycle (around 65°C or higher) with a dishwasher cleaner or a cup of white vinegar on the top rack. This will flush out any remaining residue and deodorise the tub. To help prevent this happening again, try to scrape large food scraps off your plates before loading, and give the filter a quick rinse every few washes. If you find yourself having to do this often, it might be worth checking if your cutlery basket is positioned correctly so that small items aren't falling through into the sump. Is there anything else I can help you with today?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1244,
+     "labelMs": 424,
+     "enrichMs": 1,
+     "reasonMs": 8669,
+     "verifyMs": 438,
+     "replyLabelMs": 319,
+     "totalMs": 11131
+    },
+    "usage": {
+     "promptTokens": 5602,
+     "completionTokens": 490,
+     "totalTokens": 6092
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked filter or sump debris (high)",
+     "Kinked or blocked drain hose / waste connection (medium)",
+     "Faulty drain pump (jammed or failed) (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "24",
+       "confidence": 0.77
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "24",
+      "codes": [],
+      "symptom": "not draining, water sitting in bottom"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or g",
+     "media": "dishwasher-filter",
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:leak-flood",
+       "dishwasher:fill"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"help\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model 24.",
+     "The fault they reported is: \"not draining, water sitting in bottom\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 0.96,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "24",
+      "confidence": 0.77,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 11241
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11608,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 1,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2149,
+     "labelMs": 494,
+     "enrichMs": 3937,
+     "reasonMs": 6497,
+     "verifyMs": 2230,
+     "replyLabelMs": 315,
+     "totalMs": 15692
+    },
+    "usage": {
+     "promptTokens": 4055,
+     "completionTokens": 277,
+     "totalTokens": 4332
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.42
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.92
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "code": {
+       "value": "E:24",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E:24"
+      ],
+      "symptom": "water sitting in bottom; bad smell and humming at the end before"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.73
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:not-draining",
+       "dishwasher:odour",
+       "dishwasher:foreign-object"
+      ],
+      "codes": [
+       {
+        "code": "E:24",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "24",
+      "confidence": 0.77,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:24",
+       "turn": 2
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned filter: filter was clogged with food and a bit of broken glass; drains fine now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with today?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15745
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15990,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.020031800000000002,
+ "finishedAt": "2026-10-15T08:16:59.392Z"
+}

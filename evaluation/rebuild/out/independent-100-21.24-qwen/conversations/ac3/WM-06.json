@@ -1,0 +1,420 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-c04a13afa7",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "I cannot tell you which part to buy yet because 'not draining' has two very different causes that require opposite fixes: a blockage in the hose/waste pipe, or a failed drain pump. Replacing the wrong part will not fix it. The next step is to listen to what the machine does when it tries to empty. Please run a 'Drain' or 'Spin' programme and stand near the bottom front of the machine while it starts to drain. Does it make a humming/buzzing noise (the pump trying to push water out), or is it completely silent?"
+  },
+  {
+   "role": "customer",
+   "text": "It hums but the water doesn't move, there's a loud hum and a little rattle. So is it the pump then?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drain pump]\nBefore you start, switch it off and unplug it. No, it is not most likely the pump yet. A humming noise with a rattle usually means the pump motor is trying to turn but something is physically stopping it—most commonly a coin, button, or hair grip jammed in the impeller (the fan blades inside). It could also be that the impeller itself has broken off and is rattling around. Because I cannot confirm the exact internal layout for your specific FD 9409 model, and because accessing the pump usually requires removing the back panel or tilting the machine to reach the sump hose, this is not a simple owner swap. If you are confident in using tools, you could try to remove the filter housing again and check if anything is stuck in the visible impeller, but do not force it. Given the rattle and the hum, the most likely outcome is that the pump needs replacing or clearing of debris by a professional. I would recommend calling an engineer to inspect and repair this safely."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1469,
+     "labelMs": 273,
+     "enrichMs": 1,
+     "reasonMs": 7397,
+     "verifyMs": 1036,
+     "replyLabelMs": 290,
+     "totalMs": 10495
+    },
+    "usage": {
+     "promptTokens": 5201,
+     "completionTokens": 328,
+     "totalTokens": 5529
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Since you have already cleaned the filter, the next step is to listen to what the machine does when it tries to empty.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Blockage in drain hose or waste pipe (high)",
+     "Drain pump obstructed (foreign object) or failed (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD 9409",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washer",
+      "brand": "Bosch",
+      "model": "FD 9409",
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.55
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"what part do i need?\" - answer that first.",
+     "Checks they have done and what they found: cleaned the filter - done.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it make a humming/buzzing noise (the pump trying to push water out), or is it completely silent?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10643
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11075,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1948,
+     "labelMs": 286,
+     "enrichMs": 1,
+     "reasonMs": 8805,
+     "verifyMs": 2119,
+     "replyLabelMs": 282,
+     "totalMs": 14295
+    },
+    "usage": {
+     "promptTokens": 5525,
+     "completionTokens": 359,
+     "totalTokens": 5884
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 1
+      },
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Drain pump impeller jammed by foreign object (high)",
+     "Failed drain pump motor (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.8
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drain pump",
+       "confidence": 0.63
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.98
+     },
+     "checkGiven": "With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it tur",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "They asked: \"So is it the pump then?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question, suggested the check \"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa\".",
+     "Checks they have done and what they found: cleaned the filter - done; ran Drain or Spin programme and listened to bottom front - made a humming/buzzing noise with a little rattle.",
+     "Already given by the customer, never ask for it again: make Bosch; model FD 9409.",
+     "The fault they reported is: \"not draining\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks point to the drain pump, but we could not find a confirmed match for model FD 9409. Say so, and suggest the manufacturer's spares or an engineer."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "ran Drain or Spin programme and listened to bottom front: made a humming/buzzing noise with a little rattle",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it make a humming/buzzing noise (the pump trying to push water out), or is it completely silent?",
+       "turn": 1,
+       "resolution": "It hums but the water doesn't move, there's a loud hum and a little rattle"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 14351
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 14764,
+   "retried": false,
+   "label": "Likely cause: drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0212238,
+ "finishedAt": "2026-10-15T07:38:05.325Z"
+}

@@ -1,0 +1,442 @@
+{
+ "id": "WM-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-01-1cdf6c75bf",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?"
+  },
+  {
+   "role": "assistant",
+   "text": "E18 on a Bosch washing machine means 'Drain error' – the machine tried to pump the water out but couldn't, so it stopped to prevent flooding. The most common cause is a blockage in the pump filter (where coins, buttons, or lint get trapped) or a kinked drain hose. Because there is still water in the drum, we need to clear that blockage before the machine can spin again. This is usually a free fix involving cleaning the filter. Please follow these steps safely:\n1. Switch off the washing machine and unplug it from the mains socket.\n2. Place some old towels or a shallow tray on the floor in front of the bottom-right corner of the machine to catch any water that spills out.\n3. Open the small service flap at the bottom right of the front panel.\n4. Inside, you will see a round filter cap and usually a thin black drain hose next to it. Pull the thin hose out slightly and let any water in that tube drain into your tray (then push it back in). After that, unscrew the round filter cap slowly – be ready for more water to flow out. Once you have done this, tell me:\n• Did you find any debris (coins, hair, lint) in the filter or the pump area?\n• Was the filter completely clogged with sludge, or was it relatively clear?\n• After cleaning and screwing the filter back in tightly, did you manage to drain the water successfully?"
+  },
+  {
+   "role": "customer",
+   "text": "Done it. The filter had a child's sock and a hair grip wrapped round it, plus a lot of fluff. It took several trays to empty the water first, and the floor got a little wet but nothing near the socket, and there's no burning smell. After putting it back I ran a rinse and spin: it drained quickly, E18 has gone and it spins normally. Is there anything else I should do?"
+  },
+  {
+   "role": "assistant",
+   "text": "That is excellent news. The E18 error was caused by the sock and hair grip blocking the pump filter, which prevented the machine from draining before it tried to spin. The fault is resolved. To help prevent this happening again, I would suggest checking the filter every few months or if you notice the machine taking longer to drain. You might also want to check that there are no loose items (like small socks or hair grips) in the pockets of your washing before starting a cycle, as these often end up in the pump. Is there anything else I can help you with regarding your appliance?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1622,
+     "labelMs": 551,
+     "enrichMs": 3944,
+     "reasonMs": 10860,
+     "verifyMs": 633,
+     "replyLabelMs": 322,
+     "totalMs": 17991
+    },
+    "usage": {
+     "promptTokens": 6132,
+     "completionTokens": 582,
+     "totalTokens": 6714
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked pump filter or drain hose (high)",
+     "Faulty drain pump (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WAN28281GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": "WAN28281GB",
+      "codes": [
+       "E18"
+      ],
+      "symptom": "stopped half way through a wash, water still in the drum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:overheating",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What does that mean?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make Bosch; model WAN28281GB; code E18.",
+     "The fault they reported is: \"stopped half way through a wash, water still in the drum\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.96,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "- After cleaning and screwing the filter back in tightly, did you manage to drain the water successfully?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 18191
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 19108,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3103,
+     "labelMs": 314,
+     "enrichMs": 1,
+     "reasonMs": 8355,
+     "verifyMs": 3130,
+     "replyLabelMs": 319,
+     "totalMs": 15302
+    },
+    "usage": {
+     "promptTokens": 8149,
+     "completionTokens": 212,
+     "totalTokens": 8361
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 3
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "you have cleared the blockage",
+      "source": "extractor"
+     },
+     {
+      "claim": "the rinse-and-spin cycle completed successfully with no errors",
+      "source": "extractor"
+     },
+     {
+      "claim": "Since you have cleared the blockage and the rinse-and-spin cycle completed successfully with no errors, the fault is resolved.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.85
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": "Drain error / water in drum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 0.94
+     },
+     "checkGiven": "The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum",
+       "washing-machine:leak-drain"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I should do?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned filter and pump area: found a child's sock and a hair grip wrapped round it, plus a lot of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "drained water using thin hose: took several trays to empty the water first, floor got wet but nothing near socket",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "ran rinse and spin cycle after reassembly: drained quickly, E18 error gone, spins normally",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "- After cleaning and screwing the filter back in tightly, did you manage to drain the water successfully?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help you with regarding your appliance?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15384
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15949,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0264978,
+ "finishedAt": "2026-10-15T07:32:04.641Z"
+}
