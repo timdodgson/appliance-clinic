@@ -344,3 +344,20 @@ timed out). Data: `out/independent-100-21.24-qwen-choose/`, `out/independent-100
 - **It does reach the part twice as often** (15 against 8 of the 38 cases that need one), without naming a part
   where none is needed.
 - Not adopted on its own: the score does not move. The parts result is worth keeping in view for the parts problem.
+
+## 12. Experiment: Jev-led (Qwen reads, Jev chooses, code writes) (2026-10-15)
+
+Releases 21.25–21.27, AI config `pipeline.mode = jev-led`, Qwen for understanding and for a direct customer question
+only. Same 100 cases, Sonnet judge (98 scored). Data: `out/independent-100-21.27-jev-led/`.
+
+| | Jev-led | Qwen pipeline (same release family, 21.24 off) | Opus pipeline |
+|---|---|---|---|
+| Overall | **1.89** | 2.65 | 3.24 |
+| Paired vs Qwen pipeline | −0.77 (−0.94 to −0.59); 5 up, 60 down | | |
+| Critical failures | 50 | 24 | 5 |
+| Resolved | 15 | 36 | 46 |
+| Blind head-to-head vs Qwen pipeline | 15 (79 lost, 6 ties) | | |
+| Median turn | 3.9 s | ~15 s | ~25 s |
+
+Every dimension fell (diagnostic usefulness 2.66 → 1.96, question quality 2.01 → 1.29, fidelity 2.77 → 2.08). It is the
+fastest design tested and the worst since the journey system (1.46). Not adopted; live is back to the Qwen pipeline.
