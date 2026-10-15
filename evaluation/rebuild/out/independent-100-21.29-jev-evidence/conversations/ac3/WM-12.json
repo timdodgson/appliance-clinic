@@ -1,0 +1,921 @@
+{
+ "id": "WM-12",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-12-d489e011af",
+ "endReason": "concluded",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my washin mashine wont turn on at all no lights nothin"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is property socket / supply / switched fused spur. Can you tell me whether recently moved home or the machine recently moved/installed?"
+  },
+  {
+   "role": "customer",
+   "text": "no i havent moved, it came with the flat. it worked 2 days ago and then this morning its just dead"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is power cord / plug / lead seated and undamaged. Can you tell me whether vibration can work the plug loose from the socket over time?"
+  },
+  {
+   "role": "customer",
+   "text": "idk about the plug, its behind the machine and i cant reach it, its built in behind a cupboard door. the kettle and fridge still work tho"
+  },
+  {
+   "role": "assistant",
+   "text": "Right, so we know the socket works for other things, but the plug itself is hard to check. Because the machine is completely dead (no lights at all), it's probably an issue with the power getting into the machine. 1. 2. The internal mains filter (the first component inside the machine that takes the electricity) has failed.\n3. Less commonly, the main control board's power supply section has failed. 1. Confirm the socket: Plug a lamp or phone charger into that same socket to be 100% sure it's live.\n2. Check for a spur switch: Look around the wall near the machine. Is there a small switched outlet (a white box with a red switch) controlling just this appliance? Sometimes these get knocked off. If the socket is most likely live and there's no spur switch, we'll need to look inside the machine at the back of the panel where the cable enters. Are you comfortable removing the two screws on the back cover to check for loose wires or a burnt smell?"
+  },
+  {
+   "role": "customer",
+   "text": "ok i looked and theres a row of switches above the worktop, one says 'washer' and its OFF. my flatmate must have switched it off when cleaning. i dont have any tools so i cant do the screws anyway, should i flick it on?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, please flick that 'washer' switch to ON. That is the dedicated power supply for your machine (a switched fused spur), and since it was OFF, no electricity could get in—that explains why there are no lights or response at all. Once you've turned it on:\n1. Try starting a normal wash cycle.\n2. If it works, that's the fix. Just keep an eye on it for the first few minutes to make sure it runs normally.\n3. If it still doesn't turn on (no lights), then we know there is likely an internal fault with the machine itself (such as a failed mains filter or control board) and you will need to call an engineer, as that requires opening the casing which isn't safe without tools and training."
+  },
+  {
+   "role": "customer",
+   "text": "i flicked it on and the machine lights up now and works! thanks"
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1498,
+     "labelMs": 310,
+     "enrichMs": 0,
+     "composeMs": 272,
+     "replyLabelMs": 309,
+     "totalMs": 2703
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't turn on at all no lights nothin"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"property socket / supply / switched fused spur\",\"type\":\"check\",\"score\":0,\"order\":0,\"unknown\":[\"recently moved home or the machine recently moved/installed\",\"the socket may be dead\",\"there may be a separate switched/fused spur controlling the socket that has been switched off\",\"another appliance also has no power from that supply\"]},{\"name\":\"power cord / plug / lead seated and undamaged\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"vibration can work the plug loose from the socket over time\",\"damaged/pinched lead or plug\",\"responds when the plug/lead is reseated\"]},{\"name\":\"mains interference suppressor / mains filter\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"socket/supply/lead confirmed good but the machine is completely dead\",\"the filter is the first component powered when plugged in\",\"a pop/bang/burning smell preceded going dead\",\"failure after a power cut/surge\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether recently moved home or the machine recently moved/installed?\"},\"ms\":272}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether recently moved home or the machine recently moved/installed?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 2785
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3163,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1681,
+     "labelMs": 285,
+     "enrichMs": 1,
+     "composeMs": 292,
+     "replyLabelMs": 301,
+     "totalMs": 2838
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.65
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "dead"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"power cord / plug / lead seated and undamaged\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"vibration can work the plug loose from the socket over time\",\"damaged/pinched lead or plug\",\"responds when the plug/lead is reseated\"]},{\"name\":\"mains interference suppressor / mains filter\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"socket/supply/lead confirmed good but the machine is completely dead\",\"the filter is the first component powered when plugged in\",\"a pop/bang/burning smell preceded going dead\",\"failure after a power cut/surge\"]},{\"name\":\"power switch [architectures that use a distinct on/off switch]\",\"type\":\"part\",\"score\":0,\"order\":4,\"unknown\":[\"the design uses a mechanical/electronic mains power switch and it is faulty/intermittent\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether vibration can work the plug loose from the socket over time?\"},\"ms\":292}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether recently moved home or the machine recently moved/installed?",
+       "turn": 1,
+       "resolution": "no i havent moved, it came with the flat. it worked 2 days ago and then this morning its just dead"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether vibration can work the plug loose from the socket over time?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 2929
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3306,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2137,
+     "labelMs": 538,
+     "enrichMs": 1,
+     "reasonMs": 16608,
+     "verifyMs": 3432,
+     "replyLabelMs": 363,
+     "totalMs": 23395
+    },
+    "usage": {
+     "promptTokens": 9209,
+     "completionTokens": 523,
+     "totalTokens": 9732
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The plug has worked loose from behind the cupboard, or the cable is damaged/pinched where it enters the machine.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Power cord / plug loose or damaged (high)",
+     "Mains interference suppressor (filter) failed (medium)",
+     "Control PCB power supply fault (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.68
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.54
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "does_not_know",
+       "confidence": 0.51
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.09
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: asks question.",
+     "The fault they reported is: \"won't turn on at all no lights nothin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Can you tell me whether vibration can work the plug loose from the socket over time?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether recently moved home or the machine recently moved/installed?",
+       "turn": 1,
+       "resolution": "no i havent moved, it came with the flat. it worked 2 days ago and then this morning its just dead"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether vibration can work the plug loose from the socket over time?",
+       "turn": 2,
+       "resolution": "does_not_know"
+      },
+      {
+       "key": null,
+       "text": "Are you comfortable removing the two screws on the back cover to check for loose wires or a burnt smell?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 23443
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 23810,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 6695,
+     "labelMs": 318,
+     "enrichMs": 2,
+     "reasonMs": 11967,
+     "verifyMs": 3991,
+     "replyLabelMs": 552,
+     "totalMs": 23920
+    },
+    "usage": {
+     "promptTokens": 8394,
+     "completionTokens": 277,
+     "totalTokens": 8671
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Switched fused spur was off (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.53
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.75
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "completely dead no lights at all"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"should i flick it on?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: asks question; turn 3: gives check.",
+     "Checks they have done and what they found: looked for a spur switch - found a row of switches above the worktop one says washer and its OFF.",
+     "The fault they reported is: \"won't turn on at all no lights nothin\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Do not ask again (they could not or would not answer): \"Can you tell me whether vibration can work the plug loose from the socket over time?\"; \"Are you comfortable removing the two screws on the back cover to check for loose wires or a burnt smell?\".",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked for a spur switch: found a row of switches above the worktop one says washer and its OFF",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether recently moved home or the machine recently moved/installed?",
+       "turn": 1,
+       "resolution": "no i havent moved, it came with the flat. it worked 2 days ago and then this morning its just dead"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether vibration can work the plug loose from the socket over time?",
+       "turn": 2,
+       "resolution": "does_not_know"
+      },
+      {
+       "key": null,
+       "text": "Are you comfortable removing the two screws on the back cover to check for loose wires or a burnt smell?",
+       "turn": 3,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 23971
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 24388,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1658,
+     "labelMs": 314,
+     "enrichMs": 2,
+     "composeMs": 0,
+     "replyLabelMs": 312,
+     "totalMs": 2389
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.88
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.49
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"fixed\",\"answered\":false}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked for a spur switch: found a row of switches above the worktop one says washer and its OFF",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "turned on the washer switch: machine lights up and works",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether recently moved home or the machine recently moved/installed?",
+       "turn": 1,
+       "resolution": "no i havent moved, it came with the flat. it worked 2 days ago and then this morning its just dead"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether vibration can work the plug loose from the socket over time?",
+       "turn": 2,
+       "resolution": "does_not_know"
+      },
+      {
+       "key": null,
+       "text": "Are you comfortable removing the two screws on the back cover to check for loose wires or a burnt smell?",
+       "turn": 3,
+       "resolution": "cannot_or_will_not"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 5,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 2534
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 2981,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0554215,
+ "finishedAt": "2026-10-15T18:48:05.146Z"
+}

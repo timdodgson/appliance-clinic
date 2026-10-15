@@ -1,0 +1,878 @@
+{
+ "id": "OC-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-10-0b997ff57e",
+ "endReason": "escalated",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my belling cooker keeps burnin stuff 1 day then next day its undercookd on same temp. been like it a cuple months. thermastat??"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, a faulty thermostat is a likely cause for such inconsistent temperature control. It may be failing to maintain the set heat accurately, leading to both burning and undercooking. From what you have described, the most likely cause is oven temperature sensor + control [electronic ovens]. First the simple things: check the temperature knob or display matches what you want, the function isn't on grill or a \"fast heat / booster\" mode, and that recipes for a fan oven are usually 10–20°C lower than conventional. Was a setting or function wrong (and have you changed it), or was it all set normally?"
+  },
+  {
+   "role": "customer",
+   "text": "its all set normal, same temps as always, i havent changed any recipes. its just the main oven thats funny, the top oven is fine. i use the fan oven most days for my roast tatties and lasagne"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is oven temperature sensor (NTC/PT) [electronic ovens]. Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?"
+  },
+  {
+   "role": "customer",
+   "text": "its not electronic, just mechanical knobs and a little orange light, no display or error codes. the temp is just all over the place in the main oven"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is sensor wiring / connector. Can you tell me whether intermittent temperature error, disturbed connector?"
+  },
+  {
+   "role": "customer",
+   "text": "i dont know about any connector, i havent looked inside it and i dont have any tools anyway. theres no error just the temp being random. is there something i can check myself?"
+  },
+  {
+   "role": "assistant",
+   "text": "You should verify that the fan inside the oven cavity is spinning freely when the appliance is switched on. If you are comfortable doing so, ensure no food debris or grease is blocking the air vents at the back of the oven. Next: Check the sensor connector before the control board. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "i can hear the fan i think, it seems to be spinning every time. i havent looked at the back vents tho. i cant check any connector, no tools. anything else i can try?"
+  },
+  {
+   "role": "assistant",
+   "text": "Since the top oven works fine, the issue is likely specific to the fan oven’s heating element or thermostat. You cannot safely test these internal components without tools and electrical knowledge, so you should contact a qualified appliance repair technician for diagnosis. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2098,
+     "labelMs": 312,
+     "enrichMs": 0,
+     "composeMs": 1763,
+     "replyLabelMs": 309,
+     "totalMs": 4867
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "poor_results",
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Belling",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "cooker",
+      "brand": "Belling",
+      "model": null,
+      "codes": [],
+      "symptom": "keeps burning stuff one day then undercooking the next on same temperature"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.68
+     },
+     "checkGiven": "First the simple things: check the temperature knob or display matches what you want, the function isn't on grill or a \"fast heat / booster\"",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:uneven-heating",
+       "oven-cooker:thermostat",
+       "oven-cooker:temperature-probe"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":true,\"ranked\":[{\"name\":\"oven temperature sensor + control [electronic ovens]\",\"type\":\"check\",\"score\":1,\"order\":1,\"unknown\":[\"electronic-control oven running too hot/cold\"]},{\"name\":\"mechanical oven thermostat [dial/capillary ovens]\",\"type\":\"part\",\"score\":0,\"order\":0,\"unknown\":[\"burns everything / runs too hot on a dial-thermostat oven\",\"never cycles off\",\"the capillary/phial or thermostat not regulating\"]},{\"name\":\"safety/overheat thermal cut-out\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"cuts out once hot WITHOUT tripping the electrics, recovers when cool\"]}],\"next\":{\"kind\":\"check\",\"text\":\"First the simple things: check the temperature knob or display matches what you want, the function isn't on grill or a \\\"fast heat / booster\\\" mode, and that recipes for a fan oven are usually 10–20°C lower than conventional. Was a setting or function wrong (and have you changed it), or was it all set normally?\"},\"ms\":424}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was a setting or function wrong (and have you changed it), or was it all set normally?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4914
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 5457,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2222,
+     "labelMs": 356,
+     "enrichMs": 2,
+     "composeMs": 309,
+     "replyLabelMs": 295,
+     "totalMs": 3493
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "poor_results",
+       "confidence": 0.8
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.64
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "inconsistent temperature control in main oven"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.69
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:temperature-probe",
+       "oven-cooker:uneven-heating",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"oven temperature sensor (NTC/PT) [electronic ovens]\",\"type\":\"part\",\"score\":0,\"order\":0,\"unknown\":[\"electronic-control oven with wrong/erratic temperature or a sensor error\",\"open/short sensor reading\"]},{\"name\":\"sensor wiring / connector\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"intermittent temperature error, disturbed connector\"]},{\"name\":\"control board (last)\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"sensor and wiring proven good, control misreads\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?\"},\"ms\":309}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was a setting or function wrong (and have you changed it), or was it all set normally?",
+       "turn": 1,
+       "resolution": "all set normal"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3527
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3900,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2476,
+     "labelMs": 352,
+     "enrichMs": 1,
+     "composeMs": 267,
+     "replyLabelMs": 293,
+     "totalMs": 3693
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "poor_results",
+       "confidence": 0.5
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "temperature is erratic/unstable"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:temperature-probe",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"sensor wiring / connector\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"intermittent temperature error, disturbed connector\"]},{\"name\":\"control board (last)\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"sensor and wiring proven good, control misreads\"]},{\"name\":\"oven temperature sensor (NTC/PT) [electronic ovens]\",\"type\":\"part\",\"score\":-2.5,\"order\":0,\"unknown\":[\"open/short sensor reading\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether intermittent temperature error, disturbed connector?\"},\"ms\":267}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was a setting or function wrong (and have you changed it), or was it all set normally?",
+       "turn": 1,
+       "resolution": "all set normal"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?",
+       "turn": 2,
+       "resolution": "mechanical control with orange light, no display or error codes"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether intermittent temperature error, disturbed connector?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3787
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4047,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1435,
+     "labelMs": 303,
+     "enrichMs": 0,
+     "composeMs": 1841,
+     "replyLabelMs": 312,
+     "totalMs": 4216
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.48
+      },
+      "symptomArea": {
+       "value": "poor_results",
+       "confidence": 0.49
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.75
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "temperature being random"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:temperature-probe",
+       "oven-cooker:element"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":true,\"ranked\":[{\"name\":\"sensor wiring / connector\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"intermittent temperature error, disturbed connector\"]},{\"name\":\"control board (last)\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"sensor and wiring proven good, control misreads\"]},{\"name\":\"oven temperature sensor (NTC/PT) [electronic ovens]\",\"type\":\"part\",\"score\":-2.5,\"order\":0,\"unknown\":[\"open/short sensor reading\"]}],\"next\":{\"kind\":\"step\",\"text\":\"check the sensor connector before the control board\"},\"ms\":289}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was a setting or function wrong (and have you changed it), or was it all set normally?",
+       "turn": 1,
+       "resolution": "all set normal"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?",
+       "turn": 2,
+       "resolution": "mechanical control with orange light, no display or error codes"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether intermittent temperature error, disturbed connector?",
+       "turn": 3,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4270
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 4794,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1747,
+     "labelMs": 293,
+     "enrichMs": 1,
+     "composeMs": 1316,
+     "replyLabelMs": 271,
+     "totalMs": 3927
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.36
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.71
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:terminal-block",
+       "oven-cooker:temperature-probe"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":true,\"ranked\":[{\"name\":\"sensor wiring / connector\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"intermittent temperature error, disturbed connector\"]},{\"name\":\"control board (last)\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"sensor and wiring proven good, control misreads\"]},{\"name\":\"oven temperature sensor (NTC/PT) [electronic ovens]\",\"type\":\"part\",\"score\":-2.5,\"order\":0,\"unknown\":[\"open/short sensor reading\"]}],\"next\":\"engineer\",\"ms\":269}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Belling",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "verify fan is spinning freely: can hear the fan, it seems to be spinning every time",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was a setting or function wrong (and have you changed it), or was it all set normally?",
+       "turn": 1,
+       "resolution": "all set normal"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether electronic-control oven with wrong/erratic temperature or a sensor error?",
+       "turn": 2,
+       "resolution": "mechanical control with orange light, no display or error codes"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether intermittent temperature error, disturbed connector?",
+       "turn": 3,
+       "resolution": "cannot_or_will_not"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4031
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 4293,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0556195,
+ "finishedAt": "2026-10-15T19:26:41.836Z"
+}

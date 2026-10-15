@@ -1,0 +1,602 @@
+{
+ "id": "WM-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-01-af79fe2d04",
+ "endReason": "concluded",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. E18 on your Bosch means: No drainage / drain took too long (clogged coin-trap/pump filter or drain hose). From what you have described, the most likely cause is blocked pump filter / foreign object in the pump path. The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?"
+  },
+  {
+   "role": "customer",
+   "text": "I unplugged it and unscrewed the filter. It had a child's sock and a hair grip wrapped round it, plus a lot of fluff. The floor got a little wet while I was doing it, but there's no water near the socket and no burning smell. What should I do next?"
+  },
+  {
+   "role": "assistant",
+   "text": "You have already cleared the blockage, so you should now drain any remaining water from the machine and reset the error code. If the E18 fault returns or the machine still fails to pump, the issue likely lies with a faulty pressure switch or hose rather than the filter. Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?"
+  },
+  {
+   "role": "customer",
+   "text": "I've cleaned the filter and put it back. I ran the rinse and spin programme and it drains quickly now, the E18 has gone and it spins normally. Is there anything else I should do?"
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1820,
+     "labelMs": 393,
+     "enrichMs": 4561,
+     "composeMs": 330,
+     "replyLabelMs": 308,
+     "totalMs": 8388
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.48
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WAN28281GB",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": "WAN28281GB",
+      "codes": [
+       "E18"
+      ],
+      "symptom": "stopped half way through a wash, water still in the drum"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.92
+     },
+     "checkGiven": "The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:overheating",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"blocked pump filter / foreign object in the pump path\",\"type\":\"check\",\"score\":2,\"order\":0,\"unknown\":[\"draining became progressively slower\",\"the pump can be heard trying to drain\",\"rattling/noisy pump during drain\",\"debris/foreign object found in the accessible filter/pump area\"]},{\"name\":\"pressure system / water-level sensing\",\"type\":\"part\",\"score\":0.5,\"order\":4,\"unknown\":[\"unusual drain sequencing\",\"mechanical drain path and pump don't explain the symptoms\"]},{\"name\":\"blocked / kinked drain hose or waste connection\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"pump can be heard running but little/no water leaves\",\"drainage is slow\",\"machine recently moved or reinstalled\",\"drain hose kinked/crushed\",\"waste connection/standpipe obstructed\"]}],\"next\":{\"kind\":\"check\",\"text\":\"The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\"},\"ms\":329}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10198
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 12840,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2206,
+     "labelMs": 328,
+     "enrichMs": 24,
+     "composeMs": 1986,
+     "replyLabelMs": 258,
+     "totalMs": 5152
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.87
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.85
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.69
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.88
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 0.54
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": "No drainage / drain took too long"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.92
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":true,\"ranked\":[{\"name\":\"blocked pump filter / foreign object in the pump path\",\"type\":\"check\",\"score\":3,\"order\":0,\"unknown\":[\"draining became progressively slower\",\"the pump can be heard trying to drain\",\"rattling/noisy pump during drain\"]},{\"name\":\"pressure system / water-level sensing\",\"type\":\"part\",\"score\":0.5,\"order\":4,\"unknown\":[\"unusual drain sequencing\",\"repeated/inappropriate draining\"]},{\"name\":\"internal sump hose / obstruction before the pump\",\"type\":\"check\",\"score\":0,\"order\":3,\"unknown\":[\"accessible filter clear AND external path clear\",\"poor/no water flow into the pump\"]}],\"next\":{\"kind\":\"check\",\"text\":\"Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\"},\"ms\":314}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked the filter: found a child's sock and a hair grip wrapped round it, plus a lot of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 5229
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 5634,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3108,
+     "labelMs": 369,
+     "enrichMs": 12,
+     "composeMs": 0,
+     "replyLabelMs": 290,
+     "totalMs": 3902
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.59
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "E18",
+       "confidence": 0.98
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.65
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E18"
+      ],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [
+       {
+        "code": "E18",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"fixed\",\"answered\":false}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WAN28281GB",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E18",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked the filter: found a child's sock and a hair grip wrapped round it, plus a lot of fluff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "cleaned the filter and put it back: ran the rinse and spin programme and it drains quickly now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?",
+       "turn": 1,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 2,
+       "resolution": "answered"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3936
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4332,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0348757,
+ "finishedAt": "2026-10-15T18:39:39.251Z"
+}

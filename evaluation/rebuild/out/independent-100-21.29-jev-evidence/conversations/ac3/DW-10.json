@@ -1,0 +1,583 @@
+{
+ "id": "DW-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-10-4b29d0770a",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "dishwasher wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "If your dishwasher won't come on at all (no lights, no display), it usually means one of three things: it has no power, a safety lock is active, or the door isn't telling the machine it's shut. Please try these two quick checks:\n1. Check the power source: Make sure the plug is firmly in the socket and that any wall switch (often a switched spur above the worktop) is turned on. If you have another small appliance, try it in that same socket to confirm electricity is reaching it.\n2. Check for locks: Look at the control panel. Is there a key or padlock symbol lit up? This indicates the child or control lock is active, which stops the machine from starting. Let me know if the lights are completely dead or if you see that lock symbol."
+  },
+  {
+   "role": "customer",
+   "text": "Lights are completely dead, no lock symbol or anything. Other sockets and lights work fine. The switch above the worktop is on and its little light is lit."
+  },
+  {
+   "role": "assistant",
+   "text": "The most likely cause is that an internal safety fuse has blown. This is a common failure point when the appliance receives power externally but won't turn on internally. 1. Unplug the dishwasher from the mains socket (or isolate it at the spur switch).\n2. Remove the side panel (usually the left-hand one) to expose the internal electronics/control box.\n3. Look for a small glass or ceramic tube fuse mounted on the circuit board.\n4. Check if the thin wire inside is broken or if the glass is blackened. If the fuse is blown, it suggests an electrical fault inside (often a shorted component). If the fuse is intact, the issue is likely further down to the control board itself. Let me know what you see."
+  },
+  {
+   "role": "customer",
+   "text": "It's an integrated one so I can't pull it out to get at the side panel. Is there anything else I can check from the front? Not sure how to check the fuse in the spur either, and I've no spare."
+  },
+  {
+   "role": "assistant",
+   "text": "Since the spur switch is most likely on and you can't easily access the side panel of an integrated unit to check the internal fuse yourself, we are left with two possibilities: either that internal safety fuse has blown (which protects the electronics from a short circuit), or the control board itself has failed. Because replacing a PCB is expensive and complex, and a blown fuse often indicates a deeper electrical fault inside the machine, this is likely beyond what can be safely fixed without specialist tools and parts. I would recommend calling an engineer to diagnose whether it's just the fuse (and why it blew) or if the board needs replacing. If you are handy with basic DIY and have access to a multimeter, you could try removing the bottom kickplate (usually held by two screws) and looking up into the base of the machine. Some models have a small glass fuse visible on top of the control box near where the power cable enters. If you see a broken wire inside that tube, it suggests the fuse is blown. However, if you are not comfortable doing this, or if the fuse looks fine but the machine still won't turn on, an engineer visit is the correct next step."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1044,
+     "labelMs": 291,
+     "enrichMs": 1,
+     "reasonMs": 8217,
+     "verifyMs": 390,
+     "replyLabelMs": 383,
+     "totalMs": 10644
+    },
+    "usage": {
+     "promptTokens": 4608,
+     "completionTokens": 410,
+     "totalTokens": 5018
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "No power at the socket (plug, switch, fuse, or trip) (high)",
+     "Control lock / child safety lock engaged (medium)",
+     "Door not fully latched or latch fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't come on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another applia",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:poor-drying",
+       "dishwasher:door"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there a key or padlock symbol lit up?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 10733
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 11338,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2450,
+     "labelMs": 339,
+     "enrichMs": 0,
+     "reasonMs": 8967,
+     "verifyMs": 2986,
+     "replyLabelMs": 332,
+     "totalMs": 15395
+    },
+    "usage": {
+     "promptTokens": 5501,
+     "completionTokens": 414,
+     "totalTokens": 5915
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "the machine is completely dead",
+      "source": "extractor"
+     }
+    ],
+    "claimsChecked": 3,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Internal fuse blown (high)",
+     "Faulty control board (PCB) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "lights are completely dead"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:door",
+       "dishwasher:fill"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another applia\".",
+     "Checks they have done and what they found: checked other sockets and lights - work fine; checked switch above the worktop - is on and its little light is lit.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked other sockets and lights: work fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked switch above the worktop: is on and its little light is lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there a key or padlock symbol lit up?",
+       "turn": 1,
+       "resolution": "lights are completely dead, no lock symbol or anything"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15475
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15687,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 3003,
+     "labelMs": 283,
+     "enrichMs": 1,
+     "reasonMs": 12831,
+     "verifyMs": 4916,
+     "replyLabelMs": 376,
+     "totalMs": 21756
+    },
+    "usage": {
+     "promptTokens": 5880,
+     "completionTokens": 398,
+     "totalTokens": 6278
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "certainty",
+       "softened": 2
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Blown internal mains fuse (high)",
+     "Faulty control board (PCB) (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.77
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.8
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 1
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.98
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:heating",
+       "dishwasher:fill",
+       "dishwasher:door"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is there anything else I can check from the front?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check, suggested the check \"Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another applia\"; turn 2: gives check.",
+     "Checks they have done and what they found: checked other sockets and lights - work fine; checked switch above the worktop - is on and its little light is lit.",
+     "The fault they reported is: \"won't come on\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "checked other sockets and lights: work fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "checked switch above the worktop: is on and its little light is lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there a key or padlock symbol lit up?",
+       "turn": 1,
+       "resolution": "lights are completely dead, no lock symbol or anything"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 21804
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 22181,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0310077,
+ "finishedAt": "2026-10-15T19:07:59.792Z"
+}

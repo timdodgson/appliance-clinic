@@ -1,0 +1,769 @@
+{
+ "id": "OC-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-oc-04-c250e39154",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch HBS534BS0B oven displaying E011 and won't let me do anything. Beeping. Help!"
+  },
+  {
+   "role": "assistant",
+   "text": "I can't confirm what E011 means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is clock/timer set to AUTO (power-cut free fix). Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?"
+  },
+  {
+   "role": "customer",
+   "text": "No power cut, no. The display does light up, but it's showing E011, beeping and ignoring every button. It started about an hour ago right after I wiped the panel with a wet cloth and a kitchen spray."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is membrane / touch control panel. Can you tell me whether fascia damage?"
+  },
+  {
+   "role": "customer",
+   "text": "No, the panel isn't cracked or damaged and the buttons look fine. What should I try?"
+  },
+  {
+   "role": "assistant",
+   "text": "You should unplug the oven or switch off its circuit breaker for at least 15 minutes to reset the control board. This often clears error codes caused by moisture ingress from cleaning sprays. From what you have described, the most likely cause is control module / PCB (last). Check the cooker switch (the large switch on the wall near the oven) is on, and look at the fuse box to see whether a breaker for the cooker has switched off. If a breaker keeps tripping, don't keep resetting it. Was the cooker switch or a breaker off (and is it sorted), or were they all on?"
+  },
+  {
+   "role": "customer",
+   "text": "Switched it off at the cooker switch for 5 mins after drying the panel with a towel. It came back up normally, no E011, and it heated to 180C fine. Is that all I needed?"
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1834,
+     "labelMs": 295,
+     "enrichMs": 595,
+     "composeMs": 269,
+     "replyLabelMs": 257,
+     "totalMs": 3517
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "HBS534BS0B",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E011",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "Bosch",
+      "model": "HBS534BS0B",
+      "codes": [
+       "E011"
+      ],
+      "symptom": "displaying error code, won't let me do anything, beeping"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.71
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:ignition",
+       "oven-cooker:door-hinge"
+      ],
+      "codes": [
+       {
+        "code": "E011",
+        "status": "AMBIGUOUS"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"clock/timer set to AUTO (power-cut free fix)\",\"type\":\"check\",\"score\":0,\"order\":1,\"unknown\":[\"won't come on but the clock/display works, especially after a power cut - timer reset to AUTO\"]},{\"name\":\"mains terminal block / incoming connection\",\"type\":\"check\",\"score\":0,\"order\":2,\"unknown\":[\"dead with a burning smell / heat damage at the mains connection (=> terminal-block)\"]},{\"name\":\"main control PCB / programmer\",\"type\":\"part\",\"score\":0,\"order\":4,\"unknown\":[\"supply, terminal-block, clock-setting and display proven good and it still won't respond\",\"customers may call this the programmer/brain/module\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?\"},\"ms\":269}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "HBS534BS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E011",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3556
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3705,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2374,
+     "labelMs": 319,
+     "enrichMs": 324,
+     "composeMs": 344,
+     "replyLabelMs": 282,
+     "totalMs": 3948
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.49
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.56
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.63
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "E011",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E011"
+      ],
+      "symptom": "display lights up but shows E011, beeping and ignoring every button"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.62
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:clock-timer",
+       "oven-cooker:control-panel"
+      ],
+      "codes": [
+       {
+        "code": "E011",
+        "status": "AMBIGUOUS"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":false,\"ranked\":[{\"name\":\"membrane / touch control panel\",\"type\":\"part\",\"score\":0.5,\"order\":1,\"unknown\":[\"fascia damage\"]},{\"name\":\"child/control lock or demo mode\",\"type\":\"check\",\"score\":0,\"order\":0,\"unknown\":[\"controls locked out, a lock symbol\",\"reset restores it\"]},{\"name\":\"control module / PCB (last)\",\"type\":\"part\",\"score\":0,\"order\":2,\"unknown\":[\"panel/membrane proven good and it still won't respond\"]}],\"next\":{\"kind\":\"question\",\"text\":\"Can you tell me whether fascia damage?\"},\"ms\":344}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "HBS534BS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E011",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?",
+       "turn": 1,
+       "resolution": "No power cut"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether fascia damage?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3978
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 4476,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1556,
+     "labelMs": 403,
+     "enrichMs": 350,
+     "composeMs": 1511,
+     "replyLabelMs": 261,
+     "totalMs": 4435
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.61
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.53
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "Check the cooker switch (the large switch on the wall near the oven) is on, and look at the fuse box to see whether a breaker for the cooker",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:clock-timer",
+       "oven-cooker:main-pcb",
+       "oven-cooker:control-panel"
+      ],
+      "codes": [
+       {
+        "code": "E011",
+        "status": "AMBIGUOUS"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"evidence\",\"answered\":true,\"ranked\":[{\"name\":\"control module / PCB (last)\",\"type\":\"part\",\"score\":1,\"order\":2,\"unknown\":[]},{\"name\":\"child/control lock or demo mode\",\"type\":\"check\",\"score\":0,\"order\":0,\"unknown\":[\"controls locked out, a lock symbol\",\"reset restores it\"]},{\"name\":\"membrane / touch control panel\",\"type\":\"part\",\"score\":0,\"order\":1,\"unknown\":[]}],\"next\":{\"kind\":\"check\",\"text\":\"Check the cooker switch (the large switch on the wall near the oven) is on, and look at the fuse box to see whether a breaker for the cooker has switched off. If a breaker keeps tripping, don't keep resetting it. Was the cooker switch or a breaker off (and is it sorted), or were they all on?\"},\"ms\":257}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "HBS534BS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E011",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?",
+       "turn": 1,
+       "resolution": "No power cut"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether fascia damage?",
+       "turn": 2,
+       "resolution": "No, the panel isn't cracked or damaged and the buttons look fine."
+      },
+      {
+       "key": null,
+       "text": "Was the cooker switch or a breaker off (and is it sorted), or were they all on?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4482
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4873,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2094,
+     "labelMs": 312,
+     "enrichMs": 320,
+     "composeMs": 0,
+     "replyLabelMs": 282,
+     "totalMs": 3056
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "code": {
+       "value": "E011",
+       "confidence": 0.96
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "E011"
+      ],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:main-pcb",
+       "oven-cooker:clock-timer",
+       "oven-cooker:control-panel"
+      ],
+      "codes": [
+       {
+        "code": "E011",
+        "status": "AMBIGUOUS"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-evidence: {\"state\":\"fixed\",\"answered\":false}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "HBS534BS0B",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E011",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "switched off at the cooker switch for 5 mins after drying the panel with a towel: came back up normally, no E011, and it heated to 180C fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you tell me whether won't come on but the clock/display works, especially after a power cut - timer reset to AUTO?",
+       "turn": 1,
+       "resolution": "No power cut"
+      },
+      {
+       "key": null,
+       "text": "Can you tell me whether fascia damage?",
+       "turn": 2,
+       "resolution": "No, the panel isn't cracked or damaged and the buttons look fine."
+      },
+      {
+       "key": null,
+       "text": "Was the cooker switch or a breaker off (and is it sorted), or were they all on?",
+       "turn": 3,
+       "resolution": "cooker switch was off"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3107
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 3487,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0400856,
+ "finishedAt": "2026-10-15T19:24:18.343Z"
+}

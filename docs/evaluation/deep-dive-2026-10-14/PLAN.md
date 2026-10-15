@@ -361,3 +361,20 @@ only. Same 100 cases, Sonnet judge (98 scored). Data: `out/independent-100-21.27
 
 Every dimension fell (diagnostic usefulness 2.66 → 1.96, question quality 2.01 → 1.29, fidelity 2.77 → 2.08). It is the
 fastest design tested and the worst since the journey system (1.46). Not adopted; live is back to the Qwen pipeline.
+
+## 13. Experiment: evidence mode (Jev reads evidence item by item, code scores) (2026-10-15)
+
+Releases 21.28–21.29, `pipeline.mode = jev-evidence`, Qwen. 46 of 100 conversations went through evidence mode (the
+matched note had scorable evidence); the rest kept the Qwen pipeline. Sonnet judge, 99 scored.
+Data: `out/independent-100-21.29-jev-evidence/`.
+
+| Paired vs the Qwen pipeline | Mean (95% CI) | Up / down |
+|---|---|---|
+| All 99 | −0.37 (−0.57 to −0.19) | 11 / 36 |
+| The 46 evidence-mode conversations | **−0.89 (−1.17 to −0.61)** | 3 / 30 |
+| The 53 others (same path as the baseline) | +0.08 (−0.11 to +0.28) | 8 / 6 |
+
+Overall 2.28 (Qwen pipeline 2.65), critical failures 38 (24). The 53 conversations on the unchanged path match the
+baseline, so the loss is the evidence path itself. Where 13 conversations lost 2+ points, the judge cites: engineer
+too early (10), wrong or irrelevant cause (8), repeated or already-answered steps (7). Not adopted; live is back to the
+Qwen pipeline.

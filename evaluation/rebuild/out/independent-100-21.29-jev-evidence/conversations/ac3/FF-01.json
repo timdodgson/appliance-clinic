@@ -1,0 +1,807 @@
+{
+ "id": "FF-01",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ff-01-43fad377f0",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "fridge not cold"
+  },
+  {
+   "role": "assistant",
+   "text": "I can help with that. When a fridge-freezer isn't cooling properly, it usually comes down to one of three things: a setting issue, an airflow blockage (often caused by ice build-up in the freezer), or a fan/compressor fault. 1. Is the freezer compartment still cold (frozen food remains hard) while only the fridge section is warm?\n2."
+  },
+  {
+   "role": "customer",
+   "text": "yes freezer is fine, still hard. just the fridge is warm"
+  },
+  {
+   "role": "assistant",
+   "text": "That pattern—freezer still cold but fridge warm—is very typical of an airflow issue in frost-free models. The cooling happens in the freezer, and a fan pushes that cold air into the fridge section. If that path is blocked by ice or the fan stops working, the fridge goes warm while the freezer stays fine. The most common cause is actually a defrost system failure (heater, thermostat, or timer) allowing ice to build up over the evaporator coils, choking off the airflow. 1. Open the freezer and look at the back wall. Is there a thick block of ice or heavy frost covering the coils?\n2. With the door open (you may need to press the light switch in with your finger), do you hear a fan running inside? Please let me know what you see regarding the ice, and whether you can hear the fan."
+  },
+  {
+   "role": "customer",
+   "text": "yes thick white frost on the back wall, more than ive ever seen. can hear a faint scraping/ticking from the freezer sometimes"
+  },
+  {
+   "role": "assistant",
+   "text": "That thick white frost suggests a blockage in the airflow path. In a frost-free fridge, cold air is generated in the freezer and pushed into the fridge by a fan. When the defrost system fails (usually the heater or thermostat), ice builds up on the evaporator coils behind that back wall until it becomes a solid block of ice. The faint scraping sound you hear could be the fan motor trying to spin against the ice or a bearing struggling, but we need to rule out simple blockage first. Please perform a full manual defrost as described above. This is safe and requires no tools—just towels for water and patience over 24 hours. If the fridge cools perfectly after this defrost but the frost returns within a few days, it suggests that one of the defrost components (heater or thermostat) has failed and needs replacing by an engineer or a confident DIYer. If it stays warm even after being fully defrosted, we will look at the fan motor or other issues."
+  },
+  {
+   "role": "customer",
+   "text": "ok did the defrost, off 24h with towels down. fridge got cold again within a day, 3C. but after about 5 days its starting to creep up again"
+  },
+  {
+   "role": "assistant",
+   "text": "The fact that it cooled perfectly after a 24-hour manual defrost but started warming up again within five days suggests this is an automatic defrost fault. The fridge's internal computer has failed to run its regular heating cycle, so ice builds up on the evaporator coils behind the freezer back wall until the airflow chokes off and the fridge warms. The specific part that has likely failed is one of two things: the defrost heater (which burns out) or the defrost thermostat/thermal fuse (which stops conducting electricity to the heater). It could also be a sensor, but those are less common on older models. This is not something you can fix by resetting settings or cleaning drains; it requires replacing one of these internal components. Because this involves opening the freezer lining and working with electrical parts inside a sealed appliance, I recommend calling an engineer to diagnose exactly which component has failed and fit the replacement. If you are confident in DIY work, you would need to isolate the fridge at the mains, remove the rear panel in the freezer, and test the heater and thermostat for continuity with a multimeter."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 4897,
+     "labelMs": 293,
+     "enrichMs": 1,
+     "reasonMs": 8662,
+     "verifyMs": 477,
+     "replyLabelMs": 308,
+     "totalMs": 14943
+    },
+    "usage": {
+     "promptTokens": 4074,
+     "completionTokens": 342,
+     "totalTokens": 4416
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Have you checked that the temperature controls are set correctly and not accidentally turned off or on an 'eco' mode?",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Defrost system failure causing blocked airflow (high)",
+     "Evaporator fan motor fault (medium)",
+     "Thermostat or control setting issue (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_cooling",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "fridge",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not cold"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.83
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:compressor",
+       "fridge-freezer:evaporator-fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "The fault they reported is: \"not cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the freezer compartment still cold (frozen food remains hard) while only the fridge section is warm?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15007
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 15211,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1702,
+     "labelMs": 305,
+     "enrichMs": 0,
+     "reasonMs": 13946,
+     "verifyMs": 2766,
+     "replyLabelMs": 698,
+     "totalMs": 19730
+    },
+    "usage": {
+     "promptTokens": 4328,
+     "completionTokens": 438,
+     "totalTokens": 4766
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Less commonly, the fan motor itself has failed.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Blocked airflow due to defrost system failure (ice build-up) (high)",
+     "Evaporator fan motor not running (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_cooling",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.55
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "fridge-freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "freezer cold but fridge warm"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.76
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:compressor",
+       "fridge-freezer:evaporator-fan"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question.",
+     "The fault they reported is: \"not cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the freezer compartment still cold (frozen food remains hard) while only the fridge section is warm?",
+       "turn": 1,
+       "resolution": "yes freezer is fine, still hard. just the fridge is warm"
+      },
+      {
+       "key": null,
+       "text": "With the door open (you may need to press the light switch in with your finger), do you hear a fan running inside?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 19824
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 20159,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2631,
+     "labelMs": 323,
+     "enrichMs": 0,
+     "reasonMs": 10347,
+     "verifyMs": 5051,
+     "replyLabelMs": 339,
+     "totalMs": 19069
+    },
+    "usage": {
+     "promptTokens": 4898,
+     "completionTokens": 511,
+     "totalTokens": 5409
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 2
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "This chokes off the airflow to the fridge section, which is why your fridge is warm even though the freezer stays cold.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 6,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [
+     "Defrost system failure (heater, thermostat, or control) (high)",
+     "Evaporator fan motor fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.61
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "freezer still cold but fridge warm"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:defrost-system",
+       "fridge-freezer:compressor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: gives check.",
+     "Checks they have done and what they found: looked at back wall in freezer - saw thick white frost; listened for fan noise - heard faint scraping/ticking from freezer.",
+     "The fault they reported is: \"not cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked at back wall in freezer: saw thick white frost",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "listened for fan noise: heard faint scraping/ticking from freezer",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the freezer compartment still cold (frozen food remains hard) while only the fridge section is warm?",
+       "turn": 1,
+       "resolution": "yes freezer is fine, still hard. just the fridge is warm"
+      },
+      {
+       "key": null,
+       "text": "With the door open (you may need to press the light switch in with your finger), do you hear a fan running inside?",
+       "turn": 2,
+       "resolution": "thick white frost on the back wall; faint scraping/ticking sound from freezer"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 19226
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 19580,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2526,
+     "labelMs": 306,
+     "enrichMs": 1,
+     "reasonMs": 13127,
+     "verifyMs": 6693,
+     "replyLabelMs": 422,
+     "totalMs": 23401
+    },
+    "usage": {
+     "promptTokens": 5435,
+     "completionTokens": 435,
+     "totalTokens": 5870
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The faint scraping sound you heard earlier was likely the fan struggling against that ice.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Defrost system failure (heater, thermostat, or sensor) (high)",
+     "Evaporator fan motor fault (medium)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_cooling",
+       "confidence": 0.93
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.36
+      },
+      "checkOutcome": {
+       "value": "helped_then_returned",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.76
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "fridge",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "frost returns within a few days after defrosting"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.87
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:defrost-system",
+       "fridge-freezer:not-cooling",
+       "fridge-freezer:compressor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "Already told them (do not repeat any of it; build on it): turn 1: asks question; turn 2: gives check; turn 3: gives check, suggested the check \"The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open\".",
+     "Checks they have done and what they found: looked at back wall in freezer - saw thick white frost; listened for fan noise - heard faint scraping/ticking from freezer; full manual defrost - off 24h with towels down.",
+     "The fault they reported is: \"not cold\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "looked at back wall in freezer: saw thick white frost",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "listened for fan noise: heard faint scraping/ticking from freezer",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "full manual defrost: off 24h with towels down",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the freezer compartment still cold (frozen food remains hard) while only the fridge section is warm?",
+       "turn": 1,
+       "resolution": "yes freezer is fine, still hard. just the fridge is warm"
+      },
+      {
+       "key": null,
+       "text": "With the door open (you may need to press the light switch in with your finger), do you hear a fan running inside?",
+       "turn": 2,
+       "resolution": "thick white frost on the back wall; faint scraping/ticking sound from freezer"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 23449
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 23848,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.05029360000000001,
+ "finishedAt": "2026-10-15T19:10:37.725Z"
+}
