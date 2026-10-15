@@ -191,7 +191,9 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   return {
     reply: lines.join(' '),
     given: next ? (next.kind === 'question' ? { question: next.text } : { check: next.text }) : {},
-    chosen: { state: 'chosen', answered: Boolean(answer), situation: situation === 'engineer' ? 'engineer' : situation && { kind: situation.kind, text: situation.text }, next: next && { kind: next.kind, text: next.text }, ms },
+    chosen: { state: 'chosen', answered: Boolean(answer), situation: situation === 'engineer' ? 'engineer' : situation && { kind: situation.kind, text: situation.text }, next: next && { kind: next.kind, text: next.text }, ms,
+      // What Jev had to choose from (for review): the situations and next steps offered.
+      offered: { situations: req.plan.sit.map((x) => `${x.kind}: ${x.text}`), next: req.plan.nxt.map((x) => `${x.kind}: ${x.text}`), engineerAllowed: Boolean(req.questions.situation.criteria.engineer) } },
   };
 }
 
