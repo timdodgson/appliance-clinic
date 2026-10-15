@@ -51,7 +51,7 @@ async function turn({ messages, state, tools }) {
     const admin = await loadAdminInference();
     // Experiment switches in the AI config (pipeline.*); off unless set.
     const pl = (admin.config && admin.config.pipeline) || {};
-    flags = { jevChooses: Boolean(pl.jevChooses), mode: pl.mode === 'jev-led' ? 'jev-led' : null };
+    flags = { jevChooses: Boolean(pl.jevChooses), mode: ['jev-led', 'jev-evidence'].includes(pl.mode) ? pl.mode : null };
     const creds = admin.jev;
     if (!creds || !creds.accountId || !creds.apiToken) throw Object.assign(new Error('Jev not configured'), { category: 'CONFIG' });
     jev = { evaluate: ({ state: s, questions }) => evaluateJevWithRetries({ accountId: creds.accountId, apiToken: creds.apiToken, gatewayId: creds.gatewayId, state: s, questions, timeoutMs: JEV_TIMEOUT_MS, attempts: 2 }) };

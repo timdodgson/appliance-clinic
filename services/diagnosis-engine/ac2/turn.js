@@ -29,6 +29,7 @@ const E = require('./errorcodes.js');
 const P = require('./parts.js');
 const J = require('./labels.js');
 const C = require('./compose.js');
+const EV = require('./evidence.js');
 const { understand } = require('./understand.js');
 const R = require('./reasoner.js');
 const V = require('./verifier.js');
@@ -462,14 +463,24 @@ async function runTurn(input, deps) {
   let reply;
   let chosen = null;
   let led = null;
-  if (deps.flags && deps.flags.mode === 'jev-led') {
+  // Evidence mode (experiment): Jev picks the fault note; when it carries component evidence, Jev reads the customer's
+  // words item by item and code reasons (evidence.js). Notes without evidence keep the usual path.
+  const mode = deps.flags && deps.flags.mode;
+  let evidenceNote = null;
+  if (mode === 'jev-evidence' && appliance && found.knowledge.length && rec.outcome !== 'fixed' && !rec.narrowed && !(hazard && BLOCKING.has(hazard.type))) {
+    evidenceNote = await EV.pickNote(deps.jev, { texts, known: Rec.known(rec), notes: found.knowledge });
+    if (evidenceNote && !(evidenceNote.componentEvidence || []).length) evidenceNote = null;
+    audit.evidenceNote = evidenceNote ? evidenceNote.knowledgeId : null;
+  }
+  const evidenceTurn = mode === 'jev-evidence' && (evidenceNote || (rec.led && rec.led.evidence && (rec.narrowed || rec.outcome === 'fixed')));
+  if (mode === 'jev-led' || evidenceTurn) {
     // Jev-led (experiment): Qwen only read the message; Jev chooses and code writes the reply (compose.js).
     const tC = Date.now();
     led = await C.composeLed({ jev: deps.jev, qwen: deps.qwen, question: u.reading.customerQuestion, rec, texts, known: Rec.known(rec), notes: found.knowledge, normal: found.normal,
-      codeMeanings: found.codeMeanings, hazardBlocking: Boolean(hazard && BLOCKING.has(hazard.type)), parts, appliance, model, labelWhere: LABEL_WHERE[appliance] || 'on the rating label' });
+      codeMeanings: found.codeMeanings, hazardBlocking: Boolean(hazard && BLOCKING.has(hazard.type)), parts, appliance, model, labelWhere: LABEL_WHERE[appliance] || 'on the rating label', evidenceNote });
     audit.timings.composeMs = Date.now() - tC;
     audit.led = led.chosen;
-    audit.plan = [`jev-led: ${JSON.stringify(led.chosen)}`];
+    audit.plan = [`${mode}: ${JSON.stringify(led.chosen)}`];
     const gate = S.gateReply(led.reply, { hazards: activeHazards(rec), appliance });
     for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
     reply = gate.text || led.reply;

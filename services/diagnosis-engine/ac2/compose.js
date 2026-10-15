@@ -10,6 +10,7 @@
  *            word, the normal-behaviour note, the engineer line)
  */
 const { stripThinking, ProviderUnavailableError } = require('./util.js');
+const EV = require('./evidence.js');
 
 // The one free-text part (the owner's design, 2026-10-15): a direct question the customer asked ("is it worth fixing?")
 // is answered by Qwen in a few sentences, above the fixed diagnosis. It answers that question only.
@@ -94,7 +95,7 @@ async function answerQuestion(qwen, { question, known }) {
  * Compose one reply. Returns { reply, given: { check, question }, chosen } (given = what to record so it is never
  * offered again).
  */
-async function composeLed({ jev, qwen, question, rec, texts, known, notes, normal, codeMeanings, hazardBlocking, parts, appliance, model, labelWhere }) {
+async function composeLed({ jev, qwen, question, rec, texts, known, notes, normal, codeMeanings, hazardBlocking, parts, appliance, model, labelWhere, evidenceNote = null }) {
   const c = rec.customer;
   // Qwen answers a direct question, except where code already answers it: a fixed fault, or an error code given this turn
   // (its meaning is the first line).
@@ -136,6 +137,32 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   }
 
   const given = [...rec.advice.map((a) => a.check), ...rec.asked.map((a) => a.question)].filter(Boolean);
+  if (evidenceNote) {
+    // Evidence mode: Jev reads the customer's words item by item; code scores the causes and picks the next step.
+    const t1 = Date.now();
+    const ev = await EV.readEvidence(jev, { texts, known, note: evidenceNote });
+    const ranked = EV.rank(evidenceNote, ev.said);
+    const step = EV.nextStep(ranked, ev.steps, given);
+    const lead0 = ranked[0];
+    const sitKey = lead0 ? key(lead0.name) : null;
+    const sameCause = sitKey && rec.led && rec.led.situation === sitKey;
+    rec.led = { situation: sitKey, evidence: true };
+    if (step.kind === 'engineer') {
+      if (lead0 && lead0.type === 'part' && lead0.score >= 1) {
+        rec.narrowed = { component: lead0.name, confidence: null, turn: rec.turn };
+        rec.stage = 2;
+        const ask = !model && !c.modelUnavailable ? ` To find the right part, could you give me the ${c.brand ? '' : 'make and '}model number? It is usually ${labelWhere}.` : '';
+        lines.push(`From what you have checked, this points to the ${lower(lead0.name)}.${ask || ' An appliance engineer can confirm it and fit the part.'}`);
+        return { reply: lines.join(' '), given: ask ? { question: ask.trim() } : {}, chosen: { state: 'evidence', answered: Boolean(answer), ranked: ranked.slice(0, 3), next: 'part', ms: Date.now() - t1 } };
+      }
+      lines.push(ENGINEER);
+      return { reply: lines.join(' '), given: {}, chosen: { state: 'evidence', answered: Boolean(answer), ranked: ranked.slice(0, 3), next: 'engineer', ms: Date.now() - t1 } };
+    }
+    if (lead0 && !sameCause) lines.push(`From what you have described, the most likely cause is ${stop(lower(lead0.name))}`);
+    lines.push(...words({ situation: null, next: step }));
+    return { reply: lines.join(' '), given: step.kind === 'question' ? { question: step.text } : { check: step.text },
+      chosen: { state: 'evidence', answered: Boolean(answer), ranked: ranked.slice(0, 3), next: { kind: step.kind, text: step.text }, ms: Date.now() - t1 } };
+  }
   const req = chooseRequest({ texts, known, notes, normal, given, allowEngineer: c.checks.length > 0 || rec.stage === 2 });
   let situation = null;
   let next = null;

@@ -73,3 +73,24 @@ describe('choose (experiment: Jev picks the cause and the next check from the no
     expect(r.check).toBe(req.plan.checks[0].full);
   });
 });
+
+describe('evidence mode: Jev reads the customer\'s words item by item, code scores the causes', () => {
+  const EV = require('../ac2/evidence.js');
+  const [note] = K.retrieve({ appliance: 'washing-machine', text: 'stuck full of water, wont drain' });
+  const said = (pairs) => new Map(pairs.map(([t, v]) => [String(t).toLowerCase().replace(/\s+/g, ' ').slice(0, 60), v]));
+  it('evidence moves the ranking: filter confirmed clear and pump humming puts the pump ahead of the filter', () => {
+    const base = EV.rank(note, said([]));
+    expect(base[0].name).toMatch(/pump filter/);
+    const r = EV.rank(note, said([['filter and accessible pump path confirmed clear', 'said_yes'], ['pump hums but moves no water', 'said_yes'], ['filter clear AND external drain path clear', 'said_yes']]));
+    expect(r[0].name).toMatch(/drain pump/);
+  });
+  it('the next step is the first check not done or given; with none left, the engineer', () => {
+    const { steps } = EV.itemsOf(note);
+    const ranked = EV.rank(note, said([['water remains in the drum', 'said_yes'], ['a drain error is shown', 'said_yes']]));
+    const first = EV.nextStep(ranked, steps.map((s) => ({ ...s, done: false })), []);
+    expect(first.kind).toBe('check');
+    const second = EV.nextStep(ranked, steps.map((s) => ({ ...s, done: false })), [first.text]);
+    expect(second.text).not.toBe(first.text);
+    expect(EV.nextStep(ranked, steps.map((s) => ({ ...s, done: true })), []).kind).toBe('engineer');
+  });
+});
