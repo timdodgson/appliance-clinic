@@ -1,0 +1,194 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-e5285700cd",
+ "endReason": "escalated",
+ "customerTurns": 1,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "I can't tell you which part you need yet, because a machine that still won't drain after a filter clean could have several causes, and not all of them need a new part. An engineer will need to find the cause before the right part can be identified. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1788,
+     "labelMs": 309,
+     "enrichMs": 1,
+     "composeMs": 5182,
+     "replyLabelMs": 258,
+     "totalMs": 7582
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD9409",
+       "confidence": 0.92
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":\"engineer\",\"next\":{\"kind\":\"question\",\"text\":\"Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\"},\"ms\":772,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"inspect and clean the accessible pump filter where the model design allows\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.9,\"refused\":0.1,\"pointless\":0.68,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.59,\"refused\":0.11,\"pointless\":0.49,\"kept\":true},{\"step\":\"check: run a drain or spin-only programme and listen near the bottom front of the machine while i\",\"done\":0.04,\"refused\":0.06,\"pointless\":0.13,\"kept\":true},{\"step\":\"retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does \",\"done\":0.07,\"refused\":0.05,\"pointless\":0.32,\"kept\":true},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.07,\"refused\":0.05,\"pointless\":0.24,\"kept\":true},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.13,\"kept\":true},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.14,\"refused\":0.04,\"pointless\":0.24,\"kept\":true},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.96,\"refused\":0.04,\"pointless\":0.71,\"kept\":false},{\"step\":\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.13,\"kept\":true},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.49,\"refused\":0.07,\"pointless\":0.33,\"kept\":true},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.07,\"refused\":0.07,\"pointless\":0.14,\"kept\":true},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.04,\"refused\":0.06,\"pointless\":0.14,\"kept\":true}]},\"answer\":\"I can't tell you which part you need yet, because a machine that still won't drain after a filter clean could have several causes, and not all of them need a new part.  An engineer will need to find the cause before the right part can be identified.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"Bosch\",\"model\":null,\"codes\":[],\"symptom\":\"not draining\",\"customerQuestion\":\"what part do i need?\",\"answerToLastQuestion\":null,\"checksReported\":[{\"check\":\"cleaned the filter\",\"result\":\"still not draining\"}],\"facts\":[\"FD 9409\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_draining\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.99)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.99)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"FD9409\\\" (0.92)\",\"code\":\"null (1)\",\"make\":\"\\\"Bosch\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD9409",
+      "confidence": 0.92,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still not draining",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7631
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8006,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.009061900000000001,
+ "finishedAt": "2026-10-15T23:37:44.273Z"
+}

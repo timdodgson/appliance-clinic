@@ -1,0 +1,185 @@
+TEST WM-05  (ended: escalated, 7 customer messages)
+
+--- Turn 1
+CUSTOMER: There's water all over the kitchen floor coming from under my Beko washing machine and its gone under the units to where the plug is, the machine is still going. What do I do?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Beko model=None codes=[] symptom='leaking water onto kitchen floor' question='What do I do?'
+   checks reported: []  facts: ['water coming from under the machine', 'water has gone under the units to where the plug is', 'machine is still running']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="leak" (1); hazard="electrical_water" (1); unsafeRequest=null (0.96); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.05); make="Beko" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:leak-drain', 'washing-machine:leak-flood', 'washing-machine:foam-suds']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:leak-flood | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: detergent dispenser path — blocked/residue/oversudsing
+    - cause: dispenser-to-tub hose
+    - cause: external fill hose / rear connection
+    - cause: door seal (boot)
+    - cause: sump / tub-to-pump hose
+    - cause: filter cap / filter housing seating
+    - cause: drain pump / pump housing
+    - cause: drain hose / household waste connection
+    - cause: drum bearings / tub seal
+    - cause: loose counterweight / damaged (cracked) tub
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.22 r=0.05 p=0.33  step: establish WHERE the water appears, WHEN in the cycle, and what it LOOKS like before choosi
+    KEPT    d=0.05 r=0.04 p=0.24  step: if it started after cleaning the filter, re-seat the filter cap/seal and check the sealing
+    REMOVED d=0.05 r=0.04 p=0.67  step: if water comes from the drawer during fill, check for detergent/softener residue, a blocke
+    KEPT    d=0.04 r=0.04 p=0.25  step: if the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noi
+    KEPT    d=0.05 r=0.04 p=0.29  step: if the leak is at the rear, check whether the machine was recently moved and the fill-hose
+    KEPT    d=0.06 r=0.04 p=0.37  step: if there is a big leak with heavy banging, check for a loose counterweight / cracked tub
+    REMOVED d=0.75 r=0.06 p=0.41  question: Where does the water seem to come from - front, back or underneath - and does it start whi
+    KEPT    d=0.08 r=0.06 p=0.15  question: Is the leaking water clean, soapy/dirty wash water, or dirty/oily-looking water?
+  JEV PICKED: situation = sump / tub-to-pump hose
+              next      = establish WHERE the water appears, WHEN in the cycle, and what it LOOKS like before choosing a part
+REPLY: Water near the plug or socket is dangerous. Please don't touch the plug, socket or machine if they or your hands are wet. If you can do it safely, switch off the circuit at the consumer unit (fuse box), keep away from the water, and don't use the machine again until a qualified electrician or appliance engineer has checked it. From what you have described, the most likely cause is sump / tub-to-pump hose. Next: Establish WHERE the water appears, WHEN in the cycle, and what it LOOKS like before choosing a part. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: ok I'm standing in socks on the wet floor right now, should I get out of it first?? the fuse box is in the hall and the floor there is dry, so I can switch it off from there. the water is mostly at the front under the door
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='leaking water onto floor' question='Should I get out of the wet floor first?'
+   checks reported: []  facts: ['water is mostly at the front under the door', 'fuse box is in the hall where the floor is dry']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.59); symptomArea="leak" (0.99); hazard="electrical_water" (0.68); unsafeRequest=null (0.99); lastAnswer=null (0.31); checkOutcome=null (0.99); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:leak-drain', 'washing-machine:leak-flood', 'washing-machine:leak-door']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:leak-door | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: door seal
+    - cause: door glass seal
+  JEV PICKED: situation = door seal
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+LLM ANSWER TO THEIR QUESTION: Yes, step out of the water now and don't touch the machine, the plug or the socket while the floor is wet.  Because the water has reached the plug, turn the power off at the fuse box in the hall, where you'll be standing on a dry floor, before you go near the machine again.
+REPLY: Yes, step out of the water now and don't touch the machine, the plug or the socket while the floor is wet. Because the water has reached the plug, turn the power off at the fuse box in the hall, where you'll be standing on a dry floor, before you go near the machine again. From what you have described, the most likely cause is door seal. Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 3
+CUSTOMER: ok I'm out of the water now and going to switch it off at the fuse box. It started today in the middle of a wash, and the display was still counting down with normal washing sounds and no burning smell. I think there was a small damp patch last week but I thought I'd just spilt a drink.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='leaking water onto floor' question=None
+   checks reported: []  facts: ['display still counting down with normal washing sounds', 'no burning smell', 'small damp patch noticed last week', 'water reached the plug']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="leak" (0.99); hazard="electrical_water" (0.89); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome=null (0.91); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:tripping-electrics', 'washing-machine:leak-flood', 'washing-machine:leak-drain']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:leak-flood | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: detergent dispenser path — blocked/residue/oversudsing
+    - cause: dispenser-to-tub hose
+    - cause: external fill hose / rear connection
+    - cause: door seal (boot)
+    - cause: sump / tub-to-pump hose
+    - cause: filter cap / filter housing seating
+    - cause: drain pump / pump housing
+    - cause: drain hose / household waste connection
+    - cause: drum bearings / tub seal
+    - cause: loose counterweight / damaged (cracked) tub
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.2 r=0.04 p=0.48  step: if it started after cleaning the filter, re-seat the filter cap/seal and check the sealing
+    REMOVED d=0.09 r=0.05 p=0.79  step: if water comes from the drawer during fill, check for detergent/softener residue, a blocke
+    KEPT    d=0.06 r=0.05 p=0.32  step: if the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noi
+    REMOVED d=0.16 r=0.06 p=0.65  step: if the leak is at the rear, check whether the machine was recently moved and the fill-hose
+    REMOVED d=0.25 r=0.04 p=0.73  step: if there is a big leak with heavy banging, check for a loose counterweight / cracked tub
+    REMOVED d=0.95 r=0.05 p=0.85  question: Where does the water seem to come from - front, back or underneath - and does it start whi
+    KEPT    d=0.13 r=0.08 p=0.21  question: Is the leaking water clean, soapy/dirty wash water, or dirty/oily-looking water?
+  JEV PICKED: situation = sump / tub-to-pump hose
+              next      = Is the leaking water clean, soapy/dirty wash water, or dirty/oily-looking water?
+REPLY: From what you have described, the most likely cause is sump / tub-to-pump hose. Is the leaking water clean, soapy/dirty wash water, or dirty/oily-looking water?
+[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer.
+
+--- Turn 4
+CUSTOMER: it looks like clear soapy wash water I think, not oily or dirty. the power's off now at the fuse box. what should I check next?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='leaking water' question='what should I check next?'
+   checks reported: []  facts: ['leaking water looks like clear soapy wash water', 'water not oily or dirty']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.77); symptomArea="leak" (0.88); hazard=null (0.31); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.81); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:tripping-electrics', 'washing-machine:leak-flood', 'washing-machine:leak-drain']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:leak-flood | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: detergent dispenser path — blocked/residue/oversudsing
+    - cause: dispenser-to-tub hose
+    - cause: external fill hose / rear connection
+    - cause: door seal (boot)
+    - cause: sump / tub-to-pump hose
+    - cause: filter cap / filter housing seating
+    - cause: drain pump / pump housing
+    - cause: drain hose / household waste connection
+    - cause: drum bearings / tub seal
+    - cause: loose counterweight / damaged (cracked) tub
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.18 r=0.04 p=0.48  step: if it started after cleaning the filter, re-seat the filter cap/seal and check the sealing
+    REMOVED d=0.13 r=0.05 p=0.77  step: if water comes from the drawer during fill, check for detergent/softener residue, a blocke
+    KEPT    d=0.07 r=0.05 p=0.45  step: if the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noi
+    REMOVED d=0.15 r=0.05 p=0.69  step: if the leak is at the rear, check whether the machine was recently moved and the fill-hose
+    REMOVED d=0.26 r=0.04 p=0.78  step: if there is a big leak with heavy banging, check for a loose counterweight / cracked tub
+    REMOVED d=0.95 r=0.04 p=0.88  question: Where does the water seem to come from - front, back or underneath - and does it start whi
+  JEV PICKED: situation = sump / tub-to-pump hose
+              next      = if it started after cleaning the filter, re-seat the filter cap/seal and check the sealing face before suspecting the pump
+REPLY: Next: If it started after cleaning the filter, re-seat the filter cap/seal and check the sealing face before suspecting the pump. Let me know what you find.
+[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer.
+
+--- Turn 5
+CUSTOMER: I haven't touched the filter at all, so I don't think that's it. Do you mean I should go and look at the machine now? The power's off but the floor by the plug is still wet, I'm not sure it's safe to go near it.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='leaking water' question='Should I go and look at the machine now? Is it safe with the floor by the plug wet?'
+   checks reported: []  facts: ['filter has not been touched', 'power is off', 'floor by the plug is still wet']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.92); symptomArea="leak" (0.97); hazard="electrical_water" (1); unsafeRequest=null (0.99); lastAnswer="answered" (0.68); checkOutcome=null (0.95); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:tripping-electrics', 'washing-machine:leak-drain', 'washing-machine:heater']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:leak-drain | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: the rubber door seal
+    - cause: the detergent drawer
+    - cause: too much (or the wrong) detergent foaming over
+    - cause: the pump filter cap or its seal
+    - cause: the fill hose or its tap connection
+    - cause: the fill side inside the machine (inlet valve or its hoses)
+    - cause: the drain hose or its standpipe connection
+    - cause: the household waste plumbing
+    - cause: the drain pump body
+    - cause: an internal (sump or tub) hose
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.19 p=0.28  check: Front leaks are most often the rubber door seal. Open the door and look all the way round 
+    KEPT    d=0.04 r=0.08 p=0.28  check: Pull the detergent drawer out (most have a release tab) and rinse away any built-up powder
+    KEPT    d=0.04 r=0.04 p=0.33  check: Too much detergent, or one that isn't low-foam (HE), can foam over and push water out. How
+    KEPT    d=0.21 r=0.24 p=0.23  check: The pump filter cap at the bottom front is a common leak, especially if it's been opened r
+    KEPT    d=0.04 r=0.07 p=0.58  check: Check the fill hose where it screws onto the tap and onto the back of the machine — a loos
+    KEPT    d=0.04 r=0.09 p=0.45  check: Check the grey drain hose along its length and where it goes into the standpipe or sink wa
+  JEV PICKED: situation = the pump filter cap or its seal
+              next      = The pump filter cap at the bottom front is a common leak, especially if it's been opened recently. Check it's screwed in fully and straight, and that its rubber seal is clean. Was it loose or not seated, tight and dry al
+LLM ANSWER TO THEIR QUESTION: Yes, as long as the power is switched off at the fuse box, it's safe to go and look at the machine.  Don't touch the plug, socket or switch while that floor is wet, and keep the power off until everything around the plug is completely dry.
+REPLY: Yes, as long as the power is switched off at the fuse box, it's safe to go and look at the machine. Don't touch the plug, socket or switch while that floor is wet, and keep the power off until everything around the plug is completely dry. From what you have described, the most likely cause is the pump filter cap or its seal. The pump filter cap at the bottom front is a common leak, especially if it's been opened recently. Check it's screwed in fully and straight, and that its rubber seal is clean. Was it loose or not seated, tight and dry already, or is the cap or seal cracked or damaged?
+[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer.
+
+--- Turn 6
+CUSTOMER: ok, the filter cap flap area is dry and the cap is tight. But I looked at the door rubber and there's a small split in the bottom fold, with an underwire from a bra stuck right next to it. Is that the problem?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='leaking water' question='Is the split in the door rubber the problem?'
+   checks reported: [{'check': 'pump filter cap', 'result': 'tight and dry'}, {'check': 'door rubber', 'result': 'small split in bottom fold with bra underwire stuck next to it'}]  facts: ['small split in bottom fold of door seal', 'bra underwire stuck next to the split']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="door_or_lid" (0.57); hazard=null (0.98); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.87); modelUnreachable=false (0.04); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:leak-drain', 'washing-machine:heater', 'washing-machine:leak-flood']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:leak-flood | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: detergent dispenser path — blocked/residue/oversudsing
+    - cause: dispenser-to-tub hose
+    - cause: external fill hose / rear connection
+    - cause: door seal (boot)
+    - cause: sump / tub-to-pump hose
+    - cause: filter cap / filter housing seating
+    - cause: drain pump / pump housing
+    - cause: drain hose / household waste connection
+    - cause: drum bearings / tub seal
+    - cause: loose counterweight / damaged (cracked) tub
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.11 r=0.05 p=0.83  step: if water comes from the drawer during fill, check for detergent/softener residue, a blocke
+    KEPT    d=0.06 r=0.06 p=0.29  step: if the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noi
+    REMOVED d=0.17 r=0.06 p=0.81  step: if the leak is at the rear, check whether the machine was recently moved and the fill-hose
+    REMOVED d=0.25 r=0.05 p=0.81  step: if there is a big leak with heavy banging, check for a loose counterweight / cracked tub
+    REMOVED d=0.95 r=0.04 p=0.89  question: Where does the water seem to come from - front, back or underneath - and does it start whi
+  JEV PICKED: situation = door seal (boot)
+              next      = if the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noise so a replacement seal isn't destroyed too
+LLM ANSWER TO THEIR QUESTION: Yes, that split is very likely the cause.  A tear in the bottom fold of the door seal lets soapy wash water escape during the wash, which matches the clear water you found mostly at the front under the door, and the underwire stuck beside it has probably worn or cut the hole.
+REPLY: Yes, that split is very likely the cause. A tear in the bottom fold of the door seal lets soapy wash water escape during the wash, which matches the clear water you found mostly at the front under the door, and the underwire stuck beside it has probably worn or cut the hole. From what you have described, the most likely cause is door seal (boot). Next: If the door seal is ripped, check the drum for up/down play, a dropped drum or bearing noise so a replacement seal isn't destroyed too. Let me know what you find.
+
+--- Turn 7
+CUSTOMER: I'm not sure how to check that, sorry. The machine is full of water and heavy and I can't move it on my own. The washing sounds were normal earlier, if that helps. Is the split seal definitely what needs sorting?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='leaking water from torn door seal' question='Is the split seal definitely what needs sorting?'
+   checks reported: []  facts: ['machine is full of water and heavy', 'cannot move it on their own', 'washing sounds were normal earlier']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="leak" (0.65); hazard=null (0.84); unsafeRequest=null (1); lastAnswer="cannot_or_will_not" (0.67); checkOutcome=null (0.96); modelUnreachable=false (0.08); narrowed=null (0.98); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:leak-drain', 'washing-machine:leak-door', 'washing-machine:heater']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:leak-door | findings settle it = False | engineer allowed = True
+  situations offered (2):
+    - cause: door seal
+    - cause: door glass seal
+  JEV PICKED: situation = door seal
+              next      = -
+LLM ANSWER TO THEIR QUESTION: Not definitely, but it's the most likely culprit: clear soapy water pooling at the front under the door, with a split in the bottom fold of the seal and the pump filter cap tight and dry, fits a door seal leak well.  An engineer will need to confirm it and check whether anything else, such as the underwire, has caused damage elsewhere.
+REPLY: Not definitely, but it's the most likely culprit: clear soapy water pooling at the front under the door, with a split in the bottom fold of the seal and the pump filter cap tight and dry, fits a door seal leak well. An engineer will need to confirm it and check whether anything else, such as the underwire, has caused damage elsewhere. From what you have described, the most likely cause is door seal. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Torn door seal (cut by a bra underwire caught in the fold) leaking at the front. Immediate hazard: water reaching the socket while the machine is live.

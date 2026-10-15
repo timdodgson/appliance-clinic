@@ -1,0 +1,713 @@
+{
+ "id": "WM-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-02-4c61ae7388",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "w/m wont spinn pls help"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is unbalanced / uneven load. Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?"
+  },
+  {
+   "role": "customer",
+   "text": "yeah it sloshes back n forth, tries to speed up then slows down a few times. it was only a big rubber backed bath mat on its own tho. a full load yesterday spun fine"
+  },
+  {
+   "role": "assistant",
+   "text": "This sounds like normal behaviour rather than a fault: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet. It would be worth a closer look if it never spins even with a normal mixed load, or it hums without draining. Is the drum empty of water when it tries to spin, or is there water still in it?"
+  },
+  {
+   "role": "customer",
+   "text": "no water in the drum, its empty just the wet mat"
+  },
+  {
+   "role": "assistant",
+   "text": "Could you tell me a bit more about what it is doing, and when it happens?"
+  },
+  {
+   "role": "customer",
+   "text": "just today. washed the mat on its own, cycle finished normally and no error code, but the mat came out dripping. like i said it tries to spin then gives up"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3737,
+     "labelMs": 1024,
+     "enrichMs": 0,
+     "composeMs": 824,
+     "replyLabelMs": 289,
+     "totalMs": 5900
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't spin"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.94
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:hall-sensor",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:unbalanced-load\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"unbalanced / uneven load\"},\"next\":{\"kind\":\"question\",\"text\":\"Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?\"},\"ms\":824,\"offered\":{\"situations\":[\"cause: unbalanced / uneven load\",\"cause: overload / too full\",\"cause: levelling / installation\",\"cause: suspension / shock absorbers\",\"normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"],\"next\":[\"step: try a normal, evenly-distributed load before suspecting a part\",\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"question: Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?\",\"question: Is the drum empty of water when it tries to spin, or is there water still in it?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: try a normal, evenly-distributed load before suspecting a part\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.13,\"kept\":true},{\"step\":\"question: Does it keep turning slowly backwards and forwards as if trying to balance the load, and d\",\"done\":0.04,\"refused\":0.08,\"pointless\":0.1,\"kept\":true},{\"step\":\"question: Is the drum empty of water when it tries to spin, or is there water still in it?\",\"done\":0.05,\"refused\":0.06,\"pointless\":0.11,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't spin\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.97)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (0.97)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:unbalanced-load\",\"washing-machine:hall-sensor\",\"washing-machine:not-draining\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 6072
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 6731,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3342,
+     "labelMs": 322,
+     "enrichMs": 1,
+     "composeMs": 959,
+     "replyLabelMs": 284,
+     "totalMs": 4943
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.86
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.37
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't spin up, keeps trying to balance load"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:hall-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:unbalanced-load\",\"settled\":true,\"situation\":{\"kind\":\"normal\",\"text\":\"Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"},\"next\":{\"kind\":\"question\",\"text\":\"Is the drum empty of water when it tries to spin, or is there water still in it?\"},\"ms\":959,\"offered\":{\"situations\":[\"cause: unbalanced / uneven load\",\"cause: overload / too full\",\"cause: levelling / installation\",\"cause: suspension / shock absorbers\",\"normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"],\"next\":[\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"question: Is the drum empty of water when it tries to spin, or is there water still in it?\"],\"removed\":[\"try a normal, evenly-distributed load before suspecting a part\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: try a normal, evenly-distributed load before suspecting a part\",\"done\":0.9,\"refused\":0.05,\"pointless\":0.76,\"kept\":false},{\"step\":\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.63,\"kept\":true},{\"step\":\"question: Is the drum empty of water when it tries to spin, or is there water still in it?\",\"done\":0.19,\"refused\":0.07,\"pointless\":0.28,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't spin up, keeps trying to balance load\",\"customerQuestion\":null,\"answerToLastQuestion\":\"yes, it rocks back and forth trying to speed up; a full load spun fine\",\"checksReported\":[{\"check\":\"spun a full mixed load yesterday\",\"result\":\"spun fine\"}],\"facts\":[\"drum sloshes back and forth, tries to speed up then slows down several times\",\"load was a single large rubber-backed bath mat on its own\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (0.86)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.37)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:unbalanced-load\",\"washing-machine:not-draining\",\"washing-machine:hall-sensor\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spun a full mixed load yesterday: spun fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?",
+       "turn": 1,
+       "resolution": "yes, it rocks back and forth trying to speed up; a full load spun fine"
+      },
+      {
+       "key": null,
+       "text": "Is the drum empty of water when it tries to spin, or is there water still in it?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4990
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 5362,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1934,
+     "labelMs": 319,
+     "enrichMs": 1,
+     "composeMs": 559,
+     "replyLabelMs": 256,
+     "totalMs": 3110
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.63
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.83
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not spinning, clothes left wet"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:hall-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:unbalanced-load\",\"settled\":true,\"situation\":{\"kind\":\"normal\",\"text\":\"Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"},\"next\":{\"kind\":\"question\",\"text\":\"Could you tell me a bit more about what it is doing, and when it happens?\"},\"ms\":559,\"offered\":{\"situations\":[\"cause: unbalanced / uneven load\",\"cause: overload / too full\",\"cause: levelling / installation\",\"cause: suspension / shock absorbers\",\"normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"],\"next\":[],\"removed\":[\"try a normal, evenly-distributed load before suspecting a part\",\"check the machine is level and (if recently moved) that the transit bolts are re\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: try a normal, evenly-distributed load before suspecting a part\",\"done\":0.88,\"refused\":0.05,\"pointless\":0.66,\"kept\":false},{\"step\":\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.68,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not spinning, clothes left wet\",\"customerQuestion\":null,\"answerToLastQuestion\":\"drum is empty of water\",\"checksReported\":[],\"facts\":[\"no water in the drum\",\"only a wet mat in the drum\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.98)\",\"symptomArea\":\"null (0.63)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.83)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.98)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:unbalanced-load\",\"washing-machine:not-draining\",\"washing-machine:hall-sensor\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spun a full mixed load yesterday: spun fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?",
+       "turn": 1,
+       "resolution": "yes, it rocks back and forth trying to speed up; a full load spun fine"
+      },
+      {
+       "key": null,
+       "text": "Is the drum empty of water when it tries to spin, or is there water still in it?",
+       "turn": 2,
+       "resolution": "drum is empty of water"
+      },
+      {
+       "key": null,
+       "text": "Could you tell me a bit more about what it is doing, and when it happens?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3153
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 3505,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2387,
+     "labelMs": 293,
+     "enrichMs": 2,
+     "composeMs": 573,
+     "replyLabelMs": 339,
+     "totalMs": 3644
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.47
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not spinning, clothes left dripping wet"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:unbalanced-load",
+       "washing-machine:not-draining",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:unbalanced-load\",\"settled\":true,\"situation\":{\"kind\":\"normal\",\"text\":\"Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"},\"next\":null,\"ms\":573,\"offered\":{\"situations\":[\"cause: unbalanced / uneven load\",\"cause: overload / too full\",\"cause: levelling / installation\",\"cause: suspension / shock absorbers\",\"normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"],\"next\":[],\"removed\":[\"try a normal, evenly-distributed load before suspecting a part\",\"check the machine is level and (if recently moved) that the transit bolts are re\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: try a normal, evenly-distributed load before suspecting a part\",\"done\":0.88,\"refused\":0.04,\"pointless\":0.69,\"kept\":false},{\"step\":\"step: check the machine is level and (if recently moved) that the transit bolts are removed\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.69,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not spinning, clothes left dripping wet\",\"customerQuestion\":null,\"answerToLastQuestion\":\"started today; tries to spin then gives up\",\"checksReported\":[],\"facts\":[\"washed a mat on its own\",\"cycle finished normally\",\"no error code shown\",\"mat came out dripping\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.99)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (0.99)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.47)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.96)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2,3]},\"notes\":[\"washing-machine:unbalanced-load\",\"washing-machine:not-draining\",\"washing-machine:motor-drum\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spun a full mixed load yesterday: spun fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?",
+       "turn": 1,
+       "resolution": "yes, it rocks back and forth trying to speed up; a full load spun fine"
+      },
+      {
+       "key": null,
+       "text": "Is the drum empty of water when it tries to spin, or is there water still in it?",
+       "turn": 2,
+       "resolution": "drum is empty of water"
+      },
+      {
+       "key": null,
+       "text": "Could you tell me a bit more about what it is doing, and when it happens?",
+       "turn": 3,
+       "resolution": "started today; tries to spin then gives up"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3677
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 4129,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0404196,
+ "finishedAt": "2026-10-15T23:36:38.883Z"
+}

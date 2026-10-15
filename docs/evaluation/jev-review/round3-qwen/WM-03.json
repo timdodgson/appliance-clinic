@@ -1,0 +1,737 @@
+{
+ "id": "WM-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-03-f3115e356f",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My indesit washing machine fills with water and drains but the drum just doesn't go round at all. Its an IWC something. Had it about 9 years. Is it worth fixing?"
+  },
+  {
+   "role": "assistant",
+   "text": "It depends on whether the issue is just a broken drive belt. If so, replacing the belt is usually an affordable repair for a nine-year-old machine. From what you have described, the most likely cause is drive belt [belt-driven machines ONLY]. Check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?"
+  },
+  {
+   "role": "customer",
+   "text": "I've turned it by hand with the power off and it turns freely and quietly, no scraping or rumbling. It doesn't feel stiff at all."
+  },
+  {
+   "role": "assistant",
+   "text": "Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?"
+  },
+  {
+   "role": "customer",
+   "text": "I haven't run a spin-only programme as such, but in the normal wash cycle the drum never turns at all, and it doesn't spin at the end either. So I'd expect an empty spin to be the same. Shall I try it anyway?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, you should run a spin-only or rinse and spin programme to see if the drum spins up properly. This test will help determine if the issue is specific to certain cycles or affects all spinning operations. Run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?"
+  },
+  {
+   "role": "customer",
+   "text": "Ok, I'll try a rinse and spin programme with the drum empty, as I said I'd expect the same result. I'll let you know, but it's not turning at all in the normal wash, so I doubt it will spin. By the way, I did once notice a faint hot electrical smell a few weeks ago, though not since."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1907,
+     "labelMs": 371,
+     "enrichMs": 1,
+     "composeMs": 1860,
+     "replyLabelMs": 382,
+     "totalMs": 4597
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.3
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.3
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Indesit",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Indesit",
+      "model": "IWC something",
+      "codes": [],
+      "symptom": "fills with water and drains but the drum just doesn't go round at all"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.6
+     },
+     "checkGiven": "Next, check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — norm",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:inlet-valve",
+       "washing-machine:motor-drum",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:motor-drum\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"drive belt [belt-driven machines ONLY]\"},\"next\":{\"kind\":\"check\",\"text\":\"check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?\"},\"ms\":834,\"offered\":{\"situations\":[\"cause: retained water / drainage\",\"cause: unbalanced load / overload / spin-setting\",\"cause: foreign object / mechanical obstruction\",\"cause: drum bearings\",\"cause: drive belt [belt-driven machines ONLY]\",\"cause: carbon brushes [brushed universal motor ONLY]\",\"cause: motor thermal fuse / cut-out\",\"cause: start / run capacitor [capacitor-start motors ONLY]\",\"cause: drive motor\",\"cause: motor control / inverter module [where architecture uses one]\"],\"next\":[\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?\",\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such as a bath mat, rug, duvet or a pair of jeans on its own, or a very small load, is the usual trigger. Spreading the washing out evenly or adding a few smaller items usually lets it spin. Was it a single heavy item or a very small load, or a normal mixed load?\",\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?\",\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as \\\"no spin\\\", \\\"rinse hold\\\" or a low spin speed stop the final spin. Was a normal programme with a normal spin speed selected, or was one of those options set?\",\"check: check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?\",\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check nothing like a sock or the seal is caught in it, and start a programme. Does the door click locked and the lock light come on?\",\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the small flap at the bottom front and slowly unscrew the pump filter. Did you find anything caught in the filter (and clear it), or was it clear?\",\"check: With the filter still out, shine a torch into the opening and gently turn the small plastic impeller with a finger. Does it turn freely with nothing caught, did you find and clear something, or is it broken or rough?\",\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find something and remove it, can you see or hear something stuck that you can't get out, or is there nothing there?\",\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery. If they're still in, it bangs on the spin. Are any transit bolts still fitted (and have you taken them out), or were they already removed?\",\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy item or a small load (and have you evened it out), or a normal mixed load?\",\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it turn smoothly and quietly, or does it feel rough or grind as it turns?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr\",\"done\":0.06,\"refused\":0.06,\"pointless\":0.24,\"kept\":true},{\"step\":\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.54,\"kept\":true},{\"step\":\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.52,\"kept\":true},{\"step\":\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.56,\"kept\":true},{\"step\":\"check: check how the drum moves by hand. With the machine unplugged and the door open, how does t\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.09,\"kept\":true},{\"step\":\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check \",\"done\":0.05,\"refused\":0.04,\"pointless\":0.37,\"kept\":true},{\"step\":\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.57,\"kept\":true},{\"step\":\"check: With the filter still out, shine a torch into the opening and gently turn the small plasti\",\"done\":0.03,\"refused\":0.04,\"pointless\":0.29,\"kept\":true},{\"step\":\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.13,\"kept\":true},{\"step\":\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.52,\"kept\":true},{\"step\":\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy \",\"done\":0.04,\"refused\":0.04,\"pointless\":0.55,\"kept\":true},{\"step\":\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.1,\"kept\":true}]},\"answer\":\"It depends on whether the issue is just a broken drive belt.  If so, replacing the belt is usually an affordable repair for a nine-year-old machine.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"Indesit\",\"model\":\"IWC something\",\"codes\":[],\"symptom\":\"fills with water and drains but the drum just doesn't go round at all\",\"customerQuestion\":\"Is it worth fixing?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"about 9 years old\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.99)\",\"checkOutcome\":\"null (0.97)\",\"modelUnreachable\":\"false (0.3)\",\"model\":\"null (0.3)\",\"code\":\"null (1)\",\"make\":\"\\\"Indesit\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:inlet-valve\",\"washing-machine:motor-drum\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4691
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 5073,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1612,
+     "labelMs": 357,
+     "enrichMs": 1,
+     "composeMs": 960,
+     "replyLabelMs": 280,
+     "totalMs": 3268
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.81
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.77
+     },
+     "checkGiven": "Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up prope",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:inlet-valve",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:motor-drum\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"drive belt [belt-driven machines ONLY]\"},\"next\":{\"kind\":\"check\",\"text\":\"Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?\"},\"ms\":960,\"offered\":{\"situations\":[\"cause: retained water / drainage\",\"cause: unbalanced load / overload / spin-setting\",\"cause: foreign object / mechanical obstruction\",\"cause: drum bearings\",\"cause: drive belt [belt-driven machines ONLY]\",\"cause: carbon brushes [brushed universal motor ONLY]\",\"cause: motor thermal fuse / cut-out\",\"cause: start / run capacitor [capacitor-start motors ONLY]\",\"cause: drive motor\",\"cause: motor control / inverter module [where architecture uses one]\"],\"next\":[\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?\",\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such as a bath mat, rug, duvet or a pair of jeans on its own, or a very small load, is the usual trigger. Spreading the washing out evenly or adding a few smaller items usually lets it spin. Was it a single heavy item or a very small load, or a normal mixed load?\",\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?\",\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as \\\"no spin\\\", \\\"rinse hold\\\" or a low spin speed stop the final spin. Was a normal programme with a normal spin speed selected, or was one of those options set?\",\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check nothing like a sock or the seal is caught in it, and start a programme. Does the door click locked and the lock light come on?\",\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the small flap at the bottom front and slowly unscrew the pump filter. Did you find anything caught in the filter (and clear it), or was it clear?\",\"check: With the filter still out, shine a torch into the opening and gently turn the small plastic impeller with a finger. Does it turn freely with nothing caught, did you find and clear something, or is it broken or rough?\",\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find something and remove it, can you see or hear something stuck that you can't get out, or is there nothing there?\",\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery. If they're still in, it bangs on the spin. Are any transit bolts still fitted (and have you taken them out), or were they already removed?\",\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy item or a small load (and have you evened it out), or a normal mixed load?\",\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?\"],\"removed\":[\"With the machine unplugged, turn the drum slowly by hand a few times and listen.\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.25,\"kept\":true},{\"step\":\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.57,\"kept\":true},{\"step\":\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.42,\"kept\":true},{\"step\":\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.52,\"kept\":true},{\"step\":\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check \",\"done\":0.05,\"refused\":0.05,\"pointless\":0.33,\"kept\":true},{\"step\":\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.58,\"kept\":true},{\"step\":\"check: With the filter still out, shine a torch into the opening and gently turn the small plasti\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.33,\"kept\":true},{\"step\":\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal\",\"done\":0.28,\"refused\":0.05,\"pointless\":0.6,\"kept\":true},{\"step\":\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d\",\"done\":0.07,\"refused\":0.05,\"pointless\":0.63,\"kept\":true},{\"step\":\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy \",\"done\":0.05,\"refused\":0.05,\"pointless\":0.64,\"kept\":true},{\"step\":\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t\",\"done\":0.97,\"refused\":0.05,\"pointless\":0.89,\"kept\":false},{\"step\":\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th\",\"done\":0.11,\"refused\":0.07,\"pointless\":0.31,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":null,\"answerToLastQuestion\":\"turns freely and quietly, no scraping or rumbling, not stiff\",\"checksReported\":[{\"check\":\"turned drum by hand with power off\",\"result\":\"turns freely and quietly, no scraping or rumbling, not stiff\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.71)\",\"symptomArea\":\"null (0.97)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.81)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:inlet-valve\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned drum by hand with power off: turns freely and quietly, no scraping or rumbling, not stiff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 1,
+       "resolution": "turns freely and quietly, no scraping or rumbling, not stiff"
+      },
+      {
+       "key": null,
+       "text": "Does it spin up properly when it's empty?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3325
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3721,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1545,
+     "labelMs": 308,
+     "enrichMs": 2,
+     "composeMs": 1813,
+     "replyLabelMs": 258,
+     "totalMs": 4067
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.67
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.4
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.96
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "drum never turns at all in normal wash cycle and doesn't spin at the end"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.93
+     },
+     "checkGiven": "Next, run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:inlet-valve",
+       "washing-machine:excessive-vibration"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:motor-drum\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"drive belt [belt-driven machines ONLY]\"},\"next\":{\"kind\":\"check\",\"text\":\"run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?\"},\"ms\":951,\"offered\":{\"situations\":[\"cause: retained water / drainage\",\"cause: unbalanced load / overload / spin-setting\",\"cause: foreign object / mechanical obstruction\",\"cause: drum bearings\",\"cause: drive belt [belt-driven machines ONLY]\",\"cause: carbon brushes [brushed universal motor ONLY]\",\"cause: motor thermal fuse / cut-out\",\"cause: start / run capacitor [capacitor-start motors ONLY]\",\"cause: drive motor\",\"cause: motor control / inverter module [where architecture uses one]\"],\"next\":[\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?\",\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as \\\"no spin\\\", \\\"rinse hold\\\" or a low spin speed stop the final spin. Was a normal programme with a normal spin speed selected, or was one of those options set?\",\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check nothing like a sock or the seal is caught in it, and start a programme. Does the door click locked and the lock light come on?\",\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the small flap at the bottom front and slowly unscrew the pump filter. Did you find anything caught in the filter (and clear it), or was it clear?\",\"check: With the filter still out, shine a torch into the opening and gently turn the small plastic impeller with a finger. Does it turn freely with nothing caught, did you find and clear something, or is it broken or rough?\",\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find something and remove it, can you see or hear something stuck that you can't get out, or is there nothing there?\",\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?\",\"retest: Now run a normal programme again. Has the noise gone, or can you still hear it?\"],\"removed\":[\"Washing machines refuse to spin if the load is out of balance — a single heavy i\",\"New machines come with transit (shipping) bolts in the back panel that lock the \",\"A single heavy item or a very small load can knock and bang as it spins. Was it \",\"With the machine unplugged, turn the drum slowly by hand a few times and listen.\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a\",\"done\":0.08,\"refused\":0.06,\"pointless\":0.69,\"kept\":false},{\"step\":\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p\",\"done\":0.17,\"refused\":0.13,\"pointless\":0.37,\"kept\":true},{\"step\":\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g\",\"done\":0.24,\"refused\":0.07,\"pointless\":0.54,\"kept\":true},{\"step\":\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check \",\"done\":0.06,\"refused\":0.05,\"pointless\":0.38,\"kept\":true},{\"step\":\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.56,\"kept\":true},{\"step\":\"check: With the filter still out, shine a torch into the opening and gently turn the small plasti\",\"done\":0.05,\"refused\":0.06,\"pointless\":0.36,\"kept\":true},{\"step\":\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal\",\"done\":0.26,\"refused\":0.06,\"pointless\":0.56,\"kept\":true},{\"step\":\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.66,\"kept\":false},{\"step\":\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy \",\"done\":0.05,\"refused\":0.05,\"pointless\":0.66,\"kept\":false},{\"step\":\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t\",\"done\":0.97,\"refused\":0.05,\"pointless\":0.88,\"kept\":false},{\"step\":\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th\",\"done\":0.09,\"refused\":0.07,\"pointless\":0.3,\"kept\":true},{\"step\":\"retest: Now run a normal programme again. Has the noise gone, or can you still hear it?\",\"done\":0.07,\"refused\":0.07,\"pointless\":0.44,\"kept\":true}]},\"answer\":\"Yes, you should run a spin-only or rinse and spin programme to see if the drum spins up properly.  This test will help determine if the issue is specific to certain cycles or affects all spinning operations.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"drum never turns at all in normal wash cycle and doesn't spin at the end\",\"customerQuestion\":\"Shall I try it anyway?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"hasn't run a spin-only programme as such\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (0.67)\",\"lastAnswer\":\"null (0.4)\",\"checkOutcome\":\"null (0.93)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.96)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:inlet-valve\",\"washing-machine:excessive-vibration\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned drum by hand with power off: turns freely and quietly, no scraping or rumbling, not stiff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 1,
+       "resolution": "turns freely and quietly, no scraping or rumbling, not stiff"
+      },
+      {
+       "key": null,
+       "text": "Does it spin up properly when it's empty?",
+       "turn": 2,
+       "resolution": null
+      },
+      {
+       "key": null,
+       "text": "Does the drum spin up properly on that programme?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4117
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4505,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1884,
+     "labelMs": 283,
+     "enrichMs": 23,
+     "composeMs": 0,
+     "replyLabelMs": 303,
+     "totalMs": 2497
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_spinning_or_turning",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.9
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.69
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.36
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "drum not turning at all in normal wash"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.89
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining",
+       "washing-machine:inlet-valve"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"hazard\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"drum not turning at all in normal wash\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[{\"check\":\"ran rinse and spin programme with drum empty\",\"result\":\"not done yet\"}],\"facts\":[\"faint hot electrical smell noticed a few weeks ago\",\"no smell since then\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_spinning_or_turning\\\" (0.98)\",\"hazard\":\"\\\"burning\\\" (0.9)\",\"unsafeRequest\":\"null (0.69)\",\"lastAnswer\":\"null (0.36)\",\"checkOutcome\":\"null (0.97)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.95)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:not-draining\",\"washing-machine:inlet-valve\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Indesit",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned drum by hand with power off: turns freely and quietly, no scraping or rumbling, not stiff",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 1,
+       "resolution": "turns freely and quietly, no scraping or rumbling, not stiff"
+      },
+      {
+       "key": null,
+       "text": "Does it spin up properly when it's empty?",
+       "turn": 2,
+       "resolution": null
+      },
+      {
+       "key": null,
+       "text": "Does the drum spin up properly on that programme?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 4,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.9
+      }
+     ]
+    },
+    "ms": 2607
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 2940,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0444096,
+ "finishedAt": "2026-10-15T23:30:57.944Z"
+}

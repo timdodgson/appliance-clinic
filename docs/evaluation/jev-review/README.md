@@ -52,3 +52,35 @@ What round 2 shows:
 4. **The fallback "tell me a bit more" loops** when no step is left: it needs a real end (engineer, or a summary).
 5. **"Needs an engineer" opens too early**: one reported check is not enough.
 6. Qwen's answers to direct questions still pull the wrong way (WM-07, WM-02 turn 1).
+
+## Round 3 (release 21.32), run twice: LLM = Qwen, and LLM = Claude Opus 5.5
+
+Reviews in `round3-qwen/` and `round3-opus/` (each turn now shows every step: what the LLM understood, Jev's labels,
+the notes found, each step's done/refused/pointless verdict, Jev's picks, the LLM's answer, the reply).
+
+| Test | R2 (Qwen) | R3 Qwen | R3 Opus |
+|---|---|---|---|
+| WM-01 | 3, fixed | 3, fixed | 3, fixed |
+| WM-02 | 3, fixed | 4, **engineer** | 4, **engineer** |
+| WM-03 | 3, safety stop | 4, safety stop | 4, safety stop |
+| WM-04 | 3, fixed | 4, fixed | **3, fixed** |
+| WM-05 | 4, loop | 7, engineer | 7, **seal found** |
+| WM-06 | 1, engineer | 1, engineer | 1, engineer |
+| WM-07 | 6 | 4 | 5, stuck |
+| WM-08 | safety stop | safety stop | safety stop |
+| WM-09 | 7, stuck | 5, engineer | 6, engineer |
+| WM-10 | 5, part path | **8, turn limit** | 5, part path |
+
+What round 3 shows:
+1. **The LLM's answers to direct questions matter, and Opus is much better at them.** Qwen ignored the customer's
+   question at the fuse box three times (WM-05) and looped "it depends on an empty spin" for five turns (WM-10). Opus
+   answered each plainly and the conversations ended where they should (seal found; part path).
+2. **Bug: a normal-behaviour case is not closed.** In WM-02 Jev settled on "normal out-of-balance" (settled = true),
+   but the code only ends on a settled *cause*, so it kept giving checks and then the engineer line, on both models.
+3. **Bug: "needs an engineer" still on the first reply** in WM-06 (the gate counts the customer's reported checks;
+   "cleaned the filter" plus another reported item reached two).
+4. **The note switches mid-conversation** on stray words (WM-04 turn 3: "refitted the hose" → a leak note; WM-05
+   between flood, door and drain leak notes).
+5. **A re-test offered when nothing was cleared** (WM-09: "Now that the blockage is cleared" after a squashed hose
+   that did not fix it).
+6. Knowledge gaps unchanged: WM-03 (no carbon-brush check), WM-07 (the 60 °C test keeps being offered).

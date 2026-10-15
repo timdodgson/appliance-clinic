@@ -1,0 +1,35 @@
+TEST WM-06  (ended: escalated, 1 customer messages)
+
+--- Turn 1
+CUSTOMER: bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?
+1 LLM UNDERSTOOD: appliance=washer brand=Bosch model=FD 9409 codes=[] symptom='not draining' question='what part do i need?'
+   checks reported: [{'check': 'cleaned the filter', 'result': 'done'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="not_draining" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.03); model="FD 9409" (1); code=null (1); make="Bosch" (1); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:pressure-switch']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.9 r=0.08 p=0.71  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    KEPT    d=0.6 r=0.08 p=0.53  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.04 r=0.05 p=0.13  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    KEPT    d=0.05 r=0.05 p=0.23  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    KEPT    d=0.08 r=0.05 p=0.25  check: With the filter out, shine a torch into the filter opening and gently turn the small plast
+    KEPT    d=0.05 r=0.04 p=0.14  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.13 r=0.04 p=0.2  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.97 r=0.04 p=0.75  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.05 r=0.05 p=0.12  step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e
+    KEPT    d=0.46 r=0.07 p=0.33  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    KEPT    d=0.07 r=0.07 p=0.13  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.05 r=0.05 p=0.13  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = engineer
+              next      = Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?
+LLM ANSWER TO THEIR QUESTION: I cannot identify a specific part for you because the diagnosis requires professional inspection by an appliance engineer.  The issue is likely beyond simple DIY repairs, so attempting to replace parts without proper testing could be unsafe or ineffective.
+REPLY: I cannot identify a specific part for you because the diagnosis requires professional inspection by an appliance engineer. The issue is likely beyond simple DIY repairs, so attempting to replace parts without proper testing could be unsafe or ineffective. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Genuinely uncertain: drain pump failing (stiff/gritty impeller, hum) or blockage in the sump/pump-to-tub hose; FD 9409 is a production code (roughly 2014), not a model or error code.

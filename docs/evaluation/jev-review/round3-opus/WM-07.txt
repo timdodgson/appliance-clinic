@@ -1,0 +1,142 @@
+TEST WM-07  (ended: stuck, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: I've just bought an AEG L7FEE865R and the Eco 40-60 wash says 3:39 and seems to take forever. My old machine did a 40 wash in an hour. Is it faulty? Should I send it back?
+1 LLM UNDERSTOOD: appliance=washing machine brand=AEG model=L7FEE865R codes=[] symptom='Eco 40-60 wash takes 3:39, very long' question='Is it faulty? Should I send it back?'
+   checks reported: []  facts: ['just bought', 'old machine did a 40 wash in an hour']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="other" (0.67); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.03); model="L7FEE865R" (1); code=null (0.99); make="AEG" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:heater', 'washing-machine:overheating', 'washing-machine:temperature-sensor']  normal: ['wm-eco-long']  codes: []  stage: 1
+4 JEV: note picked = washing-machine:heater | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: programme / temperature selection & how the customer judged it
+    - cause: water level / fill established (upstream sequence)
+    - cause: heating element
+    - cause: NTC / thermistor / temperature sensor
+    - cause: heater wiring / connectors
+    - cause: heater support / bracket [front-entry-heater designs ONLY]
+    - cause: heater relay / control PCB
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.14  check: To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and
+    KEPT    d=0.2 r=0.06 p=0.28  step: establish it should genuinely be heating (programme/temperature; not just cold rinses) bef
+    KEPT    d=0.04 r=0.05 p=0.17  step: confirm it fills to the correct level and actually reaches the heating stage
+    KEPT    d=0.04 r=0.03 p=0.6  step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor
+    KEPT    d=0.05 r=0.03 p=0.19  step: if there is a serious burning smell, melted insulation or smoke, stop using the machine
+    REMOVED d=0.86 r=0.08 p=0.49  question: What makes you think it isn't heating - does the programme finish normally but the washing
+    KEPT    d=0.49 r=0.05 p=0.33  question: What temperature and programme are you using, and does the machine have both a hot and a c
+  JEV PICKED: situation = Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.
+              next      = To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does the washing come out warm, or still cold?
+LLM ANSWER TO THEIR QUESTION: Probably not.  A long Eco 40-60 time like 3:39 is normal for new machines because they save energy by washing cooler for longer, so the time alone isn't a reason to send it back.
+REPLY: Probably not. A long Eco 40-60 time like 3:39 is normal for new machines because they save energy by washing cooler for longer, so the time alone isn't a reason to send it back. This sounds like normal behaviour rather than a fault: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance. It would be worth a closer look if the cycle never finishes, the display counts down then resets repeatedly, or a code appears. To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does the washing come out warm, or still cold?
+
+--- Turn 2
+CUSTOMER: I haven't run a 60 cottons wash yet. I did try Cottons 40 though, and that showed about 2 hours. On Eco 40-60 the water barely feels warm if I touch the door, is that normal?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='long Eco 40-60 cycle time, water barely warm' question='Is it normal that the door barely feels warm on Eco 40-60?'
+   checks reported: [{'check': 'Ran Cottons 40 programme', 'result': 'showed about 2 hours'}, {'check': 'Touched door during Eco 40-60', 'result': 'barely feels warm'}]  facts: ['Eco 40-60 showed 3:39']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="no_heat" (0.87); hazard=null (1); unsafeRequest=null (0.99); lastAnswer=null (0.39); checkOutcome="still_faulty" (0.72); modelUnreachable=false (0.04); model=null (0.97); code=null (1); checksConfirmed=[0, 1]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:heater', 'washing-machine:overheating', 'washing-machine:cycle-not-progressing']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:heater | findings settle it = False | engineer allowed = True
+  situations offered (8):
+    - cause: programme / temperature selection & how the customer judged it
+    - cause: water level / fill established (upstream sequence)
+    - cause: heating element
+    - cause: NTC / thermistor / temperature sensor
+    - cause: heater wiring / connectors
+    - cause: heater support / bracket [front-entry-heater designs ONLY]
+    - cause: heater relay / control PCB
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.1 r=0.1 p=0.24  retest: Now run a 60°C cottons wash again. Does the washing come out warm now, or still cold?
+    KEPT    d=0.49 r=0.11 p=0.26  step: establish it should genuinely be heating (programme/temperature; not just cold rinses) bef
+    KEPT    d=0.09 r=0.07 p=0.22  step: confirm it fills to the correct level and actually reaches the heating stage
+    KEPT    d=0.04 r=0.04 p=0.59  step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor
+    KEPT    d=0.07 r=0.03 p=0.21  step: if there is a serious burning smell, melted insulation or smoke, stop using the machine
+    REMOVED d=0.88 r=0.1 p=0.5  question: What makes you think it isn't heating - does the programme finish normally but the washing
+    REMOVED d=0.57 r=0.08 p=0.37  question: What temperature and programme are you using, and does the machine have both a hot and a c
+  JEV PICKED: situation = Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.
+              next      = Now run a 60°C cottons wash again. Does the washing come out warm now, or still cold?
+LLM ANSWER TO THEIR QUESTION: Yes, that's normal on Eco 40-60.  The programme saves energy by heating the water much less and washing for longer instead, so the water often stays well below 40°C and the door may only feel slightly warm.
+REPLY: Yes, that's normal on Eco 40-60. The programme saves energy by heating the water much less and washing for longer instead, so the water often stays well below 40°C and the door may only feel slightly warm. Now run a 60°C cottons wash again. Does the washing come out warm now, or still cold?
+
+--- Turn 3
+CUSTOMER: Ok, I'll run a 60 cottons wash. Just so you know, the manual lists Eco 40-60 as the longest programme, around 3.5 hours plus for a full load. Will the washing be warm at the end of the 60 wash, and what should I be looking for?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='washing not getting warm' question='Will the washing be warm at the end of the 60 wash, and what should I be looking for?'
+   checks reported: []  facts: ['manual lists Eco 40-60 as longest programme, around 3.5 hours plus for a full load']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea=null (0.54); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.43); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (0.97); code=null (1); narrowed=null (0.94); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:heater', 'washing-machine:cycle-not-progressing', 'washing-machine:overheating']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:heater | findings settle it = False | engineer allowed = True
+  situations offered (8):
+    - cause: programme / temperature selection & how the customer judged it
+    - cause: water level / fill established (upstream sequence)
+    - cause: heating element
+    - cause: NTC / thermistor / temperature sensor
+    - cause: heater wiring / connectors
+    - cause: heater support / bracket [front-entry-heater designs ONLY]
+    - cause: heater relay / control PCB
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.46 r=0.07 p=0.35  step: establish it should genuinely be heating (programme/temperature; not just cold rinses) bef
+    KEPT    d=0.08 r=0.07 p=0.26  step: confirm it fills to the correct level and actually reaches the heating stage
+    KEPT    d=0.04 r=0.04 p=0.57  step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor
+    KEPT    d=0.07 r=0.03 p=0.2  step: if there is a serious burning smell, melted insulation or smoke, stop using the machine
+    REMOVED d=0.84 r=0.09 p=0.51  question: What makes you think it isn't heating - does the programme finish normally but the washing
+    KEPT    d=0.44 r=0.08 p=0.43  question: What temperature and programme are you using, and does the machine have both a hot and a c
+  JEV PICKED: situation = Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.
+              next      = establish it should genuinely be heating (programme/temperature; not just cold rinses) before suspecting the heater
+LLM ANSWER TO THEIR QUESTION: Probably not: the final rinses use cold water and the spin cools things further, so the washing usually comes out cool even after a hot wash.  Eco 40-60 also often heats to a lower temperature than its name suggests and relies on the long run time instead, which fits the 3.
+REPLY: Probably not: the final rinses use cold water and the spin cools things further, so the washing usually comes out cool even after a hot wash. Eco 40-60 also often heats to a lower temperature than its name suggests and relies on the long run time instead, which fits the 3. Next: Establish it should genuinely be heating (programme/temperature; not just cold rinses) before suspecting the heater. Let me know what you find.
+
+--- Turn 4
+CUSTOMER: Ok. So going by the manual, is 3:39 on Eco 40-60 just normal for this machine? Or do you still think something could be wrong with it?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='long cycle time / possibly not heating' question='Is 3:39 on Eco 40-60 normal for this machine per the manual, or could something still be wrong?'
+   checks reported: []  facts: ['Eco 40-60 programme shows 3:39 run time']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea=null (0.44); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.29); checkOutcome=null (0.95); modelUnreachable=false (0.04); model=null (0.9); code=null (1); narrowed=null (0.95); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:heater', 'washing-machine:cycle-not-progressing', 'washing-machine:temperature-sensor']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:heater | findings settle it = False | engineer allowed = True
+  situations offered (8):
+    - cause: programme / temperature selection & how the customer judged it
+    - cause: water level / fill established (upstream sequence)
+    - cause: heating element
+    - cause: NTC / thermistor / temperature sensor
+    - cause: heater wiring / connectors
+    - cause: heater support / bracket [front-entry-heater designs ONLY]
+    - cause: heater relay / control PCB
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.09 r=0.07 p=0.28  step: confirm it fills to the correct level and actually reaches the heating stage
+    REMOVED d=0.05 r=0.04 p=0.65  step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor
+    KEPT    d=0.08 r=0.04 p=0.22  step: if there is a serious burning smell, melted insulation or smoke, stop using the machine
+    REMOVED d=0.8 r=0.1 p=0.53  question: What makes you think it isn't heating - does the programme finish normally but the washing
+    KEPT    d=0.49 r=0.08 p=0.45  question: What temperature and programme are you using, and does the machine have both a hot and a c
+  JEV PICKED: situation = Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.
+              next      = What temperature and programme are you using, and does the machine have both a hot and a cold water inlet or only a cold one?
+LLM ANSWER TO THEIR QUESTION: Going by what you've read in the manual, 3:39 on Eco 40-60 is normal for this machine, since it's listed as the longest programme at around 3. 5 hours or more for a full load.
+REPLY: Going by what you've read in the manual, 3:39 on Eco 40-60 is normal for this machine, since it's listed as the longest programme at around 3. 5 hours or more for a full load. What temperature and programme are you using, and does the machine have both a hot and a cold water inlet or only a cold one?
+
+--- Turn 5
+CUSTOMER: I'm using Eco 40-60, and I don't know what temperature it actually reaches. I'm not sure about the hot and cold inlet either, I'd have to look at how it's plumbed in. Is that likely to matter if the manual already says 3.5 hours is normal?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='long cycle time on Eco 40-60' question='Does the hot/cold inlet matter if the manual says 3.5 hours is normal?'
+   checks reported: []  facts: ['uses Eco 40-60 programme', 'manual says around 3.5 hours is normal', 'unsure whether it has hot and cold inlets']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.97); symptomArea=null (0.81); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.95); checkOutcome=null (1); modelUnreachable=false (0.04); model=null (0.89); code=null (0.97); narrowed=null (0.59); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:heater', 'washing-machine:temperature-sensor', 'washing-machine:cycle-not-progressing']  normal: ['wm-eco-long']  codes: []  stage: 2
+4 JEV: note picked = washing-machine:heater | findings settle it = False | engineer allowed = True
+  situations offered (8):
+    - cause: programme / temperature selection & how the customer judged it
+    - cause: water level / fill established (upstream sequence)
+    - cause: heating element
+    - cause: NTC / thermistor / temperature sensor
+    - cause: heater wiring / connectors
+    - cause: heater support / bracket [front-entry-heater designs ONLY]
+    - cause: heater relay / control PCB
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.09 p=0.28  step: confirm it fills to the correct level and actually reaches the heating stage
+    KEPT    d=0.05 r=0.05 p=0.64  step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor
+    KEPT    d=0.08 r=0.04 p=0.22  step: if there is a serious burning smell, melted insulation or smoke, stop using the machine
+    REMOVED d=0.83 r=0.12 p=0.52  question: What makes you think it isn't heating - does the programme finish normally but the washing
+  JEV PICKED: situation = Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.
+              next      = confirm it fills to the correct level and actually reaches the heating stage
+LLM ANSWER TO THEIR QUESTION: Not really.  If the manual lists about 3.
+REPLY: Not really. If the manual lists about 3. Next: Confirm it fills to the correct level and actually reaches the heating stage. Let me know what you find.
+
+HIDDEN TRUTH: Normal: Eco 40-60 is a long, low-temperature energy-label programme; long duration is by design.

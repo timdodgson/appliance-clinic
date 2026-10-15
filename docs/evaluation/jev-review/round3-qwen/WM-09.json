@@ -1,0 +1,1042 @@
+{
+ "id": "WM-09",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-09-33782749b2",
+ "endReason": "escalated",
+ "customerTurns": 5,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "LG F4V5VYP0W says OE and the clothes are sat in water. I'm not opening the little door at the bottom because last time I did that it flooded the whole kitchen. What else can I do?"
+  },
+  {
+   "role": "assistant",
+   "text": "OE on your LG means: Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter). From what you have described, the most likely cause is blocked pump filter / foreign object in the pump path. Run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?"
+  },
+  {
+   "role": "customer",
+   "text": "I can hear the pump humming, and sometimes a bit of a rattle. It doesn't pump the water away though. I'm still not touching that filter."
+  },
+  {
+   "role": "assistant",
+   "text": "Next: Check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved). Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Right, the machine was pushed hard back against the wall and the hose was squashed behind it. I've pulled it out and straightened it. The kitchen sink is fine, no blockage there."
+  },
+  {
+   "role": "assistant",
+   "text": "Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?"
+  },
+  {
+   "role": "customer",
+   "text": "I tried the spin again. It drained a little slower than normal and then OE came up again. So it's still not sorted."
+  },
+  {
+   "role": "assistant",
+   "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?"
+  },
+  {
+   "role": "customer",
+   "text": "Yes, there's still water sitting in the drum. The pump hums when it tries to drain, and there's that occasional rattle too."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1553,
+     "labelMs": 271,
+     "enrichMs": 403,
+     "composeMs": 841,
+     "replyLabelMs": 262,
+     "totalMs": 3371
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.64
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.72
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "F4V5VYP0W",
+       "confidence": 1
+      },
+      "code": {
+       "value": "OE",
+       "confidence": 1
+      },
+      "make": {
+       "value": "LG",
+       "confidence": 0.98
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "LG",
+      "model": "F4V5VYP0W",
+      "codes": [
+       "OE"
+      ],
+      "symptom": "clothes are sat in water"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.81
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:leak-flood"
+      ],
+      "codes": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked pump filter / foreign object in the pump path\"},\"next\":{\"kind\":\"check\",\"text\":\"run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\"},\"ms\":841,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"if the machine still holds water, follow the appliance's safe residual-water dra\",\"inspect and clean the accessible pump filter where the model design allows\",\"Is there still water sitting in the drum, and when it tries to drain can you hea\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.38,\"refused\":0.93,\"pointless\":0.37,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.07,\"refused\":0.45,\"pointless\":0.19,\"kept\":true},{\"step\":\"check: run a drain or spin-only programme and listen near the bottom front of the machine while i\",\"done\":0.04,\"refused\":0.21,\"pointless\":0.16,\"kept\":true},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.04,\"refused\":0.38,\"pointless\":0.18,\"kept\":true},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.05,\"refused\":0.12,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.41,\"refused\":0.82,\"pointless\":0.28,\"kept\":false},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.14,\"refused\":0.72,\"pointless\":0.28,\"kept\":false},{\"step\":\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e\",\"done\":0.05,\"refused\":0.1,\"pointless\":0.11,\"kept\":true},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.07,\"refused\":0.55,\"pointless\":0.19,\"kept\":true},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.7,\"refused\":0.21,\"pointless\":0.26,\"kept\":false},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.06,\"refused\":0.14,\"pointless\":0.13,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"LG\",\"model\":\"F4V5VYP0W\",\"codes\":[\"OE\"],\"symptom\":\"clothes are sat in water\",\"customerQuestion\":\"What else can I do?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"last time opening the little door at the bottom flooded the whole kitchen\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_draining\\\" (0.98)\",\"hazard\":\"null (0.64)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.8)\",\"checkOutcome\":\"null (0.72)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"F4V5VYP0W\\\" (1)\",\"code\":\"\\\"OE\\\" (1)\",\"make\":\"\\\"LG\\\" (0.98)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:leak-flood\"],\"normal\":[],\"codes\":[\"OE: RESOLVED Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter)\"],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "LG",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3410
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3521,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1771,
+     "labelMs": 289,
+     "enrichMs": 1,
+     "composeMs": 887,
+     "replyLabelMs": 259,
+     "totalMs": 3249
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.75
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.94
+      },
+      "make": {
+       "value": "LG",
+       "confidence": 0.46
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "LG",
+      "model": null,
+      "codes": [
+       "OE"
+      ],
+      "symptom": "Cannot drain - no drain for ~13 min"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:leak-drain",
+       "washing-machine:not-draining",
+       "washing-machine:drain-pump"
+      ],
+      "codes": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked pump filter / foreign object in the pump path\"},\"next\":{\"kind\":\"step\",\"text\":\"check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\"},\"ms\":887,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"A noise like that while it tries to empty, together with the water not going, us\",\"With the filter out, shine a torch into the filter opening and gently turn the s\",\"if the machine still holds water, follow the appliance's safe residual-water dra\",\"inspect and clean the accessible pump filter where the model design allows\",\"clear any trapped foreign object in the accessible pump path before recommending\",\"Is there still water sitting in the drum, and when it tries to drain can you hea\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.33,\"refused\":0.97,\"pointless\":0.45,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.36,\"refused\":0.92,\"pointless\":0.26,\"kept\":false},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.04,\"refused\":0.76,\"pointless\":0.35,\"kept\":false},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.05,\"refused\":0.1,\"pointless\":0.16,\"kept\":true},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.34,\"refused\":0.86,\"pointless\":0.32,\"kept\":false},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.1,\"refused\":0.94,\"pointless\":0.29,\"kept\":false},{\"step\":\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e\",\"done\":0.06,\"refused\":0.11,\"pointless\":0.15,\"kept\":true},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.1,\"refused\":0.86,\"pointless\":0.21,\"kept\":false},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.97,\"refused\":0.21,\"pointless\":0.82,\"kept\":false},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.06,\"refused\":0.11,\"pointless\":0.18,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"LG\",\"model\":null,\"codes\":[\"OE\"],\"symptom\":\"Cannot drain - no drain for ~13 min\",\"customerQuestion\":null,\"answerToLastQuestion\":\"pump humming and sometimes a bit of a rattle; doesn't pump water away\",\"checksReported\":[],\"facts\":[\"can hear the pump humming\",\"sometimes a bit of a rattle\",\"doesn't pump the water away\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.96)\",\"symptomArea\":\"\\\"not_draining\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.95)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.75)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (1)\",\"code\":\"null (0.94)\",\"make\":\"\\\"LG\\\" (0.46)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2]},\"notes\":[\"washing-machine:leak-drain\",\"washing-machine:not-draining\",\"washing-machine:drain-pump\"],\"normal\":[],\"codes\":[\"OE: RESOLVED Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter)\"],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "LG",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": "pump humming and sometimes a bit of a rattle; doesn't pump water away"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3285
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3500,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2742,
+     "labelMs": 301,
+     "enrichMs": 1,
+     "composeMs": 547,
+     "replyLabelMs": 256,
+     "totalMs": 3881
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.41
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.25
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.7
+     },
+     "checkGiven": "Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:leak-fill"
+      ],
+      "codes": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked pump filter / foreign object in the pump path\"},\"next\":{\"kind\":\"retest\",\"text\":\"Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\"},\"ms\":547,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[\"retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\"],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"A noise like that while it tries to empty, together with the water not going, us\",\"With the filter out, shine a torch into the filter opening and gently turn the s\",\"The next thing to check is the drain hose at the back: look for kinks or crushin\",\"if the machine still holds water, follow the appliance's safe residual-water dra\",\"inspect and clean the accessible pump filter where the model design allows\",\"clear any trapped foreign object in the accessible pump path before recommending\",\"Is there still water sitting in the drum, and when it tries to drain can you hea\",\"Did the draining get gradually slower over time or stop suddenly, and has the ma\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.27,\"refused\":0.96,\"pointless\":0.32,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.42,\"refused\":0.92,\"pointless\":0.22,\"kept\":false},{\"step\":\"retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does \",\"done\":0.27,\"refused\":0.21,\"pointless\":0.25,\"kept\":true},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.05,\"refused\":0.73,\"pointless\":0.24,\"kept\":false},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.9,\"refused\":0.11,\"pointless\":0.67,\"kept\":false},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.34,\"refused\":0.83,\"pointless\":0.3,\"kept\":false},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.11,\"refused\":0.93,\"pointless\":0.24,\"kept\":false},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.09,\"refused\":0.89,\"pointless\":0.18,\"kept\":false},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.97,\"refused\":0.21,\"pointless\":0.77,\"kept\":false},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.52,\"refused\":0.13,\"pointless\":0.35,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":null,\"answerToLastQuestion\":\"hose was squashed behind it; pulled it out and straightened it; kitchen sink is fine with no blockage\",\"checksReported\":[{\"check\":\"pulled machine out from wall to access hose\",\"result\":\"found hose squashed\"},{\"check\":\"straightened drain hose\",\"result\":\"done\"},{\"check\":\"checked kitchen sink for blockage\",\"result\":\"no blockage\"}],\"facts\":[\"machine was pushed hard back against the wall\",\"hose was squashed behind it\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.98)\",\"symptomArea\":\"null (0.41)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.99)\",\"checkOutcome\":\"null (0.25)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0,1,2],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:leak-fill\"],\"normal\":[],\"codes\":[\"OE: RESOLVED Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter)\"],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "LG",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "pulled machine out from wall to access hose: found hose squashed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "straightened drain hose: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked kitchen sink for blockage: no blockage",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": "pump humming and sometimes a bit of a rattle; doesn't pump water away"
+      },
+      {
+       "key": null,
+       "text": "Does the water pump away now?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3920
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4162,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1624,
+     "labelMs": 279,
+     "enrichMs": 10,
+     "composeMs": 626,
+     "replyLabelMs": 272,
+     "totalMs": 2814
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.96
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 0.53
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.92
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "OE",
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.69
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [
+       "OE"
+      ],
+      "symptom": "drained a little slower than normal and then OE came up again"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:leak-fill"
+      ],
+      "codes": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked pump filter / foreign object in the pump path\"},\"next\":{\"kind\":\"question\",\"text\":\"Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\"},\"ms\":626,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"A noise like that while it tries to empty, together with the water not going, us\",\"With the filter out, shine a torch into the filter opening and gently turn the s\",\"The next thing to check is the drain hose at the back: look for kinks or crushin\",\"if the machine still holds water, follow the appliance's safe residual-water dra\",\"inspect and clean the accessible pump filter where the model design allows\",\"clear any trapped foreign object in the accessible pump path before recommending\",\"Is there still water sitting in the drum, and when it tries to drain can you hea\",\"Did the draining get gradually slower over time or stop suddenly, and has the ma\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.32,\"refused\":0.96,\"pointless\":0.33,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.39,\"refused\":0.91,\"pointless\":0.23,\"kept\":false},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.05,\"refused\":0.73,\"pointless\":0.25,\"kept\":false},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.91,\"refused\":0.11,\"pointless\":0.68,\"kept\":false},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.37,\"refused\":0.85,\"pointless\":0.29,\"kept\":false},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.11,\"refused\":0.93,\"pointless\":0.22,\"kept\":false},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.1,\"refused\":0.86,\"pointless\":0.18,\"kept\":false},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.96,\"refused\":0.21,\"pointless\":0.66,\"kept\":false},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.78,\"refused\":0.1,\"pointless\":0.44,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[\"OE\"],\"symptom\":\"drained a little slower than normal and then OE came up again\",\"customerQuestion\":null,\"answerToLastQuestion\":\"It drained a little slower than normal and then OE came up again. So it's still not sorted.\",\"checksReported\":[],\"facts\":[\"tried the spin again\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.96)\",\"symptomArea\":\"\\\"not_draining\\\" (0.53)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (0.95)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.92)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (0.98)\",\"code\":\"\\\"OE\\\" (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.69)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:leak-fill\"],\"normal\":[],\"codes\":[\"OE: RESOLVED Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter)\"],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "LG",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "pulled machine out from wall to access hose: found hose squashed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "straightened drain hose: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked kitchen sink for blockage: no blockage",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": "pump humming and sometimes a bit of a rattle; doesn't pump water away"
+      },
+      {
+       "key": null,
+       "text": "Does the water pump away now?",
+       "turn": 3,
+       "resolution": "It drained a little slower than normal and then OE came up again. So it's still not sorted."
+      },
+      {
+       "key": null,
+       "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 2843
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 3028,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2132,
+     "labelMs": 352,
+     "enrichMs": 2,
+     "composeMs": 574,
+     "replyLabelMs": 246,
+     "totalMs": 3307
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.57
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.45
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "water sitting in the drum, pump hums and rattles when trying to drain"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [
+       {
+        "code": "OE",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked pump filter / foreign object in the pump path\"},\"next\":null,\"ms\":574,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"A noise like that while it tries to empty, together with the water not going, us\",\"With the filter out, shine a torch into the filter opening and gently turn the s\",\"The next thing to check is the drain hose at the back: look for kinks or crushin\",\"if the machine still holds water, follow the appliance's safe residual-water dra\",\"inspect and clean the accessible pump filter where the model design allows\",\"clear any trapped foreign object in the accessible pump path before recommending\",\"Did the draining get gradually slower over time or stop suddenly, and has the ma\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.29,\"refused\":0.96,\"pointless\":0.35,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.32,\"refused\":0.92,\"pointless\":0.21,\"kept\":false},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.05,\"refused\":0.75,\"pointless\":0.23,\"kept\":false},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.89,\"refused\":0.11,\"pointless\":0.7,\"kept\":false},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.44,\"refused\":0.83,\"pointless\":0.3,\"kept\":false},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.09,\"refused\":0.92,\"pointless\":0.21,\"kept\":false},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.1,\"refused\":0.86,\"pointless\":0.17,\"kept\":false},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.69,\"refused\":0.12,\"pointless\":0.38,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"water sitting in the drum, pump hums and rattles when trying to drain\",\"customerQuestion\":null,\"answerToLastQuestion\":\"yes water is still in the drum, pump hums and rattles\",\"checksReported\":[{\"check\":\"checked for water in the drum\",\"result\":\"water is sitting in the drum\"},{\"check\":\"listened to pump when trying to drain\",\"result\":\"pump hums and occasionally rattles\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"not_draining\\\" (1)\",\"hazard\":\"null (0.99)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.57)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.45)\",\"checksConfirmed\":[0,1],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[\"OE: RESOLVED Cannot drain - no drain for ~13 min (kinked/clogged drain hose or clogged drain pump filter)\"],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "LG",
+      "confidence": 0.98,
+      "turn": 1
+     },
+     "model": {
+      "value": "F4V5VYP0W",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "OE",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "pulled machine out from wall to access hose: found hose squashed",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "straightened drain hose: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "checked kitchen sink for blockage: no blockage",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c4",
+       "field": "check",
+       "value": "checked for water in the drum: water is sitting in the drum",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": null
+      },
+      {
+       "id": "c5",
+       "field": "check",
+       "value": "listened to pump when trying to drain: pump hums and occasionally rattles",
+       "source": "customer",
+       "status": "stated",
+       "turn": 5,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the water pump away, and can you hear the pump humming or is it silent?",
+       "turn": 1,
+       "resolution": "pump humming and sometimes a bit of a rattle; doesn't pump water away"
+      },
+      {
+       "key": null,
+       "text": "Does the water pump away now?",
+       "turn": 3,
+       "resolution": "It drained a little slower than normal and then OE came up again. So it's still not sorted."
+      },
+      {
+       "key": null,
+       "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?",
+       "turn": 4,
+       "resolution": "yes water is still in the drum, pump hums and rattles"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3349
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 3517,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.044121400000000005,
+ "finishedAt": "2026-10-15T23:33:49.283Z"
+}

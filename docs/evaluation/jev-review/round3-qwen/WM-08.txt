@@ -1,0 +1,13 @@
+TEST WM-08  (ended: escalated, 1 customer messages)
+
+--- Turn 1
+CUSTOMER: Every so often when I put the washing machine on the whole kitchen power goes off and I have to go to the fuse box and flick the switch back up. It doesn't happen every time. Indesit, IWE 7 something.
+1 LLM UNDERSTOOD: appliance=washing machine brand=Indesit model=IWE 7 something codes=[] symptom='kitchen power goes off when washing machine is turned on' question=None
+   checks reported: []  facts: ['happens every so often', "doesn't happen every time", 'have to reset fuse box switch']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="cuts_out" (0.98); hazard="supply_trip" (1); unsafeRequest=null (0.44); lastAnswer=null (0.99); checkOutcome=null (0.76); modelUnreachable=false (0.11); model="IWE 7 something" (0.77); code=null (1); make="Indesit" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:tripping-electrics', 'washing-machine:low-voltage', 'washing-machine:excessive-vibration']  normal: []  codes: []  stage: 1
+4 (no Jev choice this turn: hazard)
+REPLY: ⚠ Stop using this appliance
+Please don't keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Heating element developing low insulation/earth leakage when hot (intermittent RCD trips only on heated washes). Replace element after confirmation by insulation test.

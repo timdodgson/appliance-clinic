@@ -1,0 +1,289 @@
+TEST WM-10  (ended: turn-limit, 8 customer messages)
+
+--- Turn 1
+CUSTOMER: washing machine making a horrible noise
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='making a horrible noise' question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:excessive-vibration', 'washing-machine:drum-position', 'washing-machine:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:excessive-vibration | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: load size / distribution (imbalance)
+    - cause: transit brackets / bolts still fitted
+    - cause: levelling / feet / floor stability
+    - cause: shock absorbers / dampers
+    - cause: suspension spring / tub support
+    - cause: counterweight / retaining hardware
+    - cause: drum bearings / bearing seal
+    - cause: drum spider / drum support
+    - cause: drum paddle / lifter
+    - cause: foreign object trapped between inner and outer tubs
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.11  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    KEPT    d=0.05 r=0.04 p=0.08  check: A single heavy item (a bath mat, rug, duvet or pair of jeans) or a very small load can thr
+    KEPT    d=0.04 r=0.04 p=0.08  check: Check it stands level and firm: press on each top corner — it shouldn't rock — and make su
+    KEPT    d=0.04 r=0.04 p=0.08  check: Take the washing out and run a spin-only programme with the drum empty. Does it still shak
+    KEPT    d=0.04 r=0.05 p=0.08  check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th
+    KEPT    d=0.05 r=0.05 p=0.09  step: establish the noise CHARACTER (bang/knock/rumble/tick/scrape), whether it moves, and wheth
+    KEPT    d=0.04 r=0.04 p=0.1  step: on a new or recently-moved machine, check the transit bolts/brackets are removed and the m
+    KEPT    d=0.04 r=0.04 p=0.09  step: try an ordinary evenly-distributed load to rule out load imbalance
+    KEPT    d=0.04 r=0.04 p=0.08  step: with the power off, rotate the drum by hand for roughness/rumble and check for up/down pla
+    KEPT    d=0.04 r=0.03 p=0.14  step: if there's a big leak with heavy banging, check for a loose counterweight / cracked tub
+    KEPT    d=0.16 r=0.05 p=0.1  question: Does it happen with every load or mainly particular loads, and is it shaking/moving, bangi
+    KEPT    d=0.04 r=0.04 p=0.07  question: Is the machine new or has it recently been installed or moved?
+  JEV PICKED: situation = load size / distribution (imbalance)
+              next      = try an ordinary evenly-distributed load to rule out load imbalance
+REPLY: From what you have described, the most likely cause is load size / distribution (imbalance). Next: Try an ordinary evenly-distributed load to rule out load imbalance. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: It's not the load, it's every spin now. Gets louder the faster it spins, like a jet engine. Washes and drains fine though.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='gets louder the faster it spins, like a jet engine during spin cycle' question=None
+   checks reported: []  facts: ['washes fine', 'drains fine']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.96); checkOutcome="still_faulty" (0.67); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:not-draining', 'washing-machine:excessive-vibration']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.29 r=0.06 p=0.35  check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr
+    REMOVED d=0.8 r=0.13 p=0.8  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.13 r=0.05 p=0.45  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.25 r=0.05 p=0.5  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.06 r=0.05 p=0.12  check: check how the drum moves by hand. With the machine unplugged and the door open, how does t
+    KEPT    d=0.06 r=0.05 p=0.57  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.08 r=0.05 p=0.63  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.04 r=0.05 p=0.3  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.07 r=0.05 p=0.2  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.06 r=0.05 p=0.4  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.72 r=0.08 p=0.76  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    KEPT    d=0.05 r=0.06 p=0.12  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+  JEV PICKED: situation = drum bearings
+              next      = check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?
+REPLY: From what you have described, the most likely cause is drum bearings. Check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?
+
+--- Turn 3
+CUSTOMER: It rumbles and grinds when I turn it. Doesn't feel smooth.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='rumbling and grinding noise when turning the drum by hand; not smooth' question=None
+   checks reported: [{'check': 'turned the drum by hand with the machine unplugged and door open', 'result': 'it rumbles and grinds, does not feel smooth'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.7); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.75); modelUnreachable=false (0.02); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:not-draining', 'washing-machine:excessive-vibration']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.27 r=0.07 p=0.36  check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr
+    REMOVED d=0.76 r=0.11 p=0.74  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.12 r=0.05 p=0.42  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.26 r=0.05 p=0.51  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.05 r=0.05 p=0.58  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.07 r=0.05 p=0.56  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.04 r=0.05 p=0.33  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.15 r=0.05 p=0.23  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.06 r=0.05 p=0.38  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.73 r=0.1 p=0.72  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.73 r=0.08 p=0.28  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.15 r=0.06 p=0.17  check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th
+  JEV PICKED: situation = drum bearings
+              next      = With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?
+REPLY: With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?
+
+--- Turn 4
+CUSTOMER: Yes there's a noticeable clunky up and down movement when I lift it at the edge. Is it worth fixing?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='Is it worth fixing?'
+   checks reported: [{'check': 'pushed drum firmly down and lifted it up, then rocked it side to side', 'result': 'noticeable clunky up and down movement'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.53); symptomArea="noise" (0.86); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.91); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:not-draining', 'washing-machine:heater']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.32 r=0.06 p=0.44  check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr
+    REMOVED d=0.81 r=0.08 p=0.81  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.11 r=0.04 p=0.54  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    KEPT    d=0.31 r=0.05 p=0.62  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.06 r=0.04 p=0.57  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.07 r=0.05 p=0.61  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.04 r=0.05 p=0.4  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.17 r=0.05 p=0.28  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.07 r=0.05 p=0.41  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.77 r=0.1 p=0.8  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.9 r=0.08 p=0.4  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    REMOVED d=0.46 r=0.04 p=0.71  step: confirm all the water has drained before treating it as a spin fault
+  JEV PICKED: situation = drum bearings
+              next      = Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?
+LLM ANSWER TO THEIR QUESTION: It depends on whether the noise persists when you run an empty spin cycle, as this will determine if the issue is caused by the load or a mechanical fault in the machine itself.
+REPLY: It depends on whether the noise persists when you run an empty spin cycle, as this will determine if the issue is caused by the load or a mechanical fault in the machine itself. Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?
+
+--- Turn 5
+CUSTOMER: Yes it spins when empty, it's still really loud on the spin though. Is it worth fixing?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='really loud noise during spin cycle' question='Is it worth fixing?'
+   checks reported: [{'check': 'ran a spin-only programme with the drum empty', 'result': 'it spins up properly'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.94); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.97); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:motor-drum', 'washing-machine:excessive-vibration', 'washing-machine:not-draining']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.83 r=0.08 p=0.8  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.39 r=0.07 p=0.58  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    REMOVED d=0.34 r=0.05 p=0.66  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    REMOVED d=0.07 r=0.04 p=0.7  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.06 r=0.05 p=0.64  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.05 p=0.46  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.15 r=0.05 p=0.3  check: Look all round the inside of the drum, under the paddles and in the folds of the door seal
+    KEPT    d=0.06 r=0.05 p=0.45  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.74 r=0.08 p=0.8  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.92 r=0.07 p=0.49  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.29 r=0.05 p=0.53  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+    REMOVED d=0.59 r=0.05 p=0.81  step: confirm all the water has drained before treating it as a spin fault
+  JEV PICKED: situation = drum bearings
+              next      = Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find some
+LLM ANSWER TO THEIR QUESTION: It depends on whether the noise is caused by a simple foreign object like a coin or bra wire trapped in the drum seal.  If removing such an item resolves the issue, the repair is straightforward and worthwhile.
+REPLY: Before you start, switch it off and unplug it. It depends on whether the noise is caused by a simple foreign object like a coin or bra wire trapped in the drum seal. If removing such an item resolves the issue, the repair is straightforward and worthwhile. Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find something and remove it, can you see or hear something stuck that you can't get out, or is there nothing there?
+
+--- Turn 6
+CUSTOMER: Can't see anything in the drum holes or between the drum and tub, no coins or wire. Is it worth fixing?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='noise' question='Is it worth fixing?'
+   checks reported: [{'check': 'looked for foreign objects in drum holes and between drum and tub', 'result': 'found nothing'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.98); symptomArea="noise" (0.67); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome="still_faulty" (0.85); modelUnreachable=false (0.03); narrowed=null (0.98); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:excessive-vibration', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.85 r=0.08 p=0.82  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.4 r=0.07 p=0.6  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    REMOVED d=0.38 r=0.05 p=0.69  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    REMOVED d=0.07 r=0.05 p=0.66  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.08 r=0.07 p=0.56  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.06 p=0.44  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.06 r=0.05 p=0.43  check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d
+    REMOVED d=0.75 r=0.09 p=0.82  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.93 r=0.07 p=0.54  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.31 r=0.07 p=0.52  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+    REMOVED d=0.63 r=0.05 p=0.82  step: confirm all the water has drained before treating it as a spin fault
+    REMOVED d=0.81 r=0.09 p=0.79  step: try a normal, evenly-distributed load (and check the spin/programme setting isn't reduced/
+  JEV PICKED: situation = drum bearings
+              next      = New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery. If they're still in, it bangs on the spin. Are any transit bolts still fitted (and have you taken them out), or were they
+LLM ANSWER TO THEIR QUESTION: It is usually worth fixing if the noise is caused by remaining transit bolts, as removing them is a simple and inexpensive repair.  If the bolts are already gone, the issue may involve more significant internal components like bearings or the suspension system.
+REPLY: It is usually worth fixing if the noise is caused by remaining transit bolts, as removing them is a simple and inexpensive repair. If the bolts are already gone, the issue may involve more significant internal components like bearings or the suspension system. New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery. If they're still in, it bangs on the spin. Are any transit bolts still fitted (and have you taken them out), or were they already removed?
+[Helpful to see: image "Check the transit bolts have been removed" — Transit bolts hold the drum still for delivery and must be removed before use — a machine that bangs, walks or vibrates (especially when new or recently moved) often still has them fitted. They unscrew from the back of the machine. Typical layout — your machine may differ.]
+
+--- Turn 7
+CUSTOMER: No, it's had them out for years, it's level and was fine before. Is it worth fixing?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='Is it worth fixing?'
+   checks reported: [{'check': 'removed transit bolts', 'result': 'had them out for years'}, {'check': 'checked levelness', 'result': 'it is level'}]  facts: ['was fine before', 'level']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.45); symptomArea="noise" (0.51); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.8); modelUnreachable=false (0.03); narrowed=null (0.92); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:motor-drum', 'washing-machine:excessive-vibration']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.82 r=0.1 p=0.82  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.45 r=0.08 p=0.64  check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p
+    REMOVED d=0.3 r=0.05 p=0.65  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.07 r=0.05 p=0.62  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.09 r=0.07 p=0.64  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.07 p=0.46  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    REMOVED d=0.73 r=0.1 p=0.84  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.93 r=0.07 p=0.52  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.32 r=0.06 p=0.54  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+    REMOVED d=0.67 r=0.05 p=0.85  step: confirm all the water has drained before treating it as a spin fault
+    REMOVED d=0.76 r=0.1 p=0.79  step: try a normal, evenly-distributed load (and check the spin/programme setting isn't reduced/
+    REMOVED d=0.93 r=0.07 p=0.53  step: with the power off, turn the drum by hand to tell mechanical (stiff) from drive (free)
+  JEV PICKED: situation = drum bearings
+              next      = run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?
+LLM ANSWER TO THEIR QUESTION: It depends on whether the noise persists when you run a spin cycle with laundry inside, as this will help determine if the issue is related to unbalanced loads or a mechanical fault.
+REPLY: It depends on whether the noise persists when you run a spin cycle with laundry inside, as this will help determine if the issue is related to unbalanced loads or a mechanical fault. Run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?
+
+--- Turn 8
+CUSTOMER: I already did the empty spin and it spins fine, just very loud. Is it worth fixing? It's 9 years old and cost about £350 new.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='very loud noise during spin cycle' question='Is it worth fixing?'
+   checks reported: [{'check': 'ran empty spin cycle', 'result': 'spins fine, just very loud'}]  facts: ['9 years old', 'cost about £350 new']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.94); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.52); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.04); narrowed=null (0.7); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:excessive-vibration', 'washing-machine:not-draining', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:motor-drum | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: retained water / drainage
+    - cause: unbalanced load / overload / spin-setting
+    - cause: foreign object / mechanical obstruction
+    - cause: drum bearings
+    - cause: drive belt [belt-driven machines ONLY]
+    - cause: carbon brushes [brushed universal motor ONLY]
+    - cause: motor thermal fuse / cut-out
+    - cause: start / run capacitor [capacitor-start motors ONLY]
+    - cause: drive motor
+    - cause: motor control / inverter module [where architecture uses one]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.41 r=0.08 p=0.45  check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a
+    KEPT    d=0.21 r=0.06 p=0.54  check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g
+    KEPT    d=0.09 r=0.05 p=0.59  check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check 
+    KEPT    d=0.08 r=0.06 p=0.5  check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s
+    KEPT    d=0.05 r=0.07 p=0.37  check: With the filter still out, shine a torch into the opening and gently turn the small plasti
+    KEPT    d=0.18 r=0.07 p=0.47  check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy 
+    REMOVED d=0.88 r=0.09 p=0.43  check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t
+    KEPT    d=0.26 r=0.07 p=0.44  retest: Now run a normal programme again. Has the noise gone, or can you still hear it?
+    REMOVED d=0.64 r=0.05 p=0.84  step: confirm all the water has drained before treating it as a spin fault
+    KEPT    d=0.12 r=0.07 p=0.36  step: try a normal, evenly-distributed load (and check the spin/programme setting isn't reduced/
+    REMOVED d=0.83 r=0.1 p=0.4  step: with the power off, turn the drum by hand to tell mechanical (stiff) from drive (free)
+    KEPT    d=0.06 r=0.08 p=0.16  step: identify the drive architecture (belt-driven vs direct-drive; brushed vs brushless; capaci
+  JEV PICKED: situation = drum bearings
+              next      = try a normal, evenly-distributed load (and check the spin/programme setting isn't reduced/off)
+LLM ANSWER TO THEIR QUESTION: It depends on whether the noise persists with an even load, as this could indicate a simple imbalance or a more serious mechanical fault like worn bearings.  Given the appliance is nine years old and was originally inexpensive, significant repair costs may not be financially viable compared to replacement.
+REPLY: It depends on whether the noise persists with an even load, as this could indicate a simple imbalance or a more serious mechanical fault like worn bearings. Given the appliance is nine years old and was originally inexpensive, significant repair costs may not be financially viable compared to replacement. Next: Try a normal, evenly-distributed load (and check the spin/programme setting isn't reduced/off). Let me know what you find.
+
+HIDDEN TRUTH: Worn drum bearings (rumble when drum turned by hand, play in drum, rust streaks). On this model the bearings are in a sealed tub, so repair means tub replacement - engineer quote vs replacing the machine.
