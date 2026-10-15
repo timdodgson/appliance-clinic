@@ -547,3 +547,36 @@ describe('Phase 1 of the improvement plan (change 21.18)', () => {
   });
 });
 
+
+describe('jev-led (experiment, pipeline.mode = jev-led): Qwen reads, Jev chooses, code writes', () => {
+  const led = { flags: { mode: 'jev-led' } };
+  const opener = 'my washing machine wont drain, water left in the drum and the pump hums';
+  it('the reply is the chosen cause and the chosen check word for word; no reasoner call', async () => {
+    const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain' } });
+    const j = jev({ appliance: 'washing-machine', symptomArea: 'not_draining' });
+    const base = j.evaluate.bind(j);
+    let seen = null;
+    j.evaluate = async (req) => {
+      if (!req.questions.situation) return base(req);
+      seen = req;
+      const sit = Object.keys(req.questions.situation.criteria)[0];
+      const nxt = Object.keys(req.questions.next.criteria)[0];
+      return { answers: { situation: { type: 'choice', choice: sit, confidence: 0.2 }, next: { type: 'choice', choice: nxt, confidence: 0.2 } } };
+    };
+    const out = await runTurn({ messages: [user(opener)] }, deps(q, j, led));
+    expect(seen).not.toBe(null);
+    expect(q.reasons.length).toBe(0);
+    const sitText = seen.questions.situation.criteria.s1;
+    const nextText = seen.questions.next.criteria.n1.replace(/^(Check|Ask): /, '').replace(/…$/, '');
+    expect(out.response.message).toMatch(/most likely cause is/);
+    expect(out.response.message.toLowerCase()).toContain(sitText.toLowerCase().slice(0, 30));
+    expect(out.response.message).toContain(nextText.slice(0, 60));
+    expect(out.state.advice[out.state.advice.length - 1].check || out.state.asked.length).toBeTruthy();
+  });
+  it('a direct question is answered by Qwen above the fixed diagnosis', async () => {
+    const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain', customerQuestion: 'is it worth fixing?' }, reply: 'Usually yes: drain faults are among the cheapest to fix.' });
+    const j = jev({ appliance: 'washing-machine', symptomArea: 'not_draining' });
+    const out = await runTurn({ messages: [user(`${opener}. is it worth fixing?`)] }, deps(q, j, led));
+    expect(out.response.message.startsWith('Usually yes')).toBe(true);
+  });
+});

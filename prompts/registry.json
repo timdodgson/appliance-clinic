@@ -327,6 +327,33 @@
           "change": "Change 21.21: strict structured output (additionalProperties: false on every object); the prompt text is unchanged."
         }
       ]
+    },
+    {
+      "id": "diagnosis.jevled.question",
+      "version": 1,
+      "purpose": "Jev-led experiment (change 21.25, AI config pipeline.mode = jev-led): Qwen answers only the customer's direct question, in 1-3 sentences, above the reply that Jev chooses and code writes.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Diagnosis engine turn, jev-led mode (ac2/compose.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/compose.js",
+          "declarations": [
+            "QUESTION_SYSTEM"
+          ]
+        }
+      ],
+      "input": "What we know (the ac3 record's known values) and the customer's question as Qwen read it.",
+      "output": "Plain text, 1-3 sentences; dropped on any failure.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-15",
+          "fingerprint": "2a5ad492547db22672aed15e24c6a6c3e03dc9b67b33ac2843c300848640fe0f",
+          "change": "Initial version."
+        }
+      ]
     }
   ]
 }

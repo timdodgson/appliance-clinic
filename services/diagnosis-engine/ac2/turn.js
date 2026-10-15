@@ -28,6 +28,7 @@ const M = require('./models.js');
 const E = require('./errorcodes.js');
 const P = require('./parts.js');
 const J = require('./labels.js');
+const C = require('./compose.js');
 const { understand } = require('./understand.js');
 const R = require('./reasoner.js');
 const V = require('./verifier.js');
@@ -458,75 +459,90 @@ async function runTurn(input, deps) {
   const safetyNotes = [];
   const codeSafety = found.codeMeanings.find((r) => r.safety && r.safety.stopUse);
   if (codeSafety) safetyNotes.push(`The error code ${codeSafety.code} means it should not be used until checked${codeSafety.safety.reason ? ` (${codeSafety.safety.reason})` : ''}.`);
-  // 7a. Choose (experiment, AI config pipeline.jevChooses): Jev picks the likely cause and the next check from the notes.
+  let reply;
   let chosen = null;
-  if (deps.flags && deps.flags.jevChooses && appliance && found.knowledge.length && rec.outcome !== 'fixed' && !(hazard && BLOCKING.has(hazard.type))) {
-    try {
-      chosen = await J.chooseNext(deps.jev, { texts, known: Rec.known(rec), notes: found.knowledge, given: Rec.adviceSummary(rec) });
-    } catch (e) {
-      chosen = null;
-      audit.safety.gates.push({ gate: 'choose-unavailable' });
+  let led = null;
+  if (deps.flags && deps.flags.mode === 'jev-led') {
+    // Jev-led (experiment): Qwen only read the message; Jev chooses and code writes the reply (compose.js).
+    const tC = Date.now();
+    led = await C.composeLed({ jev: deps.jev, qwen: deps.qwen, question: u.reading.customerQuestion, rec, texts, known: Rec.known(rec), notes: found.knowledge, normal: found.normal,
+      codeMeanings: found.codeMeanings, hazardBlocking: Boolean(hazard && BLOCKING.has(hazard.type)), parts, appliance, model, labelWhere: LABEL_WHERE[appliance] || 'on the rating label' });
+    audit.timings.composeMs = Date.now() - tC;
+    audit.led = led.chosen;
+    audit.plan = [`jev-led: ${JSON.stringify(led.chosen)}`];
+    const gate = S.gateReply(led.reply, { hazards: activeHazards(rec), appliance });
+    for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
+    reply = gate.text || led.reply;
+  } else {
+    // 7a. Choose (experiment, AI config pipeline.jevChooses): Jev picks the likely cause and the next check from the notes.
+    if (deps.flags && deps.flags.jevChooses && appliance && found.knowledge.length && rec.outcome !== 'fixed' && !(hazard && BLOCKING.has(hazard.type))) {
+      try {
+        chosen = await J.chooseNext(deps.jev, { texts, known: Rec.known(rec), notes: found.knowledge, given: Rec.adviceSummary(rec) });
+      } catch (e) {
+        chosen = null;
+        audit.safety.gates.push({ gate: 'choose-unavailable' });
+      }
+      audit.chosen = chosen;
+      if (chosen) audit.timings.chooseMs = chosen.ms;
     }
-    audit.chosen = chosen;
-    if (chosen) audit.timings.chooseMs = chosen.ms;
-  }
-  const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew, chosen });
-  const facts = Rec.evidence(rec);
-  const context = {
-    turn: rec.turn,
-    messages,
-    ledger: { facts, known: Rec.known(rec), alreadyAsked: rec.asked.map((a) => ({ question: a.question, answer: a.answer })) },
-    tools: { errorCodes: found.codeMeanings, modelHints: rec.knowledge.modelInfo, recalls: found.recalls },
-    knowledge: found.knowledge,
-    normal: found.normal,
-    safety: { activeHazards: activeHazards(rec).map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
-    plan,
-  };
-  const reason = async (feedback) => {
-    try { return await R.reason(deps.qwen, context, feedback ? { feedback } : {}); } catch (e) { throw new ProviderUnavailableError('diagnostic reasoner unavailable', e); }
-  };
-  audit.claims = { checked: 0, rejected: [] };
-  let r = await reason(null);
-  audit.timings.reasonMs = r.ms;
-  audit.usage = r.usage;
-  audit.plan = plan;
-  let check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
-  // One regeneration with the objections when the clean-up would damage the reply, or when it copies an earlier one;
-  // never replaced by fixed text. Only when another reasoning pass and claim check (estimated from this turn's) fit in
-  // the turn's time budget: otherwise the claim check's clean-up stands, as a reply that never arrives helps nobody.
-  const elapsed = now() - t0;
-  const fits = elapsed + r.ms + (audit.timings.verifyMs || 0) <= REGENERATION_BUDGET_MS;
-  if (needsRegeneration(r.proposal.reply, check) && !fits) {
-    audit.safety.gates.push({ gate: 'regeneration-skipped', reason: 'time-budget', elapsedMs: elapsed });
-  } else if (needsRegeneration(r.proposal.reply, check)) {
-    audit.regenerated = true;
-    if (check.issues.some((i) => i.kind === 'copied')) audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
-    r = await reason(check.issues.map((i) => i.text));
-    audit.timings.regenerateMs = r.ms;
-    check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
-  }
-  const a = r.proposal.assessment;
-  audit.reasoning = { status: a.status, confidence: a.confidence, candidates: a.candidates.map((x) => `${x.cause} (${x.likelihood})`), next: r.proposal.next ? r.proposal.next.question : null };
+    const plan = decide(rec, u.reading, hazard, unsafe, parts, { nothingNew, chosen });
+    const facts = Rec.evidence(rec);
+    const context = {
+      turn: rec.turn,
+      messages,
+      ledger: { facts, known: Rec.known(rec), alreadyAsked: rec.asked.map((a) => ({ question: a.question, answer: a.answer })) },
+      tools: { errorCodes: found.codeMeanings, modelHints: rec.knowledge.modelInfo, recalls: found.recalls },
+      knowledge: found.knowledge,
+      normal: found.normal,
+      safety: { activeHazards: activeHazards(rec).map((h) => h.type), unsafeRequest: unsafe || null, notes: safetyNotes },
+      plan,
+    };
+    const reason = async (feedback) => {
+      try { return await R.reason(deps.qwen, context, feedback ? { feedback } : {}); } catch (e) { throw new ProviderUnavailableError('diagnostic reasoner unavailable', e); }
+    };
+    audit.claims = { checked: 0, rejected: [] };
+    let r = await reason(null);
+    audit.timings.reasonMs = r.ms;
+    audit.usage = r.usage;
+    audit.plan = plan;
+    let check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+    // One regeneration with the objections when the clean-up would damage the reply, or when it copies an earlier one;
+    // never replaced by fixed text. Only when another reasoning pass and claim check (estimated from this turn's) fit in
+    // the turn's time budget: otherwise the claim check's clean-up stands, as a reply that never arrives helps nobody.
+    const elapsed = now() - t0;
+    const fits = elapsed + r.ms + (audit.timings.verifyMs || 0) <= REGENERATION_BUDGET_MS;
+    if (needsRegeneration(r.proposal.reply, check) && !fits) {
+      audit.safety.gates.push({ gate: 'regeneration-skipped', reason: 'time-budget', elapsedMs: elapsed });
+    } else if (needsRegeneration(r.proposal.reply, check)) {
+      audit.regenerated = true;
+      if (check.issues.some((i) => i.kind === 'copied')) audit.safety.gates.push({ gate: 'copied-earlier-reply', rewritten: true });
+      r = await reason(check.issues.map((i) => i.text));
+      audit.timings.regenerateMs = r.ms;
+      check = await claimCheck(r.proposal.reply, facts, texts, messages, deps, audit);
+    }
+    const a = r.proposal.assessment;
+    audit.reasoning = { status: a.status, confidence: a.confidence, candidates: a.candidates.map((x) => `${x.cause} (${x.likelihood})`), next: r.proposal.next ? r.proposal.next.question : null };
 
-  // 9. Final check.
-  const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: activeHazards(rec), appliance });
-  for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
-  let gated = gate.text;
-  if (hazard && MUST_BE_CHECKED.has(hazard.type)) {
-    const sents = String(gated).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
-    const kept = sents.filter((x) => !UNSAFE_REASSURANCE.test(x));
-    if (kept.length < sents.length) audit.safety.gates.push({ gate: 'unsafe-reassurance', removed: sents.length - kept.length });
-    gated = kept.join('').trim();
+    // 9. Final check.
+    const gate = S.gateReply(check.reply || (r.proposal.next && r.proposal.next.question) || '', { hazards: activeHazards(rec), appliance });
+    for (const v of gate.violations) audit.safety.gates.push({ gate: 'prohibited-advice', rule: v.rule });
+    let gated = gate.text;
+    if (hazard && MUST_BE_CHECKED.has(hazard.type)) {
+      const sents = String(gated).match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
+      const kept = sents.filter((x) => !UNSAFE_REASSURANCE.test(x));
+      if (kept.length < sents.length) audit.safety.gates.push({ gate: 'unsafe-reassurance', removed: sents.length - kept.length });
+      gated = kept.join('').trim();
+    }
+    const cal = calibrate(gated);
+    if (cal.changed) audit.safety.gates.push({ gate: 'certainty', softened: cal.changed });
+    gated = cal.text;
+    const held = removeUnconfirmedAdvice(gated, { narrowed: Boolean(rec.narrowed) || Boolean(parts && parts.outcome === 'verified') });
+    for (const g of held.removed) audit.safety.gates.push({ gate: g });
+    gated = held.text;
+    const ids = removeUnverifiedIdentifiers(gated, texts, rec);
+    for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
+    reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
   }
-  const cal = calibrate(gated);
-  if (cal.changed) audit.safety.gates.push({ gate: 'certainty', softened: cal.changed });
-  gated = cal.text;
-  const held = removeUnconfirmedAdvice(gated, { narrowed: Boolean(rec.narrowed) || Boolean(parts && parts.outcome === 'verified') });
-  for (const g of held.removed) audit.safety.gates.push({ gate: g });
-  gated = held.text;
-  const ids = removeUnverifiedIdentifiers(gated, texts, rec);
-  for (const b of ids.removed) audit.safety.gates.push({ gate: 'unverified-identifier', ids: b });
-  let reply = ids.text || 'Could you tell me a little more about what it is doing at the moment?';
   const prefix = [];
   for (const h of activeHazards(rec)) {
     if (h.shown) continue;
@@ -553,10 +569,10 @@ async function runTurn(input, deps) {
   const rl = await J.labelReply(deps.jev, { reply, media: pool, checks });
   audit.timings.replyLabelMs = rl.ms;
 
-  const q = lastQuestion(reply);
+  const q = led ? (led.given.question || lastQuestion(reply)) : lastQuestion(reply);
   if (q) Rec.noteAsked(rec, q, rec.turn);
   const action = rl.replyAction.value;
-  Rec.noteAdvice(rec, { turn: rec.turn, action, check: rl.check, question: q });
+  Rec.noteAdvice(rec, { turn: rec.turn, action, check: led ? led.given.check || null : rl.check, question: q });
   if (action === 'recommends_engineer' && rec.outcome !== 'fixed') rec.outcome = 'engineer';
   else if (action === 'suggests_part' && parts && parts.outcome === 'verified') rec.outcome = 'part';
   else if (action === 'says_normal') rec.outcome = 'normal';
