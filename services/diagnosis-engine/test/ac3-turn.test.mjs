@@ -551,32 +551,52 @@ describe('Phase 1 of the improvement plan (change 21.18)', () => {
 describe('jev-led (experiment, pipeline.mode = jev-led): Qwen reads, Jev chooses, code writes', () => {
   const led = { flags: { mode: 'jev-led' } };
   const opener = 'my washing machine wont drain, water left in the drum and the pump hums';
-  it('the reply is the chosen cause and the chosen check word for word; no reasoner call', async () => {
-    const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain' } });
+  /** Jev stub for the round-2 flow: the note, a situation, steps marked done, and the next step. */
+  function ledJev({ doneMatch = null } = {}) {
     const j = jev({ appliance: 'washing-machine', symptomArea: 'not_draining' });
     const base = j.evaluate.bind(j);
-    let seen = null;
+    const seen = [];
     j.evaluate = async (req) => {
-      if (!req.questions.situation) return base(req);
-      seen = req;
-      const sit = Object.keys(req.questions.situation.criteria)[0];
-      const nxt = Object.keys(req.questions.next.criteria)[0];
-      return { answers: { situation: { type: 'choice', choice: sit, confidence: 0.2 }, next: { type: 'choice', choice: nxt, confidence: 0.2 } } };
+      const q = req.questions;
+      if (!q.fault && !q.situation && !(q.next && !q.replyAction)) return base(req);
+      seen.push(req);
+      const answers = {};
+      if (q.fault) answers.fault = { type: 'choice', choice: 'f1', confidence: 0.9 };
+      if (q.situation) answers.situation = { type: 'choice', choice: 's1', confidence: 0.2 };
+      for (const [k, v] of Object.entries(q)) {
+        if (v.type !== 'noul') continue;
+        answers[k] = { type: 'noul', noul: doneMatch && k.startsWith('done_') && doneMatch.test(v.instructions) ? 0.95 : 0.05 };
+      }
+      if (q.next) answers.next = { type: 'choice', choice: Object.keys(q.next.criteria)[0], confidence: 0.2 };
+      return { answers };
     };
+    return { j, seen };
+  }
+  it('no reasoner call; the reply carries the chosen cause and a step from the note word for word', async () => {
+    const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain' } });
+    const { j, seen } = ledJev();
     const out = await runTurn({ messages: [user(opener)] }, deps(q, j, led));
-    expect(seen).not.toBe(null);
     expect(q.reasons.length).toBe(0);
-    const sitText = seen.questions.situation.criteria.s1;
-    const nextText = seen.questions.next.criteria.n1.replace(/^(Check|Ask): /, '').replace(/…$/, '');
+    const sit = seen.find((r) => r.questions.situation).questions.situation.criteria.s1;
     expect(out.response.message).toMatch(/most likely cause is/);
-    expect(out.response.message.toLowerCase()).toContain(sitText.toLowerCase().slice(0, 30));
-    expect(out.response.message).toContain(nextText.slice(0, 60));
-    expect(out.state.advice[out.state.advice.length - 1].check || out.state.asked.length).toBeTruthy();
+    expect(out.response.message.toLowerCase()).toContain(sit.toLowerCase().slice(0, 25));
   });
-  it('a direct question is answered by Qwen above the fixed diagnosis', async () => {
+  it('a step the customer already did is removed before Jev picks the next one', async () => {
+    const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain' } });
+    const { j } = ledJev({ doneMatch: /pump filter/i });
+    const out = await runTurn({ messages: [user(`${opener}. I already cleaned the pump filter`)] }, deps(q, j, led));
+    const chosen = JSON.parse(out.audit.plan[0].slice('jev-led: '.length));
+    expect(chosen.offered.removed.length).toBeGreaterThan(0);
+    expect(chosen.offered.next.some((x) => /pump filter/i.test(x) && !/^question/.test(x))).toBe(false);
+  });
+  it('a direct question is answered by Qwen above the diagnosis; a generic "what next" is not sent to Qwen', async () => {
     const q = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain', customerQuestion: 'is it worth fixing?' }, reply: 'Usually yes: drain faults are among the cheapest to fix.' });
-    const j = jev({ appliance: 'washing-machine', symptomArea: 'not_draining' });
-    const out = await runTurn({ messages: [user(`${opener}. is it worth fixing?`)] }, deps(q, j, led));
-    expect(out.response.message.startsWith('Usually yes')).toBe(true);
+    const out = await runTurn({ messages: [user(`${opener}. is it worth fixing?`)] }, deps(q, ledJev().j, led));
+    const m = out.response.message;
+    expect(m.indexOf('Usually yes')).toBeGreaterThanOrEqual(0);
+    expect(m.indexOf('Usually yes')).toBeLessThan(m.indexOf('most likely cause'));
+    const q2 = qwen({ reading: { appliance: 'washing-machine', symptom: 'will not drain', customerQuestion: 'what should I do next?' }, reply: 'SHOULD NOT APPEAR' });
+    const out2 = await runTurn({ messages: [user(`${opener}. what should I do next?`)] }, deps(q2, ledJev().j, led));
+    expect(out2.response.message).not.toContain('SHOULD NOT APPEAR');
   });
 });

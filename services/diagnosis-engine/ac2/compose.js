@@ -73,7 +73,7 @@ function words({ situation, next }) {
     if (situation.warning) out.push(`It would be worth a closer look if ${stop(lower(situation.warning))}`);
   } else if (situation) out.push(`From what you have described, the most likely cause is ${stop(lower(situation.text))}`);
   if (situation !== 'engineer' && next) {
-    if (next.kind === 'check' || next.kind === 'question') out.push(sentence(next.text));
+    if (next.kind === 'check' || next.kind === 'question' || next.kind === 'retest') out.push(sentence(next.text));
     else out.push(`Next: ${stop(sentence(next.text))} Let me know what you find.`);
   }
   return out;
@@ -100,7 +100,9 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   // Qwen answers a direct question, except where code already answers it: a fixed fault, or an error code given this turn
   // (its meaning is the first line).
   const codeNow = c.codes.some((x) => x.turn === rec.turn);
-  const answer = rec.outcome === 'fixed' || codeNow ? null : await answerQuestion(qwen, { question, known });
+  // A generic "what next?" is answered by the next step itself, not by Qwen.
+  const generic = /\b(what (should|do|can) i (do|check|try)( next| now)?|what next|what now|anything else|is there (anything|something) else)\b/i.test(String(question || ''));
+  const answer = rec.outcome === 'fixed' || codeNow || generic ? null : await answerQuestion(qwen, { question, known });
   const lead = answer ? [answer] : [];
   if (rec.outcome === 'fixed') return { reply: [...lead, FIXED].join(' '), given: {}, chosen: { state: 'fixed', answered: Boolean(answer) } };
   if (!appliance) return { reply: [...lead, ASK_APPLIANCE].join(' '), given: { question: ASK_APPLIANCE }, chosen: { state: 'no-appliance', answered: Boolean(answer) } };
@@ -163,38 +165,99 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
     return { reply: lines.join(' '), given: step.kind === 'question' ? { question: step.text } : { check: step.text },
       chosen: { state: 'evidence', answered: Boolean(answer), ranked: ranked.slice(0, 3), next: { kind: step.kind, text: step.text }, ms: Date.now() - t1 } };
   }
-  const req = chooseRequest({ texts, known, notes, normal, given, allowEngineer: c.checks.length > 0 || rec.stage === 2 });
-  let situation = null;
-  let next = null;
+  // Round 2 (the review of tests 1-10): one note, clean options, steps the customer did, answered, refused or made
+  // pointless are removed before Jev picks, and once the findings show the fault no more diagnostic steps.
   const t0 = Date.now();
-  if (req.plan.sit.length || req.plan.nxt.length) {
-    let r;
-    try { r = await jev.evaluate({ state: req.state, questions: req.questions }); } catch (e) { throw new ProviderUnavailableError('Jev unavailable', e); }
-    const a = (r && r.answers) || {};
-    const s = top(a.situation);
-    situation = s === 'engineer' ? 'engineer' : req.plan.sit.find((x) => x.id === s) || null;
-    const n = top(a.next);
-    next = req.plan.nxt.find((x) => x.id === n) || null;
-  }
-  const ms = Date.now() - t0;
-  // The cause is said when it is new or has changed; the next step is new every turn.
+  const note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
+  const o = cleanOptions({ note, normal, given, afterFindings: c.checks.length > 0 });
+  const sit = o.situations.map((x, i) => ({ id: `s${i + 1}`, ...x }));
+  const steps = o.steps.map((x, i) => ({ id: `n${i + 1}`, ...x }));
+  const allowEngineer = c.checks.length > 0 || rec.stage === 2;
+  const state = { customerMessages: texts, knownSoFar: known, errorCodeMeanings: (codeMeanings || []).filter((m) => m.status === 'RESOLVED').map((m) => `${m.code}: ${m.meaning}`),
+    alreadyGiven: given, guidance: note ? { fault: note.fault, discriminators: note.discriminators, evidence: note.componentEvidence } : null, normalBehaviour: normal || [] };
+  const show = (x) => (x.length > 220 ? `${x.slice(0, 219)}…` : x);
+  const q2 = {
+    situation: { type: 'choice', instructions: 'From everything the customer has said (customerMessages), the checks they reported (knownSoFar) and the error-code meanings, which ONE best describes their situation? Use the guidance (discriminators, evidence for and against each cause) and the normal-behaviour notes. Prefer a simple, common cause unless their evidence rules it out.' + (allowEngineer ? ' engineer = their checks are done and it now needs an engineer.' : ''),
+      criteria: { ...Object.fromEntries(sit.map((x) => [x.id, show(x.kind === 'normal' ? `Normal behaviour, not a fault: ${x.text}` : x.text)])), ...(allowEngineer ? { engineer: 'Needs an engineer now' } : {}) } },
+    settled: { type: 'noul', instructions: 'Do the customer\'s own findings already show what the fault is (for example they found the blockage, the damaged part, or the cause is clearly confirmed)?', criteria: { true: 'Yes, the findings show it', false: 'Not yet' } },
+  };
+  steps.forEach((x) => {
+    q2[`done_${x.id}`] = { type: 'noul', instructions: `Has the customer already done this, or already given the answer (customerMessages): "${show(x.text)}"?`, criteria: { true: 'Already done or answered', false: 'No' } };
+    q2[`refused_${x.id}`] = { type: 'noul', instructions: `Has the customer said they cannot or will not do this: "${show(x.text)}"?`, criteria: { true: 'Cannot or will not', false: 'No' } };
+    q2[`pointless_${x.id}`] = { type: 'noul', instructions: `Does what the customer has already said make this step pointless or contradict it (for example it checks something they already ruled out): "${show(x.text)}"?`, criteria: { true: 'Pointless now', false: 'Still useful' } };
+  });
+  const a2 = await askJev(jev, state, q2);
+  const yes = (v) => Boolean(v && v.type === 'noul' && typeof v.noul === 'number' && v.noul >= 0.65);
+  const sId = top(a2.situation);
+  const situation = sId === 'engineer' ? 'engineer' : sit.find((x) => x.id === sId) || null;
+  const settled = yes(a2.settled);
+  const usable = steps.filter((x) => !yes(a2[`done_${x.id}`]) && !yes(a2[`refused_${x.id}`]) && !yes(a2[`pointless_${x.id}`]));
+  const removed = steps.length - usable.length;
+
+  let next = null;
   const sitKey = situation === 'engineer' ? 'engineer' : situation ? key(situation.text) : null;
   const sameCause = sitKey && sitKey !== 'engineer' && rec.led && rec.led.situation === sitKey;
-  lines.push(...words({ situation: sameCause ? null : situation, next }));
   rec.led = { situation: sitKey };
-  if (!next && situation !== 'engineer') {
-    // Nothing left to check: the top note's own question, if not asked yet, else ask for more.
-    const q = notes.map((n) => n.clarifyingQuestion).find((x) => x && !given.some((g) => key(g) === key(x)));
-    lines.push(q || MORE);
-    next = { kind: 'question', text: q || MORE };
+  const ev = note && situation && situation !== 'engineer' && situation.kind === 'cause' ? (note.componentEvidence || []).find((x) => key(x.name) === key(situation.text)) : null;
+  if (settled && situation && situation !== 'engineer' && situation.kind === 'cause') {
+    // The findings show the fault: no more diagnosis. A part: the parts path (model number). A check-type cause: test it.
+    if (ev && ev.type === 'part') {
+      rec.narrowed = { component: situation.text, confidence: null, turn: rec.turn };
+      rec.stage = 2;
+      const ask = !model && !c.modelUnavailable ? ` To find the right part, could you give me the ${c.brand ? '' : 'make and '}model number? It is usually ${labelWhere}.` : ' An appliance engineer can confirm it and fit the part.';
+      lines.push(`From what you have found, this points to the ${lower(situation.text)}.${ask}`);
+      return { reply: lines.join(' '), given: { question: ask.trim() }, chosen: { state: 'settled-part', answered: Boolean(answer), situation: situation.text, removed, ms: Date.now() - t0 } };
+    }
+    const retest = usable.find((x) => x.kind === 'retest');
+    next = retest || { kind: 'question', text: 'Once that is sorted, run it again: does it work normally now?' };
+    lines.push(`That fits ${stop(lower(situation.text))}`);
+    lines.push(sentence(next.text));
+  } else {
+    if (usable.length > 1) {
+      const a3 = await askJev(jev, { ...state, mostLikely: situation === 'engineer' ? 'needs an engineer' : situation && situation.text }, {
+        next: { type: 'choice', instructions: 'Which ONE of these should the customer do next: the simplest, safest step that best confirms or rules out the most likely situation (mostLikely), or the question whose answer would best separate the likely causes?',
+          criteria: Object.fromEntries(usable.map((x) => [x.id, show(`${x.kind === 'question' ? 'Ask: ' : 'Do: '}${x.text}`)])) } });
+      next = usable.find((x) => x.id === top(a3.next)) || usable[0];
+    } else next = usable[0] || null;
+    lines.push(...words({ situation: sameCause ? null : situation, next: situation === 'engineer' ? null : next }));
+    if (!next && situation !== 'engineer') {
+      next = { kind: 'question', text: (note && note.clarifyingQuestion && !given.some((g) => key(g) === key(note.clarifyingQuestion))) ? note.clarifyingQuestion : MORE };
+      lines.push(next.text);
+    }
   }
   return {
     reply: lines.join(' '),
     given: next ? (next.kind === 'question' ? { question: next.text } : { check: next.text }) : {},
-    chosen: { state: 'chosen', answered: Boolean(answer), situation: situation === 'engineer' ? 'engineer' : situation && { kind: situation.kind, text: situation.text }, next: next && { kind: next.kind, text: next.text }, ms,
-      // What Jev had to choose from (for review): the situations and next steps offered.
-      offered: { situations: req.plan.sit.map((x) => `${x.kind}: ${x.text}`), next: req.plan.nxt.map((x) => `${x.kind}: ${x.text}`), engineerAllowed: Boolean(req.questions.situation.criteria.engineer) } },
+    chosen: { state: 'chosen', answered: Boolean(answer), note: note && note.knowledgeId, settled, situation: situation === 'engineer' ? 'engineer' : situation && { kind: situation.kind, text: situation.text },
+      next: next && { kind: next.kind, text: next.text }, ms: Date.now() - t0,
+      // What Jev had to choose from (for review), and how many steps were removed as done, refused or pointless.
+      offered: { situations: sit.map((x) => `${x.kind}: ${x.text}`), next: usable.map((x) => `${x.kind}: ${x.text}`), removed: steps.filter((x) => !usable.includes(x)).map((x) => x.text.slice(0, 80)), engineerAllowed: allowEngineer } },
   };
 }
 
-module.exports = { composeLed, answerQuestion, chooseRequest, options, words, QUESTION_SYSTEM, FIXED, ENGINEER, ASK_APPLIANCE };
+async function askJev(jev, state, questions) {
+  try { return ((await jev.evaluate({ state, questions })) || {}).answers || {}; } catch (e) { throw new ProviderUnavailableError('Jev unavailable', e); }
+}
+
+// Note steps written to follow an earlier step: dropped ("change that"), or kept only as a re-test after a finding.
+const IN_SEQUENCE = /^if you haven'?t already\b|\b(change|do) that\b|\bthat option\b/i;
+const RETEST = /^now that\b|^now (turn|run|start)\b|\bagain\b.*\?$|^(turn|run) .* (back on|again)/i;
+
+/** One note's options, cleaned: causes in one wording, steps that stand on their own, nothing already given. */
+function cleanOptions({ note, normal, given, afterFindings }) {
+  const old = new Set((given || []).map(key));
+  const seen = new Set();
+  const once = (t) => { const k = key(t); if (!t || seen.has(k) || old.has(k)) return false; seen.add(k); return true; };
+  const causes = note ? ((note.componentEvidence || []).length ? note.componentEvidence.map((x) => x.name) : (note.causes || []).length ? note.causes : (note.likelyComponents || [])) : [];
+  const situations = [...causes.slice(0, 10).map((text) => ({ kind: 'cause', text })), ...(normal || []).slice(0, 3).map((n) => ({ kind: 'normal', text: n.normal, warning: n.warningSigns }))];
+  const raw = note ? [
+    ...(note.ownerSafeChecks || []).map((text) => ({ kind: 'check', text: String(text).replace(/^next,\s*/i, '') })),
+    ...(note.beforeReplacingAPart || []).map((text) => ({ kind: 'step', text })),
+    ...[note.clarifyingQuestion, note.secondaryQuestion].filter(Boolean).map((text) => ({ kind: 'question', text })),
+  ] : [];
+  const steps = raw.filter((x) => !IN_SEQUENCE.test(x.text)).map((x) => (RETEST.test(x.text) ? { ...x, kind: 'retest' } : x))
+    .filter((x) => (x.kind !== 'retest' || afterFindings) && once(x.text)).slice(0, 12);
+  return { situations, steps };
+}
+
+module.exports = { composeLed, answerQuestion, chooseRequest, options, cleanOptions, words, QUESTION_SYSTEM, FIXED, ENGINEER, ASK_APPLIANCE };
