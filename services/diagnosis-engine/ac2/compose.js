@@ -41,7 +41,7 @@ function options({ notes, normal, given }) {
   return { situations: [...causes, ...normals], next: [...checks, ...questions] };
 }
 
-function chooseRequest({ texts, known, notes, normal, given }) {
+function chooseRequest({ texts, known, notes, normal, given, allowEngineer = true }) {
   const o = options({ notes, normal, given });
   const label = (x) => (x.kind === 'normal' ? `Normal behaviour, not a fault: ${x.text}` : x.text);
   const show = (s) => (s.length > 220 ? `${s.slice(0, 219)}…` : s);
@@ -49,7 +49,8 @@ function chooseRequest({ texts, known, notes, normal, given }) {
   const nxt = o.next.map((x, i) => ({ id: `n${i + 1}`, ...x }));
   const questions = {
     situation: { type: 'choice', instructions: 'From everything the customer has said (customerMessages) and the checks they reported (knownSoFar), which ONE best describes their situation? Use the guidance (the notes\' discriminators, the evidence for and against each component, and the normal-behaviour notes with their warning signs). Prefer a simple, common cause unless the evidence rules it out. engineer = their checks are done and the fault now needs an engineer, or the next step is beyond safe owner checks.',
-      criteria: { ...Object.fromEntries(sit.map((x) => [x.id, show(label(x))])), engineer: 'Needs an engineer now' } },
+      // "Needs an engineer" only once the customer has done checks: never as the first answer to a new fault.
+      criteria: { ...Object.fromEntries(sit.map((x) => [x.id, show(label(x))])), ...(allowEngineer ? { engineer: 'Needs an engineer now' } : {}) } },
   };
   if (nxt.length) {
     questions.next = { type: 'choice', instructions: 'Which ONE next step should the customer take now: the simplest, safest check that best confirms or rules out the most likely situation, or the question whose answer would best separate the likely causes? Never one already given (alreadyGiven) or already done (knownSoFar.checksDone). none = only if every step that applies has been done or given.',
@@ -135,7 +136,7 @@ async function composeLed({ jev, qwen, question, rec, texts, known, notes, norma
   }
 
   const given = [...rec.advice.map((a) => a.check), ...rec.asked.map((a) => a.question)].filter(Boolean);
-  const req = chooseRequest({ texts, known, notes, normal, given });
+  const req = chooseRequest({ texts, known, notes, normal, given, allowEngineer: c.checks.length > 0 || rec.stage === 2 });
   let situation = null;
   let next = null;
   const t0 = Date.now();
