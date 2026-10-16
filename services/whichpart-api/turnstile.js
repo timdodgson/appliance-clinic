@@ -6,7 +6,8 @@
  * conversation and customers never see it again.
  *
  * Modes (TURNSTILE_MODE): `off` (default, no work), `observe` (verify and log, never refuse), `enforce` (refuse a new
- * conversation without a valid token, 403 bot_check_failed). The secret key comes from Secrets Manager
+ * conversation without a valid token, 428 bot_check_failed; not 403, which the CloudFront distribution
+ * rewrites to the site's 404 page). The secret key comes from Secrets Manager
  * (TURNSTILE_SECRET_ID, JSON {siteKey, secretKey}), cached; it is never logged. If Cloudflare cannot be reached, the
  * turn is allowed (the rate limits still apply): an outage at Cloudflare must not take the service down.
  */
@@ -67,7 +68,7 @@ async function verify(token, { ip = null, env = process.env, fetchFn = fetch, fe
 
 /**
  * The decision for one customer turn. `newConversation`: no valid state token was presented. Returns null to carry on,
- * or a 403 response in enforce mode when a new conversation has no passing token.
+ * or a 428 response in enforce mode when a new conversation has no passing token.
  */
 async function guard({ token, newConversation, ip, log, env = process.env, deps = {} }) {
   const m = mode(env);
@@ -76,7 +77,7 @@ async function guard({ token, newConversation, ip, log, env = process.env, deps 
   if (log) log({ evt: 'turnstile', mode: m, ok: r.ok, reason: r.reason, codes: r.codes || undefined });
   // Fail open when the check itself could not run (no secret configured, Cloudflare unreachable).
   if (r.ok || m !== 'enforce' || r.reason === 'no_secret' || r.reason === 'unreachable') return null;
-  return { statusCode: 403, headers: { 'content-type': 'application/json' },
+  return { statusCode: 428, headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ error: 'Please confirm you are not a robot and try again.', code: 'bot_check_failed' }) };
 }
 

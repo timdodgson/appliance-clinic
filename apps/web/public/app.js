@@ -372,7 +372,8 @@
       return post(payload);
     }).then(function (r) {
       // A state token the API no longer accepts (e.g. expired) makes this a new conversation: retry once with a check.
-      if (r.status === 403 && !payload.turnstile) {
+      // The API answers 428 (bot_check_failed); 403 is rewritten to the site's 404 page by CloudFront.
+      if ((r.status === 428 || r.status === 403) && !payload.turnstile) {
         return turnstileToken().then(function (t) {
           if (!t) return r;
           payload.turnstile = t;

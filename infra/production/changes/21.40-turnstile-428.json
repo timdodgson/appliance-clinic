@@ -1,0 +1,65 @@
+{
+  "id": "21.40-turnstile-428",
+  "description": "Code only, whichpart-api: the bot check refuses with 428 instead of 403 (CloudFront rewrites 403 to the site's 404 page, which broke the page's retry). Previous code: phase8/whichpart-api-swDInFOyLAIvbY0LLuU6v2_DoiZfpFX1v_Bshar6WlY.zip; rollback = restore that s3Key.",
+  "classification": "SAFE AC CHANGE (code of whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code update of whichpart-api from the staged phase8 artefact. No PassRole: no configuration change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "applianceclinic-diagnosis-engine"
+    ]
+  }
+}

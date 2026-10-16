@@ -67,10 +67,10 @@ describe('guard', () => {
   });
   it('enforce: refuses a new conversation without a passing token, allows one with', async () => {
     const bad = await run('enforce');
-    expect(bad.res.statusCode).toBe(403);
+    expect(bad.res.statusCode).toBe(428);
     expect(JSON.parse(bad.res.body).code).toBe('bot_check_failed');
     const none = await run('enforce', { token: null, body: { success: true } });
-    expect(none.res.statusCode).toBe(403);
+    expect(none.res.statusCode).toBe(428);
     expect((await run('enforce', { body: { success: true } })).res).toBeNull();
   });
   it('enforce: fails open when the check cannot run (no secret configured)', async () => {

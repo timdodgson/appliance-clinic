@@ -58,6 +58,31 @@ describe('customer chat', () => {
     expect(calls[1].body.stateToken).toBe('cst1.opaque.token');
   });
 
+  it('bot check: an expired conversation (API 428) is retried once with a Turnstile token', async () => {
+    let n = 0;
+    const page = loadPage('index.html', SCRIPTS, (url, init) => {
+      if (url.endsWith('/auth/me')) return me;
+      const body = JSON.parse(init.body);
+      n += 1;
+      if (n === 1) return { status: 200, body: { reply: 'Was the clock flashing?', stateToken: 'cst1.old' } };
+      if (!body.turnstile) return { status: 428, body: { code: 'bot_check_failed' } };
+      return { status: 200, body: { reply: 'Set the clock then.', stateToken: 'cst1.new' } };
+    });
+    let k = 0;
+    page.window.turnstile = { render: (box, o) => { page.window._cb = o.callback; return 'w1'; }, reset() {}, execute() { k += 1; page.window._cb(`ts-${k}`); } };
+    await settle(page.window);
+    for (const text of ['oven not heating', 'no']) {
+      page.document.getElementById('input').value = text;
+      page.document.getElementById('ask').dispatchEvent(new page.window.Event('submit', { cancelable: true }));
+      await settle(page.window, 16);
+    }
+    const calls = page.calls.filter((c) => c.url === '/api' && c.body && c.body.messages);
+    expect(calls).toHaveLength(3);
+    expect(calls[1].body.turnstile).toBeUndefined();
+    expect(calls[2].body.turnstile).toBe('ts-2');
+    expect(page.document.querySelector('#thread .turn--bot:last-child .response__lead').textContent).toBe('Set the clock then.');
+  });
+
   it('echoes the state token on the next turn, unopened', async () => {
     const r = await send('oven not heating', { reply: 'Was the clock flashing?', stateToken: 'cst1.opaque.token' });
     r.document.getElementById('input').value = 'no';
