@@ -24,3 +24,16 @@ browser app.js → whichpart-api index.js (diagnose) → ac2-turn.js → engine 
 - turn.js:568 stepPrecaution prepends "Switch it off and unplug it (or take the battery off) first." to vacuum replies
   with a physical step (Dyson turn 1 opened with it).
 - Experiments still wired in turn.js (jev-led, jev-evidence, jevChooses): off in live config.
+
+## Second pass (every remaining reply-path file)
+- errorcodes.js: an in-process copy of the error-code data (spots code-like words, brands, the fault note); the live
+  meaning comes from the separate error-code service (mcp.js). Two copies of the same data.
+- compose.js + evidence.js (≈450 lines): only run when AI config pipeline.mode is set; off in live → dead in live.
+- inference.js AnthropicProvider: sends text only (image parts dropped); max_tokens = cap + 16000; effort medium for
+  the reply, low for the small steps.
+- History: whichpart-api and engine both keep 12 messages, always keeping the opening message. OK.
+- Media de-duplication works (the browser sends earlier media back).
+- Not on the reply path, not audited line by line: auth, health, logging, admin routes, transcript storage, recalls
+  ingest; and the data files (171 knowledge notes, journeys, normal-operation, error-code data).
+- Parts catalogue = S4R HTTP API `spares4repairs-dev` (65vnizdmk4) `/api/parts-for-model`, hand-created 2026-07-20
+  (docs/migration/ownership.md:127). Whether it holds the live shop's stock is not recorded in this repo.
