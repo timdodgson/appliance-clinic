@@ -193,7 +193,8 @@ describe('runtime overrides', () => {
       const stack = new RuntimeStack(app, 'AcRuntimeStack', { env: { account: '800960611664', region: 'eu-west-1' },
         synthesizer: new cdk.BootstraplessSynthesizer(), step: '5.10', profile: 'production', live: path, overrides,
         codeLocations: { 'whichpart-api': { s3Bucket: 'b', s3Key: 'k' } } });
-      const { StackShell, ...resources } = app.synth().getStackByName(stack.stackName).template.Resources;
+      const resources = { ...app.synth().getStackByName(stack.stackName).template.Resources };
+      delete resources.StackShell;
       return resources;
     };
     const before = synth({});
