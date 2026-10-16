@@ -31,10 +31,15 @@ const LIMITS = {
   loginIp: { limit: 10, windowSec: 900, advisory: true },
   loginEmail: { limit: 5, windowSec: 900 },
   loginGlobal: { limit: 60, windowSec: 900 },
+  // Change 21.37: the diagnosis turns now run on a paid model (about $0.07 a turn on Claude Opus 5.5, measured from the
+  // 21.23 run's token usage), so the cost guards are tightened and capped per day as well as per ten minutes. Worst case
+  // the global day cap bounds model spend at roughly $70 a day.
   diagnoseIp: { limit: 60, windowSec: 600, advisory: true },
-  diagnoseSession: { limit: 40, windowSec: 600 },
-  diagnoseEdge: { limit: 600, windowSec: 600 },
-  diagnoseGlobal: { limit: 1200, windowSec: 600 },
+  diagnoseSession: { limit: 20, windowSec: 600 },
+  diagnoseSessionDay: { limit: 40, windowSec: 86400 },
+  diagnoseEdge: { limit: 120, windowSec: 600 },
+  diagnoseGlobal: { limit: 120, windowSec: 600 },
+  diagnoseGlobalDay: { limit: 1000, windowSec: 86400 },
 };
 
 function mode(env = process.env) {
@@ -71,9 +76,13 @@ function dimensions(kind, { ip, source, email, session }) {
     d.push({ name: 'loginGlobal', id: hashId('global', 'login') });
   } else if (kind === 'diagnose') {
     d.push({ name: 'diagnoseIp', id: hashId('ip', ip) });
-    if (session) d.push({ name: 'diagnoseSession', id: hashId('session', session) });
+    if (session) {
+      d.push({ name: 'diagnoseSession', id: hashId('session', session) });
+      d.push({ name: 'diagnoseSessionDay', id: hashId('session', session) });
+    }
     d.push({ name: 'diagnoseEdge', id: hashId('edge', source) });
     d.push({ name: 'diagnoseGlobal', id: hashId('global', 'diagnose') });
+    d.push({ name: 'diagnoseGlobalDay', id: hashId('global', 'diagnose') });
   }
   return d.map((x) => ({ ...x, ...LIMITS[x.name] }));
 }

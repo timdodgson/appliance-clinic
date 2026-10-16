@@ -193,3 +193,17 @@ describe('whichpart-api handler with rate limiting', () => {
     expect(called()).toBe(1);
   });
 });
+
+describe('cost guards for a paid model (change 21.37)', () => {
+  it('a conversation is capped per day as well as per ten minutes', () => {
+    const d = rl.dimensions('diagnose', { ip: '1.2.3.4', source: 'edge', session: 's1' }).map((x) => x.name);
+    expect(d).toEqual(expect.arrayContaining(['diagnoseSession', 'diagnoseSessionDay', 'diagnoseGlobal', 'diagnoseGlobalDay']));
+    expect(rl.LIMITS.diagnoseSessionDay.windowSec).toBe(86400);
+    expect(rl.LIMITS.diagnoseGlobalDay.windowSec).toBe(86400);
+  });
+  it('the global guards bound spend: at most 120 turns in ten minutes and 1000 a day', () => {
+    expect(rl.LIMITS.diagnoseGlobal.limit).toBeLessThanOrEqual(120);
+    expect(rl.LIMITS.diagnoseGlobalDay.limit).toBeLessThanOrEqual(1000);
+    expect(rl.LIMITS.diagnoseGlobalDay.advisory).toBeFalsy();
+  });
+});
