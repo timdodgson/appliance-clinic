@@ -1,0 +1,52 @@
+{
+  "id": "23.5-release-transcript-review-schedule",
+  "description": "ADR 0023, release: AC releases the retired transcript-review schedule from AcRuntimeStack with zero physical change. The template no longer declares the EventBridge rule whichpart-transcript-review (rate(15 minutes), target whichpart-api with input {\"transcriptReview\": true}) or the whichpart-api resource-policy statement TranscriptReviewPeriodic that lets it invoke the function. whichpart-api has acknowledged the event with no work since change 23.4; no code reads it. Both resources have DeletionPolicy Retain in the deployed template, so CloudFormation removes them from the stack only; nothing is deleted, replaced or modified, and no role changes. whichpart-recall-ingest-daily and RecallIngestDaily stay. Afterwards the operator deletes the rule directly (events:RemoveTargets, events:DeleteRule) and removes the statement (lambda:RemovePermission, statement id TranscriptReviewPeriodic) as the IAM user, outside CloudFormation, which no longer owns them. Rollback before that: remove the two null overrides and run the same change (an import of the two resources, as in step 5.8 and 5.9).",
+  "classification": "SAFE AC CHANGE (ownership only; no physical change)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Remove",
+      "logicalId": "whichparttranscriptreview",
+      "type": "AWS::Events::Rule",
+      "physicalId": "arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "whichpartapiTranscriptReviewPeriodic",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "TranscriptReviewPeriodic",
+      "replacement": null
+    }
+  ],
+  "grant": [],
+  "grantNotes": "None: removing retained resources makes no API call on them.",
+  "writes": {
+    "types": [],
+    "expected": [],
+    "forbidden": [
+      "events:DeleteRule",
+      "events:RemoveTargets",
+      "events:PutRule",
+      "events:PutTargets",
+      "lambda:RemovePermission",
+      "lambda:AddPermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:UpdateAssumeRolePolicy"
+    ],
+    "resources": [],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "whichpart-api",
+      "whichpart-recall-ingest-daily",
+      "applianceclinic-diagnosis-engine",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

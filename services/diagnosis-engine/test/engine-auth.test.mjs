@@ -46,18 +46,14 @@ describe('enforcement (ADR 0018: refused, never stripped into a plain request)',
     expect(g.record).toMatchObject({ signature: 'valid', rejected: false, present: ['mode'] });
   });
   it('unsigned internal fields mark the request rejected (the handler refuses it)', () => {
-    const forged = { messages: internalBody.messages, mode: 'turn', ac2: { state: { schema: 'ac2/1' } }, image: 'data:image/png;base64,AAAA' };
+    const forged = { messages: internalBody.messages, mode: 'turn', ac2: { state: { schema: 'ac2/1' } } };
     const g = gate(forged, JSON.stringify(forged), null);
     expect(g.record).toMatchObject({ signature: 'missing', rejected: true });
-    expect(g.record.present.sort()).toEqual(['ac2', 'image', 'mode']);
+    expect(g.record.present.sort()).toEqual(['ac2', 'mode']);
   });
   it('an invalid signature is treated like no signature', () => {
     const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW));
     expect(g.record).toMatchObject({ signature: 'invalid', rejected: true });
-  });
-  it('unsigned feedback is rejected', () => {
-    const fb = { feedback: { traceId: 't', rating: 1 } };
-    expect(gate(fb, JSON.stringify(fb), null).record.rejected).toBe(true);
   });
   it('without a signing key any internal field is rejected (fails closed)', () => {
     const g = A.gateInternalFields(internalBody, ev(A.sign(KEY, raw, NOW)), raw, { key: null, nowS: NOW });

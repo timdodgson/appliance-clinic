@@ -1,0 +1,135 @@
+TEST FF-11  (ended: escalated, 6 customer messages)
+
+--- Turn 1
+CUSTOMER: freezer keeps beeping
+1 LLM UNDERSTOOD: appliance=freezer brand=None model=None codes=[] symptom='keeps beeping' question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.99); symptomArea="noise" (0.74); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['fridge-freezer:alarm', 'fridge-freezer:tripping-electrics', 'fridge-freezer:defrost-system']  normal: []  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.11  step: note exactly when it trips - on plug-in, when the compressor tries to start, or after runn
+    KEPT    d=0.03 r=0.04 p=0.17  step: stop repeatedly resetting the RCD and isolate the appliance if there is any burning smell 
+    KEPT    d=0.05 r=0.04 p=0.11  step: keep the freezer closed to protect the food while the fault is found
+    KEPT    d=0.03 r=0.04 p=0.14  question: Does it trip the moment you plug it in, when the compressor tries to start (a click/hum ev
+    KEPT    d=0.05 r=0.04 p=0.09  check: Run your fingers round the rubber seal on the door and look for splits, gaps or a section 
+    KEPT    d=0.03 r=0.04 p=0.21  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    KEPT    d=0.04 r=0.05 p=0.17  check: The first step is a full manual defrost: switch it off at the socket, move the food into c
+    KEPT    d=0.02 r=0.04 p=0.13  question: Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly cl
+  JEV PICKED: situation = door left open / poor door seal (warm alarm)
+              next      = Run your fingers round the rubber seal on the door and look for splits, gaps or a section that has come away, especially where the frost is. Is the seal torn or come away, was it dirty or folded (and is that sorted), or 
+REPLY: From what you have described, the most likely cause is door left open / poor door seal (warm alarm). Run your fingers round the rubber seal on the door and look for splits, gaps or a section that has come away, especially where the frost is. Is the seal torn or come away, was it dirty or folded (and is that sorted), or does it look fine?
+
+--- Turn 2
+CUSTOMER: seal looks fine to me. the bottom drawer wasn't pushed in properly last night though, a bag was sticking out
+1 LLM UNDERSTOOD: appliance=freezer brand=None model=None codes=[] symptom='warm alarm with frost build-up' question=None
+   checks reported: [{'check': 'inspected door seal', 'result': 'looks fine'}]  facts: ["bottom drawer wasn't pushed in properly last night", 'a bag was sticking out of the drawer']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.91); symptomArea="other" (0.47); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.57); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:alarm', 'fridge-freezer:drainage-blocked', 'fridge-freezer:defrost-system']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.03 p=0.26  check: At the bottom of the back wall inside the fridge there's a small drain hole or channel tha
+    REMOVED d=0.04 r=0.03 p=0.72  check: Check the water supply pipe from the isolation tap to the back of the fridge, and the conn
+    KEPT    d=0.03 r=0.04 p=0.2  check: At the back near the bottom there's a shallow tray (usually on top of the motor) that catc
+    KEPT    d=0.03 r=0.03 p=0.53  check: Mop up and keep an eye on it for a day. Has it stayed dry, or is water still appearing?
+    KEPT    d=0.04 r=0.04 p=0.47  question: Is the water only under the salad drawers, and have you tried clearing the small drain hol
+    KEPT    d=0.04 r=0.04 p=0.26  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    KEPT    d=0.04 r=0.04 p=0.33  check: The first step is a full manual defrost: switch it off at the socket, move the food into c
+    REMOVED d=0.04 r=0.04 p=0.23  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+    KEPT    d=0.03 r=0.04 p=0.19  question: Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly cl
+  JEV PICKED: situation = door left open / poor door seal (warm alarm)
+              next      = The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open until every bit of ice has melted, then dry it and switch it back on. Have you 
+REPLY: The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open until every bit of ice has melted, then dry it and switch it back on. Have you been able to do a full defrost, or is there no ice to clear?
+
+--- Turn 3
+CUSTOMER: no, haven't defrosted it. not sure there's much ice. it's only been beeping since this morning and the freezer's still running. do I really need to do that?
+1 LLM UNDERSTOOD: appliance=freezer brand=None model=None codes=[] symptom='beeping' question='Do I really need to do a full defrost?'
+   checks reported: []  facts: ["not sure there's much ice", 'beeping since this morning', 'freezer still running']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.33); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.95); checkOutcome=null (0.8); modelUnreachable=false (0.03); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:alarm', 'fridge-freezer:ice-maker', 'fridge-freezer:defrost-system']  normal: ['ff-defrost']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+    - normal: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of f
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.13 p=0.4  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    REMOVED d=0.05 r=0.08 p=0.33  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+    KEPT    d=0.1 r=0.08 p=0.32  question: Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly cl
+  JEV PICKED: situation = door left open / poor door seal (warm alarm)
+              next      = Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly clear?
+LLM ANSWER TO THEIR QUESTION: Not necessarily.  It depends on how much ice built up while the drawer was ajar: if the coils behind the freezer's rear panel are fairly clear, a full defrost probably isn't needed, but if they're a solid block of ice, it usually is.
+REPLY: Not necessarily. It depends on how much ice built up while the drawer was ajar: if the coils behind the freezer's rear panel are fairly clear, a full defrost probably isn't needed, but if they're a solid block of ice, it usually is. Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly clear?
+
+--- Turn 4
+CUSTOMER: not sure, I haven't looked behind any panel. don't know how to check that. the freezer number was flashing -9 though and going down slowly
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='freezer drawer was left ajar, possible ice build-up' question='how to check the coils behind the rear panel'
+   checks reported: []  facts: ['freezer temperature display flashing -9', 'freezer temperature going down slowly']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="error_code" (0.7); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.83); checkOutcome=null (0.99); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:ice-maker', 'fridge-freezer:alarm', 'fridge-freezer:defrost-system']  normal: ['ff-defrost']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+    - normal: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of f
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.16 p=0.34  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    REMOVED d=0.05 r=0.09 p=0.33  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = door left open / poor door seal (warm alarm)
+              next      = Ice in the bottom often means the defrost water can't drain away. At the bottom of the back wall there's a small drain hole — once the ice has melted, clear it gently with warm water or a soft pipe cleaner. Was the drain
+LLM ANSWER TO THEIR QUESTION: The coils sit behind the freezer's inner back panel alongside refrigerant pipework and the defrost heater, so removing that panel is a job for an engineer, not a home check.  Checking the drain hole at the bottom of the back wall is the safe step you can do yourself.
+REPLY: The coils sit behind the freezer's inner back panel alongside refrigerant pipework and the defrost heater, so removing that panel is a job for an engineer, not a home check. Checking the drain hole at the bottom of the back wall is the safe step you can do yourself. Ice in the bottom often means the defrost water can't drain away. At the bottom of the back wall there's a small drain hole — once the ice has melted, clear it gently with warm water or a soft pipe cleaner. Was the drain hole blocked (and is it clear now), is it still blocked or frozen, or was it already clear?
+
+--- Turn 5
+CUSTOMER: haven't looked for a drain hole, don't know where that is. there's not much ice that I've noticed though. do I need to do this?
+1 LLM UNDERSTOOD: appliance=freezer brand=None model=None codes=[] symptom=None question='Do I need to check the drain hole?'
+   checks reported: []  facts: ['not much ice noticed']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.91); symptomArea=null (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.41); checkOutcome=null (1); modelUnreachable=false (0.03); narrowed=null (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:ice-maker', 'fridge-freezer:alarm', 'fridge-freezer:defrost-system']  normal: ['ff-defrost']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+    - normal: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of f
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.05 r=0.07 p=0.31  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = door left open / poor door seal (warm alarm)
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+LLM ANSWER TO THEIR QUESTION: Probably not at this stage, as a blocked drain hole usually shows up as water pooling or ice building up, and you haven't mentioned either.  Whether it's worth checking later depends on what else the freezer is doing.
+REPLY: Probably not at this stage, as a blocked drain hole usually shows up as water pooling or ice building up, and you haven't mentioned either. Whether it's worth checking later depends on what else the freezer is doing. Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 6
+CUSTOMER: it just beeps and the red alarm symbol is on, started this morning. freezer number was flashing -9 then going down slowly. everything else seems normal
+1 LLM UNDERSTOOD: appliance=freezer brand=None model=None codes=[] symptom='beeping with red alarm symbol on' question=None
+   checks reported: []  facts: ['started this morning', 'freezer temperature display was flashing -9 then going down slowly', 'everything else seems normal']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="error_code" (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.04); narrowed=null (0.96); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:alarm', 'fridge-freezer:ice-maker', 'fridge-freezer:defrost-system']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:alarm | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: door left open / poor door seal (warm alarm)
+    - cause: actual compartment temperatures (is it genuinely warm?)
+    - cause: temperature sensor
+    - cause: control PCB
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.05 r=0.08 p=0.39  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = actual compartment temperatures (is it genuinely warm?)
+              next      = -
+REPLY: From what you have described, the most likely cause is actual compartment temperatures (is it genuinely warm?). From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Temperature alarm triggered because the freezer drawer was left ajar overnight; no fault. Silence with alarm-off button, close properly, allow recovery; check partly thawed food.

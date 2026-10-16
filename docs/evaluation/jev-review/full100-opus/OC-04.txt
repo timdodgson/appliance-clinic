@@ -1,0 +1,86 @@
+TEST OC-04  (ended: escalated, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: Bosch HBS534BS0B oven displaying E011 and won't let me do anything. Beeping. Help!
+1 LLM UNDERSTOOD: appliance=oven brand=Bosch model=HBS534BS0B codes=['E011'] symptom='error code shown, controls unresponsive, beeping' question=None
+   checks reported: []  facts: ["won't let me do anything", 'beeping']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="error_code" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="HBS534BS0B" (1); code="E011" (1); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['oven-cooker:control-panel', 'oven-cooker:cooling-fan', 'oven-cooker:main-pcb']  normal: []  codes: ['E011: AMBIGUOUS']  stage: 1
+4 JEV: note picked = oven-cooker:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: external supply / isolator (completely dead)
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: mains terminal block / incoming connection
+    - cause: display / user interface
+    - cause: main control PCB / programmer
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.07 p=0.28  step: completely dead: check the cooker switch/isolator and house circuit; check for a burning s
+    KEPT    d=0.05 r=0.06 p=0.19  step: after a power cut set the clock/timer to MANUAL before condemning the board
+    KEPT    d=0.34 r=0.13 p=0.34  question: Is it completely dead (no display, no light), or does the display work but the oven won't 
+    KEPT    d=0.04 r=0.07 p=0.13  question: Did it happen after a power cut, and is there any burning smell from the back?
+  JEV PICKED: situation = main control PCB / programmer
+              next      = Is it completely dead (no display, no light), or does the display work but the oven won't heat?
+REPLY: I can't confirm what E011 means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is main control PCB / programmer. Is it completely dead (no display, no light), or does the display work but the oven won't heat?
+
+--- Turn 2
+CUSTOMER: Display works, it lights up and the clock showed before the code came up. Just can't select anything. Oven's not been used since, it started after I wiped the panel with a wet cloth and spray about an hour ago.
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=['E011'] symptom='error code shown, cannot select anything on panel' question=None
+   checks reported: []  facts: ['display lights up and clock showed before code appeared', 'started after wiping the panel with a wet cloth and spray about an hour ago', 'oven not used since']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="controls_or_display" (0.9); hazard=null (0.67); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.57); modelUnreachable=false (0.04); model=null (0.98); code=null (0.12); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['oven-cooker:clock-timer', 'oven-cooker:selector-switch', 'oven-cooker:control-panel']  normal: []  codes: ['E011: AMBIGUOUS']  stage: 1
+4 JEV: note picked = oven-cooker:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: external supply / isolator (completely dead)
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: mains terminal block / incoming connection
+    - cause: display / user interface
+    - cause: main control PCB / programmer
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.32 r=0.08 p=0.79  step: completely dead: check the cooker switch/isolator and house circuit; check for a burning s
+    KEPT    d=0.09 r=0.07 p=0.43  step: after a power cut set the clock/timer to MANUAL before condemning the board
+    KEPT    d=0.16 r=0.08 p=0.37  question: Did it happen after a power cut, and is there any burning smell from the back?
+  JEV PICKED: situation = display / user interface
+              next      = after a power cut set the clock/timer to MANUAL before condemning the board
+REPLY: From what you have described, the most likely cause is display / user interface. Next: After a power cut set the clock/timer to MANUAL before condemning the board. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: I can't do that, the panel won't accept any input at all and it just keeps beeping with E011 showing. There hasn't been a power cut either. Anything else I can try?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=['E011'] symptom="panel won't accept input, keeps beeping" question='Anything else I can try?'
+   checks reported: [{'check': 'tried to set clock/timer to manual', 'result': "panel won't accept any input"}]  facts: ['no power cut', 'keeps beeping with E011 showing']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.7); symptomArea="controls_or_display" (0.82); hazard=null (1); unsafeRequest=null (1); lastAnswer="cannot_or_will_not" (0.53); checkOutcome="still_faulty" (0.89); modelUnreachable=false (0.03); model=null (0.98); code="E011" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['oven-cooker:clock-timer', 'oven-cooker:selector-switch', 'oven-cooker:control-panel']  normal: []  codes: ['E011: AMBIGUOUS']  stage: 1
+4 JEV: note picked = oven-cooker:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: external supply / isolator (completely dead)
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: mains terminal block / incoming connection
+    - cause: display / user interface
+    - cause: main control PCB / programmer
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.41 r=0.31 p=0.72  step: completely dead: check the cooker switch/isolator and house circuit; check for a burning s
+    REMOVED d=0.71 r=0.35 p=0.58  question: Did it happen after a power cut, and is there any burning smell from the back?
+  JEV PICKED: situation = display / user interface
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+REPLY: Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 4
+CUSTOMER: It shows E011 and beeps every so often, and none of the touch buttons respond. It started about an hour ago, straight after I wiped the panel with a damp cloth and multi-surface spray. No smells, and it's never had a fault before.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=['E011'] symptom='touch buttons not responding, beeping' question=None
+   checks reported: []  facts: ['started straight after wiping the panel with a damp cloth and multi-surface spray', 'no smells', 'never had a fault before', 'started about an hour ago']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.64); symptomArea="error_code" (0.62); hazard=null (0.75); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.83); modelUnreachable=false (0.03); model=null (0.98); code="E011" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['oven-cooker:clock-timer', 'oven-cooker:control-panel', 'oven-cooker:selector-switch']  normal: []  codes: ['E011: AMBIGUOUS']  stage: 1
+4 JEV: note picked = oven-cooker:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: external supply / isolator (completely dead)
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: mains terminal block / incoming connection
+    - cause: display / user interface
+    - cause: main control PCB / programmer
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.45 r=0.32 p=0.78  step: completely dead: check the cooker switch/isolator and house circuit; check for a burning s
+    REMOVED d=0.87 r=0.32 p=0.77  question: Did it happen after a power cut, and is there any burning smell from the back?
+  JEV PICKED: situation = display / user interface
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Moisture/cleaning residue on the touch control panel registered as a held key (E011 = key pressed too long). Drying and resetting clears it.

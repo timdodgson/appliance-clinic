@@ -1,0 +1,64 @@
+TEST TD-11  (ended: concluded, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: tumble dryer not working
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='not working' question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="other" (0.46); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:fan', 'tumble-dryer:sensor', 'tumble-dryer:not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:fan | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: blower fan / impeller
+    - cause: fan motor (where separate)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.08  question: Can you hear/feel the fan moving air, and is it clear of fluff?
+  JEV PICKED: situation = blower fan / impeller
+              next      = Can you hear/feel the fan moving air, and is it clear of fluff?
+REPLY: From what you have described, the most likely cause is blower fan / impeller. Can you hear/feel the fan moving air, and is it clear of fluff?
+
+--- Turn 2
+CUSTOMER: No sound at all when I press start, so can't hear any fan. Lights come on though. The door has felt loose for a few days and doesn't seem to click shut.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='no sound when pressing start, door not clicking shut' question=None
+   checks reported: []  facts: ['lights come on', 'no sound at all when pressing start', 'door has felt loose for a few days', "door doesn't seem to click shut"]
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.71); symptomArea="door_or_lid" (0.66); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.81); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['tumble-dryer:fan', 'tumble-dryer:sensor', 'tumble-dryer:door']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:door | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: door handle / catch (mechanical)
+    - cause: door interlock / switch (electrical start path)
+    - cause: door/interlock wiring
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.33  check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance 
+    KEPT    d=0.11 r=0.07 p=0.26  check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks 
+    KEPT    d=0.11 r=0.07 p=0.19  check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff
+    KEPT    d=0.05 r=0.05 p=0.32  check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons worki
+    KEPT    d=0.06 r=0.05 p=0.44  check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed
+    KEPT    d=0.35 r=0.08 p=0.53  check: Now choose a programme and press start. Does it start normally now, or still not?
+    REMOVED d=0.82 r=0.1 p=0.34  question: Is the handle/door physically broken or not closing, or does it close fine but the dryer s
+  JEV PICKED: situation = door handle / catch (mechanical)
+              next      = With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and check the door lines up when you close it. Is the catch broken, was something stoppi
+REPLY: From what you have described, the most likely cause is door handle / catch (mechanical). With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and check the door lines up when you close it. Is the catch broken, was something stopping it (now cleared), or does it all look fine?
+
+--- Turn 3
+CUSTOMER: Yes it's broken - the plastic tongue on the door has snapped off, found the piece on the floor. If I hold the door shut and press start it runs, stops when I let go.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom="door won't stay shut, catch broken" question=None
+   checks reported: [{'check': 'inspected door catch', 'result': 'plastic tongue on door snapped off, piece found on floor'}, {'check': 'held door shut and pressed start', 'result': 'runs, stops when door released'}]  facts: ['plastic tongue on the door has snapped off', 'runs only while door is held shut']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.91); symptomArea="door_or_lid" (1); hazard=null (1); unsafeRequest=null (0.59); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.53); modelUnreachable=false (0.03); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:fan', 'tumble-dryer:door', 'tumble-dryer:sensor']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: settled-part)
+REPLY: [Heading: Likely cause: door handle / catch (mechanical)]
+From what you have found, this points to the door handle / catch (mechanical). To find the right part, could you give me the make and model number? It is usually on a sticker inside the door opening.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: It's a Hotpoint. I don't know the model number offhand, I'll go and look inside the door recess now.
+1 LLM UNDERSTOOD: appliance=None brand=Hotpoint model=None codes=[] symptom=None question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.58); symptomArea=null (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.33); checkOutcome=null (1); modelUnreachable=false (0.23); make="Hotpoint" (1); narrowed="door handle" (0.82); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:door', 'tumble-dryer:fan', 'tumble-dryer:motor']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-unreadable)
+REPLY: [Heading: Likely cause: door handle]
+The checks point to the door handle. If the model number can't be read, it is often also on the guarantee card, the receipt or the manual; with it, the right part can be matched. Without it, an appliance engineer can identify and fit the right door handle from the machine itself.
+
+HIDDEN TRUTH: Broken door catch (striker) so door microswitch isn't held closed.

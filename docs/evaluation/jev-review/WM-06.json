@@ -1,0 +1,368 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-52cf33016f",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "It depends on whether the drain pump is blocked or faulty. You may need a new drain pump if it has failed, but cleaning the filter did not resolve the issue. From what you have described, the most likely cause is drain pump obstructed / jammed or failed. Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?"
+  },
+  {
+   "role": "customer",
+   "text": "Yes, water's still sitting in the drum and it won't spin. The pump hums but the water doesn't move. So is it the pump I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drain pump]\nIt could be the pump, but since you have already cleaned the filter and the pump is humming without moving water, there may also be a blockage in the drain hose or a fault with the pump motor itself. You would need to inspect the pump for obstructions or test it to confirm if it has failed. The checks point to the drain pump. I could not find a confirmed match for model FD 9409 in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 1561,
+     "labelMs": 319,
+     "enrichMs": 2,
+     "composeMs": 1047,
+     "replyLabelMs": 392,
+     "totalMs": 3379
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD 9409",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washer",
+      "brand": "Bosch",
+      "model": "FD 9409",
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.62
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"situation\":{\"kind\":\"cause\",\"text\":\"drain pump obstructed / jammed or failed\"},\"next\":{\"kind\":\"question\",\"text\":\"Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\"},\"ms\":291,\"offered\":{\"situations\":[\"cause: a blockage in the pump filter\",\"cause: something caught in the pump impeller\",\"cause: a kink or blockage in the drain hose or waste pipe\",\"cause: a blockage in the household waste plumbing\",\"cause: too much foam from the detergent\",\"cause: the drain pump\",\"cause: the water-level (pressure) sensing system\",\"cause: the control circuit that drives the pump\",\"cause: a blockage at the pump that can't be reached from the filter opening\",\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\"],\"next\":[\"check: The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water\",\"step: inspect and clean the accessible pump filter where the model design allows\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump\",\"check: Front leaks are most often the rubber door seal. Open the door and look all the way round the seal, including inside the folds at the bottom — a trapped coin, underwire or sock can hold it open, and splits often hide in the folds. Is the seal intact, did you find something trapped in it, or is it torn or split?\",\"check: Pull the detergent drawer out (most have a release tab) and rinse away any built-up powder or softener, and check the housing it slides into for gunk. Was it blocked or built up, already clean, or cracked or broken?\",\"check: Too much detergent, or one that isn't low-foam (HE), can foam over and push water out. How much detergent do you use, and is it a low-foam (HE) washing-machine detergent?\",\"check: The pump filter cap at the bottom front is a common leak, especially if it's been opened recently. Check it's screwed in fully and straight, and that its rubber seal is clean. Was it loose or not seated, tight and dry already, or is the cap or seal cracked or damaged?\",\"check: Check the fill hose where it screws onto the tap and onto the back of the machine — a loose fitting or a missing or perished washer is the usual cause. Were the connections loose (and are they tight now), already tight and dry, or is the hose split or bulging?\",\"check: Check the grey drain hose along its length and where it goes into the standpipe or sink waste. Was it loose or pushed in too far, sound and dry, or is the hose split or cracked?\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\",\"question: Does water keep coming into the machine even when it's switched off?\",\"question: Is the water level actually getting too high, or does it keep taking water without the level rising much?\"],\"engineerAllowed\":true}}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3509
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3965,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "lmstudio",
+     "model": "qwen3.6-35b-a3b-mtp"
+    },
+    "timings": {
+     "understandMs": 2005,
+     "labelMs": 300,
+     "enrichMs": 2,
+     "composeMs": 1323,
+     "replyLabelMs": 275,
+     "totalMs": 4741
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.77
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drain pump",
+       "confidence": 0.64
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "water sitting in drum, won't spin, pump hums but water doesn't move"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.85
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"part-not-found\",\"component\":\"drain pump\"}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD 9409",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: done",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?",
+       "turn": 1,
+       "resolution": "Yes, water's still sitting in the drum and it won't spin. The pump hums but the water doesn't move."
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4862
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 5108,
+   "retried": false,
+   "label": "Likely cause: drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0214158,
+ "finishedAt": "2026-10-15T22:46:35.229Z"
+}

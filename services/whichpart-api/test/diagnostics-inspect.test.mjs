@@ -46,14 +46,14 @@ const mcpOk = {
 const engineOk = {
   status: 'ok',
   health: 'healthy',
-  healthReason: 'The diagnosis engine is running; the reasoner provider and media are available',
+  healthReason: 'The diagnosis engine is running; the advisor model and media are available',
   service: 'diagnosis-engine',
   version: '2',
   diagnosis: { architecture: 'ac2', packSecret: 'sk-diagnosis-must-never-leak' },
   models: {
-    reasoner: { configured: true, provider: 'lmstudio', model: 'qwen3' },
+    reasoner: { configured: true, provider: 'anthropic', model: 'claude-opus-5-5' },
     inferenceTested: false,
-    note: 'One inference provider serves the ac2 reasoner and its claim extractor. Inference was not tested.',
+    note: 'The advisor model (Claude) serves every turn. Inference was not tested.',
     apiKey: 'sk-engine-must-never-leak',
   },
   media: {
@@ -72,11 +72,7 @@ function engineProbe(json, extra) {
 
 function setup(overrides) {
   const models = {
-    compose: { provider: 'lmstudio', providerLabel: 'Private AI', model: null, modelLabel: 'Model managed by LM Studio' },
-    judge: {
-      provider: 'openai', providerLabel: 'OpenAI', model: 'gpt-5.6-terra', modelLabel: 'gpt-5.6-terra',
-      configured: true, note: 'Only used when Full Quality Review is selected',
-    },
+    advisor: { provider: 'anthropic', providerLabel: 'Anthropic (Claude)', model: 'claude-opus-5-5', modelLabel: 'claude-opus-5-5', credentialConfigured: true },
   };
   return Object.assign({
     now: new Date('2026-09-20T12:00:00.000Z'),
@@ -141,7 +137,7 @@ describe('snapshot whitelist and honesty', () => {
     ]);
     const eng = byId(snap, 'diagnosis-engine');
     expect(eng.name).toBe('Diagnosis engine');
-    expect(eng.role).toMatch(/ac2 diagnosis: the LLM-led reasoner inside the deterministic guardrail kernel/);
+    expect(eng.role).toMatch(/ac2 diagnosis: the advisor \(Claude, with tools\) inside the deterministic guardrail kernel/);
     expect(snap.runtime.diagnosis.architecture).toBe('ac2');
   });
 
@@ -257,12 +253,14 @@ describe('snapshot whitelist and honesty', () => {
     expect(byId(snap, 'error-code-mcp').links.some((l) => l.href === '#mcp')).toBe(true);
   });
 
-  it('shows the COMPOSE (reasoner) route label, no UNDERSTAND stage, and never a judge key', () => {
+  it('shows the advisor model, no COMPOSE / UNDERSTAND stage, and never a key', () => {
     const snap = dg.buildSnapshot(setup());
-    expect(snap.models.compose.providerLabel).toBe('Private AI');
-    expect(snap.models.compose.modelLabel).toBe('Model managed by LM Studio');
+    expect(snap.models.advisor.providerLabel).toBe('Anthropic (Claude)');
+    expect(snap.models.advisor.modelLabel).toBe('claude-opus-5-5');
     expect(snap.models).not.toHaveProperty('understand');
-    expect(snap.runtime.models.compose.provider).toBe('lmstudio');
+    expect(snap.models).not.toHaveProperty('compose');
+    expect(snap.models).not.toHaveProperty('judge');
+    expect(snap.runtime.models.advisor.provider).toBe('anthropic');
     expect(JSON.stringify(snap)).not.toMatch(/apiKey/);
   });
 
@@ -278,7 +276,7 @@ describe('diagnosis engine health probe', () => {
     mcp: { ok: true, status: 200, json: mcpOk, latencyMs: 90, probedAt: '2026-09-20T12:00:00.000Z' },
   });
 
-  it('marks the engine Healthy from a real health payload and shows the architecture, reasoner and media', () => {
+  it('marks the engine Healthy from a real health payload and shows the architecture, advisor and media', () => {
     const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(engineOk) } }));
     const eng = byId(snap, 'diagnosis-engine');
     expect(eng.health).toBe('healthy');
@@ -289,8 +287,8 @@ describe('diagnosis engine health probe', () => {
     expect(eng.version.value).toBe('2');
     const fact = (label) => (eng.facts.find((f) => f.label === label) || {}).value;
     expect(fact('Architecture')).toBe('ac2');
-    expect(fact('Reasoner provider')).toBe('Configured');
-    expect(fact('Reasoner')).toBe('lmstudio · qwen3');
+    expect(fact('Advisor model')).toBe('Configured');
+    expect(fact('Advisor')).toBe('anthropic · claude-opus-5-5');
     expect(fact('Inference tested')).toBe('no');
     expect(fact('Media resolver')).toBe('Available');
     expect(fact('Overlay')).toBe('none (shipped baseline)');
@@ -322,13 +320,13 @@ describe('diagnosis engine health probe', () => {
     const json = JSON.parse(JSON.stringify(engineOk));
     json.status = 'degraded';
     json.health = 'degraded';
-    json.healthReason = 'The reasoner\'s inference provider is not configured';
+    json.healthReason = 'The advisor\'s model is not configured';
     json.models.reasoner = { configured: false, provider: null, model: null };
     const snap = dg.buildSnapshot(setup({ probes: { ...okProbes(), engine: engineProbe(json) } }));
     const eng = byId(snap, 'diagnosis-engine');
     expect(eng.health).toBe('degraded');
     expect(eng.healthReason).toMatch(/not configured/);
-    expect(eng.facts.some((f) => f.label === 'Reasoner provider' && f.value === 'Not configured')).toBe(true);
+    expect(eng.facts.some((f) => f.label === 'Advisor model' && f.value === 'Not configured')).toBe(true);
     expect(byId(snap, 'error-code-mcp').health).toBe('healthy');
   });
 
@@ -422,7 +420,7 @@ describe('collect probes with isolation', () => {
     });
     expect(snap.ok).toBe(true);
     expect(byId(snap, 'media-resolver').health).toBe('degraded');
-    expect(snap.models.compose).toBe(null);
+    expect(snap.models.advisor).toBe(null);
     expect(byId(snap, 'error-code-mcp').health).toBe('unknown');
   });
 });

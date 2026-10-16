@@ -1,5 +1,5 @@
 /**
- * Dashboard "Production state" (index.js dashboardState): read-only facts from sources the BFF
+ * Dashboard "Production state" (admin/health.js dashboardState): read-only facts from sources the BFF
  * already reads, each failing on its own, admin-only, no secrets or ids. No AWS: every store is a double.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -12,12 +12,11 @@ delete require.cache[handlerPath];
 const api = require(handlerPath);
 const ai = require('../ai-config.js');
 const transcripts = require('../transcripts.js');
-const { memoryS3 } = require('../benchmark/acq-store.js');
 
 const ADMIN = async () => ({ username: 'a', email: 'admin@example.test', isAdmin: true });
-let realFetch; let realLoad; const probed = [];
+let realFetch; let realLoad; let realKey; const probed = [];
 beforeAll(() => {
-  realFetch = globalThis.fetch; realLoad = ai.loadConfig;
+  realFetch = globalThis.fetch; realLoad = ai.loadConfig; realKey = ai.isKeyConfigured;
   globalThis.fetch = async (url) => {
     const u = String(url);
     const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 783, overlay: { state: 'none' } }
@@ -25,13 +24,13 @@ beforeAll(() => {
     probed.push(u);
     return { ok: true, status: 200, text: async () => JSON.stringify(body), json: async () => body };
   };
-  ai.loadConfig = async () => ({ routing: { understand: 'local', compose: 'local' }, local: { model: 'gpt-5.6-terra' }, frontier: { model: 'x', enabled: false }, version: 9 });
+  ai.loadConfig = async () => ai.normalise({ model: 'claude-opus-5-5', version: 9 });
+  ai.isKeyConfigured = async () => true;
   api.setTranscriptStore(transcripts.createMemoryStore());
-  api.setAcqS3ForTests(memoryS3());
   api.setMediaAdminStore({ loadState: async () => ({ version: 1, updatedAt: null, identities: {}, byKnowledgeId: {}, byComponent: {} }) });
   api.setRecallStore({ getMeta: async () => ({ site: { pages: 59, records: 47 }, lastSuccessAt: '2026-10-05T06:00:38.748Z' }) });
 });
-afterAll(() => { globalThis.fetch = realFetch; ai.loadConfig = realLoad; api.setSessionForTests(null); api.setAcqS3ForTests(null); api.setRecallStore(null); });
+afterAll(() => { globalThis.fetch = realFetch; ai.loadConfig = realLoad; ai.isKeyConfigured = realKey; api.setSessionForTests(null); api.setRecallStore(null); });
 const get = () => api.handler({ rawPath: '/api/admin/dashboard', requestContext: { http: { method: 'GET', path: '/api/admin/dashboard' }, requestId: 'd' }, headers: {}, cookies: [], queryStringParameters: { period: '7d' } });
 
 describe('Dashboard production state', () => {
@@ -39,7 +38,7 @@ describe('Dashboard production state', () => {
     api.setSessionForTests(null);
     expect((await get()).statusCode).toBe(401);
   });
-  it('reports the architecture, routing, override, Error Codes, media and recalls from existing sources', async () => {
+  it('reports the architecture, the advisor model, Error Codes, media and recalls from existing sources', async () => {
     api.setSessionForTests(ADMIN);
     const r = await get();
     expect(r.statusCode).toBe(200);
@@ -47,25 +46,41 @@ describe('Dashboard production state', () => {
     const s = body.state;
     expect(s.diagnosis).toEqual({ architecture: 'ac2' });
     expect(s).not.toHaveProperty('canonical');
-    expect(s.routing).toEqual({ compose: 'Private AI', composeModel: 'gpt-5.6-terra', version: 9 });
+    expect(s).not.toHaveProperty('override');
+    expect(s).not.toHaveProperty('routing');
+    expect(s.advisor).toEqual({ provider: 'Anthropic (Claude)', model: 'claude-opus-5-5', credentialConfigured: true, version: 9 });
     // The diagnosis engine is probed directly (no orchestrator hop).
     expect(probed).toContain('http://engine.test/health');
-    expect(body.health.parts.map((p) => p.id)).toEqual(['api', 'diagnosis_engine', 'error_codes']);
-    expect(body.health.ok).toBe(true);
-    expect(s.override).toMatchObject({ active: false, blocked: false, runId: null });
+    expect(body.health).toMatchObject({ ok: true, label: 'Healthy', failed: [] });
+    expect(body.health.summaryLine).toBe('API · Diagnosis engine · Error codes');
+    expect(body.activity).toMatchObject({ sessionsToday: 0, partSessionsToday: 0 });
     expect(s.errorCodes).toMatchObject({ ok: true, active: 783, overlay: 'none' });
     expect(s.media).toMatchObject({ overlay: 'absent', records: 0 });
     expect(s.recalls).toMatchObject({ listed: 47 });
-    expect(r.body).not.toMatch(/apiKey|apiToken|secret|stateToken|cst1\./i);
+    expect(r.body).not.toMatch(/apiKey|anthropicApiKey|secret|stateToken|cst1\./i);
   });
   it('a part that cannot be read is { unavailable } — the rest still render', async () => {
     api.setSessionForTests(ADMIN);
     ai.loadConfig = async () => { throw new Error('secrets manager down'); };
     api.setRecallStore({ getMeta: async () => { throw new Error('ddb down'); } });
     const s = JSON.parse((await get()).body).state;
-    expect(s.routing).toEqual({ unavailable: true });
+    expect(s.advisor).toEqual({ unavailable: true });
     expect(s.recalls).toEqual({ unavailable: true });
     expect(s.errorCodes.active).toBe(783);
+  });
+  it('a failing service is named in the compact health with its reason', async () => {
+    api.setSessionForTests(ADMIN);
+    const keep = globalThis.fetch;
+    globalThis.fetch = async (url) => {
+      const u = String(url);
+      const body = u.startsWith('http://mcp.test') ? { status: 'ok', effectiveActiveCount: 1 }
+        : { status: 'degraded', health: 'degraded', healthReason: "The advisor's model is not configured", service: 'diagnosis-engine' };
+      return { ok: true, status: 200, text: async () => JSON.stringify(body), json: async () => body };
+    };
+    try {
+      const body = JSON.parse((await get()).body);
+      expect(body.health).toMatchObject({ ok: false, label: 'Problem', failed: [{ name: 'Diagnosis engine', detail: "The advisor's model is not configured" }] });
+    } finally { globalThis.fetch = keep; }
   });
   it('GET /admin/health is gated by the same requireAdmin as the dashboard', async () => {
     api.setSessionForTests(null);

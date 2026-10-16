@@ -6,7 +6,7 @@
  */
 const errorCodesAdmin = require('./error-codes-admin');
 
-// The diagnosis engine (applianceclinic-diagnosis-engine): every customer turn (ac2), the feedback side-channel and the
+// The diagnosis engine (applianceclinic-diagnosis-engine): every customer turn (ac2) and the
 // admin health probes. Its Function URL is AWS_IAM; calls are signed (engine-signature.js).
 const ENGINE_URL =
   process.env.ENGINE_URL ||
@@ -33,11 +33,10 @@ const MCP_HEALTH_URL = process.env.MCP_HEALTH_URL || '';
 const MCP_BEARER_TOKEN = process.env.MCP_BEARER_TOKEN || '';
 
 const LEARNING_BUCKET = process.env.LEARNING_BUCKET || 'whichpart-learning-800960611664';
-const ACQ_JUDGE_MODEL = process.env.ACQ_JUDGE_MODEL || 'gpt-5.6-terra';
 
 const MCP_URL = process.env.MCP_URL || errorCodesAdmin.mcpBaseFromHealth(MCP_HEALTH_URL);
 
 module.exports = {
   ENGINE_URL, S4R_PRODUCT_BASE_URL, CLIENT_ID, MAX_MESSAGES, COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, AUTH_REGION, AC_AUTH, SESSION_COOKIE, LOGGED_IN_COOKIE,
-  MCP_HEALTH_URL, MCP_BEARER_TOKEN, LEARNING_BUCKET, ACQ_JUDGE_MODEL, MCP_URL,
+  MCP_HEALTH_URL, MCP_BEARER_TOKEN, LEARNING_BUCKET, MCP_URL,
 };

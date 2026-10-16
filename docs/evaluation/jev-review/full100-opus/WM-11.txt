@@ -1,0 +1,64 @@
+TEST WM-11  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: My Beko keeps stopping randomly in the middle of a wash with water still in it. Sometimes it's fine for a week, then it does it twice in a day. The model starts WTG I think. I've cleaned the filter. Driving me mad.
+1 LLM UNDERSTOOD: appliance=washing machine brand=Beko model=WTG codes=[] symptom='stops mid-wash with water still in it' question=None
+   checks reported: [{'check': 'cleaned the filter', 'result': 'still stopping mid-wash'}]  facts: ['fault is intermittent: fine for a week, then twice in a day', 'model starts WTG (customer unsure)']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.96); symptomArea="cuts_out" (0.92); hazard=null (0.99); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome="still_faulty" (0.97); modelUnreachable=false (0.12); model=null (0.4); code=null (1); make="Beko" (1); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:cycle-not-progressing', 'washing-machine:unbalanced-load', 'washing-machine:heater']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:unbalanced-load | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: unbalanced / uneven load
+    - cause: overload / too full
+    - cause: levelling / installation
+    - cause: suspension / shock absorbers
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.21  step: try a normal, evenly-distributed load before suspecting a part
+    KEPT    d=0.04 r=0.04 p=0.2  step: check the machine is level and (if recently moved) that the transit bolts are removed
+    KEPT    d=0.06 r=0.07 p=0.17  question: Does it keep turning slowly backwards and forwards as if trying to balance the load, and d
+    REMOVED d=0.91 r=0.11 p=0.66  question: Is the drum empty of water when it tries to spin, or is there water still in it?
+  JEV PICKED: situation = unbalanced / uneven load
+              next      = Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?
+REPLY: From what you have described, the most likely cause is unbalanced / uneven load. Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?
+
+--- Turn 2
+CUSTOMER: Not that I've noticed, it just stops with the water still in and the time freezes. It happens with full loads and half loads too, so I don't think it's the load. Sometimes if I switch it off and on it carries on and finishes, other times it stalls again.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='stops mid-cycle with water still in, timer freezes' question=None
+   checks reported: [{'check': 'switched it off and on again', 'result': 'sometimes it carries on and finishes, other times it stalls again'}]  facts: ['water left in the drum when it stops', 'time display freezes', 'happens with both full and half loads', "customer doesn't think it's the load"]
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.96); symptomArea="cuts_out" (0.71); hazard=null (1); unsafeRequest=null (0.99); lastAnswer="answered" (1); checkOutcome="helped_then_returned" (0.93); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[0]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['washing-machine:cycle-not-progressing', 'washing-machine:heater', 'washing-machine:unbalanced-load']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:unbalanced-load | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: unbalanced / uneven load
+    - cause: overload / too full
+    - cause: levelling / installation
+    - cause: suspension / shock absorbers
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.61 r=0.06 p=0.61  step: try a normal, evenly-distributed load before suspecting a part
+    KEPT    d=0.05 r=0.04 p=0.29  step: check the machine is level and (if recently moved) that the transit bolts are removed
+    REMOVED d=0.95 r=0.1 p=0.84  question: Is the drum empty of water when it tries to spin, or is there water still in it?
+  JEV PICKED: situation = suspension / shock absorbers
+              next      = check the machine is level and (if recently moved) that the transit bolts are removed
+REPLY: From what you have described, the most likely cause is suspension / shock absorbers. Next: Check the machine is level and (if recently moved) that the transit bolts are removed. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: Level and transit bolts? It's been in the same spot for years, not moved it, and it fills and washes fine most of the time. It only stops mid-wash with water in, not during spin. Is that really the cause?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='stops mid-wash with water in' question='Is suspension/shock absorbers really the cause?'
+   checks reported: []  facts: ['in the same spot for years, not moved', 'fills and washes fine most of the time', 'stops mid-wash with water in', 'does not stop during spin']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="cuts_out" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.48); checkOutcome=null (0.92); modelUnreachable=false (0.04); narrowed=null (0.94); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['washing-machine:cycle-not-progressing', 'washing-machine:unbalanced-load', 'washing-machine:heater']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:unbalanced-load | findings settle it = False | engineer allowed = True
+  situations offered (4):
+    - cause: unbalanced / uneven load
+    - cause: overload / too full
+    - cause: levelling / installation
+    - cause: suspension / shock absorbers
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.68 r=0.07 p=0.58  step: try a normal, evenly-distributed load before suspecting a part
+    REMOVED d=0.95 r=0.1 p=0.82  question: Is the drum empty of water when it tries to spin, or is there water still in it?
+  JEV PICKED: situation = engineer
+              next      = -
+LLM ANSWER TO THEIR QUESTION: From what you've described, it's unlikely: worn suspension or shock absorbers usually cause banging or heavy vibration during spin, whereas yours stops mid-wash, not during spin, with the time display frozen, whatever the load size.  An engineer can confirm that when they look at it.
+REPLY: From what you've described, it's unlikely: worn suspension or shock absorbers usually cause banging or heavy vibration during spin, whereas yours stops mid-wash, not during spin, with the time display frozen, whatever the load size. An engineer can confirm that when they look at it. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Genuinely uncertain: intermittent pressure system fault (pressure switch/air chamber), drain pump intermittently failing, or a control board/connection fault. Needs engineer diagnosis.

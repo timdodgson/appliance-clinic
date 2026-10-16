@@ -1,0 +1,139 @@
+TEST WM-06  (ended: concluded, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=None codes=[] symptom='not draining' question='What part do I need?'
+   checks reported: [{'check': 'cleaned the filter', 'result': 'still not draining'}]  facts: ['FD 9409 stated (likely production date code, not model)']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="not_draining" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome="still_faulty" (0.97); modelUnreachable=false (0.04); model=null (0.56); code=null (0.98); make="Bosch" (1); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:pressure-switch']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.89 r=0.08 p=0.71  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    KEPT    d=0.58 r=0.1 p=0.53  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.05 r=0.06 p=0.15  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    REMOVED d=0.08 r=0.05 p=0.29  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    KEPT    d=0.08 r=0.05 p=0.25  check: With the filter out, shine a torch into the filter opening and gently turn the small plast
+    KEPT    d=0.06 r=0.05 p=0.15  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.12 r=0.04 p=0.22  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.96 r=0.05 p=0.71  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.05 r=0.05 p=0.14  step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e
+    KEPT    d=0.47 r=0.07 p=0.35  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    KEPT    d=0.06 r=0.06 p=0.15  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.05 r=0.06 p=0.14  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = blocked / kinked drain hose or waste connection
+              next      = check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)
+LLM ANSWER TO THEIR QUESTION: You may not need a part at all, because a kinked hose or a blocked waste connection is usually fixed by straightening or clearing it.  Whether you need one depends on what the next check finds, and without the model number I can't name a specific part.
+REPLY: You may not need a part at all, because a kinked hose or a blocked waste connection is usually fixed by straightening or clearing it. Whether you need one depends on what the next check finds, and without the model number I can't name a specific part. From what you have described, the most likely cause is blocked / kinked drain hose or waste connection. Next: Check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved). Let me know what you find.
+
+--- Turn 2
+CUSTOMER: hose behind looks OK, no kinks. sink drains fine too. the pump hums but nothing moves. so what part?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='not draining, pump hums but no water moves' question='What part do I need?'
+   checks reported: [{'check': 'drain hose behind machine checked for kinks', 'result': 'looks OK, no kinks'}, {'check': 'sink drainage checked', 'result': 'drains fine'}]  facts: ['pump hums but nothing moves']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.9); symptomArea="not_draining" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.83); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.04); narrowed="drain pump" (0.67); checksConfirmed=[0, 1]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:pressure-switch']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+LLM ANSWER TO THEIR QUESTION: It sounds like you'll most likely need a replacement drain pump, as a pump that hums without moving water usually has a jammed or failed impeller.  The exact pump depends on your Bosch's model number, since different models use different pumps.
+REPLY: [Heading: Likely cause: drain pump]
+It sounds like you'll most likely need a replacement drain pump, as a pump that hums without moving water usually has a jammed or failed impeller. The exact pump depends on your Bosch's model number, since different models use different pumps. The checks point to the drain pump. To find the right part, could you give me the model number? It is usually on a sticker inside the door rim or on the back of the door.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 3
+CUSTOMER: FD 9409 is what's on the sticker inside the door, I already gave you that. The line next to it is rubbed off so I can't read the rest. So which pump do I need?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=None codes=[] symptom='drain pump hums but does not drain water' question='Which pump do I need?'
+   checks reported: []  facts: ['sticker inside the door shows FD 9409', 'line next to it is rubbed off and unreadable']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.64); symptomArea=null (0.69); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.51); checkOutcome=null (1); modelUnreachable=true (0.88); model=null (0.41); code=null (0.98); make=null (0.26); narrowed="drain pump" (0.67); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:pressure-switch']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.92 r=0.15 p=0.78  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    REMOVED d=0.8 r=0.19 p=0.64  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.43 r=0.07 p=0.64  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    REMOVED d=0.08 r=0.07 p=0.45  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    KEPT    d=0.07 r=0.07 p=0.23  check: With the filter out, shine a torch into the filter opening and gently turn the small plast
+    REMOVED d=0.95 r=0.09 p=0.78  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.13 r=0.05 p=0.33  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.95 r=0.07 p=0.73  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.53 r=0.12 p=0.44  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    REMOVED d=0.77 r=0.12 p=0.52  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.06 r=0.09 p=0.29  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = drain pump obstructed / jammed or failed
+              next      = With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?
+LLM ANSWER TO THEIR QUESTION: I can't tell you which pump you need yet.  FD 9409 is only Bosch's production date code, and the pump is matched to the full model number (the E-Nr), which is the line that's been rubbed off.
+REPLY: [Heading: Likely cause: drain pump]
+I can't tell you which pump you need yet. FD 9409 is only Bosch's production date code, and the pump is matched to the full model number (the E-Nr), which is the line that's been rubbed off. From what you have described, the most likely cause is drain pump obstructed / jammed or failed. With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?
+
+--- Turn 4
+CUSTOMER: ok did that. impeller turns but feels a bit stiff and gritty in places. also E18 came up on the display when it stalled.
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=None codes=['E18'] symptom='not draining, drain pump stalling' question=None
+   checks reported: [{'check': 'turned drain pump impeller by hand with filter out', 'result': 'turns but feels a bit stiff and gritty in places'}]  facts: ['E18 shown on display when it stalled']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.87); symptomArea="error_code" (0.6); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (1); modelUnreachable=false (0.05); model=null (0.98); code="E18" (1); make="Bosch" (0.6); narrowed="drain pump" (0.84); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:drain-pump']  normal: []  codes: ['E18: RESOLVED No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)']  stage: 2
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.87 r=0.09 p=0.76  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    REMOVED d=0.81 r=0.11 p=0.62  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.54 r=0.07 p=0.59  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    REMOVED d=0.08 r=0.07 p=0.28  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    REMOVED d=0.95 r=0.08 p=0.83  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.12 r=0.04 p=0.32  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.95 r=0.05 p=0.64  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.64 r=0.08 p=0.28  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    REMOVED d=0.74 r=0.1 p=0.55  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.07 r=0.08 p=0.27  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = drain pump obstructed / jammed or failed
+              next      = clear any trapped foreign object in the accessible pump path before recommending a replacement pump
+REPLY: [Heading: Likely cause: drain pump]
+E18 on your Bosch means: No drainage / drain took too long (clogged coin-trap/pump filter or drain hose). Next: Clear any trapped foreign object in the accessible pump path before recommending a replacement pump. Let me know what you find.
+
+--- Turn 5
+CUSTOMER: filter was already clean, just a bit of fluff. I can't get into the sump without tools and I'm not taking it apart. so is it the pump or not?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=None codes=['E18'] symptom='not draining' question='Is it the pump or not?'
+   checks reported: [{'check': 'checked pump filter', 'result': 'already clean, just a bit of fluff'}]  facts: ['cannot access sump without tools', 'not willing to take it apart']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.87); symptomArea="not_draining" (0.58); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.36); checkOutcome="still_faulty" (0.96); modelUnreachable=false (0.05); model=null (0.98); code=null (0.86); make="Bosch" (0.54); narrowed="drain pump" (0.89); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:drain-pump', 'washing-machine:leak-drain', 'washing-machine:not-draining']  normal: []  codes: ['E18: RESOLVED No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)']  stage: 2
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.92 r=0.63 p=0.83  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    REMOVED d=0.87 r=0.67 p=0.71  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    REMOVED d=0.57 r=0.24 p=0.66  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    REMOVED d=0.09 r=0.24 p=0.36  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    REMOVED d=0.95 r=0.1 p=0.87  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.1 r=0.19 p=0.35  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.96 r=0.34 p=0.81  step: inspect and clean the accessible pump filter where the model design allows
+    REMOVED d=0.73 r=0.15 p=0.59  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.07 r=0.12 p=0.29  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = drain pump obstructed / jammed or failed
+              next      = if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water
+LLM ANSWER TO THEIR QUESTION: It's very likely the pump: it hums without moving water, the impeller feels stiff and gritty, and you've already ruled out the filter, drain hose and sink.  It isn't certain, though, because a blockage in the sump hose between the drum and the pump can cause the same symptoms, and that can't be ruled out without tools.
+REPLY: [Heading: Likely cause: drain pump]
+It's very likely the pump: it hums without moving water, the impeller feels stiff and gritty, and you've already ruled out the filter, drain hose and sink. It isn't certain, though, because a blockage in the sump hose between the drum and the pump can cause the same symptoms, and that can't be ruled out without tools. Next: If the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water. Let me know what you find.
+
+HIDDEN TRUTH: Genuinely uncertain: drain pump failing (stiff/gritty impeller, hum) or blockage in the sump/pump-to-tub hose; FD 9409 is a production code (roughly 2014), not a model or error code.

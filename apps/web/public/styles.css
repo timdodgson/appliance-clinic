@@ -568,18 +568,6 @@ body.ac .hero {
 /* ============================================================================
    FEEDBACK
    ============================================================================ */
-.feedback { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-.feedback__q { font-size: 13px; color: var(--ac-text-muted); }
-.feedback__btn {
-  width: 40px; height: 40px;
-  border: 1px solid var(--ac-border); border-radius: var(--ac-r);
-  background: var(--ac-surface-2); color: var(--ac-accent);
-  display: grid; place-items: center; cursor: pointer;
-  transition: background .15s ease, border-color .15s ease;
-}
-.feedback__btn:hover { background: var(--ac-elev); border-color: var(--ac-accent); }
-.feedback__btn:active { transform: scale(.94); }
-.feedback__thanks { font-size: 13px; color: var(--ac-accent); font-weight: 600; }
 /* ============================================================================
    THINKING / DIAGNOSING
    ============================================================================ */
@@ -795,7 +783,7 @@ body.ac.started .ask {
 .btn:focus-visible, .topbar__link:focus-visible, .usermenu__btn:focus-visible,
 .usermenu__item:focus-visible, .topbar__burger:focus-visible,
 .mobilemenu__item:focus-visible, .modal__close:focus-visible, .topbar__brand:focus-visible,
-.entry:focus-visible, .ask__cam:focus-visible, .ask__send:focus-visible, .feedback__btn:focus-visible,
+.entry:focus-visible, .ask__cam:focus-visible, .ask__send:focus-visible,
 .media__zoom:focus-visible, .topbar__newchat:focus-visible, .ask-status__retry:focus-visible {
   outline: 2px solid var(--brand-sage-dark);
   outline-offset: 2px;
@@ -859,7 +847,7 @@ body.ac .modal__sub a, body.ac .help__list a { color: var(--ac-accent); }
 body.ac .btn:focus-visible, body.ac .topbar__link:focus-visible, body.ac .usermenu__btn:focus-visible,
 body.ac .usermenu__item:focus-visible, body.ac .topbar__burger:focus-visible, body.ac .mobilemenu__item:focus-visible,
 body.ac .modal__close:focus-visible, body.ac .topbar__brand:focus-visible, body.ac .entry:focus-visible,
-body.ac .ask__cam:focus-visible, body.ac .ask__send:focus-visible, body.ac .feedback__btn:focus-visible,
+body.ac .ask__cam:focus-visible, body.ac .ask__send:focus-visible,
 body.ac .media__zoom:focus-visible, body.ac .topbar__newchat:focus-visible, body.ac .ask-status__retry:focus-visible,
 body.ac .scope__list a:focus-visible, body.ac .site-footer__nav a:focus-visible, body.ac .skip-link:focus-visible,
 body.ac .topbar__install:focus-visible, body.ac .app-banner__btn:focus-visible,
@@ -1671,3 +1659,7 @@ button.tx__evseq:focus-visible { outline: 2px solid var(--brand-sage-dark); outl
 .test-batchbar { flex-direction: column; align-items: stretch; }
 .test-batchbar .btn { width: 100%; }
 }
+
+/* Bot check (change 21.38): Cloudflare Turnstile is invisible unless it needs the visitor to click. */
+.turnstile-box { position: fixed; right: 16px; bottom: 96px; z-index: 50; }
+.turnstile-box:empty { display: none; }

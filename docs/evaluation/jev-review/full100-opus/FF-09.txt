@@ -1,0 +1,163 @@
+TEST FF-09  (ended: concluded, 7 customer messages)
+
+--- Turn 1
+CUSTOMER: The sides of our new fridge freezer get really warm, almost hot, especially near the front edge. Is that a fire risk? It's in an alcove between two units.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='sides get very warm, almost hot, especially near front edge' question='Is that a fire risk?'
+   checks reported: []  facts: ['fridge freezer is new', 'installed in an alcove between two units']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="other" (0.98); hazard=null (0.92); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (1); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:evaporator-fan', 'fridge-freezer:door-seal']  normal: ['ff-new-settle']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+    - normal: A new or moved fridge-freezer should stand upright for several hours before switching on (check the manual) and takes up to 24 hours to reach 
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.26  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.02 r=0.03 p=0.33  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.04 r=0.05 p=0.23  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.05 p=0.21  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.04 r=0.04 p=0.18  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.07 r=0.06 p=0.23  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+    KEPT    d=0.04 r=0.05 p=0.12  question: Is the freezer still cold while the fridge is warm, and is there a thick block of ice on t
+  JEV PICKED: situation = dusty coils or too little space round it
+              next      = Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the 
+LLM ANSWER TO THEIR QUESTION: Warm or even quite hot sides aren't normally a fire risk, because many fridge freezers deliberately release heat through pipes built into the side panels, but in a tight alcove that heat can't escape well, so the fridge works harder.  If you ever notice a burning smell, scorch marks or sides too hot to keep your hand on, switch it off at the wall and stop using it.
+REPLY: Warm or even quite hot sides aren't normally a fire risk, because many fridge freezers deliberately release heat through pipes built into the side panels, but in a tight alcove that heat can't escape well, so the fridge works harder. If you ever notice a burning smell, scorch marks or sides too hot to keep your hand on, switch it off at the wall and stop using it. From what you have described, the most likely cause is dusty coils or too little space round it. Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the wall (and have you sorted it), or was it already clean with space round it?
+
+--- Turn 2
+CUSTOMER: It's only 2 months old so shouldn't be dusty, and there are no visible coils on the back anyway. It's in a tight alcove though, about 1cm each side and a few cm gap to the cupboard above. I can keep my hand on the sides, no burning smell, and it's cooling well.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='sides feel warm' question=None
+   checks reported: []  facts: ['only 2 months old', 'no visible coils on the back', 'in tight alcove, about 1cm each side and a few cm gap above', 'can keep hand on sides, no burning smell, cooling well']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.96); symptomArea=null (0.85); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.8); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:tripping-electrics', 'fridge-freezer:defrost-system']  normal: ['ff-new-settle']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+    - normal: A new or moved fridge-freezer should stand upright for several hours before switching on (check the manual) and takes up to 24 hours to reach 
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.62  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.04 r=0.04 p=0.62  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.05 r=0.06 p=0.49  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.06 r=0.06 p=0.47  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.05 r=0.05 p=0.28  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.08 r=0.07 p=0.25  question: Is the freezer still cold while the fridge is warm, and is there a thick block of ice on t
+  JEV PICKED: situation = dusty coils or too little space round it
+              next      = Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+REPLY: Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+
+--- Turn 3
+CUSTOMER: Fridge and freezer temperatures are 4C and -18C, so both are cold. I haven't noticed any ice build-up, but I'm not sure I'd know what to look for. It's just the outside that's warm.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='outside of fridge freezer feels warm' question=None
+   checks reported: [{'check': 'checked fridge and freezer temperatures', 'result': 'fridge 4C, freezer -18C'}]  facts: ['both compartments are cold', 'no ice build-up noticed but unsure what to look for', 'only the outside is warm']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.75); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.75); modelUnreachable=false (0.04); model=null (1); code=null (0.98); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:evaporator-fan']  normal: ['ff-new-settle']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:defrost-system | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: the door being left open or a heavy load of food
+    - cause: warm air getting past the door seal
+    - cause: a blocked defrost drain
+    - cause: the automatic defrost system
+    - normal: A new or moved fridge-freezer should stand upright for several hours before switching on (check the manual) and takes up to 24 hours to reach 
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.39  check: Run your fingers round the rubber seal on the door and look for splits, gaps or a section 
+    KEPT    d=0.07 r=0.06 p=0.49  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    KEPT    d=0.05 r=0.06 p=0.53  check: The first step is a full manual defrost: switch it off at the socket, move the food into c
+    REMOVED d=0.1 r=0.07 p=0.32  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+    KEPT    d=0.28 r=0.15 p=0.28  question: Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly cl
+  JEV PICKED: situation = A new or moved fridge-freezer should stand upright for several hours before switching on (check the manual) and takes up to 24 hours to reach temperature.
+              next      = Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly clear?
+REPLY: This sounds like normal behaviour rather than a fault: A new or moved fridge-freezer should stand upright for several hours before switching on (check the manual) and takes up to 24 hours to reach temperature. It would be worth a closer look if still not cold after 24 hours. Behind the rear panel inside the freezer, are the coils a solid block of ice, or fairly clear?
+
+--- Turn 4
+CUSTOMER: I haven't looked behind the rear panel inside the freezer, and I'm not sure how to tell. Everything inside is cold though. Is the warmth on the outside sides normal for this sort of fridge?
+1 LLM UNDERSTOOD: appliance=fridge-freezer brand=None model=None codes=[] symptom='sides of the cabinet feel warm on the outside' question='Is the warmth on the outside sides normal for this sort of fridge?'
+   checks reported: []  facts: ['everything inside is cold', 'outside sides feel warm']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.51); checkOutcome=null (0.93); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:evaporator-fan']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:defrost-system | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: the door being left open or a heavy load of food
+    - cause: warm air getting past the door seal
+    - cause: a blocked defrost drain
+    - cause: the automatic defrost system
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.44  check: Run your fingers round the rubber seal on the door and look for splits, gaps or a section 
+    KEPT    d=0.06 r=0.09 p=0.51  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    KEPT    d=0.05 r=0.07 p=0.5  check: The first step is a full manual defrost: switch it off at the socket, move the food into c
+    REMOVED d=0.05 r=0.07 p=0.41  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = the automatic defrost system
+              next      = The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open until every bit of ice has melted, then dry it and switch it back on. Have you 
+LLM ANSWER TO THEIR QUESTION: Some warmth on the sides is normal for a fridge-freezer with no visible coils on the back, because these models usually release their heat through pipes inside the side panels, and the front edges often feel warm too.  Whether this much warmth is normal depends on what is driving it, which isn't clear from the outside alone, so it's worth ruling out a fault rather than assuming it's fine.
+REPLY: Some warmth on the sides is normal for a fridge-freezer with no visible coils on the back, because these models usually release their heat through pipes inside the side panels, and the front edges often feel warm too. Whether this much warmth is normal depends on what is driving it, which isn't clear from the outside alone, so it's worth ruling out a fault rather than assuming it's fine. From what you have described, the most likely cause is the automatic defrost system. The first step is a full manual defrost: switch it off at the socket, move the food into cool bags, put towels down and leave the doors open until every bit of ice has melted, then dry it and switch it back on. Have you been able to do a full defrost, or is there no ice to clear?
+
+--- Turn 5
+CUSTOMER: I haven't done a defrost, and I'm not sure there's any ice to clear. Everything inside is cold and working fine, so is a full defrost really necessary? I'd rather not do it unless it's needed.
+1 LLM UNDERSTOOD: appliance=fridge-freezer brand=None model=None codes=[] symptom='sides feel warm' question='Is a full defrost really necessary?'
+   checks reported: []  facts: ['everything inside is cold and working fine', 'no visible coils on the back']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.98); symptomArea=null (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.76); checkOutcome=null (0.95); modelUnreachable=false (0.03); narrowed=null (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:over-cooling']  normal: ['ff-defrost']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:defrost-system | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: the door being left open or a heavy load of food
+    - cause: warm air getting past the door seal
+    - cause: a blocked defrost drain
+    - cause: the automatic defrost system
+    - normal: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of f
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.36  check: Run your fingers round the rubber seal on the door and look for splits, gaps or a section 
+    KEPT    d=0.07 r=0.1 p=0.44  check: Ice in the bottom often means the defrost water can't drain away. At the bottom of the bac
+    REMOVED d=0.06 r=0.13 p=0.4  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of frost or droplets that comes and goes is normal. Frost-free freezers defrost automatically every few hours and may hiss or drip during that time.
+              next      = Ice in the bottom often means the defrost water can't drain away. At the bottom of the back wall there's a small drain hole — once the ice has melted, clear it gently with warm water or a soft pipe cleaner. Was the drain
+LLM ANSWER TO THEIR QUESTION: Probably not.  A full defrost is usually only needed if there's thick ice that never clears or the drain hole is frozen solid, and you haven't noticed any build-up.
+REPLY: Probably not. A full defrost is usually only needed if there's thick ice that never clears or the drain hole is frozen solid, and you haven't noticed any build-up. This sounds like normal behaviour rather than a fault: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of frost or droplets that comes and goes is normal. Frost-free freezers defrost automatically every few hours and may hiss or drip during that time. It would be worth a closer look if thick ice that never clears, water pooling on the shelves or floor, or the fridge getting warm. Ice in the bottom often means the defrost water can't drain away. At the bottom of the back wall there's a small drain hole — once the ice has melted, clear it gently with warm water or a soft pipe cleaner. Was the drain hole blocked (and is it clear now), is it still blocked or frozen, or was it already clear?
+
+--- Turn 6
+CUSTOMER: I haven't checked the drain hole and haven't seen any water or ice, so I don't think it's blocked. Can you tell me whether the warm sides are normal for this model, given the tight alcove? I'd rather not pull it out because of our new floor.
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom='warm sides' question='Are the warm sides normal for this model, given the tight alcove?'
+   checks reported: []  facts: ['no water or ice seen', 'installed in a tight alcove', 'would rather not pull it out because of new floor']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.98); symptomArea=null (0.78); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.4); checkOutcome=null (0.87); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:drainage-blocked']  normal: ['ff-defrost', 'ff-sides-warm']  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:defrost-system | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: the door being left open or a heavy load of food
+    - cause: warm air getting past the door seal
+    - cause: a blocked defrost drain
+    - cause: the automatic defrost system
+    - normal: In most fridges the back wall frosts while the compressor runs and then melts and runs into the drain channel when it stops: a thin layer of f
+    - normal: The sides or front between the doors of many fridge-freezers get warm: the condenser and anti-condensation pipes run there. Normal.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.07 p=0.43  check: Run your fingers round the rubber seal on the door and look for splits, gaps or a section 
+    REMOVED d=0.05 r=0.15 p=0.42  retest: Run it as normal with the doors shut for a few days. Has the frost started to build up aga
+  JEV PICKED: situation = The sides or front between the doors of many fridge-freezers get warm: the condenser and anti-condensation pipes run there. Normal.
+              next      = Run your fingers round the rubber seal on the door and look for splits, gaps or a section that has come away, especially where the frost is. Is the seal torn or come away, was it dirty or folded (and is that sorted), or 
+LLM ANSWER TO THEIR QUESTION: Yes, warm sides are normal for many fridge-freezers like yours with no visible coils on the back, because the condenser pipes that give off heat run inside the side panels, and yours is still cooling properly.  Whether a 1cm gap is enough depends on the minimum clearances in your model's installation guide, since a tight alcove can make the sides feel warmer than they would with more space around 
+REPLY: Yes, warm sides are normal for many fridge-freezers like yours with no visible coils on the back, because the condenser pipes that give off heat run inside the side panels, and yours is still cooling properly. Whether a 1cm gap is enough depends on the minimum clearances in your model's installation guide, since a tight alcove can make the sides feel warmer than they would with more space around This sounds like normal behaviour rather than a fault: The sides or front between the doors of many fridge-freezers get warm: the condenser and anti-condensation pipes run there. Normal. It would be worth a closer look if the outside is hot to touch with the inside not cooling, or a burning smell. Run your fingers round the rubber seal on the door and look for splits, gaps or a section that has come away, especially where the frost is. Is the seal torn or come away, was it dirty or folded (and is that sorted), or does it look fine?
+[Helpful to see: image "Fridge not cooling — simple checks first" — Before suspecting the sealed system, check the temperature setting, that the door seal closes cleanly, that there's air space and clean condenser coils at the back, and listen for the compressor. Unplug before cleaning at the back. A sealed-system or refrigerant repair is a job for a qualified engineer. Typical layout — your model may differ.]
+
+--- Turn 7
+CUSTOMER: I haven't checked the door seal, and I'm not sure what a faulty one would look like. The doors seem to close fine and everything inside is cold. The manual does say to leave some space round it, but I haven't checked the exact clearances. Does 1cm each side sound enough to you?
+1 LLM UNDERSTOOD: appliance=fridge-freezer brand=None model=None codes=[] symptom='warm sides' question='Does 1cm each side sound enough for clearance?'
+   checks reported: []  facts: ['doors seem to close fine', 'everything inside is cold', '1cm gap each side', 'manual says to leave space around it']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.97); symptomArea=null (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.28); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (1); code=null (1); narrowed=null (0.97); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:defrost-system', 'fridge-freezer:door-seal']  normal: ['ff-defrost', 'ff-sides-warm']  codes: []  stage: 2
+4 (no Jev choice this turn: settled-normal-closed)
+LLM ANSWER TO THEIR QUESTION: It depends on the figure your manual gives, since the manual says to leave space, but 1cm is on the tight side.  On fridge-freezers with no coils on the back, the sides release the heat, so a tight gap mainly makes the sides feel warmer and the fridge work a little harder rather than causing a fault.
+REPLY: It depends on the figure your manual gives, since the manual says to leave space, but 1cm is on the tight side. On fridge-freezers with no coils on the back, the sides release the heat, so a tight gap mainly makes the sides feel warmer and the fridge work a little harder rather than causing a fault. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal: the condenser (and anti-condensation pipe round the door frame) is built into the side walls, so warm/hot sides are expected; tight alcove clearance makes it warmer but it's not a fault.

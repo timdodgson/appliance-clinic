@@ -1,10 +1,6 @@
 'use strict';
 
-/** S3 access to the learning bucket shared by the admin stores and the test area. */
-// ---- ApplianceClinic AI provider configuration (admin control plane) --------
-// Persists routing/model config + the write-only OpenAI credential to Secrets
-// Manager (the SAME ids the diagnosis engine reads at runtime). The key
-// is never returned to the browser. All handlers are admin-guarded.
+/** S3 access to the learning bucket shared by the admin stores (media and error-code overlays, recall ingest). */
 const crypto = require('crypto');
 const { AUTH_REGION, LEARNING_BUCKET } = require('./config.js');
 
@@ -21,7 +17,7 @@ async function _streamToString(stream) {
   for await (const c of stream) chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
   return Buffer.concat(chunks).toString('utf8');
 }
-// Test hook: route the Test-area S3 document store (runs, library, reviews) to a fake.
+// Test hook: route the admin document store to a fake.
 let _acqS3Override = null;
 function setAcqS3ForTests(fake) { _acqS3Override = fake || null; }
 const acqS3 = {

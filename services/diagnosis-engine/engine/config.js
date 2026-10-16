@@ -1,42 +1,35 @@
 /**
- * Diagnosis engine configuration: the S4R Parts Catalogue endpoint, request limits and the admin-configured inference
- * providers. Read once at cold start from the environment; defaults are the production values.
+ * Diagnosis engine configuration: the S4R Parts Catalogue endpoint, request limits and the advisor's model provider.
+ * Read once at cold start from the environment; defaults are the production values.
  */
-const { resolveProvidersFromAdminConfig } = require('../inference.js');
+const { resolveAdvisorProvider } = require('../inference.js');
 const { loadAdminInference } = require('../admin-config.js');
 
-// --- Configuration (env-overridable) ---
-// The reasoning provider and model come from the Admin AI configuration (inference.js, the provider boundary).
 // S4R Parts Catalogue (external service): compatible parts for a confirmed model.
 const PARTS_FOR_MODEL_API =
   process.env.PARTS_FOR_MODEL_API ||
   'https://65vnizdmk4.execute-api.eu-west-1.amazonaws.com/api/parts-for-model';
 
-// Inference providers, resolved from the Admin AI configuration (see inference.js). Default is local LM Studio. A
-// misconfigured remote raises a clear error (no silent fallback to local).
-let _providers = null;
-let _providersAt = 0;
-const PROVIDERS_TTL_MS = Number(process.env.AI_CONFIG_CACHE_TTL_MS || 60000);
+// The advisor's provider, resolved from the admin AI configuration (the model) and the credential secret (the key),
+// cached for a short TTL so a Settings change becomes effective within ~PROVIDER_TTL_MS with no redeploy and no
+// secrets lookup per turn. A missing model or key is an explicit error at first use (no fallback).
+let _provider = null;
+let _providerAt = 0;
+const PROVIDER_TTL_MS = Number(process.env.AI_CONFIG_CACHE_TTL_MS || 60000);
 
-// Resolve the per-stage providers from the admin-managed config (source of
-// truth), cached for a short TTL so an admin routing change becomes effective
-// within ~PROVIDERS_TTL_MS with no redeploy and no per-token secrets lookup.
-// When no admin config exists (or it's unreadable) this falls back to the
-// env-based local/local default — the safe production baseline. A frontier
-// misconfiguration surfaces as an explicit error (no silent fallback).
-async function getProviders() {
+async function getAdvisorProvider() {
   const now = Date.now();
-  if (_providers && now - _providersAt < PROVIDERS_TTL_MS) return _providers;
-  const { config, openaiKey } = await loadAdminInference({ now });
-  _providers = resolveProvidersFromAdminConfig(config, openaiKey, process.env);
-  _providersAt = now;
-  return _providers;
+  if (_provider && now - _providerAt < PROVIDER_TTL_MS) return _provider;
+  const { config, anthropicKey } = await loadAdminInference({ now });
+  _provider = resolveAdvisorProvider(config, anthropicKey);
+  _providerAt = now;
+  return _provider;
 }
 
-// Test seam: inject resolved providers and freeze the cache.
-function _setProvidersForTest(p) { _providers = p; _providersAt = Date.now() + 3.6e6; }
+// Test seam: inject the provider and freeze the cache (null clears it).
+function _setProviderForTest(p) { _provider = p; _providerAt = p ? Date.now() + 3.6e6 : 0; }
 
-// Input caps (defend the Lambda + upstream LM from oversized payloads)
+// Input caps (defend the Lambda and the model from oversized payloads)
 const MAX_MESSAGES = numEnv('MAX_MESSAGES', 12);
 const MAX_BODY_BYTES = numEnv('MAX_BODY_BYTES', 8 * 1024 * 1024); // 8 MB
 
@@ -46,5 +39,5 @@ function numEnv(name, fallback) {
 }
 
 module.exports = {
-  PARTS_FOR_MODEL_API, getProviders, _setProvidersForTest, MAX_MESSAGES, MAX_BODY_BYTES,
+  PARTS_FOR_MODEL_API, getAdvisorProvider, _setProviderForTest, MAX_MESSAGES, MAX_BODY_BYTES,
 };

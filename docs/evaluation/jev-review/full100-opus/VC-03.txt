@@ -1,0 +1,36 @@
+TEST VC-03  (ended: escalated, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: My Dyson V10 Absolute (SV12) won't run at all now. On the battery display there's a red light flashing when I press the trigger, then nothing. It was charging overnight. Do I need a new battery or is the whole thing dead?
+1 LLM UNDERSTOOD: appliance=cordless vacuum brand=Dyson model=V10 Absolute (SV12) codes=['red light flashi'] symptom="won't run at all" question='Do I need a new battery or is the whole thing dead?'
+   checks reported: [{'check': 'charged overnight', 'result': "still won't run; red light flashes when trigger pressed, then nothing"}]  facts: ['red light flashes on battery display when trigger pressed']
+2 JEV LABELS: scope="appliance" (1); appliance="vacuum" (1); symptomArea="no_power" (0.67); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome="still_faulty" (0.91); modelUnreachable=false (0.03); model="V10 Absolute (SV12)" (0.9); code="red light flashi" (0.81); make="Dyson" (1); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['vacuum:wont-run', 'vacuum:cuts-out', 'vacuum:brush-bar']  normal: []  codes: ['RED LIGHT FLASHI: NOT_FOUND']  stage: 2
+4 JEV: note picked = vacuum:wont-run | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: the socket or plug fuse
+    - cause: the charger, socket or charging contacts
+    - cause: the thermal cut-out after a blockage
+    - cause: the battery or charger
+    - cause: the switch, cable or motor inside
+    - cause: a damaged mains cable or plug
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.09 r=0.06 p=0.8  check: Try the socket with something else, and check the switch on the vacuum. If the plug has a 
+    KEPT    d=0.12 r=0.07 p=0.26  check: Check the charger is plugged into a working socket and fully into the vacuum (or the robot
+    REMOVED d=0.05 r=0.06 p=0.75  check: If it stopped while you were using it, it may have overheated from a blockage. Leave it sw
+    REMOVED d=0.57 r=0.07 p=0.67  retest: Try switching it on again. Does it run now, or is it still dead?
+  JEV PICKED: situation = the battery or charger
+              next      = Check the charger is plugged into a working socket and fully into the vacuum (or the robot is seated on its dock), and wipe the charging contacts clean and dry. Was the charger, socket or contacts the problem (and is it 
+REPLY: I can't confirm what RED LIGHT FLASHI means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is the battery or charger. Check the charger is plugged into a working socket and fully into the vacuum (or the robot is seated on its dock), and wipe the charging contacts clean and dry. Was the charger, socket or contacts the problem (and is it sorted), does the charging light never come on, or is the charger fine with the light on?
+
+--- Turn 2
+CUSTOMER: The charger light is on and I tried a different socket too, same result. The contacts look clean. Still flashing red when I press the trigger.
+1 LLM UNDERSTOOD: appliance=cordless vacuum brand=None model=None codes=[] symptom='flashing red light when trigger pressed' question=None
+   checks reported: [{'check': 'tried a different socket', 'result': 'same result, still flashing red'}, {'check': 'checked charging contacts', 'result': 'look clean'}]  facts: ['charger light is on', 'still flashing red when trigger pressed']
+2 JEV LABELS: scope="appliance" (1); appliance="vacuum" (0.85); symptomArea="error_code" (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (1); modelUnreachable=false (0.04); narrowed="battery — flat or failed (cordless)" (0.74); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['vacuum:wont-run', 'vacuum:cuts-out', 'vacuum:brush-bar']  normal: []  codes: ['RED LIGHT FLASHI: NOT_FOUND']  stage: 2
+4 (no Jev choice this turn: part-not-found)
+REPLY: [Heading: Likely cause: battery — flat or failed (cordless)]
+The checks point to the battery — flat or failed (cordless). I could not find a confirmed match for model V10 ABSOLUTE (SV12) in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it.
+
+HIDDEN TRUTH: Battery pack fault (worn original lithium-ion pack after progressive runtime loss); a main-body fault remains a less likely possibility.

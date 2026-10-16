@@ -1,0 +1,81 @@
+TEST MW-07  (ended: concluded, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: microwave not working
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='not working' question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea="no_power" (0.65); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['microwave:lighting', 'microwave:main-pcb', 'microwave:grill-not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:lighting | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: cavity lamp / bulb
+    - cause: lamp holder / wiring
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.17  step: confirm the rest of the microwave works normally before assuming anything beyond the lamp
+    KEPT    d=0.06 r=0.08 p=0.39  question: Does the microwave otherwise work normally (heats, turns, display) and only the inside lig
+  JEV PICKED: situation = cavity lamp / bulb
+              next      = Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?
+REPLY: From what you have described, the most likely cause is cavity lamp / bulb. Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?
+
+--- Turn 2
+CUSTOMER: No the light's fine, it comes on when I open the door. Display is on and it beeps but it won't start.
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom="won't start" question=None
+   checks reported: []  facts: ['inside light comes on when door opened', 'display is on', 'it beeps']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.93); symptomArea="no_power" (0.95); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.49); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['microwave:door', 'microwave:main-pcb', 'microwave:lighting']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: control lock / demo mode
+    - cause: keypad / membrane / touchpad
+    - cause: control panel / fascia
+    - cause: display / UI module
+    - cause: main control PCB
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.05 p=0.64  check: Check the plug is in and the socket switched on, and try another appliance in that socket.
+    KEPT    d=0.08 r=0.07 p=0.2  check: Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop f
+    KEPT    d=0.07 r=0.06 p=0.24  check: Some models won't start until the clock is set, and need a time entered before Start. Was 
+    KEPT    d=0.12 r=0.06 p=0.27  check: Put a cup of water in and try a minute on full power. Does it start now, or still not?
+    KEPT    d=0.06 r=0.05 p=0.17  step: check for a control/child lock and try a power-cycle reset
+    KEPT    d=0.44 r=0.07 p=0.34  step: note whether it's some buttons (membrane) or the display (module) or completely dead (supp
+    REMOVED d=0.74 r=0.09 p=0.47  question: Is the display still lit and working while only some buttons fail, or is the display itsel
+    KEPT    d=0.16 r=0.07 p=0.16  question: Do some buttons still work, and does a power-cycle at the wall change anything?
+  JEV PICKED: situation = control lock / demo mode
+              next      = check for a control/child lock and try a power-cycle reset
+REPLY: From what you have described, the most likely cause is control lock / demo mode. Next: Check for a control/child lock and try a power-cycle reset. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: There's a little L / padlock-looking symbol on the display. I unplugged it for a minute and plugged it back in, but the symbol came back and it still won't start. How do I get rid of it?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom="won't start, padlock symbol on display" question='How do I get rid of the padlock symbol?'
+   checks reported: [{'check': 'power-cycle reset (unplugged for a minute)', 'result': "padlock symbol came back, still won't start"}]  facts: ['little L / padlock symbol on the display']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.79); symptomArea="controls_or_display" (0.77); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.79); checkOutcome=null (0.43); modelUnreachable=false (0.04); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['microwave:door', 'microwave:main-pcb', 'microwave:grill-not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:main-pcb | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: control lock / demo mode
+    - cause: keypad / membrane / touchpad
+    - cause: control panel / fascia
+    - cause: display / UI module
+    - cause: main control PCB
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.27 r=0.06 p=0.81  check: Check the plug is in and the socket switched on, and try another appliance in that socket.
+    REMOVED d=0.67 r=0.08 p=0.5  check: Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop f
+    KEPT    d=0.08 r=0.07 p=0.45  check: Some models won't start until the clock is set, and need a time entered before Start. Was 
+    KEPT    d=0.08 r=0.07 p=0.53  check: Put a cup of water in and try a minute on full power. Does it start now, or still not?
+    KEPT    d=0.45 r=0.08 p=0.36  step: note whether it's some buttons (membrane) or the display (module) or completely dead (supp
+    REMOVED d=0.73 r=0.1 p=0.43  question: Is the display still lit and working while only some buttons fail, or is the display itsel
+    REMOVED d=0.61 r=0.12 p=0.39  question: Do some buttons still work, and does a power-cycle at the wall change anything?
+  JEV PICKED: situation = control lock / demo mode
+              next      = Put a cup of water in and try a minute on full power. Does it start now, or still not?
+LLM ANSWER TO THEIR QUESTION: The padlock is almost always the child lock, which survives unplugging.  On most microwaves you clear it by pressing and holding Stop/Cancel for about 3 seconds until it disappears, but some makes use a dedicated lock or key button or a different combination, so if that doesn't work the exact method will be in the manual for your model.
+REPLY: The padlock is almost always the child lock, which survives unplugging. On most microwaves you clear it by pressing and holding Stop/Cancel for about 3 seconds until it disappears, but some makes use a dedicated lock or key button or a different combination, so if that doesn't work the exact method will be in the manual for your model. Put a cup of water in and try a minute on full power. Does it start now, or still not?
+
+--- Turn 4
+CUSTOMER: ok I held the Stop button for 3 secs and the L went away. It works now, thanks.
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=['L'] symptom='child lock showing, would not start' question=None
+   checks reported: [{'check': 'held Stop button for 3 seconds', 'result': 'the L went away and it works now'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.86); symptomArea=null (0.92); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome="fixed" (1); modelUnreachable=false (0.03); model=null (0.98); code="L" (0.89); narrowed=null (0.97); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['microwave:door', 'microwave:main-pcb', 'microwave:low-voltage']  normal: []  codes: ['L: NEEDS_CONTEXT']  stage: 1
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Child lock activated (by child pressing buttons). Hold the lock button for ~3 seconds to unlock.

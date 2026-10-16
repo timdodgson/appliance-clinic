@@ -219,3 +219,202 @@ The same pipeline (21.21: 21.18 plus strict output schemas), with only the AI co
 - **Next**, per the plan: Phase 3 (pass the full knowledge notes, better retrieval) and Phase 4 (recall and brand data)
   on the stronger model, then Phase 5 (held-out confirmation) before any +25% claim.
 
+
+## 8. Phase 3 result (2026-10-14): knowledge and retrieval add little on top of the stronger model
+
+Release 21.22 (D5 whole notes, D8 BM25 and error-code-led note choice, D9 washer-dryer and letter-O fixes, D6 plan
+and reply structure), compose on `gpt-5.6-terra` as in §7. Data: `evaluation/rebuild/out/independent-100-21.22-frontier/`,
+`results-independent-100-21.22-frontier.json`. All 100 scored (the last 4 after the primary judge's usage limit reset;
+the first write-up used 96: 3.29, +0.06).
+
+| | 21.21 frontier | **21.22 frontier** |
+|---|---|---|
+| Overall | 3.24 | **3.32** |
+| Paired vs 21.21 (95% CI) | | +0.08 (−0.05 to +0.21); 20 up, 13 down |
+| Paired vs general assistant | −0.24 | −0.16 (−0.35 to +0.03) |
+| Pairwise vs general assistant (win–tie–loss) | 34–1–65 | **40–0–60** |
+| Critical failures (confirmed) | 2 (2) | 2 (2) |
+| Looping | 4% | 6% |
+| Median turn | 13.1 s | 15.7 s |
+
+- **Gate: not cleared.** +0.08 over 21.21 is within noise (needs ≥ 0.17). Overall 3.32 is +21% on 2.74; the +25%
+  target (3.40) is not reached. The gap to the general assistant is no longer significant (CI crosses 0).
+- **Retrieval improved as measured offline** (`scripts/rag.js retrieval`, openers, appliance given): top-1 55.7% → 69.3%,
+  top-3 83.0% → 86.4%; DW-02 4C now chooses the fill note and WD-06 EO3 resolves as E03 on live. This did not move the
+  score, consistent with §1.1: the right note was already reached in 95.5% of cases by some turn.
+- **Cost:** larger notes add about 3 s to the median turn (13.1 → 16.0 s, level with the general assistant's 16.1 s).
+- **Correction to D9:** hob part matching stays empty. The `hob`/`hobs` name mismatch is real and fixed, but the four
+  hob journeys hold no part rules, so there were never any matchers to find.
+- **Where the remaining gap was** (first 96, 21.21 → 21.22): language understanding 3.43 → 3.40 (general assistant 3.80),
+  question quality 2.94 → 2.91 (3.09), fidelity 3.67 → 3.61 (3.82). The understand step (reading the customer's
+  message) still runs on Qwen; it is the one model step not yet tested on the stronger model, and the next lever.
+
+## 9. A repeat run of 21.22, and the model-alone controls (2026-10-14)
+
+**Correction (verified in code):** the engine sends every model step (understand, reasoner, claim extractor) to the one
+`routing.compose` provider (`inference.js` `resolveProvidersFromAdminConfig` reads only `compose`; `understand.js:65`
+uses the same provider). `routing.understand` is a legacy setting the engine never reads. So the understand step was
+already on the stronger model in §7 and §8 (§7's "understand stays on Qwen" is wrong), and the run below is **a
+repeat of the same 21.22 configuration**, not a different one. Its 3.39 against §8's 3.32 is run-to-run noise.
+
+Release 21.22 unchanged (the `routing.understand` switch had no effect, above). Data: `out/independent-100-21.22-frontier-understand/`,
+`results-independent-100-21.22-frontier-understand.json`.
+
+| | 21.21 frontier | 21.22 frontier | **21.22 frontier, repeat run** | General assistant |
+|---|---|---|---|---|
+| Overall | 3.24 | 3.32 | **3.39** | 3.48 |
+| Paired vs 21.22 (95% CI) | | | +0.07 (−0.05 to +0.19) | |
+| Paired vs 21.21 (95% CI) | | +0.08 (−0.05 to +0.21) | **+0.15 (+0.01 to +0.29)** | |
+| Paired vs 21.18, all Qwen (95% CI) | +0.45 | | **+0.60 (+0.45 to +0.75)**; 54 up, 6 down | |
+| Paired vs general assistant (95% CI) | −0.24 | −0.16 (−0.35 to +0.03) | **−0.09 (−0.25 to +0.08)** | |
+| Critical failures (confirmed) | 2 (2) | 2 (2) | **1 (1)** | 6 (4) |
+| Question quality / language understanding | 2.95 / 3.43 | 2.93 / 3.42 | 3.06 / 3.45 | 3.09 / 3.80 |
+| Median turn | 13.1 s | 15.7 s | 16.5 s | 16.1 s |
+
+- **Overall 3.39 is +23.7% on the 2.74 baseline**: 0.01 short of the 3.40 target, and level with the general assistant
+  within noise (−0.09, CI crosses 0), with fewer critical failures (1 to 6). Neither Phase 3 nor the understand switch
+  clears the 0.17 gate alone; together, on top of 21.21, they are +0.15 with a CI just above 0.
+- **Not yet claimed:** the +25% target. 3.39 is one run on the development set; Phase 5 (held-out set) is required first
+  (§3).
+- **Model-alone controls** (the chat to the model with a generic assistant prompt, nothing else; change 21.10's
+  control, runner flag `--control qwen-plain`): all 100 conversations are run for `gpt-5.6-terra` alone
+  (`out/independent-100-plain-gpt/`) and Qwen alone (`out/independent-100-plain-qwen/`), **not yet scored**: the judge's
+  usage credits ran out. Example, WM-02 "w/m wont spinn pls help": Qwen alone answered about a Windows mouse.
+- **Live:** set to this configuration (understand and compose on the stronger model) while the temporary key lasts.
+
+## 10. Does RAG and Jev add anything on top of a strong model? (2026-10-14)
+
+Same 100 cases, same simulated customers, **one judge for every system: Claude Sonnet 5.5** (the primary judge, Fable,
+was out of credits). "Plain" is the model alone with a generic assistant prompt and the chat, nothing else (change
+21.10's control, runner `--control qwen-plain`). Data: `evaluation/rebuild/out/rag-vs-plain/`.
+
+| System | Model | RAG, Jev, plan, checks | Overall (0–4) | Conversations with a critical failure |
+|---|---|---|---|---|
+| ours-gpt | gpt-5.6-terra | yes | 3.16 | **2** |
+| plain-gpt | gpt-5.6-terra | no | 3.14 | 7 |
+| ours-qwen | Qwen 3.6 35B-A3B | yes | 2.70 | **19** |
+| plain-qwen | Qwen 3.6 35B-A3B | no | 2.40 | 46 |
+| general assistant | Claude Opus 5.5 (Claude Code) | no | 3.26 | 15 |
+
+| Paired difference (same cases) | Mean (95% CI) | Cases up / down |
+|---|---|---|
+| ours-gpt − plain-gpt | **+0.02 (−0.14 to +0.19)** | 15 / 18 |
+| ours-qwen − plain-qwen | **+0.34 (+0.16 to +0.53)** | 38 / 12 |
+| ours-gpt − general assistant | −0.10 (−0.27 to +0.07) | 18 / 25 |
+
+Blind head-to-head (Sonnet): plain-gpt 54, ours-gpt 46; ours-qwen 68, plain-qwen 32. 93–98 of 100 scored per system
+(the judge returned unparseable output on the rest after three tries).
+
+- **On GPT, the pipeline adds no usefulness** (+0.02, CI ±0.17) **but cuts critical failures from 7 to 2**.
+- **On Qwen, the pipeline adds +0.34 usefulness and cuts critical failures from 46 to 19.**
+
+**Claude Opus 5.5** (release 21.23, Anthropic provider; same judge, all 100 scored):
+
+| System | Overall | Critical failures | Safety | Question quality | Calibration | Diagnostic usefulness |
+|---|---|---|---|---|---|---|
+| ours-opus (pipeline) | 3.24 | **5** | 3.51 | 2.80 | 2.92 | 3.33 |
+| plain-opus (alone) | 3.24 | 16 | 3.18 | 2.49 | 2.66 | 3.45 |
+
+- Paired ours-opus − plain-opus: **+0.00 (−0.16 to +0.16)**, 22 up, 22 down.
+- Blind head-to-head (Sonnet): **ours-opus 64, plain-opus 36** (two-sided binomial p ≈ 0.007).
+- plain-opus matches the general assistant (Opus in Claude Code), +0.00, as it should: same model alone.
+- Pipeline turns on Opus: median about 25 s (alone: about 10 s); 1 service error in 100 conversations.
+
+**Conclusion across all three models.** The pipeline never lowers the usefulness score, and it cuts critical failures
+on every model: Qwen 46 → 19, GPT 7 → 2, Opus 16 → 5. Its usefulness gain shrinks as the model gets stronger: +0.34
+on Qwen, +0.02 on GPT, +0.00 on Opus. On Opus the blind head-to-head prefers the pipeline 64 to 36: safer, better
+questions and better calibrated, slightly less diagnostic detail. Costs: slower turns and more to maintain.
+
+## 11. Experiment: Jev chooses the cause and the next check (2026-10-15)
+
+Release 21.24, Qwen for every model step, the AI config switch `pipeline.jevChooses` on against off, same release,
+same 100 cases, Sonnet judge, all 100 scored per arm (run one conversation at a time: at three, the local Qwen server
+timed out). Data: `out/independent-100-21.24-qwen-choose/`, `out/independent-100-21.24-qwen/`,
+`out/rag-vs-plain/judge/`.
+
+| | Jev chooses | Off |
+|---|---|---|
+| Overall | 2.59 | 2.65 |
+| Paired difference | −0.06 (−0.21 to +0.09); 18 up, 24 down | |
+| Critical failures | 21 | 24 |
+| Named the part when one was needed | **15 / 38** | 8 / 38 |
+| Blind head-to-head | 53 | 40 (7 ties) |
+
+- **No measurable gain in usefulness or safety**: every difference is inside the noise.
+- **It does reach the part twice as often** (15 against 8 of the 38 cases that need one), without naming a part
+  where none is needed.
+- Not adopted on its own: the score does not move. The parts result is worth keeping in view for the parts problem.
+
+## 12. Experiment: Jev-led (Qwen reads, Jev chooses, code writes) (2026-10-15)
+
+Releases 21.25–21.27, AI config `pipeline.mode = jev-led`, Qwen for understanding and for a direct customer question
+only. Same 100 cases, Sonnet judge (98 scored). Data: `out/independent-100-21.27-jev-led/`.
+
+| | Jev-led | Qwen pipeline (same release family, 21.24 off) | Opus pipeline |
+|---|---|---|---|
+| Overall | **1.89** | 2.65 | 3.24 |
+| Paired vs Qwen pipeline | −0.77 (−0.94 to −0.59); 5 up, 60 down | | |
+| Critical failures | 50 | 24 | 5 |
+| Resolved | 15 | 36 | 46 |
+| Blind head-to-head vs Qwen pipeline | 15 (79 lost, 6 ties) | | |
+| Median turn | 3.9 s | ~15 s | ~25 s |
+
+Every dimension fell (diagnostic usefulness 2.66 → 1.96, question quality 2.01 → 1.29, fidelity 2.77 → 2.08). It is the
+fastest design tested and the worst since the journey system (1.46). Not adopted; live is back to the Qwen pipeline.
+
+## 13. Experiment: evidence mode (Jev reads evidence item by item, code scores) (2026-10-15)
+
+Releases 21.28–21.29, `pipeline.mode = jev-evidence`, Qwen. 46 of 100 conversations went through evidence mode (the
+matched note had scorable evidence); the rest kept the Qwen pipeline. Sonnet judge, 99 scored.
+Data: `out/independent-100-21.29-jev-evidence/`.
+
+| Paired vs the Qwen pipeline | Mean (95% CI) | Up / down |
+|---|---|---|
+| All 99 | −0.37 (−0.57 to −0.19) | 11 / 36 |
+| The 46 evidence-mode conversations | **−0.89 (−1.17 to −0.61)** | 3 / 30 |
+| The 53 others (same path as the baseline) | +0.08 (−0.11 to +0.28) | 8 / 6 |
+
+Overall 2.28 (Qwen pipeline 2.65), critical failures 38 (24). The 53 conversations on the unchanged path match the
+baseline, so the loss is the evidence path itself. Where 13 conversations lost 2+ points, the judge cites: engineer
+too early (10), wrong or irrelevant cause (8), repeated or already-answered steps (7). Not adopted; live is back to the
+Qwen pipeline.
+
+## 14. Jev-led with Claude Opus on the full 100, after six review rounds (2026-10-16)
+
+Release 21.36 (`pipeline.mode = jev-led`, compose on Claude Opus 5.5 for understanding and direct questions; Jev picks
+the note, marks each step done/refused/pointless, picks the situation and next step; code writes the reply). Six
+rounds of fixes on WM-01..WM-10 (`docs/evaluation/jev-review/`). Sonnet judge, 99 scored. Reviews of all 100, step
+by step: `docs/evaluation/jev-review/full100-opus/`.
+
+| | Jev-led, Opus | Opus pipeline (LLM writes the reply) | Opus alone |
+|---|---|---|---|
+| Overall | **2.03** | 3.24 | 3.24 |
+| Paired vs Opus pipeline | −1.21 (−1.40 to −1.02); 2 up, 74 down | | |
+| Critical failures | 29 | 5 | 16 |
+| Named the part when needed | 5 / 38 | 15 / 38 | 23 / 38 |
+| Blind head-to-head vs Opus pipeline | 5 (90 lost, 5 ties) | | |
+| Median turn | 4.9 s | ~25 s | ~10 s |
+
+- On the 10 cases tuned in the review rounds it scores 2.40 (Opus pipeline 3.50); on the other 89, 1.99. The fixes
+  did not carry over to cases they were not made on.
+- Judge reasons where it lost a point or more (74 cases): engineer too early or a dead end 48, a missed key check or
+  missing knowledge 36, repeated or already-answered steps 34, ignored what the customer said 33, wrong or irrelevant
+  cause or step 17, robotic or unclear wording 12.
+- Not adopted. Live is back to the usual pipeline on Qwen.
+- Later on 2026-10-16 live was switched to the Opus pipeline (AI config: compose frontier, anthropic, claude-opus-5-5).
+
+## 15. Held-out confirmation: Opus pipeline on the 31 held-out cases (2026-10-16)
+
+Live production (Opus pipeline) on `evaluation/heldout-25/cases.json` (31 cases, never used for tuning), against the
+general assistant's original held-out conversations (`claude-opus-5-5` alone, generic prompt). Both judged here by
+`claude-sonnet-5-5`. Files: `evaluation/rebuild/out/heldout-25-opus/`.
+
+| | Opus pipeline | Opus alone |
+|---|---|---|
+| Overall | **3.26** (31 cases) | 3.47 (30; HO-HB-03 not judged) |
+| Paired, 30 cases | 3.27 | 3.47; pipeline better 1, alone better 8, 21 equal |
+| Critical failures | 1 | 3 |
+| Resolved | 14 / 31 | 17 / 30 |
+
+- The development-set score (3.24) holds on unseen cases (3.26). Same pattern as section 10: the pipeline is safer
+  (fewer critical failures), slightly less useful than Opus alone.

@@ -1,0 +1,91 @@
+{
+  "id": "21.38-whichpart-api-bot-check",
+  "description": "whichpart-api (proof of concept, no real customers): Cloudflare Turnstile bot check on the first message of a conversation, in observe mode (verify and log, never refuse). Code, two environment variables (TURNSTILE_MODE, TURNSTILE_SECRET_ID) and read access to the turnstile secret. Previous code: phase8/whichpart-api-P1w8PF62tNA8Tp89q58-K4g8Xu_5QSUoEIGdSgfNs_k.zip; rollback = restore that s3Key, remove the two variables and the secret ARN.",
+  "classification": "SAFE AC CHANGE (code, configuration and secret read of whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapirolewhichpartacsecrets",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "whichpart-ac-secrets|whichpart-api-role",
+      "replacement": "False",
+      "details": [
+        "Properties.PolicyDocument"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code and configuration update of whichpart-api from the staged phase8 artefact (PassRole for the configuration update); PutRolePolicy on the one AC role to add the turnstile secret to its existing secrets policy.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function",
+      "AWS::IAM::RolePolicy"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration",
+      "iam:PutRolePolicy"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api",
+      "whichpart-api-role"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX",
+      "applianceclinic-diagnosis-engine"
+    ]
+  }
+}

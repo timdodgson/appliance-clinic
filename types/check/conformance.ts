@@ -12,12 +12,11 @@ import registry = require('../../prompts/registry.json');
 /** True only when A and B have exactly the same keys. */
 type SameKeys<A, B> = [Exclude<keyof A, keyof B>, Exclude<keyof B, keyof A>] extends [never, never] ? true : false;
 
-// ac3/1: JavaScript widens literals (the schema reads as string), so the new record is checked structurally: the same
-// keys as the declaration, at the top level and in `customer` and `knowledge`.
+// ac3/1: JavaScript widens literals (the schema reads as string), so the record is checked structurally: the same
+// keys as the declaration, at the top level and in `customer`.
 type Runtime = ReturnType<typeof record.empty>;
 export const recordKeys: SameKeys<Runtime, ConversationRecord> = true;
 export const customerKeys: SameKeys<Runtime['customer'], ConversationRecord['customer']> = true;
-export const knowledgeKeys: SameKeys<Runtime['knowledge'], ConversationRecord['knowledge']> = true;
 
 // The engine configuration and the prompt registry are checked by assignment.
 export const config: EngineConfig = engineConfig;

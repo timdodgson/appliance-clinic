@@ -4,7 +4,6 @@
     "whichpart-api": {
       "env": {
         "set": {
-          "ACQ_JUDGE_MODEL": "gpt-5.6-terra",
           "AC_ADMIN_GROUP": "admin",
           "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
@@ -14,7 +13,6 @@
           "COGNITO_USER_POOL_ID": "eu-west-1_r4fXXEdxC",
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
           "ENGINE_URL": "https://le2kq7wvkhtgsrzsqwqutz3aau0xqkhi.lambda-url.eu-west-1.on.aws/",
-          "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
           "MCP_HEALTH_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/health",
@@ -26,11 +24,9 @@
           "S4R_PRODUCT_BASE_URL": "https://d1hrb3pgx61xww.cloudfront.net",
           "TRANSCRIPT_INACTIVE_MINUTES": "120",
           "TRANSCRIPT_RETENTION_DAYS": "90",
-          "TRANSCRIPT_REVIEW_ENABLED": "1",
-          "TRANSCRIPT_REVIEW_MAX_PER_RUN": "3",
-          "TRANSCRIPT_REVIEW_MODEL": "",
-          "TRANSCRIPT_REVIEW_PROVIDER": "jev",
           "TRANSCRIPT_TABLE": "whichpart-transcripts",
+          "TURNSTILE_MODE": "enforce",
+          "TURNSTILE_SECRET_ID": "applianceclinic/production/turnstile",
           "WHICHPART_WEB_BUCKET": "whichpart-web-800960611664"
         },
         "unset": [
@@ -39,20 +35,25 @@
           "CANONICAL_CONTROL_JOURNEYS",
           "CANONICAL_MODE",
           "ORCHESTRATOR_TOKEN",
-          "ORCHESTRATOR_URL"
-        ],
-        "digests": {
-          "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
-        }
+          "ORCHESTRATOR_URL",
+          "ACQ_JUDGE_MODEL",
+          "JEV_SECRET_ID",
+          "TRANSCRIPT_REVIEW_ENABLED",
+          "TRANSCRIPT_REVIEW_MAX_PER_RUN",
+          "TRANSCRIPT_REVIEW_MODEL",
+          "TRANSCRIPT_REVIEW_PROVIDER",
+          "LM_STUDIO_URL"
+        ]
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/whichpart-api-sADj8CggkM_AvWJtTK_ZN7-734Vrdb1gOMhrdE19qfM.zip"
+        "s3Key": "phase8/whichpart-api-L4oAvkorWuXFR6lusHMYms4ySDVDYQtu3vPO1DIx_3c.zip"
       },
       "permissions": {
         "PublicInvoke": {
           "invokedViaFunctionUrl": true
-        }
+        },
+        "TranscriptReviewPeriodic": null
       }
     },
     "spares4repairs-diag-orchestrator": {
@@ -107,22 +108,22 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/applianceclinic-diagnosis-engine-5SJE0mqTw4rk2qZncte1qsMP5ERctTXB9NfXnexP4zg.zip"
+        "s3Key": "phase8/applianceclinic-diagnosis-engine-J_nYqfe_nMyxKcz5xxrWh-izuVDP1dtOK0psew4T564.zip"
       },
       "env": {
         "set": {
           "AC_BEARER_VERSIONS": "mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
           "AI_CONFIG_SECRET_ID": "applianceclinic/production/ai-config",
           "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
-          "JEV_SECRET_ID": "applianceclinic/production/jev",
           "LEARNING_BUCKET": "whichpart-learning-800960611664",
           "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
           "MCP_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws",
           "OPENAI_SECRET_ID": "applianceclinic/production/openai"
         },
-        "digests": {
-          "LM_STUDIO_URL": "sha256:0be0a90889270013f31f077bc0d6a2512181f869b47ef571eaa86a65da21e42c"
-        }
+        "unset": [
+          "JEV_SECRET_ID",
+          "LM_STUDIO_URL"
+        ]
       }
     },
     "applianceclinic-error-code-mcp": {
@@ -231,7 +232,10 @@
           "Action": [
             "secretsmanager:GetSecretValue"
           ],
-          "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo"
+          "Resource": [
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/turnstile-iraQS4"
+          ]
         }
       ]
     },
@@ -371,6 +375,9 @@
         }
       ]
     }
+  },
+  "rules": {
+    "whichpart-transcript-review": null
   },
   "roleManagedPolicies": {
     "whichpart-api-role": [],

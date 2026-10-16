@@ -1,0 +1,167 @@
+TEST TD-06  (ended: escalated, 7 customer messages)
+
+--- Turn 1
+CUSTOMER: Indesit dryer making a horrible squealing noise when it starts up, goes away after a few mins. Still dries fine
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=Indesit model=None codes=[] symptom='squealing noise on start-up' question=None
+   checks reported: []  facts: ['noise goes away after a few minutes', 'still dries fine']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.97); modelUnreachable=false (0.03); make="Indesit" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.24  check: Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check t
+    KEPT    d=0.05 r=0.04 p=0.15  check: With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn smoothly an
+    KEPT    d=0.29 r=0.04 p=0.46  check: Run a short programme. Has the noise gone, or is it still there?
+    REMOVED d=0.8 r=0.05 p=0.59  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn smoothly and quietly, or does it feel rough, rumble or squeak as you turn it?
+REPLY: From what you have described, the most likely cause is jockey / idler tension pulley. With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn smoothly and quietly, or does it feel rough, rumble or squeak as you turn it?
+
+--- Turn 2
+CUSTOMER: It turns ok but there's a slight squeak/scrape and it feels a little rough.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'turned drum by hand', 'result': 'turns ok but slight squeak/scrape and feels a little rough'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.8); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.97); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.29 r=0.05 p=0.31  check: Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check t
+    KEPT    d=0.38 r=0.04 p=0.44  check: Run a short programme. Has the noise gone, or is it still there?
+    REMOVED d=0.91 r=0.05 p=0.64  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = Run a short programme. Has the noise gone, or is it still there?
+REPLY: Run a short programme. Has the noise gone, or is it still there?
+
+--- Turn 3
+CUSTOMER: It's not every cycle, but when it happens it squeals for the first few minutes then quietens down. Worse on cold mornings and with a heavy load. Haven't run one just now though, want me to?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='squealing noise for first few minutes of cycle' question="Haven't run one just now though, want me to?"
+   checks reported: []  facts: ['not every cycle', 'squeals first few minutes then quietens', 'worse on cold mornings', 'worse with a heavy load']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.63); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (0.77); lastAnswer="answered" (0.6); checkOutcome=null (0.96); modelUnreachable=false (0.04); narrowed=null (0.54); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:heat-pump', 'tumble-dryer:not-emptying-condensate']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.27 r=0.08 p=0.38  check: Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check t
+    REMOVED d=0.93 r=0.09 p=0.74  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check the drum and its lifters, the lint filter and the slot it sits in, and turn the drum slowly while you listen. Did you find somethin
+LLM ANSWER TO THEIR QUESTION: No, there's no need to run a cycle just now.  The next check is done with the dryer unplugged, so it's best to do that first and only run it afterwards if nothing turns up.
+REPLY: No, there's no need to run a cycle just now. The next check is done with the dryer unplugged, so it's best to do that first and only run it afterwards if nothing turns up. Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check the drum and its lifters, the lint filter and the slot it sits in, and turn the drum slowly while you listen. Did you find something (and have you removed it), can you see something stuck that won't come out, or is it all clear?
+
+--- Turn 4
+CUSTOMER: Had a look and nothing found in the door seal or filter, all clear. Drum still feels a bit rough when I turn it though.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'checked door seal and filter for objects', 'result': 'nothing found'}, {'check': 'turned drum by hand', 'result': 'feels a bit rough'}]  facts: ['drum feels a bit rough when turned by hand']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.99); symptomArea="noise" (0.83); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.03); narrowed=null (0.68); checksConfirmed=[0, 1]; factsConfirmed=[0]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:motor', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.93 r=0.08 p=0.74  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and does the drum still turn?
+REPLY: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and does the drum still turn?
+
+--- Turn 5
+CUSTOMER: It's a high-pitched squeal, mostly in the first 2-5 minutes of a cycle, then it quietens. The drum does still turn, no knocking or rattling.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='high-pitched squeal at start of cycle' question=None
+   checks reported: []  facts: ['squeal mostly in first 2-5 minutes of cycle, then quietens', 'drum still turns', 'no knocking or rattling']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.87); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (1); code=null (1); narrowed=null (0.52); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:motor', 'tumble-dryer:door']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.37 r=0.06 p=0.56  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.41 r=0.3 p=0.62  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+    REMOVED d=0.91 r=0.07 p=0.6  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+    REMOVED d=0.06 r=0.05 p=0.83  check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance 
+    KEPT    d=0.06 r=0.06 p=0.59  check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks 
+    KEPT    d=0.11 r=0.08 p=0.39  check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff
+    REMOVED d=0.05 r=0.05 p=0.65  check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons worki
+    REMOVED d=0.07 r=0.05 p=0.81  check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed
+    KEPT    d=0.46 r=0.33 p=0.48  check: Now choose a programme and press start. Does it start normally now, or still not?
+    KEPT    d=0.05 r=0.04 p=0.5  question: Is the handle/door physically broken or not closing, or does it close fine but the dryer s
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = Run a short programme with a normal load. Is the drum turning now, or still not?
+REPLY: Run a short programme with a normal load. Is the drum turning now, or still not?
+
+--- Turn 6
+CUSTOMER: The drum is turning fine, it's only the squeal at the start that's the issue. Do you want me to run a cycle now? It's not every time it squeals though, so it might not do it.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='squeal at the start of a cycle' question='Do you want me to run a cycle now?'
+   checks reported: []  facts: ['drum turns fine', 'squeal does not happen every time']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.85); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (0.72); lastAnswer="answered" (1); checkOutcome=null (0.36); modelUnreachable=false (0.03); narrowed=null (0.61); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:motor', 'tumble-dryer:door']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.46 r=0.07 p=0.64  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    REMOVED d=0.93 r=0.07 p=0.64  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+    REMOVED d=0.08 r=0.05 p=0.85  check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance 
+    KEPT    d=0.06 r=0.06 p=0.6  check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks 
+    KEPT    d=0.11 r=0.07 p=0.44  check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff
+    REMOVED d=0.05 r=0.05 p=0.67  check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons worki
+    REMOVED d=0.07 r=0.04 p=0.82  check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed
+    KEPT    d=0.37 r=0.17 p=0.51  check: Now choose a programme and press start. Does it start normally now, or still not?
+    KEPT    d=0.04 r=0.04 p=0.5  question: Is the handle/door physically broken or not closing, or does it close fine but the dryer s
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = Now choose a programme and press start. Does it start normally now, or still not?
+LLM ANSWER TO THEIR QUESTION: Yes, please run a cycle now so we can hear what it does at start-up, since the squeal mostly shows up in the first few minutes.  Stay nearby and listen during that early part.
+REPLY: Yes, please run a cycle now so we can hear what it does at start-up, since the squeal mostly shows up in the first few minutes. Stay nearby and listen during that early part. Now choose a programme and press start. Does it start normally now, or still not?
+
+--- Turn 7
+CUSTOMER: It starts normally, the drum is turning and there are no codes. What should I be listening for in these first few minutes?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='squeal in first few minutes of cycle' question='What should I be listening for in these first few minutes?'
+   checks reported: [{'check': 'ran a cycle', 'result': 'starts normally, drum turning, no codes'}]  facts: ['drum is turning', 'no error codes shown']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.4); symptomArea=null (0.83); hazard=null (1); unsafeRequest=null (0.88); lastAnswer="answered" (0.96); checkOutcome=null (0.33); modelUnreachable=false (0.04); narrowed=null (0.71); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:noisy', 'tumble-dryer:motor', 'tumble-dryer:tripping-electrics']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:noisy | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: jockey / idler tension pulley
+    - cause: drive belt
+    - cause: drum support rollers
+    - cause: drum bearing / bush
+    - cause: blower fan (loose/obstructed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.47 r=0.06 p=0.66  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    REMOVED d=0.92 r=0.07 p=0.62  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+    KEPT    d=0.09 r=0.06 p=0.3  step: Unplug the dryer and stop using it until the fault is found
+    KEPT    d=0.06 r=0.03 p=0.49  step: Do not keep resetting the RCD and re-running it; do not attempt live mains or insulation t
+    KEPT    d=0.08 r=0.03 p=0.25  step: If it trips with burning smell or smoke, STOP USE and have it checked
+    KEPT    d=0.13 r=0.07 p=0.55  question: Does it trip the moment you switch on, or only once it has been running/heating for a few 
+  JEV PICKED: situation = jockey / idler tension pulley
+              next      = Unplug the dryer and stop using it until the fault is found
+LLM ANSWER TO THEIR QUESTION: You don't need to listen for anything more, so please don't run it again just to hear the noise.  What you've already described (a squeal in the first few minutes that's worse on cold mornings and with heavy loads, plus the drum feeling rough by hand) is enough to go on.
+REPLY: You don't need to listen for anything more, so please don't run it again just to hear the noise. What you've already described (a squeal in the first few minutes that's worse on cold mornings and with heavy loads, plus the drum feeling rough by hand) is enough to go on. Next: Unplug the dryer and stop using it until the fault is found. Let me know what you find.
+
+HIDDEN TRUTH: Genuinely uncertain: worn jockey (tension) pulley or dry/worn drum support rollers/bearing; levelling may reduce but not eliminate. Condenser pump squeal also possible.

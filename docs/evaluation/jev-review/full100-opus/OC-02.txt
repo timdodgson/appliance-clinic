@@ -1,0 +1,96 @@
+TEST OC-02  (ended: concluded, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: indesit oven stoped heating, fan goes round n light on but its stone cold after 20 mins. grill werks fine tho. any ideas b4 i call some1 out
+1 LLM UNDERSTOOD: appliance=oven brand=Indesit model=None codes=[] symptom='oven not heating' question='any ideas before I call someone out?'
+   checks reported: []  facts: ['fan goes round', 'light comes on', 'stone cold after 20 minutes', 'grill works fine']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.88); modelUnreachable=false (0.04); model=null (1); code=null (1); make="Indesit" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['oven-cooker:element', 'oven-cooker:cooling-fan', 'oven-cooker:uneven-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = oven-cooker:element | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: which function works (fan/grill/top/base) - identify first
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: fan / rear ring element [fan-oven mode]
+    - cause: grill element [grill mode]
+    - cause: base / bottom element [conventional/base mode]
+    - cause: top element [where a separate top element is fitted]
+    - cause: element terminal connectors (burnt)
+    - cause: selector / function switch
+    - cause: grill energy regulator / simmerstat
+    - cause: oven thermostat (not switching on)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.18  check: Some cookers won't heat until the clock is set or manual mode is selected after a power cu
+    REMOVED d=0.1 r=0.04 p=0.67  check: Check the grill function is selected and the grill control turned up, and the door positio
+    REMOVED d=0.62 r=0.05 p=0.7  check: Try the grill on full for a few minutes. Is the grill glowing / heating now, or still not?
+    KEPT    d=0.06 r=0.04 p=0.26  check: Many ovens won't heat at all after a power cut (or with an end time set) until the clock i
+    KEPT    d=0.09 r=0.05 p=0.37  check: One quick check, because the defrost setting runs the fan with no heat: make sure the func
+    KEPT    d=0.27 r=0.06 p=0.48  check: Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or stil
+    REMOVED d=0.85 r=0.04 p=0.44  step: identify cavity, which function/mode is affected, and what still works
+    KEPT    d=0.05 r=0.04 p=0.23  step: after a power cut, or if the clock is flashing, set the clock/timer to MANUAL and the corr
+    KEPT    d=0.04 r=0.05 p=0.14  step: a visibly split/blistered element can be identified by eye (power off)
+    REMOVED d=0.81 r=0.06 p=0.28  question: Which cavity and function is affected (fan oven, top oven, grill, base), what still works,
+    KEPT    d=0.33 r=0.07 p=0.28  question: In the affected cavity, does the same heating system behave differently in top-oven mode v
+  JEV PICKED: situation = fan / rear ring element [fan-oven mode]
+              next      = Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?
+LLM ANSWER TO THEIR QUESTION: Yes, there's a quick, safe check worth doing first that could save you a call-out.  The fan turning, the light coming on and the grill working tell us the cooker is getting power, so the problem looks limited to the oven's heating side.
+REPLY: Yes, there's a quick, safe check worth doing first that could save you a call-out. The fan turning, the light coming on and the grill working tell us the cooker is getting power, so the problem looks limited to the oven's heating side. From what you have described, the most likely cause is fan / rear ring element [fan-oven mode]. Set it to 180°C on the fan function for 15 minutes. Is it heating up properly now, or still not?
+
+--- Turn 2
+CUSTOMER: did that already, its been 20 mins at 180 on fan oven n still stone cold, orange light stays on tho. fan going round fine. what next?
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom='oven not heating on fan mode' question='what next?'
+   checks reported: [{'check': 'ran fan oven at 180°C for 20 minutes', 'result': 'still stone cold'}]  facts: ['orange light stays on', 'fan turning fine']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (1); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['oven-cooker:element', 'oven-cooker:cooling-fan', 'oven-cooker:ignition']  normal: []  codes: []  stage: 2
+4 JEV: note picked = oven-cooker:element | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: which function works (fan/grill/top/base) - identify first
+    - cause: clock/timer set to AUTO (power-cut free fix)
+    - cause: fan / rear ring element [fan-oven mode]
+    - cause: grill element [grill mode]
+    - cause: base / bottom element [conventional/base mode]
+    - cause: top element [where a separate top element is fitted]
+    - cause: element terminal connectors (burnt)
+    - cause: selector / function switch
+    - cause: grill energy regulator / simmerstat
+    - cause: oven thermostat (not switching on)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.09 r=0.07 p=0.28  check: Some cookers won't heat until the clock is set or manual mode is selected after a power cu
+    REMOVED d=0.18 r=0.05 p=0.72  check: Check the grill function is selected and the grill control turned up, and the door positio
+    REMOVED d=0.65 r=0.06 p=0.74  check: Try the grill on full for a few minutes. Is the grill glowing / heating now, or still not?
+    KEPT    d=0.09 r=0.06 p=0.39  check: Many ovens won't heat at all after a power cut (or with an end time set) until the clock i
+    REMOVED d=0.51 r=0.06 p=0.69  check: One quick check, because the defrost setting runs the fan with no heat: make sure the func
+    REMOVED d=0.92 r=0.04 p=0.62  step: identify cavity, which function/mode is affected, and what still works
+    KEPT    d=0.08 r=0.04 p=0.4  step: after a power cut, or if the clock is flashing, set the clock/timer to MANUAL and the corr
+    KEPT    d=0.06 r=0.05 p=0.16  step: a visibly split/blistered element can be identified by eye (power off)
+    REMOVED d=0.8 r=0.08 p=0.44  question: Which cavity and function is affected (fan oven, top oven, grill, base), what still works,
+    KEPT    d=0.34 r=0.08 p=0.34  question: In the affected cavity, does the same heating system behave differently in top-oven mode v
+  JEV PICKED: situation = fan / rear ring element [fan-oven mode]
+              next      = a visibly split/blistered element can be identified by eye (power off)
+REPLY: Next: A visibly split/blistered element can be identified by eye (power off). Let me know what you find.
+
+--- Turn 3
+CUSTOMER: ok isolated it at the cooker switch on the wall n took the back panel off (4 screws). the round element has a blister/split in the coil near the bottom with a black mark on it. is that the problem?
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom=None question='is that the problem?'
+   checks reported: [{'check': 'removed back panel and inspected round fan element', 'result': 'blister/split in the coil near the bottom with a black mark'}]  facts: ['round element behind back panel', 'back panel held by 4 screws']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (0.99); symptomArea="no_heat" (0.8); hazard=null (0.81); unsafeRequest=null (1); lastAnswer="answered" (0.96); checkOutcome=null (0.35); modelUnreachable=false (0.04); narrowed="fan oven element" (0.92); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['oven-cooker:element', 'oven-cooker:cooling-fan', 'oven-cooker:ignition']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+LLM ANSWER TO THEIR QUESTION: Yes, almost certainly: a blistered or split coil with a black burn mark is the classic sign of a failed fan oven element.  That fits everything you've described, with the fan turning, the light on and the grill working, but no heat at all in fan mode.
+REPLY: [Heading: Likely cause: fan oven element]
+Yes, almost certainly: a blistered or split coil with a black burn mark is the classic sign of a failed fan oven element. That fits everything you've described, with the fan turning, the light on and the grill working, but no heat at all in fan mode. The checks point to the fan oven element. To find the right part, could you give me the model number? It is usually on the frame around the oven door opening.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: its an Indesit IFW 6330 IX, read it off the rating plate on the door frame. is that enough to get the right element?
+1 LLM UNDERSTOOD: appliance=oven brand=Indesit model=IFW 6330 IX codes=[] symptom='no heat in fan mode' question='Is that enough to get the right element?'
+   checks reported: []  facts: ['model read off rating plate on door frame']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (0.99); symptomArea=null (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="IFW 6330 IX" (1); code=null (1); make="Indesit" (1); narrowed="fan oven element" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['oven-cooker:element', 'oven-cooker:ignition', 'oven-cooker:fan-motor']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: part-verified)
+LLM ANSWER TO THEIR QUESTION: Mostly, yes.  The model number from the rating plate is the main thing you need.
+REPLY: [Heading: Likely cause: fan oven element]
+Mostly, yes. The model number from the rating plate is the main thing you need. The checks point to the fan oven element. A matching part for model [object Object] is shown below; check the listing matches your model before ordering. If you would rather not fit it yourself, an appliance engineer can.
+[Likely component involved]
+[Part card: 1800w Fan Element — £30.00 — Confirmed fit for your model — link "View at Spares4Repairs"]
+
+HIDDEN TRUTH: Fan oven (circular) element has failed open-circuit - visibly blistered/split.

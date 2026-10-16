@@ -1,139 +1,38 @@
 'use strict';
 /**
- * The conversation record (ac3/1), stored by the BFF in DynamoDB between messages.
+ * The conversation record (ac3/1), stored by the BFF in DynamoDB between messages. Since the 2026-10-16 refactor it
+ * holds only what the code needs between turns; the conversation itself carries everything else.
  *
- *   customer   what the customer told us (labelled or confirmed by Jev from their own words): appliance, brand, model,
- *              codes, symptom, checks they did and what happened, facts they stated (including what is NOT happening),
- *              whether they can reach the model label
- *   knowledge  what our tools added (RAG fault notes, likely causes and components, error-code meanings, model info)
- *              kept apart from customer facts so a guess is never recorded as something the customer said
- *   asked      questions we asked and how they were answered
- *   advice     what each of our replies did (Jev's reply label), the check it gave, the question it asked and whether
- *              the customer has reported back on that check, so the next reply builds on it and never assumes a result
- *   hazards    hazards seen so far and whether the fixed wording was shown
- *   stage      1 = broad help and safe checks, 2 = DIY checks failed: narrow, get the model, suggest a part
+ *   customer   appliance, make and model the advisor recorded (they choose the fault notes and the hazard word lists)
+ *   hazards    hazards seen in the customer's words and whether their fixed warning was shown
+ *   outcome    the advisor's latest outcome (diagnosing, part_needed, engineer, normal, fixed, out_of_scope, safety_stop)
  */
 const SCHEMA = 'ac3/1';
 
 function empty() {
-  return {
-    schema: SCHEMA,
-    turn: 0,
-    customer: { appliance: null, brand: null, model: null, codes: [], symptom: null, symptomArea: null, checks: [], facts: [], modelUnavailable: false },
-    knowledge: { knowledgeIds: [], fault: null, causes: [], components: [], codeMeanings: [], modelInfo: [] },
-    asked: [],
-    advice: [],
-    hazards: [],
-    stage: 1,
-    narrowed: null,
-    outcome: null,
-  };
+  return { schema: SCHEMA, turn: 0, customer: { appliance: null, brand: null, model: null }, hazards: [], outcome: null };
 }
 
+/** An earlier record (any ac3/1 shape) keeps its turn, hazards and what we knew; the rest is dropped. */
 function load(state) {
   if (!state || state.schema !== SCHEMA) return empty();
-  const base = empty();
-  return { ...base, ...JSON.parse(JSON.stringify(state)), customer: { ...base.customer, ...state.customer }, knowledge: { ...base.knowledge, ...state.knowledge } };
-}
-
-/** Set a labelled customer value; a confident new label replaces the old one (the customer corrected it). */
-function setValue(rec, field, value, confidence, turn) {
-  if (!value) return;
-  const cur = rec.customer[field];
-  if (cur && cur.value === value) { cur.confidence = Math.max(cur.confidence || 0, confidence || 0); return; }
-  rec.customer[field] = { value, confidence: confidence == null ? null : Math.round(confidence * 100) / 100, turn };
-}
-
-function addCode(rec, code, turn) {
-  const c = String(code || '').trim().toUpperCase();
-  if (!c || rec.customer.codes.some((x) => x.code === c)) return;
-  rec.customer.codes.push({ code: c, turn });
-}
-
-function addCheck(rec, check, result, turn) {
-  const c = String(check || '').trim().slice(0, 120);
-  if (!c) return;
-  const r = String(result || '').trim().slice(0, 160);
-  const prior = rec.customer.checks.find((x) => x.check.toLowerCase() === c.toLowerCase());
-  if (prior) { prior.result = r || prior.result; prior.turn = turn; return; }
-  rec.customer.checks.push({ check: c, result: r, turn });
-  if (rec.customer.checks.length > 12) rec.customer.checks.shift();
-}
-
-/** A fact the customer stated about the appliance, its use or what they observed (confirmed by Jev from their words). */
-function addFact(rec, fact, turn) {
-  const f = String(fact || '').trim().slice(0, 140);
-  if (!f || rec.customer.facts.some((x) => x.fact.toLowerCase() === f.toLowerCase())) return;
-  rec.customer.facts.push({ fact: f, turn });
-  if (rec.customer.facts.length > 16) rec.customer.facts.shift();
-}
-
-function noteAsked(rec, question, turn) {
-  const q = String(question || '').trim().slice(0, 200);
-  if (!q) return;
-  rec.asked.push({ question: q, turn, answer: null });
-  if (rec.asked.length > 10) rec.asked.shift();
-}
-
-function resolveLastAsked(rec, answer) {
-  const last = rec.asked[rec.asked.length - 1];
-  if (last && !last.answer && answer) last.answer = answer;
-}
-
-/** What one of our replies did: its action label, the check it gave and the question it asked. */
-function noteAdvice(rec, { turn, action, check, question }) {
-  rec.advice.push({ turn, action: action || null, check: check ? String(check).slice(0, 160) : null, question: question ? String(question).slice(0, 200) : null, reported: false });
-  if (rec.advice.length > 8) rec.advice.shift();
-}
-
-/** The customer reported the result of a check: the checks we gave before this turn are no longer awaiting a result. */
-function markChecksReported(rec, turn) {
-  for (const a of rec.advice) if (a.check && a.turn < turn) a.reported = true;
-}
-
-/** Checks we suggested that the customer has not reported back on. */
-function checksAwaitingResult(rec) {
-  return rec.advice.filter((a) => a.check && !a.reported).map((a) => a.check);
-}
-
-/**
- * Our earlier replies in one line each, for the plan. The questions we asked are not quoted: quoting our own earlier
- * wording made the reply model copy it (asking again for a model it had been given). What was answered is in the record.
- */
-function adviceSummary(rec) {
-  return rec.advice.map((a) => [`turn ${a.turn}: ${String(a.action || 'reply').replace(/_/g, ' ')}`, a.check ? `suggested the check "${a.check}"${a.reported ? '' : ' (no result reported yet)'}` : null].filter(Boolean).join(', '));
-}
-
-/** What we already know, for the prompts: the reply must never ask for any of it. */
-function known(rec) {
-  const c = rec.customer;
-  const v = (x) => (x ? x.value : null);
+  const s = JSON.parse(JSON.stringify(state));
+  const v = (x) => (x && typeof x === 'object' ? x.value || null : x || null);
+  const c = s.customer || {};
   return {
-    appliance: v(c.appliance), brand: v(c.brand), model: v(c.model), codes: c.codes.map((x) => x.code),
-    symptom: v(c.symptom), checksDone: c.checks.map((x) => `${x.check}: ${x.result || 'done'}`),
-    customerSaid: (c.facts || []).map((x) => x.fact),
-    modelLabelUnreachable: c.modelUnavailable || false,
+    schema: SCHEMA,
+    turn: Number.isInteger(s.turn) ? s.turn : 0,
+    customer: { appliance: v(c.appliance), brand: v(c.brand), model: v(c.model) },
+    hazards: Array.isArray(s.hazards) ? s.hazards : [],
+    outcome: s.outcome || null,
   };
 }
 
-/**
- * The record as evidence for the reasoner and the claim verifier: every customer value and confirmed fact or check,
- * and every resolved error-code meaning (tool), each with a stable id the reasoner and the extractor can cite.
- */
-function evidence(rec) {
-  const c = rec.customer;
-  const out = [];
-  const add = (id, field, value, source) => { if (value) out.push({ id, field, value: String(value), source }); };
-  add('appliance', 'appliance', c.appliance && c.appliance.value, 'customer');
-  add('brand', 'brand', c.brand && c.brand.value, 'customer');
-  add('model', 'model', c.model && c.model.value, 'customer');
-  c.codes.forEach((x, i) => add(`code${i + 1}`, 'error_code', x.code, 'customer'));
-  add('symptom', 'symptom', c.symptom && c.symptom.value, 'customer');
-  (c.facts || []).forEach((x, i) => add(`fact${i + 1}`, 'customer_said', x.fact, 'customer'));
-  c.checks.forEach((x, i) => add(`check${i + 1}`, 'check_done', `${x.check}: ${x.result || 'done'}`, 'customer'));
-  if (c.modelUnavailable) add('model_label', 'model_label_reachable', 'no, they cannot reach the model label right now', 'customer');
-  for (const r of rec.knowledge.codeMeanings || []) if (r && r.status === 'RESOLVED' && r.meaning) add(`codemeaning_${r.code}`, 'error_code_meaning', `${r.code}: ${r.meaning}`, 'tool');
-  return out;
+/** Keep what the advisor learnt; a value it did not give leaves the earlier one. */
+function learn(rec, { appliance, brand, model } = {}) {
+  if (appliance && appliance !== 'other' && appliance !== 'unknown') rec.customer.appliance = appliance;
+  if (brand) rec.customer.brand = String(brand).slice(0, 40);
+  if (model) rec.customer.model = String(model).slice(0, 40);
 }
 
-module.exports = { SCHEMA, empty, load, setValue, addCode, addCheck, addFact, noteAsked, resolveLastAsked, noteAdvice, markChecksReported, checksAwaitingResult, adviceSummary, known, evidence };
+module.exports = { SCHEMA, empty, load, learn };

@@ -1,0 +1,68 @@
+TEST TD-05  (ended: escalated, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: dryer drum wont turn but i can here it running, hotpiont. clothes just sit there
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=Hotpoint model=None codes=[] symptom="drum won't turn but motor running" question=None
+   checks reported: []  facts: ['can hear it running', 'clothes just sit there']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.04); make="Hotpoint" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:door', 'tumble-dryer:noisy']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.22  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.04 r=0.06 p=0.09  check: With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, d
+    KEPT    d=0.1 r=0.05 p=0.42  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+    REMOVED d=0.8 r=0.08 p=0.21  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+  JEV PICKED: situation = drive belt
+              next      = With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round very easily with no resistance at all?
+REPLY: From what you have described, the most likely cause is drive belt. With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round very easily with no resistance at all?
+
+--- Turn 2
+CUSTOMER: it spins really easy with almost no resistance
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'turned drum by hand', 'result': 'spins really easily with almost no resistance'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.86); symptomArea="not_spinning_or_turning" (0.5); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.6); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:door', 'tumble-dryer:noisy']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.35  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.12 r=0.05 p=0.39  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+    REMOVED d=0.96 r=0.06 p=0.82  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+  JEV PICKED: situation = drive belt
+              next      = Run a short programme with a normal load. Is the drum turning now, or still not?
+REPLY: Run a short programme with a normal load. Is the drum turning now, or still not?
+
+--- Turn 3
+CUSTOMER: still not turning, motor hums and air blows but drum just sits there. i did hear a twang/thud yesterday mid cycle and a slight rubber smell at the time. also can see a black rubbery strip at the bottom through the filter slot with a torch
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='drum not turning, motor hums' question=None
+   checks reported: [{'check': 'ran a short programme with a normal load', 'result': 'drum still not turning; motor hums and air blows'}, {'check': 'looked through the filter slot with a torch', 'result': 'black rubbery strip visible at the bottom'}]  facts: ['heard a twang/thud mid cycle yesterday', 'slight rubber smell at the time', 'air still blows']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="not_spinning_or_turning" (1); hazard="burning" (0.65); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.92); modelUnreachable=false (0.04); narrowed="drive belt" (0.92); checksConfirmed=[1]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:door', 'tumble-dryer:not-heating']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+REPLY: ⚠ Stop using this appliance
+A burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. The checks point to the drive belt. To find the right part, could you give me the model number? It is usually on a sticker inside the door opening.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: sticker is worn but i can just about read it starts TVHM8 the rest is gone. ive got screwdrivers and can take the back panel off if you tell me how
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=TVHM8 (partial) codes=[] symptom=None question='How do I take the back panel off?'
+   checks reported: []  facts: ['model sticker is worn', 'has screwdrivers and can remove back panel']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.56); symptomArea=null (0.97); hazard=null (1); unsafeRequest=null (0.99); lastAnswer="answered" (0.57); checkOutcome=null (1); modelUnreachable=true (0.84); model="TVHM8" (0.69); code=null (1); narrowed="drive belt" (0.87); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:fan', 'tumble-dryer:noisy']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: hazard)
+LLM ANSWER TO THEIR QUESTION: I'd rather not walk you through removing the back panel, because what you've found points to work that's beyond the checks that are safe to do yourself.  The exact steps also depend on your specific model, so it's best left to an engineer, and if you do open anything, the dryer must be unplugged first.
+REPLY: ⚠ Stop using this appliance
+I'd rather not walk you through removing the back panel, because what you've found points to work that's beyond the checks that are safe to do yourself. The exact steps also depend on your specific model, so it's best left to an engineer, and if you do open anything, the dryer must be unplugged first. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Drive belt snapped (possibly worn jockey pulley contributed).

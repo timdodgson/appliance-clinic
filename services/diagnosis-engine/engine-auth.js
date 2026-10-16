@@ -1,7 +1,7 @@
 'use strict';
 /**
  * ADR 0017 / 0019: every engine request comes from an Appliance Clinic service holding the AC engine signing key
- * (whichpart-api: turns, feedback and health) and is signed over its exact body. The handler refuses any request without
+ * (whichpart-api: turns and health) and is signed over its exact body. The handler refuses any request without
  * a valid signature (401).
  *
  * Header: x-ac-engine-signature: t=<unix seconds>,v1=<hex HMAC-SHA256(key, `${t}.${rawBody}`)>
@@ -9,7 +9,7 @@
  */
 const crypto = require('node:crypto');
 
-const INTERNAL_FIELDS = Object.freeze(['mode', 'feedback', 'ac2', 'image']);
+const INTERNAL_FIELDS = Object.freeze(['mode', 'ac2']);
 const SIGNATURE_HEADER = 'x-ac-engine-signature';
 const MAX_SKEW_S = 300;
 

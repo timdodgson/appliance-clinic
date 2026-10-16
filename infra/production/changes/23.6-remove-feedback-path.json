@@ -1,0 +1,79 @@
+{
+  "id": "23.6-remove-feedback-path",
+  "description": "Engine and whichpart-api code in one change set (proof of concept, no real customers): the unused feedback path removed. The customer page never rendered the thumbs (it required a traceId the view stopped carrying), so the engine's feedback branch, the learning-log feedback writer, the BFF pass-through and the traceId in the view and transcript metadata go. Engine: a signed request is a turn or a 400; unsigned internal fields are mode and ac2. whichpart-api: liveTest requires messages; the chat view has no traceId. No environment change. Previous code: phase8/applianceclinic-diagnosis-engine-HBc1vGBTM3aExwNCgbqlYu0kCRmmhw4ccZtyP-zwD6E.zip and phase8/whichpart-api-bXy3ISk-k81QvKB7j5ksOrTsq14zEPImcMwAGDyyafI.zip; rollback = restore both s3Keys.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine and whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code of both functions from the staged phase8 artefacts; no configuration change, so no PassRole. No role policy change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+TEST OC-11  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, the light in my Neff oven has stopped working (model B1ACE4HN0B). Oven works fine otherwise. Can I change the bulb myself and what bulb do I need?
+1 LLM UNDERSTOOD: appliance=oven brand=Neff model=B1ACE4HN0B codes=[] symptom='oven light not working' question='Can I change the bulb myself and what bulb do I need?'
+   checks reported: []  facts: ['oven works fine otherwise']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="other" (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.03); model="B1ACE4HN0B" (1); code=null (1); make="Neff" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['oven-cooker:lighting', 'oven-cooker:ignition', 'oven-cooker:main-pcb']  normal: []  codes: []  stage: 1
+4 JEV: note picked = oven-cooker:lighting | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: oven lamp / bulb
+    - cause: lamp holder / local wiring
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.89 r=0.04 p=0.82  step: confirm the oven otherwise works before assuming anything beyond the lamp (a high-temp ove
+    REMOVED d=0.97 r=0.05 p=0.86  question: Does the oven otherwise work normally and only the interior light has failed?
+  JEV PICKED: situation = oven lamp / bulb
+              next      = Does the oven otherwise work normally and only the interior light has failed?
+LLM ANSWER TO THEIR QUESTION: Yes, an oven bulb is usually a job you can do yourself, as long as the oven is switched off at the wall isolator and completely cool first.  The exact bulb depends on your model, so check the markings on the old bulb or your Neff manual, and only use a heat-resistant bulb made for ovens, not an ordinary household one.
+REPLY: Yes, an oven bulb is usually a job you can do yourself, as long as the oven is switched off at the wall isolator and completely cool first. The exact bulb depends on your model, so check the markings on the old bulb or your Neff manual, and only use a heat-resistant bulb made for ovens, not an ordinary household one. From what you have described, the most likely cause is oven lamp / bulb. Does the oven otherwise work normally and only the interior light has failed?
+
+--- Turn 2
+CUSTOMER: Yes, the oven heats fine, fan and display work too, it's only the interior light. No error codes. It stopped suddenly last week.
+1 LLM UNDERSTOOD: appliance=oven brand=Neff model=None codes=[] symptom='interior light not working' question=None
+   checks reported: []  facts: ['oven heats fine', 'fan and display work', 'no error codes', 'light stopped suddenly last week']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="other" (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.88); modelUnreachable=false (0.04); make=null (0.08); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['oven-cooker:lighting', 'oven-cooker:main-pcb', 'oven-cooker:element']  normal: []  codes: []  stage: 1
+4 JEV: note picked = oven-cooker:lighting | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: oven lamp / bulb
+    - cause: lamp holder / local wiring
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.94 r=0.04 p=0.89  step: confirm the oven otherwise works before assuming anything beyond the lamp (a high-temp ove
+  JEV PICKED: situation = oven lamp / bulb
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+REPLY: Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 3
+CUSTOMER: The light doesn't come on at all, whichever function I pick or when I open the door. Everything else works normally and there are no sounds or smells. I'll isolate it at the cooker switch and let it cool before I touch anything. What should I check next?
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom='oven light not coming on' question='What should I check next?'
+   checks reported: []  facts: ["light doesn't come on with any function or when door opened", 'everything else works normally', 'no unusual sounds or smells']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="other" (0.94); hazard=null (1); unsafeRequest=null (0.98); lastAnswer="answered" (1); checkOutcome=null (0.92); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['oven-cooker:lighting', 'oven-cooker:main-pcb', 'oven-cooker:selector-switch']  normal: []  codes: []  stage: 1
+4 JEV: note picked = oven-cooker:lighting | findings settle it = False | engineer allowed = False
+  situations offered (2):
+    - cause: oven lamp / bulb
+    - cause: lamp holder / local wiring
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.94 r=0.04 p=0.86  step: confirm the oven otherwise works before assuming anything beyond the lamp (a high-temp ove
+  JEV PICKED: situation = oven lamp / bulb
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Blown oven lamp (E14 25W 300C rated); replace bulb.

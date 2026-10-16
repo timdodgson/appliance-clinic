@@ -204,13 +204,32 @@ symptom, a repeated reply); each was fixed in the plan and the record, not with 
 Results on the independent 100, the held-out set and a new real-journey add-on set are in the
 [evaluation index](../evaluation/README.md).
 
+### 15. The code audit, then one advisor model (Phase 23)
+
+Three days later a single live chat ("Dyson V6 pulsing", then "the filter is actually damaged") got a four-check list,
+no picture and no part. Instead of tuning, every step on the customer path was read against the live logs and the
+saved audits of 308 turns ([report](../evaluation/code-audit-2026-10-16/REPORT.md),
+[facts](../evaluation/code-audit-2026-10-16/FACTS.md)). The pipeline's own steps were the problem: the plan asked for
+two to four checks a turn; the claim checker deleted true sentences in 159 of 308 turns and never regenerated; every
+reply lost its paragraph breaks; a part was shown in 1 of 38 turns that needed one; photos were dropped; a turn took a
+median 22.9 s. The judge scores that had compared versions were overall impressions and had not marked any of it down.
+
+[ADR 0023](../adr/0023-one-advisor-model-with-tools-inside-the-guardrail-kernel.md) replaced the pipeline with one
+capable model as the advisor, with tools for error codes and parts, inside the same deterministic guardrail kernel
+(emergency stops, hazards, banned advice, catalogue-only parts). Quality is now checked by 22 scripted chats with
+hand-written pass/fail expectations read side by side: 22/22 on change 23.2 against 2/22 for the pipeline on the same
+messages ([side by side](../../evaluation/scripted/SIDE-BY-SIDE.md)). Change 23.4 then deleted everything the new
+design made dead: the pipeline steps, Jev, the provider routing, the transcript review, the admin Test area and the
+old benchmark harness, with the same tests green before and after.
+
 ## Trade-offs, honestly
 
 | Decision | Bought | Cost |
 |---|---|---|
 | Import, don't recreate | No downtime, no data migration | Import semantics had to be learned the hard way, in a sandbox and with a read-only role |
 | Language models only classify and word ([ADR 0010](../adr/0010-deterministic-policy-around-llm.md), Phases 8–15) | Safety and part logic that could be unit-tested | Lost 94–6 to a general assistant; replaced in Phase 21 |
-| Small model jobs with a fixed record ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)) | Qwen reasons and writes freely; Jev's labels give every fact a shape and a confidence; code still owns safety, the plan and parts | Every turn depends on two providers (Qwen and Jev); no fallback by design |
+| Small model jobs with a fixed record ([ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md)) | A fixed record and a plan decided in code | The steps between the customer and the reply damaged replies and blocked parts; replaced in Phase 23 |
+| One advisor model with tools ([ADR 0023](../adr/0023-one-advisor-model-with-tools-inside-the-guardrail-kernel.md)) | Short, direct replies that build on the conversation; parts and error codes looked up when needed; code still owns safety and the part gate | One provider for every turn; a capable model costs more per turn; the prompt is the only defence against out-of-scope and injected instructions until a test set exists |
 | Keep the legacy pipeline for S4R (Phases 8–13) | The S4R contract never changed | Two diagnosis paths in one engine until Phase 15 |
 | A new engine instead of changing the shared one (Phase 15) | AC has one canonical path and a private, IAM-authenticated engine; S4R is untouched | The old engine still runs in AC's account, on AC's role, secrets and Jev credit |
 | CloudFront left unmanaged ([ADR 0008](../adr/0008-cloudfront-initially-unmanaged.md)) | No risk to the shared distribution during the migration | One AC resource is still outside CDK |
@@ -224,9 +243,10 @@ Results on the independent 100, the held-out set and a new real-journey add-on s
 | Item | Evidence or detail |
 |---|---|
 | **Account Lambda concurrency is 10**, shared with every workload in the account | Fix: an account-level quota increase (100 recommended), which needs the account owner's approval ([analysis](../evaluation/phase-11-concurrency.md)) |
-| **Every turn needs Jev; no credit or quota monitoring** | Running out of Jev credit took the service down on 2026-10-11 ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)). Needed: alerting on the Jev error rate and remaining credit |
-| **The LLM provider is a single point of failure** | Qwen runs on LM Studio over a private tunnel, one request at a time; when the tunnel dropped on 2026-10-12 turns failed explicitly, by design |
+| **One model provider; no error-rate or spend monitoring** | Every turn needs the Anthropic API. When the previous provider's credit ran out on 2026-10-11 the service went down ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)); the same shape applies. Needed: alerting on the provider error rate and spend |
+| **A small prompt-injection test set** | Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has four such cases (`INJ-*`), all passing on 2026-10-16 |
+| **Customer photos not proven live** | The advisor accepts images, but no live chat has yet shown a photo reaching it end to end |
 | **No alarm notification target** | The engine alarms go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription |
 | **The old shared engine still runs in AC's account** | It serves S4R; moving it is S4R's change ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)) |
-| **The orchestrator function still exists** | No traffic since change 21.3; removing it from the stack is a separate reviewed change |
-| **Evaluation shares production's providers** | Benchmark runs use the same LM Studio and Jev account as the live service |
+| **The orchestrator function still exists and still receives traffic** | No AC service calls it, yet CloudWatch counted 23,537 invocations of its public Function URL between 2026-10-02 and 2026-10-16. The caller is not identified; it stays until it is |
+| **Evaluation shares production's credential** | The scripted chats use the same model credential as the live service (about $1 a full run) |

@@ -1,0 +1,147 @@
+TEST MW-03  (ended: loop, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: panasonic nn h98 not heating anymore, any fix?
+1 LLM UNDERSTOOD: appliance=microwave brand=Panasonic model=NN H98 codes=[] symptom='not heating' question='any fix?'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.97); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (0.99); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); model="NN H98" (0.97); code=null (1); make="Panasonic" (1); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['microwave:grill-not-heating', 'microwave:not-heating', 'microwave:turntable']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: cookware / power level / mode selected
+    - cause: door not fully latching / interlock power path
+    - cause: HV diode / rectifier [CONVENTIONAL transformer machine]
+    - cause: magnetron
+    - cause: HV capacitor [CONVENTIONAL transformer machine]
+    - cause: HV transformer [CONVENTIONAL transformer machine]
+    - cause: inverter board / HV module [INVERTER machine]
+    - cause: thermal protection / cavity thermal fuse
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.12  check: Check it isn't on a low power level, defrost, or a grill / combination mode, and that a ti
+    KEPT    d=0.06 r=0.04 p=0.38  check: Heat a cup of water for a minute on full power. Is the water hot now, or still cold?
+    KEPT    d=0.04 r=0.04 p=0.1  step: confirm microwave-safe cookware, a normal power level, and that the door latches firmly
+    KEPT    d=0.16 r=0.04 p=0.2  step: identify whether the machine is conventional or inverter (from the model) before consideri
+    KEPT    d=0.04 r=0.03 p=0.25  step: do not condemn a newly-supplied HV diode just because an ordinary digital multimeter reads
+    KEPT    d=0.05 r=0.04 p=0.13  step: do NOT open the casing or touch/discharge/test HV components - the HV capacitor can hold a
+    KEPT    d=0.08 r=0.05 p=0.16  question: Is it a conventional or an inverter microwave (check the model/rating plate), and does it 
+    KEPT    d=0.14 r=0.05 p=0.16  question: Does it never heat at all, or does it heat then cut out after a repeatable few seconds?
+  JEV PICKED: situation = inverter board / HV module [INVERTER machine]
+              next      = Does it never heat at all, or does it heat then cut out after a repeatable few seconds?
+LLM ANSWER TO THEIR QUESTION: Often yes, but it depends on confirming the fault first.  If it is the inverter board, the fix is usually replacing that board, and that must be done by a qualified microwave engineer because the inside holds dangerous high voltage even when unplugged.
+REPLY: Often yes, but it depends on confirming the fault first. If it is the inverter board, the fix is usually replacing that board, and that must be done by a qualified microwave engineer because the inside holds dangerous high voltage even when unplugged. From what you have described, the most likely cause is inverter board / HV module [INVERTER machine]. Does it never heat at all, or does it heat then cut out after a repeatable few seconds?
+
+--- Turn 2
+CUSTOMER: it runs a few seconds then stops and shows H98. every time since yesterday. h98 is what the screen says, model on the back is NN-CD87KSBPQ
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=NN-CD87KSBPQ codes=['H98'] symptom='runs a few seconds then stops with H98' question=None
+   checks reported: []  facts: ['happens every time since yesterday', 'model number on the back']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.89); symptomArea="error_code" (0.48); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome=null (0.96); modelUnreachable=false (0.03); model="NN-CD87KSBPQ" (1); code="H98" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:not-heating', 'microwave:grill-not-heating', 'microwave:cutting-out']  normal: []  codes: ['H98: RESOLVED Magnetron/HV inverter power fault (same family as H97; inverter not working properly)']  stage: 1
+4 JEV: note picked = microwave:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: cookware / power level / mode selected
+    - cause: door not fully latching / interlock power path
+    - cause: HV diode / rectifier [CONVENTIONAL transformer machine]
+    - cause: magnetron
+    - cause: HV capacitor [CONVENTIONAL transformer machine]
+    - cause: HV transformer [CONVENTIONAL transformer machine]
+    - cause: inverter board / HV module [INVERTER machine]
+    - cause: thermal protection / cavity thermal fuse
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.04 p=0.35  check: Check it isn't on a low power level, defrost, or a grill / combination mode, and that a ti
+    KEPT    d=0.39 r=0.05 p=0.64  check: Heat a cup of water for a minute on full power. Is the water hot now, or still cold?
+    KEPT    d=0.05 r=0.04 p=0.21  step: confirm microwave-safe cookware, a normal power level, and that the door latches firmly
+    KEPT    d=0.22 r=0.05 p=0.34  step: identify whether the machine is conventional or inverter (from the model) before consideri
+    KEPT    d=0.04 r=0.03 p=0.54  step: do not condemn a newly-supplied HV diode just because an ordinary digital multimeter reads
+    KEPT    d=0.12 r=0.04 p=0.16  step: do NOT open the casing or touch/discharge/test HV components - the HV capacitor can hold a
+    KEPT    d=0.2 r=0.06 p=0.35  question: Is it a conventional or an inverter microwave (check the model/rating plate), and does it 
+  JEV PICKED: situation = inverter board / HV module [INVERTER machine]
+              next      = identify whether the machine is conventional or inverter (from the model) before considering architecture-specific HV parts
+REPLY: H98 on your Panasonic means: Magnetron/HV inverter power fault (same family as H97; inverter not working properly). Next: Identify whether the machine is conventional or inverter (from the model) before considering architecture-specific HV parts. Let me know what you find.
+[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer.
+
+--- Turn 3
+CUSTOMER: no idea what an inverter is. i gave you the model already, NN-CD87KSBPQ. is it worth fixing? it was about £300
+1 LLM UNDERSTOOD: appliance=microwave brand=Panasonic model=NN-CD87KSBPQ codes=['H98'] symptom='magnetron/inverter power fault' question='Is it worth fixing?'
+   checks reported: []  facts: ['cost about £300']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.74); symptomArea=null (0.82); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.64); checkOutcome=null (1); modelUnreachable=false (0.03); model="NN-CD87KSBPQ" (1); code=null (0.99); make=null (0.18); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['microwave:not-heating', 'microwave:grill-not-heating', 'microwave:cutting-out']  normal: []  codes: ['H98: RESOLVED Magnetron/HV inverter power fault (same family as H97; inverter not working properly)']  stage: 1
+4 JEV: note picked = microwave:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: cookware / power level / mode selected
+    - cause: door not fully latching / interlock power path
+    - cause: HV diode / rectifier [CONVENTIONAL transformer machine]
+    - cause: magnetron
+    - cause: HV capacitor [CONVENTIONAL transformer machine]
+    - cause: HV transformer [CONVENTIONAL transformer machine]
+    - cause: inverter board / HV module [INVERTER machine]
+    - cause: thermal protection / cavity thermal fuse
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.06 p=0.38  check: Check it isn't on a low power level, defrost, or a grill / combination mode, and that a ti
+    REMOVED d=0.33 r=0.07 p=0.69  check: Heat a cup of water for a minute on full power. Is the water hot now, or still cold?
+    KEPT    d=0.05 r=0.06 p=0.22  step: confirm microwave-safe cookware, a normal power level, and that the door latches firmly
+    KEPT    d=0.04 r=0.04 p=0.56  step: do not condemn a newly-supplied HV diode just because an ordinary digital multimeter reads
+    KEPT    d=0.13 r=0.05 p=0.18  step: do NOT open the casing or touch/discharge/test HV components - the HV capacitor can hold a
+    KEPT    d=0.22 r=0.32 p=0.39  question: Is it a conventional or an inverter microwave (check the model/rating plate), and does it 
+  JEV PICKED: situation = inverter board / HV module [INVERTER machine]
+              next      = confirm microwave-safe cookware, a normal power level, and that the door latches firmly
+LLM ANSWER TO THEIR QUESTION: It depends on the repair cost compared with the roughly £300 the microwave cost, and on how old it is and whether it's still under warranty.  If it's under warranty, a repair is usually worth pursuing; if not, it's often only worth it when the quote is a modest fraction of a replacement's price.
+REPLY: It depends on the repair cost compared with the roughly £300 the microwave cost, and on how old it is and whether it's still under warranty. If it's under warranty, a repair is usually worth pursuing; if not, it's often only worth it when the quote is a modest fraction of a replacement's price. Next: Confirm microwave-safe cookware, a normal power level, and that the door latches firmly. Let me know what you find.
+[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer.
+
+--- Turn 4
+CUSTOMER: its about 6 years old. dont know about warranty. so is it worth fixing or not?
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom=None question='Is it worth fixing or not?'
+   checks reported: []  facts: ['about 6 years old', "doesn't know about warranty", 'cost roughly £300']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.64); symptomArea=null (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.41); checkOutcome=null (1); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:not-heating', 'microwave:cutting-out', 'microwave:low-voltage']  normal: []  codes: ['H98: RESOLVED Magnetron/HV inverter power fault (same family as H97; inverter not working properly)']  stage: 1
+4 JEV: note picked = microwave:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: cookware / power level / mode selected
+    - cause: door not fully latching / interlock power path
+    - cause: HV diode / rectifier [CONVENTIONAL transformer machine]
+    - cause: magnetron
+    - cause: HV capacitor [CONVENTIONAL transformer machine]
+    - cause: HV transformer [CONVENTIONAL transformer machine]
+    - cause: inverter board / HV module [INVERTER machine]
+    - cause: thermal protection / cavity thermal fuse
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.06 p=0.3  check: Check it isn't on a low power level, defrost, or a grill / combination mode, and that a ti
+    REMOVED d=0.34 r=0.06 p=0.68  check: Heat a cup of water for a minute on full power. Is the water hot now, or still cold?
+    KEPT    d=0.04 r=0.04 p=0.47  step: do not condemn a newly-supplied HV diode just because an ordinary digital multimeter reads
+    KEPT    d=0.13 r=0.05 p=0.16  step: do NOT open the casing or touch/discharge/test HV components - the HV capacitor can hold a
+    KEPT    d=0.19 r=0.26 p=0.35  question: Is it a conventional or an inverter microwave (check the model/rating plate), and does it 
+  JEV PICKED: situation = inverter board / HV module [INVERTER machine]
+              next      = Is it a conventional or an inverter microwave (check the model/rating plate), and does it make an abnormally loud/heavy buzzing when it should be heating?
+LLM ANSWER TO THEIR QUESTION: It depends on what has failed and what the repair would cost compared with a new one.  At about 6 years old and roughly £300 new, it can be worth repairing if the fix is a moderate fraction of a replacement price, but probably not if the quote comes close to that.
+REPLY: It depends on what has failed and what the repair would cost compared with a new one. At about 6 years old and roughly £300 new, it can be worth repairing if the fix is a moderate fraction of a replacement price, but probably not if the quote comes close to that. Is it a conventional or an inverter microwave (check the model/rating plate), and does it make an abnormally loud/heavy buzzing when it should be heating?
+[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer.
+
+--- Turn 5
+CUSTOMER: told you i dont know what an inverter is, the model is NN-CD87KSBPQ. didnt notice any buzzing. just need to know if its worth paying for a repair
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=NN-CD87KSBPQ codes=[] symptom=None question='Is it worth paying for a repair?'
+   checks reported: []  facts: ['no buzzing noticed', "doesn't know what an inverter is"]
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.87); symptomArea=null (0.84); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.56); checkOutcome=null (0.96); modelUnreachable=false (0.03); model="NN-CD87KSBPQ" (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:not-heating', 'microwave:grill-not-heating', 'microwave:main-pcb']  normal: ['mw-noise-fan']  codes: ['H98: RESOLVED Magnetron/HV inverter power fault (same family as H97; inverter not working properly)']  stage: 1
+4 JEV: note picked = microwave:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: cookware / power level / mode selected
+    - cause: door not fully latching / interlock power path
+    - cause: HV diode / rectifier [CONVENTIONAL transformer machine]
+    - cause: magnetron
+    - cause: HV capacitor [CONVENTIONAL transformer machine]
+    - cause: HV transformer [CONVENTIONAL transformer machine]
+    - cause: inverter board / HV module [INVERTER machine]
+    - cause: thermal protection / cavity thermal fuse
+    - normal: Microwaves hum while heating, and the cooling fan may run for a while after the cycle.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.07 p=0.36  check: Check it isn't on a low power level, defrost, or a grill / combination mode, and that a ti
+    REMOVED d=0.35 r=0.08 p=0.75  check: Heat a cup of water for a minute on full power. Is the water hot now, or still cold?
+    KEPT    d=0.05 r=0.05 p=0.53  step: do not condemn a newly-supplied HV diode just because an ordinary digital multimeter reads
+    KEPT    d=0.17 r=0.08 p=0.2  step: do NOT open the casing or touch/discharge/test HV components - the HV capacitor can hold a
+  JEV PICKED: situation = inverter board / HV module [INVERTER machine]
+              next      = Check it isn't on a low power level, defrost, or a grill / combination mode, and that a timed cook was started (not just the clock set). Was it on a low power or another mode (and have you changed it), or was it on full 
+LLM ANSWER TO THEIR QUESTION: It depends on what the fault turns out to be and what the repair quote is compared with a replacement.  On a six-year-old model that cost about £300, a repair can be worth it if the fault is minor, but if a major internal part is needed the cost can get close to buying new.
+REPLY: It depends on what the fault turns out to be and what the repair quote is compared with a replacement. On a six-year-old model that cost about £300, a repair can be worth it if the fault is minor, but if a major internal part is needed the cost can get close to buying new. Check it isn't on a low power level, defrost, or a grill / combination mode, and that a timed cook was started (not just the clock set). Was it on a low power or another mode (and have you changed it), or was it on full power as normal?
+[Safety panel] Don't remove the microwave's casing or try to repair it inside. Parts inside a microwave can hold a dangerous electric charge even after it's unplugged — have it checked by a qualified engineer.
+
+HIDDEN TRUTH: H98 = no microwave output detected (failed magnetron or inverter board). Needs an engineer; no DIY.

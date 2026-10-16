@@ -1,0 +1,77 @@
+TEST WM-04  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: Samsung WW90T534DAW keeps coming up with 4C after a couple of minutes. Drum is dry. Any ideas before I call someone out?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Samsung model=WW90T534DAW codes=['4C'] symptom='4C error after a couple of minutes, drum stays dry' question='Any ideas before I call someone out?'
+   checks reported: []  facts: ['drum is dry', 'error appears after a couple of minutes']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.89); symptomArea="error_code" (0.92); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.95); modelUnreachable=false (0.03); model="WW90T534DAW" (1); code="4C" (1); make="Samsung" (0.98); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:inlet-valve', 'washing-machine:foam-suds']  normal: []  codes: ['4C: RESOLVED Water supply issue - little or no water entering (tap/pressure/inlet mesh/hose)']  stage: 1
+4 JEV: note picked = washing-machine:inlet-valve | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: property / local cold-water supply
+    - cause: appliance isolation tap / supply
+    - cause: kinked / crushed / restricted fill hose
+    - cause: blocked inlet mesh / filter
+    - cause: water inlet valve
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the valve
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.22  check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clic
+    KEPT    d=0.06 r=0.06 p=0.1  check: Check the tap the fill hose connects to is turned fully on, and that the hose behind the m
+    KEPT    d=0.05 r=0.06 p=0.1  check: Where the fill hose screws onto the back of the machine there's a small mesh filter that c
+    KEPT    d=0.04 r=0.06 p=0.2  check: With the machine switched off at the socket, turn the tap back on and watch the detergent 
+    KEPT    d=0.04 r=0.04 p=0.51  check: Check how the grey drain hose is fitted at the back: it should rise high (hooked near the 
+    KEPT    d=0.05 r=0.04 p=0.1  step: check the other cold taps in the property before suspecting the appliance
+    KEPT    d=0.05 r=0.05 p=0.11  step: check the appliance isolation tap is fully open
+    KEPT    d=0.05 r=0.04 p=0.12  step: check the fill hose for kinks/crushing (especially after a move) - replace the hose only i
+    KEPT    d=0.05 r=0.05 p=0.09  step: inspect and clean the inlet mesh/filter
+    KEPT    d=0.06 r=0.05 p=0.22  step: confirm the door locks and the programme actually reaches the fill stage before recommendi
+    REMOVED d=0.77 r=0.07 p=0.39  question: Does no water come in at all, does it fill very slowly, or does it keep filling until the 
+    KEPT    d=0.05 r=0.05 p=0.12  question: Are the other cold taps in the property working normally, and does the door lock when you 
+  JEV PICKED: situation = property / local cold-water supply
+              next      = check the other cold taps in the property before suspecting the appliance
+REPLY: 4C on your Samsung means: Water supply issue - little or no water entering (tap/pressure/inlet mesh/hose). From what you have described, the most likely cause is property / local cold-water supply. Next: Check the other cold taps in the property before suspecting the appliance. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: Kitchen cold tap is fine, normal pressure. The tap behind the machine is fully open too. What next?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Samsung model=None codes=['4C'] symptom='little or no water entering' question='What next?'
+   checks reported: [{'check': 'Kitchen cold tap', 'result': 'fine, normal pressure'}, {'check': 'Tap behind the machine', 'result': 'fully open'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.75); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.81); checkOutcome="still_faulty" (0.89); modelUnreachable=false (0.03); model=null (0.98); code=null (0.96); make=null (0.3); checksConfirmed=[0, 1]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:foam-suds', 'washing-machine:pressure-switch']  normal: []  codes: ['4C: RESOLVED Water supply issue - little or no water entering (tap/pressure/inlet mesh/hose)']  stage: 2
+4 JEV: note picked = washing-machine:inlet-valve | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: property / local cold-water supply
+    - cause: appliance isolation tap / supply
+    - cause: kinked / crushed / restricted fill hose
+    - cause: blocked inlet mesh / filter
+    - cause: water inlet valve
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the valve
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.26  check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clic
+    KEPT    d=0.61 r=0.08 p=0.5  check: Check the tap the fill hose connects to is turned fully on, and that the hose behind the m
+    KEPT    d=0.06 r=0.08 p=0.13  check: Where the fill hose screws onto the back of the machine there's a small mesh filter that c
+    REMOVED d=0.34 r=0.08 p=0.53  retest: Now turn the tap back on and start a programme. Does it fill normally now, or is it still 
+    KEPT    d=0.04 r=0.07 p=0.28  check: With the machine switched off at the socket, turn the tap back on and watch the detergent 
+    REMOVED d=0.04 r=0.04 p=0.66  check: Check how the grey drain hose is fitted at the back: it should rise high (hooked near the 
+    REMOVED d=0.06 r=0.06 p=0.34  retest: Turn the tap back on and start a short programme. Does it fill to a normal level and stop 
+    REMOVED d=0.91 r=0.05 p=0.77  step: check the appliance isolation tap is fully open
+    KEPT    d=0.06 r=0.05 p=0.17  step: check the fill hose for kinks/crushing (especially after a move) - replace the hose only i
+    KEPT    d=0.05 r=0.04 p=0.13  step: inspect and clean the inlet mesh/filter
+    KEPT    d=0.06 r=0.05 p=0.22  step: confirm the door locks and the programme actually reaches the fill stage before recommendi
+    REMOVED d=0.82 r=0.09 p=0.45  question: Does no water come in at all, does it fill very slowly, or does it keep filling until the 
+  JEV PICKED: situation = blocked inlet mesh / filter
+              next      = Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean no
+REPLY: Before you start, switch it off and unplug it. From what you have described, the most likely cause is blocked inlet mesh / filter. Where the fill hose screws onto the back of the machine there's a small mesh filter that can block with grit or scale. Unscrew the hose at the machine end and look into the inlet. Was the mesh blocked (and is it clean now), or was it already clean?
+
+--- Turn 3
+CUSTOMER: Just did it. The mesh filter was clogged with grey grit and limescale bits. I've cleaned it and refitted the hose, and it now fills normally and the 4C has gone. Water company was working in the street a couple of days ago and the water ran brown briefly, if that's relevant.
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=['4C'] symptom='not filling with water' question=None
+   checks reported: [{'check': 'inlet mesh filter', 'result': 'clogged with grey grit and limescale; cleaned and hose refitted, now fills normally and 4C gone'}]  facts: ['water company worked in street a couple of days ago', 'water ran brown briefly']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.97); symptomArea=null (0.74); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="fixed" (1); modelUnreachable=false (0.03); model=null (0.89); code="4C" (1); narrowed="filter" (0.45); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:pressure-switch', 'washing-machine:inlet-valve', 'washing-machine:not-draining']  normal: []  codes: ['4C: RESOLVED Water supply issue - little or no water entering (tap/pressure/inlet mesh/hose)']  stage: 2
+4 (no Jev choice this turn: fixed)
+REPLY: [Heading: Likely cause: filter]
+Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Inlet mesh filter clogged with debris after mains water work; cleaning the filter restores supply.

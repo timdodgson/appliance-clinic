@@ -47,7 +47,6 @@
       safetyStop: safety.stop,
       parts: partsCount(view),
       media: mediaCount(view),
-      advisory: !!(view && view.advisory),
     };
   }
 
@@ -66,31 +65,14 @@
   function inspectView(view, meta) {
     view = view || {};
     meta = meta || {};
-    var identity = section('identity', 'Identity', [
-      row('Extracted model', view.extractedModel || null),
-      row('Needs model', view.needsModel ? 'Yes' : (view.extractedModel ? 'Confirmation in progress' : null)),
-    ]);
-    var pending = view.pendingRequest;
-    var understanding = section('understanding', 'Understanding', [
-      row('Label', view.diagnosis && view.diagnosis.label),
-      row('Summary', view.diagnosis && view.diagnosis.summary),
-      row('Pending request', pending && pending.slot
-        ? [pending.slot, pending.purpose, pending.status].filter(Boolean).join(' · ')
-        : null),
-      row('Suggested checks', Array.isArray(view.suggestedChecks) && view.suggestedChecks.length
-        ? view.suggestedChecks.map(function (c) { return (c && (c.name || c)) || ''; }).filter(Boolean).join(', ')
-        : null),
+    var diagnosis = section('diagnosis', 'Diagnosis', [
+      row('Lead sentence', view.diagnosis && view.diagnosis.summary),
       row('Components', Array.isArray(view.components) && view.components.length
         ? view.components.map(function (c) {
           if (!c) return '';
           return c.name ? (c.rank ? c.name + ' (' + c.rank + ')' : c.name) : '';
         }).filter(Boolean).join(', ')
         : null),
-    ]);
-    var faultId = view.diagnosis && view.diagnosis.faultId;
-    var result = section('result', 'Diagnostic result', [
-      row('Fault id', faultId || null),
-      row('Advisory', view.advisory ? 'Maintenance tip' : null),
       row('Safety stop', view.safety ? 'Yes' : 'No'),
     ]);
     var partRows = (Array.isArray(view.parts) ? view.parts : []).map(function (p, i) {
@@ -118,14 +100,13 @@
     ]);
     var request = section('request', 'Request', [
       row('Request ID', view.requestId || meta.requestId || null),
-      row('Trace ID', view.traceId || meta.traceId || null),
       row('Client time', typeof meta.durationMs === 'number' ? String(Math.round(meta.durationMs)) + ' ms' : null),
       row('Conversation window', typeof meta.windowCount === 'number'
         ? String(meta.windowCount) + ' message' + (meta.windowCount === 1 ? '' : 's') + ' (cap ' + (meta.windowCap || 12) + ')'
         : null),
     ]);
     return {
-      sections: [identity, understanding, result, parts, media, safety, request].filter(Boolean),
+      sections: [diagnosis, parts, media, safety, request].filter(Boolean),
     };
   }
 
@@ -269,6 +250,7 @@
     no_token_issued: 'no replacement token was returned',
     state_load_failed: 'the saved state could not be read',
     state_secret_unavailable: 'the API has no signing secret',
+    advisor_unavailable: 'the advisor model was unavailable',
     reasoner_unavailable: 'the diagnosis reasoner was unavailable',
     engine_unreachable: 'the diagnosis engine could not be reached',
   };
@@ -296,22 +278,23 @@
   function continuityRows(status, turn) {
     if (!status) return [];
     var a = status.audit || null;
-    var ledger = a && a.ledger;
+    var customer = (a && a.customer) || {};
     var safety = (a && a.safety) || {};
+    var hazards = (a && Array.isArray(a.hazards) && a.hazards.length) ? a.hazards : (safety.hazards || []);
     return [
       row('State in', status.stateIn === 'present' ? 'Prior state token sent' : 'No prior state token'),
       row('State out', status.stateOut === 'refreshed' ? 'Refreshed (same session)' : (status.stateOut === 'issued' ? 'New session token issued' : 'None returned')),
       row('Continuity', continuityLabel(status) + (status.reason ? ' — ' + reasonLabel(status.reason) : '')),
       row('Engine', status.engine || null),
-      row('Ledger turn', a && a.turn != null ? String(a.turn) : null),
-      row('Diagnostic status', a && a.status),
-      row('Appliance', ledger && ledger.appliance && ledger.appliance.value),
-      row('Facts recorded', ledger && Array.isArray(ledger.facts) ? String(ledger.facts.length) : null),
-      row('Hazards', safety.hazards && safety.hazards.length ? safety.hazards.join(', ') : null),
+      row('Engine turn', a && a.turn != null ? String(a.turn) : null),
+      row('Advisor', a && a.provider ? [a.provider.name, a.provider.model].filter(Boolean).join(' · ') : null),
+      row('Outcome', a && a.outcome),
+      row('Appliance', [customer.appliance, customer.brand, customer.model].filter(Boolean).join(' · ') || null),
+      row('Tools called', a && Array.isArray(a.toolCalls) && a.toolCalls.length ? a.toolCalls.join(', ') : null),
+      row('Hazards', hazards.length ? hazards.join(', ') : null),
       row('Guardrail gates', safety.gates && safety.gates.length ? safety.gates.map(function (g) { return g && g.gate; }).filter(Boolean).join(', ') : null),
-      row('Claims rejected', a && Array.isArray(a.claimsRejected) ? String(a.claimsRejected.length) : null),
-      row('Regenerated', a ? (a.regenerated ? 'Yes' : 'No') : null),
       row('Part gate', a && a.partGate && a.partGate.outcome),
+      row('Escalation', a && a.escalation && a.escalation.reason ? a.escalation.reason : null),
       row('Turn time', turn && typeof turn.durationMs === 'number' ? Math.round(turn.durationMs) + ' ms' : null),
     ];
   }

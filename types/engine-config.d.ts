@@ -5,6 +5,8 @@ export interface EngineConfig {
   PARTS_FOR_MODEL_API: string;
   MAX_MESSAGES: number;
   MAX_BODY_BYTES: number;
-  /** The admin-configured inference providers, cached for AI_CONFIG_CACHE_TTL_MS. */
-  getProviders: () => Promise<unknown>;
+  /** The advisor's provider (the admin-configured model and credential), cached for AI_CONFIG_CACHE_TTL_MS. */
+  getAdvisorProvider: () => Promise<unknown>;
+  /** Tests only: replace the cached provider. */
+  _setProviderForTest: (provider: unknown) => void;
 }

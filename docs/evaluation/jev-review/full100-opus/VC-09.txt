@@ -1,0 +1,68 @@
+TEST VC-09  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: my hoover's stopped working
+1 LLM UNDERSTOOD: appliance=vacuum cleaner brand=None model=None codes=[] symptom='stopped working' question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="vacuum" (1); symptomArea="no_power" (0.66); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.04); make=null (0.06); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['vacuum:brush-bar']  normal: []  codes: []  stage: 1
+4 JEV: note picked = vacuum:brush-bar | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: hair or thread jamming the brush bar
+    - cause: a broken brush bar
+    - cause: the drive belt
+    - cause: the floorhead's own drive or motor
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.1  check: With it switched off (battery out or unplugged), turn the floorhead over. Cut away hair an
+    KEPT    d=0.04 r=0.06 p=0.11  check: On a corded upright the brush is driven by a rubber belt under the base plate (unplug it f
+    KEPT    d=0.04 r=0.05 p=0.11  check: Switch it on with the head tilted so you can see the bar. Is the brush bar spinning now, o
+  JEV PICKED: situation = the drive belt
+              next      = On a corded upright the brush is driven by a rubber belt under the base plate (unplug it first; the plate usually unclips or has a few screws). Is the belt snapped, stretched or off its pulley, or is it in place and tigh
+REPLY: From what you have described, the most likely cause is the drive belt. On a corded upright the brush is driven by a rubber belt under the base plate (unplug it first; the plate usually unclips or has a few screws). Is the belt snapped, stretched or off its pulley, or is it in place and tight?
+
+--- Turn 2
+CUSTOMER: I can't turn it over, my back. It's the red Henry and nothing happens at all when I switch it on. There's some old tape on the cable near the plug, and it came on once for a second when I moved the wire.
+1 LLM UNDERSTOOD: appliance=vacuum cleaner brand=Henry model=None codes=[] symptom='nothing happens when switched on' question=None
+   checks reported: [{'check': 'moved the cable/wire', 'result': 'came on once for a second'}]  facts: ['red Henry', 'old tape on the cable near the plug']
+2 JEV LABELS: scope="appliance" (1); appliance="vacuum" (1); symptomArea="no_power" (0.99); hazard=null (1); unsafeRequest=null (0.95); lastAnswer="cannot_or_will_not" (1); checkOutcome=null (0.43); modelUnreachable=false (0.06); make="Henry" (0.6); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['vacuum:wont-run', 'vacuum:brush-bar', 'vacuum:cuts-out']  normal: []  codes: []  stage: 1
+4 JEV: note picked = vacuum:wont-run | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: the socket or plug fuse
+    - cause: the charger, socket or charging contacts
+    - cause: the thermal cut-out after a blockage
+    - cause: the battery or charger
+    - cause: the switch, cable or motor inside
+    - cause: a damaged mains cable or plug
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.14 r=0.2 p=0.16  check: Try the socket with something else, and check the switch on the vacuum. If the plug has a 
+    REMOVED d=0.04 r=0.1 p=0.84  check: Check the charger is plugged into a working socket and fully into the vacuum (or the robot
+    REMOVED d=0.05 r=0.18 p=0.7  check: If it stopped while you were using it, it may have overheated from a blockage. Leave it sw
+    REMOVED d=0.54 r=0.38 p=0.41  retest: Try switching it on again. Does it run now, or is it still dead?
+  JEV PICKED: situation = a damaged mains cable or plug
+              next      = Try the socket with something else, and check the switch on the vacuum. If the plug has a fuse (UK plugs do), a 13A fuse can be swapped — unplugged. Look along the cable for cuts or damage too. Was it the socket, switch 
+REPLY: From what you have described, the most likely cause is a damaged mains cable or plug. Try the socket with something else, and check the switch on the vacuum. If the plug has a fuse (UK plugs do), a 13A fuse can be swapped — unplugged. Look along the cable for cuts or damage too. Was it the socket, switch or fuse (and is it sorted), is the cable or plug damaged, or is the supply fine?
+
+--- Turn 3
+CUSTOMER: The lamp works in the socket so that's fine. The switch clicks ok I think. I haven't got a screwdriver or a spare fuse so can't do the plug. The tape on the cable near the plug is a bit bent.
+1 LLM UNDERSTOOD: appliance=vacuum brand=None model=None codes=[] symptom='vacuum not powering on' question=None
+   checks reported: [{'check': 'tested socket with a lamp', 'result': 'lamp works, socket fine'}, {'check': 'vacuum switch', 'result': 'clicks ok, they think'}, {'check': 'looked along cable', 'result': 'tape on cable near plug is a bit bent'}]  facts: ['no screwdriver or spare fuse to check plug', 'cable has tape on it near the plug']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.4); symptomArea="no_power" (0.82); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.84); checkOutcome="still_faulty" (0.79); modelUnreachable=false (0.04); narrowed=null (0.98); checksConfirmed=[0, 1, 2]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['vacuum:wont-run', 'vacuum:brush-bar', 'vacuum:cuts-out']  normal: []  codes: []  stage: 2
+4 JEV: note picked = vacuum:wont-run | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: the socket or plug fuse
+    - cause: the charger, socket or charging contacts
+    - cause: the thermal cut-out after a blockage
+    - cause: the battery or charger
+    - cause: the switch, cable or motor inside
+    - cause: a damaged mains cable or plug
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.09 r=0.14 p=0.9  check: Check the charger is plugged into a working socket and fully into the vacuum (or the robot
+    REMOVED d=0.04 r=0.12 p=0.76  check: If it stopped while you were using it, it may have overheated from a blockage. Leave it sw
+    REMOVED d=0.65 r=0.17 p=0.55  retest: Try switching it on again. Does it run now, or is it still dead?
+  JEV PICKED: situation = a damaged mains cable or plug
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Genuinely uncertain: most likely a broken conductor in the cable at the old taped/kinked section near the plug (intermittent when moved), but a blown plug fuse or failed on/off switch cannot be excluded without testing.

@@ -1,0 +1,72 @@
+TEST WM-01  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=WAN28281GB codes=['E18'] symptom='stopped mid-wash with water left in drum' question='What does E18 mean?'
+   checks reported: []  facts: ['stopped half way through a wash', 'water still in the drum']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.97); symptomArea="error_code" (0.48); hazard=null (0.99); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="WAN28281GB" (1); code="E18" (1); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:dispenser', 'washing-machine:poor-wash-results']  normal: []  codes: ['E18: RESOLVED No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)']  stage: 1
+4 JEV: note picked = washing-machine:not-draining | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.05 p=0.07  check: The most common cause is a blockage in the pump filter (also called the drain filter or tr
+    KEPT    d=0.07 r=0.06 p=0.09  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.04 r=0.05 p=0.1  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    KEPT    d=0.04 r=0.04 p=0.07  check: With the filter out, shine a torch into the filter opening and gently turn the small plast
+    KEPT    d=0.04 r=0.04 p=0.1  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.04 r=0.04 p=0.17  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    KEPT    d=0.05 r=0.04 p=0.06  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.05 r=0.04 p=0.09  step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e
+    KEPT    d=0.05 r=0.04 p=0.06  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    REMOVED d=0.67 r=0.07 p=0.27  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.14 r=0.05 p=0.12  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = blocked pump filter / foreign object in the pump path
+              next      = The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the
+REPLY: Before you start, switch it off and unplug it. E18 on your Bosch means: No drainage / drain took too long (clogged coin-trap/pump filter or drain hose). From what you have described, the most likely cause is blocked pump filter / foreign object in the pump path. The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?
+
+--- Turn 2
+CUSTOMER: Thanks, I've unplugged it. I unscrewed the filter and found a child's sock and a hair grip wrapped round it, plus a lot of fluff. Water came out onto the floor a little while I did it. Is there anything else I should do before I put it back?
+1 LLM UNDERSTOOD: appliance=washing machine brand=Bosch model=None codes=['E18'] symptom='not draining' question='Is there anything else I should do before I put the filter back?'
+   checks reported: [{'check': 'unscrewed and checked pump filter', 'result': "found a child's sock and a hair grip wrapped round it, plus a lot of fluff"}]  facts: ['some water came out onto the floor when filter was opened']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.91); symptomArea="not_draining" (0.53); hazard=null (0.76); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.28); modelUnreachable=false (0.03); model=null (0.98); code=null (0.92); make="Bosch" (0.56); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:leak-fill']  normal: []  codes: ['E18: RESOLVED No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)']  stage: 1
+4 JEV: note picked = washing-machine:not-draining | findings settle it = True | engineer allowed = False
+  situations offered (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.61 r=0.05 p=0.73  check: A noise like that while it tries to empty, together with the water not going, usually mean
+    KEPT    d=0.05 r=0.07 p=0.39  check: run a drain or spin-only programme and listen near the bottom front of the machine while i
+    KEPT    d=0.05 r=0.07 p=0.11  retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does 
+    KEPT    d=0.09 r=0.07 p=0.24  check: With the filter out, shine a torch into the filter opening and gently turn the small plast
+    KEPT    d=0.05 r=0.06 p=0.23  check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che
+    KEPT    d=0.43 r=0.05 p=0.61  step: if the machine still holds water, follow the appliance's safe residual-water draining proc
+    REMOVED d=0.97 r=0.03 p=0.67  step: inspect and clean the accessible pump filter where the model design allows
+    KEPT    d=0.05 r=0.05 p=0.25  step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e
+    REMOVED d=0.93 r=0.04 p=0.59  step: clear any trapped foreign object in the accessible pump path before recommending a replace
+    REMOVED d=0.64 r=0.11 p=0.45  question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump
+    KEPT    d=0.26 r=0.06 p=0.29  question: Did the draining get gradually slower over time or stop suddenly, and has the machine been
+  JEV PICKED: situation = blocked pump filter / foreign object in the pump path
+              next      = Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?
+REPLY: That fits blocked pump filter / foreign object in the pump path. Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?
+
+--- Turn 3
+CUSTOMER: Ok, I've put the filter back and run a rinse and spin programme. It drains quickly now, the E18 has gone and it spins normally. Is there anything I should do to stop it happening again?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=['E18'] symptom='not draining (E18), now resolved' question='Is there anything I should do to stop it happening again?'
+   checks reported: [{'check': 'Refitted filter and ran rinse and spin programme', 'result': 'Drains quickly, E18 gone, spins normally'}]  facts: ['E18 code no longer showing', 'spins normally']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea=null (0.96); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="fixed" (1); modelUnreachable=false (0.03); model=null (0.94); code="E18" (0.98); narrowed=null (0.43); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:not-draining', 'washing-machine:leak-drain', 'washing-machine:leak-fill']  normal: []  codes: ['E18: RESOLVED No drainage / drain took too long (clogged coin-trap/pump filter or drain hose)']  stage: 1
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Drain pump filter blocked by a sock, hair grip and lint; cleared by cleaning the filter, no part needed.

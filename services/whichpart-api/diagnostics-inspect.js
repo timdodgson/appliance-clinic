@@ -23,19 +23,19 @@ const ENGINE_MEDIA_FIELDS = [
 
 const SYSTEM_PATH = {
   title: 'System path',
-  summary: 'A customer request reaches WhichPart API, which runs one ac2 turn on the diagnosis engine: the LLM-led reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate). The engine looks up error codes, knowledge and parts itself. The browser never calls those services directly.',
+  summary: 'A customer request reaches WhichPart API, which runs one ac2 turn on the diagnosis engine: the advisor (Claude, with tools) inside the deterministic guardrail kernel (hazard word lists, banned advice, unverified identifiers, catalogue-only parts). The engine looks up error codes and parts itself. The browser never calls those services directly.',
   steps: [
     { id: 'customer', label: 'Customer request' },
-    { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF: the session token and the evidence ledger' },
-    { id: 'diagnosis-engine', label: 'Diagnosis engine', role: 'ac2 turn: reasoner → guardrail kernel → response' },
+    { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF: the session token and the conversation record' },
+    { id: 'diagnosis-engine', label: 'Diagnosis engine', role: 'ac2 turn: advisor → guardrail kernel → response' },
     { id: 'customer-view', label: 'Customer view', role: 'Reply, media and parts' },
   ],
 };
 
 const ROUTING = {
-  note: 'There is one diagnosis path (ac2, ADR 0020). Every turn goes to the diagnosis engine; this page does not change it.',
+  note: 'There is one diagnosis path (ac2, ADR 0023). Every turn goes to the diagnosis engine; this page does not change it.',
   paths: [
-    { cue: 'Every customer turn', destination: 'Diagnosis engine (ac2: reasoner inside the guardrail kernel; error-code, knowledge and parts tools)' },
+    { cue: 'Every customer turn', destination: 'Diagnosis engine (ac2: the advisor inside the guardrail kernel; error-code and parts tools)' },
   ],
 };
 
@@ -301,32 +301,18 @@ function mediaRuntime(overlayLoad, mediaInspect) {
 }
 
 function modelsRuntime(setup) {
-  if (!setup || setup.unavailable) {
-    return {
-      ...healthOf('unknown', 'Model configuration was not available to inspect'),
-      compose: null,
-      judge: null,
-    };
+  if (!setup || setup.unavailable || !setup.advisor) {
+    return { ...healthOf('unknown', 'Model configuration was not available to inspect'), advisor: null };
   }
-  function stage(s) {
-    if (!s) return null;
-    return {
+  const s = setup.advisor;
+  return {
+    advisor: {
       provider: s.provider || null,
       providerLabel: s.providerLabel || null,
       model: s.model || null,
-      modelLabel: s.modelLabel || (s.model ? s.model : 'Version not exposed by runtime'),
-    };
-  }
-  return {
-    compose: stage(setup.compose),
-    judge: setup.judge ? {
-      provider: setup.judge.provider || null,
-      providerLabel: setup.judge.providerLabel || null,
-      model: setup.judge.model || null,
-      modelLabel: setup.judge.modelLabel || null,
-      configured: !!setup.judge.configured,
-      note: 'Only used when Full Quality Review is selected. Not used for live customer diagnosis.',
-    } : null,
+      modelLabel: s.modelLabel || (s.model ? s.model : 'Model not set'),
+      credentialConfigured: Boolean(s.credentialConfigured),
+    },
   };
 }
 
@@ -372,7 +358,7 @@ function buildSnapshot(input) {
   const apiComp = component(
     'whichpart-api',
     'WhichPart API',
-    'Customer boundary. Accepts the browser request, holds the conversation\'s evidence ledger and runs the ac2 turn on the diagnosis engine.',
+    'Customer boundary. Accepts the browser request, holds the conversation\'s record and runs the ac2 turn on the diagnosis engine.',
     healthOf('healthy', 'This Diagnostics request was served by WhichPart API'),
     {
       probedAt: now,
@@ -399,10 +385,10 @@ function buildSnapshot(input) {
     engFacts.push({ label: 'Architecture', value: 'Not reported' });
   }
   if (engSafe.models && engSafe.models.reasoner) {
-    engFacts.push({ label: 'Reasoner provider', value: engSafe.models.reasoner.configured ? 'Configured' : 'Not configured' });
+    engFacts.push({ label: 'Advisor model', value: engSafe.models.reasoner.configured ? 'Configured' : 'Not configured' });
     if (engSafe.models.reasoner.provider) {
       engFacts.push({
-        label: 'Reasoner',
+        label: 'Advisor',
         value: engSafe.models.reasoner.provider + (engSafe.models.reasoner.model ? ' · ' + engSafe.models.reasoner.model : ''),
       });
     }
@@ -426,7 +412,7 @@ function buildSnapshot(input) {
   const engComp = component(
     'diagnosis-engine',
     'Diagnosis engine',
-    'ac2 diagnosis: the LLM-led reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate).',
+    'ac2 diagnosis: the advisor (Claude, with tools) inside the deterministic guardrail kernel (hazard word lists, banned advice, unverified identifiers, catalogue-only parts).',
     engHealthState,
     {
       latencyMs: engProbe.skipped ? null : engProbe.latencyMs,
@@ -459,7 +445,7 @@ function buildSnapshot(input) {
   const mcpComp = component(
     'error-code-mcp',
     'Error Code MCP',
-    'Error-code catalogue service behind the Admin error-code editor. The diagnosis engine ships its own export of the catalogue.',
+    'Error-code catalogue service behind the Admin error-code editor; the diagnosis engine looks codes up here (MCP).',
     mcpHealth,
     {
       latencyMs: mcpProbe.skipped ? null : mcpProbe.latencyMs,
@@ -551,10 +537,10 @@ function buildSnapshot(input) {
     mediaOverlayCacheTtlMs: 10000,
     supportedFamilies: Array.isArray(runtimeIn.families) ? runtimeIn.families.slice() : [],
     models: {
-      compose: models.compose,
+      advisor: models.advisor,
     },
-    // The diagnosis architecture: ac2 (the LLM-led turn inside the guardrail kernel) is the only one; not configurable.
-    diagnosis: { architecture: 'ac2', label: 'ac2 — LLM-led turn inside the deterministic guardrail kernel (every turn)' },
+    // The diagnosis architecture: ac2 (the advisor inside the guardrail kernel) is the only one; not configurable.
+    diagnosis: { architecture: 'ac2', label: 'ac2 — the advisor inside the deterministic guardrail kernel (every turn)' },
     note: 'Read-only. Settings owns writable AI configuration. Secrets are not included.',
   };
 

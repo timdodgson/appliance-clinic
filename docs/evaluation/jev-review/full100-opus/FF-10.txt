@@ -1,0 +1,94 @@
+TEST FF-10  (ended: escalated, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: Bosch KGN34NL3AG - some days it's fine, other days it just clicks every few minutes at the back and doesn't seem to run, and the freezer starts getting soft. Then it starts working again by itself. What's going on?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Bosch model=KGN34NL3AG codes=[] symptom="intermittently clicks every few minutes at the back and doesn't run; freezer softening" question="What's going on?"
+   checks reported: []  facts: ['fault is intermittent, some days fine', 'clicking comes from the back every few minutes', 'freezer contents start getting soft', 'starts working again by itself']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="cuts_out" (0.75); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); model="KGN34NL3AG" (1); code=null (1); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:compressor', 'fridge-freezer:evaporator-fan', 'fridge-freezer:defrost-system']  normal: ['ff-compressor-click']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:compressor | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: the power supply (plug, socket or fuse)
+    - cause: the fridge freezer's mains input or control
+    - cause: the control or start side not starting the compressor
+    - cause: the compressor start device or the compressor
+    - cause: dusty coils or too little space round it
+    - cause: the sealed cooling system
+    - normal: Fridges cycle on and off all day. A click as the compressor starts or stops, followed by a steady hum, is normal. Inverter compressors hum con
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.32  check: Check the plug is pushed fully in and the socket is switched on, and try something else (l
+    KEPT    d=0.05 r=0.05 p=0.19  check: Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or 
+    KEPT    d=0.05 r=0.05 p=0.22  check: Leave it running with the doors shut for a few hours. Is it running and getting cold now, 
+    KEPT    d=0.43 r=0.06 p=0.18  question: Is there a clicking/humming every few minutes from the black cylinder at the bottom-back, 
+  JEV PICKED: situation = the compressor start device or the compressor
+              next      = Is there a clicking/humming every few minutes from the black cylinder at the bottom-back, and does the relay on its side rattle or smell burnt?
+LLM ANSWER TO THEIR QUESTION: Your fridge-freezer is trying to start its cooling but not managing it, so it cuts out and tries again a few minutes later, which is the clicking you hear.  While it's stuck like that, nothing is cooling, so the freezer softens until it eventually gets going again by itself.
+REPLY: Your fridge-freezer is trying to start its cooling but not managing it, so it cuts out and tries again a few minutes later, which is the clicking you hear. While it's stuck like that, nothing is cooling, so the freezer softens until it eventually gets going again by itself. From what you have described, the most likely cause is the compressor start device or the compressor. Is there a clicking/humming every few minutes from the black cylinder at the bottom-back, and does the relay on its side rattle or smell burnt?
+
+--- Turn 2
+CUSTOMER: Yes, there is a click from the box on the side of the compressor at the bottom back, followed by a very brief hum and then silence for a few minutes. I can't smell anything burnt, and nothing has tripped. I haven't noticed the box rattling, though I wouldn't know how to tell.
+1 LLM UNDERSTOOD: appliance=fridge-freezer brand=None model=None codes=[] symptom='compressor clicks and hums briefly then cuts out; freezer softening' question=None
+   checks reported: [{'check': 'listened at compressor at bottom back', 'result': 'click from box on side, very brief hum, then silence for a few minutes'}, {'check': 'smelled relay box', 'result': 'no burnt smell'}]  facts: ['nothing has tripped', 'has not noticed the relay box rattling', 'unsure how to tell if it rattles']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.99); symptomArea="cuts_out" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.53); modelUnreachable=false (0.03); checksConfirmed=[0, 1]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:compressor', 'fridge-freezer:noisy', 'fridge-freezer:tripping-electrics']  normal: ['ff-compressor-click']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:compressor | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: the power supply (plug, socket or fuse)
+    - cause: the fridge freezer's mains input or control
+    - cause: the control or start side not starting the compressor
+    - cause: the compressor start device or the compressor
+    - cause: dusty coils or too little space round it
+    - cause: the sealed cooling system
+    - normal: Fridges cycle on and off all day. A click as the compressor starts or stops, followed by a steady hum, is normal. Inverter compressors hum con
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.2 r=0.08 p=0.62  check: Check the plug is pushed fully in and the socket is switched on, and try something else (l
+    KEPT    d=0.06 r=0.07 p=0.26  check: Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or 
+    KEPT    d=0.06 r=0.06 p=0.27  check: Leave it running with the doors shut for a few hours. Is it running and getting cold now, 
+  JEV PICKED: situation = the compressor start device or the compressor
+              next      = Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or grille at the back or underneath, and leave a few centimetres of space round it, then give it a couple of hours. Was it dusty or p
+REPLY: Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or grille at the back or underneath, and leave a few centimetres of space round it, then give it a couple of hours. Was it dusty or pushed against the wall (and have you sorted it), or was it already clean with space?
+
+--- Turn 3
+CUSTOMER: It was a bit dusty at the back, though there is a gap between the fridge and the wall. I haven't cleaned it yet, so I can do that now if you think it's worth it. Should I do anything else while I'm pulling it out?
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom='clicking but not starting' question="Should I do anything else while I'm pulling it out?"
+   checks reported: []  facts: ['a bit dusty at the back', 'there is a gap between the fridge and the wall', 'not cleaned yet']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.97); modelUnreachable=false (0.04); narrowed=null (0.86); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:compressor', 'fridge-freezer:defrost-system', 'fridge-freezer:noisy']  normal: ['ff-compressor-click']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:compressor | findings settle it = False | engineer allowed = True
+  situations offered (7):
+    - cause: the power supply (plug, socket or fuse)
+    - cause: the fridge freezer's mains input or control
+    - cause: the control or start side not starting the compressor
+    - cause: the compressor start device or the compressor
+    - cause: dusty coils or too little space round it
+    - cause: the sealed cooling system
+    - normal: Fridges cycle on and off all day. A click as the compressor starts or stops, followed by a steady hum, is normal. Inverter compressors hum con
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.21 r=0.08 p=0.67  check: Check the plug is pushed fully in and the socket is switched on, and try something else (l
+    KEPT    d=0.06 r=0.06 p=0.29  check: Leave it running with the doors shut for a few hours. Is it running and getting cold now, 
+  JEV PICKED: situation = the compressor start device or the compressor
+              next      = Leave it running with the doors shut for a few hours. Is it running and getting cold now, or still not?
+REPLY: Leave it running with the doors shut for a few hours. Is it running and getting cold now, or still not?
+
+--- Turn 4
+CUSTOMER: I haven't done the cleaning yet, so it is still in the same state as before. Today it is clicking and not cooling: the fridge is at 9C and the freezer at -8C. I'll clean the dust off the back now and leave it for a few hours, then let you know.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='clicking and not cooling' question=None
+   checks reported: []  facts: ['fridge at 9C', 'freezer at -8C', 'has not cleaned dust off the back yet']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="not_cooling" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome=null (0.72); modelUnreachable=false (0.03); model=null (1); code=null (1); narrowed=null (0.75); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:compressor', 'fridge-freezer:not-cooling', 'fridge-freezer:noisy']  normal: ['ff-compressor-click']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:compressor | findings settle it = False | engineer allowed = True
+  situations offered (7):
+    - cause: the power supply (plug, socket or fuse)
+    - cause: the fridge freezer's mains input or control
+    - cause: the control or start side not starting the compressor
+    - cause: the compressor start device or the compressor
+    - cause: dusty coils or too little space round it
+    - cause: the sealed cooling system
+    - normal: Fridges cycle on and off all day. A click as the compressor starts or stops, followed by a steady hum, is normal. Inverter compressors hum con
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.24 r=0.07 p=0.67  check: Check the plug is pushed fully in and the socket is switched on, and try something else (l
+  JEV PICKED: situation = the compressor start device or the compressor
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: genuinely uncertain: failing compressor start device (PTC relay/overload) causing intermittent start failure; a weak/failing compressor cannot be ruled out (which would make repair uneconomic).

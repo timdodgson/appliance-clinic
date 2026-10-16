@@ -6,6 +6,7 @@ interface Window {
   WHICHPART_API_BASE?: string;
   ACChatSession: any;
   ACWebMCP?: any;
+  turnstile?: any;
   TacLogic?: any;
 }
 interface Document { modelContext?: any }

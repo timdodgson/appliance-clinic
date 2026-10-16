@@ -1,0 +1,101 @@
+{
+  "id": "23.3-advisor-only-cleanup",
+  "description": "Engine and whichpart-api code and configuration in one change set (proof of concept, no real customers): the Opus-only cleanup of ADR 0023 (code changes 23.3 engine, 23.4 BFF). Engine: inference.js is the Anthropic provider only; admin-config.js reads the advisor model and key and no Jev secret; jev-client.js, ac2/errorcodes.js and ac2/data deleted; JEV_SECRET_ID and LM_STUDIO_URL removed. whichpart-api: the benchmark envelope, qwen-plain control, image hand-off, transcript review job and Test area routes removed; unmatched /admin paths are 404; Settings edit the advisor model and its write-only credential only; the 15-minute transcript-review schedule is acknowledged with no work; ACQ_JUDGE_MODEL, JEV_SECRET_ID, TRANSCRIPT_REVIEW_ENABLED, TRANSCRIPT_REVIEW_MAX_PER_RUN, TRANSCRIPT_REVIEW_MODEL, TRANSCRIPT_REVIEW_PROVIDER and LM_STUDIO_URL removed. All removed variables were unread by the code. Previous code: phase8/applianceclinic-diagnosis-engine-2lF7irHC2jwr-QurXitQwJUlVKCa3_rbhqqE1pPOfRU.zip and phase8/whichpart-api-yVnW1nTw1upmNyUR7SNGb9GcQoGqXgWLbzQSri_Yc9w.zip; rollback = restore both s3Keys and the removed variables.",
+  "classification": "SAFE AC CHANGE (code and configuration of the AC diagnosis engine and whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code",
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/ac-diagnosis-engine-role",
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    },
+    {
+      "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/mcp-bearer-*",
+        "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/engine-signing-*"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code and configuration of both functions from the staged phase8 artefacts (PassRole of each unchanged role, which UpdateFunctionConfiguration requires); CloudFormation resolves the pinned mcp-bearer and engine-signing dynamic references that stay in both environments. No role policy change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

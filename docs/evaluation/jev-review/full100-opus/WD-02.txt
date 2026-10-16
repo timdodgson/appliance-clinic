@@ -1,0 +1,89 @@
+TEST WD-02  (ended: concluded, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: Samsung WD90T534DBW washer dryer - clothes are still damp at the end of the wash and dry programme. It's not that old. Is the heater going?
+1 LLM UNDERSTOOD: appliance=washer dryer brand=Samsung model=WD90T534DBW codes=[] symptom='clothes still damp after wash and dry programme' question='Is the heater going?'
+   checks reported: []  facts: ['not that old']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea="not_drying" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.97); modelUnreachable=false (0.03); model="WD90T534DBW" (1); code=null (1); make="Samsung" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washer-dryer:drying-poor', 'washer-dryer:drying-heater', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.08  step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the air
+    KEPT    d=0.05 r=0.05 p=0.11  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.04 r=0.04 p=0.13  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.04 r=0.03 p=0.13  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    KEPT    d=0.08 r=0.08 p=0.1  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+    KEPT    d=0.07 r=0.06 p=0.1  question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be
+  JEV PICKED: situation = lint filter / airflow restriction (clean first)
+              next      = clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted
+LLM ANSWER TO THEIR QUESTION: Not necessarily.  Damp clothes after a full wash and dry are more often caused by a blocked fluff filter or restricted airflow than a failed heater, and that's especially likely on a machine that isn't very old.
+REPLY: Not necessarily. Damp clothes after a full wash and dry are more often caused by a blocked fluff filter or restricted airflow than a failed heater, and that's especially likely on a machine that isn't very old. From what you have described, the most likely cause is lint filter / airflow restriction (clean first). Next: Clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: ok, I can do that. No error codes showing on the display, and the drum does get hot during drying. Anything else I should check while I'm at it?
+1 LLM UNDERSTOOD: appliance=washer dryer brand=None model=None codes=[] symptom='clothes still damp after drying' question="Anything else I should check while I'm at it?"
+   checks reported: []  facts: ['no error codes on display', 'drum gets hot during drying']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.79); symptomArea=null (0.76); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.37); checkOutcome=null (0.71); modelUnreachable=false (0.05); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washer-dryer:drying-poor', 'washer-dryer:drying-heater', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.07 p=0.18  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.06 r=0.04 p=0.16  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.07 r=0.03 p=0.19  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.84 r=0.09 p=0.44  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+    REMOVED d=0.71 r=0.08 p=0.29  question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be
+  JEV PICKED: situation = lint filter / airflow restriction (clean first)
+              next      = check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault)
+REPLY: Next: Check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault). Let me know what you find.
+
+--- Turn 3
+CUSTOMER: The clothes come out of the wash fine as far as I can tell, but I often turn the spin down to 800 to reduce creasing. I'm not sure if that counts as properly spun. Is that a problem?
+1 LLM UNDERSTOOD: appliance=washer dryer brand=None model=None codes=[] symptom='clothes not drying' question='Is spinning at 800 a problem / does that count as properly spun?'
+   checks reported: []  facts: ['spin speed often turned down to 800 to reduce creasing', 'clothes come out of the wash seemingly fine']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.58); symptomArea=null (0.74); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.36); checkOutcome=null (0.8); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.04 p=0.19  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.08 r=0.03 p=0.21  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.91 r=0.07 p=0.63  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+    REMOVED d=0.8 r=0.08 p=0.37  question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be
+  JEV PICKED: situation = lint filter / airflow restriction (clean first)
+              next      = try a SMALLER dry load - a washer-dryer dries less than it washes
+LLM ANSWER TO THEIR QUESTION: It counts as spun, but 800 leaves noticeably more water in the clothes than a higher spin speed, so the dryer has more moisture to remove.  That can contribute to damp results, especially with a fuller load, though on its own it doesn't mean anything is faulty.
+REPLY: Before you start, switch it off and unplug it. It counts as spun, but 800 leaves noticeably more water in the clothes than a higher spin speed, so the dryer has more moisture to remove. That can contribute to damp results, especially with a fuller load, though on its own it doesn't mean anything is faulty. Next: Try a SMALLER dry load - a washer-dryer dries less than it washes. Let me know what you find.
+
+--- Turn 4
+CUSTOMER: I tried a half drum with full spin and it came out dry. A full 9kg drum washed and dried in one go is what I normally do, though the manual says 6kg for drying.
+1 LLM UNDERSTOOD: appliance=washer-dryer brand=None model=None codes=[] symptom='clothes come out damp after drying' question=None
+   checks reported: [{'check': 'dried a half drum load with full spin', 'result': 'came out dry'}]  facts: ['normally washes and dries a full 9kg load in one go', 'manual says 6kg max for drying']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea=null (0.56); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.81); checkOutcome="fixed" (0.89); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 1
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Overloading the dryer (9kg wash load dried in one go vs 6kg dry capacity) plus reduced spin speed; no fault.

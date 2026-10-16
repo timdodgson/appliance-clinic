@@ -1,55 +1,53 @@
 # Architecture overview
 
-This is the one current-state architecture document: the system as it runs since changes 21.2–21.9 (2026-10-13).
-The decision is [ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md); the history that led to it is at the end.
+This is the one current-state architecture document: the system as it runs since changes 23.1–23.4 (2026-10-16).
+The decision is [ADR 0023](../adr/0023-one-advisor-model-with-tools-inside-the-guardrail-kernel.md); the history that
+led to it is at the end.
 
 Appliance Clinic is a proof of concept with no real customers yet.
 
 ## Principle
 
-**Each model has one small job; code owns the record, safety, the plan for each reply and part recommendations.**
+**One capable model is the advisor; code owns the safety rules around it.**
 
-- **Qwen** (Qwen 3.6 35B-A3B on LM Studio) reads each message and writes each reply.
-- **Jev** (`typesafe/jev`) gives fixed labels with a confidence, so every fact in the record has a known shape and a
-  known certainty. It is used wherever a decision is fuzzy ("is this a hazard?", "is the fault narrowed?").
-- **Code** keeps the record, runs the tools, applies safety, decides what the reply must do, checks the reply, and
-  decides whether a part may be shown.
+- **Claude** (the Anthropic Messages API; the model id is set in Admin → Settings) reads the whole conversation and
+  Appliance Clinic's notes, looks up error codes and parts with tools, and writes each reply.
+- **Code** stops the chat on gas or fire, finds hazards, assembles the notes, checks every reply against fixed safety
+  rules, and decides whether a part may be shown (catalogue only, never under a blocking hazard).
 
 ## Components
 
 ```mermaid
 flowchart LR
-  B["Browser<br/>applianceclinic.ai"] -->|"POST /api<br/>signed session token"| W["whichpart-api (BFF)<br/>record store · transcripts + tags<br/>recall lookup · rate limits · admin"]
+  B["Browser<br/>applianceclinic.ai"] -->|"POST /api<br/>signed session token · Turnstile"| W["whichpart-api (BFF)<br/>rate limits · record store<br/>transcripts + audits · recalls · admin"]
   W <-->|"conditional writes"| D[("DynamoDB<br/>ac3/1 record · transcripts")]
-  W -->|"IAM (SigV4) + HMAC<br/>mode: turn"| E["Diagnosis engine<br/>turn pipeline"]
-  E -.->|"understand · reply"| Q[("Qwen 3.6<br/>LM Studio")]
-  E -.->|"labels · media · tags"| J[("Jev<br/>Cloudflare AI Gateway")]
-  E -.->|"MCP · bearer"| X["Error-code service"]
-  E -.->|"parts for a model"| C[("S4R Parts Catalogue<br/>(external)")]
+  W -->|"IAM (SigV4) + HMAC<br/>mode: turn"| E["Diagnosis engine<br/>one turn"]
+  E -.->|"advise (tools)"| M[("Claude<br/>Anthropic API")]
+  E -.->|"lookup_error_code · bearer"| X["Error-code service"]
+  E -.->|"find_parts"| C[("S4R Parts Catalogue<br/>(external)")]
   W -.->|"product links"| S[("S4R Shop<br/>(external)")]
-  T["EventBridge schedule"] --> W
-  W -.->|"scheduled transcript review"| J
   classDef det fill:#e8f3e8,stroke:#4a7;
   classDef model fill:#fdeee0,stroke:#c73;
   classDef state fill:#e6eefb,stroke:#47a;
   classDef ext fill:#f3f3f3,stroke:#888,stroke-dasharray: 4 3;
-  class W,E,X,T det
-  class Q,J model
+  class W,E,X det
+  class M model
   class D state
   class C,S ext
 ```
 
-Green is deterministic code, orange is a model, blue is persistent state, dashed grey is an external service.
+Green is deterministic code, orange is the model, blue is persistent state, dashed grey is an external service.
 
 | Component | Code | Runs as | Responsibility |
 |---|---|---|---|
 | Web front end | `apps/web` | S3 + CloudFront | Chat, admin console, help pages, recall search |
-| whichpart-api (BFF) | `services/whichpart-api` | Lambda zip | Sessions, the `ac3/1` record (`ac2-state.js`), the turn call (`ac2-turn.js`), transcripts with per-turn tags, recalls, admin, scheduled jobs |
-| Diagnosis engine | `services/diagnosis-engine` | Lambda zip, IAM Function URL | The turn pipeline (`ac2/turn.js`) and its steps |
+| whichpart-api (BFF) | `services/whichpart-api` | Lambda zip | Rate limits and the bot check, sessions, the `ac3/1` record (`ac2-state.js`), the turn call (`ac2-turn.js`), transcripts with per-turn audits, recalls, admin |
+| Diagnosis engine | `services/diagnosis-engine` | Lambda zip, IAM Function URL | The turn (`ac2/turn.js`), the advisor (`ac2/advisor.js`), the fixed safety checks (`ac2/safety.js`) |
 | Error-code service | `error-codes/mcp` | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings over MCP; the admin catalogue editor |
 
-The Python orchestrator function still exists in the stack but is no longer called. The `ac2/` folder name is
-historical: it now holds the ADR 0021 pipeline.
+The Python orchestrator function still exists in the stack. No AC service calls it, but its public Function URL still
+receives traffic from an unidentified caller (the README's known risks has the measured figure), so it stays. The
+`ac2/` folder name is historical: it now holds the ADR 0023 turn.
 
 ## One turn
 
@@ -60,128 +58,61 @@ sequenceDiagram
   participant W as whichpart-api
   participant D as DynamoDB
   participant E as Engine (turn.js)
-  participant Q as Qwen
-  participant J as Jev
+  participant A as Claude (advisor.js)
   participant X as Error-code service
   participant C as Parts catalogue
-  B->>W: message + session token
+  B->>W: message + session token (+ Turnstile token on a new chat)
+  W->>W: rate limit, bot check, verify the token
   W->>D: load ac3/1 record
   W->>W: recall lookup
   W->>E: signed turn (messages, record, recalls)
   E->>E: gas or fire in the words? fixed emergency wording, stop
-  E->>Q: understand latest message (json_schema)
-  Q-->>E: reading (hints)
-  E->>J: label message (one evaluation, many questions)
-  J-->>E: labels + confidence
-  E->>E: apply labels to the record, hazards (Jev + word list)
-  E->>X: resolve error codes (make, appliance, code, model)
-  X-->>E: meaning, components, checks
-  E->>E: RAG knowledge, normal notes, model info
-  opt stage 2, narrowed, model known
-    E->>C: parts for model
-    C-->>E: parts
+  E->>E: hazards (word lists); fixed warning once
+  E->>E: notes: fault notes, pictures, recalls, active hazards
+  E->>A: conversation + notes, with tools
+  opt the advisor looks things up
+    A->>X: lookup_error_code
+    X-->>A: meaning
+    A->>C: find_parts (model)
+    C-->>A: parts
   end
-  E->>E: decide the plan (code)
-  E->>Q: write reply (chat + briefing)
-  Q-->>E: reply text
-  E->>E: final check (banned advice, reassurance after hazards, unproved certainty, unverified ids)
-  E->>J: label reply (action, check given, media)
-  J-->>E: labels
-  E-->>W: response + record + audit (tags)
-  W->>D: save record (version-conditioned), transcript + tags
+  A-->>E: send_reply (reply, appliance learnt, part ids, picture id, outcome)
+  E->>E: fixed checks (banned advice, reassurance after a hazard, unverified ids, isolation line, parts held under a hazard)
+  E-->>W: response + record + audit
+  W->>D: save record (version-conditioned), transcript + audit
   W-->>B: reply, safety panel, media, part card
 ```
 
 | Step | What happens | Where |
 |---|---|---|
-| Understand | Qwen extracts appliance, brand, model, codes, symptom, question, answer, checks reported and facts stated (including what is not happening). Hints only | `ac2/understand.js` |
-| Label | Jev: scope, appliance, make/model/code among candidate tokens, symptom area, hazard, unsafe request, answer to the last question, check outcome, model label reachable, narrowed component; and a yes/no confirmation of each check and fact Qwen read, so a misreading is never recorded. Below threshold = not stated | `ac2/labels.js` |
-| Enrich | RAG over fault notes, the old journeys as knowledge and normal-behaviour notes; error codes via MCP; recalls; model info; parts (stage 2) | `ac2/knowledge.js`, `ac2/mcp.js`, `ac2/models.js`, `ac2/parts.js` |
-| Safety | Jev's hazard label plus the word-list backstop; fixed wording once; gas or fire stops before any model | `ac2/safety.js`, `ac2/turn.js` |
-| Decide | The plan for the reply (below) | `decide()` in `ac2/turn.js` |
-| Reply | Qwen writes from the conversation and a briefing; this turn's plan is attached to the latest customer message as a marked note, so it is the last thing Qwen reads. A reply that copies an earlier one is written again once, told why (never replaced by fixed text) | `ac2/reply.js`, `ac2/turn.js` |
-| Final check | Banned advice, reassurance after a hazard, certainty no check has proved ("confirms", "definitely" softened), unverified part numbers and prices | `ac2/turn.js`, `ac2/safety.js` |
-| Media and tags | Jev picks the matching picture or video and labels what the reply did and which check it gave | `ac2/labels.js` |
+| Emergency stop | Gas or an active fire in the customer's words: the fixed emergency wording, no model call | `ac2/turn.js`, `ac2/safety.js` |
+| Hazards | Word lists (negation, questions and things to look for ignored); a hazard stays active until the customer denies it; its fixed warning is shown once | `ac2/turn.js`, `ac2/safety.js` |
+| Notes | Fault notes by keyword (BM25 over the notes), the pictures mapped to them, recalls whichpart-api found, the active hazards; appended to the latest customer message as notes the customer did not write | `ac2/knowledge.js`, `ac2/runtime.js`, `ac2/turn.js` |
+| Advise | One model call with `lookup_error_code`, `find_parts` and `send_reply`; one more call per round of lookups. The reply: most likely cause, one next step, under 120 words; builds on the conversation; never invents a part number, price or model | `ac2/advisor.js`, `inference.js` |
+| Fixed checks | Banned advice removed; after a hazard that needs an engineer, reassurance removed; part numbers and prices not from the catalogue removed; the isolation line added to a step that opens something; a part held under a blocking hazard | `ac2/safety.js`, `ac2/turn.js` |
+| Record and audit | The record keeps the appliance identity learnt, the hazards and the outcome; the audit keeps timings, token usage, tools called, gates fired, the part decision, escalation and tags | `ac2/record.js`, `ac2/turn.js` |
 
 ## The record (`ac3/1`)
 
 Stored by the BFF in `whichpart-transcripts` (`AC2STATE#<csid>`), written with a version condition so two concurrent
-turns cannot both advance it. A record in an earlier format is replaced, not failed.
+turns cannot both advance it. A record written by the earlier pipeline keeps its turn, hazards and what it knew; the
+rest is dropped (`ac2/record.js load`).
 
 ```mermaid
 classDiagram
   class Record {
     schema = "ac3/1"
     turn
-    stage : 1 or 2
-    narrowed : component, confidence
-    outcome : fixed, part, engineer, normal, safety_stop
+    outcome : diagnosing, part_needed, engineer, normal, fixed, out_of_scope, safety_stop
   }
-  class Customer {
-    appliance, brand, model : value, confidence, turn
-    codes[]
-    symptom, symptomArea
-    checks[] : check, result, turn
-    facts[] : fact, turn
-    modelUnavailable
-  }
-  class Knowledge {
-    knowledgeIds[], fault
-    causes[], components[]
-    codeMeanings[], modelInfo[]
-  }
-  class Asked { question, turn, answer }
-  class Advice { turn, action, check, question, reported }
-  class Hazard { type, clause, turn, shown, source }
-  Record *-- Customer : what the customer told us
-  Record *-- Knowledge : what our tools added
-  Record *-- Asked
-  Record *-- Advice : what we told them
+  class Customer { appliance, brand, model }
+  class Hazard { type, clause, turn, shown, cleared }
+  Record *-- Customer : what the advisor learnt
   Record *-- Hazard
 ```
 
-Customer facts and tool knowledge are kept apart, so a RAG guess is never recorded as something the customer said. A
-check or fact Qwen reads is recorded only when Jev confirms it in the customer's words; the reply is told to treat
-those as true, never contradict them and never ask about them again. Each piece of advice keeps whether the customer
-has reported back on its check, so a reply never assumes a result.
-The record's shape is checked against its TypeScript declaration at compile time (`types/check/conformance.ts`).
-
-## Stages and outcomes
-
-```mermaid
-stateDiagram-v2
-  [*] --> Stage1 : first message
-  Stage1 : Stage 1 broad help (likely cause, safe checks, media)
-  Stage2 : Stage 2 narrowing (model, next check, part)
-  Stage1 --> Fixed : check fixed it
-  Stage1 --> Stage2 : check reported (Qwen + Jev agree), still faulty
-  Stage1 --> Normal : normal behaviour
-  Stage2 --> Part : narrowed, model known, catalogue match
-  Stage2 --> Engineer : needs an engineer
-  Stage1 --> SafetyStop : gas or fire
-  Stage2 --> SafetyStop : gas or fire
-  Fixed --> [*]
-  Part --> [*]
-  Engineer --> [*]
-  Normal --> [*]
-  SafetyStop --> [*]
-```
-
-The plan for each reply is decided in code (`decide()`), from the record:
-- answer the customer's question first;
-- after a hazard, say what it means (an engineer's check before use, where that applies) and only suggest checks that
-  are safe with the appliance off;
-- list what they were already told and build on it; list the checks still awaiting a result and never imply they were
-  done; if the latest message adds nothing new, give the next step;
-- list the checks they reported with what they found; keep to the symptom they reported;
-- stage 1: what could cause it, most likely first, as possibilities (including settings, loading, installation or
-  normal behaviour), then the one or two safe checks or the one question that best separates them; no model number
-  asked;
-- an error code the catalogue cannot resolve: say its meaning cannot be confirmed, never guess;
-- stage 2: ask for the make and model (saying where the label usually is) if it is missing and reachable; otherwise the
-  next discriminating check, or the part when the catalogue confirms one for that model;
-- name the make, model and codes already given as never to be asked again; never ask for anything already in the
-  record, or a question they could not answer. Our own earlier questions are not quoted back to Qwen (it copied them).
+The advisor reads the conversation itself, so the record holds only what must survive a turn. Its shape is checked
+against its TypeScript declaration at compile time (`types/check/conformance.ts`).
 
 ## Safety
 
@@ -189,13 +120,13 @@ The plan for each reply is decided in code (`decide()`), from the record:
 flowchart TD
   M["Customer message"] --> G{"gas or fire<br/>in the words?"}
   G -->|yes| STOP["Fixed emergency wording<br/>no model called"]
-  G -->|no| L["Jev hazard label<br/>+ word-list backstop<br/>(negations, questions and<br/>things to look for ignored)"]
+  G -->|no| L["Word-list hazards<br/>(negations, questions and<br/>things to look for ignored)"]
   L --> H{"hazard?"}
-  H -->|no| R["Reply as planned"]
-  H -->|yes| F["Fixed stop-use wording once<br/>plan: safe-when-off checks only<br/>engineer before use where required"]
-  F --> R
-  R --> C["Final check: banned advice,<br/>reassurance after hazards,<br/>unproved certainty,<br/>unverified identifiers"]
-  C --> P{"part allowed?<br/>stage 2, narrowed, model known,<br/>no blocking hazard, catalogue match"}
+  H -->|no| A["Advisor reply"]
+  H -->|yes| F["Fixed stop-use wording once<br/>advisor told: active hazard,<br/>engineer before use where required"]
+  F --> A
+  A --> C["Fixed checks: banned advice,<br/>reassurance after a hazard,<br/>unverified identifiers,<br/>isolation line"]
+  C --> P{"part allowed?<br/>from find_parts for the model,<br/>no blocking hazard"}
   P -->|yes| CARD["Part card"]
   P -->|no| OUT["Reply"]
   CARD --> OUT
@@ -203,35 +134,40 @@ flowchart TD
 
 ## Failure behaviour
 
-- **No fallback.** If Qwen or Jev cannot run, the turn is an explicit "temporarily unavailable" with a retry; the
-  record is not advanced. Set-up failures are deferred to first use, so a gas or fire stop still answers.
-- **Error-code service down:** the code is reported as not resolved; nothing is invented.
-- **Parts catalogue down or no match:** no part card; the reply says a confirmed match was not found.
+- **No fallback.** If the advisor cannot run (credential, quota, outage, timeout), the turn is an explicit "temporarily
+  unavailable" with a retry; the record is not advanced. Set-up failures are deferred to first use, so a gas or fire
+  stop still answers.
+- **Error-code service down:** `lookup_error_code` reports the code as not found; the advisor says it cannot confirm
+  the meaning and works from the symptoms.
+- **Parts catalogue down or no match:** no part card; the advisor says a confirmed match was not found.
 - **Record conflict** (two turns at once): the second turn is refused, not merged.
 
 ## Security
 
 - The BFF calls the engine's IAM-authenticated Function URL (SigV4) and HMAC-signs every request body
   ([ADR 0017](../adr/0017-authenticate-orchestrator-only-engine-fields.md)); the engine refuses anything else.
+- Customer turns are rate-limited per client and per session (change 21.37) and a new conversation needs a passing
+  Cloudflare Turnstile token (change 21.38).
 - Secrets are in AWS Secrets Manager under `applianceclinic/production/*`, pinned by version in the deployment
-  configuration, never in code or logs.
+  configuration, never in code or logs. The advisor's credential is write-only from the admin.
 - Least-privilege roles per function; every production change is a reviewed change set
   ([`change.sh`](../../infra/production/steps/change.sh)).
+- Instructions inside a customer message are ignored by prompt; there is no automated prompt-injection test set yet.
 
 ## Observability
 
-- **Per-turn audit** (engine log and transcript): timings per step, provider, safety gates, part decision, the plan.
-- **Transcript tags**: Jev's labels with confidence, stage, what the reply did, the check given, media, enrichment
-  used. This is how real chats show where to improve: low-confidence labels, stalls, missing knowledge or media.
-- **Admin console**: transcripts with the per-turn audit and tags.
+- **Per-turn audit** (engine log and transcript): timings, token usage, provider and model, the tools called, the
+  safety gates that fired, the part decision, escalation, the outcome and the enrichment used.
+- **Admin console**: the dashboard (health, today's activity, production state), conversations with the per-turn
+  audit, a live test workbench, knowledge, media, error codes, recalls, diagnostics and settings.
 - Engine alarms: failed turns, refused requests, errors, throttles (no notification target yet; see the README risks).
 
 ## Evaluation
 
-- Runtime tests: the pipeline (`ac3-turn.test.mjs`), the GOLD guardrail regression (an adversarial Qwen with a blind
-  Jev is contained), the BFF record store and transcript audit.
-- The independent 100-case benchmark, the held-out set and the real-journey add-on set, blind-judged against a general
-  assistant ([evaluation index](../evaluation/README.md)).
+- Runtime tests: the turn (`ac4-turn.test.mjs`), the fixed safety checks, the GOLD guardrail regression (the kernel
+  contains an adversarial advisor), the BFF record store, view and transcript audit.
+- Scripted chats against the live services (`evaluation/scripted/run.cjs`): 22 fixed customer messages with
+  hand-written pass/fail expectations per reply ([evaluation index](../evaluation/README.md)).
 
 ## Configuration
 
@@ -247,3 +183,6 @@ Kept as evidence, superseded by this page:
 - [ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md): the dedicated engine for the journeys.
 - [ADR 0020](../adr/0020-llm-led-diagnosis-with-deterministic-guardrails.md) and its
   [evaluation](../evaluation/llm-led-rebuild.md): the first LLM-led rebuild.
+- [ADR 0021](../adr/0021-understand-label-enrich-decide-reply.md) and its
+  [evaluation](../evaluation/ac3-pipeline-results.md): the understand / label / decide / reply pipeline, and the
+  [code audit](../evaluation/code-audit-2026-10-16/REPORT.md) that retired it.

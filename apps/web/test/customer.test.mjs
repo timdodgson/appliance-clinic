@@ -11,7 +11,7 @@ async function send(text, view, { status = 200 } = {}) {
     if (url.endsWith('/auth/me')) return me;
     if (url === '/api' && init.method === 'POST') {
       const body = JSON.parse(init.body);
-      if (body.feedback || (body.observability && body.observability.event === 'end')) return { status: 200, body: {} };
+      if (body.observability && body.observability.event === 'end') return { status: 200, body: {} };
       if (view instanceof Error) throw view;
       return { status, body: view };
     }
@@ -36,6 +36,51 @@ describe('customer chat', () => {
     expect(r.calls.every((c) => c.url.startsWith('/api'))).toBe(true);
     expect(r.bot.querySelector('.response__lead').textContent).toBe(reply);
     expect(r.bot.querySelector('b')).toBeNull();
+  });
+
+  it('bot check: a Turnstile token on the first message of a conversation only (change 21.38)', async () => {
+    const page = loadPage('index.html', SCRIPTS, (url) => {
+      if (url.endsWith('/auth/me')) return me;
+      return { status: 200, body: { reply: 'Was the clock flashing?', stateToken: 'cst1.opaque.token' } };
+    });
+    let n = 0;
+    page.window.turnstile = { render: (box, o) => { page.window._cb = o.callback; return 'w1'; }, reset() {}, execute() { n += 1; page.window._cb(`ts-token-${n}`); } };
+    await settle(page.window);
+    for (const text of ['oven not heating', 'no']) {
+      page.document.getElementById('input').value = text;
+      page.document.getElementById('ask').dispatchEvent(new page.window.Event('submit', { cancelable: true }));
+      await settle(page.window);
+    }
+    const calls = page.calls.filter((c) => c.url === '/api' && c.body && c.body.messages);
+    expect(calls).toHaveLength(2);
+    expect(calls[0].body.turnstile).toBe('ts-token-1');
+    expect(calls[1].body.turnstile).toBeUndefined();
+    expect(calls[1].body.stateToken).toBe('cst1.opaque.token');
+  });
+
+  it('bot check: an expired conversation (API 428) is retried once with a Turnstile token', async () => {
+    let n = 0;
+    const page = loadPage('index.html', SCRIPTS, (url, init) => {
+      if (url.endsWith('/auth/me')) return me;
+      const body = JSON.parse(init.body);
+      n += 1;
+      if (n === 1) return { status: 200, body: { reply: 'Was the clock flashing?', stateToken: 'cst1.old' } };
+      if (!body.turnstile) return { status: 428, body: { code: 'bot_check_failed' } };
+      return { status: 200, body: { reply: 'Set the clock then.', stateToken: 'cst1.new' } };
+    });
+    let k = 0;
+    page.window.turnstile = { render: (box, o) => { page.window._cb = o.callback; return 'w1'; }, reset() {}, execute() { k += 1; page.window._cb(`ts-${k}`); } };
+    await settle(page.window);
+    for (const text of ['oven not heating', 'no']) {
+      page.document.getElementById('input').value = text;
+      page.document.getElementById('ask').dispatchEvent(new page.window.Event('submit', { cancelable: true }));
+      await settle(page.window, 16);
+    }
+    const calls = page.calls.filter((c) => c.url === '/api' && c.body && c.body.messages);
+    expect(calls).toHaveLength(3);
+    expect(calls[1].body.turnstile).toBeUndefined();
+    expect(calls[2].body.turnstile).toBe('ts-2');
+    expect(page.document.querySelector('#thread .turn--bot:last-child .response__lead').textContent).toBe('Set the clock then.');
   });
 
   it('echoes the state token on the next turn, unopened', async () => {
@@ -80,10 +125,10 @@ describe('customer chat', () => {
     expect(panel.querySelector('.safety-info__text').textContent).toBe('Never open the casing: high voltage inside.');
   });
 
-  it('a diagnosis shows its label and summary as the lead, then the rest of the reply', async () => {
+  it('a diagnosis shows its summary as the lead, then the rest of the reply, with no label overline', async () => {
     const summary = 'The pump filter is the most likely cause.';
-    const r = await send('not draining', { reply: `${summary} Clear it with the machine unplugged.`, diagnosis: { label: 'Blocked pump filter', summary } });
-    expect(r.bot.querySelector('.response__diag').textContent).toBe('Blocked pump filter');
+    const r = await send('not draining', { reply: `${summary} Clear it with the machine unplugged.`, diagnosis: { summary } });
+    expect(r.bot.querySelector('.response__diag')).toBeNull();
     expect(r.bot.querySelector('.response__lead').textContent).toBe(summary);
     expect(r.bot.querySelector('.response__body').textContent).toBe('Clear it with the machine unplugged.');
   });
@@ -115,20 +160,11 @@ describe('customer chat', () => {
     expect(a.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
-  it('asks for the model in plain words when the engine needs it and shows no part', async () => {
-    const r = await send('dishwasher not filling', { reply: 'Could you send me the model number?', needsModel: true });
-    expect(r.bot.querySelector('.model-req')).not.toBeNull();
+  it('a reply that asks for the model is shown as the advisor wrote it, with no part and no extra prompt', async () => {
+    const r = await send('dishwasher not filling', { reply: 'Could you send me the model number?', parts: [] });
+    expect(r.bot.querySelector('.response__lead').textContent).toBe('Could you send me the model number?');
+    expect(r.bot.querySelector('.model-req')).toBeNull();
     expect(r.bot.querySelector('.part')).toBeNull();
-  });
-
-  it('feedback buttons post the trace id to the AC API', async () => {
-    const r = await send('hob not heating', { reply: 'Check the child lock.', traceId: 'tr-1' });
-    r.bot.querySelector('.feedback__btn--up').click();
-    await settle(r.window);
-    const fb = r.calls.find((c) => c.body && c.body.feedback);
-    expect(fb.url).toBe('/api');
-    expect(fb.body.feedback).toEqual({ traceId: 'tr-1', rating: 'up' });
-    expect(r.bot.querySelector('.feedback__thanks')).not.toBeNull();
   });
 
   it('typing saves the draft without a script error (the live site threw on every keystroke)', async () => {

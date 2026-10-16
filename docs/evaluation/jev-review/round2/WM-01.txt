@@ -1,0 +1,61 @@
+TEST WM-01  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, my Bosch WAN28281GB has stopped half way through a wash and is showing E18. Water still in the drum. What does that mean?
+JEV WAS OFFERED - situations (6):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  next steps (11):
+    - check: The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it
+    - check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pu
+    - check: run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and ca
+    - check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn f
+    - check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Wa
+    - step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with wate
+    - step: inspect and clean the accessible pump filter where the model design allows
+    - step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)
+    - step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump
+    - question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?
+    - question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?
+  note: washing-machine:not-draining | findings settle it: False
+JEV PICKED: situation = blocked pump filter / foreign object in the pump path
+            next      = The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front.
+REPLY: Before you start, switch it off and unplug it. E18 on your Bosch means: No drainage / drain took too long (clogged coin-trap/pump filter or drain hose). From what you have described, the most likely cause is blocked pump filter / foreign object in the pump path. The most common cause is a blockage in the pump filter (also called the drain filter or trap), and it's a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?
+
+--- Turn 2
+CUSTOMER: I've taken the filter out and found a child's sock and a hair grip wrapped round it, plus a lot of fluff. The floor got a little wet while I was doing it, but there's no burning smell and no water near the socket. What should I do next?
+JEV WAS OFFERED - situations (6, + engineer):
+    - cause: blocked pump filter / foreign object in the pump path
+    - cause: blocked / kinked drain hose or waste connection
+    - cause: drain pump obstructed / jammed or failed
+    - cause: internal sump hose / obstruction before the pump
+    - cause: pressure system / water-level sensing
+    - cause: control PCB / wiring to the pump
+  next steps (9):
+    - check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pu
+    - check: run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and ca
+    - retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?
+    - check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn f
+    - check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Wa
+    - step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with wate
+    - step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)
+    - question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?
+    - question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?
+  removed before Jev picked (done / refused / pointless): 2
+    x inspect and clean the accessible pump filter where the model design allows
+    x clear any trapped foreign object in the accessible pump path before recommending
+  note: washing-machine:not-draining | findings settle it: True
+JEV PICKED: situation = blocked pump filter / foreign object in the pump path
+            next      = Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?
+REPLY: That fits blocked pump filter / foreign object in the pump path. Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does the water pump away now?
+
+--- Turn 3
+CUSTOMER: I've put the filter back and run a rinse and spin programme. It drains quickly now, E18 has gone and it spins normally.
+(no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Drain pump filter blocked by a sock, hair grip and lint; cleared by cleaning the filter, no part needed.

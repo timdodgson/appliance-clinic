@@ -12,19 +12,10 @@ const src = require('./api-source.cjs')();
 
 // Every path the router matched before the split, in router order.
 const ROUTES = [
-  '/auth/login', '/auth/logout', '/auth/me', '/admin/health', '/admin/dashboard', '/admin/settings/jev/test',
-  '/admin/settings/jev', '/admin/settings/diagnostic-inference', '/admin/settings', '/admin/ai-config/key',
-  '/admin/ai-config/test-local', '/admin/ai-config/test-frontier', '/admin/ai-config/local-models',
-  '/admin/ai-config/frontier-models', '/admin/ai-config', '/admin/library/journey/edit',
-  '/admin/library/journey/duplicate', '/admin/library/journey/flags', '/admin/library/journey/delete',
-  '/admin/library/journey', '/admin/library/import', '/admin/library', '/admin/benchmark/build-run',
-  '/admin/benchmark/rerun', '/admin/benchmark/estimate', '/admin/benchmark/routing-override/resolve',
-  '/admin/benchmark/routing-override/recover', '/admin/benchmark/run/cancel', '/admin/benchmark/transcript',
-  '/admin/benchmark/scenario-conversations', '/admin/benchmark/reviews', '/admin/benchmark/review',
-  '/admin/benchmark/run', '/admin/benchmark/runs', '/admin/benchmark/compare', '/admin/benchmark/config',
-  '/admin/transcripts/stats', '/admin/transcripts/policy', '/admin/transcripts/quality',
-  '/admin/transcripts/session/review', '/admin/transcripts/session', '/admin/transcripts', '/admin/knowledge/record',
-  '/admin/knowledge',
+  '/auth/login', '/auth/logout', '/auth/me', '/admin/health', '/admin/dashboard', '/admin/settings/model',
+  '/admin/settings', '/admin/ai-config/key', '/admin/ai-config/test', '/admin/ai-config/models',
+  '/admin/transcripts/stats', '/admin/transcripts/policy', '/admin/transcripts/session', '/admin/transcripts',
+  '/admin/knowledge/record', '/admin/knowledge',
   '/admin/media/knowledge', '/admin/media/preview', '/admin/media/record/publish', '/admin/media/record/rollback',
   '/admin/media/record/discard', '/admin/media/record/version', '/admin/media/record/replace',
   '/admin/media/record/map', '/admin/media/record/component', '/admin/media/record/retire',
@@ -68,14 +59,18 @@ describe('routes', () => {
     });
 });
 
-// ADR 0019: the knowledge publish workflow is gone. Its endpoints are a plain 404 for any caller and method — never
-// routed to a knowledge store and never treated as a diagnose request.
+// ADR 0019: the knowledge publish workflow is gone. ADR 0023: the Test area (question library, ACQ-100 benchmark), the
+// transcript review and the Jev / routing settings are gone. Their endpoints are a plain 404 for any caller and
+// method — never routed to a store and never treated as a diagnose request.
 const RETIRED_KNOWLEDGE_ROUTES = [
   ['POST', '/admin/knowledge/draft'], ['PUT', '/admin/knowledge/draft'], ['DELETE', '/admin/knowledge/draft'],
   ['POST', '/admin/knowledge/validate'], ['GET', '/admin/knowledge/versions'], ['POST', '/admin/knowledge/publish'],
   ['POST', '/admin/knowledge/rollback'], ['POST', '/admin/knowledge/archive'], ['POST', '/admin/knowledge/restore'],
+  ['GET', '/admin/library'], ['POST', '/admin/library/journey/edit'], ['POST', '/admin/library/import'],
+  ['GET', '/admin/benchmark/runs'], ['POST', '/admin/benchmark/run'], ['POST', '/admin/benchmark/routing-override/resolve'],
+  ['GET', '/admin/benchmark/config'],
 ];
-describe('retired knowledge write routes', () => {
+describe('retired knowledge, test-area and review routes', () => {
   it.each(RETIRED_KNOWLEDGE_ROUTES)('%s %s is 404 even for an admin', async (method, route) => {
     api.setSessionForTests(ADMIN);
     const res = await api.handler(ev(route, method, { rawQueryString: 'id=vacuum:lost-suction', body: JSON.stringify({ expectedRevision: 0 }) }));
@@ -87,9 +82,22 @@ describe('retired knowledge write routes', () => {
     expect((await api.handler(ev('/admin/knowledge', 'GET'))).statusCode).toBe(200);
     expect((await api.handler(ev('/admin/knowledge/record', 'GET', { rawQueryString: 'id=vacuum:lost-suction', queryStringParameters: { id: 'vacuum:lost-suction' } }))).statusCode).toBe(200);
   });
-  it('the API no longer exposes a knowledge admin store', () => {
+  it.each([['PATCH', '/admin/settings/jev'], ['POST', '/admin/settings/jev/test'], ['PATCH', '/admin/settings/diagnostic-inference'],
+    ['GET', '/admin/ai-config/local-models'], ['POST', '/admin/ai-config/test-local'], ['GET', '/admin/transcripts/quality'],
+    ['POST', '/admin/transcripts/session/review']])('%s %s (retired settings / review route) is a 404, never the diagnose path', async (method, route) => {
+    api.setSessionForTests(ADMIN);
+    api.setTranscriptStore(transcripts.createMemoryStore());
+    const res = await api.handler(ev(route, method, { body: JSON.stringify({ expectedVersion: 1, messages: [{ role: 'user', content: 'x' }] }) }));
+    expect(res.statusCode).toBe(404);
+    expect(JSON.parse(res.body)).toEqual({ error: 'not found' });
+  });
+  it('the API no longer exposes a knowledge admin store, a benchmark override or a transcript review', () => {
     expect(api.knowledgeAdmin).toBeUndefined();
     expect(api.setKnowledgeAdminStore).toBeUndefined();
+    expect(api.routingOverride).toBeUndefined();
+    expect(api.transcriptReview).toBeUndefined();
+    expect(api.setBenchmarkDepsForTests).toBeUndefined();
+    expect(src).not.toMatch(/require\('\.\/(benchmark-auth|transcript-review|benchmark-state|admin\/test-area|jev-client|canonical-audit)/);
   });
 });
 

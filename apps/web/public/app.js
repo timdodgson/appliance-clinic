@@ -59,12 +59,6 @@
   var OFFLINE_ASK_STATUS = 'You’re offline. Diagnosis needs an internet connection. Your conversation is unchanged — try again when you’re back online.';
   var askStatusText = document.getElementById('askStatusText');
 
-  // Feedback thumb icons — proper inline SVG (coloured via CSS, sage), not emoji.
-  var THUMB_UP_SVG =
-    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zM7 10l5-8a2.5 2.5 0 0 1 2.5 2.5V8h4.6a2 2 0 0 1 2 2.32l-1.3 8A2 2 0 0 1 17.8 20H7z"/></svg>';
-  var THUMB_DOWN_SVG =
-    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1zM17 14l-5 8a2.5 2.5 0 0 1-2.5-2.5V16H4.9a2 2 0 0 1-2-2.32l1.3-8A2 2 0 0 1 6.2 4H17z"/></svg>';
-
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     submit();
@@ -216,7 +210,7 @@
           session.turns.push(Session.assistantTurnRecord(view));
           persistSession();
         }
-        adjustPlaceholder(view);
+        adjustPlaceholder();
         return view || null;
       })
       .catch(function (err) {
@@ -299,12 +293,66 @@
     return null;
   }
 
+  // Bot check (change 21.38): an invisible Cloudflare Turnstile token on the first message of a conversation (one
+  // without a state token); the API checks it. Later messages carry the state token instead. Best-effort: if
+  // Turnstile cannot load, the message is sent without a token and the API decides.
+  var TURNSTILE_SITE_KEY = '0x4AAAAAAFYE0xtNR0AYIP4C';
+  var turnstileWidget = null;
+  var turnstileWaiter = null;
+  function turnstileToken() {
+    var ts = window.turnstile;
+    if (!ts || typeof ts.render !== 'function') return Promise.resolve(null);
+    return new Promise(function (resolve) {
+      var done = false;
+      function finish(token) {
+        if (done) return;
+        done = true;
+        turnstileWaiter = null;
+        resolve(token || null);
+      }
+      var timer = setTimeout(function () { finish(null); }, 15000);
+      turnstileWaiter = function (token) { clearTimeout(timer); finish(token); };
+      try {
+        if (turnstileWidget === null) {
+          var box = document.getElementById('turnstileBox');
+          if (!box) {
+            box = el('div', 'turnstile-box');
+            box.id = 'turnstileBox';
+            document.body.appendChild(box);
+          }
+          turnstileWidget = ts.render(box, {
+            sitekey: TURNSTILE_SITE_KEY,
+            action: 'chat',
+            appearance: 'interaction-only',
+            execution: 'execute',
+            callback: function (t) { if (turnstileWaiter) turnstileWaiter(t); },
+            'error-callback': function () { if (turnstileWaiter) turnstileWaiter(null); },
+            'expired-callback': function () { /* a fresh token is requested per conversation */ },
+          });
+        } else {
+          ts.reset(turnstileWidget);
+        }
+        ts.execute(turnstileWidget);
+      } catch (e) {
+        clearTimeout(timer);
+        finish(null);
+      }
+    });
+  }
+
+  function post(payload) {
+    return fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  }
+
   function ask(msgs) {
     var payload = { messages: msgs };
     // Opaque BFF-signed canonical-session token: echoed back verbatim, never inspected here.
-    if (session && typeof session.stateToken === 'string' && session.stateToken) {
-      payload.stateToken = session.stateToken;
-    }
+    var hasState = Boolean(session && typeof session.stateToken === 'string' && session.stateToken);
+    if (hasState) payload.stateToken = session.stateToken;
     if (session && session.id) {
       payload.observability = {
         sessionId: session.id,
@@ -312,10 +360,21 @@
         event: 'turn',
       };
     }
-    return fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
+    var first = hasState ? Promise.resolve(null) : turnstileToken();
+    return first.then(function (t) {
+      if (t) payload.turnstile = t;
+      return post(payload);
+    }).then(function (r) {
+      // A state token the API no longer accepts (e.g. expired) makes this a new conversation: retry once with a check.
+      // The API answers 428 (bot_check_failed); 403 is rewritten to the site's 404 page by CloudFront.
+      if ((r.status === 428 || r.status === 403) && !payload.turnstile) {
+        return turnstileToken().then(function (t) {
+          if (!t) return r;
+          payload.turnstile = t;
+          return post(payload);
+        });
+      }
+      return r;
     }).then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
@@ -558,17 +617,16 @@
   }
 
   function addBotTurn(view) {
-    var advice = !!view.advisory;
     // SAFETY_STOP is a structured payload flag (view.safety). Presentation only — never inferred
     // from reply wording. safetyInformation is a separate node-attached panel on ordinary replies.
     var safetyStop = !!view.safety;
-    var turn = el('div', 'turn turn--bot' + (advice ? ' turn--advice' : '') + (safetyStop ? ' turn--safety-stop' : ''));
+    var turn = el('div', 'turn turn--bot' + (safetyStop ? ' turn--safety-stop' : ''));
     turn.appendChild(el('div', 'turn__who', 'ApplianceClinic'));
 
     // ENGINEER-LED RESPONSE. Presentation only: we render the STRUCTURED fields the diagnosis engine
-    // already sends (diagnosis.label, diagnosis.summary, reply) — we NEVER parse the prose for
-    // phrases or re-interpret it, and never render via innerHTML. The reply/summary are the engine's
-    // own words shown verbatim via textContent.
+    // already sends (diagnosis.summary, reply) — we NEVER parse the prose for phrases or re-interpret
+    // it, and never render via innerHTML. The reply/summary are the engine's own words shown verbatim
+    // via textContent.
     var resp = el('div', safetyStop ? 'response safety-info safety-info--stop-use' : 'response');
     if (safetyStop) {
       resp.setAttribute('role', 'status');
@@ -578,15 +636,6 @@
       stopHead.appendChild(stopIcon);
       stopHead.appendChild(el('span', 'safety-info__title', safetyTitle('stop-use')));
       resp.appendChild(stopHead);
-    }
-    // Overline: a maintenance tip, else the grounded fault label (structured, not derived from prose).
-    // On a safety-stop the structured heading above is the primary label, so skip the fault overline.
-    if (!safetyStop) {
-      if (advice) {
-        resp.appendChild(el('h3', 'response__diag', 'Maintenance tip'));
-      } else if (view.diagnosis && view.diagnosis.label) {
-        resp.appendChild(el('h3', 'response__diag', view.diagnosis.label));
-      }
     }
     // Lead = the engine's provided primary-finding sentence (diagnosis.summary). Body = the remainder
     // of the engine's reply. If summary is a genuine prefix of reply we split for hierarchy; otherwise
@@ -623,34 +672,15 @@
       turn.appendChild(renderMedia(view.media));
     }
 
-    // Parts are the SECONDARY next step after diagnosis (labelled), not the headline. When we still
-    // need the model to confirm a part, show a restrained model prompt instead of an error.
+    // Parts are the SECONDARY next step after diagnosis (labelled), not the headline. The advisor asks for
+    // the model number in its own words when it needs it, so there is no separate model prompt.
     if (Array.isArray(view.parts) && view.parts.length) {
       turn.appendChild(el('div', 'parts__head', view.parts.length > 1 ? 'Likely components involved' : 'Likely component involved'));
       turn.appendChild(renderParts(view.parts));
-    } else if (view.needsModel && !view.extractedModel) {
-      turn.appendChild(renderModelRequest());
-    }
-
-    // 👍/👎 feedback — the right/wrong label that turns the trace corpus into a
-    // learning signal. Only shown once we have a real reply + a trace to link to.
-    // Restored sessions omit traceId on purpose (internal, not persisted).
-    if (view.reply && view.traceId) {
-      turn.appendChild(renderFeedback(view.traceId));
     }
 
     thread.appendChild(turn);
     scrollThread();
-  }
-
-  // Restrained model prompt shown when the engine needs the model to confirm a part (needsModel) and
-  // no parts are shown yet. Presentation only — model-first behaviour is unchanged server-side.
-  function renderModelRequest() {
-    var wrap = el('div', 'model-req');
-    wrap.appendChild(el('div', 'model-req__label', 'To check a suitable replacement'));
-    wrap.appendChild(el('p', 'model-req__text',
-      'Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It\u2019s usually on a sticker inside the door or around the frame, or on the back of the appliance.'));
-    return wrap;
   }
 
   function safetyTitle(cls) {
@@ -789,35 +819,6 @@
     return wrap;
   }
 
-  function renderFeedback(traceId) {
-    var wrap = el('div', 'feedback');
-    wrap.appendChild(el('span', 'feedback__q', 'Was this helpful?'));
-    wrap.appendChild(feedbackBtn('up', traceId, wrap));
-    wrap.appendChild(feedbackBtn('down', traceId, wrap));
-    return wrap;
-  }
-
-  function feedbackBtn(rating, traceId, wrap) {
-    var b = el('button', 'feedback__btn feedback__btn--' + rating);
-    b.type = 'button';
-    b.setAttribute('aria-label', rating === 'up' ? 'Helpful' : 'Not helpful');
-    b.innerHTML = rating === 'up' ? THUMB_UP_SVG : THUMB_DOWN_SVG;
-    b.addEventListener('click', function () {
-      sendFeedback(traceId, rating);
-      wrap.innerHTML = '';
-      wrap.appendChild(el('span', 'feedback__thanks', 'Thanks — that helps us improve.'));
-    });
-    return b;
-  }
-
-  function sendFeedback(traceId, rating) {
-    return fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ feedback: { traceId: traceId, rating: rating } }),
-    }).catch(function () { /* best-effort; never block the UI */ });
-  }
-
   function renderParts(parts) {
     var wrap = el('div', 'parts');
     parts.forEach(function (p) {
@@ -874,12 +875,8 @@
       : 'Brand-compatible — check it suits your exact model before buying.';
   }
 
-  function adjustPlaceholder(view) {
-    if (view && view.needsModel && !view.extractedModel) {
-      input.placeholder = 'Enter your model number…';
-    } else {
-      input.placeholder = 'Describe what else you’ve noticed…';
-    }
+  function adjustPlaceholder() {
+    input.placeholder = 'Describe what else you’ve noticed…';
     persistSession();
   }
 

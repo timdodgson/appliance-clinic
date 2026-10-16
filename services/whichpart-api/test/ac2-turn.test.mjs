@@ -44,14 +44,15 @@ describe('turn', () => {
     expect([...store.items.values()][0].state.turn).toBe(2);
   });
 
-  it('projects safety, parts and the model request into the customer view', () => {
-    const orch = T.orchShape({ outcome: 'ANSWER', message: 'Stop using it.', safety: { class: 'burning', stopUse: true, message: 'x' }, parts: [{ partNo: 'P1', title: 'Pump', price: 12.5 }], resolvedModel: 'M1', modelRequired: false });
+  it('projects safety and parts into the customer view', () => {
+    const orch = T.orchShape({ outcome: 'ANSWER', message: 'Stop using it.', safety: { class: 'burning', stopUse: true, message: 'x' }, parts: [{ partNo: 'P1', title: 'Pump', price: 12.5 }], resolvedModel: 'M1' });
     const view = toWhichPartView(orch, 'rid', null);
     expect(view.safety).toBe(true);
     expect(view.parts).toEqual([]); // parts are never shown on a safety stop
     const ok = toWhichPartView(T.orchShape({ outcome: 'ANSWER', message: 'The drain pump.', parts: [{ partNo: 'P1', title: 'Drain Pump', price: 12.5 }], resolvedModel: 'M1' }), 'rid', null);
     expect(ok.parts[0]).toMatchObject({ name: 'Drain Pump', fitStatus: 'MODEL_CONFIRMED' });
-    expect(toWhichPartView(T.orchShape({ outcome: 'ANSWER', message: 'Need the model.', modelRequired: true }), 'rid', null).needsModel).toBe(true);
+    const brandOnly = toWhichPartView(T.orchShape({ outcome: 'ANSWER', message: 'A pump.', parts: [{ partNo: 'P1', title: 'Pump', price: 12.5, _brandOnly: true }], resolvedModel: 'M1' }), 'rid', null);
+    expect(brandOnly.parts[0].fitStatus).toBe('VERIFY_FIT');
   });
 
   it('an engine failure is an explicit error and does not advance the state', async () => {
@@ -144,27 +145,17 @@ describe('ac2-state', () => {
   });
 });
 
-describe('evaluation-only ablation (control)', () => {
-  it('passes the control to the engine only when given, and leaves the record untouched', async () => {
-    const store = memStore();
-    const engine = engineReturning({ outcome: 'ANSWER', message: 'Plain answer.' });
-    const r = await T.handle({ body: {}, messages: [{ role: 'user', content: 'dishwasher E:15' }], control: 'qwen-plain' }, deps(engine, store));
-    expect(r.error).toBeUndefined();
-    expect(engine.calls[0].ac2.control).toBe('qwen-plain');
-    expect(store.items.size).toBe(0);
-    const normal = await T.handle({ body: {}, messages: [{ role: 'user', content: 'dishwasher E:15' }] }, deps(engine, store));
-    expect(normal.error).toBeUndefined();
-    expect(engine.calls[1].ac2.control).toBeUndefined();
-    expect(store.items.size).toBe(1);
-  });
-});
-
 describe('transcript audit', () => {
-  it('records the claim check and the reasoner\'s candidates from the engine audit (change 21.13)', () => {
-    const audit = T.auditOf({ audit: { turn: 2, claims: { checked: 3, rejected: [{ claim: 'You confirmed the filter is clear.', source: 'detector' }] }, regenerated: true, reasoning: { candidates: ['blocked filter (high)', 'drain pump (medium)'] } }, state: null });
-    expect(audit).toMatchObject({ claimsChecked: 3, claimsRejected: [{ claim: 'You confirmed the filter is clear.', source: 'detector' }], regenerated: true, candidates: ['blocked filter (high)', 'drain pump (medium)'] });
+  it('records the advisor\'s tool calls, the outcome, hazards and the customer\'s appliance from the engine audit', () => {
+    const audit = T.auditOf({
+      audit: { turn: 2, provider: { name: 'anthropic', model: 'm' }, toolCalls: ['find_parts', 'send_reply'], tags: { outcome: 'part' }, partGate: { outcome: 'offered' } },
+      state: { outcome: 'part', customer: { appliance: 'washing machine', brand: 'Bosch', model: 'WAN1' }, hazards: [{ type: 'burning' }, { type: 'gas', cleared: true }] },
+    });
+    expect(audit).toMatchObject({ schemaVersion: T.AUDIT_SCHEMA, path: 'ac2', turn: 2, toolCalls: ['find_parts', 'send_reply'], outcome: 'part',
+      customer: { appliance: 'washing machine', brand: 'Bosch', model: 'WAN1' }, hazards: ['burning'], partGate: { outcome: 'offered' } });
+    expect(JSON.stringify(audit)).not.toMatch(/reasoning|claims/);
   });
   it('an audit without them records none', () => {
-    expect(T.auditOf({ audit: {}, state: null })).toMatchObject({ claimsChecked: 0, claimsRejected: [], regenerated: false, candidates: [] });
+    expect(T.auditOf({ audit: {}, state: null })).toMatchObject({ turn: null, toolCalls: [], outcome: null, hazards: [], customer: { appliance: null, brand: null, model: null } });
   });
 });

@@ -26,33 +26,33 @@ own settings: role, runtime, handler, IAM Function URL, log retention, alarms).
 | Variable | Required | Default | Set | Read by |
 |---|---|---|---|---|
 | `AC_BEARER_VERSIONS` | Not read by code | none | Yes: the pinned engine-signing secret version | A non-secret marker that forces an update on every key rotation |
-| `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-{ai-config,openai}` (historical names, see below) | Yes: `applianceclinic/production/*` | `admin-config.js` |
+| `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-{ai-config,openai}` (historical names, see below) | Yes: `applianceclinic/production/*` | `admin-config.js`: the advisor's model id (`model` in the AI configuration document) and its Anthropic API key (`anthropicApiKey` in the credential secret, which keeps its historical name). Missing: every turn is "temporarily unavailable" |
 | `ENGINE_SIGNING_TOKEN` | Required: every request must be signed (ADR 0017, ADR 0019) | none: every request is refused with 401 (fails closed) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-auth.js` |
-| `LEARNING_BUCKET` | Optional | empty (feedback and media overlays off) | Yes | `engine/learning-log.js`, `media.js` |
-| `LM_STUDIO_URL` | Optional | `http://localhost:1234` | Yes: a private tunnel URL, declared by SHA-256 digest only | `inference.js` |
+| `LEARNING_BUCKET` | Optional | empty (media overlays off) | Yes | `media.js` |
 | `STAGE` | Optional | `dev` | No | `admin-config.js` (secret-id defaults) |
 | `AI_CONFIG_CACHE_TTL_MS` | Optional | 60000 | No | `admin-config.js`, `engine/config.js` |
 | `MAX_MESSAGES`, `MAX_BODY_BYTES` | Optional | 12, 8 MiB | No | `engine/config.js` |
 | `PARTS_FOR_MODEL_API` | Optional | the S4R Parts Catalogue API (external service, see below) | No | `engine/config.js` |
 | `MEDIA_OVERLAY_TTL_MS` | Optional | 10000 | No | `media-effective.js` |
-| `LLM_PROVIDER`, `COMPOSE_PROVIDER`, `COMPOSE_MODEL`, `OPENAI_API_KEY`, `OPENAI_BASE_URL` | Optional | `lmstudio`; OpenAI base `https://api.openai.com/v1` | No | `inference.js` (environment-only provider selection; production uses the admin AI config) |
 | `AWS_REGION` | Lambda | `eu-west-1` | Lambda sets it | AWS clients |
-| `JEV_SECRET_ID` | Required for every turn | `spares4repairs/${STAGE}/applianceclinic-jev` | Yes: `applianceclinic/production/jev` | `admin-config.js`: the Jev credential (step 3 labels, step 10 media and reply tags). Missing: every turn is "temporarily unavailable" |
-| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_GATEWAY_ID`, `JEV_ACCOUNT_ID`, `JEV_API_TOKEN`, `JEV_GATEWAY_ID` | Optional | none | No | `admin-config.js`: local Jev credentials when no secret is configured |
-| `JEV_TIMEOUT_MS`, `AC3_JEV_TIMEOUT_MS` | Optional | 15000; 12000 per Jev call in a turn | No | `jev-client.js`, `ac2/runtime.js` |
-| `MCP_URL`, `MCP_BEARER_TOKEN` | Required for error-code meanings | none: codes are reported as not resolved (never invented) | Yes: the error-code service URL and a dynamic reference to `applianceclinic/production/mcp-bearer` | `ac2/mcp.js` (step 4, error-code enrichment) |
+| `MCP_URL`, `MCP_BEARER_TOKEN` | Required for error-code meanings | none: codes are reported as not found (never invented) | Yes: the error-code service URL and a dynamic reference to `applianceclinic/production/mcp-bearer` | `ac2/mcp.js` (the advisor's `lookup_error_code` tool) |
 
 **Removed in Phase 15** with the legacy code: `LM_MAX_TOKENS` (legacy COMPOSE), `SEARCH_API` (legacy catalogue
 search), and `EMBED_URL`, `EMBED_MODEL`, `EMBED_TIMEOUT_MS` (retrieval embeddings, in the engine and whichpart-api).
 
 **Removed in change 21.1** with the journey controller (ADR 0020): `CANONICAL_MC1_QUESTIONS`, `UNDERSTAND_PROVIDER` and
-the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`. Jev stays: it labels every turn (change 21.2).
+the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`.
+
+**Removed in change 23.3** with the pipeline (ADR 0023): `JEV_SECRET_ID`, the local Jev credentials
+(`CLOUDFLARE_*`, `JEV_*`), `JEV_TIMEOUT_MS`, `AC3_JEV_TIMEOUT_MS`, `LM_STUDIO_URL` and the environment-only provider
+selection (`LLM_PROVIDER`, `COMPOSE_PROVIDER`, `COMPOSE_MODEL`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`). The advisor's
+provider is the Anthropic API; the model and credential come from the admin configuration only.
 
 ## whichpart-api
 
 | Variable | Required | Default | Set | Read by |
 |---|---|---|---|---|
-| `ENGINE_URL` | Optional | the production engine URL (see below) | Yes: the `applianceclinic-diagnosis-engine` IAM Function URL | `config.js`; every ac2 turn, the feedback POST and the admin health probes, SigV4-signed with this function's role (`engine-signature.js`) |
+| `ENGINE_URL` | Optional | the production engine URL (see below) | Yes: the `applianceclinic-diagnosis-engine` IAM Function URL | `config.js`; every ac2 turn and the admin health probes, SigV4-signed with this function's role (`engine-signature.js`) |
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
 | `AC2_ENGINE_TIMEOUT_MS` | Optional | 45000 | No | `ac2-turn.js` (engine call timeout of a turn; well inside the CloudFront origin read timeout of 120 s, change 21.17) |
@@ -60,28 +60,32 @@ the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`. Jev s
 | `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `AC_ADMIN_GROUP` | Required for sign-in (empty refuses every session) | empty, empty, `admin` | Yes | `config.js` |
 | `LEARNING_BUCKET` | Optional | `whichpart-learning-800960611664` | Yes | `config.js` |
 | `WHICHPART_WEB_BUCKET` | Optional | `whichpart-web-800960611664` | Yes | `admin/content.js`, `recalls/ingest.js` |
-| `ACQ_JUDGE_MODEL` | Optional | `gpt-5.6-terra` in `config.js`; empty in `settings-admin.js` | Yes | test area, settings |
-| `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID`, `JEV_SECRET_ID`, `STAGE` | Optional | as the engine | Yes (not `STAGE`) | `ai-config.js` |
+| `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID`, `STAGE` | Optional | as the engine | Yes (not `STAGE`) | `ai-config.js` (Settings: the advisor's model and write-only credential) |
 | `CANONICAL_TOKEN_SECRET_ID`, `CANONICAL_TOKEN_PREVIOUS_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-canonical-state-token` | Yes: `applianceclinic/production/canonical-state-token` | `state-token.js` (signs the session token of every ac2 turn; historical name) |
 | `CANONICAL_TOKEN_SECRET`, `CANONICAL_TOKEN_SECRET_PREVIOUS` | Optional | none | No (tests and local runs only) | `state-token.js` |
 | `RATE_LIMIT_MODE`, `RATE_LIMIT_TABLE` | Optional | `off`, `applianceclinic-rate-limits` | Yes (`enforce`) | `rate-limit.js`, `rate-limiting.js` |
+| `TURNSTILE_MODE`, `TURNSTILE_SECRET_ID` | Optional | `off`, none | Yes (`observe`, `applianceclinic/production/turnstile`) | `turnstile.js` (Cloudflare bot check on a new conversation, change 21.38) |
 | `TRANSCRIPT_TABLE`, `TRANSCRIPT_GSI`, `TRANSCRIPT_RETENTION_DAYS`, `TRANSCRIPT_INACTIVE_MINUTES` | Optional | `whichpart-transcripts`, `gsi_activity`, 90, 120 | Yes (not the GSI) | `transcripts.js`, `ac2-state.js` |
-| `TRANSCRIPT_REVIEW_ENABLED`, `TRANSCRIPT_REVIEW_PROVIDER`, `TRANSCRIPT_REVIEW_MODEL`, `TRANSCRIPT_REVIEW_URL`, `TRANSCRIPT_REVIEW_MAX_PER_RUN`, `TRANSCRIPT_REVIEW_JEV_TIMEOUT_MS` | Optional | on, none, none, none, 3, 20000 | Yes (not the URL and the Jev timeout) | `transcript-review/` |
 | `RECALL_TABLE`, `RECALL_GSI`, `RECALL_FETCH_CONCURRENCY`, `RECALL_MAX_UNLIST` | Optional | `whichpart-recalls`, `gsi_activity`, 6, 3 | Yes (`RECALL_TABLE`) | `recalls/` |
-| `BENCHMARK_SERVICE_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-benchmark-service` (S4R-named, see below) | No | `benchmark-auth.js` |
-| `BENCHMARK_SERVICE_SECRET`, `BENCHMARK_SERVICE_SECRET_PREVIOUS` | Optional | none | No (tests only) | `benchmark-auth.js` |
-| `BENCHMARK_STAGING_URL` | Optional | none (staging runs refused) | No | `benchmark/target.js` |
-| `LM_STUDIO_URL`, `OPENAI_BASE_URL` | Optional | none; `https://api.openai.com/v1` | `LM_STUDIO_URL` | settings, transcript review |
 | `MEDIA_OVERLAY_LIVE` | Optional | off (outside Lambda) | No | `admin/content.js` |
 | `AWS_REGION`, `AWS_DEFAULT_REGION`, `AWS_LAMBDA_FUNCTION_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | Lambda | `eu-west-1` | Lambda sets them | SigV4 clients (`ddb.js`, `recalls/s3.js`, `engine-signature.js`) |
 
 **Removed in change 21.1** with the journey controller (ADR 0020): `ORCHESTRATOR_URL`, `ORCHESTRATOR_TOKEN`,
 `ORCH_TIMEOUT_MS`, `CANONICAL_MODE`, `CANONICAL_CONTROL_JOURNEYS` and `AC2_MODE` (ac2 is the only diagnosis path).
 
+**Removed in change 23.4** with the Test area, the transcript review and the provider settings (ADR 0023):
+`ACQ_JUDGE_MODEL`, `JEV_SECRET_ID`, `TRANSCRIPT_REVIEW_ENABLED`, `TRANSCRIPT_REVIEW_PROVIDER`, `TRANSCRIPT_REVIEW_MODEL`,
+`TRANSCRIPT_REVIEW_URL`, `TRANSCRIPT_REVIEW_MAX_PER_RUN`, `TRANSCRIPT_REVIEW_JEV_TIMEOUT_MS`, `BENCHMARK_SERVICE_SECRET_ID`,
+`BENCHMARK_SERVICE_SECRET`, `BENCHMARK_SERVICE_SECRET_PREVIOUS`, `BENCHMARK_STAGING_URL`, `LM_STUDIO_URL` and
+`OPENAI_BASE_URL`. The 15-minute `whichpart-transcript-review` schedule and its Lambda permission were released from
+the stack and deleted in change 23.5.
+
 ## Orchestrator (`spares4repairs-diag-orchestrator`, retired)
 
-The Python orchestrator's source was removed in change 21.1; no service calls it. Its Lambda stays declared in
-AcRuntimeStack with its last deployed image until it is decommissioned. Its variables, as deployed:
+The Python orchestrator's source was removed in change 21.1; no AC service calls it, but its public Function URL still
+receives traffic from an unidentified caller (23,537 invocations between 2026-10-02 and 2026-10-16, from CloudWatch).
+Its Lambda stays declared in AcRuntimeStack with its last deployed image until the caller is identified. Its variables,
+as deployed:
 
 | Variable | Required | Default | Set |
 |---|---|---|---|
@@ -113,7 +117,6 @@ missing variable would still not fail.
 | S4R Parts Catalogue API `65vnizdmk4` (`PARTS_FOR_MODEL_API`) | engine | None: it is the intended value; the S4R Parts Catalogue is an external service AC calls as a client | Set explicitly when the catalogue dependency is next changed |
 | Production engine URL and the S4R Shop URL | whichpart-api | A local or test run calls production | Make them required once local runs set them |
 | `spares4repairs/${STAGE}/applianceclinic-*` secret ids, `STAGE=dev` | engine, whichpart-api | Reads the secrets under their historical names, which still exist | Remove the defaults when the old secrets are deleted (owner decision; Phase 7) |
-| `spares4repairs/dev/applianceclinic-benchmark-service` | whichpart-api | The benchmark HMAC secret is still read under its S4R name | Move it to `applianceclinic/production/benchmark-service` (owner follow-up) |
 | `whichpart-learning-800960611664`, `whichpart-web-800960611664` | whichpart-api | A local run writes production buckets | Make them required once local runs set them |
 
 Changing any of these is a runtime release, so it is not made just for tidiness.

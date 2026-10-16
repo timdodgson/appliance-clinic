@@ -1,109 +1,43 @@
 {
-  "description": "Every language-model and Jev prompt in the runtime: a stable id, a version, its purpose, input and output contract, and a changelog. A prompt is the exact source of the declarations listed. Its fingerprint (prompts/fingerprint.mjs) must equal the latest changelog entry, so any change to a prompt needs a new version and changelog entry. runtimeVersion names the constant the runtime records with its output, where one exists.",
+  "description": "Every language-model prompt in the runtime: a stable id, a version, its purpose, input and output contract, and a changelog. A prompt is the exact source of the declarations listed. Its fingerprint (prompts/fingerprint.mjs) must equal the latest changelog entry, so any change to a prompt needs a new version and changelog entry. runtimeVersion names the constant the runtime records with its output, where one exists.",
   "prompts": [
     {
-      "id": "review.transcript.llm",
-      "version": 1,
-      "purpose": "Transcript review judge (language-model path): product-quality review of an anonymised production conversation.",
-      "owner": "whichpart-api",
+      "id": "diagnosis.advisor",
+      "version": 2,
+      "purpose": "The customer turn: Opus reads the chat and the tool notes, looks up error codes and parts, and writes the reply (one step at a time, likely cause first).",
+      "owner": "diagnosis-engine",
       "consumers": [
-        "Scheduled transcript review",
-        "Admin re-review"
+        "Customer chat (ac2 turn)",
+        "Scripted tests (evaluation/scripted)"
       ],
       "source": [
         {
-          "file": "services/whichpart-api/transcript-review/prompt.js",
+          "file": "services/diagnosis-engine/ac2/advisor.js",
           "declarations": [
-            "buildJudgeContext",
-            "systemPrompt",
-            "buildJudgePrompt"
+            "SYSTEM",
+            "TOOLS"
           ]
         }
       ],
-      "runtimeVersion": {
-        "file": "services/whichpart-api/transcript-review/schema.js",
-        "constant": "REVIEW_PROMPT_VERSION",
-        "value": "s10-v1"
-      },
-      "input": "A transcript record (bounded conversation, typed state evidence) and the review time.",
-      "output": "JSON review: overall, outcome, understanding, diagnostic, conversation and flags (schema.js).",
+      "input": "The conversation (text, latest photo) with fault notes, pictures and active hazards appended to the latest customer message; tool results for lookup_error_code and find_parts.",
+      "output": "A send_reply tool call: reply text, appliance, brand, model, partIds (from find_parts), mediaId (from the notes), outcome.",
       "changelog": [
         {
           "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "2e0aecb221c0754fd85cdd34e9b654d9a93ff73991e5bf81cd40dddd6dd5c956",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
+          "date": "2026-10-16",
+          "fingerprint": "dcae6216dd1e87dc9249ca491bd5494c57aa9d670228de046309163eb424da47",
+          "change": "New in the Opus advisor refactor (23.1): replaces understand, labels, reply, reason, claims and jevled."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-16",
+          "fingerprint": "e2fdb928441d160dffdec50c3a098103a2860c76eb35af6448a8f46f5cd379e0",
+          "change": "23.2: never suggest pulling a built-in appliance out of its housing (scripted test WM-12)."
         }
       ]
-    },
-    {
-      "id": "review.transcript.jev",
-      "version": 1,
-      "purpose": "Transcript review judge (Jev path): the same review as typed Jev questions.",
-      "owner": "whichpart-api",
-      "consumers": [
-        "Scheduled transcript review",
-        "Admin re-review"
-      ],
-      "source": [
-        {
-          "file": "services/whichpart-api/transcript-review/jev-review.js",
-          "declarations": [
-            "DIMENSION_QUESTIONS",
-            "FLAG_QUESTIONS",
-            "buildReviewQuestions",
-            "buildReviewState"
-          ]
-        }
-      ],
-      "runtimeVersion": {
-        "file": "services/whichpart-api/transcript-review/schema.js",
-        "constant": "REVIEW_PROMPT_VERSION",
-        "value": "s10-v1"
-      },
-      "input": "The judge context of review.transcript.llm and a reviewer role.",
-      "output": "Typed Jev answers, assessed into the review schema.",
-      "changelog": [
-        {
-          "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "075fa7890f10e557254a9e4654f565178081cbffe8f664c836fe9e1c07619d07",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
-        }
-      ]
-    },
-    {
-      "id": "benchmark.acq.judge",
-      "version": 1,
-      "purpose": "ACQ-100 subjective quality judge (legacy, non-authoritative): scores reasoning, question quality and answer quality of an anonymised journey.",
-      "owner": "whichpart-api (test area)",
-      "consumers": [
-        "Admin test area ACQ runs"
-      ],
-      "source": [
-        {
-          "file": "services/whichpart-api/benchmark/acq-judge.js",
-          "declarations": [
-            "buildJudgePrompt"
-          ]
-        }
-      ],
-      "runtimeVersion": {
-        "file": "services/whichpart-api/benchmark/acq-judge.js",
-        "constant": "JUDGE_RUBRIC_VERSION",
-        "value": "acq-judge-rubric-v1"
-      },
-      "input": "A journey (structured gold) and an anonymised transcript.",
-      "output": "JSON with three 0-100 scores and reasons.",
-      "changelog": [
-        {
-          "version": 1,
-          "date": "2026-10-09",
-          "fingerprint": "825209306edc2d24377a856246c73f8c6a163ac91f537ce94038d11e759e4435",
-          "change": "Registered unchanged in Phase 8. Content as deployed on 2026-10-09."
-        }
-      ]
-    },
+    }
+  ],
+  "retired": [
     {
       "id": "diagnosis.ac3.understand",
       "purpose": "Step 2: Qwen reads the latest customer message and pulls out what it means (appliance, brand, model, codes, symptom, question, answer, checks reported). Hints for Jev only; nothing is recorded from it directly.",
@@ -142,7 +76,12 @@
           "fingerprint": "29b7eb30e7e4d94d3cb6177220c516568d4da49ee81b3dd65638131bcf4ed433",
           "change": "checksReported excludes safety steps (switching off, unplugging, finding the fuse box)."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac3.labels",
@@ -198,7 +137,12 @@
           "fingerprint": "5b857bc3ff8024899149f3e682de99c3584963f70bf1069bbe60e8f7d91da239",
           "change": "Change 21.18: the reply's check options may be up to 140 characters (tokenOptions maxLength); before, every owner check (52+ characters) was dropped, so Jev was never asked which check a reply gave and checkGiven was null in 302/302 turns of the 21.16 run."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac3.reply",
@@ -238,11 +182,16 @@
           "fingerprint": "f3275c1e3412dd75467637a6d293a9334b84dc465be594d2f238f9c9f3aca893",
           "change": "customerSaid and checksDone are true and never contradicted or asked again; no assumed model features; causes stated as possibilities until a check proves one."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac2.reason",
-      "version": 4,
+      "version": 5,
       "purpose": "The diagnostic reasoner of the first rebuild (ADR 0020), restored in the ac3 pipeline (change 21.11): candidate causes, next question or check, part proposal and the customer reply for one turn, following the plan code decided.",
       "owner": "applianceclinic-diagnosis-engine",
       "consumers": [
@@ -285,8 +234,19 @@
           "date": "2026-10-14",
           "fingerprint": "f45fa5ec24f127c623b3b54fdf7c4b578458a136728750e41ee3d2008db48e06",
           "change": "Change 21.21: strict structured output (additionalProperties: false on every object) so a hosted model in strict mode can serve the schema; the prompt text is unchanged."
+        },
+        {
+          "version": 5,
+          "date": "2026-10-14",
+          "fingerprint": "fb349786eb63f9396c2888dec688763194e3f50657bb7ffb580641842fb644f6",
+          "change": "Change 22.4 (deep-dive Phase 3, D5/D6): rule 2 gives the checks that separate the likely causes, as the plan says, and uses the whole knowledge note (discriminators, clarifying questions, component evidence, checks before replacing a part); the style line gives the reply a structure (cause and why, numbered checks with what each result means, fallback, when an engineer is better) instead of \"usually 3-8 sentences\"."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac2.claims",
@@ -320,7 +280,50 @@
           "fingerprint": "704f07476b37e0411e3ce8cfcc0f880754e8d22b3d9447954b7c12cbc517a638",
           "change": "Change 21.21: strict structured output (additionalProperties: false on every object); the prompt text is unchanged."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
+    },
+    {
+      "id": "diagnosis.jevled.question",
+      "version": 2,
+      "purpose": "Jev-led experiment (change 21.25, AI config pipeline.mode = jev-led): Qwen answers only the customer's direct question, in 1-3 sentences, above the reply that Jev chooses and code writes.",
+      "owner": "applianceclinic-diagnosis-engine",
+      "consumers": [
+        "Diagnosis engine turn, jev-led mode (ac2/compose.js)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/compose.js",
+          "declarations": [
+            "QUESTION_SYSTEM"
+          ]
+        }
+      ],
+      "input": "What we know (the ac3 record's known values) and the customer's question as Qwen read it.",
+      "output": "Plain text, 1-3 sentences; dropped on any failure.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-15",
+          "fingerprint": "2a5ad492547db22672aed15e24c6a6c3e03dc9b67b33ac2843c300848640fe0f",
+          "change": "Initial version."
+        },
+        {
+          "version": 2,
+          "date": "2026-10-15",
+          "fingerprint": "6baacd76a63383da80f771ff0ac4c2dcd8721e42c5c1e5267b10ba2e696861c5",
+          "change": "Change 21.32 (jev-led round 3): the answer is written after Jev's choice and is given the advice that follows (ADVICE); it must agree with it and never suggest a different step (round 2: WM-07 answers argued for a test the advice did not give)."
+        }
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     }
   ]
 }

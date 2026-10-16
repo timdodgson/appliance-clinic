@@ -6,9 +6,8 @@
  * Function URL. There is no anonymous or unsigned request path (ADR 0019).
  *
  *   GET  /health                              read-only runtime health
- *   POST {feedback}                           a customer's rating of an earlier reply
- *   POST {mode:'turn', messages, ac2, image?} one customer turn: the LLM-led reasoner inside the deterministic
- *                                             guardrail kernel (ac2/turn.js, ADR 0020). There is no other diagnose path.
+ *   POST {mode:'turn', messages, ac2}         one customer turn: the advisor inside the deterministic guardrail kernel
+ *                                             (ac2/turn.js, ADR 0023). There is no other diagnose path.
  *
  * Responses are JSON (AC-internal): {type:'ac2', response, state, audit} for a turn. Any other request is refused (400).
  */
@@ -18,8 +17,8 @@ const health = require('./health.js');
 const { ensureMediaOverlay, getMediaOverlayCache, getEffectiveMediaJoin, describeMediaBaseline, countJoinIdentities,
   MEDIA_OVERLAY_TTL_MS } = require('./media.js');
 const { gateInternalFields } = require('./engine-auth.js');
-const { _setProvidersForTest, MAX_MESSAGES, MAX_BODY_BYTES } = require('./engine/config.js');
-const { logFeedback, log, rand } = require('./engine/learning-log.js');
+const { _setProviderForTest, MAX_MESSAGES, MAX_BODY_BYTES } = require('./engine/config.js');
+const { log, rand } = require('./engine/learning-log.js');
 const ac2 = require('./ac2/runtime.js');
 
 const json = (statusCode, obj) => ({ statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
@@ -47,12 +46,7 @@ exports.handler = async (event) => {
     return json(401, { error: 'This request needs a valid engine signature.', errorCode: 'engine_signature_required' });
   }
 
-  if (body.feedback) {
-    await logFeedback(body.feedback);
-    return json(200, { ok: true });
-  }
-
-  // ac2 (ADR 0020) is the only diagnose path: a request that is not feedback or health must be a turn.
+  // ac2 (ADR 0020) is the only diagnose path: a request that is not GET /health must be a turn.
   if (body.mode !== 'turn') return json(400, { error: 'Unsupported request.', errorCode: 'unsupported_request' });
   let messages = body.messages;
   if (!Array.isArray(messages) || messages.length === 0) return json(400, { error: 'messages array required' });
@@ -60,9 +54,8 @@ exports.handler = async (event) => {
   const metric = { evt: 'diagnosis-engine', requestId, msgCount: messages.length, mode: 'turn' };
 
   try {
-    // LLM-led diagnosis inside the deterministic guardrail kernel (ac2/turn.js).
-    const control = body.ac2 && body.ac2.control === 'qwen-plain' ? 'qwen-plain' : null;
-    const out = control ? await ac2.plain({ messages, state: body.ac2 && body.ac2.state }) : await ac2.turn({ messages, state: body.ac2 && body.ac2.state, tools: body.ac2 && body.ac2.tools, image: body.image || null });
+    // The advisor inside the deterministic guardrail kernel (ac2/turn.js).
+    const out = await ac2.turn({ messages, state: body.ac2 && body.ac2.state, tools: body.ac2 && body.ac2.tools });
     metric.ac2 = out.audit;
     metric.totalMs = Date.now() - started; metric.ok = true; log(metric);
     return json(200, { type: 'ac2', response: out.response, state: out.state, audit: out.audit });
@@ -80,5 +73,5 @@ exports.handler = async (event) => {
   }
 };
 
-// Test seam: inject the resolved inference providers.
-exports._internal = { _setProvidersForTest };
+// Test seam: inject the advisor's provider.
+exports._internal = { _setProviderForTest };

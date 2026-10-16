@@ -1,0 +1,14 @@
+TEST OC-03  (ended: escalated, 1 customer messages)
+
+--- Turn 1
+CUSTOMER: Every time I put the oven on it runs for a few minutes and then the trip switch goes and half the house loses power. Reset it 3 times tonight. Hotpoint built-in, about 9 years old. What could cause this?
+1 LLM UNDERSTOOD: appliance=oven brand=Hotpoint model=None codes=[] symptom='trips the electrics after running a few minutes' question='What could cause this?'
+   checks reported: [{'check': 'reset the trip switch', 'result': 'tripped again; reset 3 times tonight'}]  facts: ['built-in oven', 'about 9 years old', 'half the house loses power when it trips', 'runs for a few minutes before tripping']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="cuts_out" (1); hazard="supply_trip" (1); unsafeRequest="repeated_reset" (0.66); lastAnswer=null (1); checkOutcome="helped_then_returned" (0.56); modelUnreachable=false (0.05); model=null (1); code=null (1); make="Hotpoint" (1); checksConfirmed=[0]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['oven-cooker:tripping-electrics', 'oven-cooker:thermostat', 'oven-cooker:terminal-block']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: hazard)
+LLM ANSWER TO THEIR QUESTION: The most common cause is a heating element whose insulation has broken down with age, so it leaks current to earth once it warms up, which is why it runs for a few minutes before tripping.  A damaged wire or terminal, or a fault in the fan motor, can do the same, and which one it is can only be confirmed with proper electrical testing.
+REPLY: ⚠ Stop using this appliance
+Please don't keep resetting the trip. Leave the appliance unplugged and have it checked by a qualified electrician or appliance engineer before using it again. The most common cause is a heating element whose insulation has broken down with age, so it leaks current to earth once it warms up, which is why it runs for a few minutes before tripping. A damaged wire or terminal, or a fault in the fan motor, can do the same, and which one it is can only be confirmed with proper electrical testing. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Earth leakage from the ageing fan oven element (possibly worsened by moisture/cleaning), tripping the RCD once hot. Needs insulation-resistance testing to confirm.

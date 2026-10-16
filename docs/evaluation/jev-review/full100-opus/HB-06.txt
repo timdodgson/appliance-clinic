@@ -1,0 +1,53 @@
+TEST HB-06  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: AEG IKB64301FB induction hob keeps beeping and showing Er03 then switches off. Pan of pasta boiled over just before.
+1 LLM UNDERSTOOD: appliance=induction hob brand=AEG model=IKB64301FB codes=['Er03'] symptom='keeps beeping and switches off' question=None
+   checks reported: []  facts: ['pan of pasta boiled over just before']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="error_code" (0.97); hazard=null (0.52); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="IKB64301FB" (1); code="Er03" (1); make="AEG" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:cookware-user', 'hobs:tripping-electrics']  normal: []  codes: ['ER03: NOT_FOUND']  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.81 r=0.04 p=0.91  step: establish whether it is a ceramic, solid-plate or induction hob
+    KEPT    d=0.63 r=0.04 p=0.39  step: note when it trips - on switch-on, on a particular zone, or after a spill/clean
+    KEPT    d=0.18 r=0.04 p=0.22  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    KEPT    d=0.05 r=0.04 p=0.17  step: stop using it and isolate at the spur if there is any burning smell or scorching
+    REMOVED d=0.86 r=0.06 p=0.41  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+REPLY: I can't confirm what ER03 means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is the hob's cooling / ventilation. Next: If a spill or clean preceded it, let the hob dry fully before assuming a failed part. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: There was starchy water across the slider, so I've wiped it dry. Is there anything else I should do before I try it again?
+1 LLM UNDERSTOOD: appliance=hob brand=None model=None codes=[] symptom=None question='Is there anything else I should do before I try it again?'
+   checks reported: [{'check': 'Wiped starchy water off the slider control', 'result': 'Wiped dry, not yet tested'}]  facts: ['starchy water had spilled across the slider control']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (0.81); symptomArea=null (0.47); hazard=null (0.55); unsafeRequest=null (0.94); lastAnswer="answered" (0.71); checkOutcome=null (0.52); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:cookware-user', 'hobs:tripping-electrics']  normal: []  codes: ['ER03: NOT_FOUND']  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.88 r=0.04 p=0.93  step: establish whether it is a ceramic, solid-plate or induction hob
+    REMOVED d=0.81 r=0.05 p=0.58  step: note when it trips - on switch-on, on a particular zone, or after a spill/clean
+    KEPT    d=0.07 r=0.04 p=0.22  step: stop using it and isolate at the spur if there is any burning smell or scorching
+    REMOVED d=0.89 r=0.08 p=0.58  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = stop using it and isolate at the spur if there is any burning smell or scorching
+REPLY: Next: Stop using it and isolate at the spur if there is any burning smell or scorching. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: No burning smell or scorching. I've also switched it off at the wall for 5 minutes, and it works again now. Is there anything else I should check?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='Is there anything else I should check?'
+   checks reported: [{'check': 'switched off at the wall for 5 minutes', 'result': 'works again now'}]  facts: ['no burning smell', 'no scorching', 'works again after power reset']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.69); symptomArea=null (0.63); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.81); checkOutcome="fixed" (0.99); modelUnreachable=false (0.03); model=null (1); code=null (1); narrowed=null (0.99); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:cookware-user', 'hobs:tripping-electrics']  normal: []  codes: ['ER03: NOT_FOUND']  stage: 1
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Liquid on the touch control panel triggers Er03 safety cut-off; clean and dry clears it.

@@ -20,9 +20,7 @@ const transcripts = require('./transcripts');
 const ac2State = require('./ac2-state');
 const ac2Turn = require('./ac2-turn');
 const liveTest = require('./live-test.js');
-const benchmarkAuth = require('./benchmark-auth.js');
 const stateTokenMod = require('./state-token');
-const transcriptReview = require('./transcript-review');
 const recallStoreMod = require('./recalls/store');
 const recallIngest = require('./recalls/ingest');
 const recallMatch = require('./recalls/match');
@@ -35,9 +33,9 @@ const { signedJsonHeaders } = require('./engine-signature.js');
 const { log } = require('./log.js');
 const { queryParam, authPath, CORS, respond } = require('./http-io.js');
 const { setRateLimitStoreForTests, rateLimited } = require('./rate-limiting.js');
+const turnstile = require('./turnstile.js');
+const { clientIp } = require('./rate-limit.js');
 const { authLogin, authMe, authLogout, setSessionForTests, requireAdmin } = require('./session.js');
-const { setAcqS3ForTests } = require('./s3.js');
-const { routingOverride, recoverRoutingOverride } = require('./benchmark-state.js');
 const { setTranscriptStore, persistTranscriptTurn, persistTranscriptEnd } = require('./transcript-store.js');
 const {
   setMediaAdminStore, loadOverlayCached, adminKnowledge, adminKnowledgeRecord, adminMedia,
@@ -46,10 +44,7 @@ const {
   adminMediaKnowledge,
 } = require('./admin/content.js');
 const { recallStore, setRecallStore, recallHandlers, recallAdmin, recallAdminRoute } = require('./admin/recalls.js');
-const {
-  setTranscriptReviewJudge, runTranscriptReviewBatch, adminTranscriptList, adminTranscriptGet,
-  adminTranscriptStats, adminTranscriptPolicy, adminTranscriptReview, adminTranscriptQuality,
-} = require('./admin/transcripts.js');
+const { adminTranscriptList, adminTranscriptGet, adminTranscriptStats, adminTranscriptPolicy } = require('./admin/transcripts.js');
 const { adminHealth, adminDashboard } = require('./admin/health.js');
 const {
   setErrorCodesClientForTests, adminErrorCodes, adminErrorCodeRecord, adminErrorCodeAction, adminErrorCodeRetire,
@@ -57,39 +52,11 @@ const {
 } = require('./admin/error-codes.js');
 const { setDiagnosticsDepsForTests, adminDiagnostics } = require('./admin/diagnostics.js');
 const {
-  testAdminRoute, routingOverrideResolve, routingOverrideRecover, libraryImport, libraryList, libraryJourneyGet,
-  libraryCreate, libraryEdit, libraryDuplicate, libraryFlags, libraryDelete, benchmarkBuildRun, benchmarkRerun,
-  benchmarkEstimate, acqBenchmarkConfig, acqBenchmarkRun, acqBenchmarkRuns, acqBenchmarkRunGet,
-  acqBenchmarkCancel, acqTranscriptGet, acqScenarioConversations, acqReviewsForRun, acqReviewGet, acqReviewSave,
-  acqBenchmarkCompare,
-} = require('./admin/test-area.js');
-const {
-  setSettingsDepsForTests, settingsAdminRoute, aiConfigGet, aiConfigSaveKey, aiConfigTestLocal,
-  aiConfigTestFrontier, aiConfigLocalModels, aiConfigFrontierModels, adminSettingsGet,
-  adminSettingsInferencePatch, adminSettingsJevPatch, adminSettingsJevTest,
+  setSettingsDepsForTests, settingsAdminRoute, adminSettingsGet, adminSettingsModelPatch, aiConfigSaveKey,
+  aiConfigTest, aiConfigModels,
 } = require('./admin/settings.js');
 
-let _benchmarkSecretsLoader = () => benchmarkAuth.loadSecrets();
-function setBenchmarkDepsForTests({ secretsLoader } = {}) { _benchmarkSecretsLoader = secretsLoader || (() => benchmarkAuth.loadSecrets()); }
-
 // ---- conversation transport (structural only; the ac2 turn owns meaning) ------------------------------
-function hasImage(content) {
-  return Array.isArray(content) && content.some((p) => p && p.type === 'image_url');
-}
-function imageOf(content) {
-  if (!Array.isArray(content)) return null;
-  const p = content.find((x) => x && x.type === 'image_url' && x.image_url && x.image_url.url);
-  return p ? p.image_url.url : null;
-}
-/** The customer's latest photo (a rating plate, a part): this turn's, else the most recent earlier one. */
-function latestImageOf(messages) {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i];
-    if (m && m.role === 'user' && hasImage(m.content)) return imageOf(m.content);
-  }
-  return null;
-}
-
 function conversationWindow(list, cap) {
   const limit = cap || MAX_MESSAGES;
   const hist = Array.isArray(list) ? list : [];
@@ -132,28 +99,10 @@ exports.handler = async (event) => {
   const t0 = Date.now();
   // Phase 7: CORS only for the AC origins, and security headers, on every HTTP response (http-headers.js).
   const res = httpHeaders.finalizeResponse(event, await handleEvent(event));
-  if (event && typeof event === 'object' && !event.transcriptReview && !event.recallIngest && event.source !== 'aws.events') adminRequestLog(event, res, t0);
+  if (event && typeof event === 'object' && !event.recallIngest && event.source !== 'aws.events') adminRequestLog(event, res, t0);
   return res;
 };
 async function handleEvent(event) {
-  if (event && event.transcriptReview) {
-    // Every 15 minutes (whichpart-transcript-review schedule): restore a batch routing override whose
-    // worker vanished (stale lease) or whose run already ended. A healthy owner is never touched.
-    try {
-      const rec = await recoverRoutingOverride('system:api-recovery');
-      if (rec.action !== 'none') log({ evt: 'batch-routing-recovery', action: rec.action, why: rec.why || null, runId: rec.result && rec.result.lock ? rec.result.lock.runId : (rec.lock ? rec.lock.runId : null) });
-    } catch (e) {
-      log({ evt: 'batch-routing-recovery', action: 'error', error: String((e && e.name) || 'Error') });
-    }
-    try {
-      const result = await runTranscriptReviewBatch(new Date());
-      log({ evt: 'transcript-review-scheduled', attempted: result.attempted, reviewed: result.reviewed, failed: result.failed, skipped: result.skipped || false });
-      return result;
-    } catch (e) {
-      log({ evt: 'transcript-review-scheduled-failed', error: String(e && e.message || e) });
-      return { ok: false, error: String(e && e.message || e) };
-    }
-  }
   if (event && (event.source === 'aws.events' || event.recallIngest)) {
     const mode = event.recallIngest === 'backfill' ? 'backfill'
       : event.recallIngest === 'publish' ? 'publish' : 'daily';
@@ -184,51 +133,15 @@ async function handleEvent(event) {
   if (path.endsWith('/auth/me')) return authMe(event);
   if (path.endsWith('/admin/health')) return adminHealth(event);
   if (path.endsWith('/admin/dashboard')) return adminDashboard(event);
-  // Settings + AI provider config (admin). Every route: unsupported method → 405, then admin auth →
+  // Settings (admin): the advisor's model and credential. Every route: unsupported method → 405, then admin auth →
   // 401, then a body cap, then the handler (clean JSON 500 on an unexpected failure). Sub-paths first.
-  if (path.endsWith('/admin/settings/jev/test')) return settingsAdminRoute(event, method, { POST: adminSettingsJevTest });
-  if (path.endsWith('/admin/settings/jev')) return settingsAdminRoute(event, method, { PATCH: adminSettingsJevPatch });
-  if (path.endsWith('/admin/settings/diagnostic-inference')) return settingsAdminRoute(event, method, { PATCH: adminSettingsInferencePatch });
+  if (path.endsWith('/admin/settings/model')) return settingsAdminRoute(event, method, { PATCH: adminSettingsModelPatch });
   if (path.endsWith('/admin/settings')) return settingsAdminRoute(event, method, { GET: adminSettingsGet });
   if (path.endsWith('/admin/ai-config/key')) return settingsAdminRoute(event, method, { POST: aiConfigSaveKey });
-  if (path.endsWith('/admin/ai-config/test-local')) return settingsAdminRoute(event, method, { POST: aiConfigTestLocal });
-  if (path.endsWith('/admin/ai-config/test-frontier')) return settingsAdminRoute(event, method, { POST: aiConfigTestFrontier });
-  if (path.endsWith('/admin/ai-config/local-models')) return settingsAdminRoute(event, method, { GET: aiConfigLocalModels });
-  if (path.endsWith('/admin/ai-config/frontier-models')) return settingsAdminRoute(event, method, { GET: aiConfigFrontierModels });
-  // Read-only legacy view. The old unversioned whole-document POST writer is retired: live routing
-  // changes go through PATCH /admin/settings/diagnostic-inference (revision check, reason, audit).
-  if (path.endsWith('/admin/ai-config')) return settingsAdminRoute(event, method, { GET: aiConfigGet });
-  // Question Library (admin). Sub-paths before base.
-  // Test area: Question Library (scenarios) + batch runner. Every route goes through testAdminRoute:
-  // unsupported method → 405, then admin auth → 401, then the handler. Sub-paths before base.
-  if (path.endsWith('/admin/library/journey/edit')) return testAdminRoute(event, method, { POST: libraryEdit });
-  if (path.endsWith('/admin/library/journey/duplicate')) return testAdminRoute(event, method, { POST: libraryDuplicate });
-  if (path.endsWith('/admin/library/journey/flags')) return testAdminRoute(event, method, { POST: libraryFlags });
-  if (path.endsWith('/admin/library/journey/delete')) return testAdminRoute(event, method, { POST: libraryDelete });
-  if (path.endsWith('/admin/library/journey')) return testAdminRoute(event, method, { GET: libraryJourneyGet, POST: libraryCreate });
-  if (path.endsWith('/admin/library/import')) return testAdminRoute(event, method, { POST: libraryImport });
-  if (path.endsWith('/admin/library')) return testAdminRoute(event, method, { GET: libraryList });
-  // Run builder
-  if (path.endsWith('/admin/benchmark/build-run')) return testAdminRoute(event, method, { POST: benchmarkBuildRun });
-  if (path.endsWith('/admin/benchmark/rerun')) return testAdminRoute(event, method, { POST: benchmarkRerun });
-  if (path.endsWith('/admin/benchmark/estimate')) return testAdminRoute(event, method, { POST: benchmarkEstimate });
-  // ACQ-100 quality benchmark (admin control plane). Sub-paths before base.
-  if (path.endsWith('/admin/benchmark/routing-override/resolve')) return testAdminRoute(event, method, { POST: routingOverrideResolve });
-  if (path.endsWith('/admin/benchmark/routing-override/recover')) return testAdminRoute(event, method, { POST: routingOverrideRecover });
-  if (path.endsWith('/admin/benchmark/run/cancel')) return testAdminRoute(event, method, { POST: acqBenchmarkCancel });
-  // Conversation transcript viewer + engineer review (sub-paths before base run).
-  if (path.endsWith('/admin/benchmark/transcript')) return testAdminRoute(event, method, { GET: acqTranscriptGet });
-  if (path.endsWith('/admin/benchmark/scenario-conversations')) return testAdminRoute(event, method, { GET: acqScenarioConversations });
-  if (path.endsWith('/admin/benchmark/reviews')) return testAdminRoute(event, method, { GET: acqReviewsForRun });
-  if (path.endsWith('/admin/benchmark/review')) return testAdminRoute(event, method, { GET: acqReviewGet, POST: acqReviewSave });
-  if (path.endsWith('/admin/benchmark/run')) return testAdminRoute(event, method, { GET: acqBenchmarkRunGet, POST: acqBenchmarkRun });
-  if (path.endsWith('/admin/benchmark/runs')) return testAdminRoute(event, method, { GET: acqBenchmarkRuns });
-  if (path.endsWith('/admin/benchmark/compare')) return testAdminRoute(event, method, { GET: acqBenchmarkCompare });
-  if (path.endsWith('/admin/benchmark/config')) return testAdminRoute(event, method, { GET: acqBenchmarkConfig });
+  if (path.endsWith('/admin/ai-config/test')) return settingsAdminRoute(event, method, { POST: aiConfigTest });
+  if (path.endsWith('/admin/ai-config/models')) return settingsAdminRoute(event, method, { GET: aiConfigModels });
   if (path.endsWith('/admin/transcripts/stats')) return adminTranscriptStats(event);
   if (path.endsWith('/admin/transcripts/policy')) return adminTranscriptPolicy(event);
-  if (path.endsWith('/admin/transcripts/quality')) return adminTranscriptQuality(event);
-  if (path.endsWith('/admin/transcripts/session/review')) return adminTranscriptReview(event);
   if (path.endsWith('/admin/transcripts/session')) return adminTranscriptGet(event);
   if (path.endsWith('/admin/transcripts')) return adminTranscriptList(event);
   if (path.endsWith('/admin/knowledge/record')) {
@@ -425,6 +338,10 @@ async function handleEvent(event) {
     catch (e) { return respond(503, { error: 'Recall list unavailable' }); }
   }
 
+  // Any other admin path (including the retired Test area, transcript review and provider-routing settings, ADR 0023)
+  // is a plain 404: never the customer diagnose path below.
+  if (path.includes('/admin/') || /\/admin$/.test(path)) return respond(404, { error: 'not found' });
+
   if (method !== 'POST') return respond(405, { error: 'POST only' });
 
   let body;
@@ -438,45 +355,13 @@ async function handleEvent(event) {
     if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
     if (!live.ok) return respond(400, { error: live.error });
   }
-  if (live && Object.prototype.hasOwnProperty.call(body, 'benchmark')) return respond(400, { error: 'liveTest requests must not send benchmark' });
   const liveStateIn = live ? liveTest.stateInOf(body) : null;
 
-  // Service-authenticated benchmark (benchmark-auth.js): the same diagnose path with a runner's own
-  // conversation session id and NO customer transcript. A `benchmark` object is
-  // accepted only with a valid x-benchmark-signature (HMAC over this exact body); otherwise 401 —
-  // never silently ignored. It is not an Admin session and grants nothing else.
-  let bench = null;
-  if (!live) {
-    bench = benchmarkAuth.takeBenchmark(body);
-    if (bench) {
-      let secrets = null;
-      try { secrets = await _benchmarkSecretsLoader(); } catch { secrets = null; }
-      const auth = benchmarkAuth.verifyRequest(benchmarkAuth.headerOf(event, benchmarkAuth.HEADER), benchmarkAuth.rawBodyOf(event), secrets);
-      if (!auth.ok) {
-        log({ evt: 'benchmark-auth', rid, ok: false, reason: auth.reason });
-        return respond(401, { error: 'Unauthorized' });
-      }
-      if (!bench.ok) return respond(400, { error: bench.error });
-      if (body.feedback || !Array.isArray(body.messages)) return respond(400, { error: 'benchmark requires messages' });
-    }
-  }
-
   // Observability fields are stripped here and NEVER forwarded to the engine.
-  // (A live test / benchmark request is refused above if it carries observability, so `obs` is null for it.)
-  const obs = live || bench ? null : transcripts.takeObservability(body);
+  // (A live test request is refused above if it carries observability, so `obs` is null for it.)
+  const obs = live ? null : transcripts.takeObservability(body);
 
-  // Feedback pass-through: forward {feedback:{traceId,rating,note}} to the diagnosis engine (the single
-  // S3 writer/redactor).
-  if (live && (body.feedback || !Array.isArray(body.messages))) return respond(400, { error: 'liveTest requires messages' });
-  if (body.feedback) {
-    try {
-      const feedbackBody = JSON.stringify({ feedback: body.feedback });
-      await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(feedbackBody, ENGINE_URL), body: feedbackBody });
-    } catch (e) {
-      log({ evt: 'whichpart-api', rid, feedbackError: e.message });
-    }
-    return respond(200, { ok: true });
-  }
+  if (live && !Array.isArray(body.messages)) return respond(400, { error: 'liveTest requires messages' });
 
   if (obs && obs.event === 'end' && (!Array.isArray(body.messages) || body.messages.length === 0)) {
     await persistTranscriptEnd(obs);
@@ -491,16 +376,25 @@ async function handleEvent(event) {
   if (!messages.length) {
     return respond(400, { error: 'messages array required' });
   }
-  // Customer turns are counted (rate-limit.js); an admin Live Test and a verified benchmark turn are authenticated
-  // and not counted.
-  if (!live && !bench) {
+  // Customer turns are counted (rate-limit.js); an admin Live Test is authenticated and not counted.
+  if (!live) {
     const limitedTurn = await rateLimited('diagnose', event, { session: obs && obs.sessionId });
     if (limitedTurn) return limitedTurn;
+    // Bot check (turnstile.js): a new conversation, i.e. one without a valid signed state token, needs a passing
+    // Cloudflare Turnstile token. Later turns carry the state token this API issued, so the check runs once.
+    if (turnstile.mode() !== 'off') {
+      let newConversation = true;
+      try {
+        if (body.stateToken) newConversation = !stateTokenMod.verifyToken(body.stateToken, await stateTokenMod.loadSecrets()).ok;
+      } catch { newConversation = true; }
+      const blocked = await turnstile.guard({ token: body.turnstile, newConversation, ip: clientIp(event).ip, log: (x) => log({ ...x, rid }) });
+      if (blocked) return blocked;
+    }
   }
 
   // ac2 (ADR 0020): LLM-led diagnosis inside the deterministic guardrail kernel (services/diagnosis-engine/ac2). It is
   // the only diagnose path; the engine's turn pipeline is the whole decision path.
-  return ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn });
+  return ac2Respond({ body, messages, rid, live, obs, liveStateIn });
 };
 
 // ---- ac2 turn ------------------------------------------------------------------------------------------
@@ -545,11 +439,9 @@ async function ac2RecallLookup(messages) {
   return out;
 }
 
-async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }) {
+async function ac2Respond({ body, messages, rid, live, obs, liveStateIn }) {
   const t0 = Date.now();
-  // An evaluation-only ablation is honoured only on an authenticated benchmark request.
-  const control = bench && body && body.control === 'qwen-plain' ? 'qwen-plain' : null;
-  const r = await ac2Turn.handle({ body, messages, image: latestImageOf(messages), control }, {
+  const r = await ac2Turn.handle({ body, messages }, {
     callEngine: (raw, timeoutMs) => _ac2CallEngine(raw, timeoutMs), secretsLoader: () => _stateTokenSecretsLoader(), store: ac2Store(),
     recallLookup: (msgs) => ac2RecallLookup(msgs),
   });
@@ -560,8 +452,7 @@ async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }
     failed.degraded = r.error;
     if (r.token) failed.stateToken = r.token;
     if (live) failed.liveTest = liveTest.status({ stateIn: liveStateIn, result: r });
-    if (bench) failed.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: false, reason: r.error, session: benchmarkAuth.sessionRef(bench.sessionId) };
-    await persistTranscriptTurn(obs, messages, failed, null, rid, { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: r.error, ms: Date.now() - t0 });
+    await persistTranscriptTurn(obs, messages, failed, null, rid, { schemaVersion: ac2Turn.AUDIT_SCHEMA, path: 'ac2', error: r.error, ms: Date.now() - t0 });
     return respond(200, failed);
   }
   let overlay = null;
@@ -569,11 +460,10 @@ async function ac2Respond({ body, messages, rid, live, bench, obs, liveStateIn }
   const view = toWhichPartView(r.orch, rid, overlay);
   view.stateToken = r.token;
   if (live) view.liveTest = liveTest.status({ stateIn: liveStateIn, result: r });
-  if (bench) view.benchmark = { schema: 'benchmark/1', engine: 'ac2', ok: true, session: benchmarkAuth.sessionRef(bench.sessionId), audit: r.audit };
   log({ evt: 'whichpart-api', rid, client: CLIENT_ID, route: 'AC2', outcome: r.orch.outcome,
-    benchmark: bench ? { auth: true, session: benchmarkAuth.sessionRef(bench.sessionId) } : undefined, liveTest: live ? { session: live.sessionId } : undefined,
-    ac2: { turn: r.audit.turn, status: r.audit.status, hazards: r.audit.safety && r.audit.safety.hazards, gates: ((r.audit.safety && r.audit.safety.gates) || []).map((g) => g.gate),
-      claimsRejected: r.audit.claimsRejected.length, regenerated: r.audit.regenerated, partGate: r.audit.partGate && r.audit.partGate.outcome,
+    liveTest: live ? { session: live.sessionId } : undefined,
+    ac2: { turn: r.audit.turn, outcome: r.audit.outcome, hazards: r.audit.hazards, gates: ((r.audit.safety && r.audit.safety.gates) || []).map((g) => g.gate),
+      toolCalls: r.audit.toolCalls, partGate: r.audit.partGate && r.audit.partGate.outcome, escalation: r.audit.escalation && r.audit.escalation.reason,
       engineMs: r.ms, timings: r.audit.timings, provider: r.audit.provider },
     safetyStopUse: Boolean(r.orch.safety && r.orch.safety.stopUse), partCount: view.parts.length, ms: Date.now() - t0 });
   await persistTranscriptTurn(obs, messages, view, r.orch, rid, r.audit);
@@ -589,24 +479,12 @@ function setStateTokenDepsForTests({ secretsLoader } = {}) {
 // ---- ac2 turn response -> retailer-neutral view ------------------------------
 function toWhichPartView(orch, rid, overlay) {
   const outcome = orch.outcome || 'ANSWER';
-  const codeResult = orch.codeResult || null;
-  const isSafety = outcome === 'SAFETY_STOP' || (orch.safety && orch.safety.stopUse);
-  const recordType = codeResult && codeResult.recordType;
-  const advisory = !isSafety && recordType === 'MAINTENANCE';
-
-  let reply = sanitizeReply(orch.message || '');
-  const mention = String(orch.componentMention || '').toLowerCase();
-  const suppressCatalogueNames = mention === 'none' || mention === 'discuss';
-  // Never dump a catalogue of possible components into the customer reply. The engine used to
-  // fold suggestedChecks as "Worth checking: a, b, c" — that is not a next action.
-  reply = reply.replace(/\s*Worth checking:\s*[^.]+\./g, '').trim();
-
-  // FIT INVARIANT:
-
+  const isSafety = outcome === 'SAFETY_STOP' || Boolean(orch.safety && orch.safety.stopUse);
+  const reply = sanitizeReply(orch.message || '');
 
   // FIT INVARIANT: only MODEL_CONFIRMED with a genuinely resolved model AND a model-specific part.
   const hasResolvedModel = Boolean(orch.resolvedModel);
-  const rawParts = (isSafety || suppressCatalogueNames) ? [] : (Array.isArray(orch.parts) ? orch.parts : []);
+  const rawParts = isSafety ? [] : (Array.isArray(orch.parts) ? orch.parts : []);
   const parts = rawParts
     .filter((p) => p && p.partNo)
     .map((p) => {
@@ -632,11 +510,6 @@ function toWhichPartView(orch, rid, overlay) {
     seen.add(p.name);
     components.push({ name: p.name, rank: p.fitStatus === 'MODEL_CONFIRMED' ? 'PRIMARY' : 'PLAUSIBLE' });
   }
-
-  // needsModel: the part gate needs the customer's model number before it can recommend a part.
-  const needsModel = Boolean(orch.modelRequired);
-
-  const label = (codeResult && codeResult.meaning) || (orch.diagnosis && orch.diagnosis.summary) || null;
 
   // Customer SAFETY INFORMATION — pre-written, evidence-backed text attached by knowledge id by the
   // ac2 turn (knowledge/safety-information.json) and passed through verbatim. We surface ONLY the
@@ -674,28 +547,13 @@ function toWhichPartView(orch, rid, overlay) {
 
   return {
     requestId: rid,
-    traceId: orch.traceId || null,
     reply,
-    advisory,
     safety: Boolean(isSafety),
-    // Retired with the journey controller (no structured pending request, no unconfirmed photo reading); kept null in
-    // the browser contract.
-    pendingRequest: null,
     safetyInformation,
-    needsModel,
-    extractedModel: null,
     media,
-    diagnosis: {
-      faultId: null, // internal scheme/fault ids are never surfaced to the client
-      label,
-      summary: firstSentence(reply),
-    },
+    // The advisor's reply is the diagnosis; `summary` is its first sentence (the browser's lead line).
+    diagnosis: { summary: firstSentence(reply) },
     components,
-    // The engine's full differential (customer-safe suspect names). The customer-facing `reply` is a
-    // concise, prioritised engineering explanation (it deliberately does NOT list every suspect);
-    // this structured field carries the complete differential for the UI and for quality grading, so
-    // measuring differential breadth never forces verbose prose.
-    suggestedChecks: Array.isArray(orch.suggestedChecks) ? orch.suggestedChecks : [],
     parts,
   };
 }
@@ -736,32 +594,26 @@ function fallbackView(rid) {
   return {
     requestId: rid,
     reply: "Sorry \u2014 something went wrong working that out. Please try again in a moment, or rephrase the problem.",
-    needsModel: false, safety: false, advisory: false, safetyInformation: null, extractedModel: null, media: [],
-    diagnosis: { faultId: null, label: null, summary: '' },
+    safety: false, safetyInformation: null, media: [],
+    diagnosis: { summary: '' },
     components: [], parts: [], error: true,
   };
 }
 
 // Exported for deterministic unit tests (no network / engine needed).
 module.exports.toWhichPartView = toWhichPartView;
-module.exports.latestImageOf = latestImageOf;
 module.exports.conversationWindow = conversationWindow;
 module.exports.setTranscriptStore = setTranscriptStore;
 module.exports.setStateTokenDepsForTests = setStateTokenDepsForTests;
-module.exports.setBenchmarkDepsForTests = setBenchmarkDepsForTests;
-module.exports.setTranscriptReviewJudge = setTranscriptReviewJudge;
 module.exports.setRateLimitStoreForTests = setRateLimitStoreForTests;
 module.exports.setMediaAdminStore = setMediaAdminStore;
 module.exports.setDiagnosticsDepsForTests = setDiagnosticsDepsForTests;
 module.exports.setSettingsDepsForTests = setSettingsDepsForTests;
 module.exports.setSessionForTests = setSessionForTests;
-module.exports.setAcqS3ForTests = setAcqS3ForTests;
-module.exports.routingOverride = routingOverride;
 module.exports.settingsAdmin = settingsAdmin;
 module.exports.diagnosticsInspect = diagnosticsInspect;
 module.exports.mediaAdmin = mediaAdmin;
 module.exports.transcripts = transcripts;
-module.exports.transcriptReview = transcriptReview;
 module.exports.setErrorCodesClientForTests = setErrorCodesClientForTests;
 module.exports.errorCodesAdmin = errorCodesAdmin;
 module.exports.recallAdmin = recallAdmin;

@@ -8,9 +8,9 @@
        and removes the line when no token is given, so browsers never see an invalid token. The token is public by
        design (served in the page) but is not committed. -->
   <meta http-equiv="origin-trial" content="__WEBMCP_ORIGIN_TRIAL_TOKEN__" />
-  <!-- Narrow CSP: only trusted, privacy-enhanced YouTube may be framed (embedded instructional
-       video). No arbitrary iframes. Other resource types are unaffected (no default-src). -->
-  <meta http-equiv="Content-Security-Policy" content="frame-src https://www.youtube-nocookie.com;" />
+  <!-- Narrow CSP: only trusted, privacy-enhanced YouTube (embedded instructional video) and Cloudflare
+       Turnstile (the bot check on a new conversation) may be framed. No arbitrary iframes. Other resource types are unaffected (no default-src). -->
+  <meta http-equiv="Content-Security-Policy" content="frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com;" />
   <title>ApplianceClinic — UK appliance fault diagnosis</title>
   <meta name="description" content="Describe your appliance problem in your own words. Independent UK diagnosis: likely cause, simple safe checks, and a replacement part only if one is justified." />
   <meta name="robots" content="index,follow" />
@@ -320,6 +320,7 @@
     </div>
   </div>
 
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="chat-session.js?v=3" defer></script>
   <script src="webmcp.js?v=2" defer></script>
   <script src="app.js?v=19" defer></script>

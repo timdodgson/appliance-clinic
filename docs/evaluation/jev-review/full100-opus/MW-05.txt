@@ -1,0 +1,110 @@
+TEST MW-05  (ended: concluded, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: Our Samsung combi microwave keeps whirring for a few minutes after it's finished and beeped, even with the door open. Old one never did that. Is the fan stuck on?
+1 LLM UNDERSTOOD: appliance=combi microwave brand=Samsung model=None codes=[] symptom='keeps whirring for a few minutes after finishing' question='Is the fan stuck on?'
+   checks reported: []  facts: ['whirring continues even with the door open', 'whirring happens after it has finished and beeped', 'old microwave never did that']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea="noise" (0.88); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.97); modelUnreachable=false (0.03); make="Samsung" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:door', 'microwave:not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.31 r=0.05 p=0.28  step: note the timing (a few seconds vs several minutes vs random) and whether it gets hot
+    KEPT    d=0.05 r=0.04 p=0.13  step: check the vents aren't blocked and the machine has airflow
+    REMOVED d=0.05 r=0.05 p=0.66  step: identify conventional vs inverter for the seconds-shutdown pattern
+    KEPT    d=0.23 r=0.06 p=0.38  question: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at
+    KEPT    d=0.08 r=0.05 p=0.21  question: Is it a conventional or inverter microwave, and does it get hot before it stops?
+  JEV PICKED: situation = cooling fan / blocked airflow / vents
+              next      = check the vents aren't blocked and the machine has airflow
+LLM ANSWER TO THEIR QUESTION: Probably not.  Many modern microwaves deliberately keep the cooling fan running for a few minutes after cooking finishes, even with the door open, to cool the internal parts.
+REPLY: Probably not. Many modern microwaves deliberately keep the cooling fan running for a few minutes after cooking finishes, even with the door open, to cool the internal parts. From what you have described, the most likely cause is cooling fan / blocked airflow / vents. Next: Check the vents aren't blocked and the machine has airflow. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: Ok, I had a look and nothing seems to be blocking it. It does stop on its own after a few minutes, and it runs longest after I've used the grill or oven function. Anything else I should check?
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='cooling fan keeps running after cooking' question='Anything else I should check?'
+   checks reported: [{'check': 'checked vents for blockage', 'result': 'nothing blocking'}]  facts: ['fan stops on its own after a few minutes', 'runs longest after using grill or oven function']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.91); symptomArea=null (0.35); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.95); checkOutcome="still_faulty" (0.84); modelUnreachable=false (0.04); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:door', 'microwave:not-heating']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.52 r=0.05 p=0.4  step: note the timing (a few seconds vs several minutes vs random) and whether it gets hot
+    REMOVED d=0.09 r=0.05 p=0.77  step: identify conventional vs inverter for the seconds-shutdown pattern
+    REMOVED d=0.68 r=0.07 p=0.54  question: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at
+    KEPT    d=0.17 r=0.06 p=0.24  question: Is it a conventional or inverter microwave, and does it get hot before it stops?
+  JEV PICKED: situation = cooling fan / blocked airflow / vents
+              next      = note the timing (a few seconds vs several minutes vs random) and whether it gets hot
+REPLY: Next: Note the timing (a few seconds vs several minutes vs random) and whether it gets hot. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: It runs about 2-5 minutes after grill or oven use, then stops by itself. After a short reheat it barely runs. No burning smell, and it's only warm on top after using the grill.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='runs for a few minutes after cooking then stops' question=None
+   checks reported: []  facts: ['runs about 2-5 minutes after grill or oven use then stops by itself', 'barely runs after a short reheat', 'no burning smell', 'only warm on top after using the grill']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.77); symptomArea="cuts_out" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.75); modelUnreachable=false (0.04); model=null (1); code=null (1); narrowed=null (0.76); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:not-heating', 'microwave:door']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.12 r=0.05 p=0.81  step: identify conventional vs inverter for the seconds-shutdown pattern
+    REMOVED d=0.92 r=0.06 p=0.79  question: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at
+    KEPT    d=0.47 r=0.07 p=0.36  question: Is it a conventional or inverter microwave, and does it get hot before it stops?
+  JEV PICKED: situation = cooling fan / blocked airflow / vents
+              next      = Is it a conventional or inverter microwave, and does it get hot before it stops?
+REPLY: Is it a conventional or inverter microwave, and does it get hot before it stops?
+
+--- Turn 4
+CUSTOMER: Not sure whether it's conventional or inverter, I only know the model starts MC28. It doesn't get hot apart from being warm on top after the grill, and the fan stops by itself after a few minutes.
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=MC28 (partial) codes=[] symptom='fan stops by itself after a few minutes' question=None
+   checks reported: []  facts: ['only warm on top after using the grill', 'model number starts MC28']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.98); symptomArea="cuts_out" (0.75); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.59); checkOutcome=null (0.99); modelUnreachable=false (0.14); model="MC28" (0.51); code=null (1); narrowed=null (0.94); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:not-heating', 'microwave:grill-not-heating']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.37 r=0.51 p=0.65  step: identify conventional vs inverter for the seconds-shutdown pattern
+    REMOVED d=0.89 r=0.07 p=0.75  question: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at
+  JEV PICKED: situation = cooling fan / blocked airflow / vents
+              next      = Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at random?
+REPLY: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at random?
+
+--- Turn 5
+CUSTOMER: Nothing actually cuts out, it cooks fine the whole way through. It's only the fan afterwards: 2-5 minutes, longest after grill or oven, then it stops by itself. It doesn't seem random, it's just longer after the hotter functions.
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom='fan keeps running after cooking' question=None
+   checks reported: []  facts: ['cooks fine the whole way through', 'fan runs 2-5 minutes after cooking then stops by itself', 'fan runs longest after grill or oven functions', 'not random, longer after hotter functions']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.63); symptomArea=null (0.47); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); narrowed=null (0.98); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:not-heating', 'microwave:grill-not-heating']  normal: ['oven-fan-overrun']  codes: []  stage: 2
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+    - normal: Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.47 r=0.44 p=0.72  step: identify conventional vs inverter for the seconds-shutdown pattern
+  JEV PICKED: situation = Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes.
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+REPLY: This sounds like normal behaviour rather than a fault: Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes. It would be worth a closer look if the fan never stops even when the oven is cold. Could you tell me a bit more about what it is doing, and when it happens?
+
+HIDDEN TRUTH: Normal cooling-fan run-on after cooking, especially after grill/convection, controlled by temperature.

@@ -6,7 +6,7 @@ const knowledgeInspect = require('../knowledge-inspect');
 const mediaInspect = require('../media-inspect');
 const mediaAdmin = require('../media-admin');
 const diagnosticsInspect = require('../diagnostics-inspect');
-const { ENGINE_URL, S4R_PRODUCT_BASE_URL, MAX_MESSAGES, MCP_HEALTH_URL, ACQ_JUDGE_MODEL } = require('../config.js');
+const { ENGINE_URL, S4R_PRODUCT_BASE_URL, MAX_MESSAGES, MCP_HEALTH_URL } = require('../config.js');
 const { log } = require('../log.js');
 const { respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
@@ -38,13 +38,8 @@ async function adminDiagnostics(event) {
       emptyOverlay: mediaAdmin.emptyState(),
       loadOverlay: testDeps.loadOverlay || (async () => mediaStore().loadState()),
       loadModels: testDeps.loadModels || (async () => {
-        const cfg = await aiConfig.loadConfig();
-        const keyConfigured = await aiConfig.isKeyConfigured();
-        const jevLoaded = await aiConfig.loadJevWithStatus();
-        return aiConfig.describeSetup({
-          cfg, judgeModel: ACQ_JUDGE_MODEL, keyConfigured,
-          jevConfigured: Boolean(jevLoaded.public && jevLoaded.public.credentialConfigured),
-        });
+        const [cfg, keyConfigured] = await Promise.all([aiConfig.loadConfig(), aiConfig.isKeyConfigured()]);
+        return { advisor: aiConfig.advisorView(cfg, keyConfigured) };
       }),
       runtime,
       now: testDeps.now || new Date(),

@@ -1,0 +1,87 @@
+TEST DW-10  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: dishwasher wont come on
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom="won't turn on" question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (1); symptomArea="no_power" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:heating', 'dishwasher:spray-arm']  normal: []  codes: []  stage: 1
+4 JEV: note picked = dishwasher:door | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: does it physically not close, or close but not start? (identify first)
+    - cause: loading / rack obstruction / alignment
+    - cause: door hinge / balance / springs (drops open)
+    - cause: door latch / catch / interlock
+    - cause: door switch / interlock wiring / door loom
+    - cause: control board / PCB (last)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.13  check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc
+    KEPT    d=0.04 r=0.05 p=0.1  check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f
+    KEPT    d=0.04 r=0.06 p=0.11  check: With the dishwasher switched off at the socket, look at the latch at the top of the door a
+    KEPT    d=0.04 r=0.05 p=0.14  check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t
+    KEPT    d=0.04 r=0.05 p=0.2  check: A delay start (often shown as a countdown like "3h") or a programme that hasn't been confi
+    KEPT    d=0.05 r=0.06 p=0.23  check: Now choose a programme and press start. Does it start normally now, or still not?
+    KEPT    d=0.05 r=0.05 p=0.12  step: check nothing (rack/tall item) is stopping the door closing
+    KEPT    d=0.04 r=0.04 p=0.12  step: on an integrated machine check the furniture-door alignment/balance
+    KEPT    d=0.04 r=0.04 p=0.09  step: note whether moving or pressing the door changes anything
+    KEPT    d=0.07 r=0.06 p=0.09  question: Does the door physically not close, or does it close and latch but the machine won't start
+  JEV PICKED: situation = does it physically not close, or close but not start? (identify first)
+              next      = Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?
+REPLY: From what you have described, the most likely cause is does it physically not close, or close but not start? (identify first). Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?
+
+--- Turn 2
+CUSTOMER: The door closes and latches fine. The machine is just completely dead, no lights or anything.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='completely dead, no lights' question=None
+   checks reported: []  facts: ['door closes and latches fine', 'no lights at all']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.67); symptomArea="no_power" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.79); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:door-loom', 'dishwasher:heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = dishwasher:door | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: does it physically not close, or close but not start? (identify first)
+    - cause: loading / rack obstruction / alignment
+    - cause: door hinge / balance / springs (drops open)
+    - cause: door latch / catch / interlock
+    - cause: door switch / interlock wiring / door loom
+    - cause: control board / PCB (last)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.05 p=0.17  check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc
+    REMOVED d=0.17 r=0.06 p=0.66  check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f
+    KEPT    d=0.18 r=0.06 p=0.52  check: With the dishwasher switched off at the socket, look at the latch at the top of the door a
+    KEPT    d=0.05 r=0.05 p=0.48  check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t
+    REMOVED d=0.06 r=0.04 p=0.68  check: A delay start (often shown as a countdown like "3h") or a programme that hasn't been confi
+    KEPT    d=0.14 r=0.07 p=0.63  check: Now choose a programme and press start. Does it start normally now, or still not?
+    REMOVED d=0.55 r=0.08 p=0.88  step: check nothing (rack/tall item) is stopping the door closing
+    KEPT    d=0.06 r=0.04 p=0.58  step: on an integrated machine check the furniture-door alignment/balance
+    KEPT    d=0.07 r=0.05 p=0.23  step: note whether moving or pressing the door changes anything
+  JEV PICKED: situation = control board / PCB (last)
+              next      = Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was 
+REPLY: From what you have described, the most likely cause is control board / PCB (last). Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?
+
+--- Turn 3
+CUSTOMER: Other sockets and lights all work. The spur switch above the worktop is on and the little neon light is lit. Nothing's tripped at the consumer unit either.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'spur switch above worktop', 'result': 'on, neon light lit'}, {'check': 'consumer unit', 'result': 'nothing tripped'}, {'check': 'other sockets and lights', 'result': 'all work'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.47); symptomArea=null (0.71); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.95); checkOutcome="still_faulty" (0.81); modelUnreachable=false (0.03); checksConfirmed=[0, 1, 2]; factsConfirmed=[]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:leak-flood', 'dishwasher:door-loom']  normal: []  codes: []  stage: 2
+4 JEV: note picked = dishwasher:door | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: does it physically not close, or close but not start? (identify first)
+    - cause: loading / rack obstruction / alignment
+    - cause: door hinge / balance / springs (drops open)
+    - cause: door latch / catch / interlock
+    - cause: door switch / interlock wiring / door loom
+    - cause: control board / PCB (last)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.21 r=0.06 p=0.65  check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f
+    KEPT    d=0.17 r=0.06 p=0.53  check: With the dishwasher switched off at the socket, look at the latch at the top of the door a
+    REMOVED d=0.04 r=0.05 p=0.71  check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t
+    REMOVED d=0.07 r=0.04 p=0.79  check: A delay start (often shown as a countdown like "3h") or a programme that hasn't been confi
+    REMOVED d=0.16 r=0.07 p=0.75  check: Now choose a programme and press start. Does it start normally now, or still not?
+    REMOVED d=0.45 r=0.06 p=0.86  step: check nothing (rack/tall item) is stopping the door closing
+    KEPT    d=0.06 r=0.04 p=0.62  step: on an integrated machine check the furniture-door alignment/balance
+    KEPT    d=0.09 r=0.06 p=0.32  step: note whether moving or pressing the door changes anything
+  JEV PICKED: situation = engineer
+              next      = note whether moving or pressing the door changes anything
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Genuinely uncertain: blown spur fuse, failed door switch, or control module/power supply fault.

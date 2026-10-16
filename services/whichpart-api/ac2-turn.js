@@ -3,9 +3,9 @@
  * The customer turn at the BFF: load the conversation's record (ac3/1), send the turn to the diagnosis engine
  * (signed, `mode: 'turn'`), persist the new record, and turn the engine's structured response into the customer view.
  *
- * The engine's turn pipeline is the orchestration (ac2/turn.js): there is no separate orchestrator hop on this path.
- * A turn the engine could not answer (reasoner unavailable, timeout) is an explicit error: the state is not
- * advanced and the customer sees the "temporarily unavailable" reply with a retry. Nothing else answers it.
+ * The engine's turn (ac2/turn.js) is the whole decision path: there is no other hop. A turn the engine could not
+ * answer (advisor unavailable, timeout) is an explicit error: the state is not advanced and the customer sees the
+ * "temporarily unavailable" reply with a retry. Nothing else answers it.
  */
 const ac2State = require('./ac2-state');
 
@@ -17,50 +17,40 @@ function orchShape(r) {
     route: 'AC2',
     outcome: r.outcome === 'SAFETY_STOP' ? 'SAFETY_STOP' : 'ANSWER',
     message: r.message || '',
-    codeResult: r.codeResult || null,
-    diagnosis: r.diagnosis || null,
-    suggestedChecks: [],
-    componentMention: r.parts && r.parts.length ? 'purchase' : 'none',
     parts: r.parts || null,
     resolvedModel: r.resolvedModel || null,
-    modelRequired: Boolean(r.modelRequired),
     safety: r.safety || null,
     safetyInformation: r.safetyInformation || null,
     media: r.media || null,
-    traceId: null,
   };
 }
 
-/** Bounded audit for transcripts and the admin: timings, safety, part decision, the record's customer facts and this
- * turn's tags (Jev labels with confidence, stage, what the reply did, media, enrichment used). */
+const AUDIT_SCHEMA = 'ac2-transcript-audit/2';
+
+/**
+ * Bounded audit for transcripts and the admin: the turn, provider, timings, token usage, the tools the advisor
+ * called, safety (hazards and the gates that fired), the part decision, escalation, the advisor's outcome and
+ * tags, and what the record now knows about the customer's appliance. No customer text, no model reasoning.
+ */
 function auditOf(out, extra = {}) {
   const a = out && out.audit ? out.audit : {};
   const st = out && out.state ? out.state : null;
-  const c = st && st.customer ? st.customer : null;
+  const c = (st && st.customer) || {};
   return {
-    schemaVersion: 'ac2-transcript-audit/1',
+    schemaVersion: AUDIT_SCHEMA,
     path: 'ac2',
     turn: a.turn || null,
     provider: a.provider || null,
     timings: a.timings || null,
     usage: a.usage || null,
-    toolCalls: [],
+    toolCalls: Array.isArray(a.toolCalls) ? a.toolCalls.map(String).slice(0, 12) : [],
     safety: a.safety || null,
-    claimsRejected: a.claims && Array.isArray(a.claims.rejected) ? a.claims.rejected.slice(0, 10) : [],
-    claimsChecked: a.claims && Number.isFinite(a.claims.checked) ? a.claims.checked : 0,
-    regenerated: a.regenerated === true,
     partGate: a.partGate || null,
     escalation: a.escalation || null,
-    status: st ? (st.outcome || `stage_${st.stage}`) : null,
-    candidates: a.reasoning && Array.isArray(a.reasoning.candidates) ? a.reasoning.candidates.slice(0, 5) : [],
-    scope: a.scope || null,
+    outcome: (st && st.outcome) || (a.tags && a.tags.outcome) || null,
+    customer: { appliance: c.appliance || null, brand: c.brand || null, model: c.model || null },
+    hazards: Array.isArray(st && st.hazards) ? st.hazards.filter((h) => h && !h.cleared).map((h) => h.type) : [],
     tags: a.tags || null,
-    plan: a.plan || null,
-    ledger: c ? {
-      appliance: c.appliance, brand: c.brand, model: c.model, codes: c.codes,
-      facts: (c.checks || []).map((k, i) => ({ id: `c${i + 1}`, field: 'check', value: `${k.check}: ${k.result || 'done'}`, source: 'customer', status: 'stated', turn: k.turn, quote: null })),
-      asked: (st.asked || []).map((q) => ({ key: null, text: q.question, turn: q.turn, resolution: q.answer || null })), hazards: st.hazards || [],
-    } : null,
     ...extra,
   };
 }
@@ -71,12 +61,7 @@ function auditOf(out, extra = {}) {
  * `session`: { fresh, rejected } — whether this turn started a new conversation state, and why a presented token was
  * not accepted (for the admin Live Test continuity status; never the token or the csid).
  */
-/**
- * control: an evaluation-only ablation, set by the caller only for an authenticated benchmark request. 'qwen-plain' runs
- * the reply model alone (a generic assistant prompt, the chat, no record, labels, tools or plan) so the pipeline's
- * contribution can be measured against the model's. The record is left as it was.
- */
-async function handle({ body, messages, image, control = null }, deps) {
+async function handle({ body, messages }, deps) {
   const secrets = await deps.secretsLoader().catch(() => null);
   const sess = ac2State.session(body, secrets);
   if (sess.error) return { error: sess.error };
@@ -90,7 +75,7 @@ async function handle({ body, messages, image, control = null }, deps) {
 
   let recalls = [];
   try { recalls = deps.recallLookup ? await deps.recallLookup(messages) : []; } catch { recalls = []; }
-  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior, tools: { recalls }, ...(control ? { control } : {}) }, ...(image ? { image } : {}) });
+  const raw = JSON.stringify({ mode: 'turn', messages, ac2: { state: prior, tools: { recalls } } });
   const t0 = Date.now();
   let res;
   try {
@@ -102,11 +87,10 @@ async function handle({ body, messages, image, control = null }, deps) {
     return { error: res && res.json && res.json.errorCode ? res.json.errorCode : `engine_http_${res ? res.status : 0}`, token: sess.token, ms: Date.now() - t0, session };
   }
   const out = res.json;
-  // The evaluation-only ablation does not touch the record.
-  const saved = control ? { ok: true } : await store.save(sess.csid, out.state, priorVersion);
+  const saved = await store.save(sess.csid, out.state, priorVersion);
   if (!saved.ok) return { error: `state_save_${saved.reason}`, token: sess.token, ms: Date.now() - t0, session };
   const orch = orchShape(out.response || {});
   return { orch, token: sess.token, audit: auditOf(out, { ms: Date.now() - t0 }), response: out.response, ms: Date.now() - t0, session };
 }
 
-module.exports = { handle, orchShape, auditOf };
+module.exports = { handle, orchShape, auditOf, AUDIT_SCHEMA };

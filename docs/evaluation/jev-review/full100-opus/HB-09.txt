@@ -1,0 +1,135 @@
+TEST HB-09  (ended: escalated, 6 customer messages)
+
+--- Turn 1
+CUSTOMER: induction hob keeps turnin off after 5-10 mins on high, have to keep restartin it. drives me nuts. any1 know y?
+1 LLM UNDERSTOOD: appliance=induction hob brand=None model=None codes=[] symptom='turns off after 5-10 mins on high' question='why does it keep turning off?'
+   checks reported: []  facts: ['has to keep restarting it']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="cuts_out" (1); hazard=null (0.99); unsafeRequest=null (0.96); lastAnswer=null (1); checkOutcome=null (0.79); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:ignition', 'hobs:power-module']  normal: []  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.03 r=0.03 p=0.78  check: The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy aft
+    KEPT    d=0.04 r=0.04 p=0.25  check: Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on,
+    KEPT    d=0.04 r=0.05 p=0.31  check: Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually 
+    KEPT    d=0.07 r=0.06 p=0.23  check: Now try switching a zone on. Is it working now, or still not?
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = Now try switching a zone on. Is it working now, or still not?
+LLM ANSWER TO THEIR QUESTION: Most hobs have built-in overheat protection that switches a zone or the whole hob off when the internal electronics get too hot, which is more likely on high settings after a few minutes.  When it keeps happening, it usually means the hob isn't cooling itself properly, though exactly how it behaves depends on your hob type and brand, which we don't know yet.
+REPLY: Most hobs have built-in overheat protection that switches a zone or the whole hob off when the internal electronics get too hot, which is more likely on high settings after a few minutes. When it keeps happening, it usually means the hob isn't cooling itself properly, though exactly how it behaves depends on your hob type and brand, which we don't know yet. From what you have described, the most likely cause is the hob's cooling / ventilation. Now try switching a zone on. Is it working now, or still not?
+
+--- Turn 2
+CUSTOMER: it works again after a few mins, but cuts out again on high. whats causing it?
+1 LLM UNDERSTOOD: appliance=hob brand=None model=None codes=[] symptom='cuts out on high setting' question="What's causing it?"
+   checks reported: [{'check': 'switched a zone on', 'result': 'works again after a few minutes but cuts out again on high'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (0.74); symptomArea="cuts_out" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome="helped_then_returned" (0.95); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:ignition', 'hobs:tripping-electrics']  normal: []  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.03 r=0.03 p=0.78  check: The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy aft
+    REMOVED d=0.74 r=0.04 p=0.88  step: establish whether it is a ceramic, solid-plate or induction hob
+    KEPT    d=0.23 r=0.04 p=0.24  step: note when it trips - on switch-on, on a particular zone, or after a spill/clean
+    KEPT    d=0.05 r=0.04 p=0.19  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    KEPT    d=0.05 r=0.04 p=0.2  step: stop using it and isolate at the spur if there is any burning smell or scorching
+    REMOVED d=0.79 r=0.07 p=0.4  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = note when it trips - on switch-on, on a particular zone, or after a spill/clean
+LLM ANSWER TO THEIR QUESTION: I can't say for certain yet, because it depends on what type of hob it is (gas, ceramic or induction) and exactly when and where it cuts out.  Cutting out after a few minutes on high often points to a built-in safety feature switching it off, but the pattern of when it trips will help narrow down the cause.
+REPLY: I can't say for certain yet, because it depends on what type of hob it is (gas, ceramic or induction) and exactly when and where it cuts out. Cutting out after a few minutes on high often points to a built-in safety feature switching it off, but the pattern of when it trips will help narrow down the cause. Next: Note when it trips - on switch-on, on a particular zone, or after a spill/clean. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: its induction, samsung. mostly the big front zones when on high/boost. not after a spill or anything, just after a few mins of cooking
+1 LLM UNDERSTOOD: appliance=induction hob brand=Samsung model=None codes=[] symptom='cuts out after a few minutes on high' question=None
+   checks reported: []  facts: ['induction hob', 'mostly the big front zones on high/boost', 'not after a spill', 'cuts out after a few minutes of cooking']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="cuts_out" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.97); modelUnreachable=false (0.03); make="Samsung" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:power-module', 'hobs:tripping-electrics']  normal: []  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.05 p=0.33  check: Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on,
+    KEPT    d=0.06 r=0.05 p=0.46  check: Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually 
+    REMOVED d=0.94 r=0.04 p=0.96  step: establish whether it is a ceramic, solid-plate or induction hob
+    REMOVED d=0.8 r=0.08 p=0.82  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    KEPT    d=0.05 r=0.04 p=0.26  step: stop using it and isolate at the spur if there is any burning smell or scorching
+    REMOVED d=0.93 r=0.08 p=0.75  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on, and look at the fuse box for a breaker that has switched off. If a breaker keeps tripping, don't keep resetting it. Was the isola
+REPLY: Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on, and look at the fuse box for a breaker that has switched off. If a breaker keeps tripping, don't keep resetting it. Was the isolator or a breaker off (and is it sorted), or were they all on?
+
+--- Turn 4
+CUSTOMER: its not tripping, it works fine again after a few mins. just cuts out on high. isolator/breaker wont be it
+1 LLM UNDERSTOOD: appliance=hob brand=None model=None codes=[] symptom='cuts out on high setting, works again after a few minutes' question=None
+   checks reported: []  facts: ['breaker not tripping', 'works fine again after a few minutes', 'only cuts out on high']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (0.89); symptomArea="cuts_out" (1); hazard=null (0.99); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.57); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:tripping-electrics', 'hobs:element']  normal: []  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.94 r=0.04 p=0.96  step: establish whether it is a ceramic, solid-plate or induction hob
+    REMOVED d=0.85 r=0.12 p=0.85  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    KEPT    d=0.07 r=0.04 p=0.26  step: stop using it and isolate at the spur if there is any burning smell or scorching
+    REMOVED d=0.95 r=0.1 p=0.76  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+    KEPT    d=0.07 r=0.05 p=0.54  check: Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones com
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = stop using it and isolate at the spur if there is any burning smell or scorching
+REPLY: Next: Stop using it and isolate at the spur if there is any burning smell or scorching. Let me know what you find.
+
+--- Turn 5
+CUSTOMER: no burning smell or scorching, nothing like that. so what's causing it?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question="What's causing it?"
+   checks reported: []  facts: ['no burning smell', 'no scorching']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.57); symptomArea=null (0.88); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.76); checkOutcome="still_faulty" (0.67); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['hobs:overheating', 'hobs:tripping-electrics', 'hobs:ignition']  normal: []  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (3):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.94 r=0.04 p=0.96  step: establish whether it is a ceramic, solid-plate or induction hob
+    REMOVED d=0.86 r=0.13 p=0.87  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    REMOVED d=0.96 r=0.09 p=0.83  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+    REMOVED d=0.07 r=0.04 p=0.89  check: The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy aft
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+LLM ANSWER TO THEIR QUESTION: I can't say for certain yet, but cutting out only on high or boost and then working again after a few minutes often points to the hob's built-in overheat protection switching it off to cool down.  Whether that's the cause, or something else like the boost function's normal time limit, depends on a few more details about exactly what it's doing.
+REPLY: I can't say for certain yet, but cutting out only on high or boost and then working again after a few minutes often points to the hob's built-in overheat protection switching it off to cool down. Whether that's the cause, or something else like the boost function's normal time limit, depends on a few more details about exactly what it's doing. Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 6
+CUSTOMER: fan roars loudly just before it cuts out, and a little code flashes briefly but i didnt catch it. only started after new drawer unit was fitted under it a month ago
+1 LLM UNDERSTOOD: appliance=hob brand=None model=None codes=[] symptom='cuts out on high or boost, works again after a few minutes' question=None
+   checks reported: []  facts: ['fan roars loudly just before it cuts out', "a code flashes briefly but they didn't catch it", 'started after a new drawer unit was fitted under it a month ago']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (0.9); symptomArea="cuts_out" (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.97); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['hobs:tripping-electrics', 'hobs:ignition', 'hobs:element']  normal: ['hob-induction-buzz', 'hob-induction-pan']  codes: []  stage: 1
+4 JEV: note picked = hobs:overheating | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: the hob's cooling / ventilation
+    - cause: the temperature sensor or control
+    - cause: a zone stuck on
+    - normal: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a
+    - normal: Induction zones only heat magnetic pans of the right size. A flashing pan symbol (often 'U' or a pan icon) means no suitable pan is detected. 
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.94 r=0.04 p=0.96  step: establish whether it is a ceramic, solid-plate or induction hob
+    REMOVED d=0.83 r=0.12 p=0.88  step: if a spill or clean preceded it, let the hob dry fully before assuming a failed part
+    REMOVED d=0.96 r=0.1 p=0.85  question: Is it a ceramic, solid-plate or induction hob, and does it trip the moment you switch it o
+    REMOVED d=0.05 r=0.03 p=0.93  check: The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy aft
+    REMOVED d=0.06 r=0.05 p=0.65  check: Many hobs have a key / child lock (often a key or padlock symbol) that stops the zones com
+  JEV PICKED: situation = the hob's cooling / ventilation
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer.
+
+HIDDEN TRUTH: Genuinely uncertain: overheating protection due to restricted ventilation from the new drawer (most likely) vs a fan/board fault.

@@ -3,18 +3,15 @@
 /**
  * ApplianceClinic production transcript observability.
  *
- * Additional record of anonymous diagnostic conversations. The browser
- * localStorage session remains the customer UX source of truth. This module
- * must never alter diagnostic semantics, never store photo bytes / EXIF /
- * chain-of-thought / IP / credentials, and never throw into the customer path.
+ * An anonymous record of diagnostic conversations, one DynamoDB item per session. The browser localStorage session
+ * remains the customer UX source of truth. This module must never alter diagnostic semantics, never store photo
+ * bytes / EXIF / model reasoning / IP / credentials, and never throw into the customer path.
+ *
+ * Each turn stores what the customer saw and, for the ac2 turn, the engine's bounded audit (ac2-turn.js auditOf):
+ * provider, timings, token usage, tool calls, hazards and gates, the part decision and the advisor's outcome.
  */
 
 const ddb = require('./ddb');
-const reviewSchema = require('./transcript-review/schema');
-const reviewEligibility = require('./transcript-review/eligibility');
-const reviewDashboard = require('./transcript-review/dashboard');
-const reviewStateEvidence = require('./transcript-review/state-evidence');
-const canonicalAudit = require('./canonical-audit');
 
 const DEFAULT_TABLE = process.env.TRANSCRIPT_TABLE || 'whichpart-transcripts';
 const DEFAULT_RETENTION_DAYS = Number(process.env.TRANSCRIPT_RETENTION_DAYS) || 90;
@@ -22,14 +19,9 @@ const DEFAULT_INACTIVE_MS = (Number(process.env.TRANSCRIPT_INACTIVE_MINUTES) || 
 const GSI_NAME = process.env.TRANSCRIPT_GSI || 'gsi_activity';
 const GSI_PK = 'T';
 const MAX_TURNS = 80;
-// Bounded trace-size policy: keep the full diagnostic trace only for the most recent turns; older
-// turns keep stage id/evidence/summary but drop the heavy `detail` and long progression values. This
-// keeps the per-record trace footprint small so a long conversation cannot approach the DynamoDB
-// 400 KB item limit. Delta-safe: state progression only compares to the immediately previous turn,
-// which is always within the retained-full window.
-const TRACE_FULL_TURNS = 16;
-// The whole session is ONE DynamoDB item (400 KB hard limit). Above this payload budget older turns are slimmed
-// further (trace detail + canonical audit reduced to summary form) before the write.
+// The whole session is ONE DynamoDB item (400 KB hard limit). Older turns keep only the summary form of their audit;
+// above this payload budget the full-detail window narrows further before the write.
+const AUDIT_FULL_TURNS = 16;
 const PAYLOAD_BUDGET_BYTES = 300 * 1024;
 const MAX_TEXT = 4000;
 const MAX_SEARCH = 4000;
@@ -124,7 +116,6 @@ function emptyRecord(sessionId, now) {
     partsCount: 0,
     mediaCount: 0,
     turns: [],
-    review: reviewSchema.emptyReviewState(),
   };
 }
 
@@ -132,20 +123,13 @@ function compactPart(p) {
   if (!p || typeof p !== 'object') return null;
   const name = p.name || p.title || null;
   if (!name) return null;
-  return {
-    name: clip(name, 160),
-    fitStatus: p.fitStatus ? String(p.fitStatus).slice(0, 40) : null,
-  };
+  return { name: clip(name, 160), fitStatus: p.fitStatus ? String(p.fitStatus).slice(0, 40) : null };
 }
 
 function compactMedia(m) {
   if (!m || typeof m !== 'object') return null;
   if (!m.id && !m.title && !m.type) return null;
-  return {
-    id: m.id ? clip(m.id, 80) : null,
-    type: m.type ? clip(m.type, 20) : null,
-    title: m.title ? clip(m.title, 160) : '',
-  };
+  return { id: m.id ? clip(m.id, 80) : null, type: m.type ? clip(m.type, 20) : null, title: m.title ? clip(m.title, 160) : '' };
 }
 
 function customerTextFromMessages(messages) {
@@ -176,96 +160,49 @@ function customerVisibleFromView(view) {
   const media = Array.isArray(v.media) ? v.media.map(compactMedia).filter(Boolean).slice(0, 8) : [];
   const si = v.safetyInformation;
   const safetyText = si && typeof si === 'object' ? si.text : (typeof si === 'string' ? si : null);
-  return {
-    reply: clip(v.reply || '', MAX_TEXT),
-    diagnosisLabel: v.diagnosis && v.diagnosis.label ? clip(v.diagnosis.label, 240) : null,
-    safetyText: safetyText ? clip(safetyText, 900) : null,
-    needsModel: Boolean(v.needsModel),
-    extractedModel: v.extractedModel ? clip(v.extractedModel, 80) : null,
-    parts: parts,
-    media: media,
-  };
+  return { reply: clip(v.reply || '', MAX_TEXT), safetyText: safetyText ? clip(safetyText, 900) : null, parts, media };
 }
 
-function metadataFromPath(orch, view, rid) {
-  const submitted = (orch && orch._telemetry && orch._telemetry.submitted) || {};
+/** Turn metadata: what the record knows (the engine's audit) and what the view carried. */
+function metadataFromPath(orch, view, rid, ac2) {
   const safety = (orch && orch.safety) || {};
   const si = view && view.safetyInformation;
+  const c = (ac2 && ac2.customer) || {};
   return {
     requestId: rid || (view && view.requestId) || null,
-    traceId: (orch && orch.traceId) || (view && view.traceId) || null,
     route: (orch && orch.route) || null,
     outcome: (view && view.error) ? 'ERROR' : ((orch && orch.outcome) || null),
-    family: submitted.applianceFamily || null,
-    make: submitted.make || null,
-    model: (orch && orch.resolvedModel) ? clip(orch.resolvedModel, 80) : null,
-    extractedModel: (view && view.extractedModel) ? clip(view.extractedModel, 80) : null,
-    errorCode: submitted.displayedCode || null,
+    family: c.appliance || null,
+    make: c.brand || null,
+    model: c.model ? clip(c.model, 80) : ((orch && orch.resolvedModel) ? clip(orch.resolvedModel, 80) : null),
+    errorCode: ac2 && ac2.tags && ac2.tags.enrichment && Array.isArray(ac2.tags.enrichment.codes) && ac2.tags.enrichment.codes[0] ? clip(ac2.tags.enrichment.codes[0].code, 16) : null,
     safetyStop: Boolean(view && view.safety) || Boolean(safety.stopUse) || (orch && orch.outcome === 'SAFETY_STOP'),
     safetyClass: safety.class || (si && si.classification) || null,
     apiError: Boolean(view && view.error),
   };
 }
 
-function forbiddenKeysIn(obj, keys) {
-  const blob = JSON.stringify(obj || {});
-  return keys.filter((k) => blob.toLowerCase().includes(k.toLowerCase()));
-}
-
 function stripSecrets(obj) {
-  // Defence in depth: never persist obvious secret/debug shapes even if a caller
-  // accidentally forwarded them. Does not attempt to redact free-text PII.
+  // Defence in depth: never persist obvious secret/debug shapes even if a caller accidentally forwarded them.
   const json = JSON.stringify(obj, (k, v) => {
     const key = String(k || '').toLowerCase();
     if (/password|secret|authorization|cookie|api.?token|access.?token|api.?key|access.?key|exif|chain.of.thought|reasoning|ipaddress|ip_address|user-agent|useragent|fingerprint/.test(key)) {
       return undefined;
     }
     if (typeof v === 'string' && /^data:image\//i.test(v)) return '[photo omitted]';
-    if (typeof v === 'string' && v.length > 200 && /^[A-Za-z0-9+/=]{80,}$/.test(v) && !/\s/.test(v)) {
-      return '[binary omitted]';
-    }
+    if (typeof v === 'string' && v.length > 200 && /^[A-Za-z0-9+/=]{80,}$/.test(v) && !/\s/.test(v)) return '[binary omitted]';
     return v;
   });
   return JSON.parse(json);
 }
 
-function safeTraceValue(value) {
-  return stripSecrets(value);
-}
-
-function normaliseDiagnosticTrace(raw) {
-  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.stages)) return null;
-  const allowedEvidence = new Set(['OBSERVED', 'DERIVED', 'NOT_CAPTURED']);
-  return safeTraceValue({
-    schemaVersion: clip(raw.schemaVersion || '1.0', 20),
-    latenciesMs: raw.latenciesMs && typeof raw.latenciesMs === 'object' ? raw.latenciesMs : {},
-    stages: raw.stages.slice(0, 20).map((stage, i) => ({
-      id: clip(stage && stage.id || ('stage-' + i), 60),
-      label: clip(stage && stage.label || 'Runtime stage', 100),
-      evidence: allowedEvidence.has(stage && stage.evidence) ? stage.evidence : 'NOT_CAPTURED',
-      summary: clip(stage && stage.summary || '', 300),
-      detail: stage && stage.detail != null ? stage.detail : null,
-    })),
-  });
-}
-
-// Slim a single turn's trace: keep id/label/evidence/summary, drop heavy stage `detail`, and reduce
-// progression to path+change only. Deterministic; preserves the shape (evidence labels stay honest).
-// ---- ac2-transcript-audit/1 (ac2-turn.js auditOf) ------------------------------------------------------
-// Stored on the turn as `ac2` (never `canonical`). Bounded here regardless of what the engine sent: lists are
-// capped, strings clipped, and only known fields are kept. The audit carries no model chain-of-thought and this
-// projection never adds any. Older turns are reduced to the summary form (no ledger) by boundTraceHistory.
-const AC2_SCHEMA = 'ac2-transcript-audit/1';
-const AC2_MAX_FACTS = 40;
+// ---- the ac2 audit (ac2-turn.js auditOf) --------------------------------------------------------------
+// Stored on the turn as `ac2`. Bounded here regardless of what the engine sent: lists are capped, strings clipped, and
+// only known fields are kept. A turn stored before change 23.3 (schema /1) carries the same core fields.
+const AC2_SCHEMAS = new Set(['ac2-transcript-audit/1', 'ac2-transcript-audit/2']);
+const AC2_SCHEMA = 'ac2-transcript-audit/2';
 const AC2_MAX_LIST = 20;
-const AC2_MAX_QUOTE = 160;
 function ac2Str(v, n) { return v == null ? null : clip(String(v), n || 120); }
-function ac2Scalar(v, n) {
-  if (v == null) return null;
-  if (typeof v === 'number' || typeof v === 'boolean') return v;
-  if (typeof v === 'string') return clip(v, n || 120);
-  try { return clip(JSON.stringify(v), n || 120); } catch { return null; }
-}
 function ac2List(v, n) { return Array.isArray(v) ? v.slice(0, n || AC2_MAX_LIST) : []; }
 function ac2Num(v) { return typeof v === 'number' && Number.isFinite(v) ? v : null; }
 function ac2NumMap(o) {
@@ -274,49 +211,32 @@ function ac2NumMap(o) {
   for (const k of Object.keys(o).slice(0, 12)) { if (ac2Num(o[k]) != null) out[clip(k, 40)] = o[k]; }
   return out;
 }
-function ac2Entity(e) {
-  if (e == null) return null;
-  if (typeof e !== 'object') return { value: ac2Scalar(e, 80) };
-  return { value: ac2Scalar(e.value, 80), status: ac2Str(e.status, 24), turn: ac2Num(e.turn), quote: ac2Str(e.quote, AC2_MAX_QUOTE) };
-}
-function ac2Ledger(l) {
-  if (!l || typeof l !== 'object') return null;
-  const facts = Array.isArray(l.facts) ? l.facts : [];
-  return {
-    appliance: ac2Entity(l.appliance), brand: ac2Entity(l.brand), model: ac2Entity(l.model),
-    codes: ac2List(l.codes).map((c) => (c && typeof c === 'object' ? { code: ac2Str(c.code, 24), turn: ac2Num(c.turn), quote: ac2Str(c.quote, AC2_MAX_QUOTE) } : { code: ac2Str(c, 24) })),
-    facts: facts.slice(-AC2_MAX_FACTS).map((f) => ({
-      id: ac2Str(f && f.id, 24), field: ac2Str(f && f.field, 80), value: ac2Scalar(f && f.value, 160), source: ac2Str(f && f.source, 24),
-      status: ac2Str(f && f.status, 24), turn: ac2Num(f && f.turn), quote: ac2Str(f && f.quote, AC2_MAX_QUOTE),
-    })),
-    factsTotal: facts.length,
-    asked: ac2List(l.asked).map((a) => (a && typeof a === 'object'
-      ? { key: ac2Str(a.key, 60), turn: ac2Num(a.turn), times: ac2Num(a.times), resolution: ac2Str(a.resolution, 24) } : { key: ac2Str(a, 60) })),
-    hazards: ac2List(l.hazards).map((h) => (h && typeof h === 'object' ? ac2Str(h.type || h.value, 40) : ac2Str(h, 40))),
-  };
-}
-function ac2PartGate(g) {
-  if (!g || typeof g !== 'object') return null;
-  return { outcome: ac2Str(g.outcome, 40), component: ac2Str(g.component, 80), failed: ac2List(g.failed).map((x) => ac2Scalar(x, 120)),
-    matcher: ac2Scalar(g.matcher, 80), cited: ac2List(g.cited).map((x) => ac2Str(x, 24)) };
-}
 function ac2Safety(sf) {
   if (!sf || typeof sf !== 'object') return null;
   return {
     hazards: ac2List(sf.hazards).map((h) => ac2Str(h, 40)),
     terminated: ac2Str(sf.terminated, 40),
     gates: ac2List(sf.gates).map((g) => (g && typeof g === 'object'
-      ? { gate: ac2Str(g.gate, 40), rule: ac2Str(g.rule, 80), type: ac2Str(g.type, 40), key: ac2Str(g.key, 60), why: ac2Str(g.why, 160) } : { gate: ac2Str(g, 40) })),
+      ? { gate: ac2Str(g.gate, 40), rule: ac2Str(g.rule, 80), type: ac2Str(g.type, 40), removed: ac2Num(g.removed), ids: ac2List(g.ids, 6).map((x) => ac2Str(x, 40)) } : { gate: ac2Str(g, 40) })),
   };
 }
-function ac2Status(st) {
-  if (st == null) return null;
-  if (typeof st === 'object') return ac2Str(st.value || st.status, 40);
-  return ac2Str(st, 40);
+function ac2Customer(a) {
+  const c = a.customer && typeof a.customer === 'object' ? a.customer : (a.ledger && typeof a.ledger === 'object' ? a.ledger : {});
+  const v = (x) => (x && typeof x === 'object' ? x.value : x);
+  return { appliance: ac2Str(v(c.appliance), 40), brand: ac2Str(v(c.brand), 40), model: ac2Str(v(c.model), 40) };
 }
-/** Bounded ac2 audit for the transcript turn (or null when the input is not an ac2-transcript-audit/1 object). */
+function ac2Tags(t) {
+  if (!t || typeof t !== 'object') return null;
+  const e = t.enrichment && typeof t.enrichment === 'object' ? t.enrichment : {};
+  return {
+    outcome: ac2Str(t.outcome, 40),
+    media: ac2Str(t.media, 120),
+    enrichment: { knowledgeIds: ac2List(e.knowledgeIds).map((x) => ac2Str(x, 80)), codes: ac2List(e.codes).map((x) => ({ code: ac2Str(x && x.code, 16), status: ac2Str(x && x.status, 24) })), recalls: ac2Num(e.recalls), parts: ac2Str(e.parts, 40) },
+  };
+}
+/** Bounded ac2 audit for the transcript turn (or null when the input is not an ac2 audit object). */
 function slimAc2Audit(a, opts) {
-  if (!a || typeof a !== 'object' || a.schemaVersion !== AC2_SCHEMA) return null;
+  if (!a || typeof a !== 'object' || !AC2_SCHEMAS.has(a.schemaVersion)) return null;
   const summaryOnly = Boolean(opts && opts.summary) || Boolean(a.slim);
   const pv = a.provider && typeof a.provider === 'object' ? { name: ac2Str(a.provider.name, 40), model: ac2Str(a.provider.model, 80) } : null;
   const out = {
@@ -328,71 +248,26 @@ function slimAc2Audit(a, opts) {
     timings: ac2NumMap(a.timings),
     ms: ac2Num(a.ms),
     usage: ac2NumMap(a.usage),
-    status: ac2Status(a.status),
-    regenerated: Boolean(a.regenerated),
-    claimsChecked: ac2Num(a.claimsChecked) || 0,
-    partGate: ac2PartGate(a.partGate),
+    outcome: ac2Str(a.outcome || (a.status && typeof a.status === 'object' ? a.status.value : a.status), 40),
+    customer: ac2Customer(a),
+    hazards: ac2List(a.hazards).map((h) => ac2Str(h && typeof h === 'object' ? h.type : h, 40)).filter(Boolean),
+    partGate: a.partGate && typeof a.partGate === 'object' ? { outcome: ac2Str(a.partGate.outcome, 40), component: ac2Str(a.partGate.component, 80) } : null,
     escalation: a.escalation && typeof a.escalation === 'object'
       ? { to: ac2Str(a.escalation.to, 40), reason: ac2Str(a.escalation.reason, 200), forced: Boolean(a.escalation.forced) } : null,
     safety: ac2Safety(a.safety),
-    scope: a.scope && typeof a.scope === 'object' ? { status: ac2Str(a.scope.status, 16), appliance: ac2Str(a.scope.appliance, 40) } : null,
-    appliance: a.ledger && a.ledger.appliance ? ac2Scalar(a.ledger.appliance.value != null ? a.ledger.appliance.value : a.ledger.appliance, 40) : null,
   };
-  if (summaryOnly) {
-    out.slim = true;
-    out.claimsRejectedCount = Array.isArray(a.claimsRejected) ? a.claimsRejected.length : (ac2Num(a.claimsRejectedCount) || 0);
-    return out;
-  }
-  out.toolCalls = ac2List(a.toolCalls).map((c) => ({
-    tool: ac2Str(c && c.tool, 40),
-    results: ac2List(c && c.results).map((r) => ac2Scalar(r, 120)),
-  }));
-  out.claimsRejected = ac2List(a.claimsRejected).map((c) => ({ claim: ac2Str(c && c.claim, 200), source: ac2Str(c && c.source, 60) }));
-  out.candidates = ac2List(a.candidates).map((c) => ({
-    cause: ac2Str(c && c.cause, 120), likelihood: ac2Str(c && c.likelihood, 16), evidence: ac2List(c && c.evidence).map((x) => ac2Str(x, 24)),
-  }));
-  out.ledger = ac2Ledger(a.ledger);
+  if (summaryOnly) { out.slim = true; return out; }
+  out.toolCalls = ac2List(a.toolCalls, 12).map((c) => ac2Str(c && typeof c === 'object' ? c.tool : c, 40)).filter(Boolean);
   out.tags = ac2Tags(a.tags);
-  out.plan = ac2List(a.plan).slice(0, 8).map((x) => ac2Str(x, 400));
   return out;
 }
 
-/** This turn's tags: Jev labels (value + confidence), stage, what the reply did, media, enrichment used. */
-function ac2Tags(t) {
-  if (!t || typeof t !== 'object') return null;
-  const labels = {};
-  for (const [k, v] of Object.entries(t.labels && typeof t.labels === 'object' ? t.labels : {}).slice(0, 20)) {
-    labels[ac2Str(k, 40)] = v && typeof v === 'object' ? { value: ac2Scalar(v.value, 80), confidence: ac2Num(v.confidence) } : null;
-  }
-  const e = t.enrichment && typeof t.enrichment === 'object' ? t.enrichment : {};
-  return {
-    labels,
-    stage: ac2Num(t.stage),
-    replyAction: t.replyAction && typeof t.replyAction === 'object' ? { value: ac2Str(t.replyAction.value, 40), confidence: ac2Num(t.replyAction.confidence) } : null,
-    media: ac2Str(t.media, 120),
-    enrichment: { knowledgeIds: ac2List(e.knowledgeIds).map((x) => ac2Str(x, 80)), codes: ac2List(e.codes).map((x) => ({ code: ac2Str(x && x.code, 16), status: ac2Str(x && x.status, 24) })), recalls: ac2Num(e.recalls), parts: ac2Str(e.parts, 40) },
-  };
-}
-
-function slimTrace(trace) {
-  if (!trace || trace.bounded || !Array.isArray(trace.stages)) return trace;
-  for (const s of trace.stages) { if (s && s.detail != null) s.detail = null; }
-  if (Array.isArray(trace.stateProgression)) {
-    trace.stateProgression = trace.stateProgression.map((x) => ({ path: x.path, change: x.change }));
-  }
-  trace.bounded = true;
-  return trace;
-}
-
-// Keep the full trace for the most recent TRACE_FULL_TURNS turns; slim older ones so the per-record
-// trace footprint stays bounded regardless of conversation length (DynamoDB 400 KB item limit).
-function boundTraceHistory(turns, keep) {
+// Keep the full audit for the most recent AUDIT_FULL_TURNS turns; older ones keep the summary form.
+function boundAuditHistory(turns, keep) {
   if (!Array.isArray(turns)) return;
-  const cut = turns.length - (keep == null ? TRACE_FULL_TURNS : keep);
+  const cut = turns.length - (keep == null ? AUDIT_FULL_TURNS : keep);
   for (let i = 0; i < cut; i++) {
     const t = turns[i];
-    if (t && t.diagnosticTrace) slimTrace(t.diagnosticTrace);
-    if (t && t.canonical) t.canonical = canonicalAudit.slim(t.canonical);
     if (t && t.ac2 && !t.ac2.slim) t.ac2 = slimAc2Audit(t.ac2, { summary: true });
   }
 }
@@ -401,98 +276,38 @@ function boundTraceHistory(turns, keep) {
 function enforcePayloadBudget(rec) {
   for (const keep of [8, 4, 1, 0]) {
     if (Buffer.byteLength(JSON.stringify(rec.turns || []), 'utf8') <= PAYLOAD_BUDGET_BYTES) return;
-    boundTraceHistory(rec.turns, keep);
+    boundAuditHistory(rec.turns, keep);
   }
 }
 
-/**
- * Session-level canonical summary for the list (derived from the stored per-turn audits; old transcripts with no
- * audit are 'legacy'). Computed on read, so historical records need no migration. ac2 turns (turn.ac2) count as
- * path 'ac2' and carry the latest appliance / status / part-gate outcome.
- */
-function canonicalSummary(rec) {
+/** Session-level summary of the ac2 turns, computed on read (historical records need no migration). */
+function ac2Summary(rec) {
   const turns = (rec && rec.turns) || [];
-  const counts = { control: 0, shadow: 0, legacy: 0, degraded: 0, ac2: 0 };
-  let journey = null; let appliance = null; let ref = null; let audited = 0; let partRecommended = false;
-  let ac2 = null;
+  const out = { turns: 0, errors: 0, outcome: null, hazards: [], partRecommended: false, escalation: null, appliance: null };
   for (const t of turns) {
-    const c = t && t.canonical;
-    if (t && t.customerVisible && Array.isArray(t.customerVisible.parts) && t.customerVisible.parts.length) partRecommended = true;
+    if (t && t.customerVisible && Array.isArray(t.customerVisible.parts) && t.customerVisible.parts.length) out.partRecommended = true;
     const x = t && t.ac2;
-    if (x && x.schemaVersion === AC2_SCHEMA) {
-      audited += 1;
-      counts.ac2 += 1;
-      ac2 = ac2 || { turns: 0, errors: 0, status: null, partGate: null, hazards: [], escalation: null };
-      ac2.turns += 1;
-      if (x.error) { ac2.errors += 1; continue; }
-      if (x.appliance) appliance = x.appliance;
-      if (x.status) ac2.status = x.status;
-      if (x.partGate && x.partGate.outcome) ac2.partGate = x.partGate.outcome;
-      if (x.partGate && x.partGate.outcome === 'verified') partRecommended = true;
-      if (x.escalation && x.escalation.to) ac2.escalation = x.escalation.to;
-      for (const h of (x.safety && x.safety.hazards) || []) { if (h && !ac2.hazards.includes(h)) ac2.hazards.push(h); }
-      continue;
-    }
-    if (!c || c.schemaVersion !== 'canonical-audit/1') { counts.legacy += 1; continue; }
-    audited += 1;
-    counts[c.path] = (counts[c.path] || 0) + 1;
-    if (c.owner) journey = c.owner;
-    if (c.appliance) appliance = c.appliance;
-    if (c.ref) ref = c.ref;
-    if (c.nextAction && c.nextAction.kind === 'recommend_part') partRecommended = true;
-  }
-  let path = 'legacy';
-  if (counts.ac2 && counts.control) path = 'mixed';
-  else if (counts.ac2) path = 'ac2';
-  else if (counts.control && (counts.legacy || counts.shadow || counts.degraded)) path = 'mixed';
-  else if (counts.control) path = 'control';
-  else if (counts.shadow) path = 'shadow';
-  else if (counts.degraded && !counts.legacy) path = 'degraded';
-  const degraded = counts.degraded > 0 || Boolean(ac2 && ac2.errors);
-  return { path, counts, audited, journey, appliance, ref, degraded, partRecommended, ac2 };
-}
-
-function traceState(trace) {
-  if (!trace || !Array.isArray(trace.stages)) return {};
-  const state = trace.stages.find((s) => s && s.id === 'orchestrator-state');
-  return (state && state.detail && typeof state.detail === 'object') ? state.detail : {};
-}
-
-function flattenState(value, prefix, out) {
-  out = out || {};
-  if (Array.isArray(value)) {
-    out[prefix] = JSON.stringify(value);
-  } else if (value && typeof value === 'object') {
-    Object.keys(value).sort().forEach((k) => flattenState(value[k], prefix ? prefix + '.' + k : k, out));
-  } else if (value !== undefined) {
-    out[prefix] = value;
+    if (!x || !AC2_SCHEMAS.has(x.schemaVersion)) continue;
+    out.turns += 1;
+    if (x.error) { out.errors += 1; continue; }
+    // Audits written by the earlier schema (/1) carry a ledger and a status instead of customer and outcome.
+    const cust = ac2Customer(x);
+    if (cust.appliance) out.appliance = cust.appliance;
+    const outcome = x.outcome || (x.status && typeof x.status === 'object' ? x.status.value : x.status);
+    if (outcome) out.outcome = ac2Str(outcome, 40);
+    if (x.partGate && x.partGate.outcome === 'verified') out.partRecommended = true;
+    if (x.escalation && x.escalation.to) out.escalation = x.escalation.to;
+    for (const h of (x.safety && x.safety.hazards) || []) { if (h && !out.hazards.includes(h)) out.hazards.push(h); }
   }
   return out;
-}
-
-function stateProgression(previousTrace, currentTrace) {
-  if (!currentTrace) return [];
-  const before = flattenState(traceState(previousTrace), '', {});
-  const after = flattenState(traceState(currentTrace), '', {});
-  const keys = Array.from(new Set(Object.keys(before).concat(Object.keys(after)))).sort();
-  return keys.filter(Boolean).map((key) => {
-    const had = Object.prototype.hasOwnProperty.call(before, key) && before[key] != null && before[key] !== '';
-    const has = Object.prototype.hasOwnProperty.call(after, key) && after[key] != null && after[key] !== '';
-    if (!had && has) return { path: key, change: 'NEW', value: after[key] };
-    if (had && !has) return { path: key, change: 'REMOVED_OR_CONTRADICTED', previous: before[key] };
-    if (had && has && JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
-      return { path: key, change: 'UPDATED', previous: before[key], value: after[key] };
-    }
-    if (had && has) return { path: key, change: 'RETAINED', value: after[key] };
-    return null;
-  }).filter(Boolean).slice(0, 80);
 }
 
 function buildTurn(input) {
   const now = input.now || new Date();
   const customer = customerTextFromMessages(input.messages);
   const visible = customerVisibleFromView(input.view);
-  const meta = metadataFromPath(input.orch, input.view, input.requestId);
+  const ac2 = input.ac2 ? slimAc2Audit(stripSecrets(input.ac2)) : null;
+  const meta = metadataFromPath(input.orch, input.view, input.requestId, ac2);
   const turn = stripSecrets({
     seq: 0,
     at: nowIso(now),
@@ -500,10 +315,7 @@ function buildTurn(input) {
     customer: { text: customer.text, photo: customer.photo },
     customerVisible: visible,
     metadata: meta,
-    diagnosticTrace: normaliseDiagnosticTrace(input.orch && input.orch._diagnosticTrace),
   });
-  // ac2-transcript-audit/1: the ac2 turn's bounded decision audit (own field; only present on ac2 turns).
-  const ac2 = input.ac2 ? slimAc2Audit(stripSecrets(input.ac2)) : null;
   if (ac2) turn.ac2 = ac2;
   return turn;
 }
@@ -524,16 +336,11 @@ function applyTurn(record, turn, now) {
   rec.expiresAt = ttlEpoch(now);
   rec.retentionDays = retentionDays();
   if (rec.status === 'ended') {
-    // A later turn after New Chat belongs to a new browser session id, not this
-    // record. Ignore (idempotent no-op) rather than resurrecting an ended session.
+    // A later turn after New Chat belongs to a new browser session id, not this record. Ignore (idempotent no-op)
+    // rather than resurrecting an ended session.
     return rec;
   }
   rec.status = 'active';
-  // A new turn means the conversation is no longer a frozen snapshot. Drop any
-  // previous semantic review rather than leaving stale product-quality labels.
-  if (rec.review && rec.review.status && rec.review.status !== 'none') {
-    rec.review = reviewSchema.emptyReviewState();
-  }
   const turns = Array.isArray(rec.turns) ? rec.turns.slice() : [];
   const id = turn.clientTurnId;
   let idx = -1;
@@ -546,13 +353,7 @@ function applyTurn(record, turn, now) {
     turns.push(turn);
     if (turns.length > MAX_TURNS) turns.splice(0, turns.length - MAX_TURNS);
   }
-  // State changes are computed from structured snapshots, never response/customer phrase matching.
-  const currentIndex = turns.findIndex((t) => t === turn);
-  const previous = currentIndex > 0 ? turns[currentIndex - 1] : null;
-  if (turn.diagnosticTrace) {
-    turn.diagnosticTrace.stateProgression = stateProgression(previous && previous.diagnosticTrace, turn.diagnosticTrace);
-  }
-  boundTraceHistory(turns);
+  boundAuditHistory(turns);
   rec.turns = turns;
   enforcePayloadBudget(rec);
   rec.turnCount = turns.length;
@@ -568,11 +369,8 @@ function applyTurn(record, turn, now) {
   if (md.safetyClass) rec.safetyClass = md.safetyClass;
   rec.hasError = Boolean(rec.hasError) || Boolean(md.apiError);
   rec.lastRequestId = md.requestId || rec.lastRequestId;
-  rec.lastTraceId = md.traceId || rec.lastTraceId;
-  rec.partsCount = (last && last.customerVisible && last.customerVisible.parts)
-    ? last.customerVisible.parts.length : rec.partsCount;
-  rec.mediaCount = (last && last.customerVisible && last.customerVisible.media)
-    ? last.customerVisible.media.length : rec.mediaCount;
+  rec.partsCount = (last && last.customerVisible && last.customerVisible.parts) ? last.customerVisible.parts.length : rec.partsCount;
+  rec.mediaCount = (last && last.customerVisible && last.customerVisible.media) ? last.customerVisible.media.length : rec.mediaCount;
   rec.searchBlob = searchBlobFrom(rec);
   return rec;
 }
@@ -597,25 +395,6 @@ function deriveLifecycle(rec, now) {
   return 'active';
 }
 
-function reviewOverview(rec, now) {
-  const review = reviewSchema.compactReview(rec && rec.review);
-  const a = review.assessment;
-  return {
-    status: reviewEligibility.displayReviewStatus(rec, now),
-    storedStatus: review.status,
-    version: review.version,
-    reviewedAt: review.reviewedAt,
-    error: review.error,
-    overallAssessment: a ? a.overallAssessment : null,
-    outcome: a ? a.outcome : null,
-    reviewPriority: a ? a.reviewPriority : null,
-    suggestedProductAreas: a ? (a.suggestedProductAreas || []) : [],
-    looping: a ? a.looping : null,
-    safetyHandling: a ? a.safetyHandling : null,
-    stateProgression: a ? (a.stateProgression || null) : null,
-  };
-}
-
 const OPENING_PREVIEW_MAX = 160;
 
 function openingPreview(rec) {
@@ -632,16 +411,12 @@ function openingPreview(rec) {
 }
 
 function viewCountsFromRecords(records) {
-  const counts = { all: 0, attention: 0, poor: 0, safety: 0, loops: 0, progression: 0 };
+  const counts = { all: 0, safety: 0, errors: 0, parts: 0 };
   for (const rec of records || []) {
     counts.all += 1;
-    if (reviewDashboard.needsAttention(rec)) counts.attention += 1;
-    const a = rec && rec.review && rec.review.status === 'reviewed' ? rec.review.assessment : null;
-    if (!a) continue;
-    if (a.overallAssessment === 'poor') counts.poor += 1;
-    if (a.safetyHandling === 'concern') counts.safety += 1;
-    if (a.looping === 'significant') counts.loops += 1;
-    if (a.stateProgression === 'poor') counts.progression += 1;
+    if (rec && rec.safetyStop) counts.safety += 1;
+    if (rec && rec.hasError) counts.errors += 1;
+    if (ac2Summary(rec).partRecommended) counts.parts += 1;
   }
   return counts;
 }
@@ -654,22 +429,19 @@ function inDateWindow(rec, from, to) {
 }
 
 function overviewRow(rec, now) {
-  const lifecycle = deriveLifecycle(rec, now);
-  const review = reviewOverview(rec, now);
-  const reviewed = review.storedStatus === 'reviewed';
+  const s = ac2Summary(rec);
   return {
     sessionId: rec.sessionId,
     shortId: String(rec.sessionId || '').slice(0, 8),
     createdAt: rec.createdAt,
     lastActivityAt: rec.lastActivityAt,
     endedAt: rec.endedAt || null,
-    lifecycle: lifecycle,
+    lifecycle: deriveLifecycle(rec, now),
     turnCount: rec.turnCount || 0,
-    family: rec.family || null,
+    family: rec.family || s.appliance || null,
     make: rec.make || null,
     model: rec.model || null,
     errorCode: rec.errorCode || null,
-    route: rec.route || null,
     outcome: rec.outcome || null,
     safetyStop: Boolean(rec.safetyStop),
     safetyClass: rec.safetyClass || null,
@@ -677,19 +449,8 @@ function overviewRow(rec, now) {
     partsCount: rec.partsCount || 0,
     mediaCount: rec.mediaCount || 0,
     openingPreview: openingPreview(rec),
-    canonical: (() => { const c = canonicalSummary(rec); return { path: c.path, journey: c.journey, appliance: c.appliance, ref: c.ref,
-      degraded: c.degraded, counts: c.counts, ac2: c.ac2 }; })(),
-    partRecommended: canonicalSummary(rec).partRecommended,
-    needsAttention: reviewDashboard.needsAttention(rec),
-    reviewStatus: review.status,
-    reviewOverall: review.overallAssessment,
-    reviewOutcome: review.outcome,
-    reviewPriority: review.reviewPriority,
-    reviewLooping: reviewed ? review.looping : null,
-    reviewSafetyHandling: reviewed ? review.safetyHandling : null,
-    reviewStateProgression: reviewed ? review.stateProgression : null,
-    reviewVersion: review.version,
-    reviewError: review.error,
+    ac2: s,
+    partRecommended: s.partRecommended,
   };
 }
 
@@ -700,8 +461,6 @@ function drillDown(rec, now) {
     at: t.at,
     customer: t.customer || { text: '', photo: false },
     applianceClinic: t.customerVisible || { reply: '' },
-    diagnosticTrace: t.diagnosticTrace || null,
-    canonical: t.canonical || null,
     ac2: t.ac2 || null,
     runtime: t.metadata ? { route: t.metadata.route || null, outcome: t.metadata.outcome || null, requestId: t.metadata.requestId || null,
       safetyStop: Boolean(t.metadata.safetyStop), safetyClass: t.metadata.safetyClass || null, apiError: Boolean(t.metadata.apiError) } : null,
@@ -711,15 +470,10 @@ function drillDown(rec, now) {
     retention: {
       days: rec.retentionDays || retentionDays(),
       expiresAt: rec.expiresAt || null,
-      policy: 'Anonymous production transcripts are kept for '
-        + (rec.retentionDays || retentionDays())
-        + ' days, then deleted automatically (DynamoDB TTL).',
+      policy: 'Anonymous production transcripts are kept for ' + (rec.retentionDays || retentionDays()) + ' days, then deleted automatically (DynamoDB TTL).',
     },
     overview: overviewRow(rec, now),
-    customerVisible: {
-      label: 'CUSTOMER SAW THIS',
-      turns: turns,
-    },
+    customerVisible: { label: 'CUSTOMER SAW THIS', turns },
     diagnosticMetadata: {
       label: 'INTERNAL DIAGNOSTIC METADATA',
       createdAt: rec.createdAt,
@@ -729,46 +483,15 @@ function drillDown(rec, now) {
       family: rec.family || (last.metadata && last.metadata.family) || null,
       make: rec.make || (last.metadata && last.metadata.make) || null,
       model: rec.model || (last.metadata && last.metadata.model) || null,
-      extractedModel: last.metadata ? last.metadata.extractedModel : null,
       errorCode: rec.errorCode || (last.metadata && last.metadata.errorCode) || null,
-      route: rec.route || (last.metadata && last.metadata.route) || null,
       outcome: rec.outcome || (last.metadata && last.metadata.outcome) || null,
       safetyStop: Boolean(rec.safetyStop),
       safetyClass: rec.safetyClass || null,
       hasError: Boolean(rec.hasError),
       lastRequestId: rec.lastRequestId || null,
-      lastTraceId: rec.lastTraceId || null,
       partsSurfaced: last.customerVisible ? last.customerVisible.parts : [],
       mediaSurfaced: last.customerVisible ? last.customerVisible.media : [],
-      needsModel: last.customerVisible ? Boolean(last.customerVisible.needsModel) : false,
     },
-    semanticReview: semanticReviewView(rec, now),
-    // Bounded, typed state-progression evidence (structural change labels from the trace, not a raw
-    // trace dump and not prose). Lets a human triager see where facts were retained / added / lost.
-    stateEvidence: reviewStateEvidence.compactStateEvidence(reviewStateEvidence.buildStateEvidence(rec)),
-  };
-}
-
-function semanticReviewView(rec, now) {
-  const review = reviewSchema.compactReview(rec && rec.review);
-  const display = reviewEligibility.displayReviewStatus(rec, now);
-  const eligible = reviewEligibility.isReviewable(rec, now);
-  return {
-    label: 'SEMANTIC REVIEW',
-    notice: 'LLM product-quality assessment. Not facts recorded during the conversation, and not a change to what the customer saw.',
-    status: display,
-    storedStatus: review.status,
-    eligible: eligible,
-    canRereview: eligible,
-    version: review.version,
-    promptVersion: review.promptVersion,
-    reviewedAt: review.reviewedAt,
-    lastAttemptAt: review.lastAttemptAt,
-    attemptCount: review.attemptCount,
-    model: review.model,
-    provider: review.provider,
-    error: review.error,
-    assessment: review.assessment,
   };
 }
 
@@ -786,17 +509,16 @@ function matchesFilters(rec, f, now) {
   if (!f) return true;
   const life = deriveLifecycle(rec, now);
   if (f.lifecycle && f.lifecycle !== 'all' && life !== f.lifecycle) return false;
-  if (f.family && String(rec.family || '').toLowerCase() !== String(f.family).toLowerCase()) return false;
+  const fam = rec.family || ac2Summary(rec).appliance || '';
+  if (f.family && String(fam).toLowerCase() !== String(f.family).toLowerCase()) return false;
   if (f.make && String(rec.make || '').toLowerCase() !== String(f.make).toLowerCase()) return false;
-  if (f.route && String(rec.route || '') !== String(f.route)) return false;
   if (f.errors === true && !rec.hasError) return false;
   if (f.safety === true && !rec.safetyStop) return false;
-  if (f.journey || f.canonical || f.degraded === true || f.partRecommended != null) {
-    const cs = canonicalSummary(rec);
-    if (f.journey && cs.journey !== f.journey) return false;
-    if (f.canonical && f.canonical !== 'all' && cs.path !== f.canonical) return false;
-    if (f.degraded === true && !cs.degraded) return false;
-    if (f.partRecommended != null && cs.partRecommended !== f.partRecommended) return false;
+  if (f.partRecommended != null || f.degraded === true || f.outcome) {
+    const s = ac2Summary(rec);
+    if (f.partRecommended != null && s.partRecommended !== f.partRecommended) return false;
+    if (f.degraded === true && !s.errors) return false;
+    if (f.outcome && f.outcome !== 'all' && s.outcome !== f.outcome) return false;
   }
   if (f.q) {
     const q = String(f.q).toLowerCase();
@@ -805,36 +527,10 @@ function matchesFilters(rec, f, now) {
       if (!blob.includes(q)) return false;
     }
   }
-  const reviewDisp = reviewEligibility.displayReviewStatus(rec, now);
-  if (f.reviewStatus && f.reviewStatus !== 'all' && reviewDisp !== f.reviewStatus) return false;
-  const a = rec.review && rec.review.assessment;
-  if (f.overall && f.overall !== 'all') {
-    if (!a || a.overallAssessment !== f.overall) return false;
-  }
-  if (f.priority && f.priority !== 'all') {
-    if (!a || a.reviewPriority !== f.priority) return false;
-  }
-  if (f.reviewOutcome && f.reviewOutcome !== 'all') {
-    if (!a || a.outcome !== f.reviewOutcome) return false;
-  }
-  if (f.productArea && f.productArea !== 'all') {
-    const areas = (a && a.suggestedProductAreas) || [];
-    if (areas.indexOf(f.productArea) === -1) return false;
-  }
-  if (f.looping && f.looping !== 'all') {
-    if (!a || a.looping !== f.looping) return false;
-  }
-  if (f.safetyHandling && f.safetyHandling !== 'all') {
-    if (!a || a.safetyHandling !== f.safetyHandling) return false;
-  }
-  if (f.stateProgression && f.stateProgression !== 'all') {
-    if (!a || a.stateProgression !== f.stateProgression) return false;
-  }
-  if (f.attention === true) {
-    if (!reviewDashboard.needsAttention(rec)) return false;
-  }
   return true;
 }
+
+const OUTCOMES = ['diagnosing', 'part_needed', 'engineer', 'normal', 'fixed', 'out_of_scope', 'safety_stop'];
 
 function parseListQuery(qs) {
   const q = qs || {};
@@ -844,23 +540,11 @@ function parseListQuery(qs) {
   const filters = {
     family: q.family ? String(q.family).slice(0, 40) : '',
     make: q.make ? String(q.make).slice(0, 40) : '',
-    route: q.route ? String(q.route).slice(0, 40) : '',
     lifecycle: q.lifecycle ? String(q.lifecycle).slice(0, 20) : '',
     errors: q.errors === '1' || q.errors === 'true',
     safety: q.safety === '1' || q.safety === 'true',
     q: q.q ? String(q.q).slice(0, 80) : '',
-    reviewStatus: q.reviewStatus ? String(q.reviewStatus).slice(0, 24) : '',
-    overall: q.overall ? String(q.overall).slice(0, 32) : '',
-    priority: q.priority ? String(q.priority).slice(0, 24) : '',
-    reviewOutcome: q.reviewOutcome ? String(q.reviewOutcome).slice(0, 32) : '',
-    productArea: q.productArea ? String(q.productArea).slice(0, 40) : '',
-    looping: q.looping ? String(q.looping).slice(0, 24) : '',
-    safetyHandling: q.safetyHandling ? String(q.safetyHandling).slice(0, 24) : '',
-    stateProgression: q.stateProgression ? String(q.stateProgression).slice(0, 24) : '',
-    attention: q.attention === '1' || q.attention === 'true',
-    // canonical filters (evaluated in JS on the same GSI page as family / route; no extra scan)
-    journey: q.journey && /^[a-z][a-z0-9-]{1,60}$/.test(String(q.journey)) ? String(q.journey) : '',
-    canonical: ['control', 'shadow', 'legacy', 'mixed', 'degraded', 'ac2'].includes(q.canonical) ? q.canonical : '',
+    outcome: OUTCOMES.includes(q.outcome) ? q.outcome : '',
     degraded: q.degraded === '1' || q.degraded === 'true',
     partRecommended: q.partRecommended === '1' || q.partRecommended === 'true' ? true : (q.partRecommended === '0' || q.partRecommended === 'false' ? false : null),
   };
@@ -877,6 +561,7 @@ function statsFromRows(rows, now) {
   let turnsToday = 0;
   let errorSessions = 0;
   let safetySessions = 0;
+  let partSessions = 0;
   const families = {};
   for (const r of rows) {
     const last = r.lastActivityAt || r.createdAt || '';
@@ -885,12 +570,12 @@ function statsFromRows(rows, now) {
       turnsToday += r.turnCount || 0;
       if (r.hasError) errorSessions += 1;
       if (r.safetyStop) safetySessions += 1;
-      const fam = r.family || 'unknown';
+      if (ac2Summary(r).partRecommended) partSessions += 1;
+      const fam = r.family || ac2Summary(r).appliance || 'unknown';
       families[fam] = (families[fam] || 0) + 1;
     }
   }
-  const familyDistribution = Object.keys(families).sort((a, b) => families[b] - families[a])
-    .map((k) => ({ family: k, count: families[k] }));
+  const familyDistribution = Object.keys(families).sort((a, b) => families[b] - families[a]).map((k) => ({ family: k, count: families[k] }));
   return {
     generatedAt: nowIso(now),
     retentionDays: retentionDays(),
@@ -899,9 +584,9 @@ function statsFromRows(rows, now) {
     turnsToday,
     errorSessionsToday: errorSessions,
     safetySessionsToday: safetySessions,
+    partSessionsToday: partSessions,
     familyDistribution,
     recent: rows.slice(0, 8).map((r) => overviewRow(r, now)),
-    quality: require('./transcript-review/aggregates').fromRecords(rows, now),
   };
 }
 
@@ -911,25 +596,18 @@ function policy() {
     inactiveAfterMinutes: Math.round(inactiveAfterMs() / 60000),
     table: process.env.TRANSCRIPT_TABLE || DEFAULT_TABLE,
     ttlAttribute: 'expiresAt',
-    summary: 'Anonymous diagnostic transcripts are stored for '
-      + retentionDays()
-      + ' days and then deleted by DynamoDB TTL. They are not customer accounts. '
-      + 'Browser localStorage remains the live chat source of truth. '
-      + 'A session is marked ended only when the customer uses New Chat. '
-      + 'Sessions with no further activity after '
-      + Math.round(inactiveAfterMs() / 60000)
-      + ' minutes are shown as inactive — not completed. '
-      + 'Semantic review metadata is stored on the same record and expires with it.',
+    summary: 'Anonymous diagnostic transcripts are stored for ' + retentionDays() + ' days and then deleted by DynamoDB TTL. They are not customer accounts. '
+      + 'Browser localStorage remains the live chat source of truth. A session is marked ended only when the customer uses New Chat. '
+      + 'Sessions with no further activity after ' + Math.round(inactiveAfterMs() / 60000) + ' minutes are shown as inactive — not completed.',
     stored: [
       'anonymous session id',
       'created / last-activity timestamps',
       'ordered customer and ApplianceClinic turns (visible text)',
       'photo-present flag (never bytes)',
-      'appliance family / make / model / error code when the request path knew them',
-      'route, outcome, safety classification, parts/media surfaced, request/trace ids',
-      'best-effort redacted diagnostic trace and structured per-turn state progression when captured',
+      'appliance, make and model as the advisor recorded them',
+      'outcome, safety classification, parts/media surfaced, request ids',
+      'the engine\'s bounded per-turn audit: provider, timings, token usage, tool calls, hazards and gates, part decision',
       'API error flag',
-      'semantic review status, versioned LLM assessment, model/provider provenance (same TTL)',
     ],
     notStored: [
       'email addresses or names as fields (customers may still type them into free text)',
@@ -953,10 +631,6 @@ function recordToItem(rec) {
     partsCount: rec.partsCount,
     mediaCount: rec.mediaCount,
     safetyClass: rec.safetyClass,
-    extractedModel: rec.turns && rec.turns.length
-      ? ((rec.turns[rec.turns.length - 1].metadata || {}).extractedModel || null)
-      : null,
-    review: rec.review || reviewSchema.emptyReviewState(),
   });
   return ddb.compact({
     pk: ddb.S(pkOf(rec.sessionId)),
@@ -978,10 +652,6 @@ function recordToItem(rec) {
     searchBlob: ddb.S(rec.searchBlob || ''),
     payload: ddb.S(payload),
     retentionDays: ddb.N(rec.retentionDays || retentionDays()),
-    reviewStatus: ddb.S(rec.review && rec.review.status && rec.review.status !== 'none' ? rec.review.status : null),
-    reviewPriority: ddb.S(rec.review && rec.review.assessment && rec.review.assessment.reviewPriority),
-    reviewOverall: ddb.S(rec.review && rec.review.assessment && rec.review.assessment.overallAssessment),
-    reviewOutcome: ddb.S(rec.review && rec.review.assessment && rec.review.assessment.outcome),
   });
 }
 
@@ -1014,29 +684,21 @@ function itemToRecord(item) {
     mediaCount: extra.mediaCount || 0,
     turns: Array.isArray(extra.turns) ? extra.turns : [],
     searchBlob: row.searchBlob || '',
-    review: extra.review && typeof extra.review === 'object'
-      ? reviewSchema.compactReview(extra.review)
-      : reviewSchema.emptyReviewState(),
   };
 }
 
 function createMemoryStore(seed) {
   const items = new Map(seed || []);
+  const sorted = () => Array.from(items.values()).sort((a, b) => String(b.lastActivityAt).localeCompare(String(a.lastActivityAt)));
   return {
     kind: 'memory',
-    async get(sessionId) {
-      return items.get(sessionId) || null;
-    },
-    async put(rec) {
-      items.set(rec.sessionId, rec);
-      return rec;
-    },
+    async get(sessionId) { return items.get(sessionId) || null; },
+    async put(rec) { items.set(rec.sessionId, rec); return rec; },
     async list(query, now) {
       const { limit, from, to, cursor, filters } = parseListQuery(query);
       const decoded = decodeCursor(cursor) || {};
       const offset = Number(decoded.offset) || 0;
-      const all = Array.from(items.values()).sort((a, b) => String(b.lastActivityAt).localeCompare(String(a.lastActivityAt)));
-      const dated = all.filter((r) => inDateWindow(r, from, to));
+      const dated = sorted().filter((r) => inDateWindow(r, from, to));
       const filtered = dated.filter((r) => matchesFilters(r, filters, now));
       const slice = filtered.slice(offset, offset + limit);
       const nextOffset = offset + slice.length;
@@ -1047,20 +709,15 @@ function createMemoryStore(seed) {
         viewCounts: viewCountsFromRecords(dated),
       };
     },
-    async stats(now) {
-      const all = Array.from(items.values()).sort((a, b) => String(b.lastActivityAt).localeCompare(String(a.lastActivityAt)));
-      return statsFromRows(all, now);
-    },
-    async listRecentRecords(limit, now) {
+    async stats(now) { return statsFromRows(sorted(), now); },
+    async listRecentRecords(limit) {
       const cap = Math.min(200, Math.max(1, Number(limit) || 80));
-      const all = Array.from(items.values()).sort((a, b) => String(b.lastActivityAt).localeCompare(String(a.lastActivityAt)));
-      return all.slice(0, cap);
+      return sorted().slice(0, cap);
     },
     async listRecordsSince(fromIso, limit) {
       const cap = Math.min(400, Math.max(1, Number(limit) || 200));
-      const all = Array.from(items.values()).sort((a, b) => String(b.lastActivityAt).localeCompare(String(a.lastActivityAt)));
       const from = fromIso ? String(fromIso) : '';
-      return all.filter((r) => !from || String(r.lastActivityAt || '') >= from).slice(0, cap);
+      return sorted().filter((r) => !from || String(r.lastActivityAt || '') >= from).slice(0, cap);
     },
     _items: items,
   };
@@ -1076,11 +733,7 @@ function createDynamoStore(opts) {
     kind: 'dynamodb',
     table: table,
     async get(sessionId) {
-      const res = await call('GetItem', {
-        TableName: table,
-        Key: { pk: ddb.S(pkOf(sessionId)) },
-        ConsistentRead: true,
-      });
+      const res = await call('GetItem', { TableName: table, Key: { pk: ddb.S(pkOf(sessionId)) }, ConsistentRead: true });
       return res.Item ? itemToRecord(res.Item) : null;
     },
     async put(rec) {
@@ -1090,81 +743,49 @@ function createDynamoStore(opts) {
     async list(query, now) {
       const { limit, from, to, cursor, filters } = parseListQuery(query);
       const esk = decodeCursor(cursor);
-      // Only declare #sk when the KeyConditionExpression actually references it.
-      // With no date filter the query is partition-only (#gsiPk = :pk); declaring an
-      // unused #sk makes DynamoDB reject the whole Query with a ValidationException
-      // ("ExpressionAttributeNames unused ... {#sk}"), which is what emptied the
-      // unfiltered "All" view. The sort key is always #sk = lastActivityAt when present.
+      // Only declare #sk when the KeyConditionExpression references it: DynamoDB rejects an unused name.
       const exprNames = { '#gsiPk': 'gsiPk' };
       const exprValues = { ':pk': ddb.S(GSI_PK) };
       let keyCond = '#gsiPk = :pk';
       if (from && to) {
-        exprNames['#sk'] = 'lastActivityAt';
-        exprValues[':from'] = ddb.S(from);
-        exprValues[':to'] = ddb.S(to);
+        exprNames['#sk'] = 'lastActivityAt'; exprValues[':from'] = ddb.S(from); exprValues[':to'] = ddb.S(to);
         keyCond += ' AND #sk BETWEEN :from AND :to';
       } else if (from) {
-        exprNames['#sk'] = 'lastActivityAt';
-        exprValues[':from'] = ddb.S(from);
+        exprNames['#sk'] = 'lastActivityAt'; exprValues[':from'] = ddb.S(from);
         keyCond += ' AND #sk >= :from';
       } else if (to) {
-        exprNames['#sk'] = 'lastActivityAt';
-        exprValues[':to'] = ddb.S(to);
+        exprNames['#sk'] = 'lastActivityAt'; exprValues[':to'] = ddb.S(to);
         keyCond += ' AND #sk <= :to';
       }
-      // Fetch a window larger than page size so FilterExpression still fills a page.
+      // Fetch a window larger than page size so the filters still fill a page.
       const res = await call('Query', ddb.compact({
-        TableName: table,
-        IndexName: GSI_NAME,
-        KeyConditionExpression: keyCond,
-        ExpressionAttributeNames: exprNames,
-        ExpressionAttributeValues: exprValues,
-        ScanIndexForward: false,
-        Limit: Math.min(100, Math.max(limit * 4, limit)),
-        ExclusiveStartKey: esk || undefined,
+        TableName: table, IndexName: GSI_NAME, KeyConditionExpression: keyCond,
+        ExpressionAttributeNames: exprNames, ExpressionAttributeValues: exprValues,
+        ScanIndexForward: false, Limit: Math.min(100, Math.max(limit * 4, limit)), ExclusiveStartKey: esk || undefined,
       }));
-      const rows = (res.Items || []).map(itemToRecord).filter(Boolean)
-        .filter((r) => matchesFilters(r, filters, now));
+      const rows = (res.Items || []).map(itemToRecord).filter(Boolean).filter((r) => matchesFilters(r, filters, now));
       const page = rows.slice(0, limit);
       const next = res.LastEvaluatedKey ? encodeCursor(res.LastEvaluatedKey) : null;
       let countSource;
       if (from) countSource = await this.listRecordsSince(from, 400);
       else countSource = await this.listRecentRecords(400);
       if (to) countSource = (countSource || []).filter((r) => inDateWindow(r, null, to));
-      return {
-        items: page.map((r) => overviewRow(r, now)),
-        nextCursor: next,
-        retention: policy(),
-        viewCounts: viewCountsFromRecords(countSource),
-      };
+      return { items: page.map((r) => overviewRow(r, now)), nextCursor: next, retention: policy(), viewCounts: viewCountsFromRecords(countSource) };
     },
     async stats(now) {
       const from = startOfUtcDay(now || new Date());
       const res = await call('Query', {
-        TableName: table,
-        IndexName: GSI_NAME,
-        KeyConditionExpression: '#gsiPk = :pk AND #sk >= :from',
-        ExpressionAttributeNames: { '#gsiPk': 'gsiPk', '#sk': 'lastActivityAt' },
-        ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK), ':from': ddb.S(from) },
-        ScanIndexForward: false,
-        Limit: 200,
+        TableName: table, IndexName: GSI_NAME, KeyConditionExpression: '#gsiPk = :pk AND #sk >= :from',
+        ExpressionAttributeNames: { '#gsiPk': 'gsiPk', '#sk': 'lastActivityAt' }, ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK), ':from': ddb.S(from) },
+        ScanIndexForward: false, Limit: 200,
       });
-      const rows = (res.Items || []).map(itemToRecord).filter(Boolean);
-      const recent = await this.listRecentRecords(200, now);
-      const today = statsFromRows(rows, now);
-      today.quality = require('./transcript-review/aggregates').fromRecords(recent, now);
-      return today;
+      return statsFromRows((res.Items || []).map(itemToRecord).filter(Boolean), now);
     },
     async listRecentRecords(limit) {
       const cap = Math.min(200, Math.max(1, Number(limit) || 80));
       const res = await call('Query', {
-        TableName: table,
-        IndexName: GSI_NAME,
-        KeyConditionExpression: '#gsiPk = :pk',
-        ExpressionAttributeNames: { '#gsiPk': 'gsiPk' },
-        ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK) },
-        ScanIndexForward: false,
-        Limit: cap,
+        TableName: table, IndexName: GSI_NAME, KeyConditionExpression: '#gsiPk = :pk',
+        ExpressionAttributeNames: { '#gsiPk': 'gsiPk' }, ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK) }, ScanIndexForward: false, Limit: cap,
       });
       return (res.Items || []).map(itemToRecord).filter(Boolean);
     },
@@ -1172,13 +793,9 @@ function createDynamoStore(opts) {
       const cap = Math.min(400, Math.max(1, Number(limit) || 200));
       const from = fromIso ? String(fromIso) : startOfUtcDay(new Date());
       const res = await call('Query', {
-        TableName: table,
-        IndexName: GSI_NAME,
-        KeyConditionExpression: '#gsiPk = :pk AND #sk >= :from',
-        ExpressionAttributeNames: { '#gsiPk': 'gsiPk', '#sk': 'lastActivityAt' },
-        ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK), ':from': ddb.S(from) },
-        ScanIndexForward: false,
-        Limit: cap,
+        TableName: table, IndexName: GSI_NAME, KeyConditionExpression: '#gsiPk = :pk AND #sk >= :from',
+        ExpressionAttributeNames: { '#gsiPk': 'gsiPk', '#sk': 'lastActivityAt' }, ExpressionAttributeValues: { ':pk': ddb.S(GSI_PK), ':from': ddb.S(from) },
+        ScanIndexForward: false, Limit: cap,
       });
       return (res.Items || []).map(itemToRecord).filter(Boolean);
     },
@@ -1188,15 +805,7 @@ function createDynamoStore(opts) {
 async function persistTurn(store, obs, input) {
   if (!store || !obs || obs.event === 'end') return { skipped: true };
   if (!isValidSessionId(obs.sessionId)) return { skipped: true };
-  const turn = buildTurn({
-    messages: input.messages,
-    view: input.view,
-    orch: input.orch,
-    requestId: input.requestId,
-    clientTurnId: obs.clientTurnId,
-    now: input.now,
-    ac2: input.ac2 || null,
-  });
+  const turn = buildTurn({ messages: input.messages, view: input.view, orch: input.orch, requestId: input.requestId, clientTurnId: obs.clientTurnId, now: input.now, ac2: input.ac2 || null });
   let rec = await store.get(obs.sessionId);
   if (!rec) rec = emptyRecord(obs.sessionId, input.now);
   rec = applyTurn(rec, turn, input.now);
@@ -1216,59 +825,16 @@ async function persistSafely(store, fn, log) {
   try {
     return await fn();
   } catch (e) {
-    if (typeof log === 'function') {
-      log({ evt: 'transcript-persist-failed', error: String(e && e.message || e) });
-    }
+    if (typeof log === 'function') log({ evt: 'transcript-persist-failed', error: String(e && e.message || e) });
     return { ok: false, error: 'persist-failed' };
   }
 }
 
 module.exports = {
-  canonicalSummary,
-  slimAc2Audit,
-  AC2_SCHEMA,
-  enforcePayloadBudget,
-  PAYLOAD_BUDGET_BYTES,
-  HELP_HUBS,
-  DEFAULT_TABLE,
-  DEFAULT_RETENTION_DAYS,
-  DEFAULT_INACTIVE_MS,
-  MAX_TURNS,
-  takeObservability,
-  isValidSessionId,
-  isValidTurnId,
-  retentionDays,
-  inactiveAfterMs,
-  policy,
-  emptyRecord,
-  buildTurn,
-  applyTurn,
-  applyEnd,
-  deriveLifecycle,
-  overviewRow,
-  openingPreview,
-  viewCountsFromRecords,
-  drillDown,
-  parseListQuery,
-  matchesFilters,
-  encodeCursor,
-  decodeCursor,
-  statsFromRows,
-  createMemoryStore,
-  createDynamoStore,
-  persistTurn,
-  persistEnd,
-  persistSafely,
-  reviewOverview,
-  semanticReviewView,
-  customerTextFromMessages,
-  customerVisibleFromView,
-  metadataFromPath,
-  forbiddenKeysIn,
-  stripSecrets,
-  normaliseDiagnosticTrace,
-  stateProgression,
-  slimTrace,
-  boundTraceHistory,
-  TRACE_FULL_TURNS,
+  ac2Summary, slimAc2Audit, AC2_SCHEMA, boundAuditHistory, enforcePayloadBudget, PAYLOAD_BUDGET_BYTES, AUDIT_FULL_TURNS,
+  HELP_HUBS, DEFAULT_TABLE, DEFAULT_RETENTION_DAYS, DEFAULT_INACTIVE_MS, MAX_TURNS, OUTCOMES,
+  takeObservability, isValidSessionId, isValidTurnId, retentionDays, inactiveAfterMs, policy, emptyRecord, buildTurn, applyTurn, applyEnd,
+  deriveLifecycle, overviewRow, openingPreview, viewCountsFromRecords, drillDown, parseListQuery, matchesFilters, encodeCursor, decodeCursor,
+  statsFromRows, createMemoryStore, createDynamoStore, persistTurn, persistEnd, persistSafely,
+  customerTextFromMessages, customerVisibleFromView, metadataFromPath, stripSecrets,
 };

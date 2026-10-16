@@ -8,7 +8,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const FILES = ['index.js', 'config.js', 'log.js', 'http-io.js', 'rate-limiting.js', 'session.js', 's3.js',
-  'benchmark-state.js', 'transcript-store.js',
+  'transcript-store.js',
   ...fs.readdirSync(path.join(ROOT, 'admin')).filter((f) => f.endsWith('.js')).sort().map((f) => `admin/${f}`)];
 
 module.exports = function apiSource() {

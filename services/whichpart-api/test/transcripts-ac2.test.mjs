@@ -1,7 +1,7 @@
 /**
- * ac2 transcript observability: the ac2-transcript-audit/1 object is stored on the turn as `ac2` (never `canonical`),
- * bounded, and the session summary reports path 'ac2' with appliance / status / part-gate outcome so the
- * Admin → Conversations list filters and badges work. Old transcripts keep their summary unchanged.
+ * ac2 transcript observability: the engine's bounded audit (ac2-transcript-audit/2) is stored on the turn as `ac2`,
+ * bounded and secret-free, and the session summary reports the advisor's outcome, hazards and part decision so the
+ * Admin → Conversations list filters and badges work. Records written by the earlier audit schema (/1) stay readable.
  */
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
@@ -15,31 +15,18 @@ const SID = 's-ac2-observe-01';
 
 function audit(over = {}) {
   return {
-    schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', turn: 2,
-    provider: { name: 'bedrock', model: 'test-model' },
-    timings: { reasonMs: 900, verifyMs: 120, totalMs: 1100 },
+    schemaVersion: 'ac2-transcript-audit/2', path: 'ac2', turn: 2,
+    provider: { name: 'anthropic', model: 'test-model' },
+    timings: { adviseMs: 900, totalMs: 1100 },
     usage: { inputTokens: 1200, outputTokens: 300 },
-    toolCalls: [{ tool: 'error-codes', results: [{ code: 'F05', status: 'RESOLVED' }] }, { tool: 'knowledge', results: ['washing-machine:not-draining'] }],
-    safety: { hazards: [], gates: [{ gate: 'repeated-question', key: 'model', why: 'asked twice' }] },
-    claimsRejected: [{ claim: 'The pump motor is burnt out', source: 'reply' }],
-    claimsChecked: 4,
-    regenerated: true,
-    partGate: { outcome: 'model_needed', component: 'drain pump', failed: ['model_confirmed'], matcher: null, cited: ['f1'] },
+    toolCalls: ['lookup_error_code', 'find_parts', 'send_reply'],
+    safety: { hazards: [], gates: [{ gate: 'unverified-identifier', why: 'part number not in catalogue' }] },
+    partGate: { outcome: 'model_needed', component: 'drain pump' },
     escalation: null,
-    status: 'narrowing',
-    candidates: [{ cause: 'Blocked pump filter', likelihood: 'high', evidence: ['f1', 'f2'] }],
-    scope: { status: 'in', appliance: 'washing-machine' },
-    ledger: {
-      appliance: { value: 'washing-machine', status: 'stated', quote: 'my washing machine', turn: 1 },
-      brand: { value: 'Hotpoint', status: 'stated', quote: 'hotpoint', turn: 1 }, model: null,
-      codes: [{ code: 'F05', quote: 'F05', turn: 1 }],
-      facts: [
-        { id: 'f1', field: 'water_left_in_drum', value: true, source: 'customer', status: 'observed', turn: 1, quote: 'water left in the drum' },
-        { id: 'f2', field: 'pump_noise', value: 'none', source: 'customer', status: 'contradicted', turn: 2, quote: 'no hum' },
-      ],
-      asked: [{ key: 'model', text: 'What is the model?', turn: 2, times: 2, resolution: 'open' }],
-      hazards: [],
-    },
+    outcome: 'diagnosing',
+    customer: { appliance: 'washing-machine', brand: 'Hotpoint', model: null },
+    hazards: [],
+    tags: { outcome: 'diagnosing', media: null, enrichment: { knowledgeIds: ['washing-machine:not-draining'], codes: [{ code: 'F05' }], recalls: 0, parts: 0 } },
     ms: 1300,
     ...over,
   };
@@ -49,75 +36,72 @@ const orch = { route: 'AC2', outcome: 'ANSWER' };
 const msgs = [{ role: 'user', content: 'my hotpoint washing machine shows F05' }];
 
 describe('slimAc2Audit', () => {
-  it('keeps the decision fields and caps facts, quotes and lists', () => {
+  it('keeps the decision fields, caps the lists and drops anything that is not in the contract', () => {
     const big = audit({
-      ledger: { ...audit().ledger, facts: Array.from({ length: 55 }, (_, i) => ({ id: 'f' + i, field: 'x', value: 'v', source: 'customer', status: 'observed', turn: 1, quote: 'q'.repeat(400) })) },
-      toolCalls: Array.from({ length: 30 }, () => ({ tool: 'knowledge', results: [] })),
-      claimsRejected: Array.from({ length: 25 }, () => ({ claim: 'c', source: 's' })),
+      toolCalls: Array.from({ length: 30 }, () => 'find_parts'),
       safety: { hazards: [], gates: Array.from({ length: 25 }, () => ({ gate: 'g' })) },
+      reasoning: 'never stored', apiKey: 'sk-never', ledger: { facts: [] },
     });
     const s = tx.slimAc2Audit(big);
-    expect(s.ledger.facts).toHaveLength(40);
-    expect(s.ledger.factsTotal).toBe(55);
-    expect(s.ledger.facts[0].id).toBe('f15'); // the latest 40
-    expect(s.ledger.facts.every((f) => f.quote.length === 160)).toBe(true);
-    expect(s.toolCalls).toHaveLength(20);
-    expect(s.claimsRejected).toHaveLength(20);
+    expect(s.toolCalls).toHaveLength(12);
     expect(s.safety.gates).toHaveLength(20);
+    expect(s.customer).toEqual({ appliance: 'washing-machine', brand: 'Hotpoint', model: null });
+    expect(s.tags.enrichment.codes).toMatchObject([{ code: 'F05' }]);
+    expect(JSON.stringify(s)).not.toMatch(/reasoning|sk-never|ledger/);
   });
   it('returns null for anything that is not an ac2 audit, and a summary form on request', () => {
     expect(tx.slimAc2Audit({ schemaVersion: 'canonical-audit/1' })).toBeNull();
     expect(tx.slimAc2Audit(null)).toBeNull();
     const s = tx.slimAc2Audit(audit(), { summary: true });
-    expect(s).toMatchObject({ slim: true, status: 'narrowing', appliance: 'washing-machine', claimsRejectedCount: 1, partGate: { outcome: 'model_needed' } });
-    expect(s.ledger).toBeUndefined();
-    expect(s.candidates).toBeUndefined();
+    expect(s).toMatchObject({ slim: true, outcome: 'diagnosing', customer: { appliance: 'washing-machine' }, partGate: { outcome: 'model_needed' } });
+    expect(s.toolCalls).toBeUndefined();
+    expect(s.tags).toBeUndefined();
+  });
+  it('reads the earlier audit schema (/1) so older records stay visible', () => {
+    const s = tx.slimAc2Audit({ schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', turn: 1, status: 'narrowing', ledger: { appliance: { value: 'oven' } } });
+    expect(s).toMatchObject({ schemaVersion: 'ac2-transcript-audit/2', turn: 1, outcome: 'narrowing' });
   });
 });
 
 describe('persisted ac2 turns', () => {
-  it('stores the audit under turn.ac2 (never a canonical block) and the detail returns it', async () => {
+  it('stores the audit under turn.ac2 and the detail returns it', async () => {
     const store = tx.createMemoryStore();
     await tx.persistTurn(store, { sessionId: SID, clientTurnId: 'ct-ac2-1' }, { messages: msgs, view, orch, requestId: 'rid-ac2', now, ac2: audit() });
     const rec = await store.get(SID);
     expect(rec.turns[0]).not.toHaveProperty('canonical');
-    expect(rec.turns[0].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', status: 'narrowing', provider: { model: 'test-model' }, regenerated: true });
-    expect(rec.turns[0].ac2.ledger.facts.map((f) => f.status)).toEqual(['observed', 'contradicted']);
+    expect(rec.turns[0].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/2', outcome: 'diagnosing', provider: { model: 'test-model' }, toolCalls: ['lookup_error_code', 'find_parts', 'send_reply'] });
+    expect(rec).toMatchObject({ family: 'washing-machine', make: 'Hotpoint', errorCode: 'F05' });
     const d = tx.drillDown(rec, now);
-    expect(d.customerVisible.turns[0].ac2.candidates[0]).toEqual({ cause: 'Blocked pump filter', likelihood: 'high', evidence: ['f1', 'f2'] });
-    expect(d.overview.canonical).toMatchObject({ path: 'ac2', appliance: 'washing-machine', ac2: { turns: 1, status: 'narrowing', partGate: 'model_needed', errors: 0 } });
+    expect(d.customerVisible.turns[0].ac2.partGate).toEqual({ outcome: 'model_needed', component: 'drain pump' });
+    expect(d.overview.ac2).toMatchObject({ turns: 1, outcome: 'diagnosing', partRecommended: false, errors: 0, appliance: 'washing-machine' });
   });
 
-  it('summary: path ac2, part recommended on a verified gate, errors count as degraded', () => {
+  it('summary: part recommended on a verified gate, errors count as degraded, hazards collected', () => {
     const rec = { turns: [
-      tx.buildTurn({ messages: msgs, view, orch, ac2: audit({ partGate: { outcome: 'verified', component: 'drain pump', failed: [], cited: ['f1'] } }) }),
-      tx.buildTurn({ messages: msgs, view: { ...view, error: true }, orch: null, ac2: { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', error: 'engine_unreachable' } }),
+      tx.buildTurn({ messages: msgs, view, orch, ac2: audit({ partGate: { outcome: 'verified', component: 'drain pump' }, outcome: 'part_needed', safety: { hazards: ['burning'], gates: [] } }) }),
+      tx.buildTurn({ messages: msgs, view: { ...view, error: true }, orch: null, ac2: { schemaVersion: 'ac2-transcript-audit/2', path: 'ac2', error: 'engine_unreachable' } }),
     ] };
-    const s = tx.canonicalSummary(rec);
-    expect(s.path).toBe('ac2');
-    expect(s.partRecommended).toBe(true);
-    expect(s.degraded).toBe(true);
-    expect(s.ac2).toMatchObject({ turns: 2, errors: 1, partGate: 'verified' });
-    expect(tx.matchesFilters(rec, { canonical: 'ac2' }, now)).toBe(true);
-    expect(tx.matchesFilters(rec, { canonical: 'legacy' }, now)).toBe(false);
-    expect(tx.parseListQuery({ canonical: 'ac2' }).filters.canonical).toBe('ac2');
+    const s = tx.ac2Summary(rec);
+    expect(s).toMatchObject({ turns: 2, errors: 1, outcome: 'part_needed', partRecommended: true, hazards: ['burning'] });
+    expect(tx.matchesFilters(rec, { partRecommended: true }, now)).toBe(true);
+    expect(tx.matchesFilters(rec, { degraded: true }, now)).toBe(true);
+    expect(tx.matchesFilters(rec, { outcome: 'engineer' }, now)).toBe(false);
+    expect(tx.parseListQuery({ outcome: 'part_needed', partRecommended: '1' }).filters).toMatchObject({ outcome: 'part_needed', partRecommended: true });
+    expect(tx.parseListQuery({ outcome: 'not-an-outcome' }).filters.outcome).toBe('');
   });
 
-  it('old transcripts are unchanged: no ac2 field, legacy / canonical summaries as before', () => {
-    const legacy = tx.buildTurn({ messages: msgs, view, orch });
-    expect('ac2' in legacy).toBe(false);
-    const s = tx.canonicalSummary({ turns: [legacy] });
-    expect(s).toMatchObject({ path: 'legacy', ac2: null, counts: { legacy: 1, ac2: 0 } });
-    const canon = { ...legacy, canonical: { schemaVersion: 'canonical-audit/1', path: 'control', owner: 'wm-not-draining' } };
-    expect(tx.canonicalSummary({ turns: [canon] }).path).toBe('control');
+  it('a turn without an audit (an error before the engine answered) has no ac2 field', () => {
+    const t = tx.buildTurn({ messages: msgs, view, orch });
+    expect('ac2' in t).toBe(false);
+    expect(tx.ac2Summary({ turns: [t] })).toMatchObject({ turns: 0, errors: 0, outcome: null });
   });
 
-  it('older turns are slimmed to the summary form by the trace-history bound', () => {
+  it('older turns are slimmed to the summary form by the audit-history bound', () => {
     const turns = Array.from({ length: 3 }, () => tx.buildTurn({ messages: msgs, view, orch, ac2: audit() }));
-    tx.boundTraceHistory(turns, 1);
+    tx.boundAuditHistory(turns, 1);
     expect(turns[0].ac2.slim).toBe(true);
-    expect(turns[0].ac2.ledger).toBeUndefined();
-    expect(turns[2].ac2.ledger.facts).toHaveLength(2);
+    expect(turns[0].ac2.toolCalls).toBeUndefined();
+    expect(turns[2].ac2.toolCalls).toHaveLength(3);
   });
 });
 

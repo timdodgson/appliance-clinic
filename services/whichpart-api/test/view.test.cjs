@@ -4,11 +4,11 @@
  * Deterministic unit tests for the boundary — NO engine/network.
  * Locks the FIT INVARIANT (never claim MODEL_CONFIRMED without a resolved model + model-specific
  * part), safety part-suppression, the customer-safe projection of the ac2 turn's response, and the
- * structural conversation window / latest photo the BFF forwards.
+ * structural conversation window the BFF forwards.
  *
  *   node services/whichpart-api/test/view.test.cjs
  */
-const { toWhichPartView, latestImageOf, conversationWindow } = require('../index.js');
+const { toWhichPartView, conversationWindow } = require('../index.js');
 
 let pass = 0, fail = 0;
 function check(name, cond, detail) {
@@ -18,8 +18,7 @@ function check(name, cond, detail) {
 
 const orch = (extra = {}) => ({
   outcome: 'ANSWER', route: 'AC2', message: 'Likely a drain fault.',
-  codeResult: null, diagnosis: { summary: 'Likely a drain fault.' },
-  suggestedChecks: [], parts: [], resolvedModel: null, ...extra,
+  parts: [], resolvedModel: null, ...extra,
 });
 const part = (extra = {}) => ({ partNo: 'ABC123', title: 'Inverter', price: '80.00', ...extra });
 
@@ -49,26 +48,17 @@ const part = (extra = {}) => ({ partNo: 'ABC123', title: 'Inverter', price: '80.
   const v = toWhichPartView({ outcome: 'SAFETY_STOP', message: 'Stop using it now.', safety: { class: 'STOP_USE', stopUse: true }, parts: [part()] }, 't');
   check('safety-stop suppresses parts', v.parts.length === 0 && v.safety === true, JSON.stringify(v.parts));
 }
-// 6. STATUS/MAINTENANCE mapping
+// 6. The reply is the diagnosis: its first sentence is the browser's lead line; markdown is flattened
 {
-  const v = toWhichPartView({ outcome: 'ANSWER', message: 'LOC is a status message, not a fault.', codeResult: { displayed: 'LOC', recordType: 'STATUS', meaning: 'Child lock active' }, parts: [] }, 't');
-  check('STATUS not advisory, no parts', v.advisory === false && v.parts.length === 0);
-  const m = toWhichPartView({ outcome: 'ANSWER', message: 'Descale required.', codeResult: { displayed: 'E12', recordType: 'MAINTENANCE', meaning: 'Descale' }, parts: [] }, 't');
-  check('MAINTENANCE -> advisory tag', m.advisory === true);
+  const v = toWhichPartView(orch({ message: 'Likely the **drain pump**. Check the [filter](/help) first.' }), 't');
+  check('summary is the first sentence', v.diagnosis.summary === 'Likely the drain pump.', v.diagnosis.summary);
+  check('markdown emphasis and links flattened', v.reply === 'Likely the drain pump. Check the filter first.', v.reply);
 }
-// 7. needsModel only when the part gate asks for the model (modelRequired); retired fields stay null
+// 7. The view carries only the customer contract: no fields from the retired pipeline
 {
-  const id = toWhichPartView(orch({ message: 'What model?', modelRequired: true }), 't');
-  check('model request -> needsModel true', id.needsModel === true);
-  const sym = toWhichPartView(orch({ message: 'Tell me more' }), 't');
-  check('no model request -> needsModel false', sym.needsModel === false);
-  check('retired extractedModel / pendingRequest are null', sym.extractedModel === null && sym.pendingRequest === null);
-}
-// 8. no internal ids leak into the view
-{
-  const v = toWhichPartView(orch({ codeResult: { displayed: 'F06', meaning: 'NTC sensor', recordType: 'FAULT' } }), 't');
-  const blob = JSON.stringify(v).toLowerCase();
-  check('no scheme/faultId leak', !blob.includes('scheme') && v.diagnosis.faultId === null && !blob.includes('bsh_'));
+  const v = toWhichPartView(orch({ message: 'Tell me more', modelRequired: true, codeResult: { meaning: 'x' }, suggestedChecks: ['a'], componentMention: 'none' }), 't');
+  check('view keys are the customer contract', Object.keys(v).sort().join(',') === 'components,diagnosis,media,parts,reply,requestId,safety,safetyInformation', Object.keys(v).sort().join(','));
+  check('no internal ids leak', !/scheme|faultid|bsh_|suggestedChecks|codeResult/i.test(JSON.stringify(v)));
 }
 
 // 11. SAFETY INFORMATION passthrough (customer-safe projection)
@@ -99,45 +89,32 @@ const SI = {
   check('safety-stop suppresses safetyInformation', v.safetyInformation === null && v.safety === true);
 }
 
-// 14. STAGE-1 contract: grounded diagnosis + modelRequired coexist; NO parts; needsModel true
+// 14. A turn that asks for the model carries no parts yet (parts: null from the engine)
 {
   const v = toWhichPartView(orch({
-    outcome: 'ANSWER', message: 'Based on what you\u2019ve described, this is likely a motor / drum fault. ... could you tell me the make and model?',
-    diagnosis: { summary: 'Motor / drum fault' }, modelRequired: true, parts: null,
+    outcome: 'ANSWER', message: 'Based on what you\u2019ve described, this is likely a motor / drum fault. Could you tell me the make and model?',
+    parts: null,
   }), 't');
-  check('stage1 grounded diagnosis present', v.diagnosis.label === 'Motor / drum fault' || v.diagnosis.summary.length > 0);
-  check('stage1 needsModel true (from modelRequired)', v.needsModel === true);
-  check('stage1 NO parts shown before model', v.parts.length === 0);
-  check('stage1 not flagged as safety', v.safety === false);
+  check('diagnosis summary present', v.diagnosis.summary.length > 0);
+  check('NO parts shown before model', v.parts.length === 0);
+  check('not flagged as safety', v.safety === false);
 }
-// 15. STAGE-2: model resolved -> parts flow, needsModel false
+// 15. model resolved -> parts flow
 {
-  const v = toWhichPartView(orch({ outcome: 'ANSWER', resolvedModel: 'WAN28281GB', modelRequired: false,
-    diagnosis: { summary: 'Not draining' }, parts: [part({ _brandOnly: false })] }), 't');
-  check('stage2 needsModel false', v.needsModel === false);
-  check('stage2 MODEL_CONFIRMED part', v.parts[0].fitStatus === 'MODEL_CONFIRMED');
+  const v = toWhichPartView(orch({ outcome: 'ANSWER', resolvedModel: 'WAN28281GB', parts: [part({ _brandOnly: false })] }), 't');
+  check('MODEL_CONFIRMED part', v.parts[0].fitStatus === 'MODEL_CONFIRMED');
 }
-// 16. STAGE-1 can coexist with a safety-information block (diagnosis + safety + model request)
+// 16. a safety-information block coexists with a diagnosis that has no parts yet
 {
-  const v = toWhichPartView(orch({ outcome: 'ANSWER', modelRequired: true, parts: null,
-    diagnosis: { summary: 'Not heating (magnetron circuit)' }, safetyInformation: SI }), 't');
-  check('stage1 + safetyInfo: needsModel true', v.needsModel === true);
-  check('stage1 + safetyInfo: safety block present', v.safetyInformation && v.safetyInformation.text === SI.text);
-  check('stage1 + safetyInfo: no parts', v.parts.length === 0);
-}
-
-// 18. latestImageOf: the customer's latest photo is forwarded (structural); reading it is the engine's job.
-{
-  const img = { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } };
-  check('image turn -> latest image captured', latestImageOf([{ role: 'user', content: [{ type: 'text', text: 'wont drain' }, img] }]) === 'data:image/jpeg;base64,AAAA');
-  check('earlier photo carried forward', latestImageOf([{ role: 'user', content: [img] }, { role: 'assistant', content: 'ok' }, { role: 'user', content: 'and?' }]) === 'data:image/jpeg;base64,AAAA');
-  check('no photo -> null', latestImageOf([{ role: 'user', content: 'x' }]) === null);
+  const v = toWhichPartView(orch({ outcome: 'ANSWER', parts: null, safetyInformation: SI }), 't');
+  check('safetyInfo: safety block present', v.safetyInformation && v.safetyInformation.text === SI.text);
+  check('safetyInfo: no parts', v.parts.length === 0);
 }
 
 // 21. INSTRUCTIONAL MEDIA surfaced with safe fields only
 {
   const M = [{ type: 'DIAGRAM', title: 'Where the pump filter is', description: 'Behind the bottom flap. Typical — yours may differ.', url: '/media/wm-pump-filter.svg', alt: 'pump filter diagram' }];
-  const v = toWhichPartView(orch({ media: M, diagnosis: { summary: 'Not draining' } }), 't');
+  const v = toWhichPartView(orch({ media: M }), 't');
   check('media surfaced', v.media.length === 1 && v.media[0].url === '/media/wm-pump-filter.svg');
   check('media has only safe fields', Object.keys(v.media[0]).sort().join(',') === 'alt,description,id,intent,title,type,url');
   check('media title/alt present', v.media[0].title && v.media[0].alt);
@@ -150,53 +127,23 @@ const SI = {
 }
 // 23. absent media -> empty array (UI renders nothing)
 {
-  const v = toWhichPartView(orch({ diagnosis: { summary: 'x' } }), 't');
+  const v = toWhichPartView(orch(), 't');
   check('absent media -> []', Array.isArray(v.media) && v.media.length === 0);
 }
 // 24. media provenance / internal fields never reach the browser even if orch leaks them
 {
   const leaky = [{ type: 'DIAGRAM', title: 't', description: 'd', url: '/media/x.svg', alt: 'a', id: 'wm-pump-filter', relatedCheck: 'clean the filter', applicability: 'GENERIC', provenance: [{ sourceType: 'own-generic-diagram', publisher: 'WhichPart' }] }];
-  const v = toWhichPartView(orch({ media: leaky, diagnosis: { summary: 'x' } }), 't');
+  const v = toWhichPartView(orch({ media: leaky }), 't');
   const blob = JSON.stringify(v.media);
   check('media keeps a public id handle for later-turn dedupe', v.media[0].id === 'wm-pump-filter');
   check('media strips provenance/relatedCheck/applicability', !/relatedCheck|applicability|own-generic|"provenance"/.test(blob));
 }
 
-// 26. diagnosis grain controls catalogue presentation (advice-only cannot leak purchase)
+// 26. parts without a part number never become a card; duplicates collapse to one component
 {
-  const leak = orch({
-    message: 'Clean the condenser and try a hotter cycle.',
-    componentMention: 'none',
-    suggestedChecks: ['heating element', 'control pcb', 'thermostat'],
-    parts: [part({ _brandOnly: false })],
-  });
-  const v = toWhichPartView(leak, 't');
-  check('none grain does not fold Worth checking', !/Worth checking/i.test(v.reply));
-  check('none grain does not name retrieved components in the reply', !/heating element|control pcb/i.test(v.reply));
-  check('none grain suppresses part cards', v.parts.length === 0);
-}
-{
-  const purchase = orch({
-    message: 'Likely the drain pump.',
-    componentMention: 'purchase',
-    suggestedChecks: ['drain pump'],
-    resolvedModel: 'WAN28281GB',
-    parts: [part({ _brandOnly: false })],
-  });
-  const v = toWhichPartView(purchase, 't');
-  check('purchase grain does not fold a component dump into the reply', !/Worth checking/i.test(v.reply));
-  check('purchase grain keeps MODEL_CONFIRMED when model+model-specific part', v.parts[0].fitStatus === 'MODEL_CONFIRMED');
-}
-{
-  const discuss = orch({
-    message: 'Worth checking: fan motor, control pcb, defrost heater.',
-    componentMention: 'discuss',
-    suggestedChecks: ['fan motor', 'control pcb'],
-    parts: [part()],
-  });
-  const v = toWhichPartView(discuss, 't');
-  check('discuss grain strips shopping-list fold from prose', !/Worth checking:/i.test(v.reply));
-  check('discuss grain does not offer purchase cards', v.parts.length === 0);
+  const v = toWhichPartView(orch({ resolvedModel: 'WAN28281GB', parts: [part({ _brandOnly: false }), part({ _brandOnly: false }), { title: 'no number' }] }), 't');
+  check('part without partNo dropped', v.parts.length === 2);
+  check('components deduplicated by name', v.components.length === 1 && v.components[0].rank === 'PRIMARY');
 }
 
 {
