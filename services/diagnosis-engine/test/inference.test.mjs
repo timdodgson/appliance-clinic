@@ -250,6 +250,27 @@ describe('AnthropicProvider (evaluation: Claude inside the pipeline)', () => {
     expect(r.status).not.toBe(200);
   });
 
+  it('converse (the advisor): tools, cached system prompt, medium effort, server-side fallback; content blocks back', async () => {
+    const blocks = [{ type: 'thinking', thinking: '', signature: 's' }, { type: 'tool_use', id: 't1', name: 'find_parts', input: { model: 'V6' } }];
+    const t = fake(200, { content: blocks, stop_reason: 'tool_use', usage: { input_tokens: 10, cache_read_input_tokens: 90, output_tokens: 5 } });
+    const p = new AP({ apiKey: 'k', model: 'claude-opus-5-5', transport: t });
+    const tools = [{ name: 'find_parts', description: 'd', strict: true, input_schema: { type: 'object', additionalProperties: false, required: ['model'], properties: { model: { type: 'string' } } } }];
+    const r = await p.converse({ system: 'S', messages: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }], tools, effort: 'medium', maxTokens: 16000, timeoutMs: 1000 });
+    const { headers, body } = t.calls[0];
+    expect(headers).toMatchObject({ 'x-api-key': 'k', 'anthropic-beta': 'server-side-fallback-2026-07-01' });
+    expect(body).toMatchObject({ model: 'claude-opus-5-5', max_tokens: 16000, fallbacks: 'default', output_config: { effort: 'medium' }, tools, tool_choice: { type: 'auto' },
+      system: [{ type: 'text', text: 'S', cache_control: { type: 'ephemeral' } }] });
+    expect(body).not.toHaveProperty('thinking');
+    expect(r).toMatchObject({ status: 200, stopReason: 'tool_use', content: blocks, usage: { promptTokens: 100, completionTokens: 5, cacheReadTokens: 90 } });
+  });
+
+  it('converse: a refusal is a non-200, never content', async () => {
+    const t = fake(200, { content: [], stop_reason: 'refusal', stop_details: { category: 'bio' } });
+    const r = await new AP({ apiKey: 'k', model: 'claude-opus-5-5', transport: t }).converse({ system: 'S', messages: [] });
+    expect(r.status).toBe(422);
+    expect(r.content).toEqual([]);
+  });
+
   it('frontier.provider anthropic needs the Anthropic key, not the OpenAI one', () => {
     const cfg = { routing: { compose: 'frontier' }, frontier: { provider: 'anthropic', model: 'claude-opus-5-5' } };
     expect(resolveAdmin(cfg, null, {}, { anthropicKey: 'k' }).compose.name).toBe('anthropic');

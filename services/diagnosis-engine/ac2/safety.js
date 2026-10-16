@@ -170,7 +170,7 @@ const WARNING = /\b(don'?t|do not|never|avoid|no need to|shouldn'?t|must not|not
 
 function gateReply(reply, { hazards = [], appliance = null } = {}) {
   const active = new Set(hazards.map((h) => h.type));
-  const sentences = String(reply || '').match(/[^.!?\n]+[.!?]*\s*|\n+/g) || [];
+  const sentences = String(reply || '').match(/[^.!?\n]+[.!?]*[ \t]*|\n+/g) || [];
   const violations = [];
   const kept = sentences.filter((s) => {
     const low = s.toLowerCase();
@@ -184,7 +184,8 @@ function gateReply(reply, { hazards = [], appliance = null } = {}) {
     }
     return true;
   });
-  return { text: kept.join('').replace(/\s{2,}/g, ' ').trim(), violations };
+  // Spaces left by a removed sentence are tidied; line breaks and paragraphs are kept.
+  return { text: kept.join('').replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim(), violations };
 }
 
 function copyFor(type) {

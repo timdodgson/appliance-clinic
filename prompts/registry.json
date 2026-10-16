@@ -105,6 +105,37 @@
       ]
     },
     {
+      "id": "diagnosis.advisor",
+      "version": 1,
+      "purpose": "The customer turn: Opus reads the chat and the tool notes, looks up error codes and parts, and writes the reply (one step at a time, likely cause first).",
+      "owner": "diagnosis-engine",
+      "consumers": [
+        "Customer chat (ac2 turn)",
+        "Scripted tests (evaluation/scripted)"
+      ],
+      "source": [
+        {
+          "file": "services/diagnosis-engine/ac2/advisor.js",
+          "declarations": [
+            "SYSTEM",
+            "TOOLS"
+          ]
+        }
+      ],
+      "input": "The conversation (text, latest photo) with fault notes, pictures and active hazards appended to the latest customer message; tool results for lookup_error_code and find_parts.",
+      "output": "A send_reply tool call: reply text, appliance, brand, model, partIds (from find_parts), mediaId (from the notes), outcome.",
+      "changelog": [
+        {
+          "version": 1,
+          "date": "2026-10-16",
+          "fingerprint": "dcae6216dd1e87dc9249ca491bd5494c57aa9d670228de046309163eb424da47",
+          "change": "New in the Opus advisor refactor (23.1): replaces understand, labels, reply, reason, claims and jevled."
+        }
+      ]
+    }
+  ],
+  "retired": [
+    {
       "id": "diagnosis.ac3.understand",
       "purpose": "Step 2: Qwen reads the latest customer message and pulls out what it means (appliance, brand, model, codes, symptom, question, answer, checks reported). Hints for Jev only; nothing is recorded from it directly.",
       "consumers": [
@@ -142,7 +173,12 @@
           "fingerprint": "29b7eb30e7e4d94d3cb6177220c516568d4da49ee81b3dd65638131bcf4ed433",
           "change": "checksReported excludes safety steps (switching off, unplugging, finding the fuse box)."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac3.labels",
@@ -198,7 +234,12 @@
           "fingerprint": "5b857bc3ff8024899149f3e682de99c3584963f70bf1069bbe60e8f7d91da239",
           "change": "Change 21.18: the reply's check options may be up to 140 characters (tokenOptions maxLength); before, every owner check (52+ characters) was dropped, so Jev was never asked which check a reply gave and checkGiven was null in 302/302 turns of the 21.16 run."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac3.reply",
@@ -238,7 +279,12 @@
           "fingerprint": "f3275c1e3412dd75467637a6d293a9334b84dc465be594d2f238f9c9f3aca893",
           "change": "customerSaid and checksDone are true and never contradicted or asked again; no assumed model features; causes stated as possibilities until a check proves one."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac2.reason",
@@ -292,7 +338,12 @@
           "fingerprint": "fb349786eb63f9396c2888dec688763194e3f50657bb7ffb580641842fb644f6",
           "change": "Change 22.4 (deep-dive Phase 3, D5/D6): rule 2 gives the checks that separate the likely causes, as the plan says, and uses the whole knowledge note (discriminators, clarifying questions, component evidence, checks before replacing a part); the style line gives the reply a structure (cause and why, numbered checks with what each result means, fallback, when an engineer is better) instead of \"usually 3-8 sentences\"."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.ac2.claims",
@@ -326,7 +377,12 @@
           "fingerprint": "704f07476b37e0411e3ce8cfcc0f880754e8d22b3d9447954b7c12cbc517a638",
           "change": "Change 21.21: strict structured output (additionalProperties: false on every object); the prompt text is unchanged."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     },
     {
       "id": "diagnosis.jevled.question",
@@ -359,7 +415,12 @@
           "fingerprint": "6baacd76a63383da80f771ff0ac4c2dcd8721e42c5c1e5267b10ba2e696861c5",
           "change": "Change 21.32 (jev-led round 3): the answer is written after Jev's choice and is given the advice that follows (ADVICE); it must agree with it and never suggest a different step (round 2: WM-07 answers argued for a test the advice did not give)."
         }
-      ]
+      ],
+      "retired": {
+        "date": "2026-10-16",
+        "change": "23.1-opus-advisor",
+        "reason": "Replaced by diagnosis.advisor (docs/evaluation/code-audit-2026-10-16)."
+      }
     }
   ]
 }

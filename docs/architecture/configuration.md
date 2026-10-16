@@ -65,6 +65,7 @@ the COMPOSE tuning `LM_TEMPERATURE`, `LM_TIMEOUT_MS`, `LM_REPEAT_PENALTY`. Jev s
 | `CANONICAL_TOKEN_SECRET_ID`, `CANONICAL_TOKEN_PREVIOUS_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-canonical-state-token` | Yes: `applianceclinic/production/canonical-state-token` | `state-token.js` (signs the session token of every ac2 turn; historical name) |
 | `CANONICAL_TOKEN_SECRET`, `CANONICAL_TOKEN_SECRET_PREVIOUS` | Optional | none | No (tests and local runs only) | `state-token.js` |
 | `RATE_LIMIT_MODE`, `RATE_LIMIT_TABLE` | Optional | `off`, `applianceclinic-rate-limits` | Yes (`enforce`) | `rate-limit.js`, `rate-limiting.js` |
+| `TURNSTILE_MODE`, `TURNSTILE_SECRET_ID` | Optional | `off`, none | Yes (`observe`, `applianceclinic/production/turnstile`) | `turnstile.js` (Cloudflare bot check on a new conversation, change 21.38) |
 | `TRANSCRIPT_TABLE`, `TRANSCRIPT_GSI`, `TRANSCRIPT_RETENTION_DAYS`, `TRANSCRIPT_INACTIVE_MINUTES` | Optional | `whichpart-transcripts`, `gsi_activity`, 90, 120 | Yes (not the GSI) | `transcripts.js`, `ac2-state.js` |
 | `TRANSCRIPT_REVIEW_ENABLED`, `TRANSCRIPT_REVIEW_PROVIDER`, `TRANSCRIPT_REVIEW_MODEL`, `TRANSCRIPT_REVIEW_URL`, `TRANSCRIPT_REVIEW_MAX_PER_RUN`, `TRANSCRIPT_REVIEW_JEV_TIMEOUT_MS` | Optional | on, none, none, none, 3, 20000 | Yes (not the URL and the Jev timeout) | `transcript-review/` |
 | `RECALL_TABLE`, `RECALL_GSI`, `RECALL_FETCH_CONCURRENCY`, `RECALL_MAX_UNLIST` | Optional | `whichpart-recalls`, `gsi_activity`, 6, 3 | Yes (`RECALL_TABLE`) | `recalls/` |

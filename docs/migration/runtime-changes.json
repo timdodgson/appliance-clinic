@@ -863,7 +863,7 @@
     },
     {
       "path": "services/diagnosis-engine/inference.js",
-      "sha256": "990d78bf7190c702273937eeb2eb65851a4e64f3a9bcae48b2e2c8ac74fe2cf9",
+      "sha256": "e7ce7bcc7b5a677ad3ba90a0bca1eb911abe2dd242a079c69288aad25804752a",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -871,7 +871,8 @@
       "changes": [
         "8.1-engine-split",
         "15.1-diagnosis-engine",
-        "21.1-retire-journey-controller"
+        "21.1-retire-journey-controller",
+        "23.1-opus-advisor"
       ]
     },
     {
@@ -1051,14 +1052,15 @@
     },
     {
       "path": "services/diagnosis-engine/test/inference.test.mjs",
-      "sha256": "c7778cf11169927005c8a9ad7d0438973f3efd35b725b231c67a0fda1232baa3",
+      "sha256": "9830c8f196f6c1080aac884df3de358884ace7413555c277cb6a3514b981b3c7",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
         "15.1-diagnosis-engine",
-        "21.1-retire-journey-controller"
+        "21.1-retire-journey-controller",
+        "23.1-opus-advisor"
       ]
     },
     {
@@ -1288,7 +1290,7 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/safety.js",
-      "sha256": "08137c5643fade25d11cdcc45e48da202a52070f9dd37bcc85950832e8b0528a",
+      "sha256": "40a4af4f3faad1dcbef06d45e0f6b87f7acd957f13df1ccc4a049dca16d6f6d5",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -1297,24 +1299,13 @@
         "20.1-ac2-dormant",
         "21.15-judged-safety-and-calibration",
         "21.16-judged-dismantling-and-replacement",
-        "21.18-improvement-plan-phase-1"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/parts.js",
-      "sha256": "f2d348d89167dcc2766d05c904b63da6132a3ee8cbfea6401267969a4e0410e6",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant",
-        "21.2-ac3-pipeline"
+        "21.18-improvement-plan-phase-1",
+        "23.1-opus-advisor"
       ]
     },
     {
       "path": "services/diagnosis-engine/ac2/turn.js",
-      "sha256": "8cf08c77bb3a68605be3b5d5c94c970ef05ab04549ad910aa448bcff9b263eba",
+      "sha256": "96be643facb96d265c08f2f38abab8bd1366d41030e56492a76ef6420c8c31ec",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -1329,30 +1320,21 @@
         "21.17-engine-wait-45s",
         "21.18-improvement-plan-phase-1",
         "21.19-hazard-owner-checks",
-        "21.20-rollback-21.19"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/models.js",
-      "sha256": "9823b6a6f6bef75f963a3dce7f3cd5cd8f988b8d9fe399624ce36da3a18af375",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "20.1-ac2-dormant"
+        "21.20-rollback-21.19",
+        "23.1-opus-advisor"
       ]
     },
     {
       "path": "services/diagnosis-engine/ac2/runtime.js",
-      "sha256": "fd8b1cc5570f4e2ca75fce1f60f2bd474a15deb55babcc08cf1fab4c59b1653a",
+      "sha256": "aebeb9ff03d50e332594ab3abbc7d87d1342a3018bbdcb6e6789555cce2cc8b7",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
         "20.1-ac2-dormant",
-        "21.2-ac3-pipeline"
+        "21.2-ac3-pipeline",
+        "23.1-opus-advisor"
       ]
     },
     {
@@ -1452,7 +1434,7 @@
     },
     {
       "path": "services/diagnosis-engine/test/ac2-guardrail-regression.test.mjs",
-      "sha256": "6f9d2a81ae15ab2832aa303b2939e7f48185e5d8f3351f7d85b43b0db294af7c",
+      "sha256": "56b4db8ac5aeb96c86f3114764c0b4fd1340172232127558c9f62966015705e4",
       "role": "test",
       "units": [
         "applianceclinic-diagnosis-engine"
@@ -1460,7 +1442,8 @@
       "changes": [
         "20.1-ac2-dormant",
         "21.2-ac3-pipeline",
-        "21.11-ac3-reasoner-and-claim-check"
+        "21.11-ac3-reasoner-and-claim-check",
+        "23.1-opus-advisor"
       ]
     },
     {
@@ -1476,37 +1459,15 @@
     },
     {
       "path": "services/diagnosis-engine/ac2/record.js",
-      "sha256": "243fd180f9845c8c03f4dbd74fcce6bc46b24ac28e9dd111be2310eb77a7dee3",
+      "sha256": "8de0e6f0cc114ee01c39879cc845fee9acd97500a73199a0fa8914275f7858ea",
       "role": "runtime",
       "units": [
         "applianceclinic-diagnosis-engine"
       ],
       "changes": [
         "21.2-ac3-pipeline",
-        "21.11-ac3-reasoner-and-claim-check"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/understand.js",
-      "sha256": "5a98cd93e73a575c46b15f0797a945da2792e1c3e3f59591d45228ced8abc53a",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.2-ac3-pipeline"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/labels.js",
-      "sha256": "985ab8ae59c7f105487e8b5e0dd67f68191a86b4f087f0b2b1d04ddadf0c7181",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.2-ac3-pipeline",
-        "21.18-improvement-plan-phase-1"
+        "21.11-ac3-reasoner-and-claim-check",
+        "23.1-opus-advisor"
       ]
     },
     {
@@ -1518,35 +1479,6 @@
       ],
       "changes": [
         "21.2-ac3-pipeline"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/reply.js",
-      "sha256": "715236865d7f91a15567c8c353b87c089161e81635a07024e833240cdf8db9fb",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.2-ac3-pipeline"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/test/ac3-turn.test.mjs",
-      "sha256": "ef3cc38891dbb8258832a64b6ef7a60337ce91e3a13cfc690d8abcf425f4c741",
-      "role": "test",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.2-ac3-pipeline",
-        "21.11-ac3-reasoner-and-claim-check",
-        "21.14-regeneration-time-budget",
-        "21.15-judged-safety-and-calibration",
-        "21.16-judged-dismantling-and-replacement",
-        "21.18-improvement-plan-phase-1",
-        "21.19-hazard-owner-checks",
-        "21.20-rollback-21.19"
       ]
     },
     {
@@ -1572,43 +1504,6 @@
       ]
     },
     {
-      "path": "services/diagnosis-engine/ac2/reasoner.js",
-      "sha256": "962fc24731dc0d6a095eae74e4cf458e5a96d3d171f0c3c39ef6567e51146888",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.11-ac3-reasoner-and-claim-check",
-        "21.18-improvement-plan-phase-1",
-        "21.21-strict-schemas"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/ac2/verifier.js",
-      "sha256": "088f28b29bdc442185f90407abed43646ab9ee09358fc59d592c9e938536aa80",
-      "role": "runtime",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.11-ac3-reasoner-and-claim-check",
-        "21.18-improvement-plan-phase-1",
-        "21.21-strict-schemas"
-      ]
-    },
-    {
-      "path": "services/diagnosis-engine/test/ac3-claims-adversarial.test.mjs",
-      "sha256": "a702aaac0ca988334a8bfa3bf4a40108de077cd2c8261f1679dced4c54a4b69d",
-      "role": "test",
-      "units": [
-        "applianceclinic-diagnosis-engine"
-      ],
-      "changes": [
-        "21.11-ac3-reasoner-and-claim-check"
-      ]
-    },
-    {
       "path": "services/whichpart-api/turnstile.js",
       "sha256": "74e206f6f20f9ba9677279efbbe8a7674ca1eddb2ac070656eb689a073ce23bb",
       "role": "runtime",
@@ -1628,6 +1523,39 @@
       ],
       "changes": [
         "21.38-whichpart-api-bot-check"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/advisor.js",
+      "sha256": "ff22619e6242ce212b2b27e6372e9b0c3babd8a7cac0bf42ae11350f1169a95b",
+      "role": "runtime",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "23.1-opus-advisor"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac4-turn.test.mjs",
+      "sha256": "f3da3ca238fdb6bfd1062b6529ee86e21f460ac08c41ae10b7442ac658b3685a",
+      "role": "test",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "23.1-opus-advisor"
+      ]
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac2-knowledge.test.mjs",
+      "sha256": "93ef81f75f237d4747c2f9e8d9a1cad15084f70929ef9a26fa80f94a5bc53b3d",
+      "role": "test",
+      "units": [
+        "applianceclinic-diagnosis-engine"
+      ],
+      "changes": [
+        "23.1-opus-advisor"
       ]
     }
   ],
@@ -3747,6 +3675,83 @@
         "21.1-retire-journey-controller"
       ],
       "reason": "retired with the journey controller (ADR 0020)"
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/parts.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/models.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/understand.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/labels.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/reply.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac3-turn.test.mjs",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Tested the removed reasoner, claim check, labels and stages; replaced by test/ac4-turn.test.mjs."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/reasoner.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/verifier.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16): the step blocked or damaged replies, or was unused."
+    },
+    {
+      "path": "services/diagnosis-engine/test/ac3-claims-adversarial.test.mjs",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Tested the removed reasoner, claim check, labels and stages; replaced by test/ac4-turn.test.mjs."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/compose.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16)."
+    },
+    {
+      "path": "services/diagnosis-engine/ac2/evidence.js",
+      "changes": [
+        "23.1-opus-advisor"
+      ],
+      "reason": "Removed by the Opus advisor refactor (docs/evaluation/code-audit-2026-10-16)."
     }
   ]
 }

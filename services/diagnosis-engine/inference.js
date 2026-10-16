@@ -331,6 +331,45 @@ class AnthropicProvider {
     if (req.stream && onDelta && out) onDelta(out);
     return { status: 200, text: out, usage };
   }
+
+  /**
+   * One Messages API call with tools (the advisor turn, ac2/advisor.js). Content blocks go in and come back as the API
+   * shapes them, so the caller can append the assistant content (thinking and tool_use blocks unchanged) and its
+   * tool_result blocks for the next round. The system prompt and the tools are a stable prefix and are cached. A
+   * declined request is re-run server-side on Anthropic's recommended fallback model (`fallbacks: "default"`).
+   * req: { system, messages, tools, effort, maxTokens, timeoutMs, toolChoice }
+   * -> { status, content, stopReason, usage, errorDetail? }
+   */
+  async converse(req) {
+    const errCtx = { provider: this.name, stage: this.stage, model: this.model };
+    const body = {
+      model: this.model,
+      max_tokens: req.maxTokens || 16000,
+      system: [{ type: 'text', text: req.system, cache_control: { type: 'ephemeral' } }],
+      messages: req.messages,
+      output_config: { effort: req.effort || 'medium' },
+      fallbacks: 'default',
+    };
+    if (req.tools && req.tools.length) {
+      body.tools = req.tools;
+      body.tool_choice = req.toolChoice || { type: 'auto' };
+    }
+    const headers = { ...this._headers, 'anthropic-beta': 'server-side-fallback-2026-07-01' };
+    let res;
+    try {
+      res = await this._transport.request(this.endpoint, { method: 'POST', headers, body: JSON.stringify(body), timeoutMs: req.timeoutMs });
+    } catch (err) {
+      throw new InferenceError(`${this.name} request failed: ${err.message}`, { ...errCtx, category: /timeout/i.test(err.message) ? 'TIMEOUT' : 'NETWORK' });
+    }
+    if (res.status !== 200) return { status: res.status, content: [], stopReason: null, usage: null, errorDetail: String(res.body || '').replace(/\s+/g, ' ').slice(0, 300) };
+    let parsed;
+    try { parsed = JSON.parse(res.body); } catch { return { status: 502, content: [], stopReason: null, usage: null, errorDetail: 'unparseable response' }; }
+    const u = parsed.usage || {};
+    const usage = { promptTokens: (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), completionTokens: u.output_tokens ?? null,
+      cacheReadTokens: u.cache_read_input_tokens || 0, cacheWriteTokens: u.cache_creation_input_tokens || 0, uncachedInputTokens: u.input_tokens || 0 };
+    if (parsed.stop_reason === 'refusal') return { status: 422, content: [], stopReason: 'refusal', usage, errorDetail: `refusal ${(parsed.stop_details && parsed.stop_details.category) || ''}`.trim() };
+    return { status: 200, content: Array.isArray(parsed.content) ? parsed.content : [], stopReason: parsed.stop_reason || null, usage };
+  }
 }
 
 // --- Per-stage configuration resolver ---------------------------------------
