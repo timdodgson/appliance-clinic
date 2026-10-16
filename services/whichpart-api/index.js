@@ -35,6 +35,8 @@ const { signedJsonHeaders } = require('./engine-signature.js');
 const { log } = require('./log.js');
 const { queryParam, authPath, CORS, respond } = require('./http-io.js');
 const { setRateLimitStoreForTests, rateLimited } = require('./rate-limiting.js');
+const turnstile = require('./turnstile.js');
+const { clientIp } = require('./rate-limit.js');
 const { authLogin, authMe, authLogout, setSessionForTests, requireAdmin } = require('./session.js');
 const { setAcqS3ForTests } = require('./s3.js');
 const { routingOverride, recoverRoutingOverride } = require('./benchmark-state.js');
@@ -496,6 +498,16 @@ async function handleEvent(event) {
   if (!live && !bench) {
     const limitedTurn = await rateLimited('diagnose', event, { session: obs && obs.sessionId });
     if (limitedTurn) return limitedTurn;
+    // Bot check (turnstile.js): a new conversation, i.e. one without a valid signed state token, needs a passing
+    // Cloudflare Turnstile token. Later turns carry the state token this API issued, so the check runs once.
+    if (turnstile.mode() !== 'off') {
+      let newConversation = true;
+      try {
+        if (body.stateToken) newConversation = !stateTokenMod.verifyToken(body.stateToken, await stateTokenMod.loadSecrets()).ok;
+      } catch { newConversation = true; }
+      const blocked = await turnstile.guard({ token: body.turnstile, newConversation, ip: clientIp(event).ip, log: (x) => log({ ...x, rid }) });
+      if (blocked) return blocked;
+    }
   }
 
   // ac2 (ADR 0020): LLM-led diagnosis inside the deterministic guardrail kernel (services/diagnosis-engine/ac2). It is

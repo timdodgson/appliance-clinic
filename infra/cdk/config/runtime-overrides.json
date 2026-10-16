@@ -31,6 +31,8 @@
           "TRANSCRIPT_REVIEW_MODEL": "",
           "TRANSCRIPT_REVIEW_PROVIDER": "jev",
           "TRANSCRIPT_TABLE": "whichpart-transcripts",
+          "TURNSTILE_MODE": "observe",
+          "TURNSTILE_SECRET_ID": "applianceclinic/production/turnstile",
           "WHICHPART_WEB_BUCKET": "whichpart-web-800960611664"
         },
         "unset": [
@@ -47,7 +49,7 @@
       },
       "code": {
         "s3Bucket": "cdk-acclinic-assets-800960611664-eu-west-1",
-        "s3Key": "phase8/whichpart-api-P1w8PF62tNA8Tp89q58-K4g8Xu_5QSUoEIGdSgfNs_k.zip"
+        "s3Key": "phase8/whichpart-api-swDInFOyLAIvbY0LLuU6v2_DoiZfpFX1v_Bshar6WlY.zip"
       },
       "permissions": {
         "PublicInvoke": {
@@ -231,7 +233,10 @@
           "Action": [
             "secretsmanager:GetSecretValue"
           ],
-          "Resource": "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo"
+          "Resource": [
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/canonical-state-token-vE8sEo",
+            "arn:aws:secretsmanager:eu-west-1:800960611664:secret:applianceclinic/production/turnstile-iraQS4"
+          ]
         }
       ]
     },
