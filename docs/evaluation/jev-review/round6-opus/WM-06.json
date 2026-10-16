@@ -1,0 +1,376 @@
+{
+ "id": "WM-06",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-06-12e4ace32a",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "bosch washer FD 9409 not draining. ive cleaned the filter already. what part do i need?"
+  },
+  {
+   "role": "assistant",
+   "text": "You may not need a part at all. A kinked hose or blocked waste connection usually just needs straightening or clearing, so whether a part is needed, and which one, depends on what you find there. From what you have described, the most likely cause is blocked / kinked drain hose or waste connection. Next: Check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved). Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "Hose behind looks OK, no kinks. Sink drains normally too. Still need to know what part it is, I think the pump hums but nothing moves."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drain pump]\nBased on what you've described, the part most likely needed is a replacement drain pump, but the exact one depends on your machine's full model number, which I couldn't match in our catalogue. On Bosch labels, \"FD 9409\" is usually the production code rather than the model number, so the E-Nr shown on the same label is what a supplier will need to identify the correct pump. The checks point to the drain pump. I could not find a confirmed match for model FD9409 in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2044,
+     "labelMs": 287,
+     "enrichMs": 1,
+     "composeMs": 4016,
+     "replyLabelMs": 240,
+     "totalMs": 6648
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "FD9409",
+       "confidence": 0.97
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [],
+      "symptom": "not draining"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:not-draining\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blocked / kinked drain hose or waste connection\"},\"next\":{\"kind\":\"step\",\"text\":\"check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\"},\"ms\":779,\"offered\":{\"situations\":[\"cause: blocked pump filter / foreign object in the pump path\",\"cause: blocked / kinked drain hose or waste connection\",\"cause: drain pump obstructed / jammed or failed\",\"cause: internal sump hose / obstruction before the pump\",\"cause: pressure system / water-level sensing\",\"cause: control PCB / wiring to the pump\"],\"next\":[\"check: A noise like that while it tries to empty, together with the water not going, usually means something is caught in the pump filter or in the pump just behind it, so the pump filter is the first thing to check, and it's often a free fix. On most washing machines it's behind a small flap or kick-plate at the bottom front. Could you check the filter and tell me what you find — was it clear, did you find and remove something, is there a blockage you can't shift, or does anything look broken?\",\"check: run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump away, and can you hear the pump humming or is it silent?\",\"check: With the filter out, shine a torch into the filter opening and gently turn the small plastic impeller (the vanes) with a finger. Does it turn freely, was anything caught in it, is it jammed, or do the vanes look broken?\",\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and check where it goes into the standpipe or sink waste. Was the hose clear, did you find and clear a kink or blockage, or is there one you can't clear?\",\"step: if the machine still holds water, follow the appliance's safe residual-water draining procedure/manual FIRST - opening the pump filter with water inside can release a large amount of water\",\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (especially if the machine was recently moved)\",\"step: clear any trapped foreign object in the accessible pump path before recommending a replacement pump\",\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump running or humming?\",\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been moved or reinstalled recently?\"],\"removed\":[\"The most common cause is a blockage in the pump filter (also called the drain fi\",\"Now that the blockage is cleared, let's test it: run a drain or spin-only progra\",\"inspect and clean the accessible pump filter where the model design allows\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: The most common cause is a blockage in the pump filter (also called the drain filter or tr\",\"done\":0.91,\"refused\":0.1,\"pointless\":0.68,\"kept\":false},{\"step\":\"check: A noise like that while it tries to empty, together with the water not going, usually mean\",\"done\":0.59,\"refused\":0.1,\"pointless\":0.5,\"kept\":true},{\"step\":\"check: run a drain or spin-only programme and listen near the bottom front of the machine while i\",\"done\":0.04,\"refused\":0.06,\"pointless\":0.13,\"kept\":true},{\"step\":\"retest: Now that the blockage is cleared, let's test it: run a drain or spin-only programme. Does \",\"done\":0.07,\"refused\":0.05,\"pointless\":0.29,\"kept\":false},{\"step\":\"check: With the filter out, shine a torch into the filter opening and gently turn the small plast\",\"done\":0.08,\"refused\":0.05,\"pointless\":0.25,\"kept\":true},{\"step\":\"check: The next thing to check is the drain hose at the back: look for kinks or crushing, and che\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.14,\"kept\":true},{\"step\":\"step: if the machine still holds water, follow the appliance's safe residual-water draining proc\",\"done\":0.14,\"refused\":0.04,\"pointless\":0.23,\"kept\":true},{\"step\":\"step: inspect and clean the accessible pump filter where the model design allows\",\"done\":0.96,\"refused\":0.05,\"pointless\":0.71,\"kept\":false},{\"step\":\"step: check the drain hose for kinks/crushing and the waste connection/standpipe for blockage (e\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.13,\"kept\":true},{\"step\":\"step: clear any trapped foreign object in the accessible pump path before recommending a replace\",\"done\":0.51,\"refused\":0.07,\"pointless\":0.35,\"kept\":true},{\"step\":\"question: Is there still water sitting in the drum, and when it tries to drain can you hear the pump\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.13,\"kept\":true},{\"step\":\"question: Did the draining get gradually slower over time or stop suddenly, and has the machine been\",\"done\":0.05,\"refused\":0.06,\"pointless\":0.13,\"kept\":true}]},\"answer\":\"You may not need a part at all.  A kinked hose or blocked waste connection usually just needs straightening or clearing, so whether a part is needed, and which one, depends on what you find there.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"Bosch\",\"model\":null,\"codes\":[],\"symptom\":\"not draining\",\"customerQuestion\":\"what part do i need?\",\"answerToLastQuestion\":null,\"checksReported\":[{\"check\":\"cleaned the filter\",\"result\":\"still not draining\"}],\"facts\":[\"FD 9409\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.99)\",\"symptomArea\":\"\\\"not_draining\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.97)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.97)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"FD9409\\\" (0.97)\",\"code\":\"null (1)\",\"make\":\"\\\"Bosch\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD9409",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still not draining",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 6691
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7043,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2668,
+     "labelMs": 285,
+     "enrichMs": 2,
+     "composeMs": 4975,
+     "replyLabelMs": 270,
+     "totalMs": 8753
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drain pump",
+     "reason": "model-not-in-catalogue"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.87
+      },
+      "symptomArea": {
+       "value": "not_draining",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.91
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drain pump",
+       "confidence": 0.59
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not draining, pump hums but water doesn't move"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "suggests_part",
+      "confidence": 0.97
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:not-draining",
+       "washing-machine:leak-drain",
+       "washing-machine:pressure-switch"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"part-not-found\",\"component\":\"drain pump\",\"answered\":true,\"answer\":\"Based on what you've described, the part most likely needed is a replacement drain pump, but the exact one depends on your machine's full model number, which I couldn't match in our catalogue.  On Bosch labels, \\\"FD 9409\\\" is usually the production code rather than the model number, so the E-Nr shown on the same label is what a supplier will need to identify the correct pump.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not draining, pump hums but water doesn't move\",\"customerQuestion\":\"What part is needed?\",\"answerToLastQuestion\":\"Hose has no kinks; sink drains normally\",\"checksReported\":[{\"check\":\"Drain hose behind machine checked for kinks\",\"result\":\"Looks OK, no kinks\"},{\"check\":\"Sink drain checked\",\"result\":\"Drains normally\"}],\"facts\":[\"pump seems to hum but nothing moves\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.87)\",\"symptomArea\":\"\\\"not_draining\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.91)\",\"checkOutcome\":\"\\\"still_faulty\\\" (1)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"\\\"drain pump\\\" (0.59)\",\"checksConfirmed\":[0,1],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:not-draining\",\"washing-machine:leak-drain\",\"washing-machine:pressure-switch\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 0.99,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "FD9409",
+      "confidence": 0.97,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned the filter: still not draining",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "Drain hose behind machine checked for kinks: Looks OK, no kinks",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "Sink drain checked: Drains normally",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 8803
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 9152,
+   "retried": false,
+   "label": "Likely cause: drain pump",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.021411799999999998,
+ "finishedAt": "2026-10-16T00:44:58.910Z"
+}

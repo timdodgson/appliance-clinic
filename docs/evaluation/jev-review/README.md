@@ -126,3 +126,23 @@ Reviews in `round5-opus/`.
 Left: (1) a note with no steps must borrow the steps of the related notes (here the other leak notes); (2) when the
 customer cannot read the model number, the part stage must move on (say where else to find it, or name the part
 type and the engineer) instead of asking again.
+
+## Round 6 (release 21.35, Opus)
+
+Reviews in `round6-opus/`.
+
+| Test | R5 | R6 | |
+|---|---|---|---|
+| WM-01 | 3, fixed | 3, fixed | same |
+| WM-02 | 3, normal | 4, normal | same |
+| WM-03 | 3, safety stop | 3, safety stop | same (no brush check) |
+| WM-04 | 3, fixed | 3, fixed | same |
+| WM-05 | 3, engineer | **5, seal found, part shown** | fixed: the door-leak note borrowed the leak checks; seal split found; part for WTK72041W shown |
+| WM-06 | stuck at model | **2, drain pump named** | fixed: no repeated model question; names the likely part and why the exact one needs the full model |
+| WM-07 | 4 | **7** | worse: Jev chose "normal Eco cycle" in all 7 turns but never marked it settled, so heater-note steps kept coming |
+| WM-08 | safety stop | safety stop | same |
+| WM-09 | 5, engineer | 5, engineer | same (customer refuses the filter) |
+| WM-10 | 4, part path | 5, part path | same |
+
+8 of 10 now end correctly (fixed, normal closed, part shown or a correct safety stop / engineer); WM-03 is a
+knowledge gap; WM-07 needs: the same "normal" choice two turns running counts as settled.
