@@ -1,0 +1,34 @@
+TEST HB-02  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: Just had a new induction hob fitted, Beko. When I put my saucepan on it just flashes a U and doesn't heat. Is it faulty? It's brand new!!
+1 LLM UNDERSTOOD: appliance=induction hob brand=Beko model=None codes=['U'] symptom="flashes U and doesn't heat when saucepan placed on it" question='Is it faulty?'
+   checks reported: []  facts: ['newly fitted, brand new']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="error_code" (0.64); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.85); modelUnreachable=false (0.04); model=null (1); code="U" (1); make="Beko" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['hobs:cookware-user', 'hobs:energy-regulator', 'hobs:power-module']  normal: ['hob-induction-pan']  codes: ['U: RESOLVED Pan not detected / unsuitable cookware (display shows U on induction models)']  stage: 1
+4 JEV: note picked = hobs:energy-regulator | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: energy regulator / simmerstat
+    - cause: control knob
+    - cause: wiring / connector
+    - cause: element (if not being regulated)
+    - normal: Induction zones only heat magnetic pans of the right size. A flashing pan symbol (often 'U' or a pan icon) means no suitable pan is detected. 
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.33  check: Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on,
+    KEPT    d=0.05 r=0.05 p=0.29  check: Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually 
+    KEPT    d=0.12 r=0.05 p=0.31  check: Now try switching a zone on. Is it working now, or still not?
+  JEV PICKED: situation = Induction zones only heat magnetic pans of the right size. A flashing pan symbol (often 'U' or a pan icon) means no suitable pan is detected. A magnet sticking firmly to the pan base shows it is induction-compatible.
+              next      = Now try switching a zone on. Is it working now, or still not?
+REPLY: U on your Beko means: Pan not detected / unsuitable cookware (display shows U on induction models). This sounds like normal behaviour rather than a fault: Induction zones only heat magnetic pans of the right size. A flashing pan symbol (often 'U' or a pan icon) means no suitable pan is detected. A magnet sticking firmly to the pan base shows it is induction-compatible. It would be worth a closer look if a known induction-compatible pan of the right size is not detected on any zone. Now try switching a zone on. Is it working now, or still not?
+
+--- Turn 2
+CUSTOMER: Still not working with my saucepans, it just keeps flashing the U! A fridge magnet doesn't stick to them though. It does stick to my cast-iron casserole and that heated fine. So is the hob ok?
+1 LLM UNDERSTOOD: appliance=induction hob brand=Beko model=None codes=['U'] symptom='zone keeps flashing U with saucepans' question='Is the hob ok?'
+   checks reported: [{'check': 'fridge magnet on saucepans', 'result': 'does not stick'}, {'check': 'fridge magnet on cast-iron casserole and tried heating it', 'result': 'magnet sticks and it heated fine'}]  facts: ['saucepans not magnetic', 'cast-iron casserole heats fine']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="error_code" (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.88); checkOutcome="still_faulty" (0.96); modelUnreachable=false (0.04); model=null (0.98); code="U" (1); make=null (0.28); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['hobs:power-module', 'hobs:energy-regulator', 'hobs:cookware-user']  normal: ['hob-induction-pan']  codes: ['U: RESOLVED Pan not detected / unsuitable cookware (display shows U on induction models)']  stage: 2
+4 (no Jev choice this turn: settled-normal-closed)
+LLM ANSWER TO THEIR QUESTION: Yes, from what you've described the hob looks fine: the cast-iron casserole heated normally, which shows the zone is working.  The flashing U simply means it isn't detecting a pan it can use, and since your saucepans aren't magnetic, an induction hob can't heat them.
+REPLY: Yes, from what you've described the hob looks fine: the cast-iron casserole heated normally, which shows the zone is working. The flashing U simply means it isn't detecting a pan it can use, and since your saucepans aren't magnetic, an induction hob can't heat them. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Pans are not induction compatible (non-ferromagnetic) - 'U' means no suitable pan detected.

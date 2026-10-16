@@ -1,0 +1,116 @@
+TEST WD-04  (ended: loop, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: lg w/d keeps saying dE n wont start?? door is shut
+1 LLM UNDERSTOOD: appliance=washer dryer brand=LG model=None codes=['dE'] symptom="won't start, shows dE" question="Why does it keep saying dE and won't start?"
+   checks reported: []  facts: ['door is shut']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea="error_code" (0.71); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.57); modelUnreachable=false (0.04); model=null (1); code="dE" (1); make="LG" (0.98); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:door-lock', 'washer-dryer:door-lock', 'washing-machine:hall-sensor']  normal: []  codes: ['DE: NOT_FOUND']  stage: 1
+4 JEV: note picked = washer-dryer:door-lock | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: the normal safety delay before the door unlocks
+    - cause: the child lock
+    - cause: the door handle or catch
+    - cause: the door lock (interlock)
+    - cause: the water-level sensing or the control side (it thinks there is still water in)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.29  check: Many machines have a child lock (often a key or padlock symbol, turned off by holding two 
+    KEPT    d=0.13 r=0.06 p=0.25  check: Open the door, make sure nothing is caught in the seal, then close it firmly until it clic
+    KEPT    d=0.06 r=0.05 p=0.2  check: With the machine unplugged, look at the small hook (catch) on the door and the slot it goe
+    KEPT    d=0.19 r=0.07 p=0.44  check: Now close the door and start a programme. Is the door working normally now, or does the pr
+  JEV PICKED: situation = the door lock (interlock)
+              next      = Open the door, make sure nothing is caught in the seal, then close it firmly until it clicks and start a programme. Does the door click locked now?
+REPLY: I can't confirm what DE means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is the door lock (interlock). Open the door, make sure nothing is caught in the seal, then close it firmly until it clicks and start a programme. Does the door click locked now?
+[Helpful to see: image "About the door lock (interlock)" — The door lock (interlock) keeps the door shut during a wash and stops the machine starting unless the door is locked. This reference shows where it sits. If the door won't open, wait 2–3 minutes after the cycle ends for the lock to release before trying again. A faulty interlock is a replacement part best fitted by a qualified engineer.]
+
+--- Turn 2
+CUSTOMER: ok tried, it closes but kinda springs back a bit. theres a corner of the duvet squashed in the seal tho
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=['DE'] symptom='door not locking' question=None
+   checks reported: [{'check': 'closed door firmly to lock', 'result': 'closes but springs back a bit'}]  facts: ['corner of duvet squashed in the door seal']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.45); symptomArea="door_or_lid" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.71); modelUnreachable=false (0.04); model=null (0.98); code=null (0.82); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:door-lock', 'washing-machine:odour', 'washing-machine:cycle-not-progressing']  normal: ['wm-unbalanced-no-spin']  codes: ['DE: RESOLVED Door not locked / not closed (door lock switch)']  stage: 2
+4 JEV: note picked = washer-dryer:door-lock | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: the normal safety delay before the door unlocks
+    - cause: the child lock
+    - cause: the door handle or catch
+    - cause: the door lock (interlock)
+    - cause: the water-level sensing or the control side (it thinks there is still water in)
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.07 r=0.05 p=0.72  retest: Doors often stay locked for a couple of minutes after a programme ends. Leave it switched 
+    KEPT    d=0.06 r=0.06 p=0.4  check: Many machines have a child lock (often a key or padlock symbol, turned off by holding two 
+    KEPT    d=0.08 r=0.07 p=0.26  check: With the machine unplugged, look at the small hook (catch) on the door and the slot it goe
+    KEPT    d=0.54 r=0.11 p=0.5  check: Now close the door and start a programme. Is the door working normally now, or does the pr
+  JEV PICKED: situation = the door lock (interlock)
+              next      = With the machine unplugged, look at the small hook (catch) on the door and the slot it goes into, and check the door lines up squarely when you close it. Is the catch broken, bent or the door dropped on its hinge, was so
+REPLY: With the machine unplugged, look at the small hook (catch) on the door and the slot it goes into, and check the door lines up squarely when you close it. Is the catch broken, bent or the door dropped on its hinge, was something blocking it (now cleared), or does it all look fine?
+
+--- Turn 3
+CUSTOMER: hook looks fine, nothing bent or broken. its just the duvet bulging against the glass n squashed in the seal
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom="door won't close/latch" question=None
+   checks reported: [{'check': 'door hook/catch inspected', 'result': 'looks fine, nothing bent or broken'}]  facts: ['duvet bulging against the door glass', 'duvet squashed in the door seal']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.89); symptomArea="door_or_lid" (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.95); modelUnreachable=false (0.03); narrowed=null (0.74); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:door-lock', 'washing-machine:odour', 'washing-machine:unbalanced-load']  normal: ['wm-unbalanced-no-spin']  codes: ['DE: RESOLVED Door not locked / not closed (door lock switch)']  stage: 2
+4 JEV: note picked = washer-dryer:door-lock | findings settle it = True | engineer allowed = True
+  situations offered (6):
+    - cause: the normal safety delay before the door unlocks
+    - cause: the child lock
+    - cause: the door handle or catch
+    - cause: the door lock (interlock)
+    - cause: the water-level sensing or the control side (it thinks there is still water in)
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.07 r=0.05 p=0.78  retest: Doors often stay locked for a couple of minutes after a programme ends. Leave it switched 
+    KEPT    d=0.05 r=0.05 p=0.42  check: Many machines have a child lock (often a key or padlock symbol, turned off by holding two 
+    KEPT    d=0.44 r=0.11 p=0.42  check: Now close the door and start a programme. Is the door working normally now, or does the pr
+  JEV PICKED: situation = the door lock (interlock)
+              next      = Once that is sorted, run it again: does it work normally now?
+REPLY: That fits the door lock (interlock). Once that is sorted, run it again: does it work normally now?
+
+--- Turn 4
+CUSTOMER: idk how to sort it tho?? i havent changed anything yet, what do i do
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='How do I sort the door lock (interlock)?'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.72); symptomArea=null (0.57); hazard=null (1); unsafeRequest=null (0.92); lastAnswer=null (0.17); checkOutcome=null (0.89); modelUnreachable=false (0.03); narrowed=null (0.57); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:door-lock', 'washing-machine:odour', 'washing-machine:unbalanced-load']  normal: ['wm-unbalanced-no-spin']  codes: ['DE: RESOLVED Door not locked / not closed (door lock switch)']  stage: 2
+4 JEV: note picked = washer-dryer:door-lock | findings settle it = True | engineer allowed = True
+  situations offered (6):
+    - cause: the normal safety delay before the door unlocks
+    - cause: the child lock
+    - cause: the door handle or catch
+    - cause: the door lock (interlock)
+    - cause: the water-level sensing or the control side (it thinks there is still water in)
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.08 r=0.05 p=0.76  retest: Doors often stay locked for a couple of minutes after a programme ends. Leave it switched 
+    KEPT    d=0.06 r=0.06 p=0.43  check: Many machines have a child lock (often a key or padlock symbol, turned off by holding two 
+    KEPT    d=0.27 r=0.13 p=0.37  check: Now close the door and start a programme. Is the door working normally now, or does the pr
+  JEV PICKED: situation = the door lock (interlock)
+              next      = Once that is sorted, run it again: does it work normally now?
+LLM ANSWER TO THEIR QUESTION: Open the door, tuck the corner of the duvet fully inside the drum so none of it is caught in the rubber seal, and if it's still bulging against the glass, take it out and reload it more loosely or wash it on its own.  Then close the door firmly until it clicks shut and stays closed without springing back.
+REPLY: Open the door, tuck the corner of the duvet fully inside the drum so none of it is caught in the rubber seal, and if it's still bulging against the glass, take it out and reload it more loosely or wash it on its own. Then close the door firmly until it clicks shut and stays closed without springing back. That fits the door lock (interlock). Once that is sorted, run it again: does it work normally now?
+
+--- Turn 5
+CUSTOMER: ok will try tucking it in n closing it again, brb
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom=None question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.86); symptomArea=null (0.82); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.53); checkOutcome=null (1); modelUnreachable=false (0.03); narrowed=null (0.94); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:door-lock', 'washing-machine:odour', 'washing-machine:cycle-not-progressing']  normal: ['wm-unbalanced-no-spin']  codes: ['DE: RESOLVED Door not locked / not closed (door lock switch)']  stage: 2
+4 JEV: note picked = washer-dryer:door-lock | findings settle it = True | engineer allowed = True
+  situations offered (6):
+    - cause: the normal safety delay before the door unlocks
+    - cause: the child lock
+    - cause: the door handle or catch
+    - cause: the door lock (interlock)
+    - cause: the water-level sensing or the control side (it thinks there is still water in)
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.07 r=0.06 p=0.77  retest: Doors often stay locked for a couple of minutes after a programme ends. Leave it switched 
+    KEPT    d=0.05 r=0.06 p=0.47  check: Many machines have a child lock (often a key or padlock symbol, turned off by holding two 
+    KEPT    d=0.16 r=0.12 p=0.25  check: Now close the door and start a programme. Is the door working normally now, or does the pr
+  JEV PICKED: situation = the door lock (interlock)
+              next      = Once that is sorted, run it again: does it work normally now?
+REPLY: That fits the door lock (interlock). Once that is sorted, run it again: does it work normally now?
+
+HIDDEN TRUTH: Overfilled drum (king-size duvet) pressing on the door/seal prevents the latch engaging - dE door error. No fault.

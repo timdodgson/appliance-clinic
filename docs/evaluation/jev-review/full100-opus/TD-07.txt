@@ -1,0 +1,74 @@
+TEST TD-07  (ended: escalated, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: Beko vented dryer, drum goes round fine but it's just blowing cold air. Had it about 6 years. What part do I need?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=Beko model=None codes=[] symptom='blowing cold air, no heat' question='What part do I need?'
+   checks reported: []  facts: ['vented dryer', 'drum turns fine', 'about 6 years old']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.95); modelUnreachable=false (0.04); model=null (1); code=null (1); make="Beko" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:not-heating', 'tumble-dryer:fan', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: Clean the lint/fluff filter (and condenser filter) and clear the airflow
+    - cause: heater element
+    - cause: thermal cut-out (TOC)
+    - cause: cycling thermostat
+    - cause: refrigerant / heat-pump circuit or its sensors (heat-pump only)
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.04 p=0.24  check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no 
+    KEPT    d=0.05 r=0.05 p=0.09  check: A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overhea
+    KEPT    d=0.04 r=0.04 p=0.3  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.05 r=0.04 p=0.12  check: Check the vent hose out of the back: it should be short, without kinks or squashed section
+    REMOVED d=0.64 r=0.06 p=0.22  question: Is it a vented, condenser, or heat-pump dryer, and when did you last clean the filter(s)?
+  JEV PICKED: situation = Clean the lint/fluff filter (and condenser filter) and clear the airflow
+              next      = A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluf
+LLM ANSWER TO THEIR QUESTION: You may not need a part at all, as a blocked filter or airflow can stop the heat on its own.  If cleaning it doesn't bring the heat back, the part depends on what the next checks find, and the exact model number from the label will be needed to order the right one.
+REPLY: You may not need a part at all, as a blocked filter or airflow can stop the heat on its own. If cleaning it doesn't bring the heat back, the part depends on what the next checks find, and the exact model number from the label will be needed to order the right one. From what you have described, the most likely cause is clean the lint/fluff filter (and condenser filter) and clear the airflow. A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluff (and is it clean now), or was it already clean?
+
+--- Turn 2
+CUSTOMER: Filter was fairly full, I've cleaned it now. I also cleaned a big sag of fluff out of the vent hose and airflow is decent, but it's still cold after 20 min.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='not heating' question=None
+   checks reported: [{'check': 'cleaned lint filter', 'result': 'was fairly full; still no heat'}, {'check': 'cleared fluff from vent hose', 'result': 'airflow now decent; still cold after 20 min'}]  facts: ['vented dryer with vent hose', 'still cold after 20 minutes running']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.99); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (1); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[0, 1]; factsConfirmed=[1]
+3 NOTES FOUND: ['tumble-dryer:not-heating', 'tumble-dryer:fan', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 2
+4 JEV: note picked = tumble-dryer:not-heating | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: Clean the lint/fluff filter (and condenser filter) and clear the airflow
+    - cause: heater element
+    - cause: thermal cut-out (TOC)
+    - cause: cycling thermostat
+    - cause: refrigerant / heat-pump circuit or its sensors (heat-pump only)
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.04 p=0.31  check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no 
+    KEPT    d=0.1 r=0.05 p=0.51  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    REMOVED d=0.89 r=0.05 p=0.66  check: Check the vent hose out of the back: it should be short, without kinks or squashed section
+    REMOVED d=0.74 r=0.07 p=0.5  retest: Run a normal heat programme again for 10–15 minutes. Is it heating now, or still cold?
+    REMOVED d=0.93 r=0.06 p=0.59  question: Is it a vented, condenser, or heat-pump dryer, and when did you last clean the filter(s)?
+  JEV PICKED: situation = heater element
+              next      = Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?
+REPLY: From what you have described, the most likely cause is heater element. Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?
+
+--- Turn 3
+CUSTOMER: It's a normal heat programme, I've tried both high and low heat and it's cold on both. Timer counts down fine though.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='no heat, drying cold' question=None
+   checks reported: [{'check': 'tried high and low heat settings', 'result': 'cold on both'}]  facts: ['timer counts down fine']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.98); symptomArea="no_heat" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.04); narrowed="heater element" (0.64); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['tumble-dryer:not-heating', 'tumble-dryer:fan', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+REPLY: [Heading: Likely cause: heater element]
+The checks point to the heater element. To find the right part, could you give me the model number? It is usually on a sticker inside the door opening.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: It says DV7110 on the front, but I can't see the full model number. The sticker's on the back and the dryer's wedged against the wall in a tight alcove. Is DV7110 enough to find the element?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=DV7110 codes=[] symptom=None question='Is DV7110 enough to find the element?'
+   checks reported: []  facts: ['model sticker is on the back', 'dryer wedged against the wall in a tight alcove']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.51); checkOutcome=null (1); modelUnreachable=true (0.92); model="DV7110" (0.98); code=null (1); narrowed="heater element" (0.48); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:not-heating', 'tumble-dryer:fan', 'tumble-dryer:heat-pump']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: part-not-found)
+LLM ANSWER TO THEIR QUESTION: Probably not on its own, as DV7110 may not identify the exact version.  Suppliers usually match the element using the full model number and any product or serial code from the sticker on the back.
+REPLY: [Heading: Likely cause: heater element]
+Probably not on its own, as DV7110 may not identify the exact version. Suppliers usually match the element using the full model number and any product or serial code from the sticker on the back. The checks point to the heater element. I could not find a confirmed match for model DV7110 in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it.
+
+HIDDEN TRUTH: Genuinely uncertain: most likely a one-shot thermal cut-out opened due to restricted airflow (clogged hose), but a failed heating element or thermostat is also possible; needs testing.

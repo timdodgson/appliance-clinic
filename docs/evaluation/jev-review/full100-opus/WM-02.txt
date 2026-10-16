@@ -1,0 +1,55 @@
+TEST WM-02  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: w/m wont spinn pls help
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom="won't spin" question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.97); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.97); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:unbalanced-load', 'washing-machine:hall-sensor', 'washing-machine:not-draining']  normal: ['wm-unbalanced-no-spin']  codes: []  stage: 1
+4 JEV: note picked = washing-machine:unbalanced-load | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: unbalanced / uneven load
+    - cause: overload / too full
+    - cause: levelling / installation
+    - cause: suspension / shock absorbers
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.12  step: try a normal, evenly-distributed load before suspecting a part
+    KEPT    d=0.04 r=0.04 p=0.13  step: check the machine is level and (if recently moved) that the transit bolts are removed
+    KEPT    d=0.04 r=0.07 p=0.09  question: Does it keep turning slowly backwards and forwards as if trying to balance the load, and d
+    KEPT    d=0.05 r=0.06 p=0.1  question: Is the drum empty of water when it tries to spin, or is there water still in it?
+  JEV PICKED: situation = unbalanced / uneven load
+              next      = Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?
+REPLY: From what you have described, the most likely cause is unbalanced / uneven load. Does it keep turning slowly backwards and forwards as if trying to balance the load, and does it spin fine with a different, evenly-spread load?
+
+--- Turn 2
+CUSTOMER: yeah it sloshes back n forth and tries to speed up then slows down a few times. only had the one thing in it tho, a big heavy bath mat. yesterdays full load spun fine
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom="won't spin up, keeps trying to balance" question=None
+   checks reported: []  facts: ['only one item in drum: a big heavy bath mat', 'tries to speed up then slows down several times', "yesterday's full load spun fine"]
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.97); symptomArea="not_spinning_or_turning" (0.86); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.67); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washing-machine:unbalanced-load', 'washing-machine:not-draining', 'washing-machine:hall-sensor']  normal: ['wm-unbalanced-no-spin']  codes: []  stage: 1
+4 JEV: note picked = washing-machine:unbalanced-load | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: unbalanced / uneven load
+    - cause: overload / too full
+    - cause: levelling / installation
+    - cause: suspension / shock absorbers
+    - normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then co
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.68 r=0.05 p=0.51  step: try a normal, evenly-distributed load before suspecting a part
+    KEPT    d=0.05 r=0.04 p=0.59  step: check the machine is level and (if recently moved) that the transit bolts are removed
+    KEPT    d=0.13 r=0.06 p=0.24  question: Is the drum empty of water when it tries to spin, or is there water still in it?
+  JEV PICKED: situation = Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.
+              next      = Is the drum empty of water when it tries to spin, or is there water still in it?
+REPLY: This sounds like normal behaviour rather than a fault: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet. It would be worth a closer look if it never spins even with a normal mixed load, or it hums without draining. Is the drum empty of water when it tries to spin, or is there water still in it?
+
+--- Turn 3
+CUSTOMER: no water in the drum, its empty, just the wet mat. drained fine
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='not spinning, clothes left wet' question=None
+   checks reported: []  facts: ['drained fine', 'load was just a mat']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.98); symptomArea=null (0.75); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.53); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:unbalanced-load', 'washing-machine:not-draining', 'washing-machine:hall-sensor']  normal: ['wm-unbalanced-no-spin']  codes: []  stage: 1
+4 (no Jev choice this turn: settled-normal-closed)
+REPLY: Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal out-of-balance protection: a single heavy item can't be distributed evenly so the machine abandons the spin. Add more items; no fault.

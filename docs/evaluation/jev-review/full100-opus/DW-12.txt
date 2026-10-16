@@ -1,0 +1,132 @@
+TEST DW-12  (ended: concluded, 6 customer messages)
+
+--- Turn 1
+CUSTOMER: Sometimes when I open the dishwasher there's grey smelly water in the bottom even though it finished draining fine. Not every day though. Kitchen sink was replaced last month if that matters.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='grey smelly water left in bottom intermittently' question=None
+   checks reported: []  facts: ['cycle appears to finish draining fine', 'happens sometimes, not every day', 'kitchen sink replaced last month']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (1); symptomArea="not_draining" (0.57); hazard=null (0.99); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.97); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:leak-flood', 'dishwasher:odour']  normal: ['dw-sump-water']  codes: []  stage: 1
+4 JEV: note picked = dishwasher:odour | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: dirty filter / food in the sump
+    - cause: stagnant water / infrequent use
+    - cause: drain hose / waste plumbing / trap
+    - cause: contaminated door seal / edges
+    - cause: maintenance wash / descale
+    - normal: A small amount of clean water around the filter or sump (a cup or so, under the filter level) is normal: it keeps the seals wet.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.03 p=0.08  step: clean the filter and sump
+    KEPT    d=0.04 r=0.04 p=0.09  step: run a hot maintenance wash with dishwasher cleaner
+    KEPT    d=0.05 r=0.03 p=0.12  step: check the drain hose/waste and wipe the door seal
+    KEPT    d=0.42 r=0.05 p=0.24  question: Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (i
+  JEV PICKED: situation = dirty filter / food in the sump
+              next      = clean the filter and sump
+REPLY: Before you start, switch it off and unplug it. From what you have described, the most likely cause is dirty filter / food in the sump. Next: Clean the filter and sump. Let me know what you find.
+[Helpful to see: image "Where the filter is" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]
+
+--- Turn 2
+CUSTOMER: I've already checked the filter and it's clean. Model is a Hotpoint HFC 3C26 W, about 3 years old. The water seems to show up after I drain the sink full of washing-up water. Sink drains a little slow too.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=Hotpoint model=HFC 3C26 W codes=[] symptom='water in bottom of dishwasher' question=None
+   checks reported: [{'check': 'checked the filter', 'result': 'clean'}]  facts: ['about 3 years old', 'water appears after draining a full sink of washing-up water', 'sink drains a little slow']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.97); symptomArea="not_draining" (0.99); hazard=null (0.98); unsafeRequest=null (1); lastAnswer=null (0.35); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.03); model="HFC 3C26 W" (1); code=null (1); make="Hotpoint" (1); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:leak-flood', 'dishwasher:odour']  normal: ['dw-sump-water']  codes: []  stage: 2
+4 JEV: note picked = dishwasher:odour | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: dirty filter / food in the sump
+    - cause: stagnant water / infrequent use
+    - cause: drain hose / waste plumbing / trap
+    - cause: contaminated door seal / edges
+    - cause: maintenance wash / descale
+    - normal: A small amount of clean water around the filter or sump (a cup or so, under the filter level) is normal: it keeps the seals wet.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.15  step: run a hot maintenance wash with dishwasher cleaner
+    KEPT    d=0.07 r=0.04 p=0.13  step: check the drain hose/waste and wipe the door seal
+    REMOVED d=0.55 r=0.05 p=0.37  question: Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (i
+  JEV PICKED: situation = drain hose / waste plumbing / trap
+              next      = check the drain hose/waste and wipe the door seal
+REPLY: From what you have described, the most likely cause is drain hose / waste plumbing / trap. Next: Check the drain hose/waste and wipe the door seal. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: I had a look under the sink. Since the new sink went in, the drain hose just lies on the cupboard floor and goes straight into the waste spigot, no high loop in it. Is that the problem?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='Is the lack of a high loop in the drain hose the problem?'
+   checks reported: [{'check': 'Looked at drain hose under the sink', 'result': 'Hose lies on cupboard floor and goes straight into waste spigot with no high loop'}]  facts: ['new sink was recently fitted', 'drain hose has no high loop']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.82); symptomArea="not_draining" (0.56); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.68); checkOutcome=null (0.44); modelUnreachable=false (0.03); narrowed=null (0.88); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:leak-flood', 'dishwasher:odour']  normal: ['dw-sump-water']  codes: []  stage: 2
+4 JEV: note picked = dishwasher:odour | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: dirty filter / food in the sump
+    - cause: stagnant water / infrequent use
+    - cause: drain hose / waste plumbing / trap
+    - cause: contaminated door seal / edges
+    - cause: maintenance wash / descale
+    - normal: A small amount of clean water around the filter or sump (a cup or so, under the filter level) is normal: it keeps the seals wet.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.2  step: run a hot maintenance wash with dishwasher cleaner
+    REMOVED d=0.64 r=0.05 p=0.41  question: Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (i
+  JEV PICKED: situation = drain hose / waste plumbing / trap
+              next      = run a hot maintenance wash with dishwasher cleaner
+LLM ANSWER TO THEIR QUESTION: Very likely, yes.  Without a high loop, dirty water from your sink can flow back down the hose into the dishwasher, which fits it happening after you drain a full sink, and the slow-draining new sink makes that backflow more likely.
+REPLY: Very likely, yes. Without a high loop, dirty water from your sink can flow back down the hose into the dishwasher, which fits it happening after you drain a full sink, and the slow-draining new sink makes that backflow more likely. Next: Run a hot maintenance wash with dishwasher cleaner. Let me know what you find.
+
+--- Turn 4
+CUSTOMER: Ok, I can do the maintenance wash. Should I loop the hose up high under the worktop first and clip it, or just run the wash as it is?
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='dirty sink water flowing back into dishwasher' question='Should I loop the hose up high under the worktop and clip it before running the maintenance wash, or run the wash as it is?'
+   checks reported: []  facts: ['drain hose has no high loop']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.96); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.4); checkOutcome=null (1); modelUnreachable=false (0.03); narrowed=null (0.85); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:leak-flood', 'dishwasher:odour']  normal: ['dw-sump-water']  codes: []  stage: 2
+4 JEV: note picked = dishwasher:odour | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: dirty filter / food in the sump
+    - cause: stagnant water / infrequent use
+    - cause: drain hose / waste plumbing / trap
+    - cause: contaminated door seal / edges
+    - cause: maintenance wash / descale
+    - normal: A small amount of clean water around the filter or sump (a cup or so, under the filter level) is normal: it keeps the seals wet.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.63 r=0.05 p=0.51  question: Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (i
+  JEV PICKED: situation = drain hose / waste plumbing / trap
+              next      = Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (in which case stop using it)?
+LLM ANSWER TO THEIR QUESTION: Loop the hose up first.  With no high loop, water from the sink, especially after you empty a full bowl, can run back into the dishwasher, so a maintenance wash on its own would likely be undone.
+REPLY: Loop the hose up first. With no high loop, water from the sink, especially after you empty a full bowl, can run back into the dishwasher, so a maintenance wash on its own would likely be undone. Is it a musty/drains smell (a cleaning/maintenance issue) or a burning/electrical smell (in which case stop using it)?
+
+--- Turn 5
+CUSTOMER: It's a musty smell, like old food water, nothing burning or electrical. I'll loop the hose up and clip it under the worktop, then run the maintenance wash.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='musty smell' question=None
+   checks reported: []  facts: ['musty smell like old food water', 'no burning or electrical smell', 'drain hose currently has no high loop']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.99); symptomArea="smell" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.97); modelUnreachable=false (0.03); narrowed=null (0.85); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:odour', 'dishwasher:not-draining', 'dishwasher:leak-flood']  normal: ['dw-sump-water']  codes: []  stage: 2
+4 JEV: note picked = dishwasher:odour | findings settle it = False | engineer allowed = True
+  situations offered (6):
+    - cause: dirty filter / food in the sump
+    - cause: stagnant water / infrequent use
+    - cause: drain hose / waste plumbing / trap
+    - cause: contaminated door seal / edges
+    - cause: maintenance wash / descale
+    - normal: A small amount of clean water around the filter or sump (a cup or so, under the filter level) is normal: it keeps the seals wet.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.86 r=0.07 p=0.6  check: Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rins
+    KEPT    d=0.07 r=0.06 p=0.33  check: With the filter out, bail out any water with a cup and sponge. There's a small pump cover 
+    KEPT    d=0.26 r=0.07 p=0.34  check: Check the grey drain hose from the back of the dishwasher to the sink waste isn't kinked o
+    KEPT    d=0.12 r=0.07 p=0.23  check: Under the sink, look where the drain hose joins the waste. On a newly fitted sink waste th
+    KEPT    d=0.09 r=0.07 p=0.42  check: With the filter back in, close the door, choose cancel or a drain / rinse programme and le
+    REMOVED d=0.06 r=0.08 p=0.18  retest: Now run a normal programme again and see whether the problem comes back. Is it working nor
+    REMOVED d=0.98 r=0.03 p=0.83  step: clean the drain filter
+    KEPT    d=0.1 r=0.05 p=0.3  step: check the sump/impeller for foreign objects
+    KEPT    d=0.3 r=0.04 p=0.29  step: check the drain hose isn't kinked or blocked
+    KEPT    d=0.07 r=0.04 p=0.33  step: on a new install check the sink-waste blanking plug has been removed
+    REMOVED d=0.51 r=0.1 p=0.46  question: Is there standing water in the bottom, and is the drain pump silent or does it hum/buzz wi
+    KEPT    d=0.05 r=0.06 p=0.24  check: Open the door and look all the way round the rubber seal on the tub edge, and along the bo
+  JEV PICKED: situation = drain hose / waste plumbing / trap
+              next      = Under the sink, look where the drain hose joins the waste. On a newly fitted sink waste the little blanking plug inside the spigot has to be cut out, and the sink trap mustn't be blocked — run the sink tap and check it d
+REPLY: Under the sink, look where the drain hose joins the waste. On a newly fitted sink waste the little blanking plug inside the spigot has to be cut out, and the sink trap mustn't be blocked — run the sink tap and check it drains freely. Was the blanking plug still in or the trap blocked (and is it cleared now), or is the connection fine?
+
+--- Turn 6
+CUSTOMER: I'm not sure about the blanking plug, I couldn't tell you if it was cut out when the sink went in. The sink does still drain a little slow. I've looped the hose up and clipped it now, and there's been no more water in the dishwasher since.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='water left in the dishwasher' question=None
+   checks reported: [{'check': 'looped the drain hose up and clipped it', 'result': 'no more water in the dishwasher since'}]  facts: ['sink still drains a little slow', 'unsure whether blanking plug was cut out when sink was fitted']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (1); symptomArea="not_draining" (0.68); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.84); checkOutcome="fixed" (0.97); modelUnreachable=false (0.03); narrowed=null (0.92); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:odour', 'dishwasher:not-draining', 'dishwasher:fill']  normal: ['dw-sump-water']  codes: []  stage: 2
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Drain hose not looped high after sink replacement; sink water backflows into dishwasher.

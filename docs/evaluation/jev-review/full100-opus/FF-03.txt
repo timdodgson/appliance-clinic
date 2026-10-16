@@ -1,0 +1,38 @@
+TEST FF-03  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, we've just had a Bosch KGN36VLEAG delivered last week and it makes a gurgling, bubbling sound like water running, plus a click every so often and a crack noise at night. Is it faulty? It's driving my husband mad.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Bosch model=KGN36VLEAG codes=[] symptom='gurgling, bubbling, clicking and cracking noises' question='Is it faulty?'
+   checks reported: []  facts: ['delivered last week', 'gurgling sound like water running', 'clicks every so often', 'crack noise at night']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.94); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="KGN36VLEAG" (1); code=null (1); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:noisy', 'fridge-freezer:compressor', 'fridge-freezer:evaporator-fan']  normal: ['ff-gurgle-hiss', 'ff-compressor-click']  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:noisy | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: normal running sounds
+    - cause: the internal (evaporator) fan
+    - cause: something touching or loose at the back
+    - cause: it working too hard (coils / space round it)
+    - cause: the condenser fan or compressor area at the back
+    - normal: Gurgling, bubbling, hissing or trickling sounds are refrigerant moving around the circuit, and cracking or popping is plastic expanding during
+    - normal: Fridges cycle on and off all day. A click as the compressor starts or stops, followed by a steady hum, is normal. Inverter compressors hum con
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.16  check: Ease it out from the wall and check nothing at the back is touching the wall, cupboards or
+    KEPT    d=0.05 r=0.04 p=0.18  check: If the coil or grille at the back or underneath is dusty, or it's pushed against the wall,
+    KEPT    d=0.03 r=0.04 p=0.22  check: Let it run as normal for a few hours. Has the noise gone, or is it still there?
+    KEPT    d=0.04 r=0.04 p=0.1  question: Does the noise stop when you open the freezer door, when you unplug it briefly, or when yo
+  JEV PICKED: situation = Gurgling, bubbling, hissing or trickling sounds are refrigerant moving around the circuit, and cracking or popping is plastic expanding during defrost. All normal.
+              next      = Let it run as normal for a few hours. Has the noise gone, or is it still there?
+LLM ANSWER TO THEIR QUESTION: From what you've described, it's very unlikely to be faulty.  Gurgling, clicking and cracking noises are common on a new fridge-freezer like your Bosch, especially in the first weeks as it settles in.
+REPLY: From what you've described, it's very unlikely to be faulty. Gurgling, clicking and cracking noises are common on a new fridge-freezer like your Bosch, especially in the first weeks as it settles in. This sounds like normal behaviour rather than a fault: Gurgling, bubbling, hissing or trickling sounds are refrigerant moving around the circuit, and cracking or popping is plastic expanding during defrost. All normal. It would be worth a closer look if noise with the fridge getting warm, or a continuous loud hiss with an oily residue. Let it run as normal for a few hours. Has the noise gone, or is it still there?
+
+--- Turn 2
+CUSTOMER: Thank you for replying. No, the noise is still there, it's been like this all week. The gurgling is mostly just after the motor starts or stops, and the crack is a few times a day, more at night when the kitchen is quiet. Everything is cooling well though. Is that still normal?
+1 LLM UNDERSTOOD: appliance=fridge-freezer brand=Bosch model=None codes=[] symptom='gurgling and cracking noises' question='Is that still normal?'
+   checks reported: []  facts: ['noise has been like this all week', 'gurgling mostly just after the motor starts or stops', 'cracking a few times a day, more noticeable at night', 'cooling well']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.93); symptomArea="noise" (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.59); modelUnreachable=false (0.03); make=null (0.4); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:noisy', 'fridge-freezer:compressor', 'fridge-freezer:evaporator-fan']  normal: ['ff-gurgle-hiss', 'ff-compressor-click']  codes: []  stage: 1
+4 (no Jev choice this turn: settled-normal-closed)
+LLM ANSWER TO THEIR QUESTION: Yes, that pattern is normal for a new fridge-freezer that is cooling well.  Gurgling just after the motor starts or stops is refrigerant moving through the pipes, and occasional cracking, more noticeable at night when the house is quiet, is the plastics expanding and contracting as temperatures change.
+REPLY: Yes, that pattern is normal for a new fridge-freezer that is cooling well. Gurgling just after the motor starts or stops is refrigerant moving through the pipes, and occasional cracking, more noticeable at night when the house is quiet, is the plastics expanding and contracting as temperatures change. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal operating noises: refrigerant flow (gurgling) at compressor start/stop, thermostat/valve clicks, and expansion/contraction cracks from automatic defrost and temperature changes.

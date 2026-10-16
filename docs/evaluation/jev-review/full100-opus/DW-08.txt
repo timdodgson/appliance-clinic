@@ -1,0 +1,82 @@
+TEST DW-08  (ended: escalated, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: the door on our built in dishwasher just crashes down when you open it now, used to stay put. Hotpoint I think
+1 LLM UNDERSTOOD: appliance=dishwasher brand=Hotpoint model=None codes=[] symptom="door drops down when opened, won't stay in position" question=None
+   checks reported: []  facts: ['built-in dishwasher', 'door used to stay put', 'brand uncertain, thinks Hotpoint']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (1); symptomArea="door_or_lid" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.99); modelUnreachable=false (0.05); make="Hotpoint" (0.88); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:door-loom', 'dishwasher:water-matrix']  normal: []  codes: []  stage: 1
+4 JEV: note picked = dishwasher:door | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: does it physically not close, or close but not start? (identify first)
+    - cause: loading / rack obstruction / alignment
+    - cause: door hinge / balance / springs (drops open)
+    - cause: door latch / catch / interlock
+    - cause: door switch / interlock wiring / door loom
+    - cause: control board / PCB (last)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.03 r=0.04 p=0.57  check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc
+    KEPT    d=0.04 r=0.06 p=0.34  check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f
+    KEPT    d=0.04 r=0.06 p=0.27  check: With the dishwasher switched off at the socket, look at the latch at the top of the door a
+    REMOVED d=0.03 r=0.04 p=0.73  check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t
+    REMOVED d=0.04 r=0.03 p=0.67  check: A delay start (often shown as a countdown like "3h") or a programme that hasn't been confi
+    KEPT    d=0.04 r=0.06 p=0.5  check: Now choose a programme and press start. Does it start normally now, or still not?
+    KEPT    d=0.07 r=0.05 p=0.32  step: check nothing (rack/tall item) is stopping the door closing
+    KEPT    d=0.06 r=0.04 p=0.17  step: on an integrated machine check the furniture-door alignment/balance
+    KEPT    d=0.05 r=0.04 p=0.16  step: note whether moving or pressing the door changes anything
+    KEPT    d=0.42 r=0.07 p=0.31  question: Does the door physically not close, or does it close and latch but the machine won't start
+  JEV PICKED: situation = door hinge / balance / springs (drops open)
+              next      = on an integrated machine check the furniture-door alignment/balance
+REPLY: From what you have described, the most likely cause is door hinge / balance / springs (drops open). Next: On an integrated machine check the furniture-door alignment/balance. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: Not sure what you mean by alignment, but the door closes and latches fine and sits square. When I open it, the left side has a bit of tension but the right side has none at all. I also heard a twang last week when it went.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='door drops open' question='What do you mean by alignment?'
+   checks reported: [{'check': 'door close and latch', 'result': 'closes and latches fine, sits square'}, {'check': 'door tension when opening', 'result': 'left side has some tension, right side has none'}]  facts: ['heard a twang last week when it went', 'right side has no tension']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.55); symptomArea="door_or_lid" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.61); checkOutcome="still_faulty" (0.59); modelUnreachable=false (0.04); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:water-matrix', 'dishwasher:door-loom']  normal: []  codes: []  stage: 2
+4 JEV: note picked = dishwasher:door | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: does it physically not close, or close but not start? (identify first)
+    - cause: loading / rack obstruction / alignment
+    - cause: door hinge / balance / springs (drops open)
+    - cause: door latch / catch / interlock
+    - cause: door switch / interlock wiring / door loom
+    - cause: control board / PCB (last)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.04 r=0.05 p=0.72  check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc
+    KEPT    d=0.09 r=0.07 p=0.56  check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f
+    KEPT    d=0.35 r=0.07 p=0.46  check: With the dishwasher switched off at the socket, look at the latch at the top of the door a
+    REMOVED d=0.04 r=0.04 p=0.75  check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t
+    REMOVED d=0.05 r=0.04 p=0.71  check: A delay start (often shown as a countdown like "3h") or a programme that hasn't been confi
+    KEPT    d=0.06 r=0.07 p=0.52  check: Now choose a programme and press start. Does it start normally now, or still not?
+    REMOVED d=0.36 r=0.07 p=0.77  step: check nothing (rack/tall item) is stopping the door closing
+    KEPT    d=0.17 r=0.05 p=0.23  step: note whether moving or pressing the door changes anything
+    REMOVED d=0.79 r=0.09 p=0.47  question: Does the door physically not close, or does it close and latch but the machine won't start
+  JEV PICKED: situation = door hinge / balance / springs (drops open)
+              next      = note whether moving or pressing the door changes anything
+LLM ANSWER TO THEIR QUESTION: By alignment I mean whether the door sits straight and square in the opening when closed, with even gaps on both sides and the latch meeting the catch cleanly.  From what you've said, it closes, latches and sits square, so the alignment sounds fine.
+REPLY: By alignment I mean whether the door sits straight and square in the opening when closed, with even gaps on both sides and the latch meeting the catch cleanly. From what you've said, it closes, latches and sits square, so the alignment sounds fine. Next: Note whether moving or pressing the door changes anything. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: Pressing the door doesn't change much, it just drops open on the right side with no resistance. I had a look under the plinth with a torch and can see a loose spring hanging down on the right side.
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=[] symptom='door drops open with no resistance on right side' question=None
+   checks reported: [{'check': 'looked under the plinth with a torch', 'result': 'loose spring hanging down on the right side'}, {'check': 'pressed the door', 'result': "doesn't change much; drops open on right side with no resistance"}]  facts: ['door drops open on the right side with no resistance', 'loose spring hanging down on the right side under the plinth']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.67); symptomArea="door_or_lid" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.99); modelUnreachable=false (0.03); narrowed="door hinge" (0.91); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:water-matrix', 'dishwasher:door-loom']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+REPLY: [Heading: Likely cause: door hinge]
+The checks point to the door hinge. To find the right part, could you give me the model number? It is usually on the side edge of the door.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: The sticker on the door edge is partly peeled, but I can see it starts with LTF. I can't make out the rest of it, sorry.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question=None
+   checks reported: []  facts: ['model sticker on door edge is partly peeled', 'model number starts with LTF']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.65); symptomArea=null (0.95); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.75); checkOutcome=null (1); modelUnreachable=true (0.89); narrowed="door hinge" (0.93); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['dishwasher:door', 'dishwasher:door-loom', 'dishwasher:water-matrix']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-unreadable)
+REPLY: [Heading: Likely cause: door hinge]
+The checks point to the door hinge. If the model number can't be read, it is often also on the guarantee card, the receipt or the manual; with it, the right part can be matched. Without it, an appliance engineer can identify and fit the right door hinge from the machine itself.
+
+HIDDEN TRUTH: Right-hand door hinge spring/cable broken.

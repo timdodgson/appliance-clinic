@@ -1,0 +1,176 @@
+TEST TD-01  (ended: concluded, 7 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, my Hotpoint Aquarius dryer is taking forever to dry and the top gets really hot. Model is TCM580GUK if that helps
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=Hotpoint model=TCM580GUK codes=[] symptom='taking very long to dry, top gets very hot' question=None
+   checks reported: []  facts: ['Aquarius range', 'top of dryer gets really hot']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="not_drying" (0.83); hazard=null (0.89); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="TCM580GUK" (1); code=null (1); make="Hotpoint" (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:poor-drying', 'tumble-dryer:not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:poor-drying | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: Clean the lint filter and the condenser/heat exchanger
+    - cause: Improve washer spin so laundry enters less wet
+    - cause: heater element / thermostat (vented & condenser)
+    - cause: moisture / temperature sensing
+    - cause: refrigerant / heat-pump circuit (heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.09  check: Damp laundry is most often an airflow problem, and the first free check is the fluff filte
+    KEPT    d=0.04 r=0.03 p=0.08  check: Overloading, or putting clothes in that weren't spun well in the washer, makes drying much
+    KEPT    d=0.04 r=0.04 p=0.09  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.04 r=0.04 p=0.11  check: Check the vent hose out of the back: it should be short, without kinks or squashed section
+    KEPT    d=0.04 r=0.04 p=0.24  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.05 r=0.04 p=0.11  check: A short timed programme, "iron dry" or a low dryness level can leave laundry damp. Was a s
+    KEPT    d=0.05 r=0.04 p=0.16  check: Run a normal drying programme with a normal load. Is the laundry coming out dry now, or st
+    KEPT    d=0.06 r=0.04 p=0.1  question: Is it vented, condenser or heat-pump, are the filters clean, and did the washing go in ver
+  JEV PICKED: situation = Clean the lint filter and the condenser/heat exchanger
+              next      = Damp laundry is most often an airflow problem, and the first free check is the fluff filter in the door opening — heat-pump models often have a second filter at the bottom too. Was it full of fluff (and is it clean now),
+REPLY: From what you have described, the most likely cause is clean the lint filter and the condenser/heat exchanger. Damp laundry is most often an airflow problem, and the first free check is the fluff filter in the door opening — heat-pump models often have a second filter at the bottom too. Was it full of fluff (and is it clean now), is the mesh torn, or was it already clean?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+[Helpful to see: image "Where the lint filter is" — The fluff/lint filter sits in the door opening or just inside the rim. Lift it out and clear the fluff after every load. Typical layout — your dryer may differ.]
+
+--- Turn 2
+CUSTOMER: Thank you. The door filter had a thick layer of fluff on it, I'll admit I sometimes forget to clean it. I've also rinsed the condenser unit at the front bottom, which had lint packed on the fins, and it looks much cleaner now. The top of the dryer also gets very hot to the touch, and I often run it while I'm out at work.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='laundry still damp' question=None
+   checks reported: [{'check': 'door fluff filter', 'result': 'thick layer of fluff found'}, {'check': 'rinsed condenser unit at front bottom', 'result': 'lint packed on fins, now much cleaner'}]  facts: ['sometimes forgets to clean the filter', 'top of dryer gets very hot to the touch', 'often run while customer is out at work']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (0.4); hazard=null (0.97); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.37); modelUnreachable=false (0.04); checksConfirmed=[0, 1]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:not-heating', 'tumble-dryer:poor-drying']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:poor-drying | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: Clean the lint filter and the condenser/heat exchanger
+    - cause: Improve washer spin so laundry enters less wet
+    - cause: heater element / thermostat (vented & condenser)
+    - cause: moisture / temperature sensing
+    - cause: refrigerant / heat-pump circuit (heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.04 p=0.13  check: Overloading, or putting clothes in that weren't spun well in the washer, makes drying much
+    REMOVED d=0.96 r=0.04 p=0.73  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.05 r=0.05 p=0.19  check: Check the vent hose out of the back: it should be short, without kinks or squashed section
+    KEPT    d=0.06 r=0.04 p=0.36  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.05 r=0.04 p=0.15  check: A short timed programme, "iron dry" or a low dryness level can leave laundry damp. Was a s
+    KEPT    d=0.07 r=0.05 p=0.2  check: Run a normal drying programme with a normal load. Is the laundry coming out dry now, or st
+    REMOVED d=0.73 r=0.06 p=0.32  question: Is it vented, condenser or heat-pump, are the filters clean, and did the washing go in ver
+  JEV PICKED: situation = Clean the lint filter and the condenser/heat exchanger
+              next      = Run a normal drying programme with a normal load. Is the laundry coming out dry now, or still damp?
+REPLY: Run a normal drying programme with a normal load. Is the laundry coming out dry now, or still damp?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+
+--- Turn 3
+CUSTOMER: I haven't run it again yet, as I've only just finished cleaning the filter and condenser, so I can't say whether it's drying any better. Is there anything else I should check before I put a load through?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='laundry not drying properly' question='Is there anything else I should check before I put a load through?'
+   checks reported: [{'check': 'cleaned the filter and condenser', 'result': 'just finished; not yet tested'}]  facts: ['condenser dryer']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.98); symptomArea=null (0.62); hazard=null (1); unsafeRequest=null (0.99); lastAnswer=null (0.2); checkOutcome=null (1); modelUnreachable=false (0.03); narrowed=null (0.99); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:poor-drying', 'tumble-dryer:not-heating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:poor-drying | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: Clean the lint filter and the condenser/heat exchanger
+    - cause: Improve washer spin so laundry enters less wet
+    - cause: heater element / thermostat (vented & condenser)
+    - cause: moisture / temperature sensing
+    - cause: refrigerant / heat-pump circuit (heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.05 p=0.13  check: Overloading, or putting clothes in that weren't spun well in the washer, makes drying much
+    REMOVED d=0.95 r=0.04 p=0.8  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.05 r=0.06 p=0.24  check: Check the vent hose out of the back: it should be short, without kinks or squashed section
+    KEPT    d=0.05 r=0.05 p=0.36  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.07 r=0.06 p=0.2  check: A short timed programme, "iron dry" or a low dryness level can leave laundry damp. Was a s
+    REMOVED d=0.75 r=0.09 p=0.33  question: Is it vented, condenser or heat-pump, are the filters clean, and did the washing go in ver
+  JEV PICKED: situation = Clean the lint filter and the condenser/heat exchanger
+              next      = Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside vent. Was it kinked, squashed or blocked (and is it sorted), or was it already cl
+REPLY: Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside vent. Was it kinked, squashed or blocked (and is it sorted), or was it already clear?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+
+--- Turn 4
+CUSTOMER: I'm afraid I'm not sure, as I haven't looked at the back of the dryer. This is a condenser model with a water container, so I wasn't expecting it to have a vent hose at all. Is that something I should be checking on mine?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom=None question='Is the vent hose something I should be checking on a condenser dryer?'
+   checks reported: []  facts: ['condenser model with a water container', 'no vent hose expected']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.95); checkOutcome=null (1); modelUnreachable=false (0.05); narrowed=null (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:overheating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:filter-blocked | findings settle it = False | engineer allowed = True
+  situations offered (2):
+    - cause: Clean the lint/fluff filter
+    - cause: Clean the condenser / heat exchanger (condenser & heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.7 r=0.05 p=0.7  question: When did you last clean the lint filter and (on a condenser/heat-pump) the condenser?
+  JEV PICKED: situation = Clean the condenser / heat exchanger (condenser & heat-pump)
+              next      = When did you last clean the lint filter and (on a condenser/heat-pump) the condenser?
+LLM ANSWER TO THEIR QUESTION: No, a condenser dryer like yours has no vent hose.  It condenses the moisture into the water container instead of blowing it outside, so the parts that keep air flowing are the door fluff filter and the condenser unit you've just cleaned.
+REPLY: Before you start, switch it off and unplug it. No, a condenser dryer like yours has no vent hose. It condenses the moisture into the water container instead of blowing it outside, so the parts that keep air flowing are the door fluff filter and the condenser unit you've just cleaned. From what you have described, the most likely cause is clean the condenser / heat exchanger (condenser & heat-pump). When did you last clean the lint filter and (on a condenser/heat-pump) the condenser?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+[Helpful to see: image "Where the condenser and water tank are" — On a condenser dryer the water container pulls out at the top and the condenser/heat exchanger sits behind a flap at the bottom front — slide it out and rinse it. Condenser/heat-pump dryers only; layout may differ.]
+
+--- Turn 5
+CUSTOMER: I've just cleaned both today, but I'm afraid I can't say when I last did the condenser before that, and the door filter only gets cleaned when I remember. Is there anything else I should check before running a load?
+1 LLM UNDERSTOOD: appliance=condenser tumble dryer brand=None model=None codes=[] symptom=None question='Is there anything else I should check before running a load?'
+   checks reported: [{'check': 'cleaned door fluff filter', 'result': 'done today'}, {'check': 'cleaned condenser', 'result': 'done today'}]  facts: ['condenser not cleaned for an unknown period before today', 'door filter only cleaned occasionally']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.88); symptomArea=null (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.69); checkOutcome=null (0.65); modelUnreachable=false (0.03); narrowed=null (0.95); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:poor-drying']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:poor-drying | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: Clean the lint filter and the condenser/heat exchanger
+    - cause: Improve washer spin so laundry enters less wet
+    - cause: heater element / thermostat (vented & condenser)
+    - cause: moisture / temperature sensing
+    - cause: refrigerant / heat-pump circuit (heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.06 p=0.13  check: Overloading, or putting clothes in that weren't spun well in the washer, makes drying much
+    REMOVED d=0.96 r=0.06 p=0.81  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.05 r=0.07 p=0.37  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.08 r=0.06 p=0.21  check: A short timed programme, "iron dry" or a low dryness level can leave laundry damp. Was a s
+    REMOVED d=0.8 r=0.16 p=0.42  question: Is it vented, condenser or heat-pump, are the filters clean, and did the washing go in ver
+  JEV PICKED: situation = Clean the lint filter and the condenser/heat exchanger
+              next      = Overloading, or putting clothes in that weren't spun well in the washer, makes drying much slower. The drum should be no more than about two-thirds full. Was it overloaded or were the clothes very wet going in (and have 
+REPLY: From what you have described, the most likely cause is clean the lint filter and the condenser/heat exchanger. Overloading, or putting clothes in that weren't spun well in the washer, makes drying much slower. The drum should be no more than about two-thirds full. Was it overloaded or were the clothes very wet going in (and have you changed that), or was it a normal, well-spun load?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+[Helpful to see: image "Tumble dryer not drying properly — what to check" — Poor drying is most often caused by restricted airflow. Clean the fluff filter every cycle, clean the condenser regularly and avoid overloading the drum — these are safe checks you can do yourself. Switch the dryer off and let it cool first.]
+
+--- Turn 6
+CUSTOMER: It was a normal-sized load from a 1400 spin washer, so I don't think it was overloaded or too wet. The dryer is in a small utility room with the door usually shut, if that matters. Is there anything else I should check?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='drying slowly' question='Is there anything else I should check?'
+   checks reported: []  facts: ['load spun at 1400 in washer', 'in a small utility room', 'utility room door usually shut']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.98); symptomArea=null (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (0.94); code=null (1); narrowed=null (0.96); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:filter-blocked', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:poor-drying']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:filter-blocked | findings settle it = False | engineer allowed = True
+  situations offered (2):
+    - cause: Clean the lint/fluff filter
+    - cause: Clean the condenser / heat exchanger (condenser & heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.06 p=0.27  check: Slide the water container out, empty it, check it isn't cracked and that the lid / float i
+    REMOVED d=0.96 r=0.05 p=0.81  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    KEPT    d=0.1 r=0.22 p=0.17  check: Run a normal drying programme. Is it collecting the water (and staying dry underneath) now
+    KEPT    d=0.31 r=0.09 p=0.39  question: Is the container actually staying empty with water pooling elsewhere, and is the condenser
+    KEPT    d=0.05 r=0.07 p=0.42  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.08 r=0.07 p=0.24  check: A short timed programme, "iron dry" or a low dryness level can leave laundry damp. Was a s
+    REMOVED d=0.92 r=0.13 p=0.66  question: Is it vented, condenser or heat-pump, are the filters clean, and did the washing go in ver
+  JEV PICKED: situation = Clean the condenser / heat exchanger (condenser & heat-pump)
+              next      = Run a normal drying programme. Is it collecting the water (and staying dry underneath) now, or still not?
+REPLY: Before you start, switch it off and unplug it. From what you have described, the most likely cause is clean the condenser / heat exchanger (condenser & heat-pump). Run a normal drying programme. Is it collecting the water (and staying dry underneath) now, or still not?
+[Safety panel] Clean the lint filter after every load — a build-up of fluff is a fire risk and restricts airflow. Don't run the dryer overnight or while you're out.
+
+--- Turn 7
+CUSTOMER: I haven't run a new load yet, so I can't say whether it's collecting water any differently. Before the cleaning, the water container was half full and emptied fine. Also, I should mention that the dryer is about 12-14 years old and came with the house, so I don't know if it was ever modified under the Hotpoint fire-safety programme. Should I be worried about that?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=Hotpoint model=None codes=[] symptom=None question="Should I be worried that I don't know if it was modified under the Hotpoint fire-safety programme?"
+   checks reported: [{'check': 'cleaned the condenser', 'result': 'not yet tested with a new load'}]  facts: ['water container was half full before cleaning and emptied fine', 'dryer is about 12-14 years old', 'came with the house', 'unknown if modified under Hotpoint fire-safety programme']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (0.93); hazard=null (0.98); unsafeRequest=null (1); lastAnswer=null (0.28); checkOutcome=null (1); modelUnreachable=false (0.04); model=null (1); code=null (1); make="Hotpoint" (0.96); narrowed=null (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['tumble-dryer:not-emptying-condensate', 'tumble-dryer:filter-blocked', 'tumble-dryer:overheating']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:filter-blocked | findings settle it = False | engineer allowed = True
+  situations offered (2):
+    - cause: Clean the lint/fluff filter
+    - cause: Clean the condenser / heat exchanger (condenser & heat-pump)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.25 r=0.09 p=0.29  check: Slide the water container out, empty it, check it isn't cracked and that the lid / float i
+    REMOVED d=0.96 r=0.06 p=0.81  check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p
+    REMOVED d=0.64 r=0.18 p=0.3  question: Is the container actually staying empty with water pooling elsewhere, and is the condenser
+    REMOVED d=0.95 r=0.06 p=0.67  check: A blocked filter makes the dryer overheat, and it then cuts out to protect itself. Clean t
+    REMOVED d=0.9 r=0.06 p=0.74  check: A very small load (or one item) can make a sensor dryer finish early, and an overloaded dr
+    KEPT    d=0.06 r=0.08 p=0.32  check: Sensor dryers stop when two metal strips inside the drum (near the filter) feel the laundr
+    KEPT    d=0.08 r=0.18 p=0.23  check: Run a normal drying programme and stay nearby. Does it run right through now, or still sto
+    KEPT    d=0.61 r=0.05 p=0.45  step: Clean the lint filter and remove fluff build-up around the heater/air path
+    KEPT    d=0.21 r=0.1 p=0.32  step: Confirm the blower fan spins freely and the vent/condenser is clear
+    KEPT    d=0.09 r=0.04 p=0.15  step: If there is smoke, burning-lint smell or scorching: STOP USE, unplug at the wall, do not r
+    REMOVED d=0.53 r=0.29 p=0.41  question: When did you last clean the lint filter and is the fan blowing air through normally?
+  JEV PICKED: situation = Clean the condenser / heat exchanger (condenser & heat-pump)
+              next      = Run a normal drying programme and stay nearby. Does it run right through now, or still stop part way?
+LLM ANSWER TO THEIR QUESTION: It's worth finding out rather than worrying: whether it matters depends on whether your serial number was among the affected machines and, if so, whether it was modified, and you can check on Hotpoint's safety recall checker using the model and serial number from the label.  Until you know, only run it while you're home and nearby, not while you're out at work.
+REPLY: It's worth finding out rather than worrying: whether it matters depends on whether your serial number was among the affected machines and, if so, whether it was modified, and you can check on Hotpoint's safety recall checker using the model and serial number from the label. Until you know, only run it while you're home and nearby, not while you're out at work. Run a normal drying programme and stay nearby. Does it run right through now, or still stop part way?
+
+HIDDEN TRUTH: Model TCM580GUK appears on the published list of Hotpoint/Indesit/Creda dryers affected by the lint-on-heater fire risk; no evidence it was ever modified. Slow drying itself is from neglected fluff filter and condenser, but the priority is to stop using it and check with the Whirlpool/Hotpoint safety line.

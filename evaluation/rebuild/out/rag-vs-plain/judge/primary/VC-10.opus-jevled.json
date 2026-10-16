@@ -1,0 +1,55 @@
+{
+ "id": "VC-10.opus-jevled",
+ "case": "VC-10",
+ "system": "opus-jevled",
+ "judge": "claude-sonnet-5-5",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 1,
+  "calibration": 2,
+  "noRepetition": 1,
+  "escalation": 2,
+  "partQuality": 3,
+  "languageUnderstanding": 2,
+  "overall": 2
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "After the customer said 'no blockages' and had already checked them, the assistant asked again: 'Detach the wand and floorhead and look through each part... a coin dropped through the wand'. It also asked about Max mode again after the customer had said it nearly always stops on Max."
+  }
+ },
+ "outcome": "partial",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant reasonably leaned towards a worn battery while noting it was not certain, and it never confirmed the model (SV11/V7), asked whether the stop was clean or pulsing, or asked about the light pattern. It repeated the blockage check and the Max-mode question the customer had already answered, and it chased a brush bar that does not fit a handheld cut-out with no tool. The final escalation to 'an appliance engineer' was abrupt and generic. It did not point to Dyson support, did not suggest a swap test, and left the customer's £60 battery question without a clear answer.",
+ "costUsd": 0.028232
+}

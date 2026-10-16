@@ -1,0 +1,34 @@
+TEST OC-01  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: my oven fan keeps going after ive turned the oven off, been about 20 mins now. is it broken??
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom='fan keeps running after oven turned off' question='is it broken?'
+   checks reported: []  facts: ['fan has been running about 20 minutes after switching off']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea="other" (0.79); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.97); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['oven-cooker:cooling-fan', 'oven-cooker:tripping-electrics', 'oven-cooker:fan-motor']  normal: ['oven-fan-overrun']  codes: []  stage: 1
+4 JEV: note picked = oven-cooker:cooling-fan | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: airflow / vents obstruction
+    - cause: cooling fan motor
+    - cause: cooling-fan thermostat / control
+    - cause: overheat thermal cut-out
+    - normal: Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.05 p=0.31  step: work out which fan: cavity fan (uneven cooking) vs cooling fan (quiet whirring, controls g
+    KEPT    d=0.05 r=0.04 p=0.19  step: if the controls/fascia are getting hot, stop using the oven until the cooling fan is repai
+    KEPT    d=0.14 r=0.06 p=0.36  question: Is it the quiet cooling fan (controls area) that's stopped, or the cavity fan that circula
+  JEV PICKED: situation = Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes.
+              next      = work out which fan: cavity fan (uneven cooking) vs cooling fan (quiet whirring, controls getting hot)
+LLM ANSWER TO THEIR QUESTION: Probably not.  A fan still running 20 minutes after switching off is usually normal, and it would only point to a fault if it never stops even once the oven has gone cold.
+REPLY: Probably not. A fan still running 20 minutes after switching off is usually normal, and it would only point to a fault if it never stops even once the oven has gone cold. This sounds like normal behaviour rather than a fault: Cooling fans keep running after an oven (or a combination microwave) is switched off until the inside has cooled, often 10-30 minutes. It would be worth a closer look if the fan never stops even when the oven is cold. Next: Work out which fan: cavity fan (uneven cooking) vs cooling fan (quiet whirring, controls getting hot). Let me know what you find.
+
+--- Turn 2
+CUSTOMER: its a quiet steady whirr and warm air is coming out of the slot above the door. no grinding or burning smell. oven itself is still warm, display just shows the clock
+1 LLM UNDERSTOOD: appliance=oven brand=None model=None codes=[] symptom='fan still running after oven switched off' question=None
+   checks reported: []  facts: ['warm air coming out of slot above the door', 'no grinding or burning smell', 'oven still warm', 'display just shows the clock']
+2 JEV LABELS: scope="appliance" (1); appliance="oven-cooker" (1); symptomArea=null (0.95); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.83); checkOutcome=null (0.89); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['oven-cooker:cooling-fan', 'oven-cooker:clock-timer', 'oven-cooker:fan-motor']  normal: ['oven-fan-overrun']  codes: []  stage: 1
+4 (no Jev choice this turn: settled-normal-closed)
+REPLY: Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal behaviour: the tangential cooling fan runs on after use until the cavity/control area has cooled, then stops automatically.

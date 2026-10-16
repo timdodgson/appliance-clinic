@@ -1,0 +1,14 @@
+TEST MW-08  (ended: escalated, 1 customer messages)
+
+--- Turn 1
+CUSTOMER: Bit of a weird one - my son put the microwave on for 10 minutes with nothing in it by accident. Now there's a horrible smell. Is it broken?
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='horrible smell after running empty for 10 minutes' question='Is it broken?'
+   checks reported: []  facts: ['ran empty for 10 minutes by accident', 'horrible smell since']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea="smell" (1); hazard="burning" (0.95); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:sparking-arcing', 'microwave:door']  normal: []  codes: []  stage: 1
+4 (no Jev choice this turn: hazard)
+LLM ANSWER TO THEIR QUESTION: It may well be.  Running a microwave empty can damage internal parts, and a smell that hasn't gone away suggests something may have overheated, but whether it is actually broken can only be confirmed by someone checking inside it.
+REPLY: ⚠ Stop using this appliance
+A burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. It may well be. Running a microwave empty can damage internal parts, and a smell that hasn't gone away suggests something may have overheated, but whether it is actually broken can only be confirmed by someone checking inside it. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: genuinely uncertain: running empty may have damaged the waveguide cover and/or magnetron; smoke from the vents suggests internal overheating. Whether it is still safe cannot be determined remotely; given cost, replacement is most sensible.

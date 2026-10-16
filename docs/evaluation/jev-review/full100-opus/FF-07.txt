@@ -1,0 +1,220 @@
+TEST FF-07  (ended: turn-limit, 8 customer messages)
+
+--- Turn 1
+CUSTOMER: Samsung RS68A8820S9/EU flashing 22E on the display and the fridge side isn't as cold as it should be. What does 22E mean and can I fix it?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Samsung model=RS68A8820S9/EU codes=['22E'] symptom='fridge side not cold enough' question='What does 22E mean and can I fix it?'
+   checks reported: []  facts: ['22E flashing on the display']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="error_code" (0.62); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="RS68A8820S9/EU" (1); code="22E" (1); make="Samsung" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:compressor', 'fridge-freezer:evaporator-fan']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.03 r=0.04 p=0.19  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.04 r=0.03 p=0.22  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.05 r=0.04 p=0.24  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.04 p=0.13  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.04 r=0.04 p=0.12  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.04 r=0.04 p=0.18  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+    KEPT    d=0.05 r=0.04 p=0.1  question: Is the freezer still cold while the fridge is warm, and is there a thick block of ice on t
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+REPLY: I can't confirm what 22E means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is the fan or air channel that moves cold air into the fridge. Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+
+--- Turn 2
+CUSTOMER: Yes, the freezer side is fine and the fridge is at 9C. I haven't checked the freezer back wall for ice though. There's a bit of frost around the vent at the top back of the fridge. No burning smell or tripping, by the way.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=['22E'] symptom='fridge warm while freezer cold' question=None
+   checks reported: []  facts: ['fridge is at 9C', 'a bit of frost around the vent at the top back of the fridge', 'no burning smell', 'no tripping']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="not_cooling" (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome="still_faulty" (0.79); modelUnreachable=false (0.03); model=null (0.98); code=null (0.92); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:defrost-system', 'fridge-freezer:compressor']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.24  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.06 r=0.05 p=0.28  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.18 r=0.06 p=0.39  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.21 r=0.05 p=0.24  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.04 r=0.04 p=0.21  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.05 r=0.05 p=0.3  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of the back wall inside the fridge there's a small drain hole or channel. If it blocks or ices up, defrost water collects inside and 
+REPLY: From what you have described, the most likely cause is a blocked or iced-up defrost drain. Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of the back wall inside the fridge there's a small drain hole or channel. If it blocks or ices up, defrost water collects inside and ice can build up behind the back panel and choke the cold air. Clear the hole gently with warm water (a turkey baster or squeezy bottle) or a soft pipe cleaner — nothing sharp. Was the drain hole blocked (and is it clear now), is it blocked or frozen and you couldn't clear it, or was it already clear?
+
+--- Turn 3
+CUSTOMER: I haven't looked yet, and I'm not sure exactly where the drain hole is on this model. Is it behind a panel? I'm not going to take the inner back panel off, but I can look at the bottom of the fridge back wall if it's visible.
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom='water inside fridge and poor cooling' question='Is the drain hole behind a panel?'
+   checks reported: []  facts: ['not willing to remove the inner back panel', 'can look at the bottom of the back wall if visible']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.48); checkOutcome=null (1); modelUnreachable=false (0.05); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:compressor']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.07 p=0.27  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.18 r=0.09 p=0.39  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.12 r=0.28 p=0.24  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.05 r=0.08 p=0.23  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.06 r=0.11 p=0.32  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Cold air comes in through vents, often on the back wall inside. Make sure food isn't pressed against them and the shelves aren't packed so tight air can't move. Were the vents blocked or was it over-packed (and have you 
+LLM ANSWER TO THEIR QUESTION: On many Samsung fridge-freezers the fridge-side drain sits behind the inner back panel, so it's usually not visible without removing that panel.  I can't confirm the exact layout for the RS68A8820S9/EU from what we have, so there's no need to take the panel off.
+REPLY: On many Samsung fridge-freezers the fridge-side drain sits behind the inner back panel, so it's usually not visible without removing that panel. I can't confirm the exact layout for the RS68A8820S9/EU from what we have, so there's no need to take the panel off. Cold air comes in through vents, often on the back wall inside. Make sure food isn't pressed against them and the shelves aren't packed so tight air can't move. Were the vents blocked or was it over-packed (and have you moved things), or was everything clear?
+
+--- Turn 4
+CUSTOMER: I haven't moved anything yet. The airflow from the fridge vents is very weak though, and there's a bit of frost around the vent at the top back. I'll have a look at whether food is blocking them if you think that's worth doing.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Samsung model=RS68A8820S9/EU codes=[] symptom='weak airflow from fridge vents' question='Is it worth checking whether food is blocking the vents?'
+   checks reported: []  facts: ['airflow from fridge vents is very weak', 'a bit of frost around the vent at the top back']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="suction_or_airflow" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.96); checkOutcome=null (0.96); modelUnreachable=false (0.03); model=null (0.96); code=null (1); make=null (0.14); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:fridge-airflow', 'fridge-freezer:not-cooling']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.08 p=0.29  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.2 r=0.09 p=0.38  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.08 p=0.26  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.07 r=0.11 p=0.31  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After a day with the doors shut, is it back to cold, or still warm?
+LLM ANSWER TO THEIR QUESTION: Yes, a quick look is worth it, as food pressed against the vents can weaken airflow, so move anything blocking them.  Do it in one brief opening so the fridge can keep recovering with the doors shut.
+REPLY: Yes, a quick look is worth it, as food pressed against the vents can weaken airflow, so move anything blocking them. Do it in one brief opening so the fridge can keep recovering with the doors shut. Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After a day with the doors shut, is it back to cold, or still warm?
+
+--- Turn 5
+CUSTOMER: Ok, I'll check the vents and keep the doors shut for a day. I can't give you the result yet though. Just so you know, the 22E has come back before in the past few hours after I reset the power at the wall, so I'm not sure it will clear. If it doesn't improve, what's the next step?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=['22E'] symptom='fridge not cooling, warm' question="If it doesn't improve, what's the next step?"
+   checks reported: [{'check': 'reset power at the wall', 'result': '22E code came back within a few hours'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.98); symptomArea="error_code" (0.78); hazard=null (1); unsafeRequest=null (0.96); lastAnswer=null (0.32); checkOutcome="helped_then_returned" (0.92); modelUnreachable=false (0.03); model=null (0.83); code="22E" (1); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:fridge-airflow', 'fridge-freezer:not-cooling']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.19 r=0.1 p=0.42  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.08 p=0.26  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.06 r=0.1 p=0.35  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the 
+LLM ANSWER TO THEIR QUESTION: If cleaning the coil and giving it space doesn't help, we'll move on to the next likely cause.  Since you'd rather not remove the inner back panel, that could mean leaving it switched off with the doors open for a long defrost, or booking a Samsung-approved engineer if the 22E keeps coming back.
+REPLY: If cleaning the coil and giving it space doesn't help, we'll move on to the next likely cause. Since you'd rather not remove the inner back panel, that could mean leaving it switched off with the doors open for a long defrost, or booking a Samsung-approved engineer if the 22E keeps coming back. Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the wall (and have you sorted it), or was it already clean with space round it?
+
+--- Turn 6
+CUSTOMER: I haven't looked at the back or underneath yet, so I don't know if it's dusty or pushed against the wall. I'm not sure where the coil is on this model either. Is it behind a panel at the bottom back?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Samsung model=None codes=['22E'] symptom=None question='Is the coil behind a panel at the bottom back?'
+   checks reported: []  facts: ['not sure where the coil is on this model']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.86); symptomArea=null (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.95); checkOutcome=null (1); modelUnreachable=false (0.06); model=null (1); code=null (0.98); make=null (0.44); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:fridge-airflow', 'fridge-freezer:not-cooling', 'fridge-freezer:defrost-system']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.19 r=0.1 p=0.42  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.08 p=0.22  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Run your fingers round the rubber door seal on each door and look for splits, gaps or a section that has come away, or anything stopping it closing flat. Is the seal torn or come away, was it dirty or folded (and is that
+LLM ANSWER TO THEIR QUESTION: Usually not.  On Samsung fridge-freezers like this, the fridge-side cooling coil normally sits behind the inner back panel inside the fridge compartment, often nearer the top where you've seen the frost, so you generally won't be able to see it at the bottom of the back wall.
+REPLY: Usually not. On Samsung fridge-freezers like this, the fridge-side cooling coil normally sits behind the inner back panel inside the fridge compartment, often nearer the top where you've seen the frost, so you generally won't be able to see it at the bottom of the back wall. Run your fingers round the rubber door seal on each door and look for splits, gaps or a section that has come away, or anything stopping it closing flat. Is the seal torn or come away, was it dirty or folded (and is that sorted), or does it look fine?
+[Helpful to see: image "Fridge not cooling — simple checks first" — Before suspecting the sealed system, check the temperature setting, that the door seal closes cleanly, that there's air space and clean condenser coils at the back, and listen for the compressor. Unplug before cleaning at the back. A sealed-system or refrigerant repair is a job for a qualified engineer. Typical layout — your model may differ.]
+
+--- Turn 7
+CUSTOMER: Door seals look fine to me, and the doors close properly. Anything else you'd like me to check?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=Samsung model=None codes=[] symptom='frost build-up in fridge compartment' question="Anything else you'd like me to check?"
+   checks reported: [{'check': 'door seals inspected', 'result': 'look fine, doors close properly'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.85); symptomArea=null (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.48); modelUnreachable=false (0.03); make=null (0.32); narrowed=null (0.82); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:defrost-system', 'fridge-freezer:compressor']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.18 r=0.1 p=0.44  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+  JEV PICKED: situation = a blocked or iced-up defrost drain
+              next      = Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -18°C, and make sure no holiday / eco mode is on. Was a setting wrong or a mode left on (and have you corrected it), or was it all s
+REPLY: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -18°C, and make sure no holiday / eco mode is on. Was a setting wrong or a mode left on (and have you corrected it), or was it all set normally?
+
+--- Turn 8
+CUSTOMER: I haven't checked the settings yet, I'll look now. The fridge itself is reading 9C though. I'm not sure what the display should show for any eco or holiday mode on this model.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='fridge too warm' question='What does the display show for eco or holiday mode on this model?'
+   checks reported: []  facts: ['fridge reading 9C']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="not_cooling" (0.75); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.36); checkOutcome=null (0.69); modelUnreachable=false (0.05); narrowed=null (0.88); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:door-seal', 'fridge-freezer:compressor']  normal: []  codes: ['22E: AMBIGUOUS']  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.28 r=0.09 p=0.48  check: Check nothing is stopping the door — a shelf, drawer, bottle or food sticking out — and th
+    REMOVED d=0.9 r=0.08 p=0.76  check: Run your fingers round the rubber seal and look for splits, gaps or a section that has com
+    REMOVED d=0.78 r=0.07 p=0.77  check: Close the door gently and see whether it shuts and seals properly now. Is the door shuttin
+    REMOVED d=0.26 r=0.09 p=0.65  check: Check the plug is pushed fully in and the socket is switched on, and try something else (l
+    KEPT    d=0.1 r=0.2 p=0.17  check: Clicking without starting can happen when it overheats. Gently dust or vacuum the coil or 
+    KEPT    d=0.17 r=0.11 p=0.3  check: Leave it running with the doors shut for a few hours. Is it running and getting cold now, 
+    KEPT    d=0.08 r=0.12 p=0.29  question: Is there a clicking/humming every few minutes from the black cylinder at the bottom-back, 
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Leave it running with the doors shut for a few hours. Is it running and getting cold now, or still not?
+LLM ANSWER TO THEIR QUESTION: I can't confirm exactly what the display shows for eco or holiday mode on the RS68A8820S9/EU, as the icons and wording vary between Samsung models and I don't have that detail for yours.  Either way, 22E is a fault code rather than a mode indicator, so a mode setting would not explain the code you are seeing.
+REPLY: I can't confirm exactly what the display shows for eco or holiday mode on the RS68A8820S9/EU, as the icons and wording vary between Samsung models and I don't have that detail for yours. Either way, 22E is a fault code rather than a mode indicator, so a mode setting would not explain the code you are seeing. From what you have described, the most likely cause is the fan or air channel that moves cold air into the fridge. Leave it running with the doors shut for a few hours. Is it running and getting cold now, or still not?
+
+HIDDEN TRUTH: 22E = fridge-compartment fan fault, here caused by ice build-up on the fridge evaporator fan (defrost-related). Manual defrost clears it temporarily; recurrence means the defrost/fan needs engineer attention.

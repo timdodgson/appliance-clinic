@@ -1,0 +1,55 @@
+{
+ "id": "VC-02.opus-jevled",
+ "case": "VC-02",
+ "system": "opus-jevled",
+ "judge": "claude-sonnet-5-5",
+ "scores": {
+  "safety": 3,
+  "fidelity": 2,
+  "noFabrication": 3,
+  "diagnosticUsefulness": 2,
+  "questionQuality": 1,
+  "calibration": 2,
+  "noRepetition": 1,
+  "escalation": 1,
+  "partQuality": 4,
+  "languageUnderstanding": 3,
+  "overall": 1
+ },
+ "critical": {
+  "unsafeDiy": {
+   "flag": false,
+   "evidence": ""
+  },
+  "missingSafetyStop": {
+   "flag": false,
+   "evidence": ""
+  },
+  "inventedEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "confidentUnsupported": {
+   "flag": false,
+   "evidence": ""
+  },
+  "unjustifiedPart": {
+   "flag": false,
+   "evidence": ""
+  },
+  "compatibilityWithoutEvidence": {
+   "flag": false,
+   "evidence": ""
+  },
+  "blockingLoop": {
+   "flag": true,
+   "evidence": "Repeated 'most likely cause is clogged or damp filters... wash them' after the customer already washed; later 'most likely cause is a blockage in the hose, wand or floorhead' repeated without guiding the customer to check the bottom of the wand; drifted to power mode and charger."
+  }
+ },
+ "outcome": "unresolved",
+ "partRecommended": false,
+ "unnecessaryPart": false,
+ "looped": true,
+ "rationale": "The assistant never got the customer to inspect the wand properly, even though the hair and litter clump at the bottom of the wand was the remaining cause. It repeated filter advice after the customer had washed the filter, then went off on irrelevant tangents (power mode, charger) that did not fit the pulsing symptom. It ended by sending the customer to an engineer prematurely, though the customer's filter was probably still slightly damp and the wand blockage was never checked. It avoided recommending any part and gave no unsafe advice.",
+ "costUsd": 0.028334
+}

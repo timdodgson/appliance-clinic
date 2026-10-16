@@ -1,0 +1,184 @@
+TEST TD-10  (ended: turn-limit, 8 customer messages)
+
+--- Turn 1
+CUSTOMER: dryer wont stop
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom="dryer won't stop" question=None
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="other" (0.77); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['tumble-dryer:door', 'tumble-dryer:motor', 'tumble-dryer:not-emptying-condensate']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:door | findings settle it = False | engineer allowed = False
+  situations offered (4):
+    - cause: door handle / catch (mechanical)
+    - cause: door interlock / switch (electrical start path)
+    - cause: door/interlock wiring
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.17  check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance 
+    KEPT    d=0.04 r=0.05 p=0.16  check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks 
+    KEPT    d=0.04 r=0.06 p=0.13  check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff
+    KEPT    d=0.04 r=0.05 p=0.22  check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons worki
+    KEPT    d=0.05 r=0.05 p=0.26  check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed
+    KEPT    d=0.05 r=0.05 p=0.25  check: Now choose a programme and press start. Does it start normally now, or still not?
+    KEPT    d=0.05 r=0.05 p=0.12  question: Is the handle/door physically broken or not closing, or does it close fine but the dryer s
+  JEV PICKED: situation = door interlock / switch (electrical start path)
+              next      = Is the handle/door physically broken or not closing, or does it close fine but the dryer still says the door is open?
+REPLY: From what you have described, the most likely cause is door interlock / switch (electrical start path). Is the handle/door physically broken or not closing, or does it close fine but the dryer still says the door is open?
+
+--- Turn 2
+CUSTOMER: the door closes fine, nothing broken. it dries ok but after it says End the drum keeps turning every couple of minutes
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='drum keeps turning every couple of minutes after cycle ends' question=None
+   checks reported: []  facts: ['door closes fine, nothing broken', 'dries ok', 'display says End, then drum turns every couple of minutes']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="other" (0.57); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.55); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:door', 'tumble-dryer:not-emptying-condensate']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.05 p=0.35  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.05 r=0.07 p=0.14  check: With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, d
+    KEPT    d=0.39 r=0.05 p=0.48  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+    KEPT    d=0.11 r=0.08 p=0.21  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+  JEV PICKED: situation = drive motor
+              next      = With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round very easily with no resistance at all?
+REPLY: From what you have described, the most likely cause is drive motor. With the dryer unplugged and empty, turn the drum slowly by hand. Does it turn normally, does it feel stiff or stuck, or does it spin round very easily with no resistance at all?
+
+--- Turn 3
+CUSTOMER: im not sure how to check that, sorry. it turns fine when its running and it dries the clothes ok. it only does the turning after it says End
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=['End'] symptom='drum keeps turning after cycle shows End' question=None
+   checks reported: []  facts: ['drum turns fine while running', 'dries clothes ok', 'only turns after display says End']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="other" (0.79); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.77); checkOutcome=null (0.68); modelUnreachable=false (0.04); model=null (1); code=null (0.38); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:not-emptying-condensate', 'tumble-dryer:door']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.09 r=0.07 p=0.46  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.32 r=0.11 p=0.42  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+    KEPT    d=0.41 r=0.4 p=0.32  question: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is 
+  JEV PICKED: situation = drive motor
+              next      = Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is it stiff to turn by hand?
+REPLY: Does the motor hum/run without the drum turning, does the drum turn freely by hand, or is it stiff to turn by hand?
+
+--- Turn 4
+CUSTOMER: sorry I dont know how to check that. the drum turns fine when its running, no humming that I noticed. its only after End that it turns every few minutes
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='drum turns every few minutes after cycle ends' question=None
+   checks reported: []  facts: ['drum turns fine during the cycle', 'no humming noticed', 'drum turns every few minutes after End is shown']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.61); symptomArea="other" (0.51); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.32); checkOutcome=null (0.69); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:heat-pump', 'tumble-dryer:noisy']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.1 p=0.48  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+    KEPT    d=0.4 r=0.13 p=0.47  check: Run a short programme with a normal load. Is the drum turning now, or still not?
+  JEV PICKED: situation = drive motor
+              next      = Run a short programme with a normal load. Is the drum turning now, or still not?
+REPLY: Run a short programme with a normal load. Is the drum turning now, or still not?
+
+--- Turn 5
+CUSTOMER: the drum turns fine when it's running. its only after it says End that it turns every few minutes, and it stops if I open the door
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='drum turns every few minutes after programme ends' question=None
+   checks reported: [{'check': 'ran a short programme with a normal load', 'result': 'drum turned fine during the programme'}]  facts: ['display shows End when finished', 'after End the drum turns every few minutes', 'turning stops when the door is opened']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.77); symptomArea="cuts_out" (0.46); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.44); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:noisy', 'tumble-dryer:door']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.15 r=0.08 p=0.49  check: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was i
+  JEV PICKED: situation = drive motor
+              next      = An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was it overloaded or a single bulky item (and have you taken some out), or was it a normal load?
+REPLY: An overloaded drum or one big heavy item (a duvet or rug) can stop the drum turning. Was it overloaded or a single bulky item (and have you taken some out), or was it a normal load?
+
+--- Turn 6
+CUSTOMER: it was just a normal load, nothing bulky. the drum turns fine, its only after End that it keeps turning every few minutes
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=['End'] symptom='drum keeps turning every few minutes after End' question=None
+   checks reported: []  facts: ['drum turns fine', 'normal load, nothing bulky']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.66); symptomArea="other" (0.49); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.89); modelUnreachable=false (0.03); model=null (1); code=null (0.34); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:noisy', 'tumble-dryer:tripping-electrics']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.11 r=0.23 p=0.38  check: Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check t
+    KEPT    d=0.2 r=0.11 p=0.42  check: Run a short programme. Has the noise gone, or is it still there?
+    KEPT    d=0.42 r=0.27 p=0.32  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+    KEPT    d=0.07 r=0.05 p=0.21  step: Unplug the dryer and stop using it until the fault is found
+    KEPT    d=0.06 r=0.03 p=0.35  step: Do not keep resetting the RCD and re-running it; do not attempt live mains or insulation t
+    KEPT    d=0.06 r=0.04 p=0.22  step: If it trips with burning smell or smoke, STOP USE and have it checked
+    KEPT    d=0.06 r=0.09 p=0.43  question: Does it trip the moment you switch on, or only once it has been running/heating for a few 
+  JEV PICKED: situation = drive motor
+              next      = Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check the drum and its lifters, the lint filter and the slot it sits in, and turn the drum slowly while you listen. Did you find somethin
+REPLY: Coins, buttons, zips and hair grips are the usual cause. With the dryer unplugged, check the drum and its lifters, the lint filter and the slot it sits in, and turn the drum slowly while you listen. Did you find something (and have you removed it), can you see something stuck that won't come out, or is it all clear?
+
+--- Turn 7
+CUSTOMER: I haven't looked, sorry. The drum turns fine, its only after End that it turns every few minutes. Is that something to do with the dryer being faulty?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='drum turns every few minutes after End' question='Is that something to do with the dryer being faulty?'
+   checks reported: []  facts: ['drum turns fine', 'drum turns every few minutes only after End']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea="cuts_out" (0.54); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.36); checkOutcome=null (0.96); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:tripping-electrics', 'tumble-dryer:noisy']  normal: []  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.07 p=0.19  step: Unplug the dryer and stop using it until the fault is found
+    KEPT    d=0.05 r=0.04 p=0.42  step: Do not keep resetting the RCD and re-running it; do not attempt live mains or insulation t
+    KEPT    d=0.06 r=0.04 p=0.23  step: If it trips with burning smell or smoke, STOP USE and have it checked
+    KEPT    d=0.06 r=0.1 p=0.48  question: Does it trip the moment you switch on, or only once it has been running/heating for a few 
+    KEPT    d=0.19 r=0.15 p=0.45  check: Run a short programme. Has the noise gone, or is it still there?
+    KEPT    d=0.42 r=0.29 p=0.31  question: What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and doe
+  JEV PICKED: situation = drive motor
+              next      = What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and does the drum still turn?
+LLM ANSWER TO THEIR QUESTION: Probably not.  Many dryers have an anti-crease feature that turns the drum every few minutes after End until the door is opened, which matches what you describe.
+REPLY: Probably not. Many dryers have an anti-crease feature that turns the drum every few minutes after End until the door is opened, which matches what you describe. What is the noise like - a squeal/chirp, a rhythmic thump, a scrape, or a rattle - and does the drum still turn?
+
+--- Turn 8
+CUSTOMER: just a short tumble sound every few minutes, no squeal or scrape. the drum does turn, then stops again. is that the anti-crease thing? how do I stop it?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='drum turns briefly every few minutes after end of cycle' question='Is that the anti-crease feature, and how do I stop it?'
+   checks reported: []  facts: ['short tumble sound every few minutes', 'no squeal or scrape', 'drum turns then stops again']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.99); symptomArea=null (0.41); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:motor', 'tumble-dryer:noisy', 'tumble-dryer:tripping-electrics']  normal: ['td-anti-crease']  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:motor | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: drive belt
+    - cause: jockey / idler tension pulley
+    - cause: motor start capacitor
+    - cause: drive motor
+    - cause: drum support rollers / bearings
+    - normal: Most dryers turn the drum occasionally after the end of the programme (anti-crease) until the door is opened.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.36 r=0.14 p=0.56  check: Run a short programme. Has the noise gone, or is it still there?
+    KEPT    d=0.07 r=0.06 p=0.27  step: Unplug the dryer and stop using it until the fault is found
+    KEPT    d=0.05 r=0.03 p=0.51  step: Do not keep resetting the RCD and re-running it; do not attempt live mains or insulation t
+    KEPT    d=0.07 r=0.03 p=0.25  step: If it trips with burning smell or smoke, STOP USE and have it checked
+    KEPT    d=0.05 r=0.08 p=0.45  question: Does it trip the moment you switch on, or only once it has been running/heating for a few 
+  JEV PICKED: situation = Most dryers turn the drum occasionally after the end of the programme (anti-crease) until the door is opened.
+              next      = Run a short programme. Has the noise gone, or is it still there?
+LLM ANSWER TO THEIR QUESTION: Yes, a drum that turns briefly every few minutes only after End is shown, and stops when you open the door, is almost certainly the anti-crease feature.  Opening the door ends it, as you've found.
+REPLY: Yes, a drum that turns briefly every few minutes only after End is shown, and stops when you open the door, is almost certainly the anti-crease feature. Opening the door ends it, as you've found. This sounds like normal behaviour rather than a fault: Most dryers turn the drum occasionally after the end of the programme (anti-crease) until the door is opened. It would be worth a closer look if it keeps heating after the end, or runs with the door open. Run a short programme. Has the noise gone, or is it still there?
+
+HIDDEN TRUTH: Normal anti-crease phase after the end of the programme.

@@ -1,0 +1,159 @@
+TEST WM-12  (ended: escalated, 7 customer messages)
+
+--- Turn 1
+CUSTOMER: my washin mashine wont turn on at all no lights nothin
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom="won't turn on at all" question=None
+   checks reported: []  facts: ['no lights at all']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (1); symptomArea="no_power" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:door-lock', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.08  step: check the socket works with another appliance and that any separate switched/fused spur co
+    KEPT    d=0.05 r=0.04 p=0.1  step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose ov
+    KEPT    d=0.06 r=0.04 p=0.14  step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl
+    KEPT    d=0.04 r=0.04 p=0.2  step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci
+    REMOVED d=0.97 r=0.12 p=0.9  question: Is it completely dead with no lights or display at all, or does it power up and let you ch
+    KEPT    d=0.05 r=0.05 p=0.09  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = check the socket works with another appliance and that any separate switched/fused spur controlling it is on (especially after a recent move)
+REPLY: From what you have described, the most likely cause is property socket / supply / switched fused spur. Next: Check the socket works with another appliance and that any separate switched/fused spur controlling it is on (especially after a recent move). Let me know what you find.
+
+--- Turn 2
+CUSTOMER: the kettle works in the kitchen so the sockets are ok. whats a spur? i dont know what that is sorry
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='What is a spur?'
+   checks reported: [{'check': 'Tested kitchen socket with kettle', 'result': 'Kettle works, sockets ok'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="other_appliance" (0.77); symptomArea=null (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.64); checkOutcome=null (0.31); modelUnreachable=false (0.03); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:door-lock', 'washing-machine:control-panel']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.06 p=0.17  step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose ov
+    KEPT    d=0.07 r=0.04 p=0.17  step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl
+    KEPT    d=0.07 r=0.06 p=0.28  step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci
+    REMOVED d=0.97 r=0.13 p=0.88  question: Is it completely dead with no lights or display at all, or does it power up and let you ch
+    REMOVED d=0.71 r=0.08 p=0.26  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time
+LLM ANSWER TO THEIR QUESTION: A spur (or "fused spur") is a wall switch with its own fuse that some kitchen appliances are wired through, often found above the worktop and sometimes labelled with the appliance's name.  It lets you cut power to a machine that sits behind the counter without pulling it out to reach the plug.
+REPLY: A spur (or "fused spur") is a wall switch with its own fuse that some kitchen appliances are wired through, often found above the worktop and sometimes labelled with the appliance's name. It lets you cut power to a machine that sits behind the counter without pulling it out to reach the plug. Next: Check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: i cant reach the plug, its behind the machine and its built in so i cant pull it out. im not allowed to take the cupboard off either and i dont have any tools
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question=None
+   checks reported: []  facts: ['machine is built in', 'plug is behind the machine', 'not allowed to remove the cupboard', 'has no tools']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.82); symptomArea=null (0.65); hazard=null (1); unsafeRequest=null (1); lastAnswer="cannot_or_will_not" (0.59); checkOutcome=null (0.97); modelUnreachable=false (0.08); narrowed=null (0.95); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:door-lock', 'washing-machine:control-panel']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.11 p=0.22  step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl
+    KEPT    d=0.06 r=0.16 p=0.3  step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci
+    REMOVED d=0.97 r=0.2 p=0.89  question: Is it completely dead with no lights or display at all, or does it power up and let you ch
+    REMOVED d=0.71 r=0.21 p=0.29  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional
+REPLY: Next: A blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional. Let me know what you find.
+
+--- Turn 4
+CUSTOMER: ok so what should i do then? i cant check the plug
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='blown plug fuse' question='What should I do then?'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.81); symptomArea=null (0.7); hazard=null (0.95); unsafeRequest=null (1); lastAnswer="cannot_or_will_not" (0.75); checkOutcome=null (0.99); modelUnreachable=false (0.05); narrowed=null (0.93); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:control-panel', 'washing-machine:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.11 p=0.22  step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl
+    REMOVED d=0.97 r=0.21 p=0.89  question: Is it completely dead with no lights or display at all, or does it power up and let you ch
+    REMOVED d=0.7 r=0.21 p=0.29  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it
+REPLY: Next: If there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it. Let me know what you find.
+
+--- Turn 5
+CUSTOMER: no bang or burning smell, nothing like that. its just totally dead. is there anything else i can look at?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='totally dead' question='is there anything else i can look at?'
+   checks reported: []  facts: ['no bang', 'no burning smell']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.81); symptomArea="no_power" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.87); checkOutcome="still_faulty" (0.88); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:motor-drum', 'washing-machine:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.97 r=0.24 p=0.9  question: Is it completely dead with no lights or display at all, or does it power up and let you ch
+    REMOVED d=0.67 r=0.22 p=0.3  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?
+REPLY: Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?
+
+--- Turn 6
+CUSTOMER: completely dead, no lights or display at all. nothing comes on when i press the power button
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='completely dead, no lights or display' question=None
+   checks reported: []  facts: ['nothing comes on when pressing the power button']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.8); symptomArea="no_power" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.91); modelUnreachable=false (0.03); narrowed=null (0.97); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:motor-drum', 'washing-machine:door-lock']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.69 r=0.2 p=0.31  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = property socket / supply / switched fused spur
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+REPLY: Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 7
+CUSTOMER: it was working fine 2 days ago, then this morning its just dead when i press the power button. no sound or anything
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='dead, no response when power button pressed' question=None
+   checks reported: []  facts: ['was working fine 2 days ago', 'no sound when power button pressed']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.89); symptomArea="no_power" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (1); code=null (1); narrowed=null (0.97); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:low-voltage', 'washing-machine:control-panel', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (6):
+    - cause: property socket / supply / switched fused spur
+    - cause: power cord / plug / lead seated and undamaged
+    - cause: mains interference suppressor / mains filter
+    - cause: incoming wiring / burnt connector
+    - cause: power switch [architectures that use a distinct on/off switch]
+    - cause: control PCB low-voltage power-supply section
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.69 r=0.19 p=0.3  question: Do other nearby sockets have power, and has the machine or your home recently been moved o
+  JEV PICKED: situation = power cord / plug / lead seated and undamaged
+              next      = -
+REPLY: From what you have described, the most likely cause is power cord / plug / lead seated and undamaged. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Switched fused spur above the worktop had been turned off by the flatmate; switching it back on restores power. No fault.

@@ -1,0 +1,14 @@
+TEST MW-01  (ended: escalated, 1 customer messages)
+
+--- Turn 1
+CUSTOMER: My Panasonic NN-ST45KWBPQ is sparking inside when I heat soup, little blue flashes on the right-hand wall and a crackling noise. I stopped it. Is it safe?
+1 LLM UNDERSTOOD: appliance=microwave brand=Panasonic model=NN-ST45KWBPQ codes=[] symptom='sparking inside when heating' question='Is it safe?'
+   checks reported: []  facts: ['little blue flashes on the right-hand wall', 'crackling noise', 'happened when heating soup']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.99); symptomArea="other" (0.84); hazard="microwave_arcing" (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.83); modelUnreachable=false (0.03); model="NN-ST45KWBPQ" (1); code=null (1); make="Panasonic" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['microwave:sparking-arcing', 'microwave:grill-not-heating', 'microwave:not-heating']  normal: []  codes: []  stage: 1
+4 (no Jev choice this turn: hazard)
+LLM ANSWER TO THEIR QUESTION: No, it isn't safe to keep using it while it's sparking, because the arcing can damage the microwave and could start a fire.  Stop using it, switch it off at the wall and unplug it, and don't open the casing or try to repair it inside.
+REPLY: ⚠ Stop using this appliance
+Stop using the microwave now: switch it off at the socket and unplug it, and don't run it again (not even empty) until we know why it sparked. Never take the outer casing off — parts inside can hold a lethal charge even when it is unplugged. No, it isn't safe to keep using it while it's sparking, because the arcing can damage the microwave and could start a fire. Stop using it, switch it off at the wall and unplug it, and don't open the casing or try to repair it inside. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Grease-soaked/burnt waveguide cover (mica) arcing. Replace the waveguide cover and clean the cavity; stop use until then.

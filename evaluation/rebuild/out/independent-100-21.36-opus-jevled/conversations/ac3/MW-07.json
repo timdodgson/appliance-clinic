@@ -1,0 +1,706 @@
+{
+ "id": "MW-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-mw-07-92808f5fb4",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "microwave not working"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is cavity lamp / bulb. Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?"
+  },
+  {
+   "role": "customer",
+   "text": "No the light's fine, it comes on when I open the door. Display is on and it beeps but it won't start."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is control lock / demo mode. Next: Check for a control/child lock and try a power-cycle reset. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "There's a little L / padlock-looking symbol on the display. I unplugged it for a minute and plugged it back in, but the symbol came back and it still won't start. How do I get rid of it?"
+  },
+  {
+   "role": "assistant",
+   "text": "The padlock is almost always the child lock, which survives unplugging. On most microwaves you clear it by pressing and holding Stop/Cancel for about 3 seconds until it disappears, but some makes use a dedicated lock or key button or a different combination, so if that doesn't work the exact method will be in the manual for your model. Put a cup of water in and try a minute on full power. Does it start now, or still not?"
+  },
+  {
+   "role": "customer",
+   "text": "ok I held the Stop button for 3 secs and the L went away. It works now, thanks."
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2547,
+     "labelMs": 280,
+     "enrichMs": 0,
+     "composeMs": 783,
+     "replyLabelMs": 314,
+     "totalMs": 3962
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.65
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.68
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:lighting",
+       "microwave:main-pcb",
+       "microwave:grill-not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"microwave:lighting\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"cavity lamp / bulb\"},\"next\":{\"kind\":\"question\",\"text\":\"Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?\"},\"ms\":783,\"offered\":{\"situations\":[\"cause: cavity lamp / bulb\",\"cause: lamp holder / wiring\"],\"next\":[\"step: confirm the rest of the microwave works normally before assuming anything beyond the lamp\",\"question: Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: confirm the rest of the microwave works normally before assuming anything beyond the lamp\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.17,\"kept\":true},{\"step\":\"question: Does the microwave otherwise work normally (heats, turns, display) and only the inside lig\",\"done\":0.06,\"refused\":0.08,\"pointless\":0.39,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"microwave\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not working\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"microwave\\\" (1)\",\"symptomArea\":\"\\\"no_power\\\" (0.65)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (0.99)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"microwave:lighting\",\"microwave:main-pcb\",\"microwave:grill-not-heating\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4224
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 4442,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3084,
+     "labelMs": 277,
+     "enrichMs": 1,
+     "composeMs": 1025,
+     "replyLabelMs": 353,
+     "totalMs": 4777
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.93
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.95
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.49
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop for a few seconds) that stops the buttons working.",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:lighting"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"microwave:main-pcb\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"control lock / demo mode\"},\"next\":{\"kind\":\"step\",\"text\":\"check for a control/child lock and try a power-cycle reset\"},\"ms\":1025,\"offered\":{\"situations\":[\"cause: control lock / demo mode\",\"cause: keypad / membrane / touchpad\",\"cause: control panel / fascia\",\"cause: display / UI module\",\"cause: main control PCB\"],\"next\":[\"check: Check the plug is in and the socket switched on, and try another appliance in that socket. Don't open the microwave to look for a fuse. Was the socket or plug the problem (and is it sorted), or does the socket work fine with something else?\",\"check: Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop for a few seconds) that stops the buttons working. Was the control lock on (and is it off now), or was it already off?\",\"check: Some models won't start until the clock is set, and need a time entered before Start. Was the clock or programme not set (and is it sorted), or was it all set?\",\"check: Put a cup of water in and try a minute on full power. Does it start now, or still not?\",\"step: check for a control/child lock and try a power-cycle reset\",\"step: note whether it's some buttons (membrane) or the display (module) or completely dead (supply)\",\"question: Do some buttons still work, and does a power-cycle at the wall change anything?\"],\"removed\":[\"Is the display still lit and working while only some buttons fail, or is the dis\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Check the plug is in and the socket switched on, and try another appliance in that socket.\",\"done\":0.08,\"refused\":0.05,\"pointless\":0.64,\"kept\":true},{\"step\":\"check: Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop f\",\"done\":0.08,\"refused\":0.07,\"pointless\":0.2,\"kept\":true},{\"step\":\"check: Some models won't start until the clock is set, and need a time entered before Start. Was \",\"done\":0.07,\"refused\":0.06,\"pointless\":0.24,\"kept\":true},{\"step\":\"check: Put a cup of water in and try a minute on full power. Does it start now, or still not?\",\"done\":0.12,\"refused\":0.06,\"pointless\":0.27,\"kept\":true},{\"step\":\"step: check for a control/child lock and try a power-cycle reset\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.17,\"kept\":true},{\"step\":\"step: note whether it's some buttons (membrane) or the display (module) or completely dead (supp\",\"done\":0.44,\"refused\":0.07,\"pointless\":0.34,\"kept\":true},{\"step\":\"question: Is the display still lit and working while only some buttons fail, or is the display itsel\",\"done\":0.74,\"refused\":0.09,\"pointless\":0.47,\"kept\":false},{\"step\":\"question: Do some buttons still work, and does a power-cycle at the wall change anything?\",\"done\":0.16,\"refused\":0.07,\"pointless\":0.16,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"microwave\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't start\",\"customerQuestion\":null,\"answerToLastQuestion\":\"No, the light works; the microwave won't start\",\"checksReported\":[],\"facts\":[\"inside light comes on when door opened\",\"display is on\",\"it beeps\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"microwave\\\" (0.93)\",\"symptomArea\":\"\\\"no_power\\\" (0.95)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.49)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2]},\"notes\":[\"microwave:door\",\"microwave:main-pcb\",\"microwave:lighting\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?",
+       "turn": 1,
+       "resolution": "No, the light works; the microwave won't start"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4826
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 5055,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2897,
+     "labelMs": 273,
+     "enrichMs": 1,
+     "composeMs": 4919,
+     "replyLabelMs": 248,
+     "totalMs": 8369
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.79
+      },
+      "symptomArea": {
+       "value": "controls_or_display",
+       "confidence": 0.77
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.79
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't start, padlock symbol on display"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "Put a cup of water in and try a minute on full power. Does it start now, or still not?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:grill-not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"microwave:main-pcb\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"control lock / demo mode\"},\"next\":{\"kind\":\"check\",\"text\":\"Put a cup of water in and try a minute on full power. Does it start now, or still not?\"},\"ms\":935,\"offered\":{\"situations\":[\"cause: control lock / demo mode\",\"cause: keypad / membrane / touchpad\",\"cause: control panel / fascia\",\"cause: display / UI module\",\"cause: main control PCB\"],\"next\":[\"check: Some models won't start until the clock is set, and need a time entered before Start. Was the clock or programme not set (and is it sorted), or was it all set?\",\"check: Put a cup of water in and try a minute on full power. Does it start now, or still not?\",\"step: note whether it's some buttons (membrane) or the display (module) or completely dead (supply)\"],\"removed\":[\"Check the plug is in and the socket switched on, and try another appliance in th\",\"Many microwaves have a control / child lock (often a key or lock symbol, or hold\",\"Is the display still lit and working while only some buttons fail, or is the dis\",\"Do some buttons still work, and does a power-cycle at the wall change anything?\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Check the plug is in and the socket switched on, and try another appliance in that socket.\",\"done\":0.27,\"refused\":0.06,\"pointless\":0.81,\"kept\":false},{\"step\":\"check: Many microwaves have a control / child lock (often a key or lock symbol, or holding Stop f\",\"done\":0.67,\"refused\":0.08,\"pointless\":0.5,\"kept\":false},{\"step\":\"check: Some models won't start until the clock is set, and need a time entered before Start. Was \",\"done\":0.08,\"refused\":0.07,\"pointless\":0.45,\"kept\":true},{\"step\":\"check: Put a cup of water in and try a minute on full power. Does it start now, or still not?\",\"done\":0.08,\"refused\":0.07,\"pointless\":0.53,\"kept\":true},{\"step\":\"step: note whether it's some buttons (membrane) or the display (module) or completely dead (supp\",\"done\":0.45,\"refused\":0.08,\"pointless\":0.36,\"kept\":true},{\"step\":\"question: Is the display still lit and working while only some buttons fail, or is the display itsel\",\"done\":0.73,\"refused\":0.1,\"pointless\":0.43,\"kept\":false},{\"step\":\"question: Do some buttons still work, and does a power-cycle at the wall change anything?\",\"done\":0.61,\"refused\":0.12,\"pointless\":0.39,\"kept\":false}]},\"answer\":\"The padlock is almost always the child lock, which survives unplugging.  On most microwaves you clear it by pressing and holding Stop/Cancel for about 3 seconds until it disappears, but some makes use a dedicated lock or key button or a different combination, so if that doesn't work the exact method will be in the manual for your model.\"}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't start, padlock symbol on display\",\"customerQuestion\":\"How do I get rid of the padlock symbol?\",\"answerToLastQuestion\":\"padlock/L symbol showing; power-cycle didn't clear it\",\"checksReported\":[{\"check\":\"power-cycle reset (unplugged for a minute)\",\"result\":\"padlock symbol came back, still won't start\"}],\"facts\":[\"little L / padlock symbol on the display\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.79)\",\"symptomArea\":\"\\\"controls_or_display\\\" (0.77)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.79)\",\"checkOutcome\":\"null (0.43)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"microwave:door\",\"microwave:main-pcb\",\"microwave:grill-not-heating\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "power-cycle reset (unplugged for a minute): padlock symbol came back, still won't start",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?",
+       "turn": 1,
+       "resolution": "No, the light works; the microwave won't start"
+      },
+      {
+       "key": null,
+       "text": "Does it start now, or still not?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8413
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 8845,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2646,
+     "labelMs": 292,
+     "enrichMs": 1,
+     "composeMs": 0,
+     "replyLabelMs": 262,
+     "totalMs": 3262
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "microwave",
+       "confidence": 0.86
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.92
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "code": {
+       "value": "L",
+       "confidence": 0.89
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "microwave",
+      "brand": null,
+      "model": null,
+      "codes": [
+       "L"
+      ],
+      "symptom": "child lock showing, would not start"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "microwave:door",
+       "microwave:main-pcb",
+       "microwave:low-voltage"
+      ],
+      "codes": [
+       {
+        "code": "L",
+        "status": "NEEDS_CONTEXT"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"fixed\",\"answered\":false}",
+     "trace: {\"understood\":{\"appliance\":\"microwave\",\"brand\":null,\"model\":null,\"codes\":[\"L\"],\"symptom\":\"child lock showing, would not start\",\"customerQuestion\":null,\"answerToLastQuestion\":\"it works now\",\"checksReported\":[{\"check\":\"held Stop button for 3 seconds\",\"result\":\"the L went away and it works now\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"microwave\\\" (0.86)\",\"symptomArea\":\"null (0.92)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.97)\",\"checkOutcome\":\"\\\"fixed\\\" (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (0.98)\",\"code\":\"\\\"L\\\" (0.89)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.97)\",\"checksConfirmed\":[0],\"factsConfirmed\":[]},\"notes\":[\"microwave:door\",\"microwave:main-pcb\",\"microwave:low-voltage\"],\"normal\":[],\"codes\":[\"L: NEEDS_CONTEXT\"],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "microwave",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [
+      {
+       "code": "L",
+       "turn": 4
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "power-cycle reset (unplugged for a minute): padlock symbol came back, still won't start",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "held Stop button for 3 seconds: the L went away and it works now",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the microwave otherwise work normally (heats, turns, display) and only the inside light has failed?",
+       "turn": 1,
+       "resolution": "No, the light works; the microwave won't start"
+      },
+      {
+       "key": null,
+       "text": "Does it start now, or still not?",
+       "turn": 3,
+       "resolution": "it works now"
+      },
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3292
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 3501,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0375496,
+ "finishedAt": "2026-10-16T01:11:04.150Z"
+}

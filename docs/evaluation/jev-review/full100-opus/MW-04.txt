@@ -1,0 +1,73 @@
+TEST MW-04  (ended: concluded, 4 customer messages)
+
+--- Turn 1
+CUSTOMER: microwve plate wont go round anymore, food hot on one side cold on other. still heats tho
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='turntable plate not rotating' question=None
+   checks reported: []  facts: ['food heats unevenly, hot on one side cold on other', 'still heats']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.95); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:turntable', 'microwave:not-heating', 'microwave:sparking-arcing']  normal: []  codes: []  stage: 1
+4 JEV: note picked = microwave:turntable | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: tray seated correctly / obstruction
+    - cause: roller ring / support wheels
+    - cause: turntable coupler
+    - cause: turntable motor
+    - cause: glass turntable plate (if smashed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.06 p=0.11  check: Lift the glass tray out. Check the small three-pronged coupler in the middle isn't cracked
+    KEPT    d=0.07 r=0.05 p=0.24  check: Try it with a cup of water for a minute. Is the turntable turning now, or still not?
+    KEPT    d=0.05 r=0.04 p=0.1  step: reseat the tray on the coupler/rollers and clear any obstruction
+    KEPT    d=0.05 r=0.04 p=0.09  step: check the roller ring/wheels are clean and intact
+    KEPT    d=0.06 r=0.05 p=0.21  step: if the glass plate is smashed, that's just a replacement tray
+    KEPT    d=0.09 r=0.11 p=0.14  question: When it should turn, does the motor hum/try to turn while the plate stays still, or is the
+    KEPT    d=0.08 r=0.05 p=0.1  question: Is the tray seated properly on the coupler and rollers, with nothing jamming it?
+  JEV PICKED: situation = tray seated correctly / obstruction
+              next      = reseat the tray on the coupler/rollers and clear any obstruction
+REPLY: From what you have described, the most likely cause is tray seated correctly / obstruction. Next: Reseat the tray on the coupler/rollers and clear any obstruction. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: ok tried that, the plate sits on the middle bit but it wobbles a bit. still doesnt turn. nothing in the way that i can see
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='turntable plate not turning' question=None
+   checks reported: [{'check': 'reseated the tray on the coupler', 'result': "sits on the middle bit but wobbles a bit; still doesn't turn"}, {'check': 'checked for obstruction', 'result': 'nothing in the way'}]  facts: ['plate wobbles a bit on the coupler']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.88); symptomArea="not_spinning_or_turning" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.81); checkOutcome="still_faulty" (1); modelUnreachable=false (0.03); checksConfirmed=[0, 1]; factsConfirmed=[0]
+3 NOTES FOUND: ['microwave:turntable', 'microwave:sparking-arcing', 'microwave:not-heating']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:turntable | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: tray seated correctly / obstruction
+    - cause: roller ring / support wheels
+    - cause: turntable coupler
+    - cause: turntable motor
+    - cause: glass turntable plate (if smashed)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.53 r=0.08 p=0.23  check: Lift the glass tray out. Check the small three-pronged coupler in the middle isn't cracked
+    KEPT    d=0.09 r=0.07 p=0.43  check: Try it with a cup of water for a minute. Is the turntable turning now, or still not?
+    KEPT    d=0.08 r=0.06 p=0.15  step: check the roller ring/wheels are clean and intact
+    KEPT    d=0.12 r=0.04 p=0.42  step: if the glass plate is smashed, that's just a replacement tray
+    KEPT    d=0.14 r=0.12 p=0.18  question: When it should turn, does the motor hum/try to turn while the plate stays still, or is the
+    REMOVED d=0.92 r=0.07 p=0.67  question: Is the tray seated properly on the coupler and rollers, with nothing jamming it?
+  JEV PICKED: situation = turntable coupler
+              next      = When it should turn, does the motor hum/try to turn while the plate stays still, or is there no movement or sound at all - or is the glass plate actually broken?
+REPLY: From what you have described, the most likely cause is turntable coupler. When it should turn, does the motor hum/try to turn while the plate stays still, or is there no movement or sound at all - or is the glass plate actually broken?
+
+--- Turn 3
+CUSTOMER: it hums normally and i can hear a faint grinding/clicking from the middle when it runs. the glass plate isnt broken, i did drop it in the sink last week tho
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='turntable plate not turning' question=None
+   checks reported: []  facts: ['hums normally when running', 'faint grinding/clicking from the middle', 'glass plate not broken', 'dropped the glass plate in the sink last week']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.92); symptomArea="noise" (0.83); hazard=null (0.99); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.72); modelUnreachable=false (0.04); narrowed="turntable coupler" (0.7); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:turntable', 'microwave:not-heating', 'microwave:sparking-arcing']  normal: ['mw-noise-fan']  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+REPLY: [Heading: Likely cause: turntable coupler]
+The checks point to the turntable coupler. To find the right part, could you give me the make and model number? It is usually on the back or inside the door frame.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 4
+CUSTOMER: its a Sharp R272WM, found it on the label at the back
+1 LLM UNDERSTOOD: appliance=microwave brand=Sharp model=R272WM codes=[] symptom=None question=None
+   checks reported: []  facts: ['model label is on the back']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.88); symptomArea=null (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (1); modelUnreachable=false (0.02); model="R272WM" (1); code=null (1); make="Sharp" (1); narrowed="turntable coupler" (0.83); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['microwave:turntable', 'microwave:sparking-arcing', 'microwave:not-heating']  normal: ['mw-noise-fan']  codes: []  stage: 2
+4 (no Jev choice this turn: part-not-found)
+REPLY: [Heading: Likely cause: turntable coupler]
+The checks point to the turntable coupler. I could not find a confirmed match for model R272WM in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it.
+
+HIDDEN TRUTH: Cracked/stripped turntable drive coupler; the motor still turns. Replace the coupler (cheap, clip-on).

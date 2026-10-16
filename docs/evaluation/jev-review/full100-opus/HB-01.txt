@@ -1,0 +1,35 @@
+TEST HB-01  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: Bosch induction hob PUE611BB1E making a loud buzzing/humming noise when I put my big stockpot on high. Is it about to break?
+1 LLM UNDERSTOOD: appliance=induction hob brand=Bosch model=PUE611BB1E codes=[] symptom='loud buzzing/humming noise on high' question='Is it about to break?'
+   checks reported: []  facts: ['happens when big stockpot is on high']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="noise" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (1); modelUnreachable=false (0.03); model="PUE611BB1E" (1); code=null (1); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['hobs:power-module', 'hobs:tripping-electrics', 'hobs:cookware-user']  normal: ['hob-induction-buzz']  codes: []  stage: 1
+4 JEV: note picked = hobs:power-module | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: the supply (isolator switch or breaker)
+    - cause: the hob's mains connection or power side
+    - cause: the key / child lock
+    - cause: the touch control
+    - normal: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.03 r=0.04 p=0.66  check: Check the hob's isolator switch (often a large switch on the wall or in a cupboard) is on,
+    KEPT    d=0.03 r=0.05 p=0.58  check: Most touch-control hobs have a key / child lock (often a key or padlock symbol) — usually 
+    KEPT    d=0.03 r=0.05 p=0.36  check: Now try switching a zone on. Is it working now, or still not?
+  JEV PICKED: situation = Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a cooling fan runs during and after cooking.
+              next      = Now try switching a zone on. Is it working now, or still not?
+LLM ANSWER TO THEIR QUESTION: No, from what you've described it's very unlikely to be about to break.  A loud buzz or hum on a high setting with a big, heavy stockpot is a common, normal sound from induction hobs and isn't usually a sign of damage.
+REPLY: No, from what you've described it's very unlikely to be about to break. A loud buzz or hum on a high setting with a big, heavy stockpot is a common, normal sound from induction hobs and isn't usually a sign of damage. This sounds like normal behaviour rather than a fault: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a cooling fan runs during and after cooking. It would be worth a closer look if loud cracking, a burning smell, sparks, or the hob switching off with a code. Now try switching a zone on. Is it working now, or still not?
+
+--- Turn 2
+CUSTOMER: The hob is working fine, everything heats normally and there are no error codes. It still buzzes with the stockpot on high though. Is there anything I can do to cut the noise down?
+1 LLM UNDERSTOOD: appliance=induction hob brand=None model=None codes=[] symptom='loud buzzing with stockpot on high' question='Is there anything I can do to cut the noise down?'
+   checks reported: []  facts: ['everything heats normally', 'no error codes', 'still buzzes with the stockpot on high']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="noise" (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.55); checkOutcome=null (0.69); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['hobs:power-module', 'hobs:overheating', 'hobs:tripping-electrics']  normal: ['hob-induction-buzz']  codes: []  stage: 1
+4 (no Jev choice this turn: settled-normal-closed)
+LLM ANSWER TO THEIR QUESTION: Yes.  The noise usually drops if you turn the zone down a notch from the top or boost setting, and heavier pans with a thick, flat, one-piece base tend to buzz less than lighter or layered ones.
+REPLY: Yes. The noise usually drops if you turn the zone down a notch from the top or boost setting, and heavier pans with a thick, flat, one-piece base tend to buzz less than lighter or layered ones. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal induction noise caused by the multi-layer pan base vibrating at high power; cooling fan run-on also normal.

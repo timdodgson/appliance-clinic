@@ -1,0 +1,368 @@
+{
+ "id": "FF-05",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ff-05-d868e3bf67",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "My fridge freezer has been making a funny smell in the kitchen the last couple of days, I've cleaned it out but it's still there. Any ideas?"
+  },
+  {
+   "role": "assistant",
+   "text": "It depends on what kind of smell it is. Since it's still there after a full clean, it may not be coming from food inside, and a burning or hot-plastic smell could mean an electrical fault, which is the one to rule out first. From what you have described, the most likely cause is sTOP USE and isolate at the socket if there is burning, scorching or a smell of hot plastic (safety first). Does it trip the moment you plug it in, when the compressor tries to start (a click/hum every few minutes), or after it has been running a while - and is there any burning smell or scorching?\n[Safety panel] An appliance that keeps tripping your electrics — or that smells of burning or has scorch marks — may have an electrical fault. Stop using it, switch it off and unplug it, don't keep resetting it, and have it checked by a qualified electrician or appliance engineer."
+  },
+  {
+   "role": "customer",
+   "text": "It doesn't trip, the fridge and freezer are still cold. The smell is more like hot plastic or something electrical, and it's stronger round the back than inside. I haven't seen any smoke, but I do hear a buzzing from the back now and then, and the plug feels a bit warm."
+  },
+  {
+   "role": "assistant",
+   "text": "⚠ Stop using this appliance\nA burning or hot-plastic smell, smoke, scorching or melting can mean an electrical fault or a fire risk. Stop using it, switch it off and unplug it (or turn it off at the fuse box), and don't run it again — not even as a test — until it has been checked by a qualified engineer. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2404,
+     "labelMs": 301,
+     "enrichMs": 0,
+     "composeMs": 5390,
+     "replyLabelMs": 235,
+     "totalMs": 8359
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "funny smell"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.67
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:ice-maker"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"fridge-freezer:tripping-electrics\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"STOP USE and isolate at the socket if there is burning, scorching or a smell of hot plastic (safety first)\"},\"next\":{\"kind\":\"question\",\"text\":\"Does it trip the moment you plug it in, when the compressor tries to start (a click/hum every few minutes), or after it has been running a while - and is there any burning smell or scorching?\"},\"ms\":785,\"offered\":{\"situations\":[\"cause: STOP USE and isolate at the socket if there is burning, scorching or a smell of hot plastic (safety first)\",\"cause: compressor start relay / overload (electrical fault as it tries to start)\",\"cause: compressor windings leaking to earth\",\"cause: mains lead / plug / internal wiring or connector\",\"cause: control PCB power section\"],\"next\":[\"step: note exactly when it trips - on plug-in, when the compressor tries to start, or after running\",\"step: stop repeatedly resetting the RCD and isolate the appliance if there is any burning smell or scorching\",\"step: keep the freezer closed to protect the food while the fault is found\",\"question: Does it trip the moment you plug it in, when the compressor tries to start (a click/hum every few minutes), or after it has been running a while - and is there any burning smell or scorching?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: note exactly when it trips - on plug-in, when the compressor tries to start, or after runn\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.21,\"kept\":true},{\"step\":\"step: stop repeatedly resetting the RCD and isolate the appliance if there is any burning smell \",\"done\":0.06,\"refused\":0.03,\"pointless\":0.18,\"kept\":true},{\"step\":\"step: keep the freezer closed to protect the food while the fault is found\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.19,\"kept\":true},{\"step\":\"question: Does it trip the moment you plug it in, when the compressor tries to start (a click/hum ev\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.13,\"kept\":true}]},\"answer\":\"It depends on what kind of smell it is.  Since it's still there after a full clean, it may not be coming from food inside, and a burning or hot-plastic smell could mean an electrical fault, which is the one to rule out first.\"}",
+     "trace: {\"understood\":{\"appliance\":\"fridge freezer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"funny smell\",\"customerQuestion\":\"Any ideas what is causing the smell?\",\"answerToLastQuestion\":null,\"checksReported\":[{\"check\":\"cleaned out the fridge freezer\",\"result\":\"smell still there\"}],\"facts\":[\"smell noticed in the kitchen for the last couple of days\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"fridge-freezer\\\" (1)\",\"symptomArea\":\"\\\"smell\\\" (1)\",\"hazard\":\"null (0.95)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"fridge-freezer:tripping-electrics\",\"fridge-freezer:ice-maker\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned out the fridge freezer: smell still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it trip the moment you plug it in, when the compressor tries to start (a click/hum every few minutes), or after it has been running a while - and is there any burning smell or scorching?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8404
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 8826,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2877,
+     "labelMs": 292,
+     "enrichMs": 1,
+     "composeMs": 0,
+     "replyLabelMs": 299,
+     "totalMs": 3470
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [
+      "burning"
+     ],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "burning",
+     "forced": true
+    },
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "fridge-freezer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "smell",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": "burning",
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": "fridge freezer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "hot plastic/electrical smell from the back"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.9
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "fridge-freezer:tripping-electrics",
+       "fridge-freezer:defrost-system",
+       "fridge-freezer:not-cooling"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"hazard\"}",
+     "trace: {\"understood\":{\"appliance\":\"fridge freezer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"hot plastic/electrical smell from the back\",\"customerQuestion\":null,\"answerToLastQuestion\":\"doesn't trip; smells like hot plastic, no smoke\",\"checksReported\":[],\"facts\":[\"fridge and freezer still cold\",\"smell stronger round the back than inside\",\"no smoke seen\",\"occasional buzzing from the back; plug feels a bit warm\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"fridge-freezer\\\" (1)\",\"symptomArea\":\"\\\"smell\\\" (1)\",\"hazard\":\"\\\"burning\\\" (0.98)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.99)\",\"checkOutcome\":\"null (0.43)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.86)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2,3]},\"notes\":[\"fridge-freezer:tripping-electrics\",\"fridge-freezer:defrost-system\",\"fridge-freezer:not-cooling\"],\"normal\":[\"ff-compressor-click\"],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "fridge-freezer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned out the fridge freezer: smell still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does it trip the moment you plug it in, when the compressor tries to start (a click/hum every few minutes), or after it has been running a while - and is there any burning smell or scorching?",
+       "turn": 1,
+       "resolution": "doesn't trip; smells like hot plastic, no smoke"
+      }
+     ],
+     "hazards": [
+      {
+       "type": "burning",
+       "clause": "labelled: burning",
+       "turn": 2,
+       "shown": true,
+       "source": "jev",
+       "confidence": 0.98
+      }
+     ]
+    },
+    "ms": 3506
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3904,
+   "retried": false,
+   "label": null,
+   "safety": true,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.022385799999999997,
+ "finishedAt": "2026-10-16T01:06:13.716Z"
+}

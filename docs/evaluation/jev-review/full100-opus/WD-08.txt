@@ -1,0 +1,113 @@
+TEST WD-08  (ended: concluded, 6 customer messages)
+
+--- Turn 1
+CUSTOMER: my samsung washer dryer is making evrything smell damp/musty even after its washed, its gross. wot do i do
+1 LLM UNDERSTOOD: appliance=washer dryer brand=Samsung model=None codes=[] symptom='laundry smells damp/musty after washing' question='what do I do'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea="smell" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.65); modelUnreachable=false (0.03); make="Samsung" (1); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:odour', 'washer-dryer:drying-heater', 'washer-dryer:drying-poor']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:odour | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+    - cause: sewage/drain/sulphur — waste plumbing & installation
+    - cause: burning/electrical smell — SAFETY
+    - cause: hot rubber / friction — drive belt [belt-driven ONLY]
+    - cause: oily/greasy — bearing / drum seal
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.03 p=0.07  step: musty: wipe the door-seal folds, clean the drawer and the pump filter, run a hot 60-90C ma
+    KEPT    d=0.03 r=0.04 p=0.34  step: drain smell: check the standpipe/U-bend/anti-siphon and the drain-hose installation and ai
+    KEPT    d=0.04 r=0.03 p=0.46  step: burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical 
+    REMOVED d=0.84 r=0.05 p=0.56  question: What kind of smell is it - musty/damp, like drains/sewage, or hot/burning - and when is it
+    KEPT    d=0.06 r=0.05 p=0.11  question: Is there visible black mould in the door-seal folds or drawer, and does it get worse after
+  JEV PICKED: situation = musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+              next      = musty: wipe the door-seal folds, clean the drawer and the pump filter, run a hot 60-90C maintenance wash (empty) with a machine cleaner or soda crystals, and leave the door and drawer ajar between washes
+REPLY: From what you have described, the most likely cause is musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum). Next: Musty: wipe the door-seal folds, clean the drawer and the pump filter, run a hot 60-90C maintenance wash (empty) with a machine cleaner or soda crystals, and leave the door and drawer ajar between washes. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: ok will have a go at that, where do i start? do i just look at the door rubber bit first
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='musty smell' question='Where do I start - do I look at the door rubber first?'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.6); symptomArea=null (0.79); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.59); checkOutcome=null (1); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:odour', 'washing-machine:leak-door', 'washing-machine:door-lock']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washing-machine:odour | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+    - cause: sewage/drain/sulphur — waste plumbing & installation
+    - cause: burning/electrical smell — SAFETY
+    - cause: hot rubber / friction — drive belt [belt-driven ONLY]
+    - cause: oily/greasy — bearing / drum seal
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.43  step: drain smell: check the standpipe/U-bend/anti-siphon and the drain-hose installation and ai
+    KEPT    d=0.05 r=0.03 p=0.48  step: burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical 
+    REMOVED d=0.84 r=0.05 p=0.67  question: What kind of smell is it - musty/damp, like drains/sewage, or hot/burning - and when is it
+    KEPT    d=0.07 r=0.06 p=0.13  question: Is there visible black mould in the door-seal folds or drawer, and does it get worse after
+  JEV PICKED: situation = musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+              next      = Is there visible black mould in the door-seal folds or drawer, and does it get worse after draining or when the machine has been shut up unused?
+LLM ANSWER TO THEIR QUESTION: Yes, the door rubber is a sensible place to start, because musty smells on Samsung front-loaders very often come from mould and trapped water in the seal folds.  The detergent drawer is the other common spot, so it's worth keeping in mind too.
+REPLY: Yes, the door rubber is a sensible place to start, because musty smells on Samsung front-loaders very often come from mould and trapped water in the seal folds. The detergent drawer is the other common spot, so it's worth keeping in mind too. Is there visible black mould in the door-seal folds or drawer, and does it get worse after draining or when the machine has been shut up unused?
+
+--- Turn 3
+CUSTOMER: ok had a look at the door rubber, theres black spots and grey sludge in the bottom fold, boak. it doesnt seem to be a particular time its just always there now
+1 LLM UNDERSTOOD: appliance=washing machine brand=Samsung model=None codes=[] symptom='musty smell' question=None
+   checks reported: [{'check': 'looked at door rubber', 'result': 'black spots and grey sludge in the bottom fold'}]  facts: ['smell is always there now, not at a particular time']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.91); symptomArea="smell" (0.97); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.88); modelUnreachable=false (0.03); make=null (0.12); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washing-machine:odour', 'washing-machine:leak-door', 'washing-machine:leak-flood']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:odour | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+    - cause: sewage/drain/sulphur — waste plumbing & installation
+    - cause: burning/electrical smell — SAFETY
+    - cause: hot rubber / friction — drive belt [belt-driven ONLY]
+    - cause: oily/greasy — bearing / drum seal
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.05 p=0.56  step: drain smell: check the standpipe/U-bend/anti-siphon and the drain-hose installation and ai
+    KEPT    d=0.12 r=0.03 p=0.55  step: burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical 
+    REMOVED d=0.91 r=0.06 p=0.61  question: What kind of smell is it - musty/damp, like drains/sewage, or hot/burning - and when is it
+  JEV PICKED: situation = musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+              next      = drain smell: check the standpipe/U-bend/anti-siphon and the drain-hose installation and air gap (plumbing, not usually an appliance part)
+REPLY: Next: Drain smell: check the standpipe/U-bend/anti-siphon and the drain-hose installation and air gap (plumbing, not usually an appliance part). Let me know what you find.
+
+--- Turn 4
+CUSTOMER: the standpipe doesnt smell of drains or anything, its just the drum and the drawer that smell damp. what should i do next?
+1 LLM UNDERSTOOD: appliance=washing machine brand=None model=None codes=[] symptom='damp smell from drum and drawer' question='what should i do next?'
+   checks reported: [{'check': 'smelled the standpipe', 'result': 'no drain smell'}]  facts: ['drum smells damp', 'detergent drawer smells damp']
+2 JEV LABELS: scope="appliance" (1); appliance="washing-machine" (0.99); symptomArea="smell" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome="still_faulty" (0.92); modelUnreachable=false (0.04); narrowed=null (0.67); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:odour', 'washing-machine:leak-door', 'washing-machine:motor-drum']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washing-machine:odour | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+    - cause: sewage/drain/sulphur — waste plumbing & installation
+    - cause: burning/electrical smell — SAFETY
+    - cause: hot rubber / friction — drive belt [belt-driven ONLY]
+    - cause: oily/greasy — bearing / drum seal
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.14 r=0.03 p=0.57  step: burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical 
+    REMOVED d=0.95 r=0.06 p=0.73  question: What kind of smell is it - musty/damp, like drains/sewage, or hot/burning - and when is it
+  JEV PICKED: situation = musty/mouldy — biofilm hygiene (door seal, drawer, filter, drum)
+              next      = burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical fault, not hygiene
+REPLY: Next: Burning/electrical smell: stop using it and unplug it - treat as an electrical/mechanical fault, not hygiene. Let me know what you find.
+
+--- Turn 5
+CUSTOMER: no burning smell or anything like that, its just a damp musty smell. so what do i actually do to get rid of it?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='damp musty smell' question='what do i actually do to get rid of it?'
+   checks reported: []  facts: ['no burning smell', 'damp musty smell']
+2 JEV LABELS: scope="appliance" (1); appliance=null (0.85); symptomArea="smell" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.69); checkOutcome=null (0.71); modelUnreachable=false (0.04); narrowed="door seal" (0.78); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washing-machine:odour', 'washing-machine:motor-drum', 'washing-machine:leak-door']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: model-needed)
+LLM ANSWER TO THEIR QUESTION: Wipe out the sludge in the door rubber fold, clean the detergent drawer, then run an empty hot drum-clean or maintenance wash and leave the door and drawer ajar between washes so it can dry out.  If the black spots have gone into the rubber itself, they usually won't clean off and the smell tends to return, so replacing the door seal is the lasting fix.
+REPLY: [Heading: Likely cause: door seal]
+Wipe out the sludge in the door rubber fold, clean the detergent drawer, then run an empty hot drum-clean or maintenance wash and leave the door and drawer ajar between washes so it can dry out. If the black spots have gone into the rubber itself, they usually won't clean off and the smell tends to return, so replacing the door seal is the lasting fix. The checks point to the door seal. To find the right part, could you give me the model number? It is usually on a sticker inside the door rim or on the back of the door.
+[Panel: "To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance."]
+
+--- Turn 6
+CUSTOMER: ok its a Samsung WD80T554DBW, thats what it says on the sticker. so do i just clean it all up first and then see if the smell comes back?
+1 LLM UNDERSTOOD: appliance=washer dryer brand=Samsung model=WD80T554DBW codes=[] symptom='smell and black spots on door seal' question='Should I clean it all up first and then see if the smell comes back?'
+   checks reported: []  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.97); symptomArea=null (0.57); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (1); modelUnreachable=false (0.03); model="WD80T554DBW" (1); code=null (1); make="Samsung" (1); narrowed="door seal" (0.9); checksConfirmed=[]; factsConfirmed=[]
+3 NOTES FOUND: ['washing-machine:odour', 'washer-dryer:drying-heater', 'washer-dryer:motor-drum']  normal: []  codes: []  stage: 2
+4 (no Jev choice this turn: part-not-found)
+LLM ANSWER TO THEIR QUESTION: Yes, cleaning the door seal and detergent drawer first is a sensible, low-cost step, and if the smell goes and stays gone you may not need anything more.  If the black spots won't come off the rubber or the smell returns, that points to the seal itself needing replacement, as the advice below explains.
+REPLY: [Heading: Likely cause: door seal]
+Yes, cleaning the door seal and detergent drawer first is a sensible, low-cost step, and if the smell goes and stays gone you may not need anything more. If the black spots won't come off the rubber or the smell returns, that points to the seal itself needing replacement, as the advice below explains. The checks point to the door seal. I could not find a confirmed match for model WD80T554DBW in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it.
+
+HIDDEN TRUTH: Biofilm/mould build-up from low-temperature washes, excess softener and closed door; fix with drum clean/hot maintenance wash, cleaning seal, drawer and filter, and leaving door open.

@@ -1,0 +1,60 @@
+TEST HB-04  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: gas hob keeps clickin on its own since i cleand it, stops then starts agen. drivin me mad. pls help
+1 LLM UNDERSTOOD: appliance=gas hob brand=None model=None codes=[] symptom='igniter keeps clicking on its own' question=None
+   checks reported: []  facts: ['started after cleaning it', 'clicking stops then starts again']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="noise" (0.46); hazard=null (0.98); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.57); modelUnreachable=false (0.03); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['hobs:ignition', 'hobs:gas-burner', 'hobs:tripping-electrics']  normal: ['hob-induction-buzz']  codes: []  stage: 1
+4 JEV: note picked = hobs:ignition | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: a burner cap that was wet, dirty or not seated
+    - cause: the igniter / spark unit
+    - cause: the flame-failure safety device
+    - cause: the gas supply
+    - normal: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.15 r=0.06 p=0.16  check: The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy aft
+  JEV PICKED: situation = a burner cap that was wet, dirty or not seated
+              next      = The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy after cleaning. Lift off the cap and crown, dry and clean them (and gently wipe the white igniter tip), then re-seat them so they sit
+REPLY: First switch it off at the wall or cooker switch and let it cool completely. From what you have described, the most likely cause is a burner cap that was wet, dirty or not seated. The usual cause is a burner cap that isn't sitting square, or one that's wet or greasy after cleaning. Lift off the cap and crown, dry and clean them (and gently wipe the white igniter tip), then re-seat them so they sit flat. Was a cap out of place, wet or dirty (and is it sorted), or were they all seated, dry and clean?
+
+--- Turn 2
+CUSTOMER: yeah i sloshed loads of water about and took the caps off. one cap looked a bit wonky so i put it back proper. wiped a bit of grease off the igniter too. no gas smell tho
+1 LLM UNDERSTOOD: appliance=gas hob brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'took burner caps off', 'result': 'one cap looked wonky, put back properly'}, {'check': 'wiped igniter', 'result': 'removed a bit of grease'}]  facts: ['sloshed lots of water about when cleaning', 'no gas smell']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (0.9); symptomArea=null (0.88); hazard=null (0.88); unsafeRequest=null (0.99); lastAnswer="answered" (1); checkOutcome=null (0.25); modelUnreachable=false (0.03); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['hobs:ignition', 'hobs:gas-burner', 'hobs:element']  normal: ['hob-induction-buzz']  codes: []  stage: 1
+4 JEV: note picked = hobs:ignition | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: a burner cap that was wet, dirty or not seated
+    - cause: the igniter / spark unit
+    - cause: the flame-failure safety device
+    - cause: the gas supply
+    - normal: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.06 r=0.07 p=0.37  retest: Now try lighting it again as normal. Does it light and stay lit now, or still not?
+  JEV PICKED: situation = a burner cap that was wet, dirty or not seated
+              next      = Could you tell me a bit more about what it is doing, and when it happens?
+REPLY: Could you tell me a bit more about what it is doing, and when it happens?
+
+--- Turn 3
+CUSTOMER: its a rapid ticking from one or maybe more burners even when the knobs are off. comes and goes, started this morning after i cleaned it. burners still light fine when i use them
+1 LLM UNDERSTOOD: appliance=gas hob brand=None model=None codes=[] symptom='rapid ticking from burners when knobs are off' question=None
+   checks reported: []  facts: ['ticking from one or more burners even with knobs off', 'comes and goes', 'started this morning after cleaning it', 'burners still light fine']
+2 JEV LABELS: scope="appliance" (1); appliance="hobs" (1); symptomArea="noise" (1); hazard=null (0.99); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.91); modelUnreachable=false (0.03); narrowed=null (0.5); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['hobs:ignition', 'hobs:gas-burner', 'hobs:element']  normal: ['hob-induction-buzz']  codes: []  stage: 1
+4 JEV: note picked = hobs:ignition | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: a burner cap that was wet, dirty or not seated
+    - cause: the igniter / spark unit
+    - cause: the flame-failure safety device
+    - cause: the gas supply
+    - normal: Induction hobs buzz, hum or whistle at high power, especially with heavy or multi-layer pans; they click as zones pulse at low settings; and a
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.47 r=0.06 p=0.48  retest: Now try lighting it again as normal. Does it light and stay lit now, or still not?
+  JEV PICKED: situation = a burner cap that was wet, dirty or not seated
+              next      = -
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Water/moisture around the ignition electrodes/switches after cleaning causes continuous clicking; drying resolves it.

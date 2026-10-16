@@ -1,0 +1,33 @@
+TEST TD-04  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: We replaced our old condenser dryer with a heat pump one about a month ago and honestly it's driving me mad, a normal load of towels takes nearly 3 and a half hours, the old one did it in about 90 minutes. It also feels barely warm for the first half hour when I open the door to check. Surely that's not right? Is it faulty?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='very long drying times' question='Is it faulty?'
+   checks reported: []  facts: ['heat pump dryer, bought about a month ago', 'replaced old condenser dryer that took about 90 minutes', 'normal load of towels takes nearly 3.5 hours', 'barely warm for the first half hour']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (0.43); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['tumble-dryer:heat-pump', 'tumble-dryer:poor-drying', 'tumble-dryer:not-emptying-condensate']  normal: ['td-heat-pump-slow']  codes: []  stage: 1
+4 JEV: note picked = tumble-dryer:heat-pump | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: Clean BOTH the lint filter and the deeper condenser/evaporator filters
+    - cause: moisture / temperature sensing
+    - cause: compressor / refrigerant (heat-pump) circuit
+    - cause: inverter / control electronics
+    - normal: Heat-pump dryers dry at a lower temperature and take noticeably longer than vented or condenser dryers; clothes come out warm rather than hot.
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.74 r=0.08 p=0.36  question: Is it genuinely cold and never drying, or does it dry but just feels cooler / slower than 
+  JEV PICKED: situation = Heat-pump dryers dry at a lower temperature and take noticeably longer than vented or condenser dryers; clothes come out warm rather than hot.
+              next      = Is it genuinely cold and never drying, or does it dry but just feels cooler / slower than your old dryer?
+LLM ANSWER TO THEIR QUESTION: Probably not.  Heat-pump dryers run at a lower temperature and take much longer than condenser dryers, so a long cycle that starts barely warm is typical.
+REPLY: Before you start, switch it off and unplug it. Probably not. Heat-pump dryers run at a lower temperature and take much longer than condenser dryers, so a long cycle that starts barely warm is typical. This sounds like normal behaviour rather than a fault: Heat-pump dryers dry at a lower temperature and take noticeably longer than vented or condenser dryers; clothes come out warm rather than hot. It would be worth a closer look if clothes are still wet at the end of a full cycle with clean filters and an emptied water tank. Is it genuinely cold and never drying, or does it dry but just feels cooler / slower than your old dryer?
+
+--- Turn 2
+CUSTOMER: It does dry them in the end, clothes come out fully dry. It's just the time it takes, and it only feels lukewarm to start with. So is 3 and a half hours really normal for a load of towels?
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom='long drying time, feels lukewarm' question='Is 3 and a half hours really normal for a load of towels?'
+   checks reported: []  facts: ['clothes come out fully dry', 'feels lukewarm at start', 'towel load takes about 3.5 hours']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (1); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.96); checkOutcome=null (0.93); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['tumble-dryer:heat-pump', 'tumble-dryer:poor-drying', 'tumble-dryer:not-heating']  normal: ['td-heat-pump-slow']  codes: []  stage: 1
+4 (no Jev choice this turn: settled-normal-closed)
+LLM ANSWER TO THEIR QUESTION: Yes, for a heat pump dryer that's normal: they dry at a much lower temperature than your old condenser dryer, so they feel only lukewarm, especially at the start, and a full load of towels can easily take around 3 to 3. 5 hours.
+REPLY: Yes, for a heat pump dryer that's normal: they dry at a much lower temperature than your old condenser dryer, so they feel only lukewarm, especially at the start, and a full load of towels can easily take around 3 to 3. 5 hours. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further.
+
+HIDDEN TRUTH: Normal operation: heat pump dryers dry at lower temperature and take longer; cold garage and opening the door lengthen the cycle further.

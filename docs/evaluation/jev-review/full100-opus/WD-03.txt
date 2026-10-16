@@ -1,0 +1,125 @@
+TEST WD-03  (ended: loop, 5 customer messages)
+
+--- Turn 1
+CUSTOMER: Indesit washer dryer washes fine but the drying cycle doesn't get warm at all, clothes come out cold and wet after 2 hours. Model is XWDE 96 something.
+1 LLM UNDERSTOOD: appliance=washer dryer brand=Indesit model=XWDE 96 codes=[] symptom="drying cycle doesn't heat, clothes cold and wet" question=None
+   checks reported: []  facts: ['washes fine', 'clothes come out cold and wet after 2 hours of drying', 'model number only partly known (XWDE 96...)']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea="no_heat" (0.88); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.97); modelUnreachable=false (0.13); model="XWDE 96" (0.96); code=null (1); make="Indesit" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washing-machine:heater']  normal: ['wm-eco-long']  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.04 p=0.15  step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the air
+    KEPT    d=0.1 r=0.05 p=0.27  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.05 r=0.04 p=0.25  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.05 r=0.03 p=0.21  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.72 r=0.11 p=0.44  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+    KEPT    d=0.45 r=0.08 p=0.35  question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be
+  JEV PICKED: situation = drying heater element
+              next      = Does it get HOT at all during drying, and were the clothes properly spun (not dripping) before the drying stage - and how big was the load?
+REPLY: From what you have described, the most likely cause is drying heater element. Does it get HOT at all during drying, and were the clothes properly spun (not dripping) before the drying stage - and how big was the load?
+
+--- Turn 2
+CUSTOMER: No, the door glass is stone cold during drying, the fan runs and the drum tumbles though. Load is about 4kg. I didn't check how well it was spun, sorry.
+1 LLM UNDERSTOOD: appliance=washer dryer brand=None model=None codes=[] symptom='not heating during drying' question=None
+   checks reported: []  facts: ['door glass stone cold during drying', 'fan runs during drying', 'drum tumbles', 'load about 4kg']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.85); symptomArea="no_heat" (0.99); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome=null (0.35); modelUnreachable=false (0.04); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washing-machine:heater']  normal: ['wm-eco-long']  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (8):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+    - normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts du
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.24  step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the air
+    KEPT    d=0.17 r=0.3 p=0.26  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.18 r=0.04 p=0.3  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.05 r=0.03 p=0.29  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.82 r=0.22 p=0.53  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+  JEV PICKED: situation = drying heater element
+              next      = clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted
+REPLY: Next: Clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: ok, I can have a look at the filter. Should I do anything else while I'm at it? I can hear water trickling at the back during the dry, if that matters.
+1 LLM UNDERSTOOD: appliance=tumble dryer brand=None model=None codes=[] symptom=None question="Should I do anything else while I'm at it?"
+   checks reported: []  facts: ['can hear water trickling at the back during the dry']
+2 JEV LABELS: scope="appliance" (1); appliance="tumble-dryer" (0.85); symptomArea="noise" (0.58); hazard=null (0.81); unsafeRequest=null (1); lastAnswer="answered" (0.56); checkOutcome=null (1); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['tumble-dryer:not-heating', 'tumble-dryer:heat-pump', 'tumble-dryer:poor-drying']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.17 r=0.33 p=0.23  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.13 r=0.04 p=0.28  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.08 r=0.03 p=0.27  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.8 r=0.2 p=0.55  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+  JEV PICKED: situation = drying heater element
+              next      = check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault)
+REPLY: Next: Check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault). Let me know what you find.
+
+--- Turn 4
+CUSTOMER: I didn't check how well it was spun, sorry. Washing and spinning seem to work normally though. Is there anything else I should check while it's dry-cycling?
+1 LLM UNDERSTOOD: appliance=washer dryer brand=None model=None codes=[] symptom='clothes not drying' question="Is there anything else I should check while it's dry-cycling?"
+   checks reported: []  facts: ['washing and spinning seem to work normally']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.76); symptomArea=null (0.96); hazard=null (1); unsafeRequest=null (0.94); lastAnswer="answered" (0.48); checkOutcome=null (0.68); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.16 r=0.04 p=0.27  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.08 r=0.04 p=0.24  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.84 r=0.22 p=0.64  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+  JEV PICKED: situation = lint filter / airflow restriction (clean first)
+              next      = try a SMALLER dry load - a washer-dryer dries less than it washes
+REPLY: From what you have described, the most likely cause is lint filter / airflow restriction (clean first). Next: Try a SMALLER dry load - a washer-dryer dries less than it washes. Let me know what you find.
+
+--- Turn 5
+CUSTOMER: ok, I can try a smaller load. There's no burning smell and nothing has tripped, by the way. If that doesn't help, what should I check next?
+1 LLM UNDERSTOOD: appliance=washer-dryer brand=None model=None codes=[] symptom=None question="If a smaller load doesn't help, what should I check next?"
+   checks reported: []  facts: ['no burning smell', 'nothing has tripped']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.79); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.75); checkOutcome=null (0.96); modelUnreachable=false (0.04); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washer-dryer:motor-drum']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.68 r=0.04 p=0.57  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    REMOVED d=0.85 r=0.17 p=0.66  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+  JEV PICKED: situation = drying heater element
+              next      = Does it get hot during drying but leave the clothes damp, or is there no heat at all - and were the clothes properly spun before the drying stage?
+REPLY: From what you have described, the most likely cause is drying heater element. Does it get hot during drying but leave the clothes damp, or is there no heat at all - and were the clothes properly spun before the drying stage?
+
+HIDDEN TRUTH: Dryer heater thermal overload cut-out has gone open circuit (one-shot) after the interrupted cycle, or the dryer heater element has failed. Most likely a thermal cut-out/heater replacement.

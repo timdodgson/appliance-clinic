@@ -378,3 +378,26 @@ Overall 2.28 (Qwen pipeline 2.65), critical failures 38 (24). The 53 conversatio
 baseline, so the loss is the evidence path itself. Where 13 conversations lost 2+ points, the judge cites: engineer
 too early (10), wrong or irrelevant cause (8), repeated or already-answered steps (7). Not adopted; live is back to the
 Qwen pipeline.
+
+## 14. Jev-led with Claude Opus on the full 100, after six review rounds (2026-10-16)
+
+Release 21.36 (`pipeline.mode = jev-led`, compose on Claude Opus 5.5 for understanding and direct questions; Jev picks
+the note, marks each step done/refused/pointless, picks the situation and next step; code writes the reply). Six
+rounds of fixes on WM-01..WM-10 (`docs/evaluation/jev-review/`). Sonnet judge, 99 scored. Reviews of all 100, step
+by step: `docs/evaluation/jev-review/full100-opus/`.
+
+| | Jev-led, Opus | Opus pipeline (LLM writes the reply) | Opus alone |
+|---|---|---|---|
+| Overall | **2.03** | 3.24 | 3.24 |
+| Paired vs Opus pipeline | −1.21 (−1.40 to −1.02); 2 up, 74 down | | |
+| Critical failures | 29 | 5 | 16 |
+| Named the part when needed | 5 / 38 | 15 / 38 | 23 / 38 |
+| Blind head-to-head vs Opus pipeline | 5 (90 lost, 5 ties) | | |
+| Median turn | 4.9 s | ~25 s | ~10 s |
+
+- On the 10 cases tuned in the review rounds it scores 2.40 (Opus pipeline 3.50); on the other 89, 1.99. The fixes
+  did not carry over to cases they were not made on.
+- Judge reasons where it lost a point or more (74 cases): engineer too early or a dead end 48, a missed key check or
+  missing knowledge 36, repeated or already-answered steps 34, ignored what the customer said 33, wrong or irrelevant
+  cause or step 17, robotic or unclear wording 12.
+- Not adopted. Live is back to the usual pipeline on Qwen.

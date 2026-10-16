@@ -1,0 +1,41 @@
+TEST DW-01  (ended: concluded, 2 customer messages)
+
+--- Turn 1
+CUSTOMER: bosch 24 not draining, water sitting in bottom. help
+1 LLM UNDERSTOOD: appliance=dishwasher brand=Bosch model=None codes=['24'] symptom='not draining' question=None
+   checks reported: []  facts: ['water sitting in bottom']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.94); symptomArea="not_draining" (1); hazard=null (0.97); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (0.37); code="24" (0.66); make="Bosch" (1); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:leak-flood', 'dishwasher:tripping-electrics']  normal: []  codes: ['24: NOT_FOUND']  stage: 1
+4 JEV: note picked = dishwasher:not-draining | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: drain filter (twist out and clean - first thing)
+    - cause: sump / impeller foreign object (glass, bone, label)
+    - cause: drain hose (kink or blockage) and the waste/spigot connection
+    - cause: drain pump (jammed or failed)
+    - cause: non-return valve stuck
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.06 p=0.06  check: Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rins
+    KEPT    d=0.04 r=0.04 p=0.08  check: With the filter out, bail out any water with a cup and sponge. There's a small pump cover 
+    KEPT    d=0.04 r=0.04 p=0.08  check: Check the grey drain hose from the back of the dishwasher to the sink waste isn't kinked o
+    KEPT    d=0.04 r=0.04 p=0.11  check: Under the sink, look where the drain hose joins the waste. On a newly fitted sink waste th
+    KEPT    d=0.04 r=0.05 p=0.11  check: With the filter back in, close the door, choose cancel or a drain / rinse programme and le
+    KEPT    d=0.04 r=0.04 p=0.06  step: clean the drain filter
+    KEPT    d=0.04 r=0.04 p=0.07  step: check the sump/impeller for foreign objects
+    KEPT    d=0.04 r=0.04 p=0.08  step: check the drain hose isn't kinked or blocked
+    KEPT    d=0.05 r=0.03 p=0.13  step: on a new install check the sink-waste blanking plug has been removed
+    REMOVED d=0.66 r=0.07 p=0.24  question: Is there standing water in the bottom, and is the drain pump silent or does it hum/buzz wi
+  JEV PICKED: situation = drain filter (twist out and clean - first thing)
+              next      = Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or glass from the sump underneath. Was the filter or sump blocked (and is it clean n
+REPLY: Before you start, switch it off and unplug it. I can't confirm what 24 means on your model, so I'll go by what it is doing. From what you have described, the most likely cause is drain filter (twist out and clean - first thing). Take out the lower rack, then twist and lift out the filter in the bottom of the tub. Rinse it under the tap and clear any food, grease or glass from the sump underneath. Was the filter or sump blocked (and is it clean now), or was it already clean?
+[Helpful to see: image "Where the filter is" — The filter sits in the base of the dishwasher, usually under the bottom spray arm. Twist it out anticlockwise and rinse it under a tap. Typical layout — your dishwasher may differ.]
+
+--- Turn 2
+CUSTOMER: filter was blocked, food and a bit of broken glass. cleaned it, drains fine now and E:24 gone. never cleaned it before
+1 LLM UNDERSTOOD: appliance=dishwasher brand=None model=None codes=['E:24'] symptom='not draining' question=None
+   checks reported: [{'check': 'cleaned drain filter', 'result': 'was blocked with food and broken glass; now drains fine and E:24 gone'}]  facts: ['filter had never been cleaned before']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.98); symptomArea="not_draining" (0.65); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="fixed" (1); modelUnreachable=false (0.03); model=null (0.96); code="E:24" (1); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['dishwasher:not-draining', 'dishwasher:foreign-object', 'dishwasher:poor-clean-results']  normal: []  codes: ['24: NOT_FOUND', 'E:24: RESOLVED Not draining - blocked drain filter / hose (kinked)']  stage: 1
+4 (no Jev choice this turn: fixed)
+REPLY: Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?
+
+HIDDEN TRUTH: Display shows E:24 (drain fault); blocked filter.

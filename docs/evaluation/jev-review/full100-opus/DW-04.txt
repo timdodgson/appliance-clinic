@@ -1,0 +1,94 @@
+TEST DW-04  (ended: escalated, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there
+1 LLM UNDERSTOOD: appliance=dishwasher brand=Bosch model=SMV4HTX31E codes=['E:15'] symptom='E:15 error and pump keeps running' question=None
+   checks reported: [{'check': 'turned it off and on', 'result': 'error still there'}]  facts: ['integrated dishwasher']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (1); symptomArea="error_code" (1); hazard=null (0.98); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome="still_faulty" (1); modelUnreachable=false (0.03); model="SMV4HTX31E" (1); code="E:15" (1); make="Bosch" (1); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['dishwasher:leak-flood', 'dishwasher:drain-pump', 'dishwasher:circulation-pump']  normal: []  codes: ['E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)']  stage: 2
+4 JEV: note picked = dishwasher:leak-flood | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: is there water in the base, and where is it leaking from (find the source first)
+    - cause: door seal / gasket
+    - cause: door alignment / hinge (not sealing square)
+    - cause: damaged / split spray arm firing water at the door
+    - cause: sump seal / circulation-pump seal / drain-pump seal
+    - cause: internal hose / hose connection
+    - cause: flood / float switch itself
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.05 p=0.12  check: Open the door and look all the way round the rubber seal on the tub edge, and along the bo
+    KEPT    d=0.03 r=0.04 p=0.21  check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo
+    KEPT    d=0.04 r=0.05 p=0.27  check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo
+    KEPT    d=0.04 r=0.04 p=0.2  check: Check the drain hose along its length and where it joins the sink waste for drips, a loose
+    REMOVED d=0.05 r=0.06 p=0.27  retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still
+    KEPT    d=0.05 r=0.05 p=0.08  step: establish whether there is water in the base tray and where it is coming from
+    KEPT    d=0.04 r=0.04 p=0.12  step: clean/inspect the door seal and check the door sits square
+    KEPT    d=0.04 r=0.03 p=0.12  step: check the lower spray arm isn't split
+    KEPT    d=0.38 r=0.04 p=0.16  step: do not keep running a machine that keeps triggering its flood protection
+    KEPT    d=0.4 r=0.06 p=0.26  question: Is water leaking from the side of the door during washing, or has the machine stopped / go
+    KEPT    d=0.33 r=0.07 p=0.24  question: Does the drain pump keep running with the machine empty, and does the fault come back afte
+  JEV PICKED: situation = is there water in the base, and where is it leaking from (find the source first)
+              next      = establish whether there is water in the base tray and where it is coming from
+REPLY: E:15 on your Bosch means: Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap). From what you have described, the most likely cause is is there water in the base, and where is it leaking from (find the source first). Next: Establish whether there is water in the base tray and where it is coming from. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: I can't pull the unit out or tilt it, it's integrated under the worktop. Looking through a gap in the plinth with a torch I can see a little shine of water in the base tray. No water on the kitchen floor though. Where do I go from here?
+1 LLM UNDERSTOOD: appliance=dishwasher brand=Bosch model=None codes=['E:15'] symptom='anti-flood system activated, water in base tray' question='Where do I go from here?'
+   checks reported: [{'check': 'looked through gap in plinth with torch', 'result': 'a little shine of water in the base tray'}]  facts: ['integrated under the worktop', 'cannot pull the unit out or tilt it', 'no water on the kitchen floor']
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.83); symptomArea="leak" (0.94); hazard=null (0.78); unsafeRequest=null (1); lastAnswer="answered" (0.87); checkOutcome="still_faulty" (0.75); modelUnreachable=false (0.13); model=null (1); code=null (0.86); make=null (0.38); narrowed=null (0.99); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['dishwasher:leak-flood', 'dishwasher:not-draining', 'dishwasher:circulation-pump']  normal: []  codes: ['E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)']  stage: 2
+4 JEV: note picked = dishwasher:leak-flood | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: is there water in the base, and where is it leaking from (find the source first)
+    - cause: door seal / gasket
+    - cause: door alignment / hinge (not sealing square)
+    - cause: damaged / split spray arm firing water at the door
+    - cause: sump seal / circulation-pump seal / drain-pump seal
+    - cause: internal hose / hose connection
+    - cause: flood / float switch itself
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.13 p=0.19  check: Open the door and look all the way round the rubber seal on the tub edge, and along the bo
+    KEPT    d=0.04 r=0.11 p=0.36  check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo
+    KEPT    d=0.04 r=0.15 p=0.35  check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo
+    KEPT    d=0.04 r=0.18 p=0.29  check: Check the drain hose along its length and where it joins the sink waste for drips, a loose
+    REMOVED d=0.08 r=0.22 p=0.47  retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still
+    KEPT    d=0.04 r=0.12 p=0.26  step: clean/inspect the door seal and check the door sits square
+    KEPT    d=0.04 r=0.11 p=0.19  step: check the lower spray arm isn't split
+    KEPT    d=0.47 r=0.09 p=0.21  step: do not keep running a machine that keeps triggering its flood protection
+    REMOVED d=0.85 r=0.26 p=0.51  question: Is water leaking from the side of the door during washing, or has the machine stopped / go
+    KEPT    d=0.36 r=0.2 p=0.3  question: Does the drain pump keep running with the machine empty, and does the fault come back afte
+  JEV PICKED: situation = is there water in the base, and where is it leaking from (find the source first)
+              next      = Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now r
+LLM ANSWER TO THEIR QUESTION: Since you can't pull the unit out or tilt it, the next step is one you can do from the front with the door open, which is below.  What you find there decides whether we look for a leak source you can reach or whether it needs the unit taken out.
+REPLY: Before you start, switch it off and unplug it. Since you can't pull the unit out or tilt it, the next step is one you can do from the front with the door open, which is below. What you find there decides whether we look for a leak source you can reach or whether it needs the unit taken out. Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now removed), or does it look fine?
+
+--- Turn 3
+CUSTOMER: Door seal looks okay to me, no splits or anything caught on it. Anything else I can check from the front?
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom=None question='Anything else I can check from the front?'
+   checks reported: [{'check': 'inspected door seal for splits or caught items', 'result': 'no splits, nothing caught, looks okay'}]  facts: []
+2 JEV LABELS: scope="appliance" (1); appliance="dishwasher" (0.76); symptomArea=null (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.44); modelUnreachable=false (0.03); narrowed=null (0.93); checksConfirmed=[0]; factsConfirmed=[]
+3 NOTES FOUND: ['dishwasher:leak-flood', 'dishwasher:not-draining', 'dishwasher:circulation-pump']  normal: []  codes: ['E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)']  stage: 2
+4 JEV: note picked = dishwasher:leak-flood | findings settle it = False | engineer allowed = True
+  situations offered (7):
+    - cause: is there water in the base, and where is it leaking from (find the source first)
+    - cause: door seal / gasket
+    - cause: door alignment / hinge (not sealing square)
+    - cause: damaged / split spray arm firing water at the door
+    - cause: sump seal / circulation-pump seal / drain-pump seal
+    - cause: internal hose / hose connection
+    - cause: flood / float switch itself
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.1 p=0.23  check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo
+    KEPT    d=0.04 r=0.14 p=0.34  check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo
+    KEPT    d=0.05 r=0.16 p=0.23  check: Check the drain hose along its length and where it joins the sink waste for drips, a loose
+    REMOVED d=0.08 r=0.19 p=0.46  retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still
+    KEPT    d=0.53 r=0.09 p=0.29  step: clean/inspect the door seal and check the door sits square
+    KEPT    d=0.06 r=0.08 p=0.15  step: check the lower spray arm isn't split
+    KEPT    d=0.35 r=0.08 p=0.19  step: do not keep running a machine that keeps triggering its flood protection
+    REMOVED d=0.88 r=0.18 p=0.54  question: Is water leaking from the side of the door during washing, or has the machine stopped / go
+    KEPT    d=0.39 r=0.18 p=0.31  question: Does the drain pump keep running with the machine empty, and does the fault come back afte
+  JEV PICKED: situation = engineer
+              next      = Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?
+REPLY: From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself.
+
+HIDDEN TRUTH: Genuinely uncertain: an internal leak (pump seal, sump/heater pump connection or hose) filling the base tray; cannot be localised without pulling the unit out.

@@ -1,0 +1,91 @@
+TEST WD-05  (ended: concluded, 3 customer messages)
+
+--- Turn 1
+CUSTOMER: I think my washer dryer has a fault - I put it on just a drying programme with dry-ish clothes and I can hear water running into it and draining the whole time. Surely it shouldn't use water to dry? It's a Beko.
+1 LLM UNDERSTOOD: appliance=washer dryer brand=Beko model=None codes=[] symptom='water running in and draining during drying programme' question="Surely it shouldn't use water to dry?"
+   checks reported: []  facts: ['using a drying-only programme', 'clothes were dry-ish', 'hears water filling and draining the whole time']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (1); symptomArea="other" (0.87); hazard=null (0.98); unsafeRequest=null (1); lastAnswer=null (1); checkOutcome=null (0.96); modelUnreachable=false (0.04); make="Beko" (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['washer-dryer:drying-poor', 'washer-dryer:drying-heater', 'washer-dryer:drying-sensor']  normal: []  codes: []  stage: 1
+4 JEV: note picked = washer-dryer:drying-poor | findings settle it = False | engineer allowed = False
+  situations offered (10):
+    - cause: a drying load bigger than the dry capacity
+    - cause: the drying programme or dryness setting
+    - cause: the cold water supply the condenser needs
+    - cause: fluff in the pump filter
+    - cause: the drying heater or its thermostat
+    - cause: the drying sensor
+    - cause: the drying fan or air duct
+    - cause: the drain hose or standpipe
+    - cause: the condenser's water path inside the machine
+    - cause: a full water container
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.03 p=0.38  check: A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg d
+    REMOVED d=0.21 r=0.05 p=0.65  check: Check a drying programme is actually selected after the wash (or a wash-and-dry option), a
+    KEPT    d=0.07 r=0.05 p=0.32  check: Most washer-dryers use a trickle of cold water to condense the moisture while drying, so t
+    KEPT    d=0.05 r=0.05 p=0.23  check: The condensed water from drying leaves through the drain hose. Check the hose behind the m
+    KEPT    d=0.11 r=0.05 p=0.25  check: As it only leaks while drying, the water is coming from the drying side, not the wash: a w
+    KEPT    d=0.05 r=0.04 p=0.24  check: Drying sends fluff and the condensed water out through the pump, so a clogged pump filter 
+    KEPT    d=0.28 r=0.06 p=0.39  check: Run a drying programme with a load within the dry capacity, and keep an eye on it. Is it w
+  JEV PICKED: situation = the condenser's water path inside the machine
+              next      = Most washer-dryers use a trickle of cold water to condense the moisture while drying, so the cold tap must stay on and the hose mustn't be kinked. Was the tap off or the hose kinked (and is it sorted), or is the water su
+LLM ANSWER TO THEIR QUESTION: It's a fair assumption, but many washer-dryers do use water when drying: a small trickle of cold water cools the hot, damp air so the moisture turns back into water and drains away.  So hearing water coming in and draining throughout a drying programme can be normal, though without the model details I can't confirm that's how yours is designed.
+REPLY: It's a fair assumption, but many washer-dryers do use water when drying: a small trickle of cold water cools the hot, damp air so the moisture turns back into water and drains away. So hearing water coming in and draining throughout a drying programme can be normal, though without the model details I can't confirm that's how yours is designed. From what you have described, the most likely cause is the condenser's water path inside the machine. Most washer-dryers use a trickle of cold water to condense the moisture while drying, so the cold tap must stay on and the hose mustn't be kinked. Was the tap off or the hose kinked (and is it sorted), or is the water supply on and fine?
+
+--- Turn 2
+CUSTOMER: The tap is on and the hose isn't kinked as far as I can tell, and there's no leak or error code. The model is a Beko WDL742431W, if that helps. Is it really normal for it to use water just to dry clothes?
+1 LLM UNDERSTOOD: appliance=washer-dryer brand=Beko model=WDL742431W codes=[] symptom=None question='Is it really normal for it to use water just to dry clothes?'
+   checks reported: [{'check': 'water tap', 'result': 'on'}, {'check': 'hose for kinks', 'result': 'not kinked as far as they can tell'}]  facts: ['no leak', 'no error code']
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.98); symptomArea=null (0.8); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome="still_faulty" (0.85); modelUnreachable=false (0.03); model="WDL742431W" (1); code=null (1); make="Beko" (1); checksConfirmed=[0, 1]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['washer-dryer:drying-heater', 'washer-dryer:drying-poor', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washer-dryer:drying-heater | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: lint filter / airflow restriction (clean first)
+    - cause: condenser / condensing path (clean / clear)
+    - cause: drying heater element
+    - cause: thermal cut-out (may be tripped by airflow restriction)
+    - cause: drying thermostat
+    - cause: drying fan
+    - cause: main pcb
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.04 p=0.22  step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the air
+    KEPT    d=0.07 r=0.06 p=0.32  step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak
+    KEPT    d=0.06 r=0.04 p=0.32  step: try a SMALLER dry load - a washer-dryer dries less than it washes
+    KEPT    d=0.06 r=0.03 p=0.23  step: if there is a strong burning smell, stop and unplug it to let it cool before anything else
+    KEPT    d=0.08 r=0.1 p=0.29  question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and
+    KEPT    d=0.14 r=0.07 p=0.24  question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be
+  JEV PICKED: situation = condenser / condensing path (clean / clear)
+              next      = clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted
+LLM ANSWER TO THEIR QUESTION: Yes, many washer-dryers use a steady trickle of cold water during drying to cool the steam from the clothes back into water, which is then pumped away, so hearing it fill and drain throughout can be normal.  Whether yours works this way depends on its drying design, which the manual or Beko's details for the WDL742431W can confirm.
+REPLY: Yes, many washer-dryers use a steady trickle of cold water during drying to cool the steam from the clothes back into water, which is then pumped away, so hearing it fill and drain throughout can be normal. Whether yours works this way depends on its drying design, which the manual or Beko's details for the WDL742431W can confirm. From what you have described, the most likely cause is condenser / condensing path (clean / clear). Next: Clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted. Let me know what you find.
+
+--- Turn 3
+CUSTOMER: I've looked in the manual, and it does say water is used during drying for condensation. So is what I'm hearing normal for this machine, and not a fault? I'm not sure how to get at the condenser you mention, I wouldn't know where to start.
+1 LLM UNDERSTOOD: appliance=washer-dryer brand=Beko model=WDL742431W codes=[] symptom='water filling and draining during drying' question='Is the water noise during drying normal for this machine and not a fault?'
+   checks reported: [{'check': 'checked manual', 'result': 'says water is used during drying for condensation'}]  facts: ["doesn't know how to access the condenser"]
+2 JEV LABELS: scope="appliance" (1); appliance="washer-dryer" (0.88); symptomArea=null (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.19); checkOutcome=null (0.51); modelUnreachable=false (0.04); model=null (0.9); code=null (1); make=null (0.38); narrowed=null (0.82); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['washer-dryer:drying-poor', 'washer-dryer:drying-heater', 'washer-dryer:not-draining']  normal: []  codes: []  stage: 2
+4 JEV: note picked = washer-dryer:drying-poor | findings settle it = False | engineer allowed = True
+  situations offered (10):
+    - cause: a drying load bigger than the dry capacity
+    - cause: the drying programme or dryness setting
+    - cause: the cold water supply the condenser needs
+    - cause: fluff in the pump filter
+    - cause: the drying heater or its thermostat
+    - cause: the drying sensor
+    - cause: the drying fan or air duct
+    - cause: the drain hose or standpipe
+    - cause: the condenser's water path inside the machine
+    - cause: a full water container
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.08 r=0.06 p=0.39  check: A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg d
+    REMOVED d=0.19 r=0.06 p=0.74  check: Check a drying programme is actually selected after the wash (or a wash-and-dry option), a
+    KEPT    d=0.46 r=0.12 p=0.44  check: The condensed water from drying leaves through the drain hose. Check the hose behind the m
+    KEPT    d=0.39 r=0.24 p=0.54  check: As it only leaks while drying, the water is coming from the drying side, not the wash: a w
+    KEPT    d=0.06 r=0.16 p=0.37  check: Drying sends fluff and the condensed water out through the pump, so a clogged pump filter 
+    KEPT    d=0.16 r=0.09 p=0.41  check: Run a drying programme with a load within the dry capacity, and keep an eye on it. Is it w
+  JEV PICKED: situation = the cold water supply the condenser needs
+              next      = As it only leaks while drying, the water is coming from the drying side, not the wash: a washer-dryer condenses the moisture with a trickle of cold water and pumps it away through the pump filter and drain hose (most was
+LLM ANSWER TO THEIR QUESTION: Yes, hearing water fill and drain throughout a drying programme is normal for this machine.  As your manual says, it uses a trickle of cold water to condense the moisture and then pumps it away.
+REPLY: Yes, hearing water fill and drain throughout a drying programme is normal for this machine. As your manual says, it uses a trickle of cold water to condense the moisture and then pumps it away. From what you have described, the most likely cause is the cold water supply the condenser needs. As it only leaks while drying, the water is coming from the drying side, not the wash: a washer-dryer condenses the moisture with a trickle of cold water and pumps it away through the pump filter and drain hose (most washer-dryers have no water container to empty). Fluff from drying collects in the pump filter at the bottom front and can make that water back up and leak. Unplug the machine first, put towels down with a shallow tray ready, and unscrew the filter slowly. Was the filter full of fluff or debris (and is it clean now), or was it already clean?
+
+HIDDEN TRUTH: Normal: water-cooled condenser washer-dryer uses a trickle of cold water to condense moisture during drying, then pumps it out.

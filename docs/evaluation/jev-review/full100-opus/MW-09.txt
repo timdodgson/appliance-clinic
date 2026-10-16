@@ -1,0 +1,203 @@
+TEST MW-09  (ended: turn-limit, 8 customer messages)
+
+--- Turn 1
+CUSTOMER: Bosch built-in microwave BFL524MS0B randomly stops part way through cooking, time still on the display. Opening and closing the door lets it carry on. Maybe once every few days.
+1 LLM UNDERSTOOD: appliance=built-in microwave brand=Bosch model=BFL524MS0B codes=[] symptom='randomly stops part way through cooking' question=None
+   checks reported: [{'check': 'opening and closing the door', 'result': 'it carries on cooking'}]  facts: ['time still on the display when it stops', 'happens about once every few days']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea="cuts_out" (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome="helped_then_returned" (0.6); modelUnreachable=false (0.03); model="BFL524MS0B" (1); code=null (1); make="Bosch" (1); checksConfirmed=[0]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:cutting-out', 'microwave:not-heating', 'microwave:sparking-arcing']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:cutting-out | findings settle it = False | engineer allowed = False
+  situations offered (5):
+    - cause: inverter / magnetron / HV feedback [repeatable seconds shutdown]
+    - cause: cooling fan / blocked airflow / vents
+    - cause: thermal cutout / protection
+    - cause: overheating magnetron / HV system
+    - cause: supply / door-interlock / control [random loss]
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.28 r=0.05 p=0.25  step: note the timing (a few seconds vs several minutes vs random) and whether it gets hot
+    KEPT    d=0.05 r=0.04 p=0.14  step: check the vents aren't blocked and the machine has airflow
+    KEPT    d=0.07 r=0.05 p=0.34  step: identify conventional vs inverter for the seconds-shutdown pattern
+    REMOVED d=0.84 r=0.09 p=0.4  question: Does it cut out after a repeatable few seconds, after several minutes once it's hot, or at
+    KEPT    d=0.1 r=0.07 p=0.16  question: Is it a conventional or inverter microwave, and does it get hot before it stops?
+  JEV PICKED: situation = supply / door-interlock / control [random loss]
+              next      = note the timing (a few seconds vs several minutes vs random) and whether it gets hot
+REPLY: From what you have described, the most likely cause is supply / door-interlock / control [random loss]. Next: Note the timing (a few seconds vs several minutes vs random) and whether it gets hot. Let me know what you find.
+
+--- Turn 2
+CUSTOMER: It's random, every few days, not a fixed time into the programme. No smell, sparks or tripping. It seems to happen more when I close the door gently, and the time stays on the display but the start indicator goes off and the fan and light stop, as if the door was opened.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='stops randomly mid-programme as if door opened' question=None
+   checks reported: []  facts: ['no smell, sparks or tripping', 'happens more when door closed gently', 'time stays on display but start indicator goes off', 'fan and light stop as if door opened']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.63); symptomArea="cuts_out" (0.94); hazard=null (0.99); unsafeRequest=null (1); lastAnswer="answered" (0.93); checkOutcome=null (0.8); modelUnreachable=false (0.04); narrowed=null (0.99); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:low-voltage', 'microwave:cutting-out', 'microwave:sparking-arcing']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:low-voltage | findings settle it = False | engineer allowed = False
+  situations offered (7):
+    - cause: property supply / socket / plug fuse
+    - cause: mains lead / internal line fuse (evidence)
+    - cause: downstream HV short - HV capacitor / HV diode / magnetron [CONVENTIONAL]
+    - cause: door monitor / interlock microswitch (a mis-timed or failed monitor switch is the classic cause of a blown line fuse)
+    - cause: door catch / latch (a worn catch mis-aligns the door and mistimes the monitor switch, blowing the fuse)
+    - cause: oven lamp / bulb (a lamp that fails short commonly takes out the line fuse)
+    - cause: control / power board
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.04 p=0.54  step: check the wall socket with another appliance and the plug fuse where fitted
+    KEPT    d=0.1 r=0.04 p=0.43  step: if the internal fuse blows again, the cause is elsewhere - do not keep replacing it
+    KEPT    d=0.05 r=0.03 p=0.19  step: do NOT open the casing or touch HV components - stored charge is lethal
+    REMOVED d=0.89 r=0.07 p=0.69  question: Is the microwave completely dead with no lights or display, or does it power up but blow t
+    KEPT    d=0.21 r=0.07 p=0.41  question: If it blows the fuse, does it do so as soon as you switch on, or only when it starts to he
+  JEV PICKED: situation = door monitor / interlock microswitch (a mis-timed or failed monitor switch is the classic cause of a blown line fuse)
+              next      = If it blows the fuse, does it do so as soon as you switch on, or only when it starts to heat?
+REPLY: From what you have described, the most likely cause is door monitor / interlock microswitch (a mis-timed or failed monitor switch is the classic cause of a blown line fuse). If it blows the fuse, does it do so as soon as you switch on, or only when it starts to heat?
+
+--- Turn 3
+CUSTOMER: I haven't said anything about a blown fuse - it isn't blowing one, nothing trips. It just stops mid-cook with the time still showing, then carries on once I reopen and close the door.
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom='stops mid-cook with time still showing, resumes after reopening and closing door' question=None
+   checks reported: [{'check': 'reopened and closed the door', 'result': 'it carries on cooking'}]  facts: ['fuse not blowing', 'nothing trips', 'time still showing when it stops']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.9); symptomArea="cuts_out" (0.94); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.99); checkOutcome=null (0.21); modelUnreachable=false (0.03); narrowed=null (0.44); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['microwave:low-voltage', 'microwave:cutting-out', 'microwave:not-heating']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:low-voltage | findings settle it = False | engineer allowed = True
+  situations offered (7):
+    - cause: property supply / socket / plug fuse
+    - cause: mains lead / internal line fuse (evidence)
+    - cause: downstream HV short - HV capacitor / HV diode / magnetron [CONVENTIONAL]
+    - cause: door monitor / interlock microswitch (a mis-timed or failed monitor switch is the classic cause of a blown line fuse)
+    - cause: door catch / latch (a worn catch mis-aligns the door and mistimes the monitor switch, blowing the fuse)
+    - cause: oven lamp / bulb (a lamp that fails short commonly takes out the line fuse)
+    - cause: control / power board
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.1 r=0.05 p=0.54  step: check the wall socket with another appliance and the plug fuse where fitted
+    REMOVED d=0.31 r=0.05 p=0.7  step: if the internal fuse blows again, the cause is elsewhere - do not keep replacing it
+    KEPT    d=0.06 r=0.03 p=0.23  step: do NOT open the casing or touch HV components - stored charge is lethal
+    REMOVED d=0.92 r=0.1 p=0.79  question: Is the microwave completely dead with no lights or display, or does it power up but blow t
+  JEV PICKED: situation = door monitor / interlock microswitch (a mis-timed or failed monitor switch is the classic cause of a blown line fuse)
+              next      = check the wall socket with another appliance and the plug fuse where fitted
+REPLY: Next: Check the wall socket with another appliance and the plug fuse where fitted. Let me know what you find.
+
+--- Turn 4
+CUSTOMER: Nothing else is affected, and the microwave heats normally otherwise, so I don't think the socket is the issue. It's a built-in so I can't easily get at the plug anyway. Any thoughts on the door side of things?
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom=None question='Any thoughts on the door side of things?'
+   checks reported: []  facts: ['nothing else is affected', 'microwave heats normally otherwise', 'built-in microwave', 'plug not easily accessible']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (1); symptomArea=null (0.61); hazard=null (1); unsafeRequest=null (1); lastAnswer="cannot_or_will_not" (0.77); checkOutcome=null (0.8); modelUnreachable=false (0.07); narrowed=null (0.44); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:low-voltage', 'microwave:door', 'microwave:sparking-arcing']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:door | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: door release button / lever / linkage
+    - cause: door latch / hook mechanism
+    - cause: button / latch return spring
+    - cause: door alignment / hinge / accessible obstruction
+    - cause: door interlock / monitor microswitch (electrical start path)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.19 p=0.25  check: With it unplugged, look at the plastic hooks on the edge of the door and the slots they cl
+    KEPT    d=0.19 r=0.47 p=0.42  check: Plug it back in and try a cup of water for a minute. Does the door latch and the microwave
+    KEPT    d=0.07 r=0.12 p=0.2  step: the customer can visually inspect the accessible latch area
+    KEPT    d=0.06 r=0.06 p=0.2  step: accessible crumbs/debris/grease around the latch can be gently cleaned
+    KEPT    d=0.07 r=0.04 p=0.41  step: do not force or pry the door open
+    KEPT    d=0.08 r=0.07 p=0.21  step: do not remove the microwave casing
+    KEPT    d=0.11 r=0.05 p=0.26  step: do not test internal interlock switches and never bypass an interlock
+    KEPT    d=0.06 r=0.09 p=0.33  question: When you press the door-release button, does it feel normal, loose/floppy, or unusually st
+    KEPT    d=0.13 r=0.09 p=0.53  question: Did it become harder to open over time, or did it suddenly stop opening?
+  JEV PICKED: situation = door interlock / monitor microswitch (electrical start path)
+              next      = When you press the door-release button, does it feel normal, loose/floppy, or unusually stiff?
+LLM ANSWER TO THEIR QUESTION: Yes, the door side is the most likely area: the fan and light stopping as if the door had opened, and it happening more when the door is closed gently, both suggest the door safety switches aren't always registering it as fully shut.  On a microwave these switches must only be checked or replaced by a qualified repairer with the appliance isolated, never by opening the casing yourself.
+REPLY: Yes, the door side is the most likely area: the fan and light stopping as if the door had opened, and it happening more when the door is closed gently, both suggest the door safety switches aren't always registering it as fully shut. On a microwave these switches must only be checked or replaced by a qualified repairer with the appliance isolated, never by opening the casing yourself. From what you have described, the most likely cause is door interlock / monitor microswitch (electrical start path). When you press the door-release button, does it feel normal, loose/floppy, or unusually stiff?
+
+--- Turn 5
+CUSTOMER: I'm not sure, I've never paid attention to how the release button feels. Is this something a Bosch engineer would need to look at, given I can't get the unit out of the housing?
+1 LLM UNDERSTOOD: appliance=microwave brand=Bosch model=None codes=[] symptom='fan and light stop as if door opened' question="Does a Bosch engineer need to look at it, given I can't get the unit out of the housing?"
+   checks reported: []  facts: ['built-in unit in a housing', 'customer cannot get the unit out of the housing']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.83); symptomArea=null (0.66); hazard=null (1); unsafeRequest=null (0.99); lastAnswer="does_not_know" (0.93); checkOutcome=null (0.99); modelUnreachable=false (0.05); make="Bosch" (0.96); narrowed=null (0.71); checksConfirmed=[]; factsConfirmed=[1]
+3 NOTES FOUND: ['microwave:door', 'microwave:low-voltage', 'microwave:main-pcb']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:door | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: door release button / lever / linkage
+    - cause: door latch / hook mechanism
+    - cause: button / latch return spring
+    - cause: door alignment / hinge / accessible obstruction
+    - cause: door interlock / monitor microswitch (electrical start path)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.06 r=0.51 p=0.26  check: With it unplugged, look at the plastic hooks on the edge of the door and the slots they cl
+    KEPT    d=0.14 r=0.55 p=0.44  check: Plug it back in and try a cup of water for a minute. Does the door latch and the microwave
+    KEPT    d=0.07 r=0.32 p=0.34  step: the customer can visually inspect the accessible latch area
+    KEPT    d=0.06 r=0.13 p=0.2  step: accessible crumbs/debris/grease around the latch can be gently cleaned
+    KEPT    d=0.07 r=0.05 p=0.37  step: do not force or pry the door open
+    KEPT    d=0.33 r=0.43 p=0.41  step: do not remove the microwave casing
+    KEPT    d=0.11 r=0.08 p=0.26  step: do not test internal interlock switches and never bypass an interlock
+    KEPT    d=0.12 r=0.16 p=0.4  question: Did it become harder to open over time, or did it suddenly stop opening?
+  JEV PICKED: situation = door interlock / monitor microswitch (electrical start path)
+              next      = Plug it back in and try a cup of water for a minute. Does the door latch and the microwave start normally now, or still not?
+LLM ANSWER TO THEIR QUESTION: Quite possibly: if it keeps cutting out, the repair needs a qualified microwave engineer (Bosch's own service or another qualified technician), as the inside of a microwave isn't safe for anyone else to open, and they can also take it out of the housing.  Whether you need that visit depends on whether the fault carries on.
+REPLY: Quite possibly: if it keeps cutting out, the repair needs a qualified microwave engineer (Bosch's own service or another qualified technician), as the inside of a microwave isn't safe for anyone else to open, and they can also take it out of the housing. Whether you need that visit depends on whether the fault carries on. Plug it back in and try a cup of water for a minute. Does the door latch and the microwave start normally now, or still not?
+
+--- Turn 6
+CUSTOMER: I haven't unplugged it, it's still installed and working, and it's screwed into the tall unit so I won't take it out. It heats normally apart from the occasional mid-cook stop. I'd pay for a Bosch engineer visit if that's the right next step, is it?
+1 LLM UNDERSTOOD: appliance=microwave brand=Bosch model=None codes=[] symptom='occasionally stops mid-cook' question='Is a paid Bosch engineer visit the right next step?'
+   checks reported: []  facts: ['built-in, screwed into tall unit', 'has not been unplugged', 'heats normally otherwise', "won't remove it from the housing"]
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.99); symptomArea="cuts_out" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.32); checkOutcome=null (0.41); modelUnreachable=false (0.05); make="Bosch" (0.98); narrowed=null (0.48); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['microwave:door', 'microwave:grill-not-heating', 'microwave:main-pcb']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:door | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: door release button / lever / linkage
+    - cause: door latch / hook mechanism
+    - cause: button / latch return spring
+    - cause: door alignment / hinge / accessible obstruction
+    - cause: door interlock / monitor microswitch (electrical start path)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.06 r=0.67 p=0.36  check: With it unplugged, look at the plastic hooks on the edge of the door and the slots they cl
+    KEPT    d=0.07 r=0.31 p=0.38  step: the customer can visually inspect the accessible latch area
+    KEPT    d=0.05 r=0.16 p=0.23  step: accessible crumbs/debris/grease around the latch can be gently cleaned
+    KEPT    d=0.07 r=0.05 p=0.39  step: do not force or pry the door open
+    KEPT    d=0.57 r=0.6 p=0.52  step: do not remove the microwave casing
+    KEPT    d=0.13 r=0.1 p=0.29  step: do not test internal interlock switches and never bypass an interlock
+    KEPT    d=0.12 r=0.15 p=0.42  question: Did it become harder to open over time, or did it suddenly stop opening?
+  JEV PICKED: situation = door interlock / monitor microswitch (electrical start path)
+              next      = the customer can visually inspect the accessible latch area
+LLM ANSWER TO THEIR QUESTION: Quite possibly, but not just yet: a quick look at the door latch area first could show something simple like dirt or damage.  If that turns up nothing, an engineer visit is the sensible route, since the inside of a microwave isn't safe for anyone else to work on and yours is built in.
+REPLY: Quite possibly, but not just yet: a quick look at the door latch area first could show something simple like dirt or damage. If that turns up nothing, an engineer visit is the sensible route, since the inside of a microwave isn't safe for anyone else to work on and yours is built in. Next: The customer can visually inspect the accessible latch area. Let me know what you find.
+
+--- Turn 7
+CUSTOMER: I already cleaned some grease from around the door hooks and latch slots, but it still happened once since. The door looks very slightly lower on the handle side, though I can't be sure. No visible damage that I can tell.
+1 LLM UNDERSTOOD: appliance=microwave brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'cleaned grease from around door hooks and latch slots', 'result': 'fault still happened once since'}]  facts: ['built-in microwave', 'door looks very slightly lower on handle side, not sure', 'no visible damage to latch area']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.82); symptomArea="door_or_lid" (0.89); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.97); checkOutcome="helped_then_returned" (0.91); modelUnreachable=false (0.04); narrowed=null (0.78); checksConfirmed=[0]; factsConfirmed=[1, 2]
+3 NOTES FOUND: ['microwave:door', 'microwave:sparking-arcing', 'microwave:main-pcb']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:door | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: door release button / lever / linkage
+    - cause: door latch / hook mechanism
+    - cause: button / latch return spring
+    - cause: door alignment / hinge / accessible obstruction
+    - cause: door interlock / monitor microswitch (electrical start path)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.83 r=0.46 p=0.44  check: With it unplugged, look at the plastic hooks on the edge of the door and the slots they cl
+    REMOVED d=0.96 r=0.06 p=0.6  step: accessible crumbs/debris/grease around the latch can be gently cleaned
+    KEPT    d=0.09 r=0.05 p=0.38  step: do not force or pry the door open
+    KEPT    d=0.63 r=0.62 p=0.52  step: do not remove the microwave casing
+    KEPT    d=0.16 r=0.1 p=0.3  step: do not test internal interlock switches and never bypass an interlock
+    KEPT    d=0.15 r=0.11 p=0.43  question: Did it become harder to open over time, or did it suddenly stop opening?
+  JEV PICKED: situation = door interlock / monitor microswitch (electrical start path)
+              next      = Did it become harder to open over time, or did it suddenly stop opening?
+REPLY: Did it become harder to open over time, or did it suddenly stop opening?
+
+--- Turn 8
+CUSTOMER: Neither really - the door opens fine, it's not been hard to open or stuck. The only issue is the mid-cook stop every few days.
+1 LLM UNDERSTOOD: appliance=None brand=None model=None codes=[] symptom='stops mid-cook every few days' question=None
+   checks reported: []  facts: ['door opens fine', 'door has not been hard to open or stuck']
+2 JEV LABELS: scope="appliance" (1); appliance="microwave" (0.7); symptomArea="cuts_out" (1); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome=null (0.55); modelUnreachable=false (0.03); narrowed=null (0.79); checksConfirmed=[]; factsConfirmed=[0, 1]
+3 NOTES FOUND: ['microwave:door', 'microwave:sparking-arcing', 'microwave:not-heating']  normal: []  codes: []  stage: 2
+4 JEV: note picked = microwave:door | findings settle it = False | engineer allowed = True
+  situations offered (5):
+    - cause: door release button / lever / linkage
+    - cause: door latch / hook mechanism
+    - cause: button / latch return spring
+    - cause: door alignment / hinge / accessible obstruction
+    - cause: door interlock / monitor microswitch (electrical start path)
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    REMOVED d=0.82 r=0.46 p=0.47  check: With it unplugged, look at the plastic hooks on the edge of the door and the slots they cl
+    REMOVED d=0.96 r=0.06 p=0.59  step: accessible crumbs/debris/grease around the latch can be gently cleaned
+    KEPT    d=0.11 r=0.06 p=0.44  step: do not force or pry the door open
+    REMOVED d=0.69 r=0.65 p=0.52  step: do not remove the microwave casing
+    KEPT    d=0.15 r=0.09 p=0.28  step: do not test internal interlock switches and never bypass an interlock
+  JEV PICKED: situation = door interlock / monitor microswitch (electrical start path)
+              next      = do not test internal interlock switches and never bypass an interlock
+REPLY: Next: Do not test internal interlock switches and never bypass an interlock. Let me know what you find.
+
+HIDDEN TRUTH: genuinely uncertain: most likely worn/misaligned door interlock switch or latch (door sag), but an intermittent control module fault is possible; requires an engineer with access to the unit.

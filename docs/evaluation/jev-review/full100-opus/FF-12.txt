@@ -1,0 +1,218 @@
+TEST FF-12  (ended: turn-limit, 8 customer messages)
+
+--- Turn 1
+CUSTOMER: Hi, our integrated fridge freezer (behind a kitchen door) - the fridge is around 10 degrees but the freezer seems ok. We had a power cut a week ago, not sure if related. Rented flat, can't really take it out.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='fridge too warm (around 10 degrees), freezer ok' question=None
+   checks reported: []  facts: ['integrated behind a kitchen door', 'power cut a week ago', 'rented flat', "can't really take it out"]
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea="not_cooling" (0.96); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.99); checkOutcome=null (0.91); modelUnreachable=false (0.1); model=null (1); code=null (1); checksConfirmed=[]; factsConfirmed=[0, 1, 2, 3]
+3 NOTES FOUND: ['fridge-freezer:comms', 'fridge-freezer:not-cooling', 'fridge-freezer:evaporator-fan']  normal: []  codes: []  stage: 1
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.12 p=0.25  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.03 r=0.24 p=0.28  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.06 r=0.14 p=0.23  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.25 p=0.13  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.04 r=0.13 p=0.15  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.05 r=0.5 p=0.27  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+    KEPT    d=0.39 r=0.23 p=0.16  question: Is the freezer still cold while the fridge is warm, and is there a thick block of ice on t
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+REPLY: From what you have described, the most likely cause is the fan or air channel that moves cold air into the fridge. Is the freezer still cold while the fridge is warm, and is there a thick block of ice on the back wall inside the freezer?
+
+--- Turn 2
+CUSTOMER: Yes, the freezer's still cold (about -16C) and the fridge is about 10C. There's some frost on the back wall of the freezer but not a thick block, no.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='fridge warm while freezer cold' question=None
+   checks reported: [{'check': 'Measured freezer temperature', 'result': 'about -16C'}, {'check': 'Measured fridge temperature', 'result': 'about 10C'}, {'check': 'Looked at freezer back wall', 'result': 'some frost, not a thick block of ice'}]  facts: ['freezer still cold at about -16C', 'fridge about 10C', 'some frost on freezer back wall, no thick ice block']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.5); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (1); checkOutcome="still_faulty" (0.8); modelUnreachable=false (0.03); model=null (1); code=null (1); checksConfirmed=[0, 1, 2]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:not-cooling', 'fridge-freezer:comms']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = False
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.04 r=0.12 p=0.29  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.06 r=0.24 p=0.45  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.1 r=0.15 p=0.4  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.08 r=0.26 p=0.21  check: Cold air comes in through vents, often on the back wall inside. Make sure food isn't press
+    KEPT    d=0.04 r=0.14 p=0.22  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.06 r=0.44 p=0.33  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Cold air comes in through vents, often on the back wall inside. Make sure food isn't pressed against them and the shelves aren't packed so tight air can't move. Were the vents blocked or was it over-packed (and have you 
+REPLY: Cold air comes in through vents, often on the back wall inside. Make sure food isn't pressed against them and the shelves aren't packed so tight air can't move. Were the vents blocked or was it over-packed (and have you moved things), or was everything clear?
+
+--- Turn 3
+CUSTOMER: I can't see any vent in the fridge part, so I'm not sure. It's not overpacked as far as I know. Nothing is pressed against the back wall. Also no burning smell or tripping, if that matters.
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'looked for vents in fridge section', 'result': 'could not see any vent'}, {'check': 'checked nothing pressed against back wall', 'result': 'nothing pressed against it'}]  facts: ['not overpacked as far as they know', 'no burning smell', 'no tripping']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.95); checkOutcome="still_faulty" (0.57); modelUnreachable=false (0.03); narrowed=null (0.85); checksConfirmed=[0, 1]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:fridge-airflow', 'fridge-freezer:not-cooling']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.11 p=0.29  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.07 r=0.21 p=0.42  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.11 r=0.12 p=0.41  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.1 p=0.24  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+    KEPT    d=0.1 r=0.39 p=0.32  check: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the 
+REPLY: Fridge freezers lose their heat through a coil or grille at the back or underneath. Gently dust or vacuum it, and leave a few centimetres of space between it and the wall or cupboards. Was it dusty or pushed against the wall (and have you sorted it), or was it already clean with space round it?
+
+--- Turn 4
+CUSTOMER: It's integrated behind a cabinet door and screwed into the unit, so I can't pull it out or look at the back. The plinth at the bottom has a vent grille and I can't see anything blocking it.
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'looked at plinth vent grille', 'result': 'nothing blocking it'}]  facts: ['integrated behind a cabinet door', 'screwed into the unit, cannot pull it out', 'cannot see the back']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.91); symptomArea=null (0.96); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.49); checkOutcome=null (0.4); modelUnreachable=false (0.13); narrowed=null (0.77); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:defrost-system', 'fridge-freezer:fridge-airflow', 'fridge-freezer:evaporator-fan']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.05 r=0.11 p=0.28  check: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After
+    KEPT    d=0.07 r=0.31 p=0.47  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.11 r=0.15 p=0.42  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.11 p=0.23  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After a day with the doors shut, is it back to cold, or still warm?
+REPLY: Keep both doors shut for about 24 hours (only open them briefly) and let it recover. After a day with the doors shut, is it back to cold, or still warm?
+
+--- Turn 5
+CUSTOMER: Ok, I can try that. It's been about 5 days like this already though, so I'm not sure a day with the doors shut will change much. What should I do if it's still warm after that?
+1 LLM UNDERSTOOD: appliance=fridge freezer brand=None model=None codes=[] symptom='not cooling, warm' question="What should I do if it's still warm after keeping the doors shut for a day?"
+   checks reported: []  facts: ['has been warm for about 5 days']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.92); symptomArea="not_cooling" (0.82); hazard=null (1); unsafeRequest=null (1); lastAnswer="does_not_know" (0.59); checkOutcome=null (0.99); modelUnreachable=false (0.04); model=null (1); code=null (1); narrowed=null (0.79); checksConfirmed=[]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:fridge-airflow', 'fridge-freezer:defrost-system', 'fridge-freezer:evaporator-fan']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.07 r=0.28 p=0.44  check: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of 
+    KEPT    d=0.1 r=0.12 p=0.46  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.06 r=0.11 p=0.22  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of the back wall inside the fridge there's a small drain hole or channel. If it blocks or ices up, defrost water collects inside and 
+REPLY: Water inside plus poor cooling usually has one cause: the defrost drain. At the bottom of the back wall inside the fridge there's a small drain hole or channel. If it blocks or ices up, defrost water collects inside and ice can build up behind the back panel and choke the cold air. Clear the hole gently with warm water (a turkey baster or squeezy bottle) or a soft pipe cleaner — nothing sharp. Was the drain hole blocked (and is it clear now), is it blocked or frozen and you couldn't clear it, or was it already clear?
+
+--- Turn 6
+CUSTOMER: I can't see a drain hole in the fridge, and I haven't noticed any water inside either. Not sure where it would be. Should I just report it to the letting agent instead?
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom=None question='Should I just report it to the letting agent instead?'
+   checks reported: [{'check': 'looked for drain hole in fridge', 'result': "couldn't see one"}]  facts: ['no water noticed inside the fridge', 'rented property with letting agent']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.93); hazard=null (1); unsafeRequest=null (1); lastAnswer=null (0.24); checkOutcome=null (0.35); modelUnreachable=false (0.04); narrowed=null (0.95); checksConfirmed=[0]; factsConfirmed=[0]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:drainage-blocked', 'fridge-freezer:fridge-airflow']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.12 r=0.13 p=0.46  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+    KEPT    d=0.05 r=0.1 p=0.23  check: Run your fingers round the rubber door seal on each door and look for splits, gaps or a se
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Run your fingers round the rubber door seal on each door and look for splits, gaps or a section that has come away, or anything stopping it closing flat. Is the seal torn or come away, was it dirty or folded (and is that
+LLM ANSWER TO THEIR QUESTION: Yes, in a rented flat it's worth reporting it now, because if the fridge came with the property the landlord is usually responsible for repairing it, though that depends on your tenancy agreement.  The quick door seal check below is harmless and gives the agent something useful to pass on.
+REPLY: Yes, in a rented flat it's worth reporting it now, because if the fridge came with the property the landlord is usually responsible for repairing it, though that depends on your tenancy agreement. The quick door seal check below is harmless and gives the agent something useful to pass on. Run your fingers round the rubber door seal on each door and look for splits, gaps or a section that has come away, or anything stopping it closing flat. Is the seal torn or come away, was it dirty or folded (and is that sorted), or does it look fine?
+[Helpful to see: image "Fridge not cooling — simple checks first" — Before suspecting the sealed system, check the temperature setting, that the door seal closes cleanly, that there's air space and clean condenser coils at the back, and listen for the compressor. Unplug before cleaning at the back. A sealed-system or refrigerant repair is a job for a qualified engineer. Typical layout — your model may differ.]
+
+--- Turn 7
+CUSTOMER: The fridge door closes ok and the cabinet door moves with it. I can't see any splits in the seal, but I'm not sure what I'd be looking for really. I'll report it to the letting agent anyway.
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom=None question=None
+   checks reported: [{'check': 'looked at door seal', 'result': 'no splits seen, but unsure what to look for'}]  facts: ['fridge door closes ok', 'cabinet door moves with the fridge door', 'will report to letting agent', 'rented flat']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (1); symptomArea=null (0.68); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.69); checkOutcome="still_faulty" (0.6); modelUnreachable=false (0.04); narrowed=null (0.86); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:drainage-blocked', 'fridge-freezer:door-seal']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.1 r=0.14 p=0.46  check: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -1
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -18°C, and make sure no holiday / eco mode is on. Was a setting wrong or a mode left on (and have you corrected it), or was it all s
+REPLY: Check the temperature dial or display: the fridge should be about 3–5°C and the freezer -18°C, and make sure no holiday / eco mode is on. Was a setting wrong or a mode left on (and have you corrected it), or was it all set normally?
+
+--- Turn 8
+CUSTOMER: The dial inside is on 3 out of 5, and there's no display. I haven't changed it. I don't know if that's the right setting though, should I turn it up?
+1 LLM UNDERSTOOD: appliance=fridge brand=None model=None codes=[] symptom=None question='Should I turn the dial up?'
+   checks reported: [{'check': 'checked temperature dial', 'result': 'set to 3 out of 5'}]  facts: ['no display', 'dial inside the fridge', 'setting has not been changed']
+2 JEV LABELS: scope="appliance" (1); appliance="fridge-freezer" (0.99); symptomArea="controls_or_display" (0.98); hazard=null (1); unsafeRequest=null (1); lastAnswer="answered" (0.76); checkOutcome=null (0.49); modelUnreachable=false (0.04); narrowed=null (0.79); checksConfirmed=[0]; factsConfirmed=[0, 1, 2]
+3 NOTES FOUND: ['fridge-freezer:not-cooling', 'fridge-freezer:drainage-blocked', 'fridge-freezer:door-seal']  normal: []  codes: []  stage: 2
+4 JEV: note picked = fridge-freezer:not-cooling | findings settle it = False | engineer allowed = True
+  situations offered (9):
+    - cause: the door being left open / warm food going in
+    - cause: the temperature setting or a mode left on
+    - cause: blocked vents or over-packing
+    - cause: the door seal
+    - cause: dusty coils or too little space round it
+    - cause: the room it is in (too cold or too hot)
+    - cause: the fan or air channel that moves cold air into the fridge
+    - cause: a blocked or iced-up defrost drain
+    - cause: the sealed cooling system or its controls
+  every step, Jev's verdict (done / refused / pointless) -> kept or removed:
+    KEPT    d=0.64 r=0.42 p=0.51  check: At the bottom of the back wall inside the fridge there's a small drain hole or channel tha
+    REMOVED d=0.05 r=0.17 p=0.85  check: Check the water supply pipe from the isolation tap to the back of the fridge, and the conn
+    KEPT    d=0.06 r=0.34 p=0.45  check: At the back near the bottom there's a shallow tray (usually on top of the motor) that catc
+    REMOVED d=0.17 r=0.16 p=0.65  check: Mop up and keep an eye on it for a day. Has it stayed dry, or is water still appearing?
+    KEPT    d=0.47 r=0.41 p=0.56  question: Is the water only under the salad drawers, and have you tried clearing the small drain hol
+    KEPT    d=0.23 r=0.16 p=0.44  check: Check nothing is stopping the door — a shelf, drawer, bottle or food sticking out — and th
+    REMOVED d=0.9 r=0.19 p=0.38  check: Run your fingers round the rubber seal and look for splits, gaps or a section that has com
+    REMOVED d=0.77 r=0.13 p=0.6  check: Close the door gently and see whether it shuts and seals properly now. Is the door shuttin
+  JEV PICKED: situation = the fan or air channel that moves cold air into the fridge
+              next      = At the bottom of the back wall inside the fridge there's a small drain hole or channel that carries defrost water away. If it blocks, water collects inside. Clear it gently with warm water (a turkey baster or a squeezy b
+LLM ANSWER TO THEIR QUESTION: You can turn it up a notch to 4 without causing harm, but it's unlikely to fix this on its own.  It kept the fridge cold at 3 before and the setting hasn't changed, so the dial probably isn't the cause.
+REPLY: You can turn it up a notch to 4 without causing harm, but it's unlikely to fix this on its own. It kept the fridge cold at 3 before and the setting hasn't changed, so the dial probably isn't the cause. At the bottom of the back wall inside the fridge there's a small drain hole or channel that carries defrost water away. If it blocks, water collects inside. Clear it gently with warm water (a turkey baster or a squeezy bottle works) or a soft pipe cleaner. Was the drain hole blocked (and is it clear now), is it blocked or frozen and you couldn't clear it, or was it already clear?
+
+HIDDEN TRUTH: genuinely uncertain: on this model the fridge is cooled differently from a fan frost-free; plausible causes include a thermostat/sensor fault, ice build-up on the fridge back plate after the power cut, poor ventilation in the housing, or a sealed-system weakness. Cannot be resolved remotely; landlord's engineer needed if a defrost/settings check doesn't fix it.
