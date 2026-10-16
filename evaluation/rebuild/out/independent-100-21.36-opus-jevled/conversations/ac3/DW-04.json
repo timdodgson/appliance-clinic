@@ -1,0 +1,614 @@
+{
+ "id": "DW-04",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-04-ae660ac2f6",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Bosch integrated dishwasher showing E:15 and the pump keeps running. Model SMV4HTX31E. I've turned it off and on, still there"
+  },
+  {
+   "role": "assistant",
+   "text": "E:15 on your Bosch means: Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap). From what you have described, the most likely cause is is there water in the base, and where is it leaking from (find the source first). Next: Establish whether there is water in the base tray and where it is coming from. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "I can't pull the unit out or tilt it, it's integrated under the worktop. Looking through a gap in the plinth with a torch I can see a little shine of water in the base tray. No water on the kitchen floor though. Where do I go from here?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. Since you can't pull the unit out or tilt it, the next step is one you can do from the front with the door open, which is below. What you find there decides whether we look for a leak source you can reach or whether it needs the unit taken out. Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now removed), or does it look fine?"
+  },
+  {
+   "role": "customer",
+   "text": "Door seal looks okay to me, no splits or anything caught on it. Anything else I can check from the front?"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2253,
+     "labelMs": 326,
+     "enrichMs": 351,
+     "composeMs": 1281,
+     "replyLabelMs": 640,
+     "totalMs": 4903
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "SMV4HTX31E",
+       "confidence": 1
+      },
+      "code": {
+       "value": "E:15",
+       "confidence": 1
+      },
+      "make": {
+       "value": "Bosch",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": "SMV4HTX31E",
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "E:15 error and pump keeps running"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.66
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:drain-pump",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"dishwasher:leak-flood\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"is there water in the base, and where is it leaking from (find the source first)\"},\"next\":{\"kind\":\"step\",\"text\":\"establish whether there is water in the base tray and where it is coming from\"},\"ms\":1281,\"offered\":{\"situations\":[\"cause: is there water in the base, and where is it leaking from (find the source first)\",\"cause: door seal / gasket\",\"cause: door alignment / hinge (not sealing square)\",\"cause: damaged / split spray arm firing water at the door\",\"cause: sump seal / circulation-pump seal / drain-pump seal\",\"cause: internal hose / hose connection\",\"cause: flood / float switch itself\"],\"next\":[\"check: Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now removed), or does it look fine?\",\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the door seal. With the racks loaded, turn each spray arm by hand. Was anything catching the arms or pointing at the door (and have you moved it), or is everything clear?\",\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end for drips, a loose fitting or a split. Was a connection loose (and is it tight now), is the hose damaged, or is it dry?\",\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose clip or a split. Was it loose (and is it refitted now), is the hose split, or is it dry?\",\"step: establish whether there is water in the base tray and where it is coming from\",\"step: clean/inspect the door seal and check the door sits square\",\"step: check the lower spray arm isn't split\",\"step: do not keep running a machine that keeps triggering its flood protection\",\"question: Is water leaking from the side of the door during washing, or has the machine stopped / gone into anti-flood with the drain pump running and water underneath rather than on the floor?\",\"question: Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?\"],\"removed\":[\"Now run a short programme and keep an eye on the floor. Does it stay dry, or doe\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Open the door and look all the way round the rubber seal on the tub edge, and along the bo\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.12,\"kept\":true},{\"step\":\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo\",\"done\":0.03,\"refused\":0.04,\"pointless\":0.21,\"kept\":true},{\"step\":\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.27,\"kept\":true},{\"step\":\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.2,\"kept\":true},{\"step\":\"retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still\",\"done\":0.05,\"refused\":0.06,\"pointless\":0.27,\"kept\":false},{\"step\":\"step: establish whether there is water in the base tray and where it is coming from\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.08,\"kept\":true},{\"step\":\"step: clean/inspect the door seal and check the door sits square\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: check the lower spray arm isn't split\",\"done\":0.04,\"refused\":0.03,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: do not keep running a machine that keeps triggering its flood protection\",\"done\":0.38,\"refused\":0.04,\"pointless\":0.16,\"kept\":true},{\"step\":\"question: Is water leaking from the side of the door during washing, or has the machine stopped / go\",\"done\":0.4,\"refused\":0.06,\"pointless\":0.26,\"kept\":true},{\"step\":\"question: Does the drain pump keep running with the machine empty, and does the fault come back afte\",\"done\":0.33,\"refused\":0.07,\"pointless\":0.24,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"dishwasher\",\"brand\":\"Bosch\",\"model\":\"SMV4HTX31E\",\"codes\":[\"E:15\"],\"symptom\":\"E:15 error and pump keeps running\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[{\"check\":\"turned it off and on\",\"result\":\"error still there\"}],\"facts\":[\"integrated dishwasher\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"dishwasher\\\" (1)\",\"symptomArea\":\"\\\"error_code\\\" (1)\",\"hazard\":\"null (0.98)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.99)\",\"checkOutcome\":\"\\\"still_faulty\\\" (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"SMV4HTX31E\\\" (1)\",\"code\":\"\\\"E:15\\\" (1)\",\"make\":\"\\\"Bosch\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"dishwasher:leak-flood\",\"dishwasher:drain-pump\",\"dishwasher:circulation-pump\"],\"normal\":[],\"codes\":[\"E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)\"],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned it off and on: error still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 5033
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 5285,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3200,
+     "labelMs": 295,
+     "enrichMs": 6,
+     "composeMs": 4814,
+     "replyLabelMs": 263,
+     "totalMs": 8620
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.83
+      },
+      "symptomArea": {
+       "value": "leak",
+       "confidence": 0.94
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.78
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.87
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.75
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.13
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "make": {
+       "value": null,
+       "confidence": 0.38
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": "Bosch",
+      "model": null,
+      "codes": [
+       "E:15"
+      ],
+      "symptom": "anti-flood system activated, water in base tray"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.91
+     },
+     "checkGiven": "Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections o",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"dishwasher:leak-flood\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"is there water in the base, and where is it leaking from (find the source first)\"},\"next\":{\"kind\":\"check\",\"text\":\"Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now removed), or does it look fine?\"},\"ms\":824,\"offered\":{\"situations\":[\"cause: is there water in the base, and where is it leaking from (find the source first)\",\"cause: door seal / gasket\",\"cause: door alignment / hinge (not sealing square)\",\"cause: damaged / split spray arm firing water at the door\",\"cause: sump seal / circulation-pump seal / drain-pump seal\",\"cause: internal hose / hose connection\",\"cause: flood / float switch itself\"],\"next\":[\"check: Open the door and look all the way round the rubber seal on the tub edge, and along the bottom of the door, for splits, flattened sections or something caught on it. Is the seal damaged, was something caught on it (now removed), or does it look fine?\",\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the door seal. With the racks loaded, turn each spray arm by hand. Was anything catching the arms or pointing at the door (and have you moved it), or is everything clear?\",\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end for drips, a loose fitting or a split. Was a connection loose (and is it tight now), is the hose damaged, or is it dry?\",\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose clip or a split. Was it loose (and is it refitted now), is the hose split, or is it dry?\",\"step: clean/inspect the door seal and check the door sits square\",\"step: check the lower spray arm isn't split\",\"step: do not keep running a machine that keeps triggering its flood protection\",\"question: Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?\"],\"removed\":[\"Now run a short programme and keep an eye on the floor. Does it stay dry, or doe\",\"Is water leaking from the side of the door during washing, or has the machine st\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Open the door and look all the way round the rubber seal on the tub edge, and along the bo\",\"done\":0.05,\"refused\":0.13,\"pointless\":0.19,\"kept\":true},{\"step\":\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo\",\"done\":0.04,\"refused\":0.11,\"pointless\":0.36,\"kept\":true},{\"step\":\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo\",\"done\":0.04,\"refused\":0.15,\"pointless\":0.35,\"kept\":true},{\"step\":\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose\",\"done\":0.04,\"refused\":0.18,\"pointless\":0.29,\"kept\":true},{\"step\":\"retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still\",\"done\":0.08,\"refused\":0.22,\"pointless\":0.47,\"kept\":false},{\"step\":\"step: clean/inspect the door seal and check the door sits square\",\"done\":0.04,\"refused\":0.12,\"pointless\":0.26,\"kept\":true},{\"step\":\"step: check the lower spray arm isn't split\",\"done\":0.04,\"refused\":0.11,\"pointless\":0.19,\"kept\":true},{\"step\":\"step: do not keep running a machine that keeps triggering its flood protection\",\"done\":0.47,\"refused\":0.09,\"pointless\":0.21,\"kept\":true},{\"step\":\"question: Is water leaking from the side of the door during washing, or has the machine stopped / go\",\"done\":0.85,\"refused\":0.26,\"pointless\":0.51,\"kept\":false},{\"step\":\"question: Does the drain pump keep running with the machine empty, and does the fault come back afte\",\"done\":0.36,\"refused\":0.2,\"pointless\":0.3,\"kept\":true}]},\"answer\":\"Since you can't pull the unit out or tilt it, the next step is one you can do from the front with the door open, which is below.  What you find there decides whether we look for a leak source you can reach or whether it needs the unit taken out.\"}",
+     "trace: {\"understood\":{\"appliance\":\"dishwasher\",\"brand\":\"Bosch\",\"model\":null,\"codes\":[\"E:15\"],\"symptom\":\"anti-flood system activated, water in base tray\",\"customerQuestion\":\"Where do I go from here?\",\"answerToLastQuestion\":\"a little water visible in the base tray; source not found\",\"checksReported\":[{\"check\":\"looked through gap in plinth with torch\",\"result\":\"a little shine of water in the base tray\"}],\"facts\":[\"integrated under the worktop\",\"cannot pull the unit out or tilt it\",\"no water on the kitchen floor\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"dishwasher\\\" (0.83)\",\"symptomArea\":\"\\\"leak\\\" (0.94)\",\"hazard\":\"null (0.78)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.87)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.75)\",\"modelUnreachable\":\"false (0.13)\",\"model\":\"null (1)\",\"code\":\"null (0.86)\",\"make\":\"null (0.38)\",\"narrowed\":\"null (0.99)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0,1,2]},\"notes\":[\"dishwasher:leak-flood\",\"dishwasher:not-draining\",\"dishwasher:circulation-pump\"],\"normal\":[],\"codes\":[\"E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)\"],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned it off and on: error still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "looked through gap in plinth with torch: a little shine of water in the base tray",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the seal damaged, was something caught on it (now removed), or does it look fine?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 8680
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 8882,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2926,
+     "labelMs": 282,
+     "enrichMs": 1,
+     "composeMs": 1016,
+     "replyLabelMs": 284,
+     "totalMs": 4572
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 0.76
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.44
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:leak-flood",
+       "dishwasher:not-draining",
+       "dishwasher:circulation-pump"
+      ],
+      "codes": [
+       {
+        "code": "E:15",
+        "status": "RESOLVED"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"dishwasher:leak-flood\",\"settled\":false,\"situation\":\"engineer\",\"next\":{\"kind\":\"question\",\"text\":\"Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?\"},\"ms\":1016,\"offered\":{\"situations\":[\"cause: is there water in the base, and where is it leaking from (find the source first)\",\"cause: door seal / gasket\",\"cause: door alignment / hinge (not sealing square)\",\"cause: damaged / split spray arm firing water at the door\",\"cause: sump seal / circulation-pump seal / drain-pump seal\",\"cause: internal hose / hose connection\",\"cause: flood / float switch itself\"],\"next\":[\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the door seal. With the racks loaded, turn each spray arm by hand. Was anything catching the arms or pointing at the door (and have you moved it), or is everything clear?\",\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end for drips, a loose fitting or a split. Was a connection loose (and is it tight now), is the hose damaged, or is it dry?\",\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose clip or a split. Was it loose (and is it refitted now), is the hose split, or is it dry?\",\"step: clean/inspect the door seal and check the door sits square\",\"step: check the lower spray arm isn't split\",\"step: do not keep running a machine that keeps triggering its flood protection\",\"question: Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?\"],\"removed\":[\"Now run a short programme and keep an eye on the floor. Does it stay dry, or doe\",\"Is water leaking from the side of the door during washing, or has the machine st\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: Tall trays or items hanging below the lower rack can deflect the spray straight at the doo\",\"done\":0.05,\"refused\":0.1,\"pointless\":0.23,\"kept\":true},{\"step\":\"check: Check where the inlet hose connects at the tap under the sink and at the dishwasher end fo\",\"done\":0.04,\"refused\":0.14,\"pointless\":0.34,\"kept\":true},{\"step\":\"check: Check the drain hose along its length and where it joins the sink waste for drips, a loose\",\"done\":0.05,\"refused\":0.16,\"pointless\":0.23,\"kept\":true},{\"step\":\"retest: Now run a short programme and keep an eye on the floor. Does it stay dry, or does it still\",\"done\":0.08,\"refused\":0.19,\"pointless\":0.46,\"kept\":false},{\"step\":\"step: clean/inspect the door seal and check the door sits square\",\"done\":0.53,\"refused\":0.09,\"pointless\":0.29,\"kept\":true},{\"step\":\"step: check the lower spray arm isn't split\",\"done\":0.06,\"refused\":0.08,\"pointless\":0.15,\"kept\":true},{\"step\":\"step: do not keep running a machine that keeps triggering its flood protection\",\"done\":0.35,\"refused\":0.08,\"pointless\":0.19,\"kept\":true},{\"step\":\"question: Is water leaking from the side of the door during washing, or has the machine stopped / go\",\"done\":0.88,\"refused\":0.18,\"pointless\":0.54,\"kept\":false},{\"step\":\"question: Does the drain pump keep running with the machine empty, and does the fault come back afte\",\"done\":0.39,\"refused\":0.18,\"pointless\":0.31,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":\"Anything else I can check from the front?\",\"answerToLastQuestion\":\"seal looks fine\",\"checksReported\":[{\"check\":\"inspected door seal for splits or caught items\",\"result\":\"no splits, nothing caught, looks okay\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"dishwasher\\\" (0.76)\",\"symptomArea\":\"null (0.98)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.44)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.93)\",\"checksConfirmed\":[0],\"factsConfirmed\":[]},\"notes\":[\"dishwasher:leak-flood\",\"dishwasher:not-draining\",\"dishwasher:circulation-pump\"],\"normal\":[],\"codes\":[\"E:15: RESOLVED Water-protection (anti-flood) system activated - water in base pan; drain pump runs, cycle locked (close tap)\"],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Bosch",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "SMV4HTX31E",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "E:15",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "turned it off and on: error still there",
+       "source": "customer",
+       "status": "stated",
+       "turn": 1,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "looked through gap in plinth with torch: a little shine of water in the base tray",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "inspected door seal for splits or caught items: no splits, nothing caught, looks okay",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is the seal damaged, was something caught on it (now removed), or does it look fine?",
+       "turn": 2,
+       "resolution": "seal looks fine"
+      },
+      {
+       "key": null,
+       "text": "Does the drain pump keep running with the machine empty, and does the fault come back after a few washes?",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4613
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 5079,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0289137,
+ "finishedAt": "2026-10-16T01:03:33.026Z"
+}

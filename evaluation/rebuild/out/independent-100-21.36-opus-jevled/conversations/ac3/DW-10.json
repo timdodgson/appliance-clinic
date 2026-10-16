@@ -1,0 +1,531 @@
+{
+ "id": "DW-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-dw-10-be06761b55",
+ "endReason": "escalated",
+ "customerTurns": 3,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "dishwasher wont come on"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is does it physically not close, or close but not start? (identify first). Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?"
+  },
+  {
+   "role": "customer",
+   "text": "The door closes and latches fine. The machine is just completely dead, no lights or anything."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is control board / PCB (last). Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?"
+  },
+  {
+   "role": "customer",
+   "text": "Other sockets and lights all work. The spur switch above the worktop is on and the little neon light is lit. Nothing's tripped at the consumer unit either."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2302,
+     "labelMs": 294,
+     "enrichMs": 0,
+     "composeMs": 918,
+     "replyLabelMs": 258,
+     "totalMs": 3818
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "dishwasher",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't turn on"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:door",
+       "dishwasher:heating",
+       "dishwasher:spray-arm"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"dishwasher:door\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"does it physically not close, or close but not start? (identify first)\"},\"next\":{\"kind\":\"question\",\"text\":\"Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?\"},\"ms\":918,\"offered\":{\"situations\":[\"cause: does it physically not close, or close but not start? (identify first)\",\"cause: loading / rack obstruction / alignment\",\"cause: door hinge / balance / springs (drops open)\",\"cause: door latch / catch / interlock\",\"cause: door switch / interlock wiring / door loom\",\"cause: control board / PCB (last)\"],\"next\":[\"check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?\",\"check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it firmly until it clicks and press start. Does it still show the door as open?\",\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door and the slot it clicks into on the tub, and check the door lines up squarely when you close it. Is the latch or catch broken, was something stopping it (now cleared), or does it all look fine?\",\"check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops the buttons working — the manual shows which buttons to hold to turn it off. Was the child / control lock on (and is it off now), or was it already off?\",\"check: A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't been confirmed can look like it won't start. Was a delay start set or the programme not selected (and is it sorted), or was nothing like that set?\",\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"step: check nothing (rack/tall item) is stopping the door closing\",\"step: on an integrated machine check the furniture-door alignment/balance\",\"step: note whether moving or pressing the door changes anything\",\"question: Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.13,\"kept\":true},{\"step\":\"check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.1,\"kept\":true},{\"step\":\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door a\",\"done\":0.04,\"refused\":0.06,\"pointless\":0.11,\"kept\":true},{\"step\":\"check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.14,\"kept\":true},{\"step\":\"check: A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't been confi\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.2,\"kept\":true},{\"step\":\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"done\":0.05,\"refused\":0.06,\"pointless\":0.23,\"kept\":true},{\"step\":\"step: check nothing (rack/tall item) is stopping the door closing\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: on an integrated machine check the furniture-door alignment/balance\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.12,\"kept\":true},{\"step\":\"step: note whether moving or pressing the door changes anything\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.09,\"kept\":true},{\"step\":\"question: Does the door physically not close, or does it close and latch but the machine won't start\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.09,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"dishwasher\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't turn on\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"dishwasher\\\" (1)\",\"symptomArea\":\"\\\"no_power\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"dishwasher:door\",\"dishwasher:heating\",\"dishwasher:spray-arm\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3864
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 4053,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1793,
+     "labelMs": 265,
+     "enrichMs": 1,
+     "composeMs": 1079,
+     "replyLabelMs": 239,
+     "totalMs": 3378
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.67
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.79
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "completely dead, no lights"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.94
+     },
+     "checkGiven": "Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another applia",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:door",
+       "dishwasher:door-loom",
+       "dishwasher:heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"dishwasher:door\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"control board / PCB (last)\"},\"next\":{\"kind\":\"check\",\"text\":\"Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?\"},\"ms\":1079,\"offered\":{\"situations\":[\"cause: does it physically not close, or close but not start? (identify first)\",\"cause: loading / rack obstruction / alignment\",\"cause: door hinge / balance / springs (drops open)\",\"cause: door latch / catch / interlock\",\"cause: door switch / interlock wiring / door loom\",\"cause: control board / PCB (last)\"],\"next\":[\"check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switch above the worktop) is on, and try another appliance in that socket. If the electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?\",\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door and the slot it clicks into on the tub, and check the door lines up squarely when you close it. Is the latch or catch broken, was something stopping it (now cleared), or does it all look fine?\",\"check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops the buttons working — the manual shows which buttons to hold to turn it off. Was the child / control lock on (and is it off now), or was it already off?\",\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"step: on an integrated machine check the furniture-door alignment/balance\",\"step: note whether moving or pressing the door changes anything\"],\"removed\":[\"Open the door, check nothing in the racks or the cutlery basket sticks out, then\",\"A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't \",\"check nothing (rack/tall item) is stopping the door closing\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Check the dishwasher's plug is fully in and its socket or the switched spur (often a switc\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.17,\"kept\":true},{\"step\":\"check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f\",\"done\":0.17,\"refused\":0.06,\"pointless\":0.66,\"kept\":false},{\"step\":\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door a\",\"done\":0.18,\"refused\":0.06,\"pointless\":0.52,\"kept\":true},{\"step\":\"check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.48,\"kept\":true},{\"step\":\"check: A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't been confi\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.68,\"kept\":false},{\"step\":\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"done\":0.14,\"refused\":0.07,\"pointless\":0.63,\"kept\":true},{\"step\":\"step: check nothing (rack/tall item) is stopping the door closing\",\"done\":0.55,\"refused\":0.08,\"pointless\":0.88,\"kept\":false},{\"step\":\"step: on an integrated machine check the furniture-door alignment/balance\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.58,\"kept\":true},{\"step\":\"step: note whether moving or pressing the door changes anything\",\"done\":0.07,\"refused\":0.05,\"pointless\":0.23,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"completely dead, no lights\",\"customerQuestion\":null,\"answerToLastQuestion\":\"door closes and latches fine but machine won't start\",\"checksReported\":[],\"facts\":[\"door closes and latches fine\",\"no lights at all\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.67)\",\"symptomArea\":\"\\\"no_power\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.79)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"dishwasher:door\",\"dishwasher:door-loom\",\"dishwasher:heating\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?",
+       "turn": 1,
+       "resolution": "door closes and latches fine but machine won't start"
+      },
+      {
+       "key": null,
+       "text": "Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3407
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3746,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2011,
+     "labelMs": 325,
+     "enrichMs": 0,
+     "composeMs": 1124,
+     "replyLabelMs": 295,
+     "totalMs": 3796
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.47
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.71
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.95
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.81
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "dishwasher",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "dishwasher:door",
+       "dishwasher:leak-flood",
+       "dishwasher:door-loom"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"dishwasher:door\",\"settled\":false,\"situation\":\"engineer\",\"next\":{\"kind\":\"step\",\"text\":\"note whether moving or pressing the door changes anything\"},\"ms\":1124,\"offered\":{\"situations\":[\"cause: does it physically not close, or close but not start? (identify first)\",\"cause: loading / rack obstruction / alignment\",\"cause: door hinge / balance / springs (drops open)\",\"cause: door latch / catch / interlock\",\"cause: door switch / interlock wiring / door loom\",\"cause: control board / PCB (last)\"],\"next\":[\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door and the slot it clicks into on the tub, and check the door lines up squarely when you close it. Is the latch or catch broken, was something stopping it (now cleared), or does it all look fine?\",\"step: on an integrated machine check the furniture-door alignment/balance\",\"step: note whether moving or pressing the door changes anything\"],\"removed\":[\"Open the door, check nothing in the racks or the cutlery basket sticks out, then\",\"Many dishwashers have a child or control lock (often a key or padlock symbol) th\",\"A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't \",\"Now choose a programme and press start. Does it start normally now, or still not\",\"check nothing (rack/tall item) is stopping the door closing\"],\"engineerAllowed\":true,\"verdicts\":[{\"step\":\"check: Open the door, check nothing in the racks or the cutlery basket sticks out, then shut it f\",\"done\":0.21,\"refused\":0.06,\"pointless\":0.65,\"kept\":false},{\"step\":\"check: With the dishwasher switched off at the socket, look at the latch at the top of the door a\",\"done\":0.17,\"refused\":0.06,\"pointless\":0.53,\"kept\":true},{\"step\":\"check: Many dishwashers have a child or control lock (often a key or padlock symbol) that stops t\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.71,\"kept\":false},{\"step\":\"check: A delay start (often shown as a countdown like \\\"3h\\\") or a programme that hasn't been confi\",\"done\":0.07,\"refused\":0.04,\"pointless\":0.79,\"kept\":false},{\"step\":\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"done\":0.16,\"refused\":0.07,\"pointless\":0.75,\"kept\":false},{\"step\":\"step: check nothing (rack/tall item) is stopping the door closing\",\"done\":0.45,\"refused\":0.06,\"pointless\":0.86,\"kept\":false},{\"step\":\"step: on an integrated machine check the furniture-door alignment/balance\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.62,\"kept\":true},{\"step\":\"step: note whether moving or pressing the door changes anything\",\"done\":0.09,\"refused\":0.06,\"pointless\":0.32,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"dishwasher\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":null,\"answerToLastQuestion\":\"Nothing off or tripped; spur switch on and lit\",\"checksReported\":[{\"check\":\"spur switch above worktop\",\"result\":\"on, neon light lit\"},{\"check\":\"consumer unit\",\"result\":\"nothing tripped\"},{\"check\":\"other sockets and lights\",\"result\":\"all work\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.47)\",\"symptomArea\":\"null (0.71)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.95)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.81)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0,1,2],\"factsConfirmed\":[]},\"notes\":[\"dishwasher:door\",\"dishwasher:leak-flood\",\"dishwasher:door-loom\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "dishwasher",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spur switch above worktop: on, neon light lit",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "consumer unit: nothing tripped",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "other sockets and lights: all work",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the door physically not close, or does it close and latch but the machine won't start - and does moving the door change anything?",
+       "turn": 1,
+       "resolution": "door closes and latches fine but machine won't start"
+      },
+      {
+       "key": null,
+       "text": "Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?",
+       "turn": 2,
+       "resolution": "Nothing off or tripped; spur switch on and lit"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3847
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4057,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0255337,
+ "finishedAt": "2026-10-16T01:04:46.625Z"
+}
