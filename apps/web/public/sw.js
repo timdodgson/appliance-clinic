@@ -40,6 +40,7 @@ var APP_SHELL = [
   '/assets/applianceclinic-logo.svg?v=3',
   '/assets/applianceclinic-mark.svg?v=3',
   '/assets/applianceclinic-icon-192.png?v=2',
+  '/assets/fonts/literata-600-latin.woff2',
   '/washing-machines/index.html',
   '/washer-dryers/index.html',
   '/tumble-dryers/index.html',
