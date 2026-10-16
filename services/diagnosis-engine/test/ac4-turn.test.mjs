@@ -121,6 +121,11 @@ describe('turn: safety', () => {
     expect(out.response.message.startsWith(S.copyFor('electrical_water'))).toBe(true);
     expect(out.response.message).not.toMatch(/First switch the circuit off/);
   });
+  it('no extra isolation line when the reply already has the switch turned off', async () => {
+    const m = model([send({ reply: 'Check the switch above the worktop. Once that switch is off, remove the fuse holder and fit a new 13A fuse.', appliance: 'washing-machine' })]);
+    const out = await runTurn({ messages: [user('built in washing machine dead, no lights')] }, deps(m));
+    expect(out.response.message).not.toMatch(/switch it off and unplug it/i);
+  });
   it('banned advice is removed whatever the model says', async () => {
     const m = model([send({ reply: 'Discharge the capacitor with a screwdriver.\n\nNever remove the outer casing yourself; book an engineer.', appliance: 'microwave' })]);
     const out = await runTurn({ messages: [user('my microwave hums but does not heat')] }, deps(m));
