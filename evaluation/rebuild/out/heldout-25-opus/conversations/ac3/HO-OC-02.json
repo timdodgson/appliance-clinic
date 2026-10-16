@@ -1,0 +1,394 @@
+{
+ "id": "HO-OC-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ho-oc-02-e1417e68c7",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Ran the pyrolytic clean on my AEG BPE556060M for the first time and it finished 40 minutes ago but the door is still locked with a padlock symbol. Is it stuck?"
+  },
+  {
+   "role": "assistant",
+   "text": "Probably not stuck, just still too hot. A pyrolytic clean heats the cavity to around 450–500°C, and the door stays locked until the inside has cooled to a safe temperature, not just until the programme ends. On a first clean especially, it's common for the lock to hold for an hour or more after the cycle finishes, and the cooling fan may keep running during that time. 40 minutes is well within normal. 1. Leave it alone for now and let it cool naturally. Don't try to pull or force the door, as that can damage the lock mechanism. If the padlock goes out by itself within an hour or two and the door opens, everything's working as it should.\n2. If it's been two to three hours and the oven feels cold to the touch on the outside and door glass, but the padlock is still on, switch it off at the cooker isolator switch (the wall switch, usually beside the cooker) for a couple of minutes, then back on. This clears any leftover lock command from the electronics. If the door then unlocks, it was a control glitch rather than a faulty part.\n3. If it's fully cold and still locked after a reset, the likely suspects are the door lock motor/latch not driving back, or the lock position switch not telling the control the door is safe. When it does open, expect some white ash in the bottom. That's normal; just wipe it out with a damp cloth once it's cold. Let me know how it goes after it's cooled."
+  },
+  {
+   "role": "customer",
+   "text": "Left it alone like you said. About 25 minutes later the padlock went off and the door opens now. The inside still looks like it's really hot though, is that ok?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, that's normal. After 450–500°C the oven walls, shelves supports and door glass hold a lot of heat and can stay properly hot for another hour or so. The cooling fan may also keep running for a while, and a faint smell on the first clean is common as any factory residues burn off. 1. Leave the door open a little if you like, to help it cool, but keep children and pets away and don't touch the inside yet.\n2. Once it's completely cold, wipe out the white or grey ash with a damp cloth. It should come away easily. The things that would not be normal are visible glowing, smoke after it's cooled, the outside of the cabinet or the controls getting too hot to touch, or the padlock refusing to clear on future cleans once it's cold. If any of those happen, let me know. It's all working as it should. One tip for next time: take out the shelves, runners and any accessories that aren't marked pyrolytic-safe, and wipe out loose spills first. That cuts the smoke and smell, and the clean finishes better. You don't need to run it often either. Every few months, or when it's visibly grubby, is plenty. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2583,
+     "labelMs": 290,
+     "enrichMs": 1,
+     "reasonMs": 9862,
+     "verifyMs": 2914,
+     "replyLabelMs": 304,
+     "totalMs": 15996
+    },
+    "usage": {
+     "promptTokens": 5213,
+     "completionTokens": 812,
+     "totalTokens": 6025
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      },
+      {
+       "gate": "certainty",
+       "softened": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "Both are engineer jobs, because the lock sits behind panels and you'd need to work around mains wiring.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Normal safety lock: oven still too hot inside to release after pyrolytic clean (high)",
+     "Door lock motor/latch or lock microswitch not releasing (low)",
+     "Control board/electronics glitch holding the lock (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "door_or_lid",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.4
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "BPE556060M",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "AEG",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "AEG",
+      "model": "BPE556060M",
+      "codes": [],
+      "symptom": "door still locked after pyrolytic clean"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.52
+     },
+     "checkGiven": "Doors often stay locked after a self-clean until the oven is fully cool. Once it's cold, switch it off at the cooker switch for a couple of",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:door-lock",
+       "oven-cooker:door-glass-dirty",
+       "oven-cooker:door-hinge"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is it stuck?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make AEG; model BPE556060M.",
+     "The fault they reported is: \"door still locked after pyrolytic clean\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BPE556060M",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 16038
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 16183,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2862,
+     "labelMs": 306,
+     "enrichMs": 15,
+     "reasonMs": 7660,
+     "verifyMs": 3769,
+     "replyLabelMs": 268,
+     "totalMs": 14950
+    },
+    "usage": {
+     "promptTokens": 6051,
+     "completionTokens": 581,
+     "totalTokens": 6632
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 1
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The lock releases once the cavity has dropped to a safe temperature, which is still well above what you'd want to touch.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 1,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [
+     "Normal cool-down after a pyrolytic clean; the lock released once the cavity reached a safe temperature (high)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.51
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.43
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "door stayed locked after pyrolytic clean"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:door-lock",
+       "oven-cooker:door-glass-dirty",
+       "oven-cooker:thermostat"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"The inside still looks really hot, is that ok?\" - answer that first.",
+     "The customer says it is fixed: say so warmly, give one short tip to stop it happening again, and ask if there is anything else."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BPE556060M",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "left oven to cool naturally: padlock went off about 25 minutes later and door opens",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 15113
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 15469,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0230198,
+ "finishedAt": "2026-10-16T01:55:33.885Z"
+}

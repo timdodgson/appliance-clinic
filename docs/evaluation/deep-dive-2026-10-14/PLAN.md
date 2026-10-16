@@ -401,3 +401,20 @@ by step: `docs/evaluation/jev-review/full100-opus/`.
   missing knowledge 36, repeated or already-answered steps 34, ignored what the customer said 33, wrong or irrelevant
   cause or step 17, robotic or unclear wording 12.
 - Not adopted. Live is back to the usual pipeline on Qwen.
+- Later on 2026-10-16 live was switched to the Opus pipeline (AI config: compose frontier, anthropic, claude-opus-5-5).
+
+## 15. Held-out confirmation: Opus pipeline on the 31 held-out cases (2026-10-16)
+
+Live production (Opus pipeline) on `evaluation/heldout-25/cases.json` (31 cases, never used for tuning), against the
+general assistant's original held-out conversations (`claude-opus-5-5` alone, generic prompt). Both judged here by
+`claude-sonnet-5-5`. Files: `evaluation/rebuild/out/heldout-25-opus/`.
+
+| | Opus pipeline | Opus alone |
+|---|---|---|
+| Overall | **3.26** (31 cases) | 3.47 (30; HO-HB-03 not judged) |
+| Paired, 30 cases | 3.27 | 3.47; pipeline better 1, alone better 8, 21 equal |
+| Critical failures | 1 | 3 |
+| Resolved | 14 / 31 | 17 / 30 |
+
+- The development-set score (3.24) holds on unseen cases (3.26). Same pattern as section 10: the pipeline is safer
+  (fewer critical failures), slightly less useful than Opus alone.

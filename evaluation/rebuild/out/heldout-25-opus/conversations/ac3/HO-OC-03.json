@@ -1,0 +1,433 @@
+{
+ "id": "HO-OC-03",
+ "system": "ac3",
+ "sessionId": "bm-ac2-ho-oc-03-43467e775f",
+ "endReason": "escalated",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "AEG oven BPK556260M flashes F102 every time I try to start the pyro clean. Normal cooking seems ok. What's F102?"
+  },
+  {
+   "role": "assistant",
+   "text": "I can't confirm exactly what F102 means on your model, as I don't have a reliable code listing for it, so I won't guess. The pattern still tells us a lot, though. Normal cooking works and the fault only appears when pyrolytic cleaning starts. The main thing pyro does that cooking doesn't is lock the door before heating to very high temperatures. That makes the door-lock system the most likely area. Likely causes, most likely first:\n1. The door isn't fully closed or lined up, or something is stopping the latch from engaging.\n2. A fault in the door-lock motor/latch, or the small switch that tells the oven the door is locked.\n3. Less likely, a wiring or control board fault in that lock circuit. Checks worth doing:\n1. Reset the power. Switch the oven off at the wall isolator or fuse spur for 2–3 minutes, then switch back on and try pyro again. If it starts, it was probably a one-off electronic glitch.\n2. With the oven cool and switched off, open the door and look at the latch slot at the top of the door and the lock hook area above it. Check for burnt-on debris, a dropped shelf, or foil stopping the door shutting fully. Then close the door firmly and make sure it sits flush all round. If the door was catching, that's likely your fix.\n3. If the door has been taken off recently, for example to clean the glass, check the hinges are fully seated and the door isn't sitting slightly crooked. A misaligned door often won't let the lock engage.\n4. When you try pyro again, listen for a whirr or click and watch whether a lock symbol appears before the code shows. If you hear the lock run and then get F102, that points towards the lock switch or feedback. If there's no sound at all, the lock motor or its supply is more likely. If the door is clean and closes properly but F102 still appears after a reset, it's likely a door-lock component or wiring. Replacing that means opening up the oven's casing, so it's a job for an engineer. In the meantime it's fine to keep using the oven for normal cooking. Just don't keep forcing the pyro cycle."
+  },
+  {
+   "role": "customer",
+   "text": "Already tried the mains reset, still F102. Door's closed properly and the seal's fine. When I start it the lock whirrs near the top of the door then stops. Is the lock a part I can buy, or should I just call AEG? It's about a month left on the 2 year guarantee."
+  },
+  {
+   "role": "assistant",
+   "text": "Call AEG. With about a month left on the guarantee, that's the clear choice. The door lock is a replaceable part, but fitting it means taking the oven out of its housing and opening the casing. Doing that yourself, or fitting a non-AEG part, could put the guarantee at risk. A warranty visit should cost you nothing. 1. 2. The door closes properly and the seal is fine, so an obstruction or misaligned door is unlikely.\n3. You hear the lock whirr and then stop. That means the lock motor is getting power and running. The oven isn't getting the signal back that the door has actually locked. That points most strongly at the pyrolytic door-lock assembly, specifically its position switch or feedback. It's also possible the latch isn't fully engaging. A wiring or control-board fault in the lock circuit is less likely. The engineer can test which, and the lock is usually replaced as one assembly, so you don't need to pin it down yourself. 1. Do it now, not near the end of the guarantee. The fault being reported and logged within the guarantee period is what protects you, even if the visit falls slightly later.\n2. Have your proof of purchase and the full model and serial details from the rating plate to hand. The plate is usually on the oven frame, visible when the door is open.\n3. Until they come, carry on cooking as normal. Just don't keep retrying the pyro cycle, as repeatedly driving a faulty lock can make it worse."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1934,
+     "labelMs": 281,
+     "enrichMs": 787,
+     "reasonMs": 14970,
+     "verifyMs": 2968,
+     "replyLabelMs": 303,
+     "totalMs": 21302
+    },
+    "usage": {
+     "promptTokens": 5396,
+     "completionTokens": 1225,
+     "totalTokens": 6621
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 2,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [
+     "Door not locking fully: door not quite closed, misaligned or obstructed at the latch (medium)",
+     "Pyrolytic door-lock motor/latch or its lock-position microswitch (medium)",
+     "Wiring or control board fault in the lock circuit (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.87
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "BPK556260M",
+       "confidence": 1
+      },
+      "code": {
+       "value": "F102",
+       "confidence": 1
+      },
+      "make": {
+       "value": "AEG",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "AEG",
+      "model": "BPK556260M",
+      "codes": [
+       "F102"
+      ],
+      "symptom": "error F102 when starting pyrolytic clean"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:door-lock",
+       "oven-cooker:door-glass-dirty",
+       "oven-cooker:fan-motor"
+      ],
+      "codes": [
+       {
+        "code": "F102",
+        "status": "NOT_FOUND"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"What's F102?\" - answer that first.",
+     "Already given by the customer, never ask for it again: make AEG; model BPK556260M; code F102.",
+     "The fault they reported is: \"error F102 when starting pyrolytic clean\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 1 (broad help): say what could cause this, most likely first, as possibilities rather than certainties, including simple causes (settings, loading, detergent, installation, or normal behaviour) where they fit. Then give the safe checks that best tell those causes apart (most useful and simplest first, usually two to four), each with why it helps and what each result would mean; or, if one question would settle it sooner, ask that. Do not ask for the model number in this reply. Do not tell them to buy, order or replace a part yet.",
+     "Explain what the error code means using ERROR CODES. If ERROR CODES does not resolve it, say plainly that you cannot confirm what it means on their model (it may not be an error code at all, for example part of the model name), never guess a meaning, and work from the symptoms."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BPK556260M",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "F102",
+       "turn": 1
+      }
+     ],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 21346
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 21558,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3218,
+     "labelMs": 578,
+     "enrichMs": 413,
+     "reasonMs": 11614,
+     "verifyMs": 6101,
+     "replyLabelMs": 283,
+     "totalMs": 22273
+    },
+    "usage": {
+     "promptTokens": 5826,
+     "completionTokens": 1071,
+     "totalTokens": 6897
+    },
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "claim-removed",
+       "claims": 3
+      }
+     ]
+    },
+    "claimsRejected": [
+     {
+      "claim": "The mains reset didn't clear the fault",
+      "source": "extractor"
+     },
+     {
+      "claim": "A power reset didn't clear it",
+      "source": "extractor"
+     },
+     {
+      "claim": "Tell them exactly what you've found: F102 only when starting pyro, the lock whirrs and then stops, normal cooking is fine, and a power reset didn't clear it.",
+      "source": "detector"
+     }
+    ],
+    "claimsChecked": 9,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [
+     "Pyrolytic door-lock assembly: the lock position switch/feedback is not confirming the door has locked (high)",
+     "Lock latch not fully engaging (mechanical fault in the lock mechanism) (medium)",
+     "Wiring or control board fault in the lock circuit (low)"
+    ],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "oven-cooker",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "error_code",
+       "confidence": 0.81
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.47
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "code": {
+       "value": "F102",
+       "confidence": 1
+      },
+      "make": {
+       "value": "AEG",
+       "confidence": 0.96
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1,
+       2
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "oven",
+      "brand": "AEG",
+      "model": null,
+      "codes": [
+       "F102"
+      ],
+      "symptom": "F102 error when starting pyrolytic cleaning"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "oven-cooker:door-lock",
+       "oven-cooker:door-seal",
+       "oven-cooker:door-glass-dirty"
+      ],
+      "codes": [
+       {
+        "code": "F102",
+        "status": "NOT_FOUND"
+       }
+      ],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "They asked: \"Is the lock a part I can buy, or should I just call AEG?\" - answer that first.",
+     "Already told them (do not repeat any of it; build on it): turn 1: gives check.",
+     "Checks they have done and what they found: mains power reset - still shows F102; door closure and seal - door closes properly, seal fine; listened when starting pyro - lock whirrs near top of door then stops.",
+     "Already given by the customer, never ask for it again: make AEG; model BPK556260M; code F102.",
+     "The fault they reported is: \"error F102 when starting pyrolytic clean\". Keep to it: never describe a symptom, result or state they have not told you.",
+     "Stage 2: the checks they reported did not fix it. Give the next check that best separates the remaining likely causes, or say what the likely faulty part is if the checks already point to one. Until a check has confirmed which part has failed, name it as the likely part and the check that would confirm it; do not tell them to buy, order or replace it."
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "oven-cooker",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "BPK556260M",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [
+      {
+       "code": "F102",
+       "turn": 1
+      }
+     ],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "mains power reset: still shows F102",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "door closure and seal: door closes properly, seal fine",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "listened when starting pyro: lock whirrs near top of door then stops",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 22330
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 22830,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.023979800000000003,
+ "finishedAt": "2026-10-16T01:55:53.285Z"
+}
