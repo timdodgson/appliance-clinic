@@ -1426,17 +1426,23 @@
    re-pointed at the same palette so existing admin rules pick it up without being rewritten.
    ============================================================================ */
 .admin-body {
-  --ac-jade: #3d5c47;
-  --ac-jade-dark: #2f4a38;
-  --ac-jade-soft: #f1f6f2;
-  --ac-jade-tint: #e7efe9;
-  --ac-jade-line: #dde7df;
+  /* The Clinic direction (2026-10-16), shared with the public site: deep green brand, paper neutrals, blue for
+     anything you can act on, square corners, flat panels. */
+  --ac-jade: #2b4a36;
+  --ac-jade-dark: #203a2a;
+  --ac-jade-soft: #eef3ef;
+  --ac-jade-tint: #dfe9e2;
+  --ac-jade-line: #cfdccf;
+  --ac-action: #1f5fa8;
+  --ac-action-2: #174a85;
+  --ac-action-soft: #e8f0fa;
+  --ac-display: "Literata", Georgia, "Times New Roman", serif;
   --ac-surface: #ffffff;
-  --ac-surface-muted: #f6f8f6;
-  --ac-border: #e3e9e4;
-  --ac-border-strong: #cfdad2;
-  --ac-text: #1a1d1a;
-  --ac-text-muted: #5c635c;
+  --ac-surface-muted: #f3f5f2;
+  --ac-border: #d8ded8;
+  --ac-border-strong: #c3ccc4;
+  --ac-text: #182018;
+  --ac-text-muted: #5e665e;
   --ac-danger: #8b1e1e;
   --ac-danger-bg: #f8eeee;
   --ac-danger-border: #e0c4c4;
@@ -1447,13 +1453,13 @@
   --ac-info-bg: #edf2fa;
   --ac-info-border: #cbd7ec;
   --ac-neutral-bg: #f1f3f1;
-  --ac-radius-sm: 8px;
-  --ac-radius: 10px;
-  --ac-radius-card: 14px;
-  --ac-radius-panel: 18px;
-  --ac-shadow-card: 0 1px 2px rgba(26, 29, 26, 0.04), 0 6px 20px -12px rgba(26, 29, 26, 0.18);
+  --ac-radius-sm: 4px;
+  --ac-radius: 4px;
+  --ac-radius-card: 6px;
+  --ac-radius-panel: 6px;
+  --ac-shadow-card: none;
   --ac-shadow-pop: 0 18px 48px -18px rgba(26, 29, 26, 0.32);
-  --ac-focus-ring: 0 0 0 3px rgba(61, 92, 71, 0.28);
+  --ac-focus-ring: 0 0 0 3px rgba(31, 95, 168, 0.28);
   /* legacy admin tokens → the same palette */
   --ink: var(--ac-text);
   --muted: var(--ac-text-muted);
@@ -1484,7 +1490,7 @@
   color: var(--ac-text);
   font-family: var(--ac-font);
 }
-.admin-body :focus-visible { outline: 2px solid var(--ac-jade); outline-offset: 2px; }
+.admin-body :focus-visible { outline: 2px solid var(--ac-action); outline-offset: 2px; }
 
 /* ---- shell: white header with a jade hairline, like the public site ---- */
 .admin-body .topbar { background: #ffffff; border-bottom: 1px solid var(--ac-border); box-shadow: 0 1px 0 rgba(26, 29, 26, 0.02); }
@@ -1538,7 +1544,7 @@
 
 /* ---- main column + page headers ---- */
 .admin-body .admin__main { padding: 28px 32px 56px; max-width: 1120px; min-width: 0; }
-.admin-body .admin__h1 { font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; color: var(--ac-text); }
+.admin-body .admin__h1 { font-family: var(--ac-display); font-size: 30px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6px; color: var(--ac-jade); }
 .admin-body .admin__h2 { font-size: 16.5px; font-weight: 700; letter-spacing: -0.01em; color: var(--ac-text); }
 .admin-body .admin__lead { color: var(--ac-text-muted); font-size: 15px; line-height: 1.5; margin: 0 0 6px; max-width: 46rem; }
 .admin-body .ac-pagehead {
@@ -1631,13 +1637,13 @@ text always carries the meaning ---- */
 
 /* ---- buttons: primary jade, secondary outline, quiet text, restrained destructive ---- */
 .admin-body .btn { border-radius: var(--ac-radius); font-weight: 650; letter-spacing: 0; display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; }
-.admin-body .btn--primary { background: var(--ac-jade); border-color: var(--ac-jade); color: #fff; }
-.admin-body .btn--primary:hover { background: var(--ac-jade-dark); border-color: var(--ac-jade-dark); opacity: 1; }
-.admin-body .btn--ghost { background: #fff; color: var(--ac-jade-dark); border-color: var(--ac-border-strong); }
-.admin-body .btn--ghost:hover { background: var(--ac-jade-soft); border-color: #a9bfaf; }
+.admin-body .btn--primary { background: var(--ac-action); border-color: var(--ac-action); color: #fff; }
+.admin-body .btn--primary:hover { background: var(--ac-action-2); border-color: var(--ac-action-2); opacity: 1; }
+.admin-body .btn--ghost { background: #fff; color: var(--ac-action); border-color: var(--ac-border-strong); }
+.admin-body .btn--ghost:hover { background: var(--ac-action-soft); border-color: var(--ac-action); }
 
 .admin-body .btn:disabled, .admin-body .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
-.admin-body .btn:focus-visible { outline: 2px solid var(--ac-jade); outline-offset: 2px; box-shadow: none; }
+.admin-body .btn:focus-visible { outline: 2px solid var(--ac-action); outline-offset: 2px; box-shadow: none; }
 .admin-body .btn.kn-danger{ color: var(--ac-danger); border-color: var(--ac-danger-border); background: #fff; }
 .admin-body .btn.kn-danger:hover{ background: var(--ac-danger-bg); border-color: #cfa7a7; }
 .admin-body .ac-btnicon { width: 18px; height: 18px; flex: none; margin-left: -2px; }
@@ -1729,7 +1735,7 @@ text always carries the meaning ---- */
 .admin-body .kn-ev > div:last-child h4 { color: #6b4e16; }
 .admin-body .kn-safety { background: var(--ac-danger-bg); border: 1px solid var(--ac-danger-border); border-radius: var(--ac-radius); }
 .admin-body .kn-tech { background: var(--ac-surface-muted); border: 1px solid var(--ac-border); border-radius: var(--ac-radius); }
-.admin-body .tx-back { color: var(--ac-jade-dark); font-weight: 650; text-underline-offset: 3px; }
+.admin-body .tx-back { color: var(--ac-action); font-weight: 650; text-underline-offset: 3px; }
 
 /* ---- Knowledge: editor ---- */
 .admin-body .kn-ed__head { padding-bottom: 12px; border-bottom: 1px solid var(--ac-border); margin-bottom: 14px; }
@@ -1907,3 +1913,10 @@ text always carries the meaning ---- */
 @media (max-width: 720px) {
   .admin-body .dash-state__row { grid-template-columns: 1fr; }
 }
+
+/* ---- links and the "Admin Centre" badge in the Clinic direction: blue marks what you can act on ---- */
+.admin-body .topbar__badge { border-radius: var(--ac-radius-sm); }
+.admin-body .dash-link, .admin-body .dash-row:hover, .admin-body .dash-kpi--link:hover .dash-kpi__val,
+.admin-body .dash-state a, .admin-body .st-else a, .admin-body .tx__hubs a, .admin-body .kn-media__item a,
+.admin-body .md-hubs a, .admin-body .si-section a, .admin-body .dg-card a, .admin-body .tx__detail a:not(.btn) { color: var(--ac-action); }
+.admin-body .usermenu__btn:hover, .admin-body .kn-card:hover, .admin-body .md-card:hover, .admin-body .ec-card:hover, .admin-body .tx-row:hover { border-color: var(--ac-action); }
