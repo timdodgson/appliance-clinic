@@ -58,6 +58,21 @@ describe('admin bootstrap', () => {
     expect(a.document.getElementById('userName').textContent).toBe('Test Admin');
     expect(a.calls.some((c) => c.url.startsWith('/api/admin/dashboard'))).toBe(true);
   });
+
+  it("today's activity lists the appliance families from the server's [{family, count}] distribution", async () => {
+    const activity = { generatedAt: '2026-10-16T14:00:00.000Z', sessionsToday: 3, turnsToday: 7, partSessionsToday: 1, safetySessionsToday: 0, errorSessionsToday: 0,
+      familyDistribution: [{ family: 'washing-machine', count: 2 }, { family: 'vacuum', count: 1 }] };
+    const a = admin(ADMIN, { extra: (url) => (url.includes('/admin/dashboard')
+      ? { status: 200, body: { ok: true, health: { ok: true, label: 'Healthy', summaryLine: 'API', failed: [] }, activity, state: { diagnosis: { architecture: 'ac2' } } } } : null) });
+    await settle(a.window);
+    expect(a.errors).toEqual([]);
+    const body = a.document.getElementById('dashActivityBody');
+    expect(body.textContent).toMatch(/Washing machine/);
+    expect(body.textContent).toMatch(/Vacuum/);
+    expect(body.textContent).not.toMatch(/object Object/);
+    const links = [...body.querySelectorAll('a')].map((el) => el.getAttribute('href'));
+    expect(links.some((h) => /family=washing-machine/.test(h))).toBe(true);
+  });
 });
 
 describe('knowledge is read-only (ADR 0019)', () => {

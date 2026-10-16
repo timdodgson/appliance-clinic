@@ -1,6 +1,7 @@
 /**
  * Phase 8: the API's routes survive the split of index.js, every admin route refuses an unauthenticated caller, and
- * the routes that had no test (/auth/logout, /admin/transcripts/stats, /admin/transcripts/policy) behave as before.
+ * /auth/logout behaves as before. The unused /admin/transcripts/stats and /policy routes were removed with the admin
+ * review of 2026-10-16 (the dashboard reads today's counts through /admin/dashboard).
  */
 import { describe, it, expect, afterEach } from 'vitest';
 import { createRequire } from 'node:module';
@@ -14,7 +15,7 @@ const src = require('./api-source.cjs')();
 const ROUTES = [
   '/auth/login', '/auth/logout', '/auth/me', '/admin/health', '/admin/dashboard', '/admin/settings/model',
   '/admin/settings', '/admin/ai-config/key', '/admin/ai-config/test', '/admin/ai-config/models',
-  '/admin/transcripts/stats', '/admin/transcripts/policy', '/admin/transcripts/session', '/admin/transcripts',
+  '/admin/transcripts/session', '/admin/transcripts',
   '/admin/knowledge/record', '/admin/knowledge',
   '/admin/media/knowledge', '/admin/media/preview', '/admin/media/record/publish', '/admin/media/record/rollback',
   '/admin/media/record/discard', '/admin/media/record/version', '/admin/media/record/replace',
@@ -112,25 +113,12 @@ describe('/auth/logout', () => {
   });
 });
 
-describe('/admin/transcripts/stats and /policy', () => {
-  it('stats: admin gets the store stats with the retention policy', async () => {
+describe('the removed transcript stats and policy routes', () => {
+  it('are 404 for an admin, like every other unmatched /admin path', async () => {
     api.setSessionForTests(ADMIN);
-    api.setTranscriptStore({ stats: async () => ({ sessions: 3, turns: 7 }) });
-    const res = await api.handler(ev('/admin/transcripts/stats', 'GET'));
-    expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body)).toEqual({ sessions: 3, turns: 7, policy: transcripts.policy() });
-  });
-  it('stats: a failing store is a 503, not a 200 with empty numbers', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setTranscriptStore({ stats: async () => { throw new Error('ddb down'); } });
-    const res = await api.handler(ev('/admin/transcripts/stats', 'GET'));
-    expect(res.statusCode).toBe(503);
-    expect(JSON.parse(res.body)).toEqual({ error: 'Transcript store unavailable' });
-  });
-  it('policy: admin gets the retention policy', async () => {
-    api.setSessionForTests(ADMIN);
-    const res = await api.handler(ev('/admin/transcripts/policy', 'GET'));
-    expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body)).toEqual(transcripts.policy());
+    for (const p of ['/admin/transcripts/stats', '/admin/transcripts/policy']) {
+      const res = await api.handler(ev(p, 'GET'));
+      expect(res.statusCode, p).toBe(404);
+    }
   });
 });

@@ -197,7 +197,7 @@ async function listModels({ key, fetch: fetchFn } = {}) {
 }
 
 module.exports = {
-  AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, PROVIDER, PROVIDER_LABEL,
+  AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, PROVIDER_LABEL,
   defaultConfig, normalise, auditable, advisorView, withHistory,
   loadConfig, loadConfigWithStatus, saveConfig, isKeyConfigured, saveKey, loadKeyMeta, getKey, probeModel, listModels,
 };

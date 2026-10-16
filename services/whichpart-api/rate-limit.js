@@ -8,8 +8,7 @@
  *             users, so sign-in is rare); per client IP as an extra signal only (see below)
  *   diagnose  per network source, per conversation (the validated client session id), and globally: a cost guard,
  *             since a customer turn calls the diagnosis engine and paid models; per client IP as an extra signal only
- * Not counted: OPTIONS, health, admin routes (already authenticated), EventBridge invocations, and benchmark
- * turns whose HMAC signature has been verified (service-authenticated, bounded by their own runner).
+ * Not counted: OPTIONS, health, admin routes (already authenticated) and EventBridge invocations.
  *
  * Modes (RATE_LIMIT_MODE): `off` (default, no work at all), `observe` (count and log, never refuse), `enforce` (refuse
  * over the limit with 429). Any counter-store failure fails open: a customer turn is never refused because the store is

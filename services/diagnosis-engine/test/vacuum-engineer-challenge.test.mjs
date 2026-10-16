@@ -59,8 +59,8 @@ ok('lost-suction: "most lost suction is full bin / dirty filter / blockage" befo
 // The motor node is reached on motor-failure evidence, so its PART suspects are motor parts. The airflow check that
 // comes before condemning the motor is carried as the node's expert advice (discriminators). Proved on the shipped
 // knowledge, not on list shape.
-const INDEX = JSON.parse(readFileSync(join(K, 'knowledge-index.json'), 'utf8'));
-const shipped = (id) => INDEX.docs.find((d) => d.knowledgeId === `${FAM}:${id}`) || {};
+const DOCS = JSON.parse(readFileSync(join(K, 'knowledge-docs.json'), 'utf8'));
+const shipped = (id) => DOCS.docs.find((d) => d.knowledgeId === `${FAM}:${id}`) || {};
 const CLEAN_FIRST = /(before condemning the motor|first)[^.]*(clean the filters|clear any blockage)|(clean the filters|clear any blockage)[^.]*first/i;
 ok('motor: shipped knowledge says clean the filters / clear the blockage BEFORE condemning the motor',
   (shipped('motor').discriminators || []).some((d) => CLEAN_FIRST.test(d)));

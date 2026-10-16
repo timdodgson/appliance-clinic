@@ -20,7 +20,7 @@ function transcriptStore() {
 }
 function setTranscriptStore(store) { _transcriptStore = store; }
 
-/** `ac2` is the turn's ac2-transcript-audit/1 object. */
+/** `ac2` is the turn's ac2-transcript-audit/2 object (whichpart-api ac2-turn.js auditOf). */
 async function persistTranscriptTurn(obs, messages, view, orch, rid, ac2) {
   if (!obs) return;
   await transcripts.persistSafely(transcriptStore(), () =>

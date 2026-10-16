@@ -669,5 +669,5 @@ function knowledgeMediaView(overlay) {
 module.exports = {
   knowledgeMediaView,
   FAMILIES, familyLabel, typeLabel, isTrustedVideoEmbed,
-  listMedia, getMedia, buildIdentities, applyOverlay, HELP_HUBS, HELP_HUB_FILES,
+  listMedia, getMedia, buildIdentities, applyOverlay, HELP_HUBS,
 };

@@ -71,4 +71,4 @@ function status({ stateIn, result }) {
   };
 }
 
-module.exports = { LIVE_SESSION_RE, takeLiveTest, stateInOf, status };
+module.exports = { takeLiveTest, stateInOf, status };

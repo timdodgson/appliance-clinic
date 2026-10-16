@@ -45,22 +45,6 @@ def diagnosis_engine_entries():
     return entries
 
 
-# The knowledge index summary whichpart-api ships (index-meta.json), with json.dump defaults so the generated file is
-# byte-identical across builds.
-def index_meta(knowledge_dir):
-    src = os.path.join(knowledge_dir, "knowledge-index.json")
-    idx = json.load(open(src))
-    meta = {
-        "version": idx.get("version"),
-        "embedModel": idx.get("embedModel"),
-        "dims": idx.get("dims"),
-        "builtAt": idx.get("builtAt"),
-        "count": idx.get("count") or len(idx.get("docs") or []),
-        "knowledgeIds": [d.get("knowledgeId") for d in (idx.get("docs") or []) if d.get("knowledgeId")],
-    }
-    return json.dumps(meta).encode()
-
-
 def whichpart_api_entries(generated):
     """The whichpart-api zip: its own files, plus the files it copies in from the engine or generates."""
     # Phase 8: fit-evidence.js (never required) is no longer shipped. 23.4: the Test area / ACQ-100 benchmark, the
@@ -82,7 +66,6 @@ def whichpart_api_entries(generated):
     for n in ('knowledge-docs.json', 'safety-information.json', 'media-information.json'):
         entries[f'knowledge-inspect/{n}'] = os.path.join(knowledge, n)
     entries['media-effective.js'] = os.path.join(DE, 'media-effective.js')
-    generated['knowledge-inspect/index-meta.json'] = index_meta(knowledge)
     return entries
 
 

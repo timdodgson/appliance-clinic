@@ -1097,8 +1097,8 @@ function createStore(deps) {
 }
 
 module.exports = {
-  STATE_KEY, FILE_PREFIX, MAX_BYTES, MAX_DIMENSION, FAMILIES, ALLOWED_TYPES, CHANGE_LABELS,
-  emptyState, slugId, safeFileName, validateCreate, inspectImage, createStore, err, adminView, changedFields,
+  STATE_KEY, MAX_BYTES, FAMILIES, CHANGE_LABELS,
+  emptyState, createStore, err,
   applyToCustomerMedia,
 };
 

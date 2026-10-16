@@ -49,4 +49,4 @@ function isAcAdmin(token, config) {
   return Array.isArray(groups) && groups.indexOf(group) !== -1;
 }
 
-module.exports = { tokenClaims, issuerFor, isAcAccessToken, isAcAdmin, b64urlJson };
+module.exports = { isAcAccessToken, isAcAdmin, b64urlJson };

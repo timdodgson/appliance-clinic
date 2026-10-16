@@ -1,0 +1,79 @@
+{
+  "id": "23.8-admin-review",
+  "description": "Engine and whichpart-api code in one change set (proof of concept, no real customers): the admin console review after ADR 0023. Engine: a gas or fire stop now records its escalation in the turn audit, as the normal path does (the transcript summary reads the audit). whichpart-api: the unused /admin/transcripts/stats and /policy routes removed; the never-set lastTraceId dropped from transcript records; the dead embedding-index summary (knowledge-inspect/index-meta.json) no longer shipped or reported, so Diagnostics can no longer show a false 'degraded' knowledge state; the diagnostics 'routing' and 'links' leftovers removed; the Settings link to Error Codes points at #error-codes; the help-hub family id for washing machines matches the stored family (washing-machine); the unused S3 helpers and exports removed. No environment change. Previous code: phase8/applianceclinic-diagnosis-engine-J_nYqfe_nMyxKcz5xxrWh-izuVDP1dtOK0psew4T564.zip and phase8/whichpart-api-L4oAvkorWuXFR6lusHMYms4ySDVDYQtu3vPO1DIx_3c.zip; rollback = restore both s3Keys.",
+  "classification": "SAFE AC CHANGE (code of the AC diagnosis engine and whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "applianceclinicdiagnosisengine",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "applianceclinic-diagnosis-engine",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    },
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Code"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionCode"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-acclinic-assets-800960611664-eu-west-1/phase8/*"
+      ]
+    }
+  ],
+  "grantNotes": "Code of both functions from the staged phase8 artefacts; no configuration change, so no PassRole. No role policy change.",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionCode"
+    ],
+    "forbidden": [
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:PutRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DeleteSecret"
+    ],
+    "resources": [
+      "applianceclinic-diagnosis-engine",
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

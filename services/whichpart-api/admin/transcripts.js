@@ -1,6 +1,6 @@
 'use strict';
 
-/** Transcripts: the admin viewer, statistics and policy routes. */
+/** Transcripts: the admin viewer routes (list and detail). Today's counts reach the dashboard through admin/health.js. */
 const transcripts = require('../transcripts');
 const { log } = require('../log.js');
 const { queryParam, respond } = require('../http-io.js');
@@ -33,20 +33,4 @@ async function adminTranscriptGet(event) {
   }
 }
 
-async function adminTranscriptStats(event) {
-  if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
-  try {
-    const stats = await transcriptStore().stats(new Date());
-    return respond(200, { ...stats, policy: transcripts.policy() });
-  } catch (e) {
-    log({ evt: 'transcript-stats-failed', error: String(e && e.message || e) });
-    return respond(503, { error: 'Transcript store unavailable' });
-  }
-}
-
-async function adminTranscriptPolicy(event) {
-  if (!(await requireAdmin(event))) return respond(401, { error: 'Unauthorized' });
-  return respond(200, transcripts.policy());
-}
-
-module.exports = { adminTranscriptList, adminTranscriptGet, adminTranscriptStats, adminTranscriptPolicy };
+module.exports = { adminTranscriptList, adminTranscriptGet };
