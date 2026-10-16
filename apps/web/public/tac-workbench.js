@@ -309,19 +309,6 @@
     return messages[messages.length - 1].role === 'user';
   }
 
-  function emptyState() {
-    return {
-      messages: [],
-      lastView: null,
-      lastError: null,
-      lastRequest: null,
-      lastDurationMs: null,
-      scenarioId: null,
-      scenarioTitle: null,
-      pendingImage: null,
-    };
-  }
-
   return {
     createLiveConversation: createLiveConversation,
     resetLiveConversation: resetLiveConversation,
@@ -344,7 +331,6 @@
     rawPayload: rawPayload,
     redactImages: redactImages,
     canRetry: canRetry,
-    emptyState: emptyState,
     partsCount: partsCount,
     mediaCount: mediaCount,
   };

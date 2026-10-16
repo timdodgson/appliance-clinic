@@ -106,4 +106,4 @@ async function dashboardState(services) {
   };
 }
 
-module.exports = { adminHealth, adminDashboard, compactHealth, gatherHealthServices };
+module.exports = { adminHealth, adminDashboard };

@@ -4,8 +4,8 @@ const { engineGetHeaders } = require('./engine-signature.js');
  * Read-only Diagnostics snapshot for the ApplianceClinic admin console.
  *
  * Builds a field-whitelisted view of what is deployed and whether important
- * pieces are reachable. Does not mutate diagnosis, routing, prompts, indexes,
- * media mappings, or configuration. Never returns process.env or secrets.
+ * pieces are reachable. Does not mutate diagnosis, prompts, media mappings or
+ * configuration. Never returns process.env or secrets.
  */
 
 const SECRET_KEY = /token|secret|password|api[_-]?key|credential|authorization|bearer|cookie/i;
@@ -29,13 +29,6 @@ const SYSTEM_PATH = {
     { id: 'whichpart-api', label: 'WhichPart API', role: 'Customer boundary / BFF: the session token and the conversation record' },
     { id: 'diagnosis-engine', label: 'Diagnosis engine', role: 'ac2 turn: advisor → guardrail kernel → response' },
     { id: 'customer-view', label: 'Customer view', role: 'Reply, media and parts' },
-  ],
-};
-
-const ROUTING = {
-  note: 'There is one diagnosis path (ac2, ADR 0023). Every turn goes to the diagnosis engine; this page does not change it.',
-  paths: [
-    { cue: 'Every customer turn', destination: 'Diagnosis engine (ac2: the advisor inside the guardrail kernel; error-code and parts tools)' },
   ],
 };
 
@@ -223,9 +216,6 @@ function knowledgeRuntime(knowledgeInspect) {
       faultIds: null,
       families: null,
       docsVersion: null,
-      index: null,
-      mismatch: false,
-      mismatchNote: null,
     };
   }
   const corpus = knowledgeInspect.loadCorpus();
@@ -236,22 +226,9 @@ function knowledgeRuntime(knowledgeInspect) {
     if (d && d.faultId) faultIds.add(d.faultId);
     if (d && d.applianceFamily) families[d.applianceFamily] = true;
   });
-  const index = corpus && corpus.indexMeta ? {
-    version: corpus.indexMeta.version || null,
-    embedModel: corpus.indexMeta.embedModel || null,
-    dims: corpus.indexMeta.dims || null,
-    builtAt: corpus.indexMeta.builtAt || null,
-    count: corpus.indexMeta.count != null ? corpus.indexMeta.count : null,
-  } : null;
-  const indexedCount = index && index.count != null ? index.count : null;
-  const mismatch = index != null && indexedCount != null && indexedCount !== docs.length;
   const loaded = healthOf(
-    !index ? 'unknown' : (mismatch ? 'degraded' : 'healthy'),
-    !index
-      ? 'Index metadata was not found with the bundled artifacts'
-      : (mismatch
-        ? 'Canonical knowledge and the bundled knowledge index counts differ'
-        : 'Bundled knowledge and index artifacts are loaded'),
+    docs.length ? 'healthy' : 'unknown',
+    docs.length ? 'Bundled knowledge records are loaded' : 'No bundled knowledge records were found',
   );
   return {
     ...loaded,
@@ -259,11 +236,6 @@ function knowledgeRuntime(knowledgeInspect) {
     faultIds: faultIds.size,
     families: Object.keys(families).length,
     docsVersion: (corpus && corpus.docsVersion) || null,
-    index,
-    mismatch,
-    mismatchNote: mismatch
-      ? ('Canonical knowledge has ' + docs.length + ' records; the bundled knowledge index has ' + indexedCount + '.')
-      : null,
   };
 }
 
@@ -576,7 +548,6 @@ function buildSnapshot(input) {
     generatedAt: now,
     readOnly: true,
     systemPath: SYSTEM_PATH,
-    routing: ROUTING,
     components: [apiComp, engComp, mcpComp, mediaComp, partsComp],
     knowledge,
     media,
@@ -599,12 +570,6 @@ function buildSnapshot(input) {
     evidence: {
       lastSuccessfulProbes: lastSuccess,
       lastFailedProbes: lastFailed,
-    },
-    links: {
-      testApplianceClinic: '#test',
-      knowledge: '#knowledge',
-      media: '#media',
-      errorCodes: '#mcp',
     },
   };
 }
@@ -685,7 +650,6 @@ async function collect(deps) {
 
 module.exports = {
   SYSTEM_PATH,
-  ROUTING,
   MCP_FIELDS,
   ENGINE_FIELDS,
   hostOf,

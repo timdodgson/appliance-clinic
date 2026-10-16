@@ -136,7 +136,7 @@
 .admin-body .usermenu__item:hover { background: var(--ac-elev); }
 .admin-body .usermenu__item--btn { color: #ff8a8a; }
 /* ============================================================================
-   ADMIN UX REBUILD — Test ApplianceClinic (.tac) + Customer Test Scenarios (.cts)
+   ADMIN UX — the Test workbench (.tac) and shared admin panels
    Mobile-first: base rules target ~390px (single column); min-width queries
    progressively enhance. No horizontal overflow; comfortable touch targets.
    ============================================================================ */
@@ -151,7 +151,7 @@
 
 /* ===== breakpoints ===== */
 
-/* ===== Conversation transcript viewer + engineer review ===== */
+/* ===== Conversation transcript viewer ===== */
 
 /* Story 6 / Transcripts investigation tool */
 .admin__main { max-width: 1080px; }
@@ -1220,9 +1220,8 @@
 }
 
 /* ============================================================================
-   TRANSCRIPT DETAIL — 4-LAYER TABS (Conversation / Review / Journey / Technical)
-   Stage 1 presentation-only restructure. Conversation is the default clean layer;
-   the diagnostic trace lives in the Journey layer; raw detail in Technical.
+   TRANSCRIPT DETAIL — TABS (Conversation / Technical)
+   Conversation is the default layer; the per-turn engine audit and raw detail are in Technical.
    ============================================================================ */
 .tx-tabs { display: flex; flex-wrap: wrap; gap: 2px; margin: 4px 0 18px; border-bottom: 1px solid var(--line); }
 .tx-tab {
@@ -1247,9 +1246,8 @@
 .tx-tab { padding: 10px 10px; font-size: 13px; }
 }
 /* ============================================================================
-   STAGE 2 — REVIEW CLARITY + TRANSCRIPT TRIAGE
-   List reviewer one-liner, Review "At a glance" summary, concern/positive
-   separation, turn-attributed issue links. Display-only; no enum renames.
+   TRANSCRIPT TRIAGE
+   List one-liners, badges and turn-attributed links. Display-only.
    ============================================================================ */
 
 /* ============================================================================
@@ -1292,7 +1290,7 @@
 .st-advanced[open] > .st-section { margin-left: 12px; margin-right: 12px; }
 }
 /* ============================================================================
-   TRANSCRIPT DETAIL PAGE + PER-TURN CANONICAL PANEL (canonical-audit/1)
+   TRANSCRIPT DETAIL PAGE + PER-TURN ENGINE AUDIT PANEL (ac2-transcript-audit/2)
    The detail is its own page (#transcripts/<id>); each turn carries a collapsed
    technical panel directly under the conversation it belongs to.
    ============================================================================ */

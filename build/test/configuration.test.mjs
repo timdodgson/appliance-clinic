@@ -9,7 +9,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const doc = readFileSync(join(ROOT, 'docs', 'architecture', 'configuration.md'), 'utf8');
-const documented = new Set([...doc.matchAll(/`([A-Z][A-Z0-9_]{2,})`/g)].map((m) => m[1]));
+// Only the variable tables count as documentation: a name mentioned in a "Removed in change …" paragraph must not
+// let a reintroduced read pass.
+const documented = new Set(doc.split('\n').filter((l) => /^\| `/.test(l)).flatMap((l) => [...l.matchAll(/`([A-Z][A-Z0-9_]{2,})`/g)].map((m) => m[1])));
 
 function files(dir, ext) {
   const out = [];

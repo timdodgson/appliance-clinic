@@ -102,7 +102,7 @@
 
 
 
-  // Unsaved-changes guard for leaving an Admin editor (Media, Error Codes, Safety, Settings, scenarios) via the sidebar, in-page links,
+  // Unsaved-changes guard for leaving an Admin editor (Media, Error Codes, Safety, Settings) via the sidebar, in-page links,
   // browser Back). deps: isDirty() -> bool, ask(done(leave)) shows the Stay / Leave choice,
   // discard() drops the editor state. leave(proceed, stay) runs proceed immediately when clean.
   var LEAVE_TEXT = {

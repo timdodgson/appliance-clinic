@@ -47,9 +47,8 @@
   }
 
   // Keep the latest turns, but never start the payload on an assistant message.
-  // The BFF accepts 12 turns; a shorter window that starts on an assistant
-  // turn is invalid for the UNDERSTAND LM (system + assistant) and also drops
-  // the customer's opening report.
+  // The BFF accepts 12 turns; a window that starts on an assistant turn would
+  // drop the customer's opening report.
   function conversationWindow(hist, cap) {
     cap = cap || MAX_API_MESSAGES;
     if (!hist || !hist.length) return [];
@@ -130,17 +129,15 @@
     return (out.label || out.summary) ? out : undefined;
   }
 
-  // UI-facing assistant payload only. Drops trace/debug/internal fields.
+  // UI-facing assistant payload only (the fields whichpart-api's view carries: reply, safety, diagnosis,
+  // safetyInformation, media, parts). Anything else is dropped.
   function compactView(view) {
     if (!view || typeof view !== 'object') return {};
     var out = {};
     if (view.reply) out.reply = String(view.reply);
-    if (view.advisory) out.advisory = true;
     if (view.safety) out.safety = true;
     var diag = compactDiagnosis(view.diagnosis);
     if (diag) out.diagnosis = diag;
-    if (view.needsModel) out.needsModel = true;
-    if (view.extractedModel) out.extractedModel = view.extractedModel;
     var safety = compactShownSafety(view.safetyInformation);
     if (safety) {
       out.safetyInformation = safety;
@@ -197,8 +194,8 @@
     return out;
   }
 
-  // Build the payload: send the photo only on the latest turn (as OpenAI-style
-  // multimodal content); earlier photo turns collapse to a text marker so we
+  // Build the payload: send the photo only on the latest turn (as multimodal
+  // message content); earlier photo turns collapse to a text marker so we
   // never resend large image blobs.
   function buildApiMessages(hist) {
     var recent = conversationWindow(hist, MAX_API_MESSAGES);

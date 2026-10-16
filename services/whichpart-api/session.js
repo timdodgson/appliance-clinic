@@ -138,8 +138,8 @@ let _sessionOverride = null;
 function setSessionForTests(fn) { _sessionOverride = fn; }
 async function requireSession(event) {
   if (_sessionOverride) return _sessionOverride(event);
-  // One Cognito lookup per request: the Test-area route gate resolves the session before the
-  // handler (which re-checks it), so reuse the result already resolved for this same event.
+  // One Cognito lookup per request: the Settings route gate (settingsAdminRoute → requireAdmin) resolves the session
+  // before the handler re-checks it, so reuse the result already resolved for this same event.
   if (event && typeof event === 'object' && event._sessionResolved) return event._session;
   const s = await resolveSession(event);
   if (event && typeof event === 'object') {

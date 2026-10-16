@@ -3,8 +3,8 @@
  * Read-after-write verification for configuration stored in AWS Secrets Manager.
  *
  * Secrets Manager reads are eventually consistent: straight after a successful PutSecretValue a read
- * can still return the PREVIOUS version (observed live on 2026-10-05, run
- * acq-2026-10-05T21-09-47-534Z-5rpiw4tg, where it produced a false conflict). Secrets Manager has no
+ * can still return the PREVIOUS version (observed live on 2026-10-05 during an automated settings change,
+ * where it produced a false conflict). Secrets Manager has no
  * conditional put, so the read-back is also how a concurrent writer is detected. One rule serves both:
  *
  *   read returns the EXPECTED revision          -> verified
@@ -46,4 +46,4 @@ async function readBackAfterWrite({ read, revisionOf, expectedRevision, priorRev
   return { status: sawPrior || rev != null ? 'not_visible' : 'read_failed', doc, revision: rev, reads };
 }
 
-module.exports = { readBackAfterWrite, DEFAULT_ATTEMPTS, DEFAULT_DELAY_MS };
+module.exports = { readBackAfterWrite };

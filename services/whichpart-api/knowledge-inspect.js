@@ -25,21 +25,6 @@ function readJson(dir, name) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 
-function loadIndexMeta(dir) {
-  const meta = readJson(dir, 'index-meta.json');
-  if (meta) return meta;
-  const idx = readJson(dir, 'knowledge-index.json');
-  if (!idx) return null;
-  return {
-    version: idx.version || null,
-    embedModel: idx.embedModel || null,
-    dims: idx.dims || null,
-    builtAt: idx.builtAt || null,
-    count: idx.count || ((idx.docs && idx.docs.length) || 0),
-    knowledgeIds: (idx.docs || []).map((d) => d.knowledgeId).filter(Boolean),
-  };
-}
-
 let _cache = null;
 function loadCorpus() {
   if (_cache) return _cache;
@@ -47,8 +32,6 @@ function loadCorpus() {
   const docsFile = readJson(dir, 'knowledge-docs.json') || { version: null, count: 0, docs: [] };
   const safetyFile = readJson(dir, 'safety-information.json') || { byKnowledgeId: {} };
   const mediaFile = readJson(dir, 'media-information.json') || { byKnowledgeId: {}, byComponent: {} };
-  const indexMeta = loadIndexMeta(dir);
-  const indexed = new Set((indexMeta && indexMeta.knowledgeIds) || []);
   _cache = {
     dir,
     docsVersion: docsFile.version || null,
@@ -56,8 +39,6 @@ function loadCorpus() {
     safetyById: safetyFile.byKnowledgeId || {},
     mediaById: mediaFile.byKnowledgeId || {},
     mediaByComponent: mediaFile.byComponent || {},
-    indexMeta,
-    indexed,
   };
   return _cache;
 }
@@ -101,10 +82,6 @@ function effective() {
 function safetyFor(entry, corpus) {
   return corpus.safetyById[entry.doc.knowledgeId] || null;
 }
-function indexedFor(entry, corpus) {
-  return corpus.indexed.size ? corpus.indexed.has(entry.doc.knowledgeId) : null;
-}
-
 function familyLabel(family) {
   return String(family || '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
@@ -188,7 +165,6 @@ function summarise(doc, corpus, entry) {
     hasDiscriminators: !!(doc.discriminators && doc.discriminators.length),
     hasClarifyingQuestion: !!doc.clarifyingQuestion,
     hasComponents: components.length > 0,
-    indexed: entry ? indexedFor(entry, corpus) : (corpus.indexed.size ? corpus.indexed.has(id) : null),
     state: status.state,
     stateLabel: status.stateLabel,
     draftPending: status.draftPending,
@@ -244,13 +220,6 @@ function listKnowledge(opts) {
     baselineTotal: corpus.docs.length,
     stateCounts,
     docsVersion: corpus.docsVersion,
-    index: corpus.indexMeta ? {
-      version: corpus.indexMeta.version,
-      embedModel: corpus.indexMeta.embedModel,
-      dims: corpus.indexMeta.dims,
-      builtAt: corpus.indexMeta.builtAt,
-      count: corpus.indexMeta.count,
-    } : null,
     total: all.length,
     matching: records.length,
     families,
@@ -267,7 +236,6 @@ function getKnowledge(id) {
   const ctx = Object.assign({}, corpus, { effectiveDocs: all.map((e) => e.doc) });
   const safety = safetyFor(entry, corpus);
   const status = statusOf(id);
-  const indexed = indexedFor(entry, corpus);
   const media = mediaFor(id, doc, corpus);
   const liveMedia = media.filter((m) => m.liveForDiagnosis);
   const gaps = [];
@@ -320,19 +288,12 @@ function getKnowledge(id) {
     } : null,
     media,
     relatedTopics: relatedTopics(doc, ctx),
-    indexed,
     source: entry.source,
     state: status.state,
     stateLabel: status.stateLabel,
     draftPending: status.draftPending,
     liveVersionLabel: status.liveVersionLabel,
     publishedVersion: doc.publishedVersion || null,
-    index: corpus.indexMeta ? {
-      version: corpus.indexMeta.version,
-      embedModel: corpus.indexMeta.embedModel,
-      dims: corpus.indexMeta.dims,
-      builtAt: corpus.indexMeta.builtAt,
-    } : null,
     gaps,
     technical: {
       knowledgeId: doc.knowledgeId,
@@ -340,9 +301,6 @@ function getKnowledge(id) {
       docsVersion: corpus.docsVersion,
       source: entry.source,
       publishedVersion: doc.publishedVersion || null,
-      indexed,
-      embedModel: corpus.indexMeta && corpus.indexMeta.embedModel,
-      indexBuiltAt: corpus.indexMeta && corpus.indexMeta.builtAt,
       text: doc.text || null,
     },
   };
@@ -350,6 +308,6 @@ function getKnowledge(id) {
 
 module.exports = {
   FAMILIES, familyLabel, provenanceLabel,
-  loadCorpus, resetCache, listKnowledge, getKnowledge, searchHaystack, summarise,
-  setMediaView, mediaView,
+  loadCorpus, listKnowledge, getKnowledge, searchHaystack, summarise,
+  setMediaView,
 };

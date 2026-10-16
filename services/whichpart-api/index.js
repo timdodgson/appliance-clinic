@@ -44,7 +44,7 @@ const {
   adminMediaKnowledge,
 } = require('./admin/content.js');
 const { recallStore, setRecallStore, recallHandlers, recallAdmin, recallAdminRoute } = require('./admin/recalls.js');
-const { adminTranscriptList, adminTranscriptGet, adminTranscriptStats, adminTranscriptPolicy } = require('./admin/transcripts.js');
+const { adminTranscriptList, adminTranscriptGet } = require('./admin/transcripts.js');
 const { adminHealth, adminDashboard } = require('./admin/health.js');
 const {
   setErrorCodesClientForTests, adminErrorCodes, adminErrorCodeRecord, adminErrorCodeAction, adminErrorCodeRetire,
@@ -140,8 +140,6 @@ async function handleEvent(event) {
   if (path.endsWith('/admin/ai-config/key')) return settingsAdminRoute(event, method, { POST: aiConfigSaveKey });
   if (path.endsWith('/admin/ai-config/test')) return settingsAdminRoute(event, method, { POST: aiConfigTest });
   if (path.endsWith('/admin/ai-config/models')) return settingsAdminRoute(event, method, { GET: aiConfigModels });
-  if (path.endsWith('/admin/transcripts/stats')) return adminTranscriptStats(event);
-  if (path.endsWith('/admin/transcripts/policy')) return adminTranscriptPolicy(event);
   if (path.endsWith('/admin/transcripts/session')) return adminTranscriptGet(event);
   if (path.endsWith('/admin/transcripts')) return adminTranscriptList(event);
   if (path.endsWith('/admin/knowledge/record')) {

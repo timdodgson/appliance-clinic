@@ -124,7 +124,7 @@
           <label class="tx-primary__field">Appliance
             <select id="txFamily">
               <option value="">All</option>
-              <option value="washing machine">Washing machine</option>
+              <option value="washing-machine">Washing machine</option>
               <option value="washer-dryer">Washer dryer</option>
               <option value="tumble-dryer">Tumble dryer</option>
               <option value="dishwasher">Dishwasher</option>
@@ -293,7 +293,6 @@
           <a class="tx-back" id="mdBackLink" href="#media">← Back to Media</a>
           <div class="admin__panel md__detail" id="mdDetail" hidden></div>
         </div>
-        <div id="mdDialogs"></div>
       </section>
       <section class="admin__section" data-section="diagnostics" hidden>
         <div class="dg">
@@ -378,9 +377,8 @@
           <a class="tx-back" id="ecBackLink" href="#error-codes">← Back to Error Codes</a>
           <div class="admin__panel ec__detail" id="ecDetail" hidden></div>
         </div>
-        <div id="ecDialogs"></div>
       </section>
-      <!-- Test — one coherent testing area: Live diagnostics, Scenarios, Batch -->
+      <!-- Test: the live diagnostic workbench (ADR 0023) -->
       <section class="admin__section test" data-section="test" hidden>
         <div class="test-pagehead ac-pagehead">
           <h1 class="admin__h1">Test</h1>
@@ -388,7 +386,7 @@
         </div>
 
         <!-- LIVE TEST — the live diagnostic workbench -->
-        <div class="test-panel tac" data-testtab="live" role="tabpanel">
+        <div class="test-panel tac">
         <div class="wb-pagehead">
           <div class="wb-pagehead__copy">
             <h2 class="admin__h2">Live diagnostic test</h2>
@@ -725,7 +723,7 @@
       </section>
     </main>
     <div class="admin__scrim" id="adminScrim" aria-hidden="true"></div>
-    <!-- Unsaved Knowledge edits: shown when leaving the Knowledge editor from inside Admin. -->
+    <!-- Unsaved edits: shown when leaving an editor (Media, Error Codes, Safety, Settings) from inside Admin. -->
     <dialog class="st-dlg kn-leave-dlg" id="knLeaveDlg" aria-labelledby="knLeaveTitle" aria-describedby="knLeaveBody">
       <div class="st-dlg__form">
         <h2 class="admin__h2" id="knLeaveTitle">Leave without saving?</h2>

@@ -44,7 +44,7 @@ describe('view model', () => {
     expect(view.transcripts.editable).toBe(false);
     expect(view.conversation).toMatchObject({ editable: false, windowTurns: 12 });
     expect(view.elsewhere.some((e) => e.href === '#media')).toBe(true);
-    expect(view.elsewhere.some((e) => e.href === '#mcp')).toBe(true);
+    expect(view.elsewhere.some((e) => e.href === '#error-codes')).toBe(true);
     expect(view).not.toHaveProperty('diagnosticInference');
     expect(view).not.toHaveProperty('jev');
     expect(view).not.toHaveProperty('productionReview');

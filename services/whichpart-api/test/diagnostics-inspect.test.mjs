@@ -143,10 +143,12 @@ describe('snapshot whitelist and honesty', () => {
 
   it('describes the one ac2 path without an orchestrator, Part Finder or a RAG index', () => {
     const snap = dg.buildSnapshot(setup());
-    const text = JSON.stringify({ systemPath: snap.systemPath, routing: snap.routing });
+    const text = JSON.stringify(snap.systemPath);
     expect(text).toMatch(/diagnosis engine/i);
     expect(text).toMatch(/ac2/);
     expect(text).not.toMatch(/Part Finder|RAG|orchestrator|Jev|cs\/1/i);
+    expect(snap).not.toHaveProperty('routing');
+    expect(snap).not.toHaveProperty('links');
     expect(JSON.stringify(snap)).not.toMatch(/orchestrator/i);
     expect(snap.runtime.ragIndex).toBeUndefined();
     expect(snap.technical.identifiers.ragIndexVersion).toBeUndefined();
@@ -198,25 +200,18 @@ describe('snapshot whitelist and honesty', () => {
   it('keeps BFF bundled knowledge data without attributing an index to the engine', () => {
     const snap = dg.buildSnapshot(setup());
     expect(snap.knowledge.canonicalRecords).toBe(171);
-    expect(snap.knowledge.index.count).toBe(171);
+    expect(snap.knowledge.health).toBe('healthy');
     expect(snap.knowledge.families).toBeGreaterThan(0);
     expect(snap.knowledge.faultIds).toBeGreaterThan(0);
-    expect(snap.knowledge.mismatch).toBe(false);
-    expect(snap.links.knowledge).toBe('#knowledge');
+    expect(snap.knowledge).not.toHaveProperty('index');
+    expect(JSON.stringify(snap.knowledge)).not.toMatch(/embed|index/i);
     expect(byId(snap, 'diagnosis-engine').facts.some((f) => /Knowledge|RAG/.test(f.label))).toBe(false);
   });
 
-  it('records a canonical/index mismatch as degraded data', () => {
-    const kn = dg.knowledgeRuntime({
-      loadCorpus: () => ({
-        docsVersion: 'test',
-        docs: [{ knowledgeId: 'a', faultId: 'a', applianceFamily: 'vacuum' }],
-        indexMeta: { version: 'x', count: 9, embedModel: 'e', dims: 3, builtAt: 't' },
-      }),
-    });
-    expect(kn.health).toBe('degraded');
-    expect(kn.mismatch).toBe(true);
-    expect(kn.mismatchNote).toMatch(/1 records.*9/);
+  it('reports no bundled knowledge as unknown, never as healthy', () => {
+    const kn = dg.knowledgeRuntime({ loadCorpus: () => ({ docsVersion: 'test', docs: [] }) });
+    expect(kn.health).toBe('unknown');
+    expect(kn.canonicalRecords).toBe(0);
   });
 
   it('shows media overlay none vs active without duplicating the catalogue', () => {

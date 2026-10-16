@@ -12,7 +12,7 @@ const { LEARNING_BUCKET } = require('../config.js');
 const { log } = require('../log.js');
 const { parseJsonBody, queryParam, respond } = require('../http-io.js');
 const { requireAdmin } = require('../session.js');
-const { s3client, _streamToString, acqS3 } = require('../s3.js');
+const { s3client, _streamToString, learningS3 } = require('../s3.js');
 
 let _mediaAdminStore = null;
 let _overlayCache = { at: 0, state: null };
@@ -24,7 +24,7 @@ function mediaAdminS3() {
     return status === 412 || status === 409 || name === 'PreconditionFailed' || name === 'ConditionalRequestConflict';
   };
   return {
-    getObject: (key) => acqS3.getObject(key),
+    getObject: (key) => learningS3.getObject(key),
     // state.json with its ETag, and ETag-conditional writes (optimistic concurrency on the whole document).
     async getState(key) {
       const { GetObjectCommand } = require('@aws-sdk/client-s3');

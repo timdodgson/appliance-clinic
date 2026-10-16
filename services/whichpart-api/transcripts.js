@@ -29,7 +29,7 @@ const SESSION_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{7,79}$/;
 const TURN_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{3,79}$/;
 
 const HELP_HUBS = [
-  { family: 'washing machine', slug: 'washing-machines', title: 'Washing machine help — drain, leaks and noise' },
+  { family: 'washing-machine', slug: 'washing-machines', title: 'Washing machine help — drain, leaks and noise' },
   { family: 'washer-dryer', slug: 'washer-dryers', title: 'Washer dryer help — wash, dry and leaks' },
   { family: 'tumble-dryer', slug: 'tumble-dryers', title: 'Tumble dryer help — drying, heat and filters' },
   { family: 'dishwasher', slug: 'dishwashers', title: 'Dishwasher help — draining, cleaning and leaks' },
@@ -112,7 +112,6 @@ function emptyRecord(sessionId, now) {
     safetyClass: null,
     hasError: false,
     lastRequestId: null,
-    lastTraceId: null,
     partsCount: 0,
     mediaCount: 0,
     turns: [],
@@ -627,7 +626,6 @@ function recordToItem(rec) {
     turns: rec.turns,
     endedAt: rec.endedAt,
     lastRequestId: rec.lastRequestId,
-    lastTraceId: rec.lastTraceId,
     partsCount: rec.partsCount,
     mediaCount: rec.mediaCount,
     safetyClass: rec.safetyClass,
@@ -679,7 +677,6 @@ function itemToRecord(item) {
     safetyClass: extra.safetyClass || null,
     hasError: Boolean(row.hasError),
     lastRequestId: extra.lastRequestId || null,
-    lastTraceId: extra.lastTraceId || null,
     partsCount: extra.partsCount || 0,
     mediaCount: extra.mediaCount || 0,
     turns: Array.isArray(extra.turns) ? extra.turns : [],

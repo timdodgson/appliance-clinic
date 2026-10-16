@@ -122,7 +122,10 @@ async function runTurn(input, deps) {
     audit.safety = { hazards: rec.hazards.map((h) => h.type), terminated: early.type, gates: [] };
     audit.timings.totalMs = now() - t0;
     const policy = S.POLICY[early.type];
-    return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(early.type), safety: { class: early.type, stopUse: true, message: S.copyFor(early.type) }, escalation: { to: policy.escalate, reason: early.type } }, audit };
+    const escalation = { to: policy.escalate, reason: early.type };
+    // The stored audit carries the same escalation as the response (the transcript summary reads the audit).
+    audit.escalation = { ...escalation, forced: true };
+    return { state: rec, response: { outcome: 'SAFETY_STOP', message: S.copyFor(early.type), safety: { class: early.type, stopUse: true, message: S.copyFor(early.type) }, escalation }, audit };
   }
 
   // 3. Hazards and unsafe requests (word lists).

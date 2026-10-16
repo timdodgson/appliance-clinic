@@ -292,11 +292,11 @@
       + kpi('Safety stops', act.safetySessionsToday || 0, href({ safety: '1' }))
       + kpi('API errors', act.errorSessionsToday || 0, href({ errors: '1' }))
       + '</div>';
-    var fams = act.familyDistribution || {};
-    var keys = Object.keys(fams).filter(function (k) { return fams[k]; }).sort(function (a, b) { return fams[b] - fams[a]; });
-    if (keys.length) {
+    // The server sends [{family, count}] sorted by count (transcripts.statsFromRows).
+    var fams = (Array.isArray(act.familyDistribution) ? act.familyDistribution : []).filter(function (f) { return f && f.family && f.count; });
+    if (fams.length) {
       html += '<div class="dash-group"><div class="dash-group__title">Appliances</div><div class="dash-rows">';
-      keys.forEach(function (k) { html += countRow(href({ family: k }), familyLabel(k) || k, fams[k]); });
+      fams.forEach(function (f) { html += countRow(href({ family: f.family }), familyLabel(f.family) || f.family, f.count); });
       html += '</div></div>';
     }
     html += '<p class="dash-note">Exact counts of conversations with activity today (UTC).</p>';
@@ -425,7 +425,7 @@
   // Chip values that already read as a full phrase — show the value alone, no key prefix.
   var TX_CHIP_SELFDESC = { family: 1 };
   var TX_FAMILY_LABELS = {
-    'washing machine': 'Washing machine', 'washer-dryer': 'Washer dryer',
+    'washing-machine': 'Washing machine', 'washer-dryer': 'Washer dryer',
     'tumble-dryer': 'Tumble dryer', dishwasher: 'Dishwasher',
     'fridge-freezer': 'Fridge freezer', 'oven-cooker': 'Oven / cooker',
     hobs: 'Hob', microwave: 'Microwave', vacuum: 'Vacuum',
@@ -876,7 +876,7 @@
       + tpRow('Outcome', outcomeLabel(ac2Outcome(a)) || null)
       + tpRow('Appliance', c.appliance) + tpRow('Brand', c.brand) + tpRow('Model', c.model)
       + '<div class="tx-tp__sub">Part gate</div>'
-      + (pg ? tpRow('Outcome', pg.outcome) + tpRow('Component', pg.component) + tpRow('Reason', pg.reason)
+      + (pg ? tpRow('Outcome', pg.outcome) + tpRow('Component', pg.component)
         : '<p class="tac__muted">No part decision this turn.</p>')
       + '<div class="tx-tp__sub">Escalation</div>'
       + (es && (es.to || es.reason) ? tpRow('To', es.to) + tpRow('Reason', es.reason) + tpRow('Forced by hazard', es.forced) : '<p class="tac__muted">none</p>')
@@ -884,7 +884,11 @@
   }
   function ac2SafetyHtml(a) {
     var sf = a.safety || {};
-    var gates = (sf.gates || []).map(function (g) { return [g.gate, g.rule, g.type, g.key, g.why, g.removed != null ? 'removed ' + g.removed : null].filter(Boolean).join(' · '); });
+    // A gate is {gate, rule?, type?, ids?, removed?} (engine ac2/turn.js; whichpart-api transcripts.js ac2Safety).
+    var gates = (sf.gates || []).map(function (g) {
+      var ids = Array.isArray(g.ids) && g.ids.length ? 'ids ' + g.ids.join(', ') : null;
+      return [g.gate, g.rule, g.type, ids, g.removed != null ? 'removed ' + g.removed : null].filter(Boolean).join(' · ');
+    });
     return tpRow('Hazards', ac2Hazards(a)) + tpRow('Terminated by', sf.terminated)
       + '<div class="tx-tp__sub">Gates fired</div>' + ac2List(gates);
   }
@@ -903,7 +907,7 @@
   }
   function tpRuntimeHtml(t) {
     var rt = t.runtime || {};
-    return tpRow('Route', rt.route) + tpRow('Outcome', rt.outcome) + tpRow('Safety stop', rt.safetyStop || null) + tpRow('Safety class', rt.safetyClass)
+    return tpRow('Outcome', rt.outcome) + tpRow('Safety stop', rt.safetyStop || null) + tpRow('Safety class', rt.safetyClass)
       + tpRow('API error', rt.apiError || null) + tpRow('Request id', rt.requestId)
       + (ac2Of(t) ? '' : '<p class="tx-tp__note">No engine audit was recorded for this turn.</p>');
   }
@@ -1201,12 +1205,6 @@
     var bits = ['Showing ' + rows.length + ' of ' + total + ' diagnostic topics'];
     if (famLabel) bits.push(famLabel);
     if (q) bits.push('matching “' + q + '”');
-    var sc = (knCache && knCache.stateCounts) || {};
-    var extra = [];
-    if (sc.draft) extra.push(sc.draft + ' draft' + (sc.draft === 1 ? '' : 's'));
-    if (sc.draftPending) extra.push(sc.draftPending + ' with draft changes pending');
-    if (sc.archived) extra.push(sc.archived + ' archived');
-    if (extra.length) bits.push(extra.join(', '));
     return bits.join(' · ');
   }
   function knCard(rec) {
@@ -1349,11 +1347,8 @@
       + '<dt>Canonical id</dt><dd>' + esc(tech.knowledgeId || rec.knowledgeId) + '</dd>'
       + '<dt>Record version</dt><dd>' + esc(tech.version || rec.version || 'No version recorded') + '</dd>'
       + '<dt>Docs version</dt><dd>' + esc(tech.docsVersion || 'No docs version recorded') + '</dd>'
-      + '<dt>Indexed</dt><dd>' + (tech.indexed === true ? 'Yes' : (tech.indexed === false ? 'Not indexed' : 'Index state not recorded')) + '</dd>'
-      + '<dt>Embedding model</dt><dd>' + esc(tech.embedModel || 'No embedding model recorded') + '</dd>'
-      + '<dt>Index built</dt><dd>' + esc(tech.indexBuiltAt || 'No index timestamp recorded') + '</dd>'
       + '</dl>'
-      + (tech.text ? '<h3 class="kn-sec__h">Indexed text</h3><pre>' + esc(tech.text) + '</pre>' : knEmpty('No indexed text recorded'))
+      + (tech.text ? '<h3 class="kn-sec__h">Record text</h3><pre>' + esc(tech.text) + '</pre>' : knEmpty('No record text recorded'))
       + '<h3 class="kn-sec__h">Raw knowledge record</h3><pre>' + esc(JSON.stringify({
         knowledgeId: rec.knowledgeId, version: rec.version, applianceFamily: rec.applianceFamily,
         faultId: rec.faultId, label: rec.label, outcome: rec.outcome, provenance: rec.provenance,
@@ -1361,7 +1356,7 @@
         components: rec.components, discriminators: rec.discriminators, clarifyingQuestion: rec.clarifyingQuestion,
         secondaryQuestion: rec.secondaryQuestion, adviceBeforeReplacement: rec.adviceBeforeReplacement,
         commonConfusion: rec.commonConfusion, alternatives: rec.alternatives, make: rec.make, platform: rec.platform,
-        indexed: rec.indexed, gaps: rec.gaps,
+        gaps: rec.gaps,
       }, null, 2)) + '</pre>';
 
     panel.hidden = false;

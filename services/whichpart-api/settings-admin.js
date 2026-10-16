@@ -172,7 +172,7 @@ async function buildView(opts) {
     },
     elsewhere: [
       { id: 'media', title: 'Media mappings', href: '#media', note: 'Presentation and diagnostic media are managed in Media.' },
-      { id: 'error-codes', title: 'Error-code catalogue', href: '#mcp', note: 'Error-code meanings are managed in Error Codes.' },
+      { id: 'error-codes', title: 'Error-code catalogue', href: '#error-codes', note: 'Error-code meanings are managed in Error Codes.' },
       { id: 'knowledge', title: 'Diagnostic knowledge', href: '#knowledge', note: 'Symptom and fault topics are inspected in Knowledge.' },
       { id: 'recalls', title: 'Recall ingest', href: '#safety', note: 'Recall import stays on Safety ingest.' },
       { id: 'diagnostics', title: 'Runtime health', href: '#diagnostics', note: 'What is running is inspected in Diagnostics.' },
@@ -256,7 +256,6 @@ async function testConnection(opts) {
 }
 
 module.exports = {
-  PROPAGATION_TTL_MS, PROPAGATION_MAX_MS, CONVERSATION_WINDOW, NOTE_MIN, NOTE_MAX,
-  configRevision, diffConfigs, validModel, parseModelPatch, probeEngineModels, syncOf, historyView,
+  NOTE_MIN, NOTE_MAX, parseModelPatch, probeEngineModels,
   buildView, saveModelPatch, testConnection,
 };
