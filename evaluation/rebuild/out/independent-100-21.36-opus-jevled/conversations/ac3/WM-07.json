@@ -1,0 +1,347 @@
+{
+ "id": "WM-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-07-2bb104b06e",
+ "endReason": "concluded",
+ "customerTurns": 2,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "I've just bought an AEG L7FEE865R and the Eco 40-60 wash says 3:39 and seems to take forever. My old machine did a 40 wash in an hour. Is it faulty? Should I send it back?"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you've described, it's very unlikely to be faulty, and a long Eco 40-60 time on its own isn't a reason to send it back. Whether a return is worth considering depends on whether anything actually goes wrong beyond the cycle length. This sounds like normal behaviour rather than a fault: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance. It would be worth a closer look if the cycle never finishes, the display counts down then resets repeatedly, or a code appears. To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does the washing come out warm, or still cold?"
+  },
+  {
+   "role": "customer",
+   "text": "I haven't tried a 60 wash yet. On the Eco 40-60 the door glass is only barely lukewarm, though, and the clothes do come out clean. Is that normal for an eco cycle?"
+  },
+  {
+   "role": "assistant",
+   "text": "Yes, that's normal. The Eco 40-60 programme saves energy by washing at a lower temperature than the name suggests and making up for it with a much longer wash time, so the door glass often only feels lukewarm. Then no repair is needed. If it ever does it in a way that does not fit that, get back in touch and we will look further."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1987,
+     "labelMs": 250,
+     "enrichMs": 1,
+     "composeMs": 3923,
+     "replyLabelMs": 624,
+     "totalMs": 6840
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.71
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.02
+      },
+      "model": {
+       "value": "L7FEE865R",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "make": {
+       "value": "AEG",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "AEG",
+      "model": "L7FEE865R",
+      "codes": [],
+      "symptom": "Eco 40-60 wash takes 3:39, very long"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 0.95
+     },
+     "checkGiven": "To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:heater",
+       "washing-machine:overheating",
+       "washing-machine:temperature-sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:heater\",\"settled\":false,\"situation\":{\"kind\":\"normal\",\"text\":\"Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.\"},\"next\":{\"kind\":\"check\",\"text\":\"To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does the washing come out warm, or still cold?\"},\"ms\":813,\"offered\":{\"situations\":[\"cause: programme / temperature selection & how the customer judged it\",\"cause: water level / fill established (upstream sequence)\",\"cause: heating element\",\"cause: NTC / thermistor / temperature sensor\",\"cause: heater wiring / connectors\",\"cause: heater support / bracket [front-entry-heater designs ONLY]\",\"cause: heater relay / control PCB\",\"normal: Eco 40-60 and cotton eco programmes routinely run 3-4 hours; they save energy by washing cooler for longer. The displayed time also adjusts during the cycle as the machine weighs the load and checks foam and balance.\"],\"next\":[\"check: To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and take the washing out as soon as it finishes. Does the washing come out warm, or still cold?\",\"step: establish it should genuinely be heating (programme/temperature; not just cold rinses) before suspecting the heater\",\"step: confirm it fills to the correct level and actually reaches the heating stage\",\"step: on a front-entry-heater design with a physically damaged heater, inspect the heater support/bracket and find why it was damaged\",\"step: if there is a serious burning smell, melted insulation or smoke, stop using the machine\"],\"removed\":[\"What makes you think it isn't heating - does the programme finish normally but t\",\"What temperature and programme are you using, and does the machine have both a h\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: To check properly, run a 60°C cottons programme (not eco or quick) with a normal load, and\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.14,\"kept\":true},{\"step\":\"step: establish it should genuinely be heating (programme/temperature; not just cold rinses) bef\",\"done\":0.19,\"refused\":0.06,\"pointless\":0.26,\"kept\":true},{\"step\":\"step: confirm it fills to the correct level and actually reaches the heating stage\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.17,\"kept\":true},{\"step\":\"step: on a front-entry-heater design with a physically damaged heater, inspect the heater suppor\",\"done\":0.04,\"refused\":0.03,\"pointless\":0.57,\"kept\":true},{\"step\":\"step: if there is a serious burning smell, melted insulation or smoke, stop using the machine\",\"done\":0.05,\"refused\":0.03,\"pointless\":0.18,\"kept\":true},{\"step\":\"question: What makes you think it isn't heating - does the programme finish normally but the washing\",\"done\":0.86,\"refused\":0.08,\"pointless\":0.46,\"kept\":false},{\"step\":\"question: What temperature and programme are you using, and does the machine have both a hot and a c\",\"done\":0.52,\"refused\":0.05,\"pointless\":0.32,\"kept\":false}]},\"answer\":\"From what you've described, it's very unlikely to be faulty, and a long Eco 40-60 time on its own isn't a reason to send it back.  Whether a return is worth considering depends on whether anything actually goes wrong beyond the cycle length.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"AEG\",\"model\":\"L7FEE865R\",\"codes\":[],\"symptom\":\"Eco 40-60 wash takes 3:39, very long\",\"customerQuestion\":\"Is it faulty? Should I send it back?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"just bought\",\"old machine did a 40 wash in an hour\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"other\\\" (0.71)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.99)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.02)\",\"model\":\"\\\"L7FEE865R\\\" (1)\",\"code\":\"null (0.99)\",\"make\":\"\\\"AEG\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:heater\",\"washing-machine:overheating\",\"washing-machine:temperature-sensor\"],\"normal\":[\"wm-eco-long\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "L7FEE865R",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the washing come out warm, or still cold?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 6878
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7022,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2760,
+     "labelMs": 314,
+     "enrichMs": 1,
+     "composeMs": 3523,
+     "replyLabelMs": 266,
+     "totalMs": 6926
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "normal",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.65
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.24
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 0.86
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "Eco 40-60 cycle runs very long"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "says_normal",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:heater",
+       "washing-machine:poor-wash-results",
+       "washing-machine:damaging-clothes"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"settled-normal-closed\",\"answered\":true,\"note\":\"washing-machine:heater\",\"ms\":527,\"answer\":\"Yes, that's normal.  The Eco 40-60 programme saves energy by washing at a lower temperature than the name suggests and making up for it with a much longer wash time, so the door glass often only feels lukewarm.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"Eco 40-60 cycle runs very long\",\"customerQuestion\":\"Is a barely lukewarm door glass normal for an eco cycle?\",\"answerToLastQuestion\":\"hasn't tried a 60 wash yet\",\"checksReported\":[],\"facts\":[\"door glass only barely lukewarm on Eco 40-60\",\"clothes come out clean\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"null (0.65)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.24)\",\"checkOutcome\":\"null (0.93)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (0.86)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:heater\",\"washing-machine:poor-wash-results\",\"washing-machine:damaging-clothes\"],\"normal\":[\"wm-eco-long\"],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "AEG",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "L7FEE865R",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Does the washing come out warm, or still cold?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7093
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 7464,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0215838,
+ "finishedAt": "2026-10-16T00:56:24.344Z"
+}

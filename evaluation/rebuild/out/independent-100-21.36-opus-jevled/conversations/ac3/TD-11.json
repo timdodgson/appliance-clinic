@@ -1,0 +1,720 @@
+{
+ "id": "TD-11",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-11-8da75908d4",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "tumble dryer not working"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is blower fan / impeller. Can you hear/feel the fan moving air, and is it clear of fluff?"
+  },
+  {
+   "role": "customer",
+   "text": "No sound at all when I press start, so can't hear any fan. Lights come on though. The door has felt loose for a few days and doesn't seem to click shut."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is door handle / catch (mechanical). With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and check the door lines up when you close it. Is the catch broken, was something stopping it (now cleared), or does it all look fine?"
+  },
+  {
+   "role": "customer",
+   "text": "Yes it's broken - the plastic tongue on the door has snapped off, found the piece on the floor. If I hold the door shut and press start it runs, stops when I let go."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: door handle / catch (mechanical)]\nFrom what you have found, this points to the door handle / catch (mechanical). To find the right part, could you give me the make and model number? It is usually on a sticker inside the door opening.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "It's a Hotpoint. I don't know the model number offhand, I'll go and look inside the door recess now."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: door handle]\nThe checks point to the door handle. If the model number can't be read, it is often also on the guarantee card, the receipt or the manual; with it, the right part can be matched. Without it, an appliance engineer can identify and fit the right door handle from the machine itself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2300,
+     "labelMs": 265,
+     "enrichMs": 1,
+     "composeMs": 524,
+     "replyLabelMs": 292,
+     "totalMs": 3383
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "other",
+       "confidence": 0.46
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not working"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.65
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:fan",
+       "tumble-dryer:sensor",
+       "tumble-dryer:not-heating"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"tumble-dryer:fan\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"blower fan / impeller\"},\"next\":{\"kind\":\"question\",\"text\":\"Can you hear/feel the fan moving air, and is it clear of fluff?\"},\"ms\":524,\"offered\":{\"situations\":[\"cause: blower fan / impeller\",\"cause: fan motor (where separate)\"],\"next\":[\"question: Can you hear/feel the fan moving air, and is it clear of fluff?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"question: Can you hear/feel the fan moving air, and is it clear of fluff?\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.08,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not working\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (1)\",\"symptomArea\":\"\\\"other\\\" (0.46)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"tumble-dryer:fan\",\"tumble-dryer:sensor\",\"tumble-dryer:not-heating\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you hear/feel the fan moving air, and is it clear of fluff?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3491
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3872,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2732,
+     "labelMs": 290,
+     "enrichMs": 1,
+     "composeMs": 841,
+     "replyLabelMs": 249,
+     "totalMs": 4115
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.71
+      },
+      "symptomArea": {
+       "value": "door_or_lid",
+       "confidence": 0.66
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "no sound when pressing start, door not clicking shut"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": "With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and chec",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:fan",
+       "tumble-dryer:sensor",
+       "tumble-dryer:door"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"tumble-dryer:door\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"door handle / catch (mechanical)\"},\"next\":{\"kind\":\"check\",\"text\":\"With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and check the door lines up when you close it. Is the catch broken, was something stopping it (now cleared), or does it all look fine?\"},\"ms\":841,\"offered\":{\"situations\":[\"cause: door handle / catch (mechanical)\",\"cause: door interlock / switch (electrical start path)\",\"cause: door/interlock wiring\",\"cause: main pcb\"],\"next\":[\"check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance in that socket. If the house electrics have tripped, don't keep resetting it. Was a switch, plug or fuse off (and is it sorted), or does the socket work fine with something else?\",\"check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks and press start. Does it still show the door as open?\",\"check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff or a bit of fabric can stop it engaging, and check the door lines up when you close it. Is the catch broken, was something stopping it (now cleared), or does it all look fine?\",\"check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons working — the manual shows which buttons to hold to turn it off. Was the child lock on (and is it off now), or was it already off?\",\"check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed can look like it won't start. Was a delay start set or the programme not selected (and is it sorted), or was nothing like that set?\",\"check: Now choose a programme and press start. Does it start normally now, or still not?\"],\"removed\":[\"Is the handle/door physically broken or not closing, or does it close fine but t\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Check the dryer's plug is pushed fully in and the socket is on, and try another appliance \",\"done\":0.07,\"refused\":0.05,\"pointless\":0.33,\"kept\":true},{\"step\":\"check: Open the door, make sure no clothing is caught in it, then shut it firmly until it clicks \",\"done\":0.11,\"refused\":0.07,\"pointless\":0.26,\"kept\":true},{\"step\":\"check: With the dryer unplugged, look at the catch on the door and the slot it clicks into: fluff\",\"done\":0.11,\"refused\":0.07,\"pointless\":0.19,\"kept\":true},{\"step\":\"check: Many dryers have a child lock (often a key or padlock symbol) that stops the buttons worki\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.32,\"kept\":true},{\"step\":\"check: A delay start (often a countdown on the display) or a programme that hasn't been confirmed\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.44,\"kept\":true},{\"step\":\"check: Now choose a programme and press start. Does it start normally now, or still not?\",\"done\":0.35,\"refused\":0.08,\"pointless\":0.53,\"kept\":true},{\"step\":\"question: Is the handle/door physically broken or not closing, or does it close fine but the dryer s\",\"done\":0.82,\"refused\":0.1,\"pointless\":0.34,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"no sound when pressing start, door not clicking shut\",\"customerQuestion\":null,\"answerToLastQuestion\":\"can't hear any fan, no sound at all\",\"checksReported\":[],\"facts\":[\"lights come on\",\"no sound at all when pressing start\",\"door has felt loose for a few days\",\"door doesn't seem to click shut\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (0.71)\",\"symptomArea\":\"\\\"door_or_lid\\\" (0.66)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.99)\",\"checkOutcome\":\"null (0.81)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2,3]},\"notes\":[\"tumble-dryer:fan\",\"tumble-dryer:sensor\",\"tumble-dryer:door\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you hear/feel the fan moving air, and is it clear of fluff?",
+       "turn": 1,
+       "resolution": "can't hear any fan, no sound at all"
+      },
+      {
+       "key": null,
+       "text": "Is the catch broken, was something stopping it (now cleared), or does it all look fine?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4149
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 4456,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2471,
+     "labelMs": 434,
+     "enrichMs": 0,
+     "composeMs": 536,
+     "replyLabelMs": 274,
+     "totalMs": 3716
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.91
+      },
+      "symptomArea": {
+       "value": "door_or_lid",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 0.59
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.53
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "door won't stay shut, catch broken"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.84
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:fan",
+       "tumble-dryer:door",
+       "tumble-dryer:sensor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"settled-part\",\"answered\":false,\"situation\":\"door handle / catch (mechanical)\",\"removed\":6,\"ms\":536}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"door won't stay shut, catch broken\",\"customerQuestion\":null,\"answerToLastQuestion\":\"catch is broken\",\"checksReported\":[{\"check\":\"inspected door catch\",\"result\":\"plastic tongue on door snapped off, piece found on floor\"},{\"check\":\"held door shut and pressed start\",\"result\":\"runs, stops when door released\"}],\"facts\":[\"plastic tongue on the door has snapped off\",\"runs only while door is held shut\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (0.91)\",\"symptomArea\":\"\\\"door_or_lid\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (0.59)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.53)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0,1],\"factsConfirmed\":[0,1]},\"notes\":[\"tumble-dryer:fan\",\"tumble-dryer:door\",\"tumble-dryer:sensor\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "inspected door catch: plastic tongue on door snapped off, piece found on floor",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "held door shut and pressed start: runs, stops when door released",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you hear/feel the fan moving air, and is it clear of fluff?",
+       "turn": 1,
+       "resolution": "can't hear any fan, no sound at all"
+      },
+      {
+       "key": null,
+       "text": "Is the catch broken, was something stopping it (now cleared), or does it all look fine?",
+       "turn": 2,
+       "resolution": "catch is broken"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the make and model number? It is usually on a sticker inside the door opening.",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3838
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4276,
+   "retried": false,
+   "label": "Likely cause: door handle / catch (mechanical)",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2517,
+     "labelMs": 391,
+     "enrichMs": 1,
+     "composeMs": 0,
+     "replyLabelMs": 264,
+     "totalMs": 3229
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.58
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.33
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.23
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": "Hotpoint",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": "door handle",
+       "confidence": 0.82
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": "Hotpoint",
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.42
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:door",
+       "tumble-dryer:fan",
+       "tumble-dryer:motor"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"model-unreadable\",\"component\":\"door handle\"}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":\"Hotpoint\",\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":null,\"answerToLastQuestion\":\"Hotpoint, model number not known yet, going to look\",\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.58)\",\"symptomArea\":\"null (0.98)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.33)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.23)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"\\\"Hotpoint\\\" (1)\",\"narrowed\":\"\\\"door handle\\\" (0.82)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"tumble-dryer:door\",\"tumble-dryer:fan\",\"tumble-dryer:motor\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Hotpoint",
+      "confidence": 1,
+      "turn": 4
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "inspected door catch: plastic tongue on door snapped off, piece found on floor",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "held door shut and pressed start: runs, stops when door released",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Can you hear/feel the fan moving air, and is it clear of fluff?",
+       "turn": 1,
+       "resolution": "can't hear any fan, no sound at all"
+      },
+      {
+       "key": null,
+       "text": "Is the catch broken, was something stopping it (now cleared), or does it all look fine?",
+       "turn": 2,
+       "resolution": "catch is broken"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the make and model number? It is usually on a sticker inside the door opening.",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3251
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 3424,
+   "retried": false,
+   "label": "Likely cause: door handle",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0375496,
+ "finishedAt": "2026-10-16T01:02:29.464Z"
+}

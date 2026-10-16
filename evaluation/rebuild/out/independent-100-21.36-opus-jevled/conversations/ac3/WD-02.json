@@ -1,0 +1,675 @@
+{
+ "id": "WD-02",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wd-02-38e9b9914a",
+ "endReason": "concluded",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Samsung WD90T534DBW washer dryer - clothes are still damp at the end of the wash and dry programme. It's not that old. Is the heater going?"
+  },
+  {
+   "role": "assistant",
+   "text": "Not necessarily. Damp clothes after a full wash and dry are more often caused by a blocked fluff filter or restricted airflow than a failed heater, and that's especially likely on a machine that isn't very old. From what you have described, the most likely cause is lint filter / airflow restriction (clean first). Next: Clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "ok, I can do that. No error codes showing on the display, and the drum does get hot during drying. Anything else I should check while I'm at it?"
+  },
+  {
+   "role": "assistant",
+   "text": "Next: Check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault). Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "The clothes come out of the wash fine as far as I can tell, but I often turn the spin down to 800 to reduce creasing. I'm not sure if that counts as properly spun. Is that a problem?"
+  },
+  {
+   "role": "assistant",
+   "text": "Before you start, switch it off and unplug it. It counts as spun, but 800 leaves noticeably more water in the clothes than a higher spin speed, so the dryer has more moisture to remove. That can contribute to damp results, especially with a fuller load, though on its own it doesn't mean anything is faulty. Next: Try a SMALLER dry load - a washer-dryer dries less than it washes. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "I tried a half drum with full spin and it came out dry. A full 9kg drum washed and dried in one go is what I normally do, though the manual says 6kg for drying."
+  },
+  {
+   "role": "assistant",
+   "text": "Good news, that has sorted it. If it happens again, start with the same check. Is there anything else I can help with?"
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2388,
+     "labelMs": 303,
+     "enrichMs": 2,
+     "composeMs": 3958,
+     "replyLabelMs": 286,
+     "totalMs": 6998
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "not_drying",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "WD90T534DBW",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Samsung",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": "Samsung",
+      "model": "WD90T534DBW",
+      "codes": [],
+      "symptom": "clothes still damp after wash and dry programme"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-poor",
+       "washer-dryer:drying-heater",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washer-dryer:drying-heater\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"lint filter / airflow restriction (clean first)\"},\"next\":{\"kind\":\"step\",\"text\":\"clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted\"},\"ms\":814,\"offered\":{\"situations\":[\"cause: lint filter / airflow restriction (clean first)\",\"cause: condenser / condensing path (clean / clear)\",\"cause: drying heater element\",\"cause: thermal cut-out (may be tripped by airflow restriction)\",\"cause: drying thermostat\",\"cause: drying fan\",\"cause: main pcb\"],\"next\":[\"step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the airflow path isn't restricted\",\"step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault)\",\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\",\"question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and were the clothes properly spun before the drying stage?\",\"question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) before the drying stage - and how big was the load?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: clean the lint/fluff filter and (on condenser models) the condenser, and make sure the air\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.08,\"kept\":true},{\"step\":\"step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.11,\"kept\":true},{\"step\":\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.13,\"kept\":true},{\"step\":\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\",\"done\":0.04,\"refused\":0.03,\"pointless\":0.13,\"kept\":true},{\"step\":\"question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and\",\"done\":0.08,\"refused\":0.08,\"pointless\":0.1,\"kept\":true},{\"step\":\"question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.1,\"kept\":true}]},\"answer\":\"Not necessarily.  Damp clothes after a full wash and dry are more often caused by a blocked fluff filter or restricted airflow than a failed heater, and that's especially likely on a machine that isn't very old.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washer dryer\",\"brand\":\"Samsung\",\"model\":\"WD90T534DBW\",\"codes\":[],\"symptom\":\"clothes still damp after wash and dry programme\",\"customerQuestion\":\"Is the heater going?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"not that old\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washer-dryer\\\" (1)\",\"symptomArea\":\"\\\"not_drying\\\" (0.99)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.99)\",\"checkOutcome\":\"null (0.97)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"WD90T534DBW\\\" (1)\",\"code\":\"null (1)\",\"make\":\"\\\"Samsung\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washer-dryer:drying-poor\",\"washer-dryer:drying-heater\",\"washer-dryer:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 7192
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7581,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1904,
+     "labelMs": 281,
+     "enrichMs": 1,
+     "composeMs": 782,
+     "replyLabelMs": 260,
+     "totalMs": 3264
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.79
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.76
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.37
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.71
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes still damp after drying"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Next, run a drain or spin-only programme and listen near the bottom front of the machine while it tries to pump out. Does the water pump awa",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-poor",
+       "washer-dryer:drying-heater",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washer-dryer:drying-heater\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"lint filter / airflow restriction (clean first)\"},\"next\":{\"kind\":\"step\",\"text\":\"check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault)\"},\"ms\":781,\"offered\":{\"situations\":[\"cause: lint filter / airflow restriction (clean first)\",\"cause: condenser / condensing path (clean / clear)\",\"cause: drying heater element\",\"cause: thermal cut-out (may be tripped by airflow restriction)\",\"cause: drying thermostat\",\"cause: drying fan\",\"cause: main pcb\"],\"next\":[\"step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soaking will never dry (that's a wash-side fault)\",\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\"],\"removed\":[\"Does it get hot during drying but leave the clothes damp, or is there no heat at\",\"Does it get HOT at all during drying, and were the clothes properly spun (not dr\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: check the wash actually SPUN and DRAINED the water out - clothes that go into the dry soak\",\"done\":0.08,\"refused\":0.07,\"pointless\":0.18,\"kept\":true},{\"step\":\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.16,\"kept\":true},{\"step\":\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\",\"done\":0.07,\"refused\":0.03,\"pointless\":0.19,\"kept\":true},{\"step\":\"question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and\",\"done\":0.84,\"refused\":0.09,\"pointless\":0.44,\"kept\":false},{\"step\":\"question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be\",\"done\":0.71,\"refused\":0.08,\"pointless\":0.29,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washer dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"clothes still damp after drying\",\"customerQuestion\":\"Anything else I should check while I'm at it?\",\"answerToLastQuestion\":\"will clean the filter and condenser\",\"checksReported\":[],\"facts\":[\"no error codes on display\",\"drum gets hot during drying\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washer-dryer\\\" (0.79)\",\"symptomArea\":\"null (0.76)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.37)\",\"checkOutcome\":\"null (0.71)\",\"modelUnreachable\":\"false (0.05)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washer-dryer:drying-poor\",\"washer-dryer:drying-heater\",\"washer-dryer:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 3285
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 3572,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3179,
+     "labelMs": 301,
+     "enrichMs": 2,
+     "composeMs": 5308,
+     "replyLabelMs": 299,
+     "totalMs": 9125
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": [
+      {
+       "gate": "step-precaution"
+      }
+     ]
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 0.58
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.74
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 0.36
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes not drying"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.92
+     },
+     "checkGiven": "A washer-dryer can only dry about half the load it washes — for example 8 kg wash / 5 kg dry. Drying a full wash load leaves it damp, and th",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washer-dryer:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washer-dryer:drying-heater\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"lint filter / airflow restriction (clean first)\"},\"next\":{\"kind\":\"step\",\"text\":\"try a SMALLER dry load - a washer-dryer dries less than it washes\"},\"ms\":845,\"offered\":{\"situations\":[\"cause: lint filter / airflow restriction (clean first)\",\"cause: condenser / condensing path (clean / clear)\",\"cause: drying heater element\",\"cause: thermal cut-out (may be tripped by airflow restriction)\",\"cause: drying thermostat\",\"cause: drying fan\",\"cause: main pcb\"],\"next\":[\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\"],\"removed\":[\"Does it get hot during drying but leave the clothes damp, or is there no heat at\",\"Does it get HOT at all during drying, and were the clothes properly spun (not dr\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: try a SMALLER dry load - a washer-dryer dries less than it washes\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.19,\"kept\":true},{\"step\":\"step: if there is a strong burning smell, stop and unplug it to let it cool before anything else\",\"done\":0.08,\"refused\":0.03,\"pointless\":0.21,\"kept\":true},{\"step\":\"question: Does it get hot during drying but leave the clothes damp, or is there no heat at all - and\",\"done\":0.91,\"refused\":0.07,\"pointless\":0.63,\"kept\":false},{\"step\":\"question: Does it get HOT at all during drying, and were the clothes properly spun (not dripping) be\",\"done\":0.8,\"refused\":0.08,\"pointless\":0.37,\"kept\":false}]},\"answer\":\"It counts as spun, but 800 leaves noticeably more water in the clothes than a higher spin speed, so the dryer has more moisture to remove.  That can contribute to damp results, especially with a fuller load, though on its own it doesn't mean anything is faulty.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washer dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"clothes not drying\",\"customerQuestion\":\"Is spinning at 800 a problem / does that count as properly spun?\",\"answerToLastQuestion\":\"clothes come out of wash fine, but spin often set to 800\",\"checksReported\":[],\"facts\":[\"spin speed often turned down to 800 to reduce creasing\",\"clothes come out of the wash seemingly fine\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washer-dryer\\\" (0.58)\",\"symptomArea\":\"null (0.74)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (0.36)\",\"checkOutcome\":\"null (0.8)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (1)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washer-dryer:drying-heater\",\"washer-dryer:drying-poor\",\"washer-dryer:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 9169
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 9519,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2775,
+     "labelMs": 301,
+     "enrichMs": 22,
+     "composeMs": 1,
+     "replyLabelMs": 302,
+     "totalMs": 3463
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "fixed",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washer-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.56
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.81
+      },
+      "checkOutcome": {
+       "value": "fixed",
+       "confidence": 0.89
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washer-dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "clothes come out damp after drying"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "wraps_up",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washer-dryer:drying-heater",
+       "washer-dryer:drying-poor",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"fixed\",\"answered\":false}",
+     "trace: {\"understood\":{\"appliance\":\"washer-dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"clothes come out damp after drying\",\"customerQuestion\":null,\"answerToLastQuestion\":\"smaller load came out dry\",\"checksReported\":[{\"check\":\"dried a half drum load with full spin\",\"result\":\"came out dry\"}],\"facts\":[\"normally washes and dries a full 9kg load in one go\",\"manual says 6kg max for drying\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washer-dryer\\\" (1)\",\"symptomArea\":\"null (0.56)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.81)\",\"checkOutcome\":\"\\\"fixed\\\" (0.89)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (1)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0,1]},\"notes\":[\"washer-dryer:drying-heater\",\"washer-dryer:drying-poor\",\"washing-machine:motor-drum\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washer-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Samsung",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "WD90T534DBW",
+      "confidence": 1,
+      "turn": 1
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "dried a half drum load with full spin: came out dry",
+       "source": "customer",
+       "status": "stated",
+       "turn": 4,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is there anything else I can help with?",
+       "turn": 4,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3598
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 3731,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.038939600000000005,
+ "finishedAt": "2026-10-16T00:58:37.093Z"
+}

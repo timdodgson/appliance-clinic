@@ -1,0 +1,783 @@
+{
+ "id": "TD-07",
+ "system": "ac3",
+ "sessionId": "bm-ac2-td-07-1b1d7c5d84",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "Beko vented dryer, drum goes round fine but it's just blowing cold air. Had it about 6 years. What part do I need?"
+  },
+  {
+   "role": "assistant",
+   "text": "You may not need a part at all, as a blocked filter or airflow can stop the heat on its own. If cleaning it doesn't bring the heat back, the part depends on what the next checks find, and the exact model number from the label will be needed to order the right one. From what you have described, the most likely cause is clean the lint/fluff filter (and condenser filter) and clear the airflow. A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluff (and is it clean now), or was it already clean?"
+  },
+  {
+   "role": "customer",
+   "text": "Filter was fairly full, I've cleaned it now. I also cleaned a big sag of fluff out of the vent hose and airflow is decent, but it's still cold after 20 min."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is heater element. Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?"
+  },
+  {
+   "role": "customer",
+   "text": "It's a normal heat programme, I've tried both high and low heat and it's cold on both. Timer counts down fine though."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: heater element]\nThe checks point to the heater element. To find the right part, could you give me the model number? It is usually on a sticker inside the door opening.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "It says DV7110 on the front, but I can't see the full model number. The sticker's on the back and the dryer's wedged against the wall in a tight alcove. Is DV7110 enough to find the element?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: heater element]\nProbably not on its own, as DV7110 may not identify the exact version. Suppliers usually match the element using the full model number and any product or serial code from the sticker on the back. The checks point to the heater element. I could not find a confirmed match for model DV7110 in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1883,
+     "labelMs": 279,
+     "enrichMs": 0,
+     "composeMs": 4921,
+     "replyLabelMs": 248,
+     "totalMs": 7333
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Beko",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": "Beko",
+      "model": null,
+      "codes": [],
+      "symptom": "blowing cold air, no heat"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.98
+     },
+     "checkGiven": "A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"tumble-dryer:not-heating\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"Clean the lint/fluff filter (and condenser filter) and clear the airflow\"},\"next\":{\"kind\":\"check\",\"text\":\"A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluff (and is it clean now), or was it already clean?\"},\"ms\":805,\"offered\":{\"situations\":[\"cause: Clean the lint/fluff filter (and condenser filter) and clear the airflow\",\"cause: heater element\",\"cause: thermal cut-out (TOC)\",\"cause: cycling thermostat\",\"cause: refrigerant / heat-pump circuit or its sensors (heat-pump only)\",\"cause: main pcb\"],\"next\":[\"check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?\",\"check: A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overheating. Clean the fluff filter in the door opening (heat-pump models often have a second one at the bottom too). Was it full of fluff (and is it clean now), or was it already clean?\",\"check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off under the tap, then let it drip-dry and refit it. Was it clogged with fluff (and is it clean now), or was it already clean?\",\"check: Check the vent hose out of the back: it should be short, without kinks or squashed sections, and clear of fluff all the way to the outside vent. Was it kinked, squashed or blocked (and is it sorted), or was it already clear?\"],\"removed\":[\"Is it a vented, condenser, or heat-pump dryer, and when did you last clean the f\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no \",\"done\":0.06,\"refused\":0.04,\"pointless\":0.24,\"kept\":true},{\"step\":\"check: A blocked lint filter stops the airflow, and many dryers then cut the heat to stop overhea\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.09,\"kept\":true},{\"step\":\"check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.3,\"kept\":true},{\"step\":\"check: Check the vent hose out of the back: it should be short, without kinks or squashed section\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.12,\"kept\":true},{\"step\":\"question: Is it a vented, condenser, or heat-pump dryer, and when did you last clean the filter(s)?\",\"done\":0.64,\"refused\":0.06,\"pointless\":0.22,\"kept\":false}]},\"answer\":\"You may not need a part at all, as a blocked filter or airflow can stop the heat on its own.  If cleaning it doesn't bring the heat back, the part depends on what the next checks find, and the exact model number from the label will be needed to order the right one.\"}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":\"Beko\",\"model\":null,\"codes\":[],\"symptom\":\"blowing cold air, no heat\",\"customerQuestion\":\"What part do I need?\",\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"vented dryer\",\"drum turns fine\",\"about 6 years old\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (1)\",\"symptomArea\":\"\\\"no_heat\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (0.95)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (1)\",\"code\":\"null (1)\",\"make\":\"\\\"Beko\\\" (1)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2]},\"notes\":[\"tumble-dryer:not-heating\",\"tumble-dryer:fan\",\"tumble-dryer:heat-pump\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was it full of fluff (and is it clean now), or was it already clean?",
+       "turn": 1,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7374
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 7491,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2399,
+     "labelMs": 301,
+     "enrichMs": 1,
+     "composeMs": 826,
+     "replyLabelMs": 300,
+     "totalMs": 3876
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.99
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0,
+       1
+      ],
+      "factsConfirmed": [
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "not heating"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.69
+     },
+     "checkGiven": "Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (an",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"tumble-dryer:not-heating\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"heater element\"},\"next\":{\"kind\":\"check\",\"text\":\"Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?\"},\"ms\":826,\"offered\":{\"situations\":[\"cause: Clean the lint/fluff filter (and condenser filter) and clear the airflow\",\"cause: heater element\",\"cause: thermal cut-out (TOC)\",\"cause: cycling thermostat\",\"cause: refrigerant / heat-pump circuit or its sensors (heat-pump only)\",\"cause: main pcb\"],\"next\":[\"check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no heat. Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?\",\"check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-pump models). Take it out and rinse the fluff off under the tap, then let it drip-dry and refit it. Was it clogged with fluff (and is it clean now), or was it already clean?\"],\"removed\":[\"Check the vent hose out of the back: it should be short, without kinks or squash\",\"Run a normal heat programme again for 10–15 minutes. Is it heating now, or still\",\"Is it a vented, condenser, or heat-pump dryer, and when did you last clean the f\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Some programmes (cool air, refresh, delicates or a low-heat option) dry with little or no \",\"done\":0.07,\"refused\":0.04,\"pointless\":0.31,\"kept\":true},{\"step\":\"check: Behind the flap at the bottom front there's a condenser unit (or a second filter on heat-p\",\"done\":0.1,\"refused\":0.05,\"pointless\":0.51,\"kept\":true},{\"step\":\"check: Check the vent hose out of the back: it should be short, without kinks or squashed section\",\"done\":0.89,\"refused\":0.05,\"pointless\":0.66,\"kept\":false},{\"step\":\"retest: Run a normal heat programme again for 10–15 minutes. Is it heating now, or still cold?\",\"done\":0.74,\"refused\":0.07,\"pointless\":0.5,\"kept\":false},{\"step\":\"question: Is it a vented, condenser, or heat-pump dryer, and when did you last clean the filter(s)?\",\"done\":0.93,\"refused\":0.06,\"pointless\":0.59,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"not heating\",\"customerQuestion\":null,\"answerToLastQuestion\":\"Filter was fairly full, now cleaned\",\"checksReported\":[{\"check\":\"cleaned lint filter\",\"result\":\"was fairly full; still no heat\"},{\"check\":\"cleared fluff from vent hose\",\"result\":\"airflow now decent; still cold after 20 min\"}],\"facts\":[\"vented dryer with vent hose\",\"still cold after 20 minutes running\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (0.99)\",\"symptomArea\":\"\\\"no_heat\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (1)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (1)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0,1],\"factsConfirmed\":[1]},\"notes\":[\"tumble-dryer:not-heating\",\"tumble-dryer:fan\",\"tumble-dryer:heat-pump\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned lint filter: was fairly full; still no heat",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "cleared fluff from vent hose: airflow now decent; still cold after 20 min",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was it full of fluff (and is it clean now), or was it already clean?",
+       "turn": 1,
+       "resolution": "Filter was fairly full, now cleaned"
+      },
+      {
+       "key": null,
+       "text": "Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3916
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 4360,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2616,
+     "labelMs": 326,
+     "enrichMs": 0,
+     "composeMs": 1,
+     "replyLabelMs": 255,
+     "totalMs": 3198
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 0.98
+      },
+      "symptomArea": {
+       "value": "no_heat",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "heater element",
+       "confidence": 0.64
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "no heat, drying cold"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.9
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"model-needed\",\"component\":\"heater element\"}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"no heat, drying cold\",\"customerQuestion\":null,\"answerToLastQuestion\":\"normal heat programme\",\"checksReported\":[{\"check\":\"tried high and low heat settings\",\"result\":\"cold on both\"}],\"facts\":[\"timer counts down fine\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (0.98)\",\"symptomArea\":\"\\\"no_heat\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.99)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"\\\"heater element\\\" (0.64)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0]},\"notes\":[\"tumble-dryer:not-heating\",\"tumble-dryer:fan\",\"tumble-dryer:heat-pump\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned lint filter: was fairly full; still no heat",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "cleared fluff from vent hose: airflow now decent; still cold after 20 min",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "tried high and low heat settings: cold on both",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was it full of fluff (and is it clean now), or was it already clean?",
+       "turn": 1,
+       "resolution": "Filter was fairly full, now cleaned"
+      },
+      {
+       "key": null,
+       "text": "Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?",
+       "turn": 2,
+       "resolution": "normal heat programme"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the model number? It is usually on a sticker inside the door opening.",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3224
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 3415,
+   "retried": false,
+   "label": "Likely cause: heater element",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 1990,
+     "labelMs": 292,
+     "enrichMs": 3,
+     "composeMs": 4130,
+     "replyLabelMs": 434,
+     "totalMs": 7430
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "heater element",
+     "reason": "no-matching-part"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "tumble-dryer",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.51
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": true,
+       "confidence": 0.92
+      },
+      "model": {
+       "value": "DV7110",
+       "confidence": 0.98
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "heater element",
+       "confidence": 0.48
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "tumble dryer",
+      "brand": null,
+      "model": "DV7110",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.95
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "tumble-dryer:not-heating",
+       "tumble-dryer:fan",
+       "tumble-dryer:heat-pump"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"part-not-found\",\"component\":\"heater element\",\"answered\":true,\"answer\":\"Probably not on its own, as DV7110 may not identify the exact version.  Suppliers usually match the element using the full model number and any product or serial code from the sticker on the back.\"}",
+     "trace: {\"understood\":{\"appliance\":\"tumble dryer\",\"brand\":null,\"model\":\"DV7110\",\"codes\":[],\"symptom\":null,\"customerQuestion\":\"Is DV7110 enough to find the element?\",\"answerToLastQuestion\":\"Front says DV7110; full model number sticker on back, can't reach it\",\"checksReported\":[],\"facts\":[\"model sticker is on the back\",\"dryer wedged against the wall in a tight alcove\"],\"cannotReachModel\":true},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"tumble-dryer\\\" (1)\",\"symptomArea\":\"null (0.98)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.51)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"true (0.92)\",\"model\":\"\\\"DV7110\\\" (0.98)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"\\\"heater element\\\" (0.48)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"tumble-dryer:not-heating\",\"tumble-dryer:fan\",\"tumble-dryer:heat-pump\"],\"normal\":[],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "tumble-dryer",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Beko",
+      "confidence": 1,
+      "turn": 1
+     },
+     "model": {
+      "value": "DV7110",
+      "confidence": 0.98,
+      "turn": 4
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "cleaned lint filter: was fairly full; still no heat",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "cleared fluff from vent hose: airflow now decent; still cold after 20 min",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c3",
+       "field": "check",
+       "value": "tried high and low heat settings: cold on both",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Was it full of fluff (and is it clean now), or was it already clean?",
+       "turn": 1,
+       "resolution": "Filter was fairly full, now cleaned"
+      },
+      {
+       "key": null,
+       "text": "Was a cool-air or low-heat programme set (and have you changed it), or was it a normal heat programme?",
+       "turn": 2,
+       "resolution": "normal heat programme"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the model number? It is usually on a sticker inside the door opening.",
+       "turn": 3,
+       "resolution": "Front says DV7110; full model number sticker on back, can't reach it"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7551
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 7870,
+   "retried": false,
+   "label": "Likely cause: heater element",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.043217599999999995,
+ "finishedAt": "2026-10-16T01:01:39.631Z"
+}

@@ -1,0 +1,1172 @@
+{
+ "id": "WM-12",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-12-746fb2d9de",
+ "endReason": "escalated",
+ "customerTurns": 7,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "my washin mashine wont turn on at all no lights nothin"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is property socket / supply / switched fused spur. Next: Check the socket works with another appliance and that any separate switched/fused spur controlling it is on (especially after a recent move). Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "the kettle works in the kitchen so the sockets are ok. whats a spur? i dont know what that is sorry"
+  },
+  {
+   "role": "assistant",
+   "text": "A spur (or \"fused spur\") is a wall switch with its own fuse that some kitchen appliances are wired through, often found above the worktop and sometimes labelled with the appliance's name. It lets you cut power to a machine that sits behind the counter without pulling it out to reach the plug. Next: Check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "i cant reach the plug, its behind the machine and its built in so i cant pull it out. im not allowed to take the cupboard off either and i dont have any tools"
+  },
+  {
+   "role": "assistant",
+   "text": "Next: A blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "ok so what should i do then? i cant check the plug"
+  },
+  {
+   "role": "assistant",
+   "text": "Next: If there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "no bang or burning smell, nothing like that. its just totally dead. is there anything else i can look at?"
+  },
+  {
+   "role": "assistant",
+   "text": "Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?"
+  },
+  {
+   "role": "customer",
+   "text": "completely dead, no lights or display at all. nothing comes on when i press the power button"
+  },
+  {
+   "role": "assistant",
+   "text": "Could you tell me a bit more about what it is doing, and when it happens?"
+  },
+  {
+   "role": "customer",
+   "text": "it was working fine 2 days ago, then this morning its just dead when i press the power button. no sound or anything"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is power cord / plug / lead seated and undamaged. From what you have checked, this needs an appliance engineer to look at it: the next steps are beyond the checks that are safe to do yourself."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2015,
+     "labelMs": 267,
+     "enrichMs": 1,
+     "composeMs": 998,
+     "replyLabelMs": 239,
+     "totalMs": 3521
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "won't turn on at all"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"step\",\"text\":\"check the socket works with another appliance and that any separate switched/fused spur controlling it is on (especially after a recent move)\"},\"ms\":998,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[\"step: check the socket works with another appliance and that any separate switched/fused spur controlling it is on (especially after a recent move)\",\"step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time\",\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it\",\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional\",\"question: Do other nearby sockets have power, and has the machine or your home recently been moved or had a power cut?\"],\"removed\":[\"Is it completely dead with no lights or display at all, or does it power up and \"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: check the socket works with another appliance and that any separate switched/fused spur co\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.08,\"kept\":true},{\"step\":\"step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose ov\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.1,\"kept\":true},{\"step\":\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl\",\"done\":0.06,\"refused\":0.04,\"pointless\":0.14,\"kept\":true},{\"step\":\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.2,\"kept\":true},{\"step\":\"question: Is it completely dead with no lights or display at all, or does it power up and let you ch\",\"done\":0.97,\"refused\":0.12,\"pointless\":0.9,\"kept\":false},{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.09,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"won't turn on at all\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[\"no lights at all\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"no_power\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:door-lock\",\"washing-machine:motor-drum\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 3563
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 3802,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2703,
+     "labelMs": 259,
+     "enrichMs": 1,
+     "composeMs": 4574,
+     "replyLabelMs": 304,
+     "totalMs": 7892
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "other_appliance",
+       "confidence": 0.77
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.64
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.31
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.99
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:control-panel"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":true,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"step\",\"text\":\"check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time\"},\"ms\":796,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[\"step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose over time\",\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it\",\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional\"],\"removed\":[\"Is it completely dead with no lights or display at all, or does it power up and \",\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: check the plug is fully seated and the lead undamaged - vibration can work a plug loose ov\",\"done\":0.06,\"refused\":0.06,\"pointless\":0.17,\"kept\":true},{\"step\":\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl\",\"done\":0.07,\"refused\":0.04,\"pointless\":0.17,\"kept\":true},{\"step\":\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci\",\"done\":0.07,\"refused\":0.06,\"pointless\":0.28,\"kept\":true},{\"step\":\"question: Is it completely dead with no lights or display at all, or does it power up and let you ch\",\"done\":0.97,\"refused\":0.13,\"pointless\":0.88,\"kept\":false},{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.71,\"refused\":0.08,\"pointless\":0.26,\"kept\":false}]},\"answer\":\"A spur (or \\\"fused spur\\\") is a wall switch with its own fuse that some kitchen appliances are wired through, often found above the worktop and sometimes labelled with the appliance's name.  It lets you cut power to a machine that sits behind the counter without pulling it out to reach the plug.\"}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":\"What is a spur?\",\"answerToLastQuestion\":\"Kettle works in kitchen so sockets are ok; doesn't know what a spur is\",\"checksReported\":[{\"check\":\"Tested kitchen socket with kettle\",\"result\":\"Kettle works, sockets ok\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"other_appliance\\\" (0.77)\",\"symptomArea\":\"null (0.97)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.64)\",\"checkOutcome\":\"null (0.31)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:door-lock\",\"washing-machine:control-panel\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 7930
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 8222,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2613,
+     "labelMs": 271,
+     "enrichMs": 2,
+     "composeMs": 823,
+     "replyLabelMs": 251,
+     "totalMs": 4010
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.82
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.65
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.59
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.08
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1,
+       2,
+       3
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.63
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:door-lock",
+       "washing-machine:control-panel"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"step\",\"text\":\"a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional\"},\"ms\":823,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it\",\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replacing fuses, and leave electrical testing to a professional\"],\"removed\":[\"Is it completely dead with no lights or display at all, or does it power up and \",\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl\",\"done\":0.07,\"refused\":0.11,\"pointless\":0.22,\"kept\":true},{\"step\":\"step: a blown plug fuse is a clue - the underlying cause needs finding; do not just keep replaci\",\"done\":0.06,\"refused\":0.16,\"pointless\":0.3,\"kept\":true},{\"step\":\"question: Is it completely dead with no lights or display at all, or does it power up and let you ch\",\"done\":0.97,\"refused\":0.2,\"pointless\":0.89,\"kept\":false},{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.71,\"refused\":0.21,\"pointless\":0.29,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":null,\"customerQuestion\":null,\"answerToLastQuestion\":\"can't reach the plug, it's behind the built-in machine\",\"checksReported\":[],\"facts\":[\"machine is built in\",\"plug is behind the machine\",\"not allowed to remove the cupboard\",\"has no tools\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.82)\",\"symptomArea\":\"null (0.65)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"cannot_or_will_not\\\" (0.59)\",\"checkOutcome\":\"null (0.97)\",\"modelUnreachable\":\"false (0.08)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.95)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1,2,3]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:door-lock\",\"washing-machine:control-panel\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 4048
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 4211,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 3671,
+     "labelMs": 313,
+     "enrichMs": 2,
+     "composeMs": 583,
+     "replyLabelMs": 277,
+     "totalMs": 4880
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.7
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 0.95
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "cannot_or_will_not",
+       "confidence": 0.75
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.05
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.93
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "blown plug fuse"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "safety_stop",
+      "confidence": 0.82
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:control-panel",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"step\",\"text\":\"if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it\"},\"ms\":583,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unplug it\"],\"removed\":[\"Is it completely dead with no lights or display at all, or does it power up and \",\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"step: if there was a pop/bang/burning smell, or any sign of burnt wiring, stop using it and unpl\",\"done\":0.07,\"refused\":0.11,\"pointless\":0.22,\"kept\":true},{\"step\":\"question: Is it completely dead with no lights or display at all, or does it power up and let you ch\",\"done\":0.97,\"refused\":0.21,\"pointless\":0.89,\"kept\":false},{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.7,\"refused\":0.21,\"pointless\":0.29,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"blown plug fuse\",\"customerQuestion\":\"What should I do then?\",\"answerToLastQuestion\":\"cannot check the plug\",\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.81)\",\"symptomArea\":\"null (0.7)\",\"hazard\":\"null (0.95)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"cannot_or_will_not\\\" (0.75)\",\"checkOutcome\":\"null (0.99)\",\"modelUnreachable\":\"false (0.05)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.93)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:control-panel\",\"washing-machine:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 4928
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 5129,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 5,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2678,
+     "labelMs": 288,
+     "enrichMs": 1,
+     "composeMs": 563,
+     "replyLabelMs": 278,
+     "totalMs": 3808
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.81
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 0.99
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.87
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.88
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "totally dead"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:motor-drum",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"question\",\"text\":\"Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?\"},\"ms\":562,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[],\"removed\":[\"Is it completely dead with no lights or display at all, or does it power up and \",\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"question: Is it completely dead with no lights or display at all, or does it power up and let you ch\",\"done\":0.97,\"refused\":0.24,\"pointless\":0.9,\"kept\":false},{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.67,\"refused\":0.22,\"pointless\":0.3,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"totally dead\",\"customerQuestion\":\"is there anything else i can look at?\",\"answerToLastQuestion\":\"no bang or burning smell\",\"checksReported\":[],\"facts\":[\"no bang\",\"no burning smell\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.81)\",\"symptomArea\":\"\\\"no_power\\\" (0.99)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.87)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.88)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.99)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:motor-drum\",\"washing-machine:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?",
+       "turn": 5,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3837
+   },
+   "turn": 5,
+   "status": 200,
+   "ms": 4242,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 6,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2699,
+     "labelMs": 304,
+     "enrichMs": 1,
+     "composeMs": 526,
+     "replyLabelMs": 472,
+     "totalMs": 4003
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.8
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.91
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "completely dead, no lights or display"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:motor-drum",
+       "washing-machine:door-lock"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"property socket / supply / switched fused spur\"},\"next\":{\"kind\":\"question\",\"text\":\"Could you tell me a bit more about what it is doing, and when it happens?\"},\"ms\":526,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[],\"removed\":[\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.69,\"refused\":0.2,\"pointless\":0.31,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"completely dead, no lights or display\",\"customerQuestion\":null,\"answerToLastQuestion\":\"completely dead, no lights or display\",\"checksReported\":[],\"facts\":[\"nothing comes on when pressing the power button\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.8)\",\"symptomArea\":\"\\\"no_power\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.91)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.97)\",\"checksConfirmed\":[],\"factsConfirmed\":[0]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:motor-drum\",\"washing-machine:door-lock\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?",
+       "turn": 5,
+       "resolution": "completely dead, no lights or display"
+      },
+      {
+       "key": null,
+       "text": "Could you tell me a bit more about what it is doing, and when it happens?",
+       "turn": 6,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4044
+   },
+   "turn": 6,
+   "status": 200,
+   "ms": 4239,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 7,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2851,
+     "labelMs": 349,
+     "enrichMs": 0,
+     "composeMs": 592,
+     "replyLabelMs": 321,
+     "totalMs": 4162
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": null,
+       "confidence": 0.89
+      },
+      "symptomArea": {
+       "value": "no_power",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 0.99
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": 0.97
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": null,
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "dead, no response when power button pressed"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 1
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:low-voltage",
+       "washing-machine:control-panel",
+       "washing-machine:motor-drum"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:low-voltage\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"power cord / plug / lead seated and undamaged\"},\"next\":null,\"ms\":592,\"offered\":{\"situations\":[\"cause: property socket / supply / switched fused spur\",\"cause: power cord / plug / lead seated and undamaged\",\"cause: mains interference suppressor / mains filter\",\"cause: incoming wiring / burnt connector\",\"cause: power switch [architectures that use a distinct on/off switch]\",\"cause: control PCB low-voltage power-supply section\"],\"next\":[],\"removed\":[\"Do other nearby sockets have power, and has the machine or your home recently be\"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"question: Do other nearby sockets have power, and has the machine or your home recently been moved o\",\"done\":0.69,\"refused\":0.19,\"pointless\":0.3,\"kept\":false}]}}",
+     "trace: {\"understood\":{\"appliance\":null,\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"dead, no response when power button pressed\",\"customerQuestion\":null,\"answerToLastQuestion\":\"completely dead since this morning when pressing power\",\"checksReported\":[],\"facts\":[\"was working fine 2 days ago\",\"no sound when power button pressed\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"null (0.89)\",\"symptomArea\":\"\\\"no_power\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (0.99)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (1)\",\"code\":\"null (1)\",\"make\":\"null (null)\",\"narrowed\":\"null (0.97)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:low-voltage\",\"washing-machine:control-panel\",\"washing-machine:motor-drum\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "Tested kitchen socket with kettle: Kettle works, sockets ok",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "Is it completely dead with no lights or display at all, or does it power up and let you choose a programme but then not start?",
+       "turn": 5,
+       "resolution": "completely dead, no lights or display"
+      },
+      {
+       "key": null,
+       "text": "Could you tell me a bit more about what it is doing, and when it happens?",
+       "turn": 6,
+       "resolution": "completely dead since this morning when pressing power"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4317
+   },
+   "turn": 7,
+   "status": 200,
+   "ms": 4706,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0811753,
+ "finishedAt": "2026-10-16T00:59:02.428Z"
+}
