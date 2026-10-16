@@ -131,10 +131,18 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
       lines.push(`The checks point to the ${comp}. A matching part for model ${parts.catalogueModel} is shown below; check the listing matches your model before ordering. If you would rather not fit it yourself, an appliance engineer can.`);
       return { reply: lines.join(' '), given: {}, chosen: { state: 'part-verified', component: comp } };
     }
-    if (!model && !c.modelUnavailable) {
+    // The model number is asked for once; if it still is not given (a worn label, a production code instead of the
+    // model), the reply moves on instead of asking again (round 5: WM-06).
+    const askedModel = rec.asked.some((x) => /model number/i.test(x.question || ''));
+    if (!model && !c.modelUnavailable && !askedModel) {
       const ask = `To find the right part, could you give me the ${c.brand ? '' : 'make and '}model number? It is usually ${labelWhere}.`;
       lines.push(`The checks point to the ${comp}. ${ask}`);
       return { reply: lines.join(' '), given: { question: ask }, chosen: { state: 'model-needed', component: comp } };
+    }
+    if (!model) {
+      c.modelUnavailable = true;
+      lines.push(`The checks point to the ${comp}. If the model number can't be read, it is often also on the guarantee card, the receipt or the manual; with it, the right part can be matched. Without it, an appliance engineer can identify and fit the right ${comp} from the machine itself.`);
+      return { reply: lines.join(' '), given: {}, chosen: { state: 'model-unreadable', component: comp } };
     }
     if (parts && parts.outcome === 'no_catalogue_part') {
       lines.push(`The checks point to the ${comp}. I could not find a confirmed match for model ${model} in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it.`);
@@ -194,6 +202,12 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   if (!note) note = (await EV.pickNote(jev, { texts, known, notes })) || notes[0] || null;
   if (note && causesOf(note).length < 2) note = notes.find((n) => n !== note && causesOf(n).length >= 2) || note;
   const o = cleanOptions({ note, normal, given, afterFindings: c.checks.length > 0 });
+  // A note with no steps of its own (round 5: washing-machine:leak-door) borrows the steps of the related notes found.
+  if (!o.steps.length) {
+    const seen = new Set();
+    o.steps = notes.filter((n) => n !== note).flatMap((n) => cleanOptions({ note: n, normal: [], given, afterFindings: c.checks.length > 0 }).steps)
+      .filter((x) => { const k = key(x.text); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 12);
+  }
   const sit = o.situations.map((x, i) => ({ id: `s${i + 1}`, ...x }));
   const steps = o.steps.map((x, i) => ({ id: `n${i + 1}`, ...x }));
   // "Needs an engineer" only after at least two reported checks (one cleaned filter is not enough).
