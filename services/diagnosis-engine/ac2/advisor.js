@@ -1,7 +1,7 @@
 'use strict';
 /**
- * The advisor (refactor 2026-10-16): Opus reads the conversation and our notes, looks things up when it needs to, and
- * writes the reply. One model call per customer message, plus one more for each round of lookups.
+ * The advisor (ADR 0023, refactor 2026-10-16): Claude reads the conversation and our notes, looks things up when it
+ * needs to, and writes the reply. One model call per customer message, plus one more for each round of lookups.
  *
  *   lookups (tools)  lookup_error_code: the error-code service (mcp.js)
  *                    find_parts: the Spares4Repairs parts catalogue for a model (engine/parts-client.js)

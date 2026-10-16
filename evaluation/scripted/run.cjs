@@ -2,7 +2,7 @@
 'use strict';
 /**
  * Scripted pass/fail tests (evaluation/scripted/tests.json) run straight against the engine's turn code
- * (services/diagnosis-engine/ac2/runtime.js) with the production dependencies: the AI config, Opus, the error-code
+ * (services/diagnosis-engine/ac2/runtime.js) with the production dependencies: the AI config, Claude, the error-code
  * service, the parts catalogue and the media mappings. No simulated customer and no judge: the customer messages are
  * fixed and every reply is checked by fixed rules.
  *
@@ -26,7 +26,6 @@ const PRICE = { in: 4 / 1e6, out: 20 / 1e6 };
 process.env.AWS_REGION = process.env.AWS_REGION || 'eu-west-1';
 process.env.AI_CONFIG_SECRET_ID = 'applianceclinic/production/ai-config';
 process.env.OPENAI_SECRET_ID = 'applianceclinic/production/openai';
-process.env.JEV_SECRET_ID = 'applianceclinic/production/jev';
 process.env.MCP_URL = process.env.MCP_URL || 'https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws';
 
 async function secret(id) {
@@ -63,18 +62,13 @@ function routeErrorCodeService() {
 const spend = { in: 0, out: 0, calls: 0 };
 function meter() {
   const inf = require(path.join(ENGINE, 'inference.js'));
-  for (const C of [inf.AnthropicProvider, inf.OpenAICompatibleProvider]) {
-    for (const m of ['infer', 'converse']) {
-      if (!C || !C.prototype[m]) continue;
-      const orig = C.prototype[m];
-      C.prototype[m] = async function metered(...a) {
-        const r = await orig.apply(this, a);
-        spend.calls += 1;
-        if (r && r.usage) { spend.in += r.usage.promptTokens || 0; spend.out += r.usage.completionTokens || 0; }
-        return r;
-      };
-    }
-  }
+  const orig = inf.AnthropicProvider.prototype.converse;
+  inf.AnthropicProvider.prototype.converse = async function metered(...a) {
+    const r = await orig.apply(this, a);
+    spend.calls += 1;
+    if (r && r.usage) { spend.in += r.usage.promptTokens || 0; spend.out += r.usage.completionTokens || 0; }
+    return r;
+  };
 }
 const usd = () => spend.in * PRICE.in + spend.out * PRICE.out;
 
@@ -146,7 +140,7 @@ function rescore(spec) {
       const t0 = Date.now();
       let out;
       try {
-        out = await runtime.turn({ messages, state, tools: { recalls: [] }, image: turn.image || null });
+        out = await runtime.turn({ messages, state, tools: { recalls: [] } });
       } catch (e) {
         turns.push({ customer: turn.customer, error: `${e.name}: ${e.message}`, fails: ['turn failed'] });
         break;

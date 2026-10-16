@@ -1,5 +1,9 @@
 # One customer message, step by step (from the code only)
 
+> **Historical.** This walkthrough describes the ADR 0021 pipeline as it ran on 2026-10-16 before change 23.1. The
+> files it cites (`understand.js`, `labels.js`, `reasoner.js`, `verifier.js`, `jev-client.js`) were deleted in changes
+> 23.1–23.4. The live turn is described in [docs/architecture/overview.md](../../architecture/overview.md).
+
 ## Browser → API
 1. `apps/web/public/app.js ask()`: sends the chat (last 12 messages, first message always kept), the state token, and
    on a new chat the Turnstile token.

@@ -1,12 +1,11 @@
 /**
  * Transcript enrichment + Admin transcript API, against the REAL BFF handler. The diagnosis engine is a fake (the ac2
- * turn's engine call), the ledger store is in memory, so the stored ac2-transcript-audit/1 block is what production
+ * turn's engine call), the record store is in memory, so the stored ac2-transcript-audit/2 block is what production
  * writes. Proves:
- *   - each ac2 turn stores its audit (never a canonical block); the browser view never carries it; no token / csid
- *   - historical canonical-audit/1 turns (written before the journey controller was retired) stay readable: detail
- *     returns them, the list summarises them, and a session that mixes them with ac2 turns is reported as mixed
- *   - list stays compact; detail returns per-turn audits in order; unknown / invalid ids
- *   - auth unchanged (401 without an admin session)
+ *   - each ac2 turn stores its bounded audit; the browser view never carries it; no token / csid is stored
+ *   - a turn the engine could not answer is stored as a failed turn and the customer sees the explicit error
+ *   - records written by the earlier audit schema (/1) stay readable
+ *   - list stays compact; detail returns per-turn audits in order; unknown / invalid ids; auth unchanged
  */
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createRequire } from 'node:module';
@@ -28,17 +27,17 @@ function memLedger() {
     },
   };
 }
-/** The engine's ac2 turn: a reply and an advanced ledger, with a bounded audit. */
+/** The engine's ac2 turn: a reply and an advanced record, with the bounded audit the engine writes (ac2/turn.js). */
 async function fakeEngine(raw) {
   engineCalls += 1;
   const body = JSON.parse(raw);
   const prior = body.ac2 && body.ac2.state;
   const turn = (prior ? prior.turn : 0) + 1;
-  const state = { schema: 'ac3/1', turn, stage: 2, outcome: null, narrowed: null, asked: [], hazards: [],
-    customer: { appliance: { value: 'washing-machine', confidence: 0.9, turn: 1 }, brand: { value: 'hotpoint', confidence: 0.9, turn: 1 }, model: null, codes: [], symptom: { value: 'not draining', confidence: 0.9, turn: 1 }, symptomArea: null, checks: [{ check: 'pump filter', result: 'clear', turn }], modelUnavailable: false },
-    knowledge: { knowledgeIds: [], fault: null, causes: [], components: [], codeMeanings: [], modelInfo: [] } };
-  const audit = { schema: 'ac3-audit/1', turn, provider: { name: 'test', model: 'm' }, timings: { totalMs: 5 }, safety: { hazards: [], gates: [] },
-    partGate: { outcome: 'none' }, tags: { labels: { appliance: { value: 'washing-machine', confidence: 0.9 } }, stage: 2, replyAction: { value: 'asks_question', confidence: 0.8 } } };
+  const state = { schema: 'ac3/1', turn, outcome: turn === 1 ? 'diagnosing' : 'part_needed', hazards: [],
+    customer: { appliance: 'washing machine', brand: 'hotpoint', model: null, codes: [], symptom: 'not draining' } };
+  const audit = { schema: 'ac4-audit/1', turn, provider: { name: 'anthropic', model: 'm' }, timings: { adviseMs: 4, totalMs: 5 }, usage: { inputTokens: 10, outputTokens: 5 },
+    toolCalls: ['send_reply'], safety: { hazards: [], gates: [] }, partGate: { outcome: 'none', component: null, reason: null },
+    tags: { outcome: state.outcome, media: null, enrichment: { knowledgeIds: ['washing-machine:not-draining'], codes: [], recalls: 0, parts: 0 } }, escalation: null };
   return { status: 200, json: { type: 'ac2', response: { outcome: 'ANSWER', message: turn === 1 ? 'Is there water left in the drum?' : 'Next, check the pump filter.' }, state, audit } };
 }
 async function call(method, rawPath, { body, qs, admin = true } = {}) {
@@ -53,21 +52,18 @@ async function say(text, history = [], { ctid, token } = {}) {
   return call('POST', '/api', { body: { messages, ...(token ? { stateToken: token } : {}), observability: { sessionId: SID, clientTurnId: ctid } }, admin: false });
 }
 
-/** A turn as the retired journey controller stored it (canonical-audit/1), for the read-only legacy path. */
-function legacyCanonicalTurn(seq, at) {
+/** A turn as the earlier engine stored it (ac2-transcript-audit/1, with a ledger), for the read-only legacy path. */
+function legacyAuditTurn(seq, at) {
   return {
-    seq, at, clientTurnId: `ct-old-${seq}`, customer: { text: 'my hotpoint washing machine will not drain', photo: false },
-    customerVisible: { reply: 'Is the drain filter clear?' }, metadata: { route: 'SYMPTOMS', outcome: 'ANSWER', requestId: 'old' },
-    diagnosticTrace: null,
-    canonical: { schemaVersion: 'canonical-audit/1', path: 'control', mode: 'control', controlled: true, owner: 'wm-not-draining', ref: 'abcdef012345',
-      appliance: 'washing-machine', version: { before: 0, after: 1 }, policy: { rule: 'R7', kind: 'ask_check', target: 'drain-filter' },
-      nextAction: { kind: 'ask_check', target: 'drain-filter', rule: 'R7' }, stateDelta: [{ op: 'add', field: 'appliance', to: 'washing-machine' }],
-      persistence: { written: true, recordWritten: true } },
+    seq, at, clientTurnId: `ct-old-${seq}`, customer: { text: 'my beko dishwasher shows E15', photo: false },
+    customerVisible: { reply: 'E15 means water in the base.', parts: [], media: [] }, metadata: { route: 'AC2', outcome: 'ANSWER', requestId: 'old' },
+    ac2: { schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', turn: 1, status: 'narrowing', provider: { name: 'bedrock', model: 'old' },
+      partGate: { outcome: 'none' }, ledger: { appliance: { value: 'dishwasher' }, brand: { value: 'Beko' }, model: null, facts: [] } },
   };
 }
 async function seedHistorical(store, sessionId, at) {
   const rec = transcripts.emptyRecord(sessionId, new Date(at));
-  rec.turns = [legacyCanonicalTurn(1, at)];
+  rec.turns = [legacyAuditTurn(1, at)];
   rec.turnCount = 1;
   await store.put(rec);
 }
@@ -95,20 +91,23 @@ describe('enrichment through the real handler', () => {
     expect(engineCalls).toBe(2);
     const rec = await store.get(SID);
     expect(rec.turns.map((t) => [t.seq, t.ac2 && t.ac2.turn])).toEqual([[1, 1], [2, 2]]);
-    expect(rec.turns[1].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', path: 'ac2', status: 'stage_2', partGate: { outcome: 'none' }, tags: { stage: 2, replyAction: { value: 'asks_question' } } });
+    expect(rec.turns[1].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/2', path: 'ac2', outcome: 'part_needed', partGate: { outcome: 'none' },
+      customer: { appliance: 'washing machine', brand: 'hotpoint', model: null }, toolCalls: ['send_reply'], tags: { outcome: 'part_needed' } });
+    expect(rec).toMatchObject({ family: 'washing machine', make: 'hotpoint' });
     for (const t of rec.turns) expect(t).not.toHaveProperty('canonical');
     const dump = JSON.stringify(rec);
     expect(dump).not.toContain(r1.json.stateToken);
     expect(dump).not.toMatch(/cs_[A-Za-z0-9_-]{32}/);
     // the browser view never carries the audit
-    expect(r1.raw).not.toMatch(/ac2-transcript-audit|claimsChecked|"ledger"/);
+    expect(r1.raw).not.toMatch(/ac2-transcript-audit|toolCalls|"audit"/);
   });
   it('a turn the engine could not answer is stored as a failed ac2 turn, and the customer sees the explicit error', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
-    api.setAc2DepsForTests({ callEngine: async () => ({ status: 503, json: { errorCode: 'reasoner_unavailable' } }) });
+    api.setAc2DepsForTests({ callEngine: async () => ({ status: 503, json: { errorCode: 'advisor_unavailable' } }) });
     const r = await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0101' });
-    expect(r.json).toMatchObject({ error: true, errorCode: 'ai_unavailable', degraded: 'reasoner_unavailable' });
-    expect((await store.get(SID)).turns[0].ac2).toMatchObject({ path: 'ac2', error: 'reasoner_unavailable' });
+    expect(r.json).toMatchObject({ error: true, errorCode: 'ai_unavailable', degraded: 'advisor_unavailable' });
+    expect((await store.get(SID)).turns[0].ac2).toMatchObject({ path: 'ac2', error: 'advisor_unavailable' });
+    expect((await call('GET', '/api/admin/transcripts', { qs: { degraded: '1' } })).json.items.map((r) => r.sessionId)).toEqual([SID]);
   });
 });
 
@@ -121,45 +120,35 @@ describe('admin transcript API', () => {
     expect((await call('GET', '/api/admin/transcripts/session', { qs: { id: 'unknown-session-xyz' } })).status).toBe(404);
     expect((await call('GET', '/api/admin/transcripts/session', { qs: { id: 'bad' } })).status).toBe(400);
   });
-  it('a historical canonical-audit/1 session stays readable: detail returns the stored audit, the list summarises it', async () => {
+  it('a session written by the earlier audit schema stays readable: detail returns the audit, the list summarises it', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
     await seedHistorical(store, 's-historical-0001', '2026-10-01T10:00:00.000Z');
     const d = await call('GET', '/api/admin/transcripts/session', { qs: { id: 's-historical-0001' } });
     expect(d.status).toBe(200);
     const turns = d.json.customerVisible.turns;
-    expect(turns[0].canonical).toMatchObject({ schemaVersion: 'canonical-audit/1', path: 'control', policy: { rule: 'R7' } });
-    expect(turns[0].ac2).toBeNull();
-    expect(d.json.overview.canonical).toMatchObject({ path: 'control', journey: 'wm-not-draining', counts: { control: 1 } });
+    expect(turns[0].ac2).toMatchObject({ schemaVersion: 'ac2-transcript-audit/1', turn: 1, status: 'narrowing' });
+    expect(turns[0].runtime).toMatchObject({ route: 'AC2', outcome: 'ANSWER' });
+    expect(d.json.overview.ac2).toMatchObject({ turns: 1, outcome: 'narrowing', appliance: 'dishwasher', errors: 0 });
+    expect(d.json.overview.family).toBe('dishwasher');
   });
-  it('a session that continues after the cutover is mixed; the older canonical audit is kept read-only', async () => {
-    const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
-    await seedHistorical(store, SID, '2026-10-01T10:00:00.000Z');
-    await say('the filter is clear', [{ role: 'user', content: 'my hotpoint washing machine will not drain' }, { role: 'assistant', content: 'Is the drain filter clear?' }], { ctid: 'ct-0402' });
-    const d = await call('GET', '/api/admin/transcripts/session', { qs: { id: SID } });
-    const turns = d.json.customerVisible.turns;
-    expect(turns.map((t) => t.seq)).toEqual([1, 2]);
-    expect(turns[0].canonical).toMatchObject({ schemaVersion: 'canonical-audit/1', owner: 'wm-not-draining' });
-    expect(turns[1].canonical).toBeNull();
-    expect(turns[1].ac2).toMatchObject({ path: 'ac2' });
-    expect(d.json.overview.canonical).toMatchObject({ path: 'mixed', journey: 'wm-not-draining', counts: { control: 1, ac2: 1 } });
-  });
-  it('list: compact rows (no per-turn audit), newest first, cursor pagination, path and journey filters', async () => {
+  it('list: compact rows (no per-turn audit), newest first, cursor pagination, family and outcome filters', async () => {
     const store = transcripts.createMemoryStore(); api.setTranscriptStore(store);
     for (let i = 0; i < 3; i++) {
       const rec = transcripts.emptyRecord(`s-page-session-${i}`, new Date(Date.UTC(2026, 9, 1, 10, i)));
-      rec.turns = [{ seq: 1, customer: { text: `t${i}` }, customerVisible: { reply: 'r' } }]; rec.turnCount = 1;
+      rec.turns = [{ seq: 1, customer: { text: `t${i}` }, customerVisible: { reply: 'r', parts: [], media: [] } }]; rec.turnCount = 1;
       await store.put(rec);
     }
     await seedHistorical(store, 's-historical-0002', '2026-10-01T09:00:00.000Z');
     await say('my hotpoint washing machine will not drain', [], { ctid: 'ct-0501' });
     const p1 = await call('GET', '/api/admin/transcripts', { qs: { limit: '2' } });
     expect(p1.json.items.map((r) => r.sessionId)).toEqual([SID, 's-page-session-2']);
-    expect(p1.raw).not.toMatch(/stateDelta|"ledger"|nextAction|"turns":\[/);
-    expect(p1.json.items[0]).toMatchObject({ canonical: { path: 'ac2' } });
+    expect(p1.raw).not.toMatch(/toolCalls|"turns":\[|enrichment/);
+    expect(p1.json.items[0]).toMatchObject({ family: 'washing machine', make: 'hotpoint', ac2: { turns: 1, outcome: 'diagnosing' }, partRecommended: false });
+    expect(p1.json.viewCounts).toEqual({ all: 5, safety: 0, errors: 0, parts: 0 });
     const p2 = await call('GET', '/api/admin/transcripts', { qs: { limit: '2', cursor: p1.json.nextCursor } });
     expect(p2.json.items.map((r) => r.sessionId)).toEqual(['s-page-session-1', 's-page-session-0']);
-    expect((await call('GET', '/api/admin/transcripts', { qs: { journey: 'wm-not-draining' } })).json.items.map((r) => r.sessionId)).toEqual(['s-historical-0002']);
-    expect((await call('GET', '/api/admin/transcripts', { qs: { canonical: 'ac2' } })).json.items.map((r) => r.sessionId)).toEqual([SID]);
-    expect((await call('GET', '/api/admin/transcripts', { qs: { canonical: 'legacy' } })).json.items).toHaveLength(3);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { family: 'dishwasher' } })).json.items.map((r) => r.sessionId)).toEqual(['s-historical-0002']);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { outcome: 'diagnosing' } })).json.items.map((r) => r.sessionId)).toEqual([SID]);
+    expect((await call('GET', '/api/admin/transcripts', { qs: { partRecommended: '0' } })).json.items).toHaveLength(5);
   });
 });

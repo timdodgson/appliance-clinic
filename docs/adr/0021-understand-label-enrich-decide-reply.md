@@ -1,6 +1,7 @@
 # 0021. One turn: Qwen understands, Jev labels, tools enrich, code decides, Qwen replies
 
-- **Status:** Implemented (changes 21.2–21.9, 2026-10-13); the journey controller is removed. **Amended by change
+- **Status:** Superseded by [0023](0023-one-advisor-model-with-tools-inside-the-guardrail-kernel.md) on 2026-10-16.
+  Was implemented (changes 21.2–21.9, 2026-10-13); the journey controller is removed. **Amended by change
   21.11:** the reasoning step and the claim verifier of 0020 are restored inside this pipeline (see below)
 - **Date:** 2026-10-13
 - **Amends:** [0020](0020-llm-led-diagnosis-with-deterministic-guardrails.md): replaces its single reasoning pass and

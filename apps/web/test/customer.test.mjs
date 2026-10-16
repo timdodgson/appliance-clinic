@@ -125,10 +125,10 @@ describe('customer chat', () => {
     expect(panel.querySelector('.safety-info__text').textContent).toBe('Never open the casing: high voltage inside.');
   });
 
-  it('a diagnosis shows its label and summary as the lead, then the rest of the reply', async () => {
+  it('a diagnosis shows its summary as the lead, then the rest of the reply, with no label overline', async () => {
     const summary = 'The pump filter is the most likely cause.';
-    const r = await send('not draining', { reply: `${summary} Clear it with the machine unplugged.`, diagnosis: { label: 'Blocked pump filter', summary } });
-    expect(r.bot.querySelector('.response__diag').textContent).toBe('Blocked pump filter');
+    const r = await send('not draining', { reply: `${summary} Clear it with the machine unplugged.`, diagnosis: { summary } });
+    expect(r.bot.querySelector('.response__diag')).toBeNull();
     expect(r.bot.querySelector('.response__lead').textContent).toBe(summary);
     expect(r.bot.querySelector('.response__body').textContent).toBe('Clear it with the machine unplugged.');
   });
@@ -160,9 +160,10 @@ describe('customer chat', () => {
     expect(a.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
-  it('asks for the model in plain words when the engine needs it and shows no part', async () => {
-    const r = await send('dishwasher not filling', { reply: 'Could you send me the model number?', needsModel: true });
-    expect(r.bot.querySelector('.model-req')).not.toBeNull();
+  it('a reply that asks for the model is shown as the advisor wrote it, with no part and no extra prompt', async () => {
+    const r = await send('dishwasher not filling', { reply: 'Could you send me the model number?', parts: [] });
+    expect(r.bot.querySelector('.response__lead').textContent).toBe('Could you send me the model number?');
+    expect(r.bot.querySelector('.model-req')).toBeNull();
     expect(r.bot.querySelector('.part')).toBeNull();
   });
 

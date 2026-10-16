@@ -1,7 +1,7 @@
 /**
- * The customer turn after the 2026-10-16 refactor: Opus (the advisor) reads the chat and our notes, looks up error
- * codes and parts, and writes the reply; the code keeps the fixed safety rules and only shows parts the catalogue
- * returned and pictures from our notes.
+ * The customer turn (ADR 0023): Claude (the advisor) reads the chat and our notes, looks up error codes and parts, and
+ * writes the reply; the code keeps the fixed safety rules and only shows parts the catalogue returned and pictures from
+ * our notes.
  */
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
@@ -54,7 +54,8 @@ describe('turn: the Dyson chat that went wrong live', () => {
     expect(out.response.message).toContain('airflow: a blocked or damp filter.\n\nWash the filter');
     expect(out.response.message.startsWith('Switch it off and unplug it (or take the battery off) first.')).toBe(true);
     expect(out.response.media).toEqual([PICTURE]);
-    expect(out.response.diagnosis).toBeNull();
+    expect(out.response).not.toHaveProperty('diagnosis');
+    expect(out.audit.tags).toEqual({ outcome: 'diagnosing', media: 'vac-lost-suction', enrichment: { knowledgeIds: out.audit.tags.enrichment.knowledgeIds, codes: [], recalls: 0, parts: 'none' } });
     expect(out.state.customer).toEqual({ appliance: 'vacuum', brand: 'Dyson', model: 'V6' });
     // Our notes went to the model: the vacuum fault notes and the picture it may show.
     const notes = m.calls[0].messages[0].content.find((b) => /Notes from Appliance Clinic/.test(b.text)).text;
@@ -159,6 +160,16 @@ describe('turn: failures and the record', () => {
 });
 
 describe('error-code service (MCP)', () => {
+  it('retries a code with O and 0 swapped when the service has no mapping as typed', async () => {
+    const { o0Variants } = require('../ac2/mcp.js');
+    expect(o0Variants('EO3').map((v) => v.code)).toEqual(['E03']);
+    expect(o0Variants('E18')).toEqual([]);
+    const asked = [];
+    const fetchFn = async (url, init) => { const code = JSON.parse(init.body).params.arguments.code; asked.push(code); return { ok: true, json: async () => ({ result: { structuredContent: code === 'E03' ? { status: 'RESOLVED', meaning: 'Drain fault' } : { status: 'NOT_FOUND' } } }) }; };
+    const r = await resolveErrorCode({ make: 'Bosch', appliance: 'washing-machine', code: 'EO3' }, { url: 'https://mcp.example', token: 't', fetchFn });
+    expect(asked).toEqual(['EO3', 'E03']);
+    expect(r).toMatchObject({ code: 'EO3', matchedAs: 'E03', status: 'RESOLVED' });
+  });
   it('calls resolve-error-code over JSON-RPC with the bearer and keeps the meaning and hints', async () => {
     let sent;
     const fetchFn = async (url, init) => { sent = { url, init }; return { ok: true, json: async () => ({ jsonrpc: '2.0', id: 1, result: { structuredContent: { status: 'RESOLVED', meaning: 'Drain fault', confidence: 'HIGH', enrichment: { components: ['drain pump'], likelyCauses: ['blocked filter'], checks: ['clean the pump filter'], safety: { stopUse: false } } } } }) }; };
@@ -183,16 +194,5 @@ describe('safety kernel (shared)', () => {
   it('removes prohibited advice, keeps warnings not to do it, and keeps paragraphs', () => {
     const g = S.gateReply('Discharge the capacitor with a screwdriver. Never remove the outer casing yourself.\n\nAsk an engineer.', { appliance: 'microwave' });
     expect(g.text).toBe('Never remove the outer casing yourself.\n\nAsk an engineer.');
-  });
-});
-
-describe('evaluation-only ablation: the reply model alone', () => {
-  it('sends only a generic assistant prompt and the chat', async () => {
-    const { writePlain, PLAIN_SYSTEM } = require('../ac2/runtime.js');
-    const calls = [];
-    const p = { async infer(req) { calls.push(req); return { status: 200, text: 'Try cleaning the filter.' }; } };
-    const out = await writePlain(p, [user('dishwasher wont drain')]);
-    expect(out.text).toBe('Try cleaning the filter.');
-    expect(calls[0].messages).toEqual([{ role: 'system', content: PLAIN_SYSTEM }, { role: 'user', content: 'dishwasher wont drain' }]);
   });
 });

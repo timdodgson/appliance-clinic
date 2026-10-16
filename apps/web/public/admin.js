@@ -112,7 +112,6 @@
   var navItems = document.querySelectorAll('.admin__navitem');
   var sections = document.querySelectorAll('.admin__section');
   var _hashFromNav = false;
-  var dashPeriod = '7d';
 
   function parseHash() {
     var raw = String(location.hash || '').replace(/^#/, '');
@@ -190,8 +189,8 @@
       showSection(target);
       if (pendingNavLoad) { var load = pendingNavLoad; pendingNavLoad = null; setTimeout(load, 0); }
       if (target === 'dashboard') {
-        writeHash('dashboard', { period: dashPeriod || '7d' }, true);
-        loadDashboard(dashPeriod || '7d');
+        writeHash('dashboard', {}, true);
+        loadDashboard();
       } else if (target === 'transcripts') {
         resetTranscriptFilters();
         writeHash('transcripts', {}, true);
@@ -218,17 +217,6 @@
     if (res && res.status === 429) return fallback + ' Too many requests — wait a moment and try again.';
     return fallback + (res && res.status ? ' (HTTP ' + res.status + ')' : '');
   }
-  function isoDate(iso) { return String(iso || '').slice(0, 10); }
-  function dashDates(prod) {
-    var w = (prod && prod.period) || {};
-    return { from: isoDate(w.from), to: isoDate(w.to) };
-  }
-  function transcriptsHref(extra, prod) {
-    var dates = dashDates(prod);
-    var params = { from: dates.from, to: dates.to };
-    Object.keys(extra || {}).forEach(function (k) { params[k] = extra[k]; });
-    return hashString('transcripts', params);
-  }
   function countRow(href, label, count) {
     return '<a class="dash-row" href="' + esc(href) + '"><span>' + esc(label) + '</span><span class="dash-row__count">' + esc(count) + '</span></a>';
   }
@@ -242,7 +230,7 @@
     var pill = h.ok ? 'pill pill--ok' : 'pill pill--bad';
     var html = '<div class="' + cls + '"><div class="dash-health__row">'
       + '<div><div class="dash-health__label">System health</div>'
-      + '<div class="dash-health__parts">' + esc(h.summaryLine || 'API · Diagnostics · RAG · Error codes') + '</div></div>'
+      + '<div class="dash-health__parts">' + esc(h.summaryLine || 'API · Diagnosis engine · Error codes') + '</div></div>'
       + '<span class="' + pill + '">' + esc(h.label || (h.ok ? 'Healthy' : 'Problem')) + '</span></div>';
     if (!h.ok && h.failed && h.failed.length) {
       html += '<ul class="dash-health__fail">';
@@ -264,19 +252,16 @@
     var rows = [];
     function row(label, value, tone, href, linkText) {
       rows.push('<div class="dash-state__row' + (tone ? ' dash-state__row--' + tone : '') + '"><dt>' + esc(label) + '</dt><dd>'
-        + (tone === 'bad' ? '<span class="pill pill--bad">Action needed</span> ' : (tone === 'warn' ? '<span class="pill pill--warn">Temporary</span> ' : ''))
+        + (tone === 'bad' ? '<span class="pill pill--bad">Action needed</span> ' : '')
         + esc(value) + (href ? ' <a class="dash-link" href="' + esc(href) + '">' + esc(linkText) + '</a>' : '') + '</dd></div>');
     }
     var na = function (x) { return !x || x.unavailable; };
     var dz = s.diagnosis || {};
-    row('Diagnosis', dz.architecture === 'ac2' ? 'ac2 · LLM-led turn inside the guardrail kernel' : 'Not reported', null, '#diagnostics', 'Diagnostics');
-    var r = s.routing;
-    row('AI routing', na(r) ? 'Could not be read' : 'COMPOSE (reasoner) ' + r.compose + (r.composeModel ? ' (' + r.composeModel + ')' : ''), null, '#settings', 'Settings');
-    var o = s.override;
-    if (na(o)) row('Batch routing override', 'Could not be read', null, '#test?tab=batch', 'Test');
-    else if (o.blocked || o.state === 'restore_failed') row('Batch routing override', (o.blocked ? 'Restore conflict' : 'Restore failed') + ' · run ' + (o.runId || '—'), 'bad', '#test?tab=batch', 'Resolve in Test');
-    else if (o.active) row('Batch routing override', 'Active · run ' + (o.runId || '—') + ' · live routing is temporary until it ends', 'warn', '#test?tab=batch', 'Test');
-    else row('Batch routing override', 'None active', null, '#test?tab=batch', 'Test');
+    row('Diagnosis', dz.architecture === 'ac2' ? 'ac2 · the advisor inside the guardrail kernel' : 'Not reported', null, '#diagnostics', 'Diagnostics');
+    var a = s.advisor;
+    if (na(a)) row('Advisor model', 'Could not be read', null, '#settings', 'Settings');
+    else if (!a.model) row('Advisor model', 'Not set · the advisor cannot answer until a model is saved', 'bad', '#settings', 'Settings');
+    else row('Advisor model', (a.provider ? a.provider + ' · ' : '') + a.model + (a.credentialConfigured ? '' : ' · credential missing') + ' · version ' + (a.version || 1), a.credentialConfigured ? null : 'bad', '#settings', 'Settings');
     var e = s.errorCodes;
     row('Error Codes', na(e) ? 'Could not be read' : (e.active != null ? e.active + ' active' : 'Count unavailable') + ' · ' + (e.overlay && e.overlay !== 'none' ? 'Admin overlay ' + e.overlay : 'no Admin overlay'), na(e) || e.ok ? null : 'bad', '#error-codes', 'Error Codes');
     var m = s.media;
@@ -286,108 +271,46 @@
     return '<dl class="dash-state">' + rows.join('') + '</dl>';
   }
 
-  function renderAttention(prod) {
-    var att = (prod && prod.attention) || {};
-    var n = att.conversations || 0;
-    if (!n) return emptyLine('Nothing in this period needs attention.');
-    var html = '<p class="dash-attn__total">' + n + ' conversation' + (n === 1 ? '' : 's') + ' need' + (n === 1 ? 's' : '') + ' attention '
-      + '<a class="dash-link" href="' + esc(transcriptsHref({ attention: '1' }, prod)) + '">View conversations</a></p>';
-    html += '<div class="dash-rows">';
-    if (att.important) html += countRow(transcriptsHref({ priority: 'important' }, prod), 'Important', att.important);
-    if (att.worthReviewing) html += countRow(transcriptsHref({ priority: 'worth_reviewing' }, prod), 'Worth reviewing', att.worthReviewing);
-    if (att.poor) html += countRow(transcriptsHref({ overall: 'poor' }, prod), 'Poor', att.poor);
-    if (att.safetyConcern) html += countRow(transcriptsHref({ safetyHandling: 'concern' }, prod), 'Safety concern', att.safetyConcern);
-    if (att.significantLooping) html += countRow(transcriptsHref({ looping: 'significant' }, prod), 'Significant conversation-flow issue', att.significantLooping);
-    html += '</div>';
-    html += '<p class="dash-note">Each conversation is counted once. The rows below are reasons, not extra incidents.</p>';
-    return html;
-  }
-
   function kpi(label, value, href) {
     var inner = '<div class="dash-kpi__val">' + esc(value) + '</div><div class="dash-kpi__label">' + esc(label) + '</div>';
     if (href) return '<a class="dash-kpi dash-kpi--link" href="' + esc(href) + '">' + inner + '</a>';
     return '<div class="dash-kpi">' + inner + '</div>';
   }
 
-  function renderProduction(prod) {
-    if (!prod || prod.unavailable) {
-      return emptyLine('Production activity is unavailable right now. System health above is still live.');
-    }
-    var sessions = prod.sessions || 0;
-    if (!sessions) {
-      return emptyLine(prod.period && prod.period.key === 'today'
-        ? 'No customer conversations today.'
-        : 'No customer conversations in this period.');
-    }
+  // Today's activity from the transcript store (server: transcripts.statsFromRows). Exact counts of
+  // conversations with activity today; each links to the Conversations view that lists them.
+  function renderActivity(act) {
+    if (!act || act.unavailable) return emptyLine('Production activity is unavailable right now. System health above is still live.');
+    var today = String(act.generatedAt || '').slice(0, 10);
+    var href = function (extra) { var p = { from: today, to: today }; Object.keys(extra || {}).forEach(function (k) { p[k] = extra[k]; }); return hashString('transcripts', p); };
+    var sessions = act.sessionsToday || 0;
+    if (!sessions) return emptyLine('No customer conversations today.');
     var html = '<div class="dash-kpis">'
-      + kpi('Sessions', sessions, transcriptsHref({}, prod))
-      + kpi('Reviewed', prod.reviewed || 0, transcriptsHref({ reviewStatus: 'reviewed' }, prod))
+      + kpi('Conversations', sessions, href({}))
+      + kpi('Turns', act.turnsToday || 0)
+      + kpi('Part recommended', act.partSessionsToday || 0, href({ partRecommended: '1' }))
+      + kpi('Safety stops', act.safetySessionsToday || 0, href({ safety: '1' }))
+      + kpi('API errors', act.errorSessionsToday || 0, href({ errors: '1' }))
       + '</div>';
-    if (!prod.reviewed) {
-      html += emptyLine('No reviewed conversations in this period.');
-      return html;
+    var fams = act.familyDistribution || {};
+    var keys = Object.keys(fams).filter(function (k) { return fams[k]; }).sort(function (a, b) { return fams[b] - fams[a]; });
+    if (keys.length) {
+      html += '<div class="dash-group"><div class="dash-group__title">Appliances</div><div class="dash-rows">';
+      keys.forEach(function (k) { html += countRow(href({ family: k }), familyLabel(k) || k, fams[k]); });
+      html += '</div></div>';
     }
-    var overall = [
-      ['good', 'Good'], ['mixed', 'Mixed'], ['poor', 'Poor'], ['insufficient_evidence', 'Insufficient evidence']
-    ];
-    var outcome = [
-      ['useful_outcome', 'Useful'], ['partial_outcome', 'Partial'], ['no_useful_outcome', 'No useful outcome'],
-      ['abandoned', 'Abandoned'], ['insufficient_evidence', 'Insufficient evidence']
-    ];
-    html += '<div class="dash-group"><div class="dash-group__title">Quality</div><div class="dash-rows">';
-    overall.forEach(function (pair) {
-      var n = (prod.overall && prod.overall[pair[0]]) || 0;
-      if (pair[0] === 'insufficient_evidence' && !n) return;
-      html += countRow(transcriptsHref({ overall: pair[0] }, prod), pair[1], n);
-    });
-    html += '</div></div>';
-    html += '<div class="dash-group"><div class="dash-group__title">Outcomes</div><div class="dash-rows">';
-    outcome.forEach(function (pair) {
-      var n = (prod.outcome && prod.outcome[pair[0]]) || 0;
-      if (pair[0] === 'insufficient_evidence' && !n) return;
-      html += countRow(transcriptsHref({ reviewOutcome: pair[0] }, prod), pair[1], n);
-    });
-    html += '</div></div>';
-    html += '<p class="dash-note">' + esc(prod.sampleNote || 'Exact counts of conversations in this period. Not statistical significance.') + '</p>';
+    html += '<p class="dash-note">Exact counts of conversations with activity today (UTC).</p>';
     return html;
   }
 
-  function renderAreas(prod) {
-    var areas = (prod && prod.productAreas) || [];
-    if (!areas.length) return emptyLine('No recurring product issues identified in this period.');
-    var html = '<div class="dash-rows">';
-    areas.forEach(function (a) {
-      html += countRow(transcriptsHref({ productArea: a.area }, prod), a.label || a.area, a.count);
-    });
-    html += '</div>';
-    html += '<p class="dash-note">Stored semantic classifications for conversations in this period.</p>';
-    return html;
-  }
-
-  function setPeriodButtons(period) {
-    dashPeriod = period || '7d';
-    Array.prototype.forEach.call(document.querySelectorAll('.dash-period'), function (btn) {
-      var on = btn.getAttribute('data-period') === dashPeriod;
-      btn.classList.toggle('is-on', on);
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    });
-  }
-
-  function loadDashboard(period) {
-    var p = period || dashPeriod || '7d';
-    if (p !== 'today' && p !== '7d' && p !== '30d') p = '7d';
-    setPeriodButtons(p);
+  function loadDashboard() {
     var healthEl = $('dashHealth');
-    var attEl = $('dashAttentionBody');
-    var prodEl = $('dashProductionBody');
-    var areasEl = $('dashAreasBody');
-    if (healthEl) healthEl.innerHTML = '<div class="health__loading">Checking system health…</div>';
-    if (attEl) attEl.innerHTML = '<div class="tac__muted">Loading…</div>';
-    if (prodEl) prodEl.innerHTML = '<div class="tac__muted">Loading…</div>';
-    if (areasEl) areasEl.innerHTML = '<div class="tac__muted">Loading…</div>';
+    var actEl = $('dashActivityBody');
     var stateEl = $('dashStateBody');
+    if (healthEl) healthEl.innerHTML = '<div class="health__loading">Checking system health…</div>';
+    if (actEl) actEl.innerHTML = '<div class="tac__muted">Loading…</div>';
     if (stateEl) stateEl.innerHTML = '<div class="tac__muted">Loading…</div>';
-    fetch(API_BASE + '/admin/dashboard?period=' + encodeURIComponent(p), { credentials: 'same-origin', headers: { accept: 'application/json' } })
+    fetch(API_BASE + '/admin/dashboard', { credentials: 'same-origin', headers: { accept: 'application/json' } })
       .then(readJson)
       .then(function (res) {
         if (res.status === 401) return;
@@ -395,48 +318,27 @@
           // A failed load is never shown as "nothing happened" (empty counts).
           var why = apiErrorText(res, 'Could not load the dashboard.');
           if (healthEl) healthEl.innerHTML = '<div class="health__loading">' + esc(why) + '</div>';
-          [stateEl, attEl, prodEl, areasEl].forEach(function (el) { if (el) el.innerHTML = emptyLine(why); });
+          [stateEl, actEl].forEach(function (el) { if (el) el.innerHTML = emptyLine(why); });
           return;
         }
         var data = res.body;
-        var prod = data.production || {};
         if (stateEl) stateEl.innerHTML = renderState(data.state);
         if (healthEl) healthEl.innerHTML = renderHealth(data.health);
-        if (attEl) attEl.innerHTML = renderAttention(prod);
-        if (prodEl) prodEl.innerHTML = renderProduction(prod);
-        if (areasEl) areasEl.innerHTML = renderAreas(prod);
-        var title = document.querySelector('#dashProduction .admin__h2');
-        if (title) title.textContent = 'Production — ' + ((prod.period && prod.period.label) || 'Last 7 days');
-        if ($('dashPeriodNote')) {
-          $('dashPeriodNote').textContent = (prod.period && prod.period.note)
-            || 'Counts are for conversations in this period, not when they were reviewed.';
-        }
+        if (actEl) actEl.innerHTML = renderActivity(data.activity);
       })
       .catch(function () {
         if (stateEl) stateEl.innerHTML = emptyLine('Could not load the production state.');
         if (healthEl) healthEl.innerHTML = '<div class="health__loading">Could not load system health.</div>';
-        if (attEl) attEl.innerHTML = emptyLine('Could not load attention items.');
-        if (prodEl) prodEl.innerHTML = emptyLine('Could not load production activity.');
-        if (areasEl) areasEl.innerHTML = emptyLine('Could not load recurring areas.');
+        if (actEl) actEl.innerHTML = emptyLine('Could not load today’s activity.');
       });
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.dash-period'), function (btn) {
-    btn.addEventListener('click', function () {
-      var period = btn.getAttribute('data-period') || '7d';
-      setPeriodButtons(period);
-      writeHash('dashboard', { period: period }, true);
-      loadDashboard(period);
-    });
-  });
 
   function applyHashRoute() {
     var route = parseHash();
     var target = route.section || 'dashboard';
-    // Back-compat: the old Test ApplianceClinic (#benchmark) and Test Scenarios
-    // (#library) are now tabs inside one Test area. Land old links on the right tab.
-    var aliasTab = null;
-    if (target === 'benchmark') { aliasTab = 'live'; target = 'test'; }
-    else if (target === 'library') { aliasTab = 'scenarios'; target = 'test'; }
+    // Back-compat: the old Test ApplianceClinic (#benchmark) and Test Scenarios (#library) links land on the
+    // Live test (the Test area is the live workbench only, ADR 0023).
+    if (target === 'benchmark' || target === 'library') target = 'test';
     // Operator-facing names map to the unchanged internal section ids.
     else if (target === 'conversations') target = 'transcripts';
     else if (target === 'error-codes' || target === 'errorcodes') target = 'mcp';
@@ -450,22 +352,12 @@
       target = 'dashboard';
     }
     showSection(target);
-    if (target === 'dashboard') loadDashboard(route.params.period || dashPeriod || '7d');
+    if (target === 'dashboard') loadDashboard();
     else if (target === 'transcripts') {
       if (route.sub) showTranscriptDetail(route.sub, route.params);
       else showTranscriptList(route.params);
     } else if (target === 'test') {
       ensureTestPage();
-      // '#test/scenario/<id>' (?view=edit), '#test/scenario/new' and '#test/run/<runId>' (?journey=)
-      // are dedicated pages inside their tab; a bare '#test?tab=…' is the tab's list.
-      var testSub = route.sub || '';
-      var tab = aliasTab || route.params.tab || 'live';
-      if (testSub.indexOf('scenario/') === 0) tab = 'scenarios';
-      else if (testSub.indexOf('run/') === 0) tab = 'batch';
-      if (['live', 'scenarios', 'batch'].indexOf(tab) === -1) tab = 'live';
-      showTestTab(tab);
-      testShowRoute(tab, testSub, route.params);
-      if (tab === 'live' && route.params.scenario) wbPickScenario(route.params.scenario);
     } else if (target === 'knowledge') {
       if (!route.sub && route.params.id) {
         // Back-compat: old '#knowledge?id=X' links (e.g. from Media) → the dedicated detail route.
@@ -518,148 +410,67 @@
       return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
     } catch (e) { return iso; }
   }
-  function routeLabel(r) {
-    if (r === 'SYMPTOMS') return 'Symptom';
-    if (r === 'ERROR_CODE') return 'Error code';
-    if (r === 'ERROR_CODE_AND_SYMPTOMS') return 'Code + symptom';
-    return r || '—';
-  }
-
   var txCursorStack = [null];
   var txPage = 0;
   var txOpenId = null;
-  var TX_CHIP_LABELS = {
-    from: 'From', to: 'To', family: 'Appliance', make: 'Make', route: 'Route',
-    lifecycle: 'Lifecycle', safety: 'Safety cases', errors: 'Sessions with API errors',
-    attention: 'Needs attention', looping: 'Conversation flow', stateProgression: 'Progression',
-    safetyHandling: 'Safety handling',
-    reviewStatus: 'Review status', overall: 'Overall', priority: 'Priority',
-    reviewOutcome: 'Outcome', productArea: 'Product area', q: 'Search',
-    journey: 'Journey', canonical: 'Path', degraded: 'Degraded turns', partRecommended: 'Part recommended'
+  // The advisor's stored outcome for a conversation (services/whichpart-api/transcripts.js OUTCOMES).
+  var TX_OUTCOME_LABELS = {
+    diagnosing: 'Diagnosing', part_needed: 'Part needed', engineer: 'Engineer needed', normal: 'Normal behaviour',
+    fixed: 'Fixed', out_of_scope: 'Out of scope', safety_stop: 'Safety stop',
   };
-  var TX_REVIEWSTATUS_LABELS = {
-    awaiting: 'Awaiting review', reviewed: 'Reviewed', failed: 'Review failed', none: 'Not eligible yet'
+  var TX_CHIP_LABELS = {
+    from: 'From', to: 'To', family: 'Appliance', make: 'Make', lifecycle: 'Lifecycle', outcome: 'Outcome',
+    safety: 'Safety stops', errors: 'Sessions with API errors', degraded: 'Advisor errors', partRecommended: 'Part recommended', q: 'Search',
   };
   // Chip values that already read as a full phrase — show the value alone, no key prefix.
-  var TX_CHIP_SELFDESC = { family: 1, safetyHandling: 1, reviewStatus: 1, productArea: 1 };
-  var TX_AREA_LABELS = {
-    understanding: 'Understanding', clarification: 'Clarification',
-    diagnostic_reasoning: 'Diagnostic reasoning', knowledge: 'Knowledge',
-    parts: 'Parts', media: 'Media', safety: 'Safety',
-    conversation_flow: 'Conversation flow', identification: 'Identification', other: 'Other'
-  };
+  var TX_CHIP_SELFDESC = { family: 1 };
   var TX_FAMILY_LABELS = {
     'washing machine': 'Washing machine', 'washer-dryer': 'Washer dryer',
     'tumble-dryer': 'Tumble dryer', dishwasher: 'Dishwasher',
     'fridge-freezer': 'Fridge freezer', 'oven-cooker': 'Oven / cooker',
-    hobs: 'Hob', microwave: 'Microwave', vacuum: 'Vacuum'
+    hobs: 'Hob', microwave: 'Microwave', vacuum: 'Vacuum',
   };
+  // Query parameter → form control. Values and checkboxes are the whole filter vocabulary the API accepts.
+  var TX_FIELDS = { from: 'txFrom', to: 'txTo', family: 'txFamily', make: 'txMake', lifecycle: 'txLifecycle', outcome: 'txOutcome', partRecommended: 'txPartRecommended', q: 'txSearch' };
+  var TX_CHECKS = { safety: 'txSafety', errors: 'txErrors', degraded: 'txDegraded' };
 
   function resetTranscriptFilters() {
-    ['txFrom', 'txTo', 'txFamily', 'txMake', 'txRoute', 'txLifecycle', 'txSearch', 'txReviewStatus', 'txOverall', 'txPriority', 'txReviewOutcome', 'txProductArea', 'txLooping', 'txStateProgression', 'txSafetyHandling', 'txJourney', 'txCanonical', 'txPartRecommended'].forEach(function (id) { if ($(id)) $(id).value = ''; });
-    if ($('txDegraded')) $('txDegraded').checked = false;
-    if ($('txSafety')) $('txSafety').checked = false;
-    if ($('txErrors')) $('txErrors').checked = false;
-    if ($('txAttention')) $('txAttention').checked = false;
+    Object.keys(TX_FIELDS).forEach(function (k) { if ($(TX_FIELDS[k])) $(TX_FIELDS[k]).value = ''; });
+    Object.keys(TX_CHECKS).forEach(function (k) { if ($(TX_CHECKS[k])) $(TX_CHECKS[k]).checked = false; });
   }
   function transcriptParamsFromForm() {
     var params = {};
-    function val(id) { return ($(id) && $(id).value) || ''; }
-    if (val('txFrom')) params.from = val('txFrom');
-    if (val('txTo')) params.to = val('txTo');
-    if (val('txFamily')) params.family = val('txFamily');
-    if (val('txMake').trim()) params.make = val('txMake').trim();
-    if (val('txRoute')) params.route = val('txRoute');
-    if (val('txLifecycle')) params.lifecycle = val('txLifecycle');
-    if ($('txSafety') && $('txSafety').checked) params.safety = '1';
-    if ($('txErrors') && $('txErrors').checked) params.errors = '1';
-    if ($('txAttention') && $('txAttention').checked) params.attention = '1';
-    if (val('txLooping')) params.looping = val('txLooping');
-    if (val('txStateProgression')) params.stateProgression = val('txStateProgression');
-    if (val('txSafetyHandling')) params.safetyHandling = val('txSafetyHandling');
-    if (val('txReviewStatus')) params.reviewStatus = val('txReviewStatus');
-    if (val('txOverall')) params.overall = val('txOverall');
-    if (val('txPriority')) params.priority = val('txPriority');
-    if (val('txReviewOutcome')) params.reviewOutcome = val('txReviewOutcome');
-    if (val('txProductArea')) params.productArea = val('txProductArea');
-    if (val('txJourney').trim()) params.journey = val('txJourney').trim().toLowerCase();
-    if (val('txCanonical')) params.canonical = val('txCanonical');
-    if ($('txDegraded') && $('txDegraded').checked) params.degraded = '1';
-    if (val('txPartRecommended')) params.partRecommended = val('txPartRecommended');
-    if (val('txSearch').trim()) params.q = val('txSearch').trim();
+    Object.keys(TX_FIELDS).forEach(function (k) {
+      var el = $(TX_FIELDS[k]);
+      var v = el ? String(el.value || '').trim() : '';
+      if (v) params[k] = k === 'make' ? v.toLowerCase() : v;
+    });
+    Object.keys(TX_CHECKS).forEach(function (k) { if ($(TX_CHECKS[k]) && $(TX_CHECKS[k]).checked) params[k] = '1'; });
     return params;
   }
   function applyTranscriptParams(params) {
     resetTranscriptFilters();
     params = params || {};
-    if (params.from && $('txFrom')) $('txFrom').value = String(params.from).slice(0, 10);
-    if (params.to && $('txTo')) $('txTo').value = String(params.to).slice(0, 10);
-    if (params.family && $('txFamily')) $('txFamily').value = params.family;
-    if (params.make && $('txMake')) $('txMake').value = params.make;
-    if (params.route && $('txRoute')) $('txRoute').value = params.route;
-    if (params.lifecycle && $('txLifecycle')) $('txLifecycle').value = params.lifecycle;
-    if ((params.safety === '1' || params.safety === 'true') && $('txSafety')) $('txSafety').checked = true;
-    if ((params.errors === '1' || params.errors === 'true') && $('txErrors')) $('txErrors').checked = true;
-    if ((params.attention === '1' || params.attention === 'true') && $('txAttention')) $('txAttention').checked = true;
-    if (params.looping && $('txLooping')) $('txLooping').value = params.looping;
-    if (params.stateProgression && $('txStateProgression')) $('txStateProgression').value = params.stateProgression;
-    if (params.safetyHandling && $('txSafetyHandling')) $('txSafetyHandling').value = params.safetyHandling;
-    if (params.reviewStatus && $('txReviewStatus')) $('txReviewStatus').value = params.reviewStatus;
-    if (params.overall && $('txOverall')) $('txOverall').value = params.overall;
-    if (params.priority && $('txPriority')) $('txPriority').value = params.priority;
-    if (params.reviewOutcome && $('txReviewOutcome')) $('txReviewOutcome').value = params.reviewOutcome;
-    if (params.productArea && $('txProductArea')) $('txProductArea').value = params.productArea;
-    if (params.q && $('txSearch')) $('txSearch').value = params.q;
-    if (params.journey && $('txJourney')) $('txJourney').value = params.journey;
-    if (params.canonical && $('txCanonical')) $('txCanonical').value = params.canonical;
-    if ((params.degraded === '1' || params.degraded === 'true') && $('txDegraded')) $('txDegraded').checked = true;
-    if (params.partRecommended && $('txPartRecommended')) $('txPartRecommended').value = params.partRecommended;
+    Object.keys(TX_FIELDS).forEach(function (k) {
+      if (params[k] == null || params[k] === '' || !$(TX_FIELDS[k])) return;
+      $(TX_FIELDS[k]).value = (k === 'from' || k === 'to') ? String(params[k]).slice(0, 10) : String(params[k]);
+    });
+    Object.keys(TX_CHECKS).forEach(function (k) {
+      if ((params[k] === '1' || params[k] === 'true') && $(TX_CHECKS[k])) $(TX_CHECKS[k]).checked = true;
+    });
     txCursorStack = [null];
     txPage = 0;
     syncTranscriptChrome();
   }
   function txQuery() {
+    var p = transcriptParamsFromForm();
     var q = [];
-    var from = ($('txFrom') && $('txFrom').value) || '';
-    var to = ($('txTo') && $('txTo').value) || '';
-    if (from) q.push('from=' + encodeURIComponent(from + 'T00:00:00.000Z'));
-    if (to) q.push('to=' + encodeURIComponent(to + 'T23:59:59.999Z'));
-    var fam = ($('txFamily') && $('txFamily').value) || '';
-    var make = ($('txMake') && $('txMake').value.trim()) || '';
-    var route = ($('txRoute') && $('txRoute').value) || '';
-    var life = ($('txLifecycle') && $('txLifecycle').value) || '';
-    var search = ($('txSearch') && $('txSearch').value.trim()) || '';
-    if (fam) q.push('family=' + encodeURIComponent(fam));
-    if (make) q.push('make=' + encodeURIComponent(make.toLowerCase()));
-    if (route) q.push('route=' + encodeURIComponent(route));
-    if (life) q.push('lifecycle=' + encodeURIComponent(life));
-    if ($('txSafety') && $('txSafety').checked) q.push('safety=1');
-    if ($('txErrors') && $('txErrors').checked) q.push('errors=1');
-    if ($('txAttention') && $('txAttention').checked) q.push('attention=1');
-    var looping = ($('txLooping') && $('txLooping').value) || '';
-    var stateProgression = ($('txStateProgression') && $('txStateProgression').value) || '';
-    var safetyHandling = ($('txSafetyHandling') && $('txSafetyHandling').value) || '';
-    if (looping) q.push('looping=' + encodeURIComponent(looping));
-    if (stateProgression) q.push('stateProgression=' + encodeURIComponent(stateProgression));
-    if (safetyHandling) q.push('safetyHandling=' + encodeURIComponent(safetyHandling));
-    var rs = ($('txReviewStatus') && $('txReviewStatus').value) || '';
-    var overall = ($('txOverall') && $('txOverall').value) || '';
-    var pri = ($('txPriority') && $('txPriority').value) || '';
-    var rout = ($('txReviewOutcome') && $('txReviewOutcome').value) || '';
-    var area = ($('txProductArea') && $('txProductArea').value) || '';
-    if (rs) q.push('reviewStatus=' + encodeURIComponent(rs));
-    if (overall) q.push('overall=' + encodeURIComponent(overall));
-    if (pri) q.push('priority=' + encodeURIComponent(pri));
-    if (rout) q.push('reviewOutcome=' + encodeURIComponent(rout));
-    if (area) q.push('productArea=' + encodeURIComponent(area));
-    var journey = ($('txJourney') && $('txJourney').value.trim().toLowerCase()) || '';
-    var canon = ($('txCanonical') && $('txCanonical').value) || '';
-    var partRec = ($('txPartRecommended') && $('txPartRecommended').value) || '';
-    if (journey) q.push('journey=' + encodeURIComponent(journey));
-    if (canon) q.push('canonical=' + encodeURIComponent(canon));
-    if ($('txDegraded') && $('txDegraded').checked) q.push('degraded=1');
-    if (partRec) q.push('partRecommended=' + encodeURIComponent(partRec));
-    if (search.length >= 3) q.push('q=' + encodeURIComponent(search));
+    if (p.from) q.push('from=' + encodeURIComponent(p.from + 'T00:00:00.000Z'));
+    if (p.to) q.push('to=' + encodeURIComponent(p.to + 'T23:59:59.999Z'));
+    ['family', 'make', 'lifecycle', 'outcome', 'partRecommended', 'safety', 'errors', 'degraded'].forEach(function (k) {
+      if (p[k]) q.push(k + '=' + encodeURIComponent(p[k]));
+    });
+    if (p.q && p.q.length >= 3) q.push('q=' + encodeURIComponent(p.q));
     q.push('limit=25');
     var cur = txCursorStack[txPage];
     if (cur) q.push('cursor=' + encodeURIComponent(cur));
@@ -683,40 +494,33 @@
     if (fam && ident) return fam + ' · ' + ident;
     return fam || ident || 'Appliance not identified';
   }
-  function assessmentFlagClass(v) {
-    if (v === 'poor') return 'tx__flag tx__flag--warn';
-    if (v === 'good') return 'tx__flag tx__flag--ok';
-    if (v === 'insufficient_evidence') return 'tx__flag tx__flag--muted';
-    return 'tx__flag';
-  }
+  function outcomeLabel(v) { return (v && TX_OUTCOME_LABELS[v]) || titleEnum(v); }
   function lifeLabel(life) {
     var map = { active: 'Recent', ended: 'Ended', inactive: 'Inactive', error: 'Error' };
     return map[life] || life || '';
   }
+  // Quick views back the three stored facts the list counts: safety stops, API errors, part recommended.
+  var TX_VIEWS = { safety: { check: 'txSafety' }, errors: { check: 'txErrors' }, parts: { field: 'txPartRecommended', value: '1' } };
   function activeQuickView() {
-    var attention = $('txAttention') && $('txAttention').checked;
-    var overall = ($('txOverall') && $('txOverall').value) || '';
-    var looping = ($('txLooping') && $('txLooping').value) || '';
-    var safety = ($('txSafetyHandling') && $('txSafetyHandling').value) || '';
-    if (attention && !overall && !looping && !safety) return 'attention';
-    if (!attention && overall === 'poor' && !looping && !safety) return 'poor';
-    if (!attention && !overall && looping === 'significant' && !safety) return 'loops';
-    if (!attention && !overall && !looping && safety === 'concern') return 'safety';
-    if (!attention && !overall && !looping && !safety) return 'all';
+    var safety = $('txSafety') && $('txSafety').checked;
+    var errors = $('txErrors') && $('txErrors').checked;
+    var part = ($('txPartRecommended') && $('txPartRecommended').value) || '';
+    if (safety && !errors && !part) return 'safety';
+    if (!safety && errors && !part) return 'errors';
+    if (!safety && !errors && part === '1') return 'parts';
+    if (!safety && !errors && !part) return 'all';
     return 'custom';
   }
   function clearViewFilters() {
-    if ($('txAttention')) $('txAttention').checked = false;
-    if ($('txOverall')) $('txOverall').value = '';
-    if ($('txLooping')) $('txLooping').value = '';
-    if ($('txSafetyHandling')) $('txSafetyHandling').value = '';
+    if ($('txSafety')) $('txSafety').checked = false;
+    if ($('txErrors')) $('txErrors').checked = false;
+    if ($('txPartRecommended')) $('txPartRecommended').value = '';
   }
   function applyQuickView(view) {
     clearViewFilters();
-    if (view === 'attention' && $('txAttention')) $('txAttention').checked = true;
-    else if (view === 'poor' && $('txOverall')) $('txOverall').value = 'poor';
-    else if (view === 'safety' && $('txSafetyHandling')) $('txSafetyHandling').value = 'concern';
-    else if (view === 'loops' && $('txLooping')) $('txLooping').value = 'significant';
+    var v = TX_VIEWS[view];
+    if (v && v.check && $(v.check)) $(v.check).checked = true;
+    else if (v && v.field && $(v.field)) $(v.field).value = v.value;
     txCursorStack = [null];
     txPage = 0;
     writeHash('transcripts', transcriptParamsFromForm());
@@ -724,20 +528,10 @@
   }
   function chipValueLabel(key, value) {
     if (key === 'family') return familyLabel(value) || value;
-    if (key === 'productArea') return TX_AREA_LABELS[value] || titleEnum(value);
-    if (key === 'attention' || key === 'safety' || key === 'errors' || key === 'degraded') return '';
-    if (key === 'canonical') return ({ control: 'Canonical control', shadow: 'Shadow', legacy: 'Legacy', mixed: 'Mixed', degraded: 'Degraded', ac2: 'AC2' })[value] || value;
+    if (key === 'safety' || key === 'errors' || key === 'degraded') return '';
     if (key === 'partRecommended') return value === '1' ? 'yes' : 'no';
-    if (key === 'journey') return value;
-    if (key === 'route') return routeLabel(value);
     if (key === 'lifecycle') return lifeLabel(value);
-    if (key === 'overall') return txLabel(TX_OVERALL_LABELS, value);
-    if (key === 'stateProgression') return txLabel(TX_PROGRESSION_LABELS, value);
-    if (key === 'safetyHandling') return txLabel(TX_SAFETY_LABELS, value);
-    if (key === 'priority') return txLabel(TX_PRIORITY_LABELS, value);
-    if (key === 'reviewOutcome') return txLabel(TX_OUTCOME_LABELS, value);
-    if (key === 'looping') return txLabel(TX_LOOPING_LABELS, value);
-    if (key === 'reviewStatus') return TX_REVIEWSTATUS_LABELS[value] || titleEnum(value);
+    if (key === 'outcome') return outcomeLabel(value);
     return titleEnum(value) || value;
   }
   function shortDate(d) {
@@ -752,7 +546,7 @@
   }
   // The quick views and the specialist filters share backing inputs. To avoid duplicate
   // chips we render ONE distinct quick-view chip and suppress the param(s) that back it.
-  var TX_VIEW_CHIP_LABELS = { attention: 'Needs attention', poor: 'Poor', safety: 'Safety concern', loops: 'Repeated questions' };
+  var TX_VIEW_CHIP_LABELS = { safety: 'Safety stops', errors: 'API errors', parts: 'Part recommended' };
   function renderFilterChips(params) {
     var el = $('txFilterChips');
     if (!el) return;
@@ -762,10 +556,9 @@
     var suppress = {};
     if (TX_VIEW_CHIP_LABELS[view]) {
       chips.push({ cls: 'tx-chip tx-chip--view', key: '__view', text: TX_VIEW_CHIP_LABELS[view], aria: TX_VIEW_CHIP_LABELS[view] + ' view' });
-      if (view === 'attention') suppress.attention = 1;
-      else if (view === 'poor') suppress.overall = 1;
-      else if (view === 'safety') suppress.safetyHandling = 1;
-      else if (view === 'loops') suppress.looping = 1;
+      if (view === 'safety') suppress.safety = 1;
+      else if (view === 'errors') suppress.errors = 1;
+      else if (view === 'parts') suppress.partRecommended = 1;
     }
     if (params.from || params.to) {
       chips.push({ cls: 'tx-chip', key: 'dateRange', text: dateChipText(params.from, params.to), aria: 'date range' });
@@ -800,31 +593,19 @@
     }
   }
   function clearOneFilter(key) {
-    var map = {
-      from: 'txFrom', to: 'txTo', family: 'txFamily', make: 'txMake', route: 'txRoute',
-      lifecycle: 'txLifecycle', looping: 'txLooping', stateProgression: 'txStateProgression',
-      safetyHandling: 'txSafetyHandling',
-      reviewStatus: 'txReviewStatus', overall: 'txOverall', priority: 'txPriority',
-      reviewOutcome: 'txReviewOutcome', productArea: 'txProductArea', q: 'txSearch',
-      journey: 'txJourney', canonical: 'txCanonical', partRecommended: 'txPartRecommended'
-    };
     if (key === '__view') clearViewFilters();
     else if (key === 'dateRange') { if ($('txFrom')) $('txFrom').value = ''; if ($('txTo')) $('txTo').value = ''; }
-    else if (key === 'attention' && $('txAttention')) $('txAttention').checked = false;
-    else if (key === 'safety' && $('txSafety')) $('txSafety').checked = false;
-    else if (key === 'errors' && $('txErrors')) $('txErrors').checked = false;
-    else if (key === 'degraded' && $('txDegraded')) $('txDegraded').checked = false;
-    else if (map[key] && $(map[key])) $(map[key]).value = '';
+    else if (TX_CHECKS[key] && $(TX_CHECKS[key])) $(TX_CHECKS[key]).checked = false;
+    else if (TX_FIELDS[key] && $(TX_FIELDS[key])) $(TX_FIELDS[key]).value = '';
     txCursorStack = [null]; txPage = 0;
     writeHash('transcripts', transcriptParamsFromForm());
     loadTranscripts();
   }
   function contextCopy(view, params) {
     var head;
-    if (view === 'attention') head = 'Showing conversations that need attention';
-    else if (view === 'poor') head = 'Showing conversations assessed as Poor';
-    else if (view === 'safety') head = 'Showing conversations with a stored safety concern';
-    else if (view === 'loops') head = 'Showing conversations with significant looping';
+    if (view === 'safety') head = 'Showing conversations with a safety stop';
+    else if (view === 'errors') head = 'Showing conversations that recorded an API error';
+    else if (view === 'parts') head = 'Showing conversations where a part was recommended';
     else if (view === 'custom') head = 'Showing filtered conversations';
     else head = 'Showing all retained conversations';
     if (params.from || params.to) {
@@ -832,15 +613,13 @@
     }
     return head + '.';
   }
-  // Specialist = lives in the More filters drawer. Excludes the primary-row controls
-  // (search/date/appliance/review status) and the param backing the active quick view,
-  // so the "More filters · N active" count reflects only genuinely extra refinement.
-  var TX_SPECIALIST_KEYS = ['make', 'route', 'lifecycle', 'looping', 'stateProgression',
-    'safetyHandling', 'overall', 'priority', 'reviewOutcome', 'productArea', 'errors', 'safety',
-    'journey', 'canonical', 'degraded', 'partRecommended'];
+  // Specialist = lives in the More filters drawer. Excludes the primary-row controls (search/date/appliance)
+  // and the param backing the active quick view, so the "More filters · N active" count reflects only
+  // genuinely extra refinement.
+  var TX_SPECIALIST_KEYS = ['make', 'lifecycle', 'outcome', 'degraded', 'errors', 'safety', 'partRecommended'];
   function specialistActiveKeys(params) {
     var view = activeQuickView();
-    var exclude = view === 'poor' ? 'overall' : (view === 'loops' ? 'looping' : (view === 'safety' ? 'safetyHandling' : null));
+    var exclude = view === 'safety' ? 'safety' : (view === 'errors' ? 'errors' : (view === 'parts' ? 'partRecommended' : null));
     return TX_SPECIALIST_KEYS.filter(function (k) {
       return params[k] != null && params[k] !== '' && k !== exclude;
     });
@@ -876,22 +655,23 @@
       el.textContent = num > 0 ? String(num) : '';
     }
     if (viewCounts) {
-      setCount('txCountAttention', viewCounts.attention);
-      setCount('txCountPoor', viewCounts.poor);
       setCount('txCountSafety', viewCounts.safety);
-      setCount('txCountLoops', viewCounts.loops);
+      setCount('txCountErrors', viewCounts.errors);
+      setCount('txCountParts', viewCounts.parts);
     }
   }
-  // Compact triage badges. The explanatory one-liner (reviewLine) now carries the "why",
-  // so the badge set is trimmed to the primary triage signals and does not duplicate it:
-  // Needs attention, Safety concern, API error, and non-active lifecycle.
+  // Compact triage badges from stored facts only: the advisor's outcome, a safety stop, an API error, an
+  // advisor error, a part recommendation, and a non-active lifecycle. Nothing is inferred from the prose.
   function rowFlags(r) {
     var bits = [];
-    if (r.needsAttention) bits.push('<span class="tx__flag tx__flag--attn">Needs attention</span>');
-    if (r.reviewStatus === 'reviewed' && r.reviewSafetyHandling === 'concern') {
-      bits.push('<span class="tx__flag tx__flag--safety">Safety concern</span>');
-    }
+    var s = r.ac2 || {};
+    if (r.safetyStop) bits.push('<span class="tx__flag tx__flag--safety">Safety stop</span>');
+    if (r.outcome === 'SAFETY_STOP' && !r.safetyStop) bits.push('<span class="tx__flag tx__flag--safety">Safety stop</span>');
+    if (s.outcome) bits.push('<span class="tx__flag tx__flag--muted">' + esc(outcomeLabel(s.outcome)) + '</span>');
+    if (s.escalation) bits.push('<span class="tx__flag tx__flag--attn">Escalate · ' + esc(s.escalation) + '</span>');
+    if (r.partRecommended) bits.push('<span class="tx__flag tx__flag--ok">Part recommended</span>');
     if (r.hasError) bits.push('<span class="tx__flag tx__flag--safety">API error</span>');
+    if (s.errors) bits.push('<span class="tx__flag tx__flag--warn">' + esc(s.errors + ' advisor error' + (s.errors === 1 ? '' : 's')) + '</span>');
     if (r.lifecycle && r.lifecycle !== 'active') bits.push('<span class="tx__flag tx__flag--muted">' + esc(lifeLabel(r.lifecycle)) + '</span>');
     return bits.join('');
   }
@@ -911,24 +691,14 @@
     var preview = r.openingPreview || '';
     var previewClass = preview ? 'tx-row__preview' : 'tx-row__preview tx-row__preview--empty';
     var openCls = txOpenId === r.sessionId ? ' is-open' : '';
-    var canon = (typeof canonicalRowBadges === 'function') ? canonicalRowBadges(r.canonical) : '';
-    var outcome = r.outcome ? '<span class="tx__flag ' + (r.outcome === 'SAFETY_STOP' ? 'tx__flag--safety' : 'tx__flag--muted') + '">' + esc(prettyEnum(r.outcome)) + '</span>' : '';
-    var part = r.partRecommended ? '<span class="tx__flag tx__flag--ok">Part recommended</span>' : '';
     var dur = durationLabel(r);
     var turns = (r.turnCount || 0) + ((r.turnCount === 1) ? ' turn' : ' turns');
-    // Deterministic reviewer one-liner from stored review enums (no new text generated).
-    var line = reviewLine(r);
-    var lineHtml = line
-      ? '<p class="tx-row__review tx-row__review--' + line.tone + '"><span class="tx-row__reviewdot" aria-hidden="true"></span>'
-        + '<span class="tx-row__reviewtext">' + esc(line.text) + '</span></p>'
-      : '';
     return '<a class="tx-row' + openCls + '" data-sid="' + esc(r.sessionId) + '" href="' + esc(txDetailHref(r.sessionId)) + '">'
       + '<div class="tx-row__main">'
       + '<div class="tx-row__when">' + esc(fmtWhen(r.lastActivityAt)) + ' · <span class="tx-row__ref">' + esc(r.shortId || '') + '</span></div>'
       + '<div class="tx-row__id">' + esc(applianceLine(r)) + '</div>'
       + '<p class="' + previewClass + '"></p>'
-      + lineHtml
-      + '<div class="tx-row__flags">' + canon + outcome + part + rowFlags(r) + '</div>'
+      + '<div class="tx-row__flags">' + rowFlags(r) + '</div>'
       + '</div>'
       + '<div class="tx-row__side"><span class="tx-row__turns">' + esc(turns)
       + (dur ? '<br><span class="tx-row__dur">' + esc(dur) + '</span>' : '')
@@ -994,343 +764,59 @@
   }
   function renderTranscriptList(data) {
     var wrap = $('txTableWrap');
-    (function () {
-        if (data.retention && $('txPolicy')) {
-          var days = data.retention.retentionDays || 90;
-          $('txPolicy').textContent = 'Kept for ' + days + ' days, then deleted automatically.';
-        }
-        syncTranscriptChrome(data.viewCounts || null);
-        var items = data.items || [];
-        if (!items.length) {
-          var activeParams = transcriptParamsFromForm();
-          var isFiltered = Object.keys(activeParams).length > 0 || activeQuickView() !== 'all';
-          if (isFiltered) {
-            wrap.innerHTML = '<div class="admin__placeholder tx-empty" id="txEmpty">'
-              + '<p>No conversations match these filters.</p>'
-              + '<button type="button" class="btn btn--ghost" id="txEmptyClear">Clear filters</button></div>';
-            if ($('txEmptyClear')) $('txEmptyClear').addEventListener('click', function () {
-              resetTranscriptFilters();
-              txCursorStack = [null]; txPage = 0;
-              writeHash('transcripts', {});
-              loadTranscripts();
-            });
-          } else {
-            wrap.innerHTML = '<div class="admin__placeholder" id="txEmpty"><p>No conversations recorded yet.</p></div>';
-          }
-          $('txPager').hidden = true;
-          return;
-        }
-        // Rows are links to '#transcripts/<id>': the browser navigates (Back works, middle-click opens a tab).
-        wrap.innerHTML = items.map(conversationRowHtml).join('');
-        var rows = wrap.querySelectorAll('.tx-row');
-        Array.prototype.forEach.call(rows, function (btn, i) {
-          var preview = btn.querySelector('.tx-row__preview');
-          if (preview) preview.textContent = items[i].openingPreview
-            ? ('“' + items[i].openingPreview + '”')
-            : 'No customer opening stored';
+    if (data.retention && $('txPolicy')) {
+      var days = data.retention.retentionDays || 90;
+      $('txPolicy').textContent = 'Kept for ' + days + ' days, then deleted automatically.';
+    }
+    syncTranscriptChrome(data.viewCounts || null);
+    var items = data.items || [];
+    if (!items.length) {
+      var activeParams = transcriptParamsFromForm();
+      var isFiltered = Object.keys(activeParams).length > 0 || activeQuickView() !== 'all';
+      if (isFiltered) {
+        wrap.innerHTML = '<div class="admin__placeholder tx-empty" id="txEmpty">'
+          + '<p>No conversations match these filters.</p>'
+          + '<button type="button" class="btn btn--ghost" id="txEmptyClear">Clear filters</button></div>';
+        if ($('txEmptyClear')) $('txEmptyClear').addEventListener('click', function () {
+          resetTranscriptFilters();
+          txCursorStack = [null]; txPage = 0;
+          writeHash('transcripts', {});
+          loadTranscripts();
         });
-        var pager = $('txPager');
-        pager.hidden = false;
-        $('txPrev').disabled = txPage <= 0;
-        $('txNext').disabled = !data.nextCursor;
-        $('txPageInfo').textContent = 'Page ' + (txPage + 1) + (items.length ? ' · ' + items.length + ' this page' : '');
-        pager._next = data.nextCursor || null;
-    })();
-  }
-  function dimRow(label, value) {
-    return '<div class="health__row"><span>' + esc(label) + '</span><span>' + esc(value ? titleEnum(value) : '—') + '</span></div>';
-  }
-  function traceValue(v) {
-    if (v == null || v === '') return '—';
-    if (Array.isArray(v)) return v.length ? v.map(function (x) { return typeof x === 'object' ? JSON.stringify(x) : String(x); }).join(', ') : '—';
-    if (typeof v === 'object') return Object.keys(v).sort().map(function (k) {
-      return '<div class="tx-trace__kv"><span>' + esc(k) + '</span><code>' + esc(traceValue(v[k])) + '</code></div>';
-    }).join('');
-    return esc(String(v));
-  }
-  // Read a stage's structured detail object by id (returns {} when absent/slimmed to null).
-  function traceDetail(trace, id) {
-    if (!trace || !Array.isArray(trace.stages)) return {};
-    for (var i = 0; i < trace.stages.length; i++) {
-      var s = trace.stages[i];
-      if (s && s.id === id) return (s.detail && typeof s.detail === 'object') ? s.detail : {};
+      } else {
+        wrap.innerHTML = '<div class="admin__placeholder" id="txEmpty"><p>No conversations recorded yet.</p></div>';
+      }
+      $('txPager').hidden = true;
+      return;
     }
-    return {};
-  }
-  // The at-a-glance diagnostic state after this turn, drawn only from already-captured stages.
-  function traceKeyState(trace) {
-    var ds = traceDetail(trace, 'diagnostic-state');
-    var jd = traceDetail(trace, 'jev-understand').decisions || {};
-    var routing = traceDetail(trace, 'routing');
-    var pm = traceDetail(trace, 'parts-media');
-    var safety = traceDetail(trace, 'safety');
-    return {
-      family: ds.applianceFamily || jd.applianceFamily || null,
-      make: ds.make || null,
-      model: ds.model || null,
-      faultId: ds.faultId || null,
-      grounded: ds.grounded === true,
-      partReadiness: ds.partReadiness || jd.partReadiness || null,
-      nextAction: ds.nextAction || null,
-      route: routing.route || null,
-      purchaseAppropriate: pm.purchaseAppropriate === true,
-      safetyStop: safety.stopReason || null,
-    };
-  }
-  // NEW / UPDATED / RETAINED / REMOVED for one key-state field vs the previous turn.
-  function stateChange(cur, prev, key) {
-    var has = cur[key] != null && cur[key] !== '';
-    if (!prev) return has ? 'new' : null;
-    var had = prev[key] != null && prev[key] !== '';
-    if (!had && has) return 'new';
-    if (had && !has) return 'removed';
-    if (had && has && String(prev[key]) !== String(cur[key])) return 'updated';
-    if (had && has) return 'retained';
-    return null;
-  }
-  function stateChip(label, value, change) {
-    if (value == null || value === '') return '';
-    var tag = change ? '<i class="tx-kchip__chg tx-kchip__chg--' + esc(change) + '">' + esc(change) + '</i>' : '';
-    return '<span class="tx-kchip"><b>' + esc(label) + '</b> ' + esc(String(value)) + tag + '</span>';
-  }
-  function keyStateRow(cur, prev) {
-    var chips = [
-      stateChip('Family', cur.family, stateChange(cur, prev, 'family')),
-      stateChip('Make', cur.make, stateChange(cur, prev, 'make')),
-      stateChip('Model', cur.model, stateChange(cur, prev, 'model')),
-      stateChip('Fault', cur.faultId ? (cur.faultId + (cur.grounded ? ' · grounded' : '')) : null, stateChange(cur, prev, 'faultId')),
-      stateChip('Part readiness', cur.partReadiness, stateChange(cur, prev, 'partReadiness')),
-      stateChip('Next action', cur.nextAction, stateChange(cur, prev, 'nextAction'))
-    ];
-    if (cur.purchaseAppropriate) {
-      var pc = !prev ? 'new' : (prev.purchaseAppropriate === cur.purchaseAppropriate ? 'retained' : 'updated');
-      chips.push(stateChip('Purchase', 'appropriate', pc));
-    }
-    if (cur.safetyStop) chips.push(stateChip('Safety', 'STOP-USE · ' + cur.safetyStop, stateChange(cur, prev, 'safetyStop')));
-    chips = chips.filter(Boolean);
-    return chips.length ? '<div class="tx-kstate">' + chips.join('') + '</div>' : '';
-  }
-  // Human-readable one-line highlight for a stage, so admins scan without opening raw detail.
-  function traceHighlight(stage, vis) {
-    var d = (stage && stage.detail && typeof stage.detail === 'object') ? stage.detail : null;
-    var id = stage && stage.id;
-    if (!d) return esc(stage && stage.summary || '');
-    var bits = [];
-    function kv(label, val) { if (val != null && val !== '') bits.push('<span><i>' + esc(label) + '</i> ' + esc(String(val)) + '</span>'); }
-    function flag(label, on) { bits.push('<span><i>' + esc(label) + '</i> ' + (on ? 'yes' : 'no') + '</span>'); }
-    if (id === 'routing') {
-      kv('route', d.route); flag('MCP', d.mcpInvoked); flag('RAG', d.ragInvoked);
-    } else if (id === 'error-code-mcp') {
-      if (d.status != null) { kv('status', d.status); kv('code', d.displayed || d.code); kv('fault', d.faultId); }
-      else return esc(stage.summary || '');
-    } else if (id === 'jev-understand') {
-      var jd = d.decisions || {}; var ad = d.adapter || {};
-      kv('model', d.model); kv('family', jd.applianceFamily); kv('intent', jd.userIntent);
-      kv('token', ad.tokenMeaning || jd.candidateTokenMeaning); kv('identity', ad.identitySufficiency || jd.identitySufficiency);
-      kv('symptom', jd.symptomFamily); kv('prev-answer', jd.answeredPrevious); kv('part-readiness', jd.partReadiness);
-      if (jd.cannotAnswer || ad.cannotAnswer) bits.push('<span class="tx-hl--danger"><i>cannot-answer</i> yes</span>');
-    } else if (id === 'rag-retrieval') {
-      var ids = d.knowledgeIds || []; kv('mode', d.mode); kv('records', ids.length);
-      if (ids.length) kv('top', ids.slice(0, 3).join(', '));
-    } else if (id === 'diagnostic-state') {
-      flag('grounded', d.grounded); kv('fault', d.faultId || d.fault); kv('next', d.nextAction); kv('part-readiness', d.partReadiness);
-      if (d.cannotAnswer) bits.push('<span class="tx-hl--danger"><i>cannot-answer</i> yes</span>');
-    } else if (id === 'safety') {
-      if (d.stopReason) bits.push('<span class="tx-hl--danger"><i>STOP-USE</i> ' + esc(d.stopReason) + '</span>');
-      else bits.push('<span><i>stop-use</i> none</span>');
-      kv('diagnose-stop', d.diagnoseStop); kv('class', d.classification);
-      if (d.unsafeIntent) kv('unsafe-intent', 'yes');
-    } else if (id === 'parts-media') {
-      var parts = d.parts || []; bits.push('<span><i>parts</i> ' + parts.length + '</span>');
-      bits.push('<span><i>media</i> ' + ((d.media || []).length) + '</span>');
-      bits.push('<span><i>purchase</i> ' + (d.purchaseAppropriate ? 'appropriate' : 'no') + '</span>');
-      kv('mention', d.componentMention);
-      var vp = (vis && vis.parts) || [];
-      if (vp.length) kv('fit', vp.map(function (p) { return p.name + (p.fitStatus ? ' (' + p.fitStatus + ')' : ''); }).join('; '));
-      else if (parts.length) kv('surfaced', parts.map(function (p) { return p.title || p.partNo; }).join('; '));
-    } else if (id === 'orchestrator-state') {
-      var inf = d.inferred || {}; kv('fault', inf.faultId); if (inf.grounded != null) flag('grounded', inf.grounded);
-      if (inf.candidateComponents && inf.candidateComponents.length) kv('candidates', inf.candidateComponents.slice(0, 6).join(', '));
-    } else if (id === 'compose') {
-      bits.push('<span><i>' + (d.tripwireBlocked ? 'blocked (tripwire)' : 'composed') + '</i></span>');
-      kv('chars', d.outputChars); kv('ms', d.latencyMs);
-    } else if (id === 'customer-response') {
-      kv('outcome', d.outcome); kv('parts', d.partsCount); kv('media', d.mediaCount);
-      if (d.pendingRequest) kv('pending', 'yes');
-    }
-    return bits.length ? bits.join('') : esc(stage.summary || '');
-  }
-  // Plain-English labels for the reviewer's named progression flags. The server stores
-  // these as camelCase booleans; we never show the raw key as the primary label.
-  var TX_FLAG_LABELS = {
-    forgotEstablishedState: 'Forgot information the customer had already established',
-    repeatedResolvedModelRequest: 'Re-asked for the model after it was already given',
-    ignoredNegativeEvidence: 'Ignored evidence that should have changed the diagnosis',
-    restartedAfterAnswer: 'Restarted the journey after the customer answered',
-    unresolvedCorrection: 'Left a customer correction unresolved',
-    repeatedQuestionNoProgress: 'Repeated a question without progressing',
-    legitimateCorrection: 'Correctly handled a customer correction',
-    advancedAfterCheck: 'Advanced appropriately after the customer completed a check',
-  };
-  // Positive flags are good behaviour and must not read like errors.
-  var TX_FLAG_POSITIVE = { legitimateCorrection: true, advancedAfterCheck: true };
-
-  // ---- Stage 2: shared, display-only terminology --------------------------
-  // Single source of truth so the list one-liner, the Review tab and the quick-view
-  // badges all read the same. These map STORED enum values to human labels; they never
-  // rename server-side enums and never introduce a second summariser.
-  var TX_OVERALL_LABELS = { good: 'Good', mixed: 'Mixed', poor: 'Poor', insufficient_evidence: 'Insufficient evidence' };
-  var TX_OUTCOME_LABELS = {
-    useful_outcome: 'Useful outcome', partial_outcome: 'Partial outcome',
-    no_useful_outcome: 'No useful outcome', abandoned: 'Abandoned', insufficient_evidence: 'Insufficient evidence',
-  };
-  var TX_SAFETY_LABELS = { appropriate: 'Appropriate', concern: 'Safety concern', not_applicable: 'Not applicable', insufficient_evidence: 'Insufficient evidence' };
-  var TX_PROGRESSION_LABELS = { good: 'Good progression', mixed: 'Mixed progression', poor: 'Poor progression', insufficient_evidence: 'Insufficient evidence' };
-  var TX_PRIORITY_LABELS = { normal: 'Normal', worth_reviewing: 'Worth reviewing', important: 'Important' };
-  var TX_LOOPING_LABELS = { none: 'No looping', minor: 'Minor looping', significant: 'Significant looping' };
-  function txLabel(map, v) { return (v && map[v]) ? map[v] : (v ? titleEnum(v) : '—'); }
-  // Tone for a dimension value: ok (good), warn (concern), safety (safety concern),
-  // attn (needs a look), muted (not assessable / neutral-low), neutral (otherwise).
-  function txTone(dim, v) {
-    if (v == null) return 'muted';
-    if (dim === 'overall' || dim === 'progression') {
-      return v === 'poor' ? 'warn' : (v === 'good' ? 'ok' : (v === 'insufficient_evidence' ? 'muted' : 'neutral'));
-    }
-    if (dim === 'safety') return v === 'concern' ? 'safety' : (v === 'appropriate' ? 'ok' : 'muted');
-    if (dim === 'priority') return v === 'important' ? 'warn' : (v === 'worth_reviewing' ? 'attn' : 'muted');
-    if (dim === 'outcome') return v === 'useful_outcome' ? 'ok' : (v === 'no_useful_outcome' ? 'warn' : (v === 'abandoned' ? 'muted' : 'neutral'));
-    return 'neutral';
-  }
-
-  // Deterministic reviewer one-liner for a LIST row, built only from the coarse review
-  // enums the list payload carries (no flags/summary are available per row). Priority:
-  // strongest concern first, then a positive signal if genuinely useful, else null (no line).
-  function reviewLine(r) {
-    if (!r) return null;
-    if (r.reviewStatus === 'failed') return { tone: 'muted', text: 'Review didn’t complete' };
-    if (r.reviewStatus !== 'reviewed') return null;
-    if (r.reviewSafetyHandling === 'concern') return { tone: 'safety', text: 'Safety handling needs review' };
-    if (r.reviewStateProgression === 'poor') return { tone: 'warn', text: 'Poor progression across turns' };
-    if (r.reviewLooping === 'significant') return { tone: 'warn', text: 'Repeated questions without progressing' };
-    if (r.reviewOverall === 'poor') return { tone: 'warn', text: 'Overall quality marked poor' };
-    if (r.reviewOutcome === 'no_useful_outcome') return { tone: 'warn', text: 'No useful outcome reached' };
-    if (r.reviewOutcome === 'abandoned') return { tone: 'muted', text: 'Customer abandoned the chat' };
-    if (r.reviewPriority === 'important') return { tone: 'warn', text: 'Flagged important to review' };
-    if (r.reviewPriority === 'worth_reviewing') return { tone: 'attn', text: 'Worth reviewing' };
-    if (r.reviewOverall === 'good' && r.reviewStateProgression === 'good') return { tone: 'ok', text: 'Good progression, resolved cleanly' };
-    if (r.reviewOverall === 'good') return { tone: 'ok', text: 'Handled well' };
-    if (r.reviewOutcome === 'useful_outcome') return { tone: 'ok', text: 'Reached a useful outcome' };
-    if (r.reviewOverall === 'insufficient_evidence') return { tone: 'muted', text: 'Too short to assess' };
-    return null;
-  }
-
-  // Progression flag chips, split by polarity so concerns stay visually primary and
-  // positives read as supporting signal. Flags have no turn attribution, so no turn links.
-  function flagChipsFor(flags, positive) {
-    if (!flags || typeof flags !== 'object') return '';
-    var keys = Object.keys(flags).filter(function (k) { return flags[k] && (!!TX_FLAG_POSITIVE[k] === positive); });
-    if (!keys.length) return '';
-    var chips = keys.map(function (k) {
-      var label = TX_FLAG_LABELS[k] || titleEnum(k);
-      var cls = positive ? 'tx-flagchip tx-flagchip--ok' : 'tx-flagchip tx-flagchip--warn';
-      return '<li class="' + cls + '"><span class="tx-flagchip__icon" aria-hidden="true">' + (positive ? '✓' : '⚠') + '</span>'
-        + '<span>' + esc(label) + '</span></li>';
-    }).join('');
-    return '<ul class="tx-flaglist">' + chips + '</ul>';
-  }
-  function concernFlagChips(flags) { return flagChipsFor(flags, false); }
-  function positiveFlagChips(flags) { return flagChipsFor(flags, true); }
-
-  // Turn-attributed "where it happened" links, drawn ONLY from stateEvidence drops, which
-  // genuinely carry a turn seq. This is the sole defensible issue→turn bridge; we never
-  // attribute a reviewer flag to a turn it doesn't name.
-  function dropTurnLinks(stateEvidence) {
-    if (!stateEvidence || !Array.isArray(stateEvidence.drops) || !stateEvidence.drops.length) return '';
-    var bySeq = {};
-    stateEvidence.drops.forEach(function (d) {
-      if (!d || d.seq == null) return;
-      (bySeq[d.seq] = bySeq[d.seq] || []).push(d.field);
+    // Rows are links to '#transcripts/<id>': the browser navigates (Back works, middle-click opens a tab).
+    wrap.innerHTML = items.map(conversationRowHtml).join('');
+    var rows = wrap.querySelectorAll('.tx-row');
+    Array.prototype.forEach.call(rows, function (btn, i) {
+      var preview = btn.querySelector('.tx-row__preview');
+      if (preview) preview.textContent = items[i].openingPreview
+        ? ('“' + items[i].openingPreview + '”')
+        : 'No customer opening stored';
     });
-    var seqs = Object.keys(bySeq).sort(function (a, b) { return Number(a) - Number(b); });
-    if (!seqs.length) return '';
-    var items = seqs.map(function (seq) {
-      var fields = bySeq[seq].filter(Boolean);
-      return '<li class="tx-issueturn"><button type="button" class="tx-turnlink" data-txturn="' + esc(seq) + '">Turn ' + esc(seq) + '</button> '
-        + 'established ' + (fields.length ? esc(fields.join(', ')) : 'information') + ' was dropped or contradicted</li>';
-    }).join('');
-    return '<p class="tx__sub">Where the evidence shows it — select a turn to jump to it in the Conversation:</p>'
-      + '<ul class="tx-issueturns">' + items + '</ul>';
+    var pager = $('txPager');
+    pager.hidden = false;
+    $('txPrev').disabled = txPage <= 0;
+    $('txNext').disabled = !data.nextCursor;
+    $('txPageInfo').textContent = 'Page ' + (txPage + 1) + (items.length ? ' · ' + items.length + ' this page' : '');
+    pager._next = data.nextCursor || null;
   }
 
-  // Honest, turn-attributed markers for the Conversation layer: taken only from the
-  // state-evidence drops, which carry a real turn seq. We do not attach flags to turns.
-  function turnMarkerMap(stateEvidence) {
-    var map = {};
-    if (stateEvidence && Array.isArray(stateEvidence.drops)) {
-      stateEvidence.drops.forEach(function (d) {
-        if (d == null || d.seq == null) return;
-        (map[d.seq] = map[d.seq] || []).push(d);
-      });
-    }
-    return map;
-  }
-
-  // One stage, human-readable only (no raw detail) — used by the Diagnostic journey layer.
-  function journeyStageHtml(stage, vis) {
-    var ev = stage.evidence || 'NOT_CAPTURED';
-    var evClass = esc(ev.toLowerCase().replace('_', '-'));
-    return '<li class="tx-trace__node tx-trace__node--' + evClass + '">'
-      + '<div class="tx-trace__head"><span class="tx-trace__badge tx-trace__badge--' + evClass + '">' + esc(ev.replace('_', ' ')) + '</span>'
-      + '<span class="tx-trace__name">' + esc(stage.label || stage.id) + '</span></div>'
-      + '<div class="tx-trace__hl">' + traceHighlight(stage, vis) + '</div></li>';
-  }
-
-  function journeyTurnHtml(t, ti, turns) {
-    var trace = t.diagnosticTrace;
-    var seq = t.seq != null ? t.seq : (ti + 1);
-    var head = '<div class="tx-jturn__head">Turn ' + esc(String(seq)) + '</div>';
-    if (!trace || !trace.stages) {
-      return '<section class="tx-jturn">' + head
-        + '<div class="tx-trace tx-trace--empty"><span>NOT CAPTURED — this transcript predates trace capture or capture was unavailable.</span></div></section>';
-    }
-    var prevTrace = ti > 0 ? turns[ti - 1].diagnosticTrace : null;
-    var kstate = keyStateRow(traceKeyState(trace), prevTrace ? traceKeyState(prevTrace) : null);
-    var vis = t.applianceClinic || {};
-    var stages = trace.stages.map(function (s) { return journeyStageHtml(s, vis); }).join('');
-    var progression = (trace.stateProgression || []).map(function (p) {
-      return '<li class="tx-state tx-state--' + esc(String(p.change || '').toLowerCase()) + '"><b>' + esc(p.change) + '</b> '
-        + '<code>' + esc(p.path) + '</code>' + (p.value == null ? '' : ' = ' + esc(String(p.value))) + '</li>';
-    }).join('');
-    return '<section class="tx-jturn">' + head + kstate
-      + '<ol class="tx-trace__flow">' + stages + '</ol>'
-      + (progression ? '<details class="tx-trace__progress"><summary>State changes vs previous turn</summary><ul>' + progression + '</ul></details>' : '')
-      + '</section>';
-  }
-
-
-  // ---- Per-turn canonical technical panel (canonical-audit/1) ------------------------------------------
-  // Rendered directly under the turn it belongs to, collapsed by default. Consumes ONLY the stored
-  // transcript audit contract (turn.canonical) and the legacy trace; it never infers decisions from the
-  // assistant text. Every value goes through esc().
-  var TP_PATH = {
-    control: { text: 'CONTROL', cls: 'tx-badge tx-badge--control' },
-    shadow: { text: 'SHADOW / NOT CONTROLLED', cls: 'tx-badge tx-badge--shadow' },
-    legacy: { text: 'LEGACY PATH', cls: 'tx-badge tx-badge--legacy' },
-    degraded: { text: 'DEGRADED', cls: 'tx-badge tx-badge--warn' },
-    mixed: { text: 'MIXED', cls: 'tx-badge tx-badge--shadow' },
-    ac2: { text: 'AC2', cls: 'tx-badge tx-badge--control' }
+  // ---- Per-turn AC2 decision panel (ac2-transcript-audit, stored as turn.ac2) ------------------------------
+  // The turn's bounded decision audit from the diagnosis engine: provider, timings, token usage, the tools the
+  // advisor called, safety gates, the part gate, escalation and what the engine knows about the appliance.
+  // Structured fields only — the audit holds no model reasoning text. Every value goes through esc().
+  var AC2_SCHEMAS = { 'ac2-transcript-audit/1': 1, 'ac2-transcript-audit/2': 1 };
+  var AC2_PART = {
+    verified: { text: 'PART VERIFIED', cls: 'tx-badge tx-badge--ok' },
+    model_needed: { text: 'MODEL NEEDED', cls: 'tx-badge tx-badge--warn' },
+    no_catalogue_part: { text: 'NO CATALOGUE PART', cls: 'tx-badge tx-badge--muted' },
+    none: { text: 'NO PART DECISION', cls: 'tx-badge tx-badge--muted' },
   };
-  var TP_COMPOSE = {
-    llm: { text: 'LLM COMPOSE', cls: 'tx-badge tx-badge--ok' },
-    fixed_fallback: { text: 'FIXED FALLBACK', cls: 'tx-badge tx-badge--warn' },
-    fixed_safety: { text: 'FIXED SAFETY COPY', cls: 'tx-badge tx-badge--safety' },
-    fixed_decline: { text: 'FIXED SAFETY DECLINE', cls: 'tx-badge tx-badge--safety' }
-  };
-  // Runtime pipeline stages for the turn (legacy + canonical), with the evidence legend.
-  var TP_TRACE_LEGEND = '<div class="tx-trace__top"><span class="tx-trace__legend">'
-    + '<span class="tx-trace__badge tx-trace__badge--observed">observed</span>'
-    + '<span class="tx-trace__badge tx-trace__badge--derived">derived</span>'
-    + '<span class="tx-trace__badge tx-trace__badge--not-captured">not captured</span></span></div>';
   function tpBadge(text, cls) { return '<span class="' + esc(cls || 'tx-badge') + '">' + esc(text) + '</span>'; }
   function tpUpper(v) { return String(v == null ? '' : v).replace(/[_-]+/g, ' ').toUpperCase(); }
   function tpVal(v) {
@@ -1345,60 +831,28 @@
     if (value == null || value === '' || (Array.isArray(value) && !value.length)) return '';
     return '<div class="tx-tp__kv"><span>' + esc(label) + '</span><span>' + esc(tpVal(value)) + '</span></div>';
   }
-  function tpReq(r) { return r ? [r.slot, r.target].filter(Boolean).join(':') + (r.kind ? ' (' + r.kind + ')' : '') + (r.askedTurn != null ? ' · asked v' + r.askedTurn : '') : null; }
-  function tpPathOf(c) { return c && c.schemaVersion === 'canonical-audit/1' ? (c.path || 'legacy') : 'legacy'; }
-  // Summary chips: always visible on the collapsed panel, so a turn can be scanned without opening it.
-  function turnChips(t) {
-    if (ac2Of(t)) return ac2Chips(ac2Of(t));
-    var c = t.canonical;
-    var p = TP_PATH[tpPathOf(c)] || TP_PATH.legacy;
-    var degradedPath = tpPathOf(c) === 'degraded';
-    var reason = c && c.persistence && c.persistence.degraded;
-    var bits = [tpBadge(degradedPath && reason ? p.text + ' · ' + reason : p.text, p.cls)];
-    if (!c) {
-      var rt = t.runtime || {};
-      if (rt.route) bits.push(tpBadge(rt.route, 'tx-badge'));
-      if (rt.safetyStop) bits.push(tpBadge('SAFETY STOP', 'tx-badge tx-badge--safety'));
-      return bits.join('');
-    }
-    if (c.owner) bits.push(tpBadge(c.owner, 'tx-badge tx-badge--journey'));
-    var na = c.nextAction || {};
-    if (na.rule) bits.push(tpBadge(na.rule, 'tx-badge tx-badge--rule'));
-    if (na.kind) bits.push(tpBadge(tpUpper(na.kind), na.kind === 'safety_stop' ? 'tx-badge tx-badge--safety' : 'tx-badge'));
-    if (na.target) bits.push(tpBadge(na.target, 'tx-badge tx-badge--target'));
-    if (c.partGate) bits.push(c.partGate.eligible ? tpBadge('PART ELIGIBLE', 'tx-badge tx-badge--ok') : tpBadge('PART BLOCKED', 'tx-badge tx-badge--muted'));
-    if (c.compose && TP_COMPOSE[c.compose.mode]) bits.push(tpBadge(TP_COMPOSE[c.compose.mode].text, TP_COMPOSE[c.compose.mode].cls));
-    var ps = c.persistence || {};
-    if (ps.degraded && !degradedPath) bits.push(tpBadge('DEGRADED · ' + ps.degraded, 'tx-badge tx-badge--warn'));
-    if (ps.conflict) bits.push(tpBadge('CONFLICT', 'tx-badge tx-badge--warn'));
-    if (ps.recovered) bits.push(tpBadge('REPLAY RECOVERY', 'tx-badge tx-badge--warn'));
-    if (ps.idempotentReplay) bits.push(tpBadge('IDEMPOTENT REPLAY ×' + ps.idempotentReplay.count, 'tx-badge tx-badge--muted'));
-    if (c.gateNotTaken) bits.push(tpBadge('GATE NOT TAKEN', 'tx-badge tx-badge--warn'));
-    if (c.version && c.version.after != null) bits.push(tpBadge('v' + (c.version.before == null ? '—' : c.version.before) + ' → v' + c.version.after, 'tx-badge tx-badge--muted'));
-    if (c.slim) bits.push(tpBadge('SUMMARY ONLY', 'tx-badge tx-badge--muted'));
-    return bits.join('');
+  function ac2Of(t) { return t && t.ac2 && AC2_SCHEMAS[t.ac2.schemaVersion] ? t.ac2 : null; }
+  // The advisor's outcome: the current audit stores `outcome`; the earlier schema stored `status`.
+  function ac2Outcome(a) { return a.outcome || (a.status && typeof a.status === 'object' ? a.status.value : a.status) || null; }
+  function ac2Customer(a) {
+    var c = a.customer || a.ledger || {};
+    var v = function (x) { return x && typeof x === 'object' ? x.value : x; };
+    return { appliance: v(c.appliance) || null, brand: v(c.brand) || null, model: v(c.model) || null };
   }
-  // ---- Per-turn AC2 decision panel (ac2-transcript-audit/1, stored as turn.ac2) -------------------------
-  // The LLM-led turn's bounded decision audit: provider, timings, evidence ledger, candidate causes, tool calls,
-  // safety gates, verifier rejections, part gate and escalation. Structured fields only — the audit holds no model
-  // reasoning text. Every value goes through esc().
-  var AC2_PART = {
-    verified: { text: 'PART VERIFIED', cls: 'tx-badge tx-badge--ok' },
-    model_needed: { text: 'MODEL NEEDED', cls: 'tx-badge tx-badge--warn' }
-  };
-  function ac2Of(t) { return t && t.ac2 && t.ac2.schemaVersion === 'ac2-transcript-audit/1' ? t.ac2 : null; }
+  function ac2Hazards(a) {
+    if (Array.isArray(a.hazards) && a.hazards.length) return a.hazards.map(function (h) { return h && typeof h === 'object' ? h.type : h; });
+    return (a.safety && a.safety.hazards) || [];
+  }
   function ac2Chips(a) {
     var bits = [tpBadge('AC2', 'tx-badge tx-badge--control')];
     if (a.error) { bits.push(tpBadge('ERROR · ' + a.error, 'tx-badge tx-badge--warn')); return bits.join(''); }
-    if (a.status) bits.push(tpBadge(tpUpper(a.status), 'tx-badge'));
-    var hz = (a.safety && a.safety.hazards) || [];
+    var outcome = ac2Outcome(a);
+    if (outcome) bits.push(tpBadge(tpUpper(outcome), 'tx-badge'));
+    var hz = ac2Hazards(a);
     if (hz.length) bits.push(tpBadge('HAZARD · ' + hz.join(', '), 'tx-badge tx-badge--safety'));
     var pg = a.partGate;
     if (pg && pg.outcome) { var pp = AC2_PART[pg.outcome] || { text: 'PART · ' + tpUpper(pg.outcome), cls: 'tx-badge tx-badge--muted' }; bits.push(tpBadge(pp.text, pp.cls)); }
-    var rej = a.claimsRejected ? a.claimsRejected.length : (a.claimsRejectedCount || 0);
-    if (rej) bits.push(tpBadge(rej + ' CLAIM' + (rej === 1 ? '' : 'S') + ' REJECTED', 'tx-badge tx-badge--warn'));
-    if (a.regenerated) bits.push(tpBadge('REGENERATED', 'tx-badge tx-badge--warn'));
-    if (a.escalation && a.escalation.to) bits.push(tpBadge('ESCALATE · ' + a.escalation.to, 'tx-badge tx-badge--safety'));
+    if (a.escalation && (a.escalation.to || a.escalation.reason)) bits.push(tpBadge('ESCALATE' + (a.escalation.to ? ' · ' + a.escalation.to : ''), 'tx-badge tx-badge--safety'));
     if (a.slim) bits.push(tpBadge('SUMMARY ONLY', 'tx-badge tx-badge--muted'));
     return bits.join('');
   }
@@ -1411,201 +865,70 @@
   }
   function ac2DecisionHtml(a) {
     if (a.error) return tpRow('Path', 'AC2') + tpRow('Error', a.error) + tpRow('Elapsed ms', a.ms)
-      + '<p class="tx-tp__note">The engine could not answer this turn; the customer saw the temporarily-unavailable reply and the state was not advanced.</p>';
-    var pv = a.provider || {}; var pg = a.partGate || null; var es = a.escalation || null;
-    var cands = (a.candidates || []).map(function (c, i) {
-      return '<li class="tx-rank' + (i === 0 ? ' tx-rank--lead' : '') + '"><span class="tx-rank__n">' + (i + 1) + '.</span>'
-        + '<span class="tx-rank__cause">' + esc(c.cause) + '</span><span class="tx-rank__score">' + esc(c.likelihood || '—') + '</span>'
-        + '<span class="tx-ac2__cite">' + esc((c.evidence || []).length ? 'evidence ' + c.evidence.join(', ') : 'no evidence cited') + '</span></li>';
-    }).join('');
-    return tpRow('Path', 'AC2 (LLM-led turn, guardrail kernel)')
-      + tpRow('Provider', pv.name ? pv.name + (pv.model ? ' · ' + pv.model : '') : null)
+      + '<p class="tx-tp__note">The engine could not answer this turn; the customer saw the temporarily-unavailable reply and the conversation state was not advanced.</p>';
+    var pv = a.provider || {}; var pg = a.partGate || null; var es = a.escalation || null; var c = ac2Customer(a);
+    return tpRow('Path', 'AC2 (the advisor inside the guardrail kernel)')
+      + tpRow('Advisor', pv.name ? pv.name + (pv.model ? ' · ' + pv.model : '') : null)
       + tpRow('Engine turn', a.turn)
       + tpRow('Latency', ac2Timings(a.timings) || null)
       + tpRow('BFF round trip ms', a.ms)
       + tpRow('Tokens', a.usage ? Object.keys(a.usage).map(function (k) { return k + ' ' + a.usage[k]; }).join(' · ') : null)
-      + tpRow('Status', a.status)
-      + tpRow('Appliance', a.appliance)
-      + tpRow('Scope', a.scope ? [a.scope.status, a.scope.appliance].filter(Boolean).join(' · ') : null)
-      + tpRow('Regenerated', a.regenerated)
-      + '<div class="tx-tp__sub">Candidate causes</div>'
-      + (cands ? '<ol class="tx-ranklist">' + cands + '</ol>' : '<p class="tac__muted">' + (a.slim ? 'Not retained (older turn).' : 'none') + '</p>')
+      + tpRow('Outcome', outcomeLabel(ac2Outcome(a)) || null)
+      + tpRow('Appliance', c.appliance) + tpRow('Brand', c.brand) + tpRow('Model', c.model)
       + '<div class="tx-tp__sub">Part gate</div>'
-      + (pg ? tpRow('Outcome', pg.outcome) + tpRow('Component', pg.component) + tpRow('Matcher', pg.matcher) + tpRow('Cited evidence', pg.cited)
-        + ((pg.failed || []).length ? '<div class="tx-tp__sub">Failed conditions</div>' + ac2List(pg.failed) : '')
+      + (pg ? tpRow('Outcome', pg.outcome) + tpRow('Component', pg.component) + tpRow('Reason', pg.reason)
         : '<p class="tac__muted">No part decision this turn.</p>')
       + '<div class="tx-tp__sub">Escalation</div>'
-      + (es ? tpRow('To', es.to) + tpRow('Reason', es.reason) + tpRow('Forced by hazard', es.forced) : '<p class="tac__muted">none</p>')
+      + (es && (es.to || es.reason) ? tpRow('To', es.to) + tpRow('Reason', es.reason) + tpRow('Forced by hazard', es.forced) : '<p class="tac__muted">none</p>')
       + (a.slim ? '<p class="tx-tp__note">Older turn: only the summary is retained to keep the transcript record bounded.</p>' : '');
-  }
-  function ac2LedgerHtml(a) {
-    var l = a.ledger;
-    if (!l) return '<p class="tac__muted">' + (a.slim ? 'Ledger not retained for this older turn.' : 'No evidence ledger recorded.') + '</p>';
-    function ent(e) { return e ? [e.value, e.status, e.turn != null ? 'turn ' + e.turn : null].filter(function (x) { return x != null && x !== ''; }).join(' · ') + (e.quote ? ' — “' + e.quote + '”' : '') : null; }
-    var facts = l.facts || [];
-    var rows = facts.map(function (f) {
-      var bad = f.status === 'contradicted';
-      return '<tr' + (bad ? ' class="tx-ac2tbl__bad"' : '') + '><td><code>' + esc(f.id) + '</code></td><td>' + esc(f.field) + '</td><td>' + esc(tpVal(f.value)) + '</td>'
-        + '<td>' + esc(f.source) + '</td><td>' + esc(f.status) + '</td><td>' + esc(f.turn == null ? '—' : String(f.turn)) + '</td>'
-        + '<td>' + (f.quote ? '“' + esc(f.quote) + '”' : '<span class="tac__muted">—</span>') + '</td></tr>';
-    }).join('');
-    var contra = facts.filter(function (f) { return f.status === 'contradicted'; });
-    return tpRow('Appliance', ent(l.appliance)) + tpRow('Brand', ent(l.brand)) + tpRow('Model', ent(l.model))
-      + tpRow('Error codes', (l.codes || []).map(function (c) { return c.code + (c.turn != null ? ' (turn ' + c.turn + ')' : ''); }))
-      + tpRow('Hazards', l.hazards)
-      + tpRow('Questions asked', (l.asked || []).map(function (q) { return q.key + (q.times > 1 ? ' ×' + q.times : '') + (q.resolution ? ' · ' + q.resolution : ''); }))
-      + '<div class="tx-tp__sub">Facts' + (l.factsTotal > facts.length ? ' (latest ' + facts.length + ' of ' + l.factsTotal + ')' : '') + '</div>'
-      + (rows ? '<div class="tx-ac2tbl__wrap"><table class="tx-ac2tbl"><thead><tr><th>Id</th><th>Field</th><th>Value</th><th>Source</th><th>Status</th><th>Turn</th><th>Customer quote</th></tr></thead><tbody>'
-        + rows + '</tbody></table></div>' : '<p class="tac__muted">No facts recorded yet.</p>')
-      + '<div class="tx-tp__sub">Contradictions</div>'
-      + (contra.length ? ac2List(contra.map(function (f) { return f.id + ' · ' + f.field + ' = ' + tpVal(f.value) + (f.quote ? ' (“' + f.quote + '”)' : ''); })) : '<p class="tac__muted">none</p>');
   }
   function ac2SafetyHtml(a) {
     var sf = a.safety || {};
-    var gates = (sf.gates || []).map(function (g) { return [g.gate, g.rule, g.type, g.key, g.why].filter(Boolean).join(' · '); });
-    var rej = (a.claimsRejected || []).map(function (c) { return c.claim + (c.source ? ' [' + c.source + ']' : ''); });
-    return tpRow('Hazards', sf.hazards) + tpRow('Terminated by', sf.terminated)
-      + '<div class="tx-tp__sub">Gates fired</div>' + ac2List(gates)
-      + '<div class="tx-tp__sub">Verifier</div>' + tpRow('Claims checked', a.claimsChecked) + tpRow('Regenerated', a.regenerated)
-      + '<div class="tx-tp__sub">Claims rejected</div>' + (a.slim ? tpRow('Count', a.claimsRejectedCount) : ac2List(rej));
+    var gates = (sf.gates || []).map(function (g) { return [g.gate, g.rule, g.type, g.key, g.why, g.removed != null ? 'removed ' + g.removed : null].filter(Boolean).join(' · '); });
+    return tpRow('Hazards', ac2Hazards(a)) + tpRow('Terminated by', sf.terminated)
+      + '<div class="tx-tp__sub">Gates fired</div>' + ac2List(gates);
   }
   function ac2ToolsHtml(a) {
-    var calls = a.toolCalls || [];
-    if (!calls.length) return '<p class="tac__muted">' + (a.slim ? 'Not retained for this older turn.' : 'No tool calls this turn.') + '</p>';
-    return calls.map(function (c) { return '<div class="tx-tp__sub">' + esc(c.tool) + '</div>' + ac2List((c.results || []).map(tpVal)); }).join('');
-  }
-  function tpSummaryHtml(c) {
-    var na = c.nextAction || {}; var pr = c.pendingRequest || {}; var pg = c.partGate || null;
-    return tpRow('Path', (TP_PATH[tpPathOf(c)] || TP_PATH.legacy).text)
-      + tpRow('Appliance', c.appliance)
-      + tpRow('Journey', c.owner ? c.owner + (c.journey && c.journey.schema ? ' (' + c.journey.schema + ')' : '') : null)
-      + tpRow('State version', c.version ? (c.version.before == null ? '—' : 'v' + c.version.before) + ' → ' + (c.version.after == null ? '—' : 'v' + c.version.after) : null)
-      + tpRow('Policy rule', c.policy && c.policy.rule)
-      + tpRow('NextAction', na.kind ? tpUpper(na.kind) + (na.target ? ' · ' + na.target : '') : null)
-      + tpRow('Pending request', pr.after ? tpReq(pr.after) : (pr.change === 'cleared' ? 'cleared' : (pr.change ? 'none' : null)))
-      + tpRow('Part gate', pg ? (pg.eligible ? 'eligible' + (pg.component ? ' · ' + pg.component : '') : 'blocked · ' + (pg.blockers || []).slice(0, 3).join(', ')) : null)
-      + tpRow('COMPOSE', c.compose ? (TP_COMPOSE[c.compose.mode] || {}).text || c.compose.mode : null)
-      + (c.gateNotTaken ? '<p class="tx-tp__note">Policy decided this journey owns the turn, but the orchestrator answered on the legacy path.</p>' : '')
-      + (c.slim ? '<p class="tx-tp__note">Older turn: only the summary is retained to keep the transcript record bounded.</p>' : '');
-  }
-  function tpClassificationHtml(k) {
-    if (!k) return '<p class="tac__muted">No classification this turn.</p>';
-    var obs = (k.observations || []).map(function (o) { return o.key + ' = ' + tpVal(o.value); });
-    var chk = (k.checks || []).map(function (x) { return x.check + ': ' + [x.status, x.result].filter(Boolean).join(' / '); });
-    var r = k.reply || {};
-    return tpRow('Scope', k.scope)
-      + tpRow('Appliance', k.appliance ? k.appliance.value + ' (' + k.appliance.basis + ')' : null)
-      + tpRow('Make', k.make ? k.make.value + ' (' + k.make.basis + ')' : null)
-      + tpRow('Model', k.model ? k.model.value + ' (' + k.model.basis + ')' : null)
-      + tpRow('Model status', k.modelStatus) + tpRow('Fuel', k.fuel) + tpRow('Displayed code', k.displayedCode)
-      + tpRow('Intent', k.intent) + tpRow('Fault domain', k.faultDomain) + tpRow('Journey', k.journey)
-      + tpRow('Symptom scope', k.symptomScope) + tpRow('Relation', k.relation)
-      + tpRow('Hazard', k.hazard) + tpRow('Unsafe action', k.unsafeAction)
-      + tpRow('Reply to pending', r.toPending) + tpRow('Reply outcome', r.outcome) + tpRow('Correction', r.correction)
-      + tpRow('Observations', obs) + tpRow('Checks', chk)
-      + tpRow('Replaced parts', k.mentions && k.mentions.replacedParts) + tpRow('Customer theories', k.mentions && k.mentions.customerTheories);
-  }
-  function tpDeltaLine(d) {
-    if (d.op === 'change') return '<li class="tx-delta tx-delta--change"><b>CHANGED</b> <code>' + esc(d.field) + '</code>: ' + esc(tpVal(d.from)) + ' → ' + esc(tpVal(d.to)) + '</li>';
-    if (d.op === 'remove') return '<li class="tx-delta tx-delta--remove"><b>REMOVED</b> <code>' + esc(d.field) + '</code>' + (d.from != null ? ' (was ' + esc(tpVal(d.from)) + ')' : '') + '</li>';
-    return '<li class="tx-delta tx-delta--add"><b>ADDED</b> <code>' + esc(d.field) + '</code> = ' + esc(tpVal(d.to)) + '</li>';
-  }
-  function tpStateHtml(c) {
-    var d = c.stateDelta || [];
-    var pr = c.pendingRequest || {};
-    var pend = pr.change ? '<div class="tx-tp__sub">Pending request</div>'
-      + tpRow('Before', pr.before ? tpReq(pr.before) : 'none') + tpRow('After', pr.after ? tpReq(pr.after) : (pr.change === 'cleared' ? 'cleared' : 'none'))
-      + tpRow('Change', pr.change) + tpRow('Outcome recorded', pr.outcome) : '';
-    var list = d.length ? '<ul class="tx-deltalist">' + d.map(tpDeltaLine).join('') + '</ul>'
-      : '<p class="tac__muted">' + (c.path === 'degraded' ? 'Nothing merged this turn (degraded).' : 'No canonical state change this turn.') + '</p>';
-    return list + pend + tpRow('Merge rules fired', c.rulesFired);
-  }
-  function tpDiagnosticsHtml(g) {
-    if (!g) return '<p class="tac__muted">No diagnostics this turn.</p>';
-    var lead = g.leader || {};
-    var ranked = (g.ranked || []).map(function (r, i) {
-      return '<li class="tx-rank' + (r.cause === lead.cause ? ' tx-rank--lead' : '') + '"><span class="tx-rank__n">' + (i + 1) + '.</span>'
-        + '<span class="tx-rank__cause">' + esc(r.cause) + '</span><span class="tx-rank__score">' + esc(String(r.score)) + '</span></li>';
-    }).join('');
-    var top = (g.ranked || [])[0] || {};
-    function evList(title, items) {
-      return '<div class="tx-tp__sub">' + esc(title) + '</div>' + ((items && items.length)
-        ? '<ul class="tx-evlist">' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
-        : '<p class="tac__muted">none</p>');
+    var calls = (a.toolCalls || []).map(function (c) { return c && typeof c === 'object' ? c.tool : c; }).filter(Boolean);
+    var en = (a.tags && a.tags.enrichment) || null;
+    var html = calls.length ? '<div class="tx-tp__sub">Tools the advisor called</div>' + ac2List(calls)
+      : '<p class="tac__muted">' + (a.slim ? 'Not retained for this older turn.' : 'No tool calls this turn.') + '</p>';
+    if (en) {
+      html += '<div class="tx-tp__sub">Enrichment</div>'
+        + tpRow('Knowledge', en.knowledgeIds) + tpRow('Error codes', (en.codes || []).map(function (c) { return c && typeof c === 'object' ? c.code + (c.status ? ' (' + c.status + ')' : '') : c; }))
+        + tpRow('Recall notices', en.recalls) + tpRow('Catalogue parts', en.parts);
     }
-    var alts = (g.ranked || []).slice(1).filter(function (r) { return (r.for && r.for.length) || (r.against && r.against.length); });
-    var altHtml = alts.length ? '<details class="tx-tp__more"><summary>Evidence for alternatives</summary>' + alts.map(function (r) {
-      return '<div class="tx-tp__sub">' + esc(r.cause) + '</div>' + tpRow('For', r.for) + tpRow('Against', r.against);
-    }).join('') + '</details>' : '';
-    return tpRow('Leader', lead.cause ? lead.cause + (lead.committed ? ' (committed)' : ' (not committed)') + (lead.level ? ' · ' + lead.level : '') : null)
-      + tpRow('Margin', lead.margin)
-      + (ranked ? '<ol class="tx-ranklist">' + ranked + '</ol>' : '')
-      + evList('Evidence for ' + (top.cause || 'the leader'), top.for) + evList('Evidence against', top.against)
-      + altHtml
-      + tpRow('Ruled out', g.ruledOut) + tpRow('Next discriminating check', g.pivotal ? g.pivotal.target + (g.pivotal.separates ? ' (separates ' + g.pivotal.separates.join(' / ') + ')' : '') : null)
-      + tpRow('Likely resolved', g.likelyResolved) + tpRow('No viable cause', g.noViableCause)
-      + tpRow('Part evidence', g.partEvidence ? (g.partEvidence.sufficient ? 'sufficient' : 'insufficient') + (g.partEvidence.reasons ? ' · ' + g.partEvidence.reasons.join(', ') : '') : null);
-  }
-  function tpPolicyHtml(c) {
-    var p = c.policy || {}; var na = c.nextAction || {}; var cc = na.conclusion || {};
-    if (!c.policy && !c.nextAction) return '<p class="tac__muted">No policy decision this turn.</p>';
-    return tpRow('Rule', p.rule) + tpRow('Rule reason', p.label) + tpRow('Action', p.kind ? tpUpper(p.kind) : null) + tpRow('Target', p.target)
-      + tpRow('Request kind', p.requestKind) + tpRow('Conclusion', p.conclusion) + tpRow('Outcome', p.outcome) + tpRow('Handoff', p.handoff)
-      + tpRow('Safety stop', p.safetyStop)
-      + '<div class="tx-tp__sub">NextAction</div>'
-      + tpRow('Type', na.kind) + tpRow('Target', na.target) + tpRow('Purpose', na.purpose)
-      + tpRow('Required safety', na.requiredSafety) + tpRow('Requires model', na.requiresModel)
-      + tpRow('Conclusion', na.conclusion ? [cc.cause, cc.level, cc.confidence].filter(Boolean).join(' · ') + (cc.handoff && cc.handoff !== 'none' ? ' · handoff ' + cc.handoff : '') + (cc.noPart ? ' · no part' : '') : null)
-      + tpRow('Approved part', na.part ? [na.part.partNo, na.part.title].filter(Boolean).join(' · ') : null);
-  }
-  function tpPartHtml(g) {
-    if (!g) return '<p class="tac__muted">No part decision this turn.</p>';
-    var l = g.lookup || {};
-    return tpRow('Eligible', g.eligible) + tpRow('Component', g.component)
-      + ((g.blockers || []).length ? '<div class="tx-tp__sub">Blocking reasons</div><ul class="tx-evlist">' + g.blockers.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>' : '')
-      + tpRow('Catalogue lookup', g.lookup ? (l.available ? 'compatible part found' : 'no compatible part') + (l.reason ? ' · ' + l.reason : '') : null)
-      + tpRow('Matched', (l.matched || []).map(function (m) { return [m.partNo, m.title].filter(Boolean).join(' · '); }))
-      + tpRow('Model part list size', g.modelParts);
+    if (a.tags && a.tags.media) html += tpRow('Media shown', a.tags.media);
+    return html;
   }
   function tpRuntimeHtml(t) {
-    var c = t.canonical || {}; var ps = c.persistence || {}; var cm = c.compose || {}; var rt = t.runtime || {};
+    var rt = t.runtime || {};
     return tpRow('Route', rt.route) + tpRow('Outcome', rt.outcome) + tpRow('Safety stop', rt.safetyStop || null) + tpRow('Safety class', rt.safetyClass)
       + tpRow('API error', rt.apiError || null) + tpRow('Request id', rt.requestId)
-      + (t.canonical ? '<div class="tx-tp__sub">Canonical runtime</div>'
-        + tpRow('Mode', c.mode) + tpRow('Controlled', c.controlled) + tpRow('Owner', c.owner) + tpRow('Session ref', c.ref)
-        + tpRow('State digest', c.version && c.version.stateDigest)
-        + tpRow('Persisted', ps.written) + tpRow('Turn record written', ps.recordWritten) + tpRow('Idempotent duplicate', ps.duplicate)
-        + tpRow('Idempotent replay', ps.idempotentReplay ? ps.idempotentReplay.count + '× (last ' + ps.idempotentReplay.lastAt + ')' : null)
-        + tpRow('Conflict', ps.conflict) + tpRow('Degraded', ps.degraded) + tpRow('Replay recovery', ps.recovered) + tpRow('Demoted to shadow', ps.demoted)
-        + tpRow('Classifier', c.classifier ? [c.classifier.source, c.classifier.degraded ? 'degraded' : null, c.classifier.reason].filter(Boolean).join(' · ') : null)
-        + (c.compose ? '<div class="tx-tp__sub">COMPOSE</div>' + tpRow('Mode', (TP_COMPOSE[cm.mode] || {}).text || cm.mode)
-          + tpRow('Contract valid', cm.valid) + tpRow('Violations', cm.violations) + tpRow('Fallback reason', cm.fallbackReason)
-          + tpRow('Latency ms', cm.latencyMs) + tpRow('Output chars', cm.outputChars) : '')
-        : (ac2Of(t) ? '<p class="tac__muted">AC2 path — see the AC2 decision tab.</p>'
-          : '<p class="tx-tp__note">LEGACY PATH — no canonical audit was recorded for this turn' + (t.diagnosticTrace ? '; see the Trace tab.' : '.') + '</p>'));
+      + (ac2Of(t) ? '' : '<p class="tx-tp__note">No engine audit was recorded for this turn.</p>');
   }
-  function turnPanelHtml(t, ti, turns) {
-    var c = t.canonical && t.canonical.schemaVersion === 'canonical-audit/1' ? t.canonical : null;
+  // Summary chips: always visible on the collapsed panel, so a turn can be scanned without opening it.
+  function turnChips(t) {
+    var a = ac2Of(t);
+    if (a) return ac2Chips(a);
+    var rt = t.runtime || {};
+    var bits = [tpBadge('NO AUDIT', 'tx-badge tx-badge--muted')];
+    if (rt.route) bits.push(tpBadge(rt.route, 'tx-badge'));
+    if (rt.safetyStop) bits.push(tpBadge('SAFETY STOP', 'tx-badge tx-badge--safety'));
+    if (rt.apiError) bits.push(tpBadge('API ERROR', 'tx-badge tx-badge--warn'));
+    return bits.join('');
+  }
+  function turnPanelHtml(t, ti) {
     var tabs = [];
     var a2 = ac2Of(t);
     if (a2) {
       tabs.push(['ac2', 'AC2 decision', ac2DecisionHtml(a2)]);
       if (!a2.error) {
-        tabs.push(['ac2ledger', 'Evidence ledger', ac2LedgerHtml(a2)]);
-        tabs.push(['ac2safety', 'Safety & verifier', ac2SafetyHtml(a2)]);
-        tabs.push(['ac2tools', 'Tool calls', ac2ToolsHtml(a2)]);
+        tabs.push(['ac2safety', 'Safety', ac2SafetyHtml(a2)]);
+        tabs.push(['ac2tools', 'Tools & enrichment', ac2ToolsHtml(a2)]);
       }
     }
-    if (c) {
-      tabs.push(['summary', 'Summary', tpSummaryHtml(c)]);
-      if (c.classification) tabs.push(['classification', 'Classification', tpClassificationHtml(c.classification)]);
-      if (c.stateDelta || c.pendingRequest) tabs.push(['state', 'State changes', tpStateHtml(c)]);
-      if (c.diagnostics) tabs.push(['diagnostics', 'Diagnostics', tpDiagnosticsHtml(c.diagnostics)]);
-      if (c.policy || c.nextAction) tabs.push(['policy', 'Policy', tpPolicyHtml(c)]);
-      if (c.partGate) tabs.push(['part', 'Part', tpPartHtml(c.partGate)]);
-    }
     tabs.push(['runtime', 'Runtime', tpRuntimeHtml(t)]);
-    if (t.diagnosticTrace) tabs.push(['trace', 'Trace', TP_TRACE_LEGEND + journeyTurnHtml(t, ti, turns)]);
     var seq = t.seq != null ? t.seq : (ti + 1);
     var head = '<div class="tx-tp__tabs" role="tablist" aria-label="Turn ' + esc(String(seq)) + ' technical details">' + tabs.map(function (x, i) {
       return '<button type="button" role="tab" class="tx-tp__tab' + (i === 0 ? ' is-active' : '') + '" data-tptab="' + x[0] + '" aria-selected="' + (i === 0 ? 'true' : 'false') + '">' + esc(x[1]) + '</button>';
@@ -1613,69 +936,39 @@
     var panels = tabs.map(function (x, i) {
       return '<div class="tx-tp__panel" data-tppanel="' + x[0] + '" role="tabpanel"' + (i === 0 ? '' : ' hidden') + '>' + x[2] + '</div>';
     }).join('');
-    var rawObj = c || a2;
-    var raw = rawObj ? '<details class="tx-tp__raw"><summary>Raw audit JSON (developer)</summary><pre>' + esc(JSON.stringify(rawObj, null, 2)) + '</pre></details>' : '';
+    var raw = a2 ? '<details class="tx-tp__raw"><summary>Raw audit JSON (developer)</summary><pre>' + esc(JSON.stringify(a2, null, 2)) + '</pre></details>' : '';
     return '<details class="tx-tp" data-seq="' + esc(String(seq)) + '"><summary class="tx-tp__sum"><span class="tx-tp__label">Technical · turn ' + esc(String(seq)) + '</span>'
       + '<span class="tx-tp__chips">' + turnChips(t) + '</span></summary>'
       + '<div class="tx-tp__body">' + head + panels + raw + '</div></details>';
   }
-  // Session header badges (detail page) and row badges (list) share the same vocabulary.
-  function canonicalRowBadges(cs) {
-    if (!cs) return tpBadge('LEGACY PATH', 'tx-badge tx-badge--legacy');
-    var p = TP_PATH[cs.path] || TP_PATH.legacy;
-    var bits = [tpBadge(p.text === 'SHADOW / NOT CONTROLLED' ? 'SHADOW' : p.text, p.cls)];
-    if (cs.journey) bits.push(tpBadge(cs.journey, 'tx-badge tx-badge--journey'));
-    var x = cs.ac2;
-    if (x) {
-      if (cs.appliance) bits.push(tpBadge(cs.appliance, 'tx-badge tx-badge--journey'));
-      if (x.status) bits.push(tpBadge(tpUpper(x.status), 'tx-badge'));
-      if (x.partGate) bits.push(tpBadge((AC2_PART[x.partGate] || { text: 'PART · ' + tpUpper(x.partGate) }).text, (AC2_PART[x.partGate] || { cls: 'tx-badge tx-badge--muted' }).cls));
-      if (x.hazards && x.hazards.length) bits.push(tpBadge('HAZARD', 'tx-badge tx-badge--safety'));
-      if (x.errors) bits.push(tpBadge(x.errors + ' AC2 ERROR' + (x.errors === 1 ? '' : 'S'), 'tx-badge tx-badge--warn'));
-    }
-    if (cs.degraded && !(x && x.errors)) bits.push(tpBadge('DEGRADED', 'tx-badge tx-badge--warn'));
+  // Session header badges (detail page) share the list's vocabulary.
+  function sessionBadges(ov) {
+    var s = ov.ac2 || {};
+    var bits = [tpBadge(s.turns ? 'AC2' : 'NO AUDIT', s.turns ? 'tx-badge tx-badge--control' : 'tx-badge tx-badge--muted')];
+    if (s.appliance) bits.push(tpBadge(s.appliance, 'tx-badge tx-badge--journey'));
+    if (s.outcome) bits.push(tpBadge(tpUpper(s.outcome), 'tx-badge'));
+    if (ov.partRecommended) bits.push(tpBadge('PART RECOMMENDED', 'tx-badge tx-badge--ok'));
+    if (s.hazards && s.hazards.length) bits.push(tpBadge('HAZARD · ' + s.hazards.join(', '), 'tx-badge tx-badge--safety'));
+    if (s.escalation) bits.push(tpBadge('ESCALATE · ' + s.escalation, 'tx-badge tx-badge--safety'));
+    if (s.errors) bits.push(tpBadge(s.errors + ' ADVISOR ERROR' + (s.errors === 1 ? '' : 'S'), 'tx-badge tx-badge--warn'));
+    if (ov.safetyStop) bits.push(tpBadge('SAFETY STOP', 'tx-badge tx-badge--safety'));
+    if (ov.hasError) bits.push(tpBadge('API ERROR', 'tx-badge tx-badge--warn'));
+    if (ov.lifecycle) bits.push(tpBadge(tpUpper(lifeLabel(ov.lifecycle)), 'tx-badge tx-badge--muted'));
     return bits.join('');
   }
-
-  // Technical layer: raw captured stage detail per turn, deliberately deep.
-  function technicalTurnHtml(t, ti) {
-    var trace = t.diagnosticTrace;
-    var seq = t.seq != null ? t.seq : (ti + 1);
-    if (!trace || !trace.stages) {
-      return '<details class="tx-tech__turn"><summary>Turn ' + esc(String(seq)) + ' · no trace</summary>'
-        + '<p class="tac__muted">NOT CAPTURED.</p></details>';
-    }
-    var stages = trace.stages.map(function (s) {
-      var detail = s.detail == null ? '<span class="tac__muted">—</span>'
-        : '<div class="tx-trace__detail">' + traceValue(s.detail) + '</div>';
-      var ev = (s.evidence || 'NOT_CAPTURED').replace('_', ' ').toLowerCase();
-      return '<div class="tx-tech__stage"><div class="tx-tech__stagehd">' + esc(s.label || s.id)
-        + ' <i>(' + esc(ev) + ')</i></div>' + detail + '</div>';
-    }).join('');
-    return '<details class="tx-tech__turn"><summary>Turn ' + esc(String(seq)) + '</summary>' + stages + '</details>';
+  function technicalHtml(metaRows) {
+    return '<p class="tx__sub">Raw identifiers and session metadata. Per-turn engine audits sit under each turn in the Conversation tab.</p>'
+      + '<h4 class="tx__h4">Session metadata</h4><div class="tx-techmeta">' + metaRows + '</div>';
   }
-
-  function technicalHtml(turns, metaRows) {
-    var meta = '<h4 class="tx__h4">Session metadata</h4><div class="tx-techmeta">' + metaRows + '</div>';
-    var raw = turns.length
-      ? '<h4 class="tx__h4">Raw per-turn trace</h4>' + turns.map(technicalTurnHtml).join('')
-      : '';
-    return '<p class="tx__sub">Raw identifiers, timings and captured stage detail. For debugging.</p>' + meta + raw;
-  }
-
-  // Conversation layer: clean bubbles only. No inline diagnostic trace. A small, honest
-  // per-turn marker appears only where state-evidence recorded a dropped/changed fact.
-  function conversationHtml(turns, stateEvidence) {
+  // Conversation layer: clean bubbles, with the turn's technical panel directly under the turn it belongs to.
+  function conversationHtml(turns) {
     if (!turns.length) return '<p class="tac__muted">No turns recorded.</p>';
-    var markers = turnMarkerMap(stateEvidence);
     return turns.map(function (t, ti) {
       var seq = t.seq != null ? t.seq : (ti + 1);
       var user = '<div class="tx__bubble tx__bubble--user"><div class="tx__who">Customer</div><div class="tx__text"></div>'
         + (t.customer && t.customer.photo ? '<div class="tx__photo">Photo attached (bytes not stored)</div>' : '') + '</div>';
       var vis = t.applianceClinic || {};
-      var botInner = '';
-      if (vis.diagnosisLabel) botInner += '<div class="tx__label"></div>';
-      botInner += '<div class="tx__text"></div>';
+      var botInner = '<div class="tx__text"></div>';
       if (vis.safetyText) botInner += '<div class="tx__safety"></div>';
       if (vis.parts && vis.parts.length) botInner += '<div class="tx__chips">' + vis.parts.map(function (p) {
         return '<span class="tx__chip">' + esc(p.name) + (p.fitStatus ? ' · ' + esc(p.fitStatus) : '') + '</span>';
@@ -1684,18 +977,7 @@
         return '<span class="tx__chip">' + esc(m.type || 'MEDIA') + ' · ' + esc(m.title || m.id || '') + '</span>';
       }).join('') + '</div>';
       var bot = '<div class="tx__bubble tx__bubble--bot"><div class="tx__who">ApplianceClinic</div>' + botInner + '</div>';
-      var mk = markers[seq];
-      var marker = '';
-      if (mk && mk.length) {
-        var fields = mk.map(function (d) { return d.field; }).filter(Boolean);
-        marker = '<button type="button" class="tx__turnmark tx__turnmark--warn" data-txgoto="review">'
-          + '<span aria-hidden="true">⚠</span> Established fact dropped here'
-          + (fields.length ? ' (' + esc(fields.join(', ')) + ')' : '')
-          + ' · see review</button>';
-      }
-      // The turn's technical panel sits directly under the turn it belongs to (collapsed by default).
-      var panel = typeof turnPanelHtml === 'function' ? turnPanelHtml(t, ti, turns) : '';
-      return '<div class="tx__turn" id="txturn-' + esc(String(seq)) + '">' + user + bot + marker + panel + '</div>';
+      return '<div class="tx__turn" id="txturn-' + esc(String(seq)) + '">' + user + bot + turnPanelHtml(t, ti) + '</div>';
     }).join('');
   }
 
@@ -1710,16 +992,6 @@
       p.hidden = p.getAttribute('data-txpanel') !== name;
     });
   }
-
-  function focusTurn(seq) {
-    switchTxTab('conversation');
-    var el = $('txturn-' + seq);
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    el.classList.add('is-focus');
-    setTimeout(function () { el.classList.remove('is-focus'); }, 2000);
-  }
-
   function bindTxTabs(detail) {
     if (!detail._tpBound) {
       detail._tpBound = true;
@@ -1738,12 +1010,6 @@
     }
     Array.prototype.forEach.call(detail.querySelectorAll('.tx-tab'), function (b) {
       b.addEventListener('click', function () { switchTxTab(b.getAttribute('data-txtab')); });
-    });
-    Array.prototype.forEach.call(detail.querySelectorAll('.tx-turnlink'), function (b) {
-      b.addEventListener('click', function () { focusTurn(b.getAttribute('data-txturn')); });
-    });
-    Array.prototype.forEach.call(detail.querySelectorAll('[data-txgoto]'), function (b) {
-      b.addEventListener('click', function () { switchTxTab(b.getAttribute('data-txgoto')); });
     });
   }
 
@@ -1774,60 +1040,34 @@
           ['Ended (New Chat)', ov.endedAt || '—'],
           ['Family', md.family],
           ['Make', md.make],
-          ['Model (resolved)', md.model],
-          ['Extracted model (unconfirmed)', md.extractedModel],
+          ['Model', md.model],
           ['Error code', md.errorCode],
-          ['Route', md.route],
           ['Internal outcome', md.outcome],
+          ['Advisor outcome', ov.ac2 && ov.ac2.outcome ? outcomeLabel(ov.ac2.outcome) : null],
           ['Safety stop', md.safetyStop ? 'yes' : 'no'],
           ['Safety class', md.safetyClass],
           ['API error', md.hasError ? 'yes' : 'no'],
-          ['Needs model', md.needsModel ? 'yes' : 'no'],
           ['Request id', md.lastRequestId],
-          ['Trace id', md.lastTraceId],
         ].map(function (row) {
           return '<div class="health__row"><span>' + esc(row[0]) + '</span><span>' + esc(row[1] == null || row[1] === '' ? '—' : row[1]) + '</span></div>';
         }).join('');
-        var headFlags = '';
-        if (ov.reviewOverall) headFlags += '<span class="' + assessmentFlagClass(ov.reviewOverall) + '">' + esc(txLabel(TX_OVERALL_LABELS, ov.reviewOverall)) + '</span>';
-        if (ov.reviewOutcome) headFlags += '<span class="tx__flag">' + esc(txLabel(TX_OUTCOME_LABELS, ov.reviewOutcome)) + '</span>';
-        if (ov.needsAttention) headFlags += '<span class="tx__flag tx__flag--attn">Needs attention</span>';
-        if (ov.reviewSafetyHandling === 'concern') headFlags += '<span class="tx__flag tx__flag--safety">Safety concern</span>';
-        if (ov.lifecycle) headFlags += '<span class="tx__flag tx__flag--muted">' + esc(lifeLabel(ov.lifecycle)) + '</span>';
-        var cs = ov.canonical || null;
-        var headCanon = canonicalRowBadges(cs)
-          + (ov.outcome && !(ov.safetyStop && ov.outcome === 'SAFETY_STOP') ? '<span class="tx__flag tx__flag--muted">' + esc(prettyEnum(ov.outcome)) + '</span>' : '')
-          + (ov.partRecommended ? '<span class="tx__flag tx__flag--ok">Part recommended</span>' : '')
-          + (ov.safetyStop ? '<span class="tx__flag tx__flag--safety">Safety stop</span>' : '');
-        var anyConflict = turns.some(function (t) { return t.canonical && t.canonical.persistence && t.canonical.persistence.conflict; });
-        if (anyConflict) headCanon += '<span class="tx__flag tx__flag--warn">Conflict</span>';
-        var refLine = '<span class="tx__sub">Session <code class="tx__sid">' + esc(ov.sessionId || id) + '</code>'
-          + (cs && cs.ref ? ' · canonical ref <code class="tx__sid">' + esc(cs.ref) + '</code>' : '')
-          + (cs && cs.appliance ? ' · ' + esc(cs.appliance) : '') + '</span>';
+        var refLine = '<span class="tx__sub">Session <code class="tx__sid">' + esc(ov.sessionId || id) + '</code></span>';
         var errBanner = ov.hasError
           ? '<div class="tx-errbanner" role="status">This conversation recorded an API error. The turns below are still what the customer saw.</div>'
           : '';
-        var sr = d.semanticReview || {};
-        var a = sr.assessment || null;
-        var reviewAttn = !!(a && (a.reviewPriority === 'important' || a.reviewPriority === 'worth_reviewing'
-          || a.stateProgression === 'poor' || (a.concerns && a.concerns.length)));
-        var reviewDot = reviewAttn ? '<span class="tx-tab__dot" aria-hidden="true"></span>' : '';
         var tabs = '<div class="tx-tabs" role="tablist" aria-label="Transcript layers">'
           + '<button type="button" role="tab" class="tx-tab is-active" data-txtab="conversation" aria-selected="true" tabindex="0">Conversation</button>'
-          + '<button type="button" role="tab" class="tx-tab" data-txtab="review" aria-selected="false" tabindex="-1">Review' + reviewDot + '</button>'
           + '<button type="button" role="tab" class="tx-tab" data-txtab="technical" aria-selected="false" tabindex="-1">Technical</button>'
           + '</div>';
         var panels = '<div class="tx-panel" data-txpanel="conversation" role="tabpanel">'
-          + '<div class="tx__chat" id="txChat">' + conversationHtml(turns, d.stateEvidence) + '</div></div>'
-          + '<div class="tx-panel" data-txpanel="review" role="tabpanel" hidden>'
-          + reviewPanelHtml(sr, ov.sessionId || id, d.stateEvidence) + '</div>'
+          + '<div class="tx__chat" id="txChat">' + conversationHtml(turns) + '</div></div>'
           + '<div class="tx-panel" data-txpanel="technical" role="tabpanel" hidden>'
-          + technicalHtml(turns, metaRows) + '</div>';
+          + technicalHtml(metaRows) + '</div>';
         detail.innerHTML =
           '<div class="tx__detailhead"><h2 class="admin__h2">' + esc(applianceLine(ov)) + '</h2>'
           + '<span class="tx__sub">' + esc(fmtWhen(ov.lastActivityAt)) + ' · '
           + esc((ov.turnCount || 0) + ((ov.turnCount === 1) ? ' turn' : ' turns')) + '</span></div>'
-          + '<div class="tx-detailmeta">' + headCanon + headFlags + '</div>'
+          + '<div class="tx-detailmeta">' + sessionBadges(ov) + '</div>'
           + '<div class="tx-detailref">' + refLine + '</div>'
           + errBanner
           + tabs
@@ -1843,213 +1083,15 @@
           }
           if (botEl) {
             var vis = t.applianceClinic || {};
-            var lab = botEl.querySelector('.tx__label');
-            if (lab) lab.textContent = vis.diagnosisLabel || '';
             var reply = botEl.querySelector('.tx__text');
             if (reply) reply.textContent = vis.reply || '';
             var saf = botEl.querySelector('.tx__safety');
             if (saf) saf.textContent = vis.safetyText || '';
           }
         });
-        fillReviewTexts(d.semanticReview);
-        bindRereview(ov.sessionId || id, d.semanticReview);
         bindTxTabs(detail);
       })
       .catch(function () { detail.innerHTML = '<p class="tac__muted">Could not load that transcript.</p>'; });
-  }
-  function stateEvidenceHtml(ev) {
-    if (!ev || !Array.isArray(ev.timeline) || !ev.timeline.length) return '';
-    var rows = ev.timeline.map(function (t) {
-      var changes = (t.changes || []).map(function (c) {
-        var warn = /REMOVED_OR_CONTRADICTED/.test(c);
-        return '<span class="tx__chip' + (warn ? ' tx__chip--warn' : '') + '">' + esc(c) + '</span>';
-      }).join('');
-      return '<li class="tx__evrow"><button type="button" class="tx__evseq tx-turnlink" data-txturn="' + esc(String(t.seq)) + '">Turn ' + esc(String(t.seq)) + '</button>' + changes + '</li>';
-    }).join('');
-    var dropNote = '';
-    if (ev.droppedGroups && (ev.droppedGroups.identity || ev.droppedGroups.problem || ev.droppedGroups.evidence)) {
-      var dg = [];
-      if (ev.droppedGroups.identity) dg.push('identity');
-      if (ev.droppedGroups.problem) dg.push('problem');
-      if (ev.droppedGroups.evidence) dg.push('evidence');
-      dropNote = '<p class="tx__sub">A previously established fact was dropped or contradicted ('
-        + esc(dg.join(', ')) + '). This may be a legitimate customer correction or a lost fact — the review judges which.</p>';
-    }
-    return '<div class="tx-revblock"><h4 class="tx__h4">State progression evidence</h4>'
-      + '<p class="tx__sub">' + esc(ev.note || '') + ' Select a turn to jump to it in the Conversation.</p>'
-      + dropNote
-      + '<ul class="tx__evlist">' + rows + '</ul>'
-      + '</div>';
-  }
-  // The Review layer. Stage 2: a scannable "At a glance" verdict first, then What happened,
-  // then Issues (concerns primary) and Strengths (supporting), with the reviewer dimensions
-  // demoted into a collapsed "Detailed assessment". Turn attribution comes only from the
-  // turn-linked state evidence, never from the (unattributed) reviewer flags.
-  function glanceItem(label, dim, value) {
-    var map = dim === 'overall' ? TX_OVERALL_LABELS
-      : dim === 'outcome' ? TX_OUTCOME_LABELS
-        : dim === 'safety' ? TX_SAFETY_LABELS
-          : dim === 'progression' ? TX_PROGRESSION_LABELS
-            : TX_PRIORITY_LABELS;
-    return '<div class="tx-glance__item"><span class="tx-glance__k">' + esc(label) + '</span>'
-      + '<span class="tx-glance__v tx-glance__v--' + txTone(dim, value) + '">' + esc(txLabel(map, value)) + '</span></div>';
-  }
-  function reviewPanelHtml(sr, sessionId, stateEvidence) {
-    sr = sr || {};
-    var a = sr.assessment || null;
-    var status = sr.status || 'none';
-    var overall = a && a.overallAssessment;
-    var insuf = overall === 'insufficient_evidence';
-    var failed = status === 'failed';
-    var awaiting = status === 'awaiting';
-
-    // At a glance — the five triage dimensions, scannable in one read.
-    var glance;
-    if (a) {
-      glance = '<div class="tx-glance">'
-        + glanceItem('Overall', 'overall', overall)
-        + glanceItem('Outcome', 'outcome', a.outcome)
-        + glanceItem('Safety', 'safety', a.safetyHandling)
-        + glanceItem('Progression', 'progression', a.stateProgression || 'insufficient_evidence')
-        + glanceItem('Priority', 'priority', a.reviewPriority)
-        + '</div>';
-    } else {
-      var stateLabel = failed ? 'Review failed' : (awaiting ? 'Awaiting review' : 'Not reviewed yet');
-      glance = '<div class="tx-glance tx-glance--empty"><span class="tx__flag tx__flag--muted">' + esc(stateLabel) + '</span></div>';
-    }
-
-    var insufNote = insuf
-      ? '<div class="tx-insuf">There was not enough conversation to assess product quality. This is not a failure — the customer may have sent one message and left.</div>'
-      : '';
-
-    // Issues (concerns primary): named concern flags + turn-attributed drop evidence +
-    // the reviewer's free-text concerns. Suppressed when evidence is insufficient.
-    var concernChips = (a && !insuf) ? concernFlagChips(a.progressionFlags) : '';
-    var dropLinks = insuf ? '' : dropTurnLinks(stateEvidence);
-    var issuesBody = concernChips + dropLinks + '<ul id="txReviewConcerns" class="tx__revlist"></ul>';
-
-    // Strengths (supporting): positive flags + the reviewer's free-text strengths.
-    var positiveChips = a ? positiveFlagChips(a.progressionFlags) : '';
-    var strengthsBody = positiveChips + '<ul id="txReviewStrengths" class="tx__revlist"></ul>';
-
-    // Detailed assessment (demoted): the per-dimension grid + suggested product areas.
-    var dims = '';
-    if (a) {
-      dims = dimRow('Understanding', a.understanding)
-        + dimRow('Diagnostic reasoning', a.diagnosticReasoning)
-        + dimRow('Conversation quality', a.conversationQuality)
-        + dimRow('Safety handling', a.safetyHandling)
-        + dimRow('Parts handling', a.partsHandling)
-        + dimRow('Media handling', a.mediaHandling)
-        + dimRow('Looping', a.looping)
-        + dimRow('State progression', a.stateProgression || 'insufficient_evidence')
-        + dimRow('Priority', a.reviewPriority);
-    }
-    var areas = (a && a.suggestedProductAreas && a.suggestedProductAreas.length)
-      ? '<div class="tx-revblock"><h4 class="tx__h4">Suggested product areas</h4><div class="tx__chips">'
-        + a.suggestedProductAreas.map(function (x) {
-          return '<span class="tx__chip">' + esc(TX_AREA_LABELS[x] || titleEnum(x)) + '</span>';
-        }).join('') + '</div></div>'
-      : '';
-    var detailed = '<details class="tx-dims"><summary>Detailed assessment</summary>'
-      + (dims || '<p class="tac__muted">No assessment stored yet.</p>') + areas + '</details>';
-
-    var action;
-    if (sr.canRereview) {
-      action = '<button type="button" class="btn btn--ghost" id="txRereview" data-sid="' + esc(sessionId) + '">Re-review</button>'
-        + '<span class="tx__sub" id="txRereviewMsg"></span>';
-    } else {
-      action = '<p class="tac__muted">Review runs after the conversation ends (New Chat) or becomes inactive. Active chats are not judged mid-flight.</p>';
-    }
-    return '<div class="tx__review" id="txReview">'
-      + '<p class="tx__reviewnotice">' + esc(sr.notice || 'LLM assessment of this conversation. Not what the customer saw, and not a change to the transcript.') + '</p>'
-      + '<h4 class="tx__h4">At a glance</h4>'
-      + glance
-      + '<p class="tx__sub tx__reviewmeta" id="txReviewMeta">Version ' + esc(sr.version || sr.promptVersion || '—')
-      + (sr.reviewedAt ? ' · ' + esc(fmtWhen(sr.reviewedAt)) : '')
-      + (sr.provider || sr.model ? ' · ' + esc([sr.provider, sr.model].filter(Boolean).join(' / ')) : '')
-      + ' · status ' + esc(status)
-      + '</p>'
-      + (sr.error ? '<p class="tx__reviewerr">Last error: ' + esc(sr.error) + '</p>' : '')
-      + insufNote
-      + '<div class="tx-revblock"><h4 class="tx__h4">What happened</h4><p class="tx__reviewlead" id="txReviewSummary"></p></div>'
-      + '<div class="tx-revblock tx-revblock--issues"><h4 class="tx__h4">Issues</h4>' + issuesBody + '</div>'
-      + '<div class="tx-revblock tx-revblock--strengths"><h4 class="tx__h4">Strengths</h4>' + strengthsBody + '</div>'
-      + stateEvidenceHtml(stateEvidence)
-      + detailed
-      + '<div class="tx__reviewacts">' + action + '</div>'
-      + '</div>';
-  }
-  function fillReviewTexts(sr) {
-    var a = sr && sr.assessment;
-    var sum = $('txReviewSummary');
-    if (sum) {
-      if (a && a.summary) sum.textContent = a.summary;
-      else if (sr && sr.status === 'failed') sum.textContent = 'Review failed. The original transcript is unchanged.';
-      else if (sr && sr.status === 'awaiting') sum.textContent = 'This conversation is waiting for an LLM assessment.';
-      else sum.textContent = 'No LLM assessment stored yet.';
-    }
-    function fillList(id, items) {
-      var ul = $(id);
-      if (!ul) return;
-      ul.innerHTML = '';
-      (items || []).forEach(function (item) {
-        var li = document.createElement('li');
-        li.textContent = item;
-        ul.appendChild(li);
-      });
-      if (!items || !items.length) {
-        var empty = document.createElement('li');
-        empty.className = 'tac__muted';
-        empty.textContent = 'None recorded.';
-        ul.appendChild(empty);
-      }
-    }
-    fillList('txReviewStrengths', a && a.strengths);
-    fillList('txReviewConcerns', a && a.concerns);
-  }
-  function bindRereview(sessionId, sr) {
-    var btn = $('txRereview');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      if (btn.disabled) return;
-      var msg = $('txRereviewMsg');
-      btn.disabled = true;
-      btn.setAttribute('aria-busy', 'true');
-      btn.textContent = 'Reviewing…';
-      if (msg) msg.textContent = 'This can take a short while. The original transcript is not changed.';
-      fetch(API_BASE + '/admin/transcripts/session/review?id=' + encodeURIComponent(sessionId), {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { accept: 'application/json' }
-      })
-        .then(readJson)
-        .then(function (res) {
-          if (res.status === 401) return; // readJson showed the login gate
-          if (res.status === 429) {
-            if (msg) msg.textContent = 'Please wait a few seconds before requesting another review.';
-            btn.disabled = false;
-            btn.removeAttribute('aria-busy');
-            btn.textContent = 'Re-review';
-            return;
-          }
-          if (!res.ok) {
-            if (msg) msg.textContent = (res.body && res.body.error) ? String(res.body.error) : 'Review could not run.';
-            btn.disabled = false;
-            btn.removeAttribute('aria-busy');
-            btn.textContent = 'Re-review';
-            openTranscript(sessionId);
-            return;
-          }
-          openTranscript(sessionId);
-        })
-        .catch(function () {
-          if (msg) msg.textContent = 'Review request failed.';
-          btn.disabled = false;
-          btn.removeAttribute('aria-busy');
-          btn.textContent = 'Re-review';
-        });
-    });
   }
   Array.prototype.forEach.call(document.querySelectorAll('.tx-view'), function (btn) {
     btn.addEventListener('click', function () {
@@ -2086,7 +1128,6 @@
     txPage -= 1;
     loadTranscripts();
   });
-
   var knCache = null;
   var knWired = false;
   var knOpenId = null;
@@ -2368,7 +1409,7 @@
   // ---- THE unsaved-changes guard for the whole Admin (sidebar, in-page links/Back/Cancel, browser
   // Back, tab close). Editors: Error Codes (ecEd), Media (mdEd), Safety listing
   // decisions (rcEd), Test → Scenarios (edState), Settings inference (stEd), plus small forms
-  // registered with guardForm() (batch review note, override decision reason, Settings Jev / key dialogs).
+  // registered with guardForm() (the Settings credential dialog).
   var _knGuard = null;
   var guardForms = [];
   // A small form outside the big editors: { el, isDirty(), discard(), leave } — dirty only while its
@@ -2387,9 +1428,9 @@
   function knLeaveGuard() {
     if (_knGuard) return _knGuard;
     _knGuard = Kn.createLeaveGuard({
-      isDirty: function () { return !!((ecEd && ecEd.dirty) || (mdEd && mdEd.dirty) || (rcEd && rcEd.dirty) || (edState && edState.dirty) || (stEd && stEd.dirty) || dirtyForm()); },
+      isDirty: function () { return !!((ecEd && ecEd.dirty) || (mdEd && mdEd.dirty) || (rcEd && rcEd.dirty) || (stEd && stEd.dirty) || dirtyForm()); },
       ask: knAskLeave,
-      discard: function () { discardForms(); ecEd = null; mdEd = null; rcEd = null; edState = null; stDiscardEditor(); },
+      discard: function () { discardForms(); ecEd = null; mdEd = null; rcEd = null; stDiscardEditor(); },
     });
     return _knGuard;
   }
@@ -2397,7 +1438,6 @@
     if (ecEd && ecEd.dirty) return ecEd;
     if (mdEd && mdEd.dirty) return mdEd;
     if (rcEd && rcEd.dirty) return rcEd;
-    if (edState && edState.dirty) return edState;
     if (stEd && stEd.dirty) return stEd;
     return dirtyForm();
   }
@@ -2419,7 +1459,7 @@
     var T = Kn.LEAVE_TEXT;
     var bodyEl = $('knLeaveBody');
     var dirtyEd = dirtyEditor();
-    var bodyText = dirtyEd && dirtyEd === ecEd ? EC_TEXT.leave : (dirtyEd && dirtyEd === mdEd ? MD_TEXT.leave : (dirtyEd && dirtyEd === rcEd ? RC_TEXT.leave : (dirtyEd && dirtyEd === edState ? LIB_TEXT.leave : (dirtyEd && dirtyEd === stEd ? ST_TEXT.leave : (dirtyEd && dirtyEd.leave ? dirtyEd.leave : T.body)))));
+    var bodyText = dirtyEd && dirtyEd === ecEd ? EC_TEXT.leave : (dirtyEd && dirtyEd === mdEd ? MD_TEXT.leave : (dirtyEd && dirtyEd === rcEd ? RC_TEXT.leave : (dirtyEd && dirtyEd === stEd ? ST_TEXT.leave : (dirtyEd && dirtyEd.leave ? dirtyEd.leave : T.body))));
     if (bodyEl) bodyEl.textContent = bodyText;
     T = Object.assign({}, T, { body: bodyText });
     var dlg = $('knLeaveDlg');
@@ -3673,8 +2713,9 @@
       html += dgKv('Conversation window', rt.conversationWindowTurns != null ? rt.conversationWindowTurns + ' turns' : null);
       html += dgKv('Media overlay cache TTL', rt.mediaOverlayCacheTtlMs != null ? Math.round(rt.mediaOverlayCacheTtlMs / 1000) + ' seconds' : null);
       html += dgKv('Supported appliance families', (rt.supportedFamilies && rt.supportedFamilies.length) ? rt.supportedFamilies.join(', ') : null);
-      if (models.compose) {
-        html += dgKv('COMPOSE (reasoner)', (models.compose.providerLabel || models.compose.provider || '') + ' · ' + (models.compose.modelLabel || models.compose.model || 'Version not exposed by runtime'));
+      if (models.advisor) {
+        html += dgKv('Advisor model', (models.advisor.providerLabel || models.advisor.provider || '') + ' · ' + (models.advisor.modelLabel || models.advisor.model || 'Model not set')
+          + (models.advisor.credentialConfigured ? '' : ' · credential missing'));
       }
       if (rt.diagnosis) {
         // Read-only: ac2 is the only diagnosis architecture (ADR 0020); there is nothing to configure.
@@ -3712,9 +2753,6 @@
           htmlT += '<li class="dg-wrap">' + esc(p.name) + ' — ' + esc(p.reason || 'Probe failed') + ' · ' + esc((Dg.formatWhen && Dg.formatWhen(p.at)) || p.at || 'Last probe unavailable') + '</li>';
         });
         htmlT += '</ul>';
-      }
-      if (t.models && t.models.judge) {
-        htmlT += '<h3 class="dg-subh">Quality review model</h3><p class="dg-wrap">' + esc((t.models.judge.providerLabel || '') + ' · ' + (t.models.judge.modelLabel || 'Reviewer not set')) + '. ' + esc(t.models.judge.note || '') + '</p>';
       }
       techEl.innerHTML = htmlT;
     }
@@ -5198,17 +4236,19 @@
   }
 
   // ---- Settings -----------------------------------------------------------
-  // Read-only view of every setting (traced to its runtime consumer) + one staged edit flow for live
-  // diagnostic inference: edit locally → review the exact changes, impact and timing → reason →
-  // Apply → server validation + revision check → single whole-document write → read-back confirmation.
+  // Read-only view of the configuration ApplianceClinic uses, plus one staged edit flow for the advisor's model:
+  // edit locally → review the change, impact and timing → reason → Apply → server validation + revision check →
+  // single whole-document write → read-back confirmation. The credential is write-only and never shown.
   var stView = null;
   var stWired = false;
-  // The open inference editor for the shared unsaved-changes guard. `dirty` is computed from the
-  // dialog fields against the values it was opened with (no per-keystroke listeners, no autosave).
+  // The open model editor for the shared unsaved-changes guard. `dirty` is computed from the dialog field
+  // against the value it was opened with (no per-keystroke listeners, no autosave).
   var stEd = null;
   var ST_TEXT = {
-    leave: 'You have an unapplied diagnostic inference change. If you leave now it will be discarded. The live configuration is not affected.',
+    leave: 'You have an unapplied advisor model change. If you leave now it will be discarded. The live configuration is not affected.',
   };
+  // Shared-guard discard: close the Settings dialogs so the page beneath matches the discarded state.
+  function stDiscardEditor() { if (stEd) stCloseDialogs(); }
   function stApi(path, opts) {
     opts = opts || {};
     return fetch(API_BASE + path, {
@@ -5221,21 +4261,6 @@
       return r.json().then(function (b) { return { ok: r.ok, status: r.status, body: b }; }).catch(function () { return { ok: false, status: r.status, body: null }; });
     }).catch(function () { return { ok: false, status: 0, body: { error: 'Could not reach the server. Nothing was applied.' } }; });
   }
-  function stSetRoute(name, value) {
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="' + name + '"]'), function (r) { r.checked = r.value === value; });
-  }
-  function stGetRoute(name) {
-    var r = document.querySelector('input[name="' + name + '"]:checked');
-    return r ? r.value : 'local';
-  }
-  function stLockFrontier(on) {
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="stCompose"][value="frontier"]'), function (r) {
-      r.disabled = !on;
-      if (r.closest('label')) r.closest('label').classList.toggle('is-disabled', !on);
-    });
-    var lock = $('stFrontierLock');
-    if (lock) lock.hidden = !!on;
-  }
   function stNotice(kind, text) {
     var el = $('stApplyNotice');
     if (!el) return;
@@ -5246,64 +4271,24 @@
   }
   function applySettingsView(d) {
     stView = d;
-    var inf = d.diagnosticInference || {};
-    // inf.setup is the same anti-masquerade describeSetup object TAC consumes.
-    if (!inf.setup || !inf.setup.understand || !inf.setup.compose) {
-      $('stInfCards').innerHTML = '<p class="st-note">Could not describe the current diagnostic setup.</p>';
-    } else {
-      $('stInfCards').innerHTML = St.inferenceCardHtml(inf.understand) + St.inferenceCardHtml(inf.compose);
-    }
-    $('stInfMeta').textContent = St.metaLine(inf) + ' · ' + ((inf.propagation && inf.propagation.note) || '');
-    var store = inf.store || {};
-    $('stInfStore').hidden = !store.note;
-    $('stInfStore').textContent = store.note || '';
-    var extras = [];
-    extras.push('<div><dt>OpenAI credential</dt><dd>' + St.esc(St.credentialLabel(inf.frontier && inf.frontier.credential)) + '</dd></div>');
-    extras.push('<div><dt>Private AI endpoint</dt><dd>' + (inf.local && inf.local.endpointOverrideSet ? 'Custom override set' : 'Deployed default') + '</dd></div>');
-    extras.push('<div><dt>Takes effect</dt><dd>Within about ' + Math.round(((inf.propagation && inf.propagation.maxMs) || 120000) / 60000) + ' minutes</dd></div>');
-    $('stInfExtras').innerHTML = extras.join('');
+    var adv = d.advisor || {};
+    if ($('stAdvisorCard')) $('stAdvisorCard').innerHTML = St.advisorCardHtml(adv);
+    if ($('stAdvisorMeta')) $('stAdvisorMeta').textContent = St.metaLine(adv) + ' · ' + ((adv.propagation && adv.propagation.note) || '');
+    var store = adv.store || {};
+    if ($('stAdvisorStore')) { $('stAdvisorStore').hidden = !store.note; $('stAdvisorStore').textContent = store.note || ''; }
     if ($('stRuntimeStatus')) $('stRuntimeStatus').innerHTML = St.runtimeStatusHtml(d.runtimeStatus);
-    // A batch run that owns live routing: the values shown are TEMPORARY, and Apply is blocked.
-    var bo = d.batchOverride;
-    var boOn = Boolean(bo && (bo.active || bo.blocked));
-    if ($('stOverride')) { $('stOverride').hidden = !boOn; $('stOverride').innerHTML = boOn ? St.batchOverrideHtml(bo) : ''; }
-    if ($('stEditInference')) {
-      $('stEditInference').disabled = boOn;
-      $('stEditInference').setAttribute('aria-describedby', boOn ? 'stOverride' : 'stInfMeta');
-    }
-    if ($('stInventory')) $('stInventory').innerHTML = St.inventoryHtml(inf.settings);
-    if ($('stHistoryBody')) $('stHistoryBody').innerHTML = St.historyHtml(inf.history);
-    if ($('stUnaudited')) $('stUnaudited').textContent = inf.unauditedWriteNote || '';
-    if ($('stKeyHistoryBody')) $('stKeyHistoryBody').innerHTML = St.historyHtml(inf.frontier && inf.frontier.credentialHistory, 'No credential replacements recorded yet.');
-    var rev = d.productionReview || {};
-    var tr = rev.transcriptReview || {};
-    var qr = rev.qualityReviewer || {};
-    $('stReviewBody').innerHTML =
-      St.readOnlyRowHtml('Transcript semantic review', (tr.providerLabel || '—') + ' — ' + (tr.modelLabel || '—'), tr.source,
-        (tr.enabled ? 'Enabled' : 'Disabled') + (tr.customEndpoint ? '. Custom endpoint configured.' : '.') + ' Cadence is deployment-managed.')
-      + St.readOnlyRowHtml('Quality reviewer', (qr.providerLabel || '—') + ' — ' + (qr.modelLabel || '—'), qr.source, qr.note);
+    if ($('stHistoryBody')) $('stHistoryBody').innerHTML = St.historyHtml(adv.history);
+    var cred = adv.credential || {};
+    if ($('stKeyHistoryBody')) $('stKeyHistoryBody').innerHTML = St.historyHtml(cred.history, 'No credential replacements recorded yet.');
     fillRetention(d.transcripts);
     var conv = d.conversation || {};
-    $('stConversationBody').innerHTML = St.readOnlyRowHtml('Conversation window', String(conv.windowTurns) + ' recent turns', conv.source, conv.note);
-    $('stElsewhere').innerHTML = St.elsewhereHtml(d.elsewhere);
-    $('stTechnical').innerHTML = St.technicalHtml(d.technical);
-    stLockFrontier(inf.frontier && inf.frontier.credential === 'configured');
+    if ($('stConversationBody')) $('stConversationBody').innerHTML = St.readOnlyRowHtml('Conversation window', String(conv.windowTurns) + ' recent turns', conv.source, conv.note);
+    if ($('stElsewhere')) $('stElsewhere').innerHTML = St.elsewhereHtml(d.elsewhere);
+    if ($('stTechnical')) $('stTechnical').innerHTML = St.technicalHtml(d.technical);
     var keyBtn = $('stOpenKey');
-    if (keyBtn) {
-      keyBtn.textContent = (inf.frontier && inf.frontier.credential === 'configured') ? 'Replace OpenAI credential' : 'Add OpenAI credential';
-    }
-    if ($('stKeyImpact')) $('stKeyImpact').textContent = 'Used by: ' + ((inf.frontier && inf.frontier.usedBy) || 'COMPOSE when routed to OpenAI, batch frontier experiments and the quality reviewer.')
-      + (inf.frontier && inf.frontier.credentialUpdatedAt ? ' Last replaced ' + new Date(inf.frontier.credentialUpdatedAt).toLocaleString('en-GB') + (inf.frontier.credentialUpdatedByEmail ? ' by ' + inf.frontier.credentialUpdatedByEmail : '') + '.' : '');
-    var jev = d.jev || {};
-    var jevStore = jev.store || {};
-    if ($('stJevStore')) {
-      $('stJevStore').hidden = !jevStore.note;
-      $('stJevStore').textContent = jevStore.note || '';
-    }
-    if ($('stJevBody')) $('stJevBody').innerHTML = St.jevSectionHtml(jev);
-    if ($('stJevHistoryBody')) $('stJevHistoryBody').innerHTML = St.historyHtml(jev.history, 'No Jev changes recorded through Settings yet.');
-    var jevBtn = $('stEditJev');
-    if (jevBtn) jevBtn.textContent = jev.credentialConfigured ? 'Update Jev configuration' : 'Configure Jev';
+    if (keyBtn) keyBtn.textContent = cred.configured ? 'Replace model credential' : 'Add model credential';
+    if ($('stKeyImpact')) $('stKeyImpact').textContent = 'Used by: ' + (cred.usedBy || 'the diagnosis engine on every customer turn.')
+      + (cred.updatedAt ? ' Last replaced ' + new Date(cred.updatedAt).toLocaleString('en-GB') + (cred.updatedByEmail ? ' by ' + cred.updatedByEmail : '') + '.' : '');
   }
   function loadSettings() {
     var status = $('stStatus');
@@ -5312,42 +4297,29 @@
     return stApi('/admin/settings').then(function (res) {
       if (!res.ok || !res.body) { if (status) status.textContent = 'Could not load settings.'; return; }
       applySettingsView(res.body);
-      if (status) status.textContent = 'Showing the stored configuration (revision ' + ((res.body.diagnosticInference && res.body.diagnosticInference.revision) || '—') + ') and what Part Finder reports it is running.';
-      stApi('/admin/ai-config/local-models').then(function (m) {
-        var dl = $('stLocalModelsList');
-        if (!dl || !m.body) return;
-        dl.innerHTML = '';
-        (m.body.all || []).forEach(function (id) { var o = document.createElement('option'); o.value = id; dl.appendChild(o); });
-      });
-      if (stView && stView.diagnosticInference && stView.diagnosticInference.frontier && stView.diagnosticInference.frontier.credential === 'configured') {
-        stApi('/admin/ai-config/frontier-models').then(function (m) {
-          var dl = $('stFrontierModelsList');
-          if (!dl || !m.body || !m.body.models) return;
-          dl.innerHTML = '';
-          m.body.models.forEach(function (id) { var o = document.createElement('option'); o.value = id; dl.appendChild(o); });
-        });
-      }
+      if (status) status.textContent = 'Showing the stored configuration (revision ' + ((res.body.advisor && res.body.advisor.revision) || '—') + ') and what the diagnosis engine reports it is running.';
+    });
+  }
+  function stLoadModelList() {
+    var dl = $('stModelsList');
+    if (!dl) return;
+    stApi('/admin/ai-config/models').then(function (m) {
+      if (!m.ok || !m.body || !m.body.models) return;
+      dl.innerHTML = '';
+      m.body.models.forEach(function (id) { var o = document.createElement('option'); o.value = id; dl.appendChild(o); });
     });
   }
   function stFillEditor() {
-    var inf = (stView && stView.diagnosticInference) || {};
-    stSetRoute('stCompose', (inf.compose && inf.compose.configured && inf.compose.configured.route) || 'local');
-    $('stLocalModel').value = (inf.local && inf.local.model) || '';
-    $('stFrontierModel').value = (inf.frontier && inf.frontier.model) || '';
-    $('stLocalEndpoint').value = '';
-    if (inf.local && inf.local.endpointOverrideSet) $('stLocalEndpoint').placeholder = 'A custom address is saved — leave blank to keep it, or type a new one';
-    $('stEditErr').textContent = '';
-    stLockFrontier(inf.frontier && inf.frontier.credential === 'configured');
+    var adv = (stView && stView.advisor) || {};
+    if ($('stModel')) $('stModel').value = (adv.configured && adv.configured.model) || '';
+    if ($('stEditErr')) $('stEditErr').textContent = '';
   }
   function stProposed() {
-    var inf = (stView && stView.diagnosticInference) || {};
-    var endpoint = $('stLocalEndpoint').value.trim();
+    var adv = (stView && stView.advisor) || {};
     return {
-      expectedVersion: inf.version || 1,
-      expectedRevision: inf.revision || undefined,
-      routing: { compose: stGetRoute('stCompose') },
-      local: { enabled: true, model: $('stLocalModel').value.trim(), endpoint: endpoint || undefined },
-      frontier: { model: $('stFrontierModel').value.trim() },
+      expectedVersion: adv.version || 1,
+      expectedRevision: adv.revision || undefined,
+      model: (($('stModel') && $('stModel').value) || '').trim(),
     };
   }
   function stWithNote(p) { p.note = ($('stChangeNote') && $('stChangeNote').value.trim()) || undefined; return p; }
@@ -5356,8 +4328,6 @@
     stEd = { hash: location.hash, base: base };
     Object.defineProperty(stEd, 'dirty', { get: function () { var dlg = $('stEditDlg'); return Boolean(dlg && dlg.open && JSON.stringify(stProposed()) !== base); } });
   }
-  // Shared-guard discard: close the Settings dialogs so the page beneath matches the discarded state.
-  function stDiscardEditor() { if (stEd) stCloseDialogs(); }
   function stCloseDialogs() {
     ['stConfirmDlg', 'stEditDlg'].forEach(function (id) { var d = $(id); if (d && d.open) d.close(); });
     stEd = null;
@@ -5367,7 +4337,7 @@
     var yes = $('stConfirmYes');
     if (err) { err.textContent = 'Applying…'; err.className = 'st-result'; }
     if (yes) yes.disabled = true;
-    return stApi('/admin/settings/diagnostic-inference', { method: 'PATCH', body: payload }).then(function (res) {
+    return stApi('/admin/settings/model', { method: 'PATCH', body: payload }).then(function (res) {
       if (yes) yes.disabled = false;
       if (res.ok && res.body) {
         var apply = res.body.apply || {};
@@ -5377,8 +4347,8 @@
         stNotice(apply.verified ? 'ok' : 'bad', (apply.verified
           ? 'Applied and confirmed stored (version ' + apply.version + '). '
           : (apply.verificationNote ? 'Written. ' + apply.verificationNote + ' ' : 'Written, but the stored configuration could not be re-read to confirm it. Reload Settings to check what is stored. '))
-          + (apply.propagation || '') + ' (Running values are from Part Finder health.)');
-        var status = $('stStatus'); if (status) status.textContent = 'Change applied. Part Finder takes up to about 2 minutes to use it.';
+          + (apply.propagation || '') + ' (Running values are from the diagnosis engine health.)');
+        var status = $('stStatus'); if (status) status.textContent = 'Change applied. The diagnosis engine takes up to about 2 minutes to use it.';
         return;
       }
       var b = res.body || {};
@@ -5390,17 +4360,15 @@
     });
   }
   function stOpenReview() {
-    var inf = (stView && stView.diagnosticInference) || {};
+    var adv = (stView && stView.advisor) || {};
     var payload = stProposed();
-    var changes = St.reviewChanges(inf, payload);
-    var live = changes.some(function (c) { return c.live; });
+    var changes = St.reviewChanges(adv, payload);
     var body = $('stConfirmBody');
-    if (body) body.innerHTML = St.reviewHtml(changes, inf.propagation && inf.propagation.note);
-    if ($('stChangeNoteReq')) $('stChangeNoteReq').textContent = live ? '(required — this changes live diagnosis)' : '(optional)';
+    if (body) body.innerHTML = St.reviewHtml(changes, adv.propagation && adv.propagation.note);
     if ($('stChangeNote')) { $('stChangeNote').value = ''; $('stChangeNote').removeAttribute('aria-invalid'); }
     if ($('stConfirmErr')) { $('stConfirmErr').textContent = ''; $('stConfirmErr').className = 'st-result'; }
     if ($('stConflictReload')) $('stConflictReload').hidden = true;
-    if ($('stConfirmYes')) { $('stConfirmYes').disabled = !changes.length; $('stConfirmYes').textContent = live ? 'Apply live change' : 'Apply change'; }
+    if ($('stConfirmYes')) $('stConfirmYes').disabled = !changes.length;
     var dlg = $('stConfirmDlg');
     if (dlg && dlg.showModal) dlg.showModal();
     if ($('stChangeNote') && changes.length) $('stChangeNote').focus();
@@ -5409,12 +4377,13 @@
     if (stWired) return;
     stWired = true;
     if ($('stRefresh')) $('stRefresh').addEventListener('click', loadSettings);
-    if ($('stEditInference')) $('stEditInference').addEventListener('click', function () {
+    if ($('stEditModel')) $('stEditModel').addEventListener('click', function () {
       stFillEditor();
+      stLoadModelList();
       var dlg = $('stEditDlg');
       if (dlg && dlg.showModal) dlg.showModal();
       stEditorOpen();
-      if ($('stEditSave')) $('stEditSave').focus();
+      if ($('stModel')) $('stModel').focus();
     });
     // Escape / Cancel on a changed editor asks first; closing always clears the editor state.
     var editDlg = $('stEditDlg');
@@ -5427,7 +4396,7 @@
     if ($('stEditCancel')) $('stEditCancel').addEventListener('click', function (e) {
       if (stEd && stEd.dirty && !window.confirm('Discard this unapplied change? The live configuration is not affected.')) e.preventDefault();
     });
-    // Review step: the change list + impact + timing are shown BEFORE anything is written.
+    // Review step: the change + impact + timing are shown BEFORE anything is written.
     if ($('stEditSave')) $('stEditSave').addEventListener('click', function () {
       var dlg = $('stConfirmDlg');
       if (dlg && dlg.showModal) stOpenReview();
@@ -5440,78 +4409,32 @@
     if ($('stOpenKey')) $('stOpenKey').addEventListener('click', function () {
       var kdlg = $('stKeyDlg');
       if (kdlg && kdlg.showModal) kdlg.showModal();
-      if ($('stFrontierKey')) $('stFrontierKey').focus();
+      if ($('stApiKey')) $('stApiKey').focus();
     });
+    var stVal = function (id) { return ($(id) && $(id).value.trim()) || ''; };
+    // The credential dialog is guarded like the model editor (browser Back / tab close).
+    guardForm('stKeyDlg', { el: $('stKeyDlg'), hash: '#settings',
+      isDirty: function () { var d = $('stKeyDlg'); return Boolean(d && d.open && stVal('stApiKey')); },
+      discard: function () { var d = $('stKeyDlg'); if ($('stApiKey')) $('stApiKey').value = ''; if (d && d.open) d.close(); },
+      leave: 'You have typed a credential that has not been stored. If you leave now it will be cleared. The stored credential is not affected.' });
     if ($('stSaveKey')) $('stSaveKey').addEventListener('click', function () {
-      var key = ($('stFrontierKey') && $('stFrontierKey').value.trim()) || '';
+      var key = stVal('stApiKey');
       var out = $('stKeyResult');
       if (!key) { if (out) { out.textContent = 'Enter a key to store. Blank does not delete the existing credential.'; out.className = 'st-result is-bad'; } return; }
-      var inf = (stView && stView.diagnosticInference) || {};
-      var liveRoute = inf.compose && inf.compose.configured && inf.compose.configured.route === 'frontier';
-      if (liveRoute && !window.confirm('COMPOSE is routed to OpenAI. Replacing the key changes the credential used for live customer replies within about 1 minute. Continue?')) return;
+      if (!window.confirm('Replacing the credential changes the key the diagnosis engine uses for live customer replies within about 2 minutes. Continue?')) return;
       if (out) { out.textContent = 'Saving…'; out.className = 'st-result'; }
       stApi('/admin/ai-config/key', { method: 'POST', body: { apiKey: key } }).then(function (res) {
         if (res.ok) {
-          if ($('stFrontierKey')) $('stFrontierKey').value = '';
+          if ($('stApiKey')) $('stApiKey').value = '';
           if (out) { out.textContent = 'Credential stored. It is never shown again.'; out.className = 'st-result is-ok'; }
           loadSettings();
         } else if (out) { out.textContent = (res.body && res.body.error) || 'Could not store the credential.'; out.className = 'st-result is-bad'; }
       });
     });
-    function stFillJevEditor() {
-      var jev = (stView && stView.jev) || {};
-      if ($('stJevAccountId')) $('stJevAccountId').value = jev.accountId || '';
-      if ($('stJevGatewayId')) $('stJevGatewayId').value = jev.gatewayId || '';
-      if ($('stJevToken')) $('stJevToken').value = '';
-      if ($('stJevNote')) $('stJevNote').value = '';
-      if ($('stJevSaveResult')) { $('stJevSaveResult').textContent = ''; $('stJevSaveResult').className = 'st-result'; }
-    }
-    if ($('stEditJev')) $('stEditJev').addEventListener('click', function () {
-      stFillJevEditor();
-      var dlg = $('stJevDlg');
-      if (dlg && dlg.showModal) dlg.showModal();
-      if ($('stJevAccountId')) $('stJevAccountId').focus();
-    });
-    // The Jev and OpenAI-key dialogs are guarded like the inference editor (browser Back / tab close).
-    var stVal = function (id) { return ($(id) && $(id).value.trim()) || ''; };
-    guardForm('stJevDlg', { el: $('stJevDlg'), hash: '#settings',
-      isDirty: function () { var d = $('stJevDlg'); var jev = (stView && stView.jev) || {}; return Boolean(d && d.open && (stVal('stJevToken') || stVal('stJevNote') || stVal('stJevAccountId') !== (jev.accountId || '') || stVal('stJevGatewayId') !== (jev.gatewayId || ''))); },
-      discard: function () { var d = $('stJevDlg'); if ($('stJevToken')) $('stJevToken').value = ''; if (d && d.open) d.close(); },
-      leave: 'You have unsaved Jev changes. If you leave now they will be lost. The live Jev configuration is not affected.' });
-    guardForm('stKeyDlg', { el: $('stKeyDlg'), hash: '#settings',
-      isDirty: function () { var d = $('stKeyDlg'); return Boolean(d && d.open && stVal('stFrontierKey')); },
-      discard: function () { var d = $('stKeyDlg'); if ($('stFrontierKey')) $('stFrontierKey').value = ''; if (d && d.open) d.close(); },
-      leave: 'You have typed an OpenAI key that has not been stored. If you leave now it will be cleared. The stored credential is not affected.' });
-    if ($('stSaveJev')) $('stSaveJev').addEventListener('click', function () {
-      var jev = (stView && stView.jev) || {};
-      var out = $('stJevSaveResult');
-      var payload = {
-        expectedVersion: jev.version || 1,
-        accountId: ($('stJevAccountId') && $('stJevAccountId').value.trim()) || '',
-        gatewayId: ($('stJevGatewayId') && $('stJevGatewayId').value.trim()) || '',
-        apiToken: ($('stJevToken') && $('stJevToken').value.trim()) || '',
-        note: ($('stJevNote') && $('stJevNote').value.trim()) || undefined,
-      };
-      if (out) { out.textContent = 'Saving…'; out.className = 'st-result'; }
-      stApi('/admin/settings/jev', { method: 'PATCH', body: payload }).then(function (res) {
-        if (res.ok) {
-          var apply = res.body.apply || {};
-          if ($('stJevToken')) $('stJevToken').value = '';
-          applySettingsView(res.body);
-          var dlg = $('stJevDlg'); if (dlg && dlg.open) dlg.close();
-          stNotice(apply.written === false ? 'ok' : (apply.verified ? 'ok' : 'bad'), apply.written === false ? 'No Jev changes — nothing was written.'
-            : (apply.verified ? 'Jev configuration stored and confirmed (version ' + apply.version + '). ' : 'Jev configuration written but could not be re-read to confirm. Reload to check. ') + (apply.propagation || '') + ' The token is never shown again.');
-          return;
-        }
-        var msg = St.errorText(res, 'Could not save Jev configuration.') + (res.status === 409 ? ' Close this dialog and press Refresh.' : ' Nothing was changed.');
-        if (out) { out.textContent = msg; out.className = 'st-result is-bad'; }
-        if (res.body && res.body.code === 'reason_required' && $('stJevNote')) $('stJevNote').focus();
-      });
-    });
-    function probe(path, payload) {
+    if ($('stTestConnection')) $('stTestConnection').addEventListener('click', function () {
       var out = $('stTestResult');
       if (out) { out.textContent = 'Checking…'; out.className = 'st-result'; }
-      stApi(path, { method: 'POST', body: payload || {} }).then(function (res) {
+      stApi('/admin/ai-config/test', { method: 'POST', body: {} }).then(function (res) {
         var r = res.body || {};
         var ok = r.status === 'ONLINE';
         var labels = { ONLINE: 'Reachable', OFFLINE: 'Could not reach it', CONFIG_ERROR: 'Setup problem', MODEL_ERROR: 'Model problem' };
@@ -5519,91 +4442,15 @@
         if (ok && r.latencyMs != null) txt += ' (' + r.latencyMs + ' ms)';
         if (out) { out.textContent = txt; out.className = 'st-result ' + (ok ? 'is-ok' : 'is-bad'); }
       });
-    }
-    if ($('stTestLocal')) $('stTestLocal').addEventListener('click', function () { probe('/admin/ai-config/test-local', {}); });
-    if ($('stTestFrontier')) $('stTestFrontier').addEventListener('click', function () { probe('/admin/ai-config/test-frontier', {}); });
-    if ($('stTestJev')) $('stTestJev').addEventListener('click', function () {
-      var out = $('stJevTestResult');
-      if (out) { out.textContent = 'Checking…'; out.className = 'st-result'; }
-      stApi('/admin/settings/jev/test', { method: 'POST', body: {} }).then(function (res) {
-        var r = res.body || {};
-        var ok = r.connected === true || r.status === 'ONLINE';
-        var txt = ok ? 'Connected' : 'Failed';
-        if (ok && r.model) txt += ' — ' + r.model;
-        if (r.latencyMs != null) txt += ' (' + r.latencyMs + ' ms)';
-        if (!ok && r.errorCategory) txt += ' — ' + r.errorCategory;
-        if (out) { out.textContent = txt; out.className = 'st-result ' + (ok ? 'is-ok' : 'is-bad'); }
-      });
     });
   }
   wireSettings();
 
-  // ---- Quality Benchmark (ACQ-100) ----------------------------------------
-  var acqLoaded = false;
-  var acqActivePoll = null;
-  var acqSelected = [];
-  function acqEl(id) { return document.getElementById(id); }
-  function ms(v) { return (v == null) ? 'n/a' : (v >= 1000 ? (Math.round(v / 100) / 10) + 's' : Math.round(v) + 'ms'); }
 
-  function ensureTacPage() {
-    tacWire();
-    wbWire();
-    if (!acqLoaded) { acqLoaded = true; tacLoad(); tacLoadHistory(); libLoadOptions(); }
-    else tacLoad();
-  }
-
-  // ===== Unified Test area: Live test / Scenarios / Batch tabs ==============
-  function showTestTab(name) {
-    Array.prototype.forEach.call(document.querySelectorAll('.test-tab'), function (b) {
-      var on = b.getAttribute('data-testtab') === name;
-      b.classList.toggle('is-active', on);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
-      b.tabIndex = on ? 0 : -1;
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('.test-panel'), function (p) {
-      p.hidden = p.getAttribute('data-testtab') !== name;
-    });
-  }
-  var testTabsBound = false;
-  function bindTestTabs() {
-    if (testTabsBound) return;
-    testTabsBound = true;
-    Array.prototype.forEach.call(document.querySelectorAll('.test-tab'), function (b) {
-      b.addEventListener('click', function () {
-        var tab = b.getAttribute('data-testtab');
-        // Switching tab leaves an open scenario editor: ask first if it has unsaved changes.
-        knLeaveGuard().leave(function () {
-          showTestTab(tab);
-          var params = tab === 'scenarios' ? libListParams() : (tab === 'live' ? {} : { tab: tab });
-          writeHash('test', params);
-          testShowRoute(tab, '', params);
-        });
-      });
-    });
-  }
-  // One router for the Test tabs' own pages. Lists keep their filters in the URL; the dedicated
-  // pages carry the id as a path segment so Back, refresh and shared links all land correctly.
-  function testShowRoute(tab, sub, params) {
-    params = params || {};
-    if (tab === 'scenarios') {
-      if (sub.indexOf('scenario/') === 0) {
-        var sid = sub.slice('scenario/'.length);
-        if (sid === 'new') libShowPage('create', null, params);
-        else libShowPage(params.view === 'edit' ? 'edit' : 'detail', sid, params);
-      } else libShowList(params);
-    } else if (tab === 'batch') {
-      if (sub.indexOf('run/') === 0) tacShowRunPage(sub.slice('run/'.length), params);
-      else tacShowList();
-    } else {
-      edState = null;
-    }
-  }
-  // One entry point for the whole Test page: wires the live workbench, loads the
-  // batch runner config/history + scenario library, and binds the tabs.
+  // ===== Test area: the live diagnostic workbench ==========================
+  var wbPageWired = false;
   function ensureTestPage() {
-    ensureTacPage();
-    ensureLibPage();
-    bindTestTabs();
+    if (!wbPageWired) { wbPageWired = true; wbWire(); }
   }
 
   // ===== Live diagnostic workbench (primary Test ApplianceClinic) ===========
@@ -5622,8 +4469,6 @@
   var wbLastError = null;
   var wbLastView = null;
   var wbLastDurationMs = null;
-  var wbScenarioTitle = null;
-  var wbLaterTurns = [];
   var wbWired = false;
   var WB_MAX_IMAGE_WIDTH = 800;
   var WB_JPEG_QUALITY = 0.7;
@@ -5786,13 +4631,6 @@
     });
     return wrap;
   }
-  function wbRenderModelRequest() {
-    var wrap = wbNode('div', 'model-req');
-    wrap.appendChild(wbNode('div', 'model-req__label', 'To check a suitable replacement'));
-    wrap.appendChild(wbNode('p', 'model-req__text',
-      'Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It’s usually on a sticker inside the door or around the frame, or on the back of the appliance.'));
-    return wrap;
-  }
   function wbAddUserTurn(thread, text, image) {
     var wrap = wbNode('div', 'wb-turn wb-turn--user');
     wrap.appendChild(wbNode('div', 'wb-speaker', 'You / test customer'));
@@ -5814,11 +4652,8 @@
     wrap.appendChild(wbNode('div', 'wb-speaker', 'ApplianceClinic'));
     var meta = wbTurnMetaText(view, turnMeta);
     if (meta) wrap.appendChild(wbNode('p', 'wb-turnmeta' + (meta.problem ? ' wb-turnmeta--problem' : ''), meta.text));
-    var advice = !!view.advisory;
-    var turn = wbNode('div', 'turn turn--bot' + (advice ? ' turn--advice' : ''));
+    var turn = wbNode('div', 'turn turn--bot');
     var resp = wbNode('div', 'response');
-    if (advice) resp.appendChild(wbNode('h3', 'response__diag', 'Maintenance tip'));
-    else if (view.diagnosis && view.diagnosis.label) resp.appendChild(wbNode('h3', 'response__diag', view.diagnosis.label));
     var reply = view.reply || '';
     var summary = (view.diagnosis && view.diagnosis.summary) || '';
     var lead = reply;
@@ -5845,8 +4680,6 @@
     if (Array.isArray(view.parts) && view.parts.length) {
       turn.appendChild(wbNode('div', 'parts__head', view.parts.length > 1 ? 'Parts you may need' : 'The part you may need'));
       turn.appendChild(wbRenderParts(view.parts));
-    } else if (view.needsModel && !view.extractedModel) {
-      turn.appendChild(wbRenderModelRequest());
     }
     wrap.appendChild(turn);
     thread.appendChild(wrap);
@@ -5940,7 +4773,7 @@
     if (turnMeta && turnMeta.index) bits.push('Turn ' + turnMeta.index);
     if (st) {
       bits.push('State: ' + (Workbench ? Workbench.continuityLabel(st) : st.continuity));
-      if (st.audit && st.audit.status) bits.push(st.audit.status);
+      if (st.audit && st.audit.outcome) bits.push(String(st.audit.outcome).replace(/_/g, ' '));
     }
     if (turnMeta && typeof turnMeta.durationMs === 'number') bits.push((Math.round(turnMeta.durationMs / 100) / 10) + ' s');
     var problem = Boolean(st && (st.continuity === 'restarted' || st.continuity === 'unavailable' || st.continuity === 'failed'));
@@ -6062,24 +4895,9 @@
     wbLastError = null;
     wbLastView = null;
     wbLastDurationMs = null;
-    if (!opts.keepScenario) {
-      wbScenarioTitle = null;
-      wbLaterTurns = [];
-    }
     wbClearPendingImage();
     var input = wbEl('wbInput');
     if (input && !opts.keepDraft) input.value = '';
-    var chip = wbEl('wbScenarioChip');
-    if (chip) {
-      if (wbScenarioTitle) {
-        chip.hidden = false;
-        chip.textContent = 'Loaded scenario: ' + wbScenarioTitle + ' — edit if you want, then Send.';
-      } else {
-        chip.hidden = true;
-        chip.textContent = '';
-      }
-    }
-    wbRenderNextTurns();
     wbHideError();
     wbRenderSummary(null);
     wbRenderInspect(null);
@@ -6198,95 +5016,12 @@
   function wbNewTest() {
     if (wbBusy) return;
     if (wbMessages.length) {
-      var ok = window.confirm('Start a new conversation? This resets the Live Test conversation and its conversation state. It does not change production conversations, scenarios, or knowledge.');
+      var ok = window.confirm('Start a new conversation? This resets the Live Test conversation and its conversation state. It does not change production conversations or knowledge.');
       if (!ok) return;
     }
     wbReset();
     var input = wbEl('wbInput');
     if (input) input.focus();
-  }
-  function wbCloseScenarioDlg() {
-    var dlg = wbEl('wbScenarioDlg');
-    if (dlg) dlg.hidden = true;
-  }
-  function wbOpenScenarioDlg() {
-    var dlg = wbEl('wbScenarioDlg');
-    if (!dlg) return;
-    dlg.hidden = false;
-    var q = wbEl('wbScenarioQ');
-    if (q) { q.value = ''; q.focus(); }
-    wbLoadScenarioList('');
-  }
-  function wbLoadScenarioList(query) {
-    var list = wbEl('wbScenarioList');
-    if (!list) return;
-    list.innerHTML = '<div class="tac__muted">Loading…</div>';
-    var qs = 'includeArchived=false';
-    if (query) qs += '&q=' + encodeURIComponent(query);
-    fetch(API_BASE + '/admin/library?' + qs, { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        var journeys = (d && d.journeys) || [];
-        if (!journeys.length) { list.innerHTML = '<div class="tac__muted">No scenarios match.</div>'; return; }
-        list.innerHTML = journeys.slice(0, 40).map(function (j) {
-          return '<button class="wb-scenariorow" type="button" data-id="' + esc(j.journeyId) + '">' +
-            '<b>' + esc(j.title) + '</b><span>' + esc(j.journeyId) + (j.family ? ' · ' + esc(j.family) : '') + '</span></button>';
-        }).join('');
-        Array.prototype.forEach.call(list.querySelectorAll('.wb-scenariorow'), function (btn) {
-          btn.addEventListener('click', function () { wbPickScenario(btn.getAttribute('data-id')); });
-        });
-      })
-      .catch(function () { list.innerHTML = '<div class="tac__muted">Could not load scenarios.</div>'; });
-  }
-  function wbRenderNextTurns() {
-    var host = wbEl('wbNextTurns');
-    if (!host) return;
-    var remaining = (wbLaterTurns || []).filter(function (t) { return String(t || '').trim(); });
-    if (!remaining.length) { host.hidden = true; host.innerHTML = ''; return; }
-    host.hidden = false;
-    host.innerHTML = '<p class="wb-nextturns__label" id="wbNextTurnsLabel">Suggested next customer turns</p>' +
-      remaining.map(function (t, i) {
-        return '<button type="button" class="wb-nextturn" data-i="' + i + '">' + esc(t) + '</button>';
-      }).join('');
-    Array.prototype.forEach.call(host.querySelectorAll('.wb-nextturn'), function (btn) {
-      btn.addEventListener('click', function () {
-        var i = parseInt(btn.getAttribute('data-i'), 10);
-        var input = wbEl('wbInput');
-        if (input) { input.value = remaining[i]; input.focus(); }
-        wbLaterTurns.splice(i, 1);
-        wbRenderNextTurns();
-      });
-    });
-  }
-  function wbPickScenario(id) {
-    fetch(API_BASE + '/admin/library/journey?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (!d || !d.journey) return;
-        if (wbMessages.length) {
-          var okLoad = window.confirm('Load this scenario into a new test? The current workbench conversation will be cleared.');
-          if (!okLoad) return;
-        }
-        var j = d.journey;
-        var v = (j.versions && j.versions[j.versions.length - 1]) || {};
-        var Cts = window.CtsLogic;
-        var journey = Cts ? Cts.customerJourney(v) : { opener: v.opening || (v.turns && v.turns[0]) || '', later: (v.turns || []).slice(1) };
-        var later = Cts ? Cts.suggestedLaterTurns(v) : journey.later;
-        wbReset();
-        wbScenarioTitle = j.title;
-        wbLaterTurns = later.slice();
-        var input = wbEl('wbInput');
-        if (input) input.value = journey.opener || '';
-        var chip = wbEl('wbScenarioChip');
-        if (chip) {
-          chip.hidden = false;
-          chip.textContent = 'Loaded scenario: ' + j.title + ' — edit if you want, then Send.';
-        }
-        wbRenderNextTurns();
-        wbCloseScenarioDlg();
-        if (input) input.focus();
-      })
-      .catch(function () {});
   }
   function wbWire() {
     if (wbWired) return;
@@ -6315,1638 +5050,7 @@
       if (f) f.value = '';
     });
     if (wbEl('wbPreviewRemove')) wbEl('wbPreviewRemove').addEventListener('click', wbClearPendingImage);
-    if (wbEl('wbLoadScenario')) wbEl('wbLoadScenario').addEventListener('click', wbOpenScenarioDlg);
-    if (wbEl('wbScenarioCancel')) wbEl('wbScenarioCancel').addEventListener('click', wbCloseScenarioDlg);
-    var q = wbEl('wbScenarioQ');
-    var qTimer = 0;
-    if (q) q.addEventListener('input', function () {
-      if (qTimer) clearTimeout(qTimer);
-      qTimer = setTimeout(function () { wbLoadScenarioList(q.value.trim()); }, 200);
-    });
   }
 
-  // ===== Test ApplianceClinic controller (task-based, mobile-first) =========
-  var tacConfig = null; var tacWired = false; var tacSpec = null;
-  var libSelected = []; // scenarioIds ticked in Test Scenarios (for MANUAL / run-these runs)
-  var TAC_AREAS = ['All', 'Safety', 'Error Code', 'Normal Behaviour', 'Ambiguous Symptom', 'Multi-turn', 'Model / Fit', 'Media', 'Already Replaced', 'Near Neighbour'];
-  var TAC_FAMILIES = ['washing-machine', 'washer-dryer', 'tumble-dryer', 'dishwasher', 'oven-cooker', 'hobs', 'fridge-freezer', 'microwave', 'vacuum'];
-  function famLabel(f) { return String(f || '').replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }); }
-
-  function tacLoad() {
-    fetch(API_BASE + '/admin/benchmark/config', { credentials: 'same-origin' })
-      .then(function (r) { if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return null; } return r.json(); })
-      .then(function (c) {
-        if (!c) return; tacConfig = c;
-        tacRenderOverride(c.routingOverride || null);
-        renderSetup(c.setup || null);
-        renderReady(c.worker || {});
-        renderTechDetails(c);
-      })
-      .catch(function () { var e = acqEl('tacSetupRows'); if (e) e.innerHTML = '<div class="tac__muted">Could not load the current AI setup.</div>'; });
-  }
-  function identRow(label, ident, note) {
-    var prov = ident ? ident.providerLabel : '\u2014';
-    var model = ident ? ident.modelLabel : '\u2014';
-    return '<div class="tac__setuprow"><span class="tac__setuplbl">' + esc(label) + '</span>' +
-      '<span class="tac__setupval"><b>' + esc(prov) + '</b><small>' + esc(model) + '</small>' +
-      (note ? '<em class="tac__setupnote">' + esc(note) + '</em>' : '') + '</span></div>';
-  }
-  function renderSetup(setup) {
-    var el = acqEl('tacSetupRows'); if (!el) return;
-    if (!setup) { el.innerHTML = '<div class="tac__muted">Unavailable.</div>'; return; }
-    el.innerHTML =
-      identRow('Understanding', setup.understand) +
-      identRow('Answer writing', setup.compose) +
-      identRow('Quality review', setup.judge, setup.judge && setup.judge.note);
-  }
-  // User-facing readiness. Deliberately NOT worker-led: a stopped runner does
-  // not mean ApplianceClinic is broken, and a first-time admin shouldn't need to
-  // understand the runner to choose a test. Worker/heartbeat detail lives under
-  // Advanced & technical (renderTechDetails) and the run-time gate (tacLaunch).
-  function renderReady(w) {
-    var title = acqEl('tacReadyTitle'); var msg = acqEl('tacReadyMsg');
-    if (!title || !msg) return;
-    title.textContent = 'Ready to test';
-    // A subtle positive nudge only when we positively know the runner is up;
-    // never surface "not running" as a dominant/alarming state here.
-    if (w && w.online) {
-      msg.textContent = w.currentRunId
-        ? 'Private AI is configured. A test is running now — you can queue another.'
-        : 'Private AI is configured. Choose a test below to get started.';
-    } else {
-      msg.textContent = 'Private AI is configured. Choose a test below to get started.';
-    }
-  }
-  function renderTechDetails(c) {
-    var el = acqEl('tacTechDetails'); if (!el) return; var w = c.worker || {};
-    // Test-runner status is troubleshooting detail — it belongs here, not in the
-    // primary flow. Terms like worker/heartbeat/poll stay inside Advanced.
-    var runnerState = w.online ? 'Online' : 'Stopped';
-    var qb = c.qualityBenchmark || {};
-    var activeQb = qb.active || null;
-    var legacyQb = qb.legacy || null;
-    el.innerHTML = '<div class="tac__tech">' +
-      '<div><span>Test runner</span><b>' + esc(runnerState) + (w.online && w.currentRunId ? ' · running' : '') + '</b></div>' +
-      '<div><span>Runner heartbeat</span><b>' + (w.lastHeartbeat ? esc(new Date(w.lastHeartbeat).toLocaleString()) : 'never') + '</b></div>' +
-      (activeQb ? '<div><span>Active quality benchmark</span><b>' + esc(activeQb.label || activeQb.id) + ' · ' + esc(activeQb.id) + (activeQb.recommended ? ' · recommended' : '') + '</b></div>' : '') +
-      '<div><span>Legacy suite' + (legacyQb ? '' : '') + '</span><b>' + esc(c.benchmarkVersion || '\u2014') + (legacyQb ? ' · legacy (not authoritative)' : '') + '</b></div>' +
-      '<div><span>Scenarios available</span><b>' + esc(String(c.journeyCount)) + ' (concurrency ' + esc(String(c.concurrency)) + ')</b></div>' +
-      '<div><span>Quality reviewer</span><b>' + esc(c.judge ? c.judge.model : '\u2014') + (c.judge && !c.judge.configured ? ' · needs key' : '') + '</b></div>' +
-      '</div>' +
-      '<details class="tac__how"><summary>How to start the test runner</summary><code class="tac__code">node services/whichpart-api/benchmark/acq-worker.mjs --poll 5000</code></details>';
-  }
-
-  // ----- task specs -> human summary -> run -----
-  // Preset specs live in TacLogic (unit-tested, no DOM).
-  function tacSpecFor(kind) { return (window.TacLogic && window.TacLogic.specFor(kind)) || null; }
-  function tacReducedMotion() { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
-  // Bring a revealed panel into view AND move keyboard focus to it, so selecting
-  // a test has an unmistakable, accessible result. Reduced-motion => no smooth
-  // animation. preventScroll on focus so the browser doesn't double-jump.
-  function tacReveal(el) {
-    if (!el) return;
-    try { el.scrollIntoView({ behavior: tacReducedMotion() ? 'auto' : 'smooth', block: 'start' }); } catch (e) { el.scrollIntoView(); }
-    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
-    try { el.focus({ preventScroll: true }); } catch (e2) { /* older browsers */ }
-  }
-  // Only reveals/moves focus as a DIRECT consequence of a user action (never on
-  // initial load): callers pass an id when a panel should become the focus.
-  // In-list steps only (builder → summary → running, compare). A run result and a scenario
-  // conversation are their own page (#test/run/<runId>), shown by tacShowRunPage.
-  function tacShow(id) { ['tacBuilder', 'tacSummary', 'tacRunning', 'tacCompare'].forEach(function (x) { var e = acqEl(x); if (e) e.hidden = (x !== id); }); if (id) { tacReveal(acqEl(id)); } }
-  var TAC_IMPACT_SHORT = 'While it runs, the test runner switches the live AI routing to this setup (customers in that window use it too), then restores the exact configuration that was live before the run (verified).';
-  function tacStatus(msg, bad, elId) {
-    var el = acqEl(elId || 'tacStatusMsg'); if (!el) return;
-    el.hidden = !msg; el.textContent = msg || '';
-    el.className = 'test-status' + (msg ? (bad ? ' is-bad' : ' is-ok') : '');
-  }
-  // ---- production routing override (benchmark/routing-override.js) -----------------------------
-  function tacRestoreLine(rec) {
-    var ro = rec && rec.routingOverride;
-    if (!ro || ro.state === 'not_required') return 'This run used the live configuration as it was; no routing change was needed.';
-    if (ro.state === 'released') return 'The exact pre-run AI routing was restored and verified.';
-    return 'Production AI routing was NOT restored (' + (ro.state || 'unknown') + '). See the routing override banner.';
-  }
-  function tacRoutingLabel(r) { return r ? (r.composeLabel || r.compose) + (r.model ? ' / ' + r.model : '') : '\u2014'; }
-  function tacRenderOverride(ro) {
-    var el = acqEl('tacOverride'); if (!el) return;
-    if (!ro || (!ro.active && !ro.blocked)) { el.hidden = true; el.innerHTML = ''; el.className = 'tac-override'; return; }
-    var conflict = ro.blocked || ro.state === 'restore_failed';
-    el.hidden = false;
-    el.className = 'tac-override' + (conflict ? ' tac-override--conflict' : '');
-    el.setAttribute('role', conflict ? 'alert' : 'status');
-    var when = function (x) { return x ? new Date(x).toLocaleString('en-GB') : '\u2014'; };
-    var restore = ro.restore || {};
-    el.innerHTML = '<p class="tac-override__title">' + esc(conflict ? (ro.blocked ? 'Restore conflict — production AI routing needs a decision' : 'Restore failed — production AI routing may still be temporary') : 'Production routing override active') + '</p>'
-      + '<dl class="tac-override__dl">'
-      + '<div><dt>Run</dt><dd><a href="' + esc(tacRunHref(ro.runId)) + '">' + esc(ro.runId) + '</a></dd></div>'
-      + '<div><dt>Requested by</dt><dd>' + esc(ro.requestedBy || '\u2014') + '</dd></div>'
-      + '<div><dt>Started</dt><dd>' + esc(when(ro.appliedAt || ro.acquiredAt)) + '</dd></div>'
-      + '<div><dt>Temporary routing</dt><dd class="st-id">' + esc(tacRoutingLabel(ro.temporary && ro.temporary.routing)) + '</dd></div>'
-      + '<div><dt>Pre-run routing</dt><dd class="st-id">' + esc(tacRoutingLabel(ro.preRun && ro.preRun.routing)) + '</dd></div>'
-      + '<div><dt>Restore status</dt><dd>' + esc(conflict ? (restore.status || ro.state) : 'Pending — restored and verified when the run ends') + '</dd></div>'
-      + '<div><dt>Worker heartbeat</dt><dd>' + esc(when(ro.heartbeatAt)) + '</dd></div>'
-      + '</dl>'
-      + (restore.detail ? '<p class="tac-override__detail">' + esc(restore.detail) + '</p>' : '')
-      + (conflict ? '<p class="tac-override__detail">No other routing-changing batch can start until this is resolved. Settings blocks diagnostic-inference changes meanwhile.</p>'
-        + (ro.blocked ? '<label class="st-field" for="tacOvNote">Reason for your decision (required)<textarea id="tacOvNote" rows="2" maxlength="300"></textarea></label>'
-          + '<div class="tac-override__actions"><button class="btn btn--ghost" id="tacOvKeep" type="button">Keep the current live configuration</button>'
-          + '<button class="btn btn--primary" id="tacOvRestore" type="button">Restore the pre-run configuration</button></div>'
-          : '<div class="tac-override__actions"><button class="btn btn--primary" id="tacOvRecover" type="button">Retry restore now</button></div>')
-        + '<p class="test-status" id="tacOvResult" role="status" hidden></p>' : '');
-    function act(path, body, okMsg) {
-      var out = acqEl('tacOvResult');
-      fetch(API_BASE + path, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
-        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, body: b }; }); })
-        .then(function (res) {
-          if (out) { out.hidden = false; out.className = 'test-status ' + (res.ok ? 'is-ok' : 'is-bad'); out.textContent = res.ok ? okMsg : ((res.body && (res.body.message || res.body.error)) || 'Not applied.'); }
-          tacLoad();
-        }).catch(function () { if (out) { out.hidden = false; out.className = 'test-status is-bad'; out.textContent = 'Network error — nothing was changed.'; } });
-    }
-    var note = function () { return (acqEl('tacOvNote') && acqEl('tacOvNote').value.trim()) || ''; };
-    if (acqEl('tacOvKeep')) acqEl('tacOvKeep').addEventListener('click', function () {
-      if (!confirm('Keep the current live AI configuration and release the batch override? The pre-run configuration will NOT be restored.')) return;
-      act('/admin/benchmark/routing-override/resolve', { runId: ro.runId, decision: 'keep-current', note: note() }, 'Override released; the current live configuration was kept.');
-    });
-    if (acqEl('tacOvRestore')) acqEl('tacOvRestore').addEventListener('click', function () {
-      if (!confirm('Restore the exact pre-run AI configuration (' + tacRoutingLabel(ro.preRun && ro.preRun.routing) + ')? This replaces the current live configuration for every new customer diagnosis within about 2 minutes.')) return;
-      act('/admin/benchmark/routing-override/resolve', { runId: ro.runId, decision: 'restore-pre-run', note: note(), expectedRevision: restore.currentRevision || undefined }, 'Pre-run configuration restored and verified.');
-    });
-    if (acqEl('tacOvRecover')) acqEl('tacOvRecover').addEventListener('click', function () {
-      // Live change: recovery writes the exact pre-run configuration back, but only if the live
-      // configuration is still the one the batch wrote (anything else becomes a conflict, never overwritten).
-      if (!confirm('Retry restoring the exact pre-run AI configuration (' + tacRoutingLabel(ro.preRun && ro.preRun.routing) + ')?\n\nThis is a live change: it applies to every new customer diagnosis within about 2 minutes. It only writes if the live configuration is still the one this batch run wrote.')) return;
-      act('/admin/benchmark/routing-override/recover', {}, 'Recovery ran. See the status above.');
-    });
-    if (acqEl('tacOvNote')) guardForm('tacOvNote', { el: acqEl('tacOvNote'), isDirty: function () { return Boolean(acqEl('tacOvNote') && acqEl('tacOvNote').value.trim()); },
-      discard: function () { if (acqEl('tacOvNote')) acqEl('tacOvNote').value = ''; },
-      leave: 'You have started writing a reason for the routing-override decision. If you leave now it will be lost. Nothing has been applied.' });
-  }
-  function tacRunHref(runId, extra) { return hashString('test/run/' + encodeURIComponent(runId), extra || {}); }
-  var tacListScrollY = null; var tacCameFromList = false; var tacDetailPoll = null; var tacPageRunId = null;
-  function tacStopDetailPoll() { if (tacDetailPoll) { clearInterval(tacDetailPoll); tacDetailPoll = null; } }
-  function tacShowList() {
-    tacStopDetailPoll(); tacPageRunId = null;
-    if (acqEl('tacDetailPage')) acqEl('tacDetailPage').hidden = true;
-    if (acqEl('tacListView')) acqEl('tacListView').hidden = false;
-    if (tacListScrollY != null) { var y = tacListScrollY; tacListScrollY = null; setTimeout(function () { window.scrollTo(0, y); }, 0); }
-  }
-  // '#test/run/<runId>' = the run result page; '?journey=<id>' = one scenario conversation in it;
-  // '?review=' keeps the result list filter; '?from=<scenarioId>' = opened from a scenario page.
-  function tacShowRunPage(runId, params) {
-    params = params || {};
-    var listView = acqEl('tacListView');
-    var listVisible = Boolean(listView && !listView.hidden && acqEl('tacDetailPage') && acqEl('tacDetailPage').hidden);
-    if (listVisible) tacListScrollY = window.scrollY || 0;
-    tacCameFromList = listVisible;
-    if (listView) listView.hidden = true;
-    if (acqEl('tacDetailPage')) acqEl('tacDetailPage').hidden = false;
-    tacStatus('', false, 'tacDetailStatus');
-    tacReviewFilter = ['all', 'not_reviewed', 'looks_good', 'needs_improvement'].indexOf(params.review) !== -1 ? params.review : 'all';
-    var back = acqEl('tacBackLink');
-    var journey = params.journey || '';
-    if (back) {
-      if (journey && params.from) { back.setAttribute('href', '#test/scenario/' + encodeURIComponent(params.from)); back.textContent = '← Back to scenario'; back.setAttribute('data-sub', '1'); }
-      else if (journey) { back.setAttribute('href', tacRunHref(runId, { review: tacReviewFilter === 'all' ? '' : tacReviewFilter })); back.textContent = '← Back to test result'; back.setAttribute('data-sub', '1'); }
-      else { back.setAttribute('href', '#test?tab=batch'); back.textContent = '← Back to batch'; back.setAttribute('data-sub', ''); }
-    }
-    window.scrollTo(0, 0);
-    tacStopDetailPoll();
-    tacPageRunId = runId;
-    var resEl = acqEl('tacResult'); var convEl = acqEl('tacConversation');
-    if (journey) {
-      if (resEl) resEl.hidden = true;
-      tacOpenConversation(runId, journey, { fromRun: !params.from });
-      return;
-    }
-    if (convEl) convEl.hidden = true;
-    if (resEl) { resEl.hidden = false; resEl.innerHTML = '<div class="tac__muted">Loading test result…</div>'; }
-    tacLoadRunPage(runId);
-  }
-  function tacLoadRunPage(runId) {
-    var resEl = acqEl('tacResult'); if (!resEl) return;
-    fetch(API_BASE + '/admin/benchmark/run?id=' + encodeURIComponent(runId), { credentials: 'same-origin' })
-      .then(function (r) {
-        if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return null; }
-        return r.json().then(function (b) { return { ok: r.ok, status: r.status, body: b }; });
-      })
-      .then(function (res) {
-        if (!res || tacPageRunId !== runId) return;
-        if (!res.ok) {
-          resEl.innerHTML = '<div class="tac__runhead">Test not found</div><p class="tac__note">' + esc(res.status === 400 ? 'That is not a valid test link.' : ((res.body && res.body.error) || 'This test could not be loaded.')) + '</p>';
-          return;
-        }
-        var rec = res.body;
-        if (rec.status === 'QUEUED' || rec.status === 'RUNNING') {
-          // Still running: show live progress here and refresh until it finishes.
-          resEl.innerHTML = tacRunningHtml(rec);
-          var cb = acqEl('tacCancelBtn'); if (cb) cb.addEventListener('click', function () { tacCancel(runId, 'tacDetailStatus'); });
-          if (!tacDetailPoll) tacDetailPoll = setInterval(function () { if (tacPageRunId === runId) tacLoadRunPage(runId); else tacStopDetailPoll(); }, 4000);
-          return;
-        }
-        tacStopDetailPoll();
-        tacRenderResult(rec);
-      })
-      .catch(function () { if (tacPageRunId === runId) resEl.innerHTML = '<div class="tac__runhead">Could not load this test</div><p class="tac__note">Check your connection and reload the page.</p>'; });
-  }
-
-  function areaChips(sel) { return TAC_AREAS.map(function (a) { return '<label class="tac__chip"><input type="checkbox" class="tac-area" value="' + esc(a) + '"' + (sel && sel.indexOf(a) !== -1 ? ' checked' : (a === 'All' && (!sel || !sel.length) ? ' checked' : '')) + '> ' + esc(a) + '</label>'; }).join(''); }
-  function famChips() { return TAC_FAMILIES.map(function (f) { return '<label class="tac__chip"><input type="checkbox" class="tac-fam" value="' + esc(f) + '"> ' + esc(famLabel(f)) + '</label>'; }).join(''); }
-
-  function openBuilder(kind) {
-    var el = acqEl('tacBuilder'); if (!el) return;
-    var focused = kind === 'focused';
-    el.innerHTML =
-      '<h2 class="admin__h2">' + (focused ? 'Focused test' : 'Custom test') + '</h2>' +
-      '<div class="tac__step"><div class="tac__steph">1 · What do you want to test?</div><div class="tac__chips" id="tacAreas">' + areaChips(null) + '</div></div>' +
-      '<div class="tac__step"><div class="tac__steph">2 · Which appliances?</div><label class="tac__chip tac__chip--all"><input type="checkbox" id="tacAllFam" checked> All appliances</label><div class="tac__chips" id="tacFams" hidden>' + famChips() + '</div></div>' +
-      '<div class="tac__step"><div class="tac__steph">3 · How many scenarios?</div><div class="tac__seg" id="tacSize">' + [10, 25, 50, 100, 'ALL'].map(function (n) { return '<button type="button" class="tac__segbtn' + (n === (focused ? 25 : 25) ? ' is-on' : '') + '" data-n="' + n + '">' + n + '</button>'; }).join('') + '</div></div>' +
-      '<div class="tac__step"><div class="tac__steph">4 · How should they be chosen?</div>' +
-        '<label class="tac__radio"><input type="radio" name="tacSel" value="BALANCED" checked> <span><b>Balanced</b><small>Spread tests across the selected areas.</small></span></label>' +
-        '<label class="tac__radio"><input type="radio" name="tacSel" value="RANDOM"> <span><b>Random</b><small>Random, reproducible selection.</small></span></label>' +
-        '<label class="tac__radio"><input type="radio" name="tacSel" value="MANUAL"> <span><b>Choose scenarios myself</b><small>Pick exact scenarios in Test Scenarios, then run them here.</small></span></label>' +
-      '</div>' +
-      '<div class="tac__step"><div class="tac__steph">5 · How should results be checked?</div>' +
-        '<label class="tac__radio"><input type="radio" name="tacJudge" value="DETERMINISTIC_ONLY" checked> <span><b>Fast Check</b><small>Automatic engineering assertions. No paid quality-review calls.</small></span></label>' +
-        '<label class="tac__radio"><input type="radio" name="tacJudge" value="FULL"> <span><b>Full Quality Review</b><small>Automatic checks plus independent AI review of conversation quality. Uses paid OpenAI review calls.</small></span></label>' +
-      '</div>' +
-      '<details class="tac__advopt"><summary>Advanced options</summary><label class="tac__field">Seed (random / balanced)<input id="tacSeed" type="text" placeholder="auto"></label></details>' +
-      '<div class="tac__builderactions"><button class="btn btn--primary" id="tacReview" type="button">Review test</button><button class="btn btn--ghost" id="tacBuilderCancel" type="button">Cancel</button></div>';
-    tacShow('tacBuilder');
-    // wire
-    acqEl('tacAllFam').addEventListener('change', function () { acqEl('tacFams').hidden = acqEl('tacAllFam').checked; });
-    Array.prototype.forEach.call(el.querySelectorAll('.tac__segbtn'), function (b) { b.addEventListener('click', function () { Array.prototype.forEach.call(el.querySelectorAll('.tac__segbtn'), function (x) { x.classList.remove('is-on'); }); b.classList.add('is-on'); }); });
-    // "All" area unticks the others and vice-versa
-    Array.prototype.forEach.call(el.querySelectorAll('.tac-area'), function (cb) { cb.addEventListener('change', function () { if (cb.value === 'All' && cb.checked) { Array.prototype.forEach.call(el.querySelectorAll('.tac-area'), function (o) { if (o.value !== 'All') o.checked = false; }); } else if (cb.value !== 'All' && cb.checked) { var all = el.querySelector('.tac-area[value="All"]'); if (all) all.checked = false; } }); });
-    acqEl('tacBuilderCancel').addEventListener('click', function () { tacShow(null); });
-    acqEl('tacReview').addEventListener('click', function () {
-      var areas = Array.prototype.map.call(el.querySelectorAll('.tac-area:checked'), function (c) { return c.value; }).filter(function (a) { return a !== 'All'; });
-      var families = acqEl('tacAllFam').checked ? [] : Array.prototype.map.call(el.querySelectorAll('.tac-fam:checked'), function (c) { return c.value; });
-      var sizeBtn = el.querySelector('.tac__segbtn.is-on'); var nv = sizeBtn ? sizeBtn.getAttribute('data-n') : '25';
-      var sel = (el.querySelector('input[name="tacSel"]:checked') || {}).value || 'BALANCED';
-      var judge = (el.querySelector('input[name="tacJudge"]:checked') || {}).value || 'DETERMINISTIC_ONLY';
-      var seed = acqEl('tacSeed') && acqEl('tacSeed').value.trim();
-      tacSpec = { title: focused ? 'Focused test' : 'Custom test', mode: sel, n: nv === 'ALL' ? 'ALL' : parseInt(nv, 10), judgeMode: judge, areas: areas, families: families, seed: seed || undefined, frontier: false };
-      showSummary(tacSpec);
-    });
-  }
-
-  function paidCallsLine(spec, count) { return (window.TacLogic && window.TacLogic.paidCalls(spec, count)) || 'None'; }
-  function showSummary(spec) {
-    tacSpec = spec; var el = acqEl('tacSummary'); if (!el) return;
-    var TL = window.TacLogic || {};
-    var count = TL.resolveCount ? TL.resolveCount(spec, tacConfig && tacConfig.journeyCount) : spec.n;
-    var areasTxt = spec.areas && spec.areas.length ? spec.areas.join(' · ') : 'All areas';
-    var famTxt = spec.families && spec.families.length ? spec.families.map(famLabel).join(' · ') : 'All appliance types';
-    var uLbl = spec.frontier && spec.understand === 'openai' ? 'OpenAI' : 'Private AI';
-    var cLbl = spec.frontier && spec.compose === 'openai' ? 'OpenAI' : 'Private AI';
-    var paid = paidCallsLine(spec, count);
-    var isPaid = spec.judgeMode === 'FULL' || spec.frontier;
-    var runLbl = TL.runLabel ? TL.runLabel(count) : ('Run ' + count);
-    el.innerHTML =
-      '<div class="tac__ready">Your test</div>' +
-      '<div class="tac__yourtestkind">' + esc(spec.title || 'Test') + '</div>' +
-      '<div class="tac__sumgrid">' +
-        '<div><span>Scenarios</span><b>' + esc(String(count)) + '</b></div>' +
-        '<div><span>Areas</span><b>' + esc(areasTxt) + '</b></div>' +
-        '<div><span>Appliances</span><b>' + esc(famTxt) + '</b></div>' +
-        '<div><span>AI being tested</span><b>' + esc(uLbl + ' \u2192 ' + cLbl) + '</b></div>' +
-        '<div><span>Checking</span><b>' + (spec.judgeMode === 'FULL' ? 'Full Quality Review' : 'Fast Check') + '</b></div>' +
-        '<div><span>Paid OpenAI calls</span><b class="' + (isPaid ? 'tac__paid' : '') + '">' + esc(paid) + '</b></div>' +
-      '</div>' +
-      (spec.judgeMode === 'FULL' ? '<p class="tac__note">Exact cost unavailable — one review call is made per scenario.</p>' : '') +
-      // Consequence stated before the action: this summary is the confirmation step for a run.
-      '<p class="tac__note tac__impactnote"><strong>Production impact:</strong> ' + esc(TAC_IMPACT_SHORT) + ' Scenarios are sent to the production ApplianceClinic API; no customer transcripts are written.</p>' +
-      '<div class="tac__builderactions">' +
-        '<button class="btn btn--primary" id="tacRunBtn" type="button">' + esc(runLbl) + '</button>' +
-        '<button class="btn btn--ghost" id="tacSummaryBack" type="button">Back</button>' +
-        '<span class="acqb__result" id="tacRunResult"></span>' +
-      '</div>';
-    tacShow('tacSummary');
-    acqEl('tacSummaryBack').addEventListener('click', function () { tacShow(spec.mode === undefined ? null : (spec.frontier ? null : (spec.title === 'Quick check' || spec.title === 'Full local test' ? null : 'tacBuilder'))); });
-    acqEl('tacRunBtn').addEventListener('click', function () { tacLaunch(spec); });
-  }
-
-  function specToPayload(spec) {
-    var filters = {};
-    if (spec.areas && spec.areas.length) filters.categories = spec.areas.slice();
-    if (spec.families && spec.families.length) filters.families = spec.families.slice();
-    var p = {
-      label: spec.title, mode: spec.mode, n: spec.n, filters: filters,
-      seed: spec.seed ? (isNaN(+spec.seed) ? spec.seed : +spec.seed) : undefined,
-      manualIds: spec.mode === 'MANUAL' ? libSelected.slice() : undefined,
-      judgeMode: spec.judgeMode,
-      understand: { provider: spec.frontier && spec.understand === 'openai' ? 'openai' : 'lmstudio', model: '' },
-      compose: { provider: spec.frontier && spec.compose === 'openai' ? 'openai' : 'lmstudio', model: '' },
-    };
-    if (spec.frontier) {
-      if (p.understand.provider === 'openai') p.understand.model = (tacConfig && tacConfig.setup && tacConfig.setup.judge && tacConfig.setup.judge.model) || '';
-      if (p.compose.provider === 'openai') p.compose.model = (tacConfig && tacConfig.setup && tacConfig.setup.judge && tacConfig.setup.judge.model) || '';
-      p.experiment = { name: spec.expName || '', hypothesis: spec.expHyp || '' };
-    }
-    return p;
-  }
-  function tacRemoveRunnerBlock() { var b = acqEl('tacRunnerBlock'); if (b && b.parentNode) b.parentNode.removeChild(b); }
-  // Shown ONLY when the user actually tries to run a Private AI test with the
-  // runner stopped. Configuring/reviewing a test is never blocked by this.
-  function tacShowRunnerBlock(spec, confirmFrontier) {
-    var panel = acqEl('tacSummary'); if (!panel) return;
-    tacRemoveRunnerBlock();
-    var div = document.createElement('div');
-    div.id = 'tacRunnerBlock'; div.className = 'tac__runblock'; div.setAttribute('role', 'alert');
-    div.innerHTML =
-      '<h3>Start the test runner to continue</h3>' +
-      '<p>Tests using Private AI run from the computer hosting Private AI. Start the test runner there, then check again.</p>' +
-      '<details class="tac__how"><summary>How to start the test runner</summary><code class="tac__code">node services/whichpart-api/benchmark/acq-worker.mjs --poll 5000</code></details>' +
-      '<div class="tac__runblockactions">' +
-        '<button class="btn btn--primary" id="tacRunnerRecheck" type="button">Check again</button>' +
-        '<button class="btn btn--ghost" id="tacRunnerQueue" type="button">Queue it anyway</button>' +
-      '</div>';
-    panel.appendChild(div);
-    acqEl('tacRunnerRecheck').addEventListener('click', function () {
-      fetch(API_BASE + '/admin/benchmark/config', { credentials: 'same-origin' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (c) { if (c) { tacConfig = c; renderReady(c.worker || {}); renderTechDetails(c); } tacLaunch(spec, confirmFrontier); })
-        .catch(function () { tacLaunch(spec, confirmFrontier); });
-    });
-    acqEl('tacRunnerQueue').addEventListener('click', function () { tacLaunch(spec, confirmFrontier, true); });
-    tacReveal(div);
-  }
-  function tacLaunch(spec, confirmFrontier, forceQueue) {
-    if (spec.mode === 'MANUAL' && (!libSelected || !libSelected.length)) { var r0 = acqEl('tacRunResult'); if (r0) { r0.textContent = 'Pick scenarios in Test Scenarios first (tick them), then run.'; r0.className = 'acqb__result is-bad'; } return; }
-    // A frontier (paid) experiment must always pass through the explicit confirmation dialog.
-    if (spec.frontier && !confirmFrontier) { tacOpenConfirm(spec); return; }
-    // Runner readiness: running a Private AI test needs the local runner. If it's
-    // stopped, show a clear actionable state rather than silently queuing for hours.
-    var needsRunner = !window.TacLogic || window.TacLogic.needsRunner(spec);
-    var runnerOnline = !!(tacConfig && tacConfig.worker && tacConfig.worker.online);
-    if (needsRunner && !runnerOnline && !forceQueue) { tacShowRunnerBlock(spec, confirmFrontier); return; }
-    tacRemoveRunnerBlock();
-    var payload = specToPayload(spec); if (confirmFrontier) payload.confirmFrontier = true;
-    var r = acqEl('tacRunResult'); if (r) { r.textContent = 'Starting…'; r.className = 'acqb__result'; }
-    fetch(API_BASE + '/admin/benchmark/build-run', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(readJson)
-      .then(function (res) {
-        if (res.ok) { tacLoadHistory(); tacPollRun(res.body.runId); }
-        else if (r) { r.textContent = apiErrorText(res, 'Could not start the test.'); r.className = 'acqb__result is-bad'; }
-      }).catch(function () { if (r) { r.textContent = 'Network error — the test was not started.'; r.className = 'acqb__result is-bad'; } });
-  }
-
-  function tacPollRun(runId, quiet) {
-    if (acqActivePoll) { clearInterval(acqActivePoll); acqActivePoll = null; }
-    // quiet: an active run picked up from history on load shows progress without moving scroll/focus.
-    if (quiet) { var rp = acqEl('tacRunning'); if (rp) rp.hidden = false; } else tacShow('tacRunning');
-    function tick() {
-      fetch(API_BASE + '/admin/benchmark/run?id=' + encodeURIComponent(runId), { credentials: 'same-origin' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (rec) {
-          if (!rec) return;
-          if (rec.status === 'COMPLETED' || rec.status === 'CANCELLED' || rec.status === 'FAILED' || rec.status === 'RESTORE_FAILED') {
-            clearInterval(acqActivePoll); acqActivePoll = null; tacLoadHistory();
-            // The result is its own page; the in-list card just says it finished and links there.
-            acqEl('tacRunning').innerHTML = '<div class="tac__runhead">' + esc(rec.status === 'RESTORE_FAILED' ? 'Test ended — production routing NOT restored' : (rec.status === 'COMPLETED' ? 'Test finished' : (rec.status === 'CANCELLED' ? 'Test cancelled' : 'Test failed'))) + '</div>' +
-              '<p class="tac__note">' + esc(rec.label || 'Test') + ' · ' + esc(String((rec.progress && rec.progress.done) || 0)) + ' of ' + esc(String((rec.progress && rec.progress.total) || rec.journeyCount || 0)) + ' scenarios. ' + esc(tacRestoreLine(rec)) + '</p>' +
-              '<div class="tac__builderactions"><a class="btn btn--primary" href="' + esc(tacRunHref(rec.runId)) + '">View results</a></div>';
-          } else {
-            if (rec.routingOverride && rec.routingOverride.required) tacLoad(); // keep the override banner current
-            acqEl('tacRunning').innerHTML = tacRunningHtml(rec);
-            var cb = acqEl('tacCancelBtn'); if (cb) cb.addEventListener('click', function () { tacCancel(runId); });
-          }
-        }).catch(function () {});
-    }
-    tick(); acqActivePoll = setInterval(tick, 4000);
-  }
-  function tacRunningHtml(rec) {
-    var p = rec.progress || {}; var pct = p.total ? Math.round((p.done / p.total) * 100) : 0;
-    var waiting = rec.status === 'QUEUED';
-    var elapsed = rec.claimedAt ? (Date.now() - new Date(rec.claimedAt).getTime()) : 0;
-    var eta = (p.done && p.total && elapsed) ? ((elapsed / p.done) * (p.total - p.done)) : null;
-    if (waiting) {
-      return '<div class="tac__runhead">Waiting for the test runner</div>' +
-        '<p class="tac__note">Your test is queued. It will start automatically when the test runner on the LM Studio machine is running.</p>' +
-        '<div class="tac__builderactions"><button class="btn btn--ghost" id="tacCancelBtn" type="button">Cancel test</button></div>';
-    }
-    return '<div class="tac__runhead">Testing ApplianceClinic</div>' +
-      '<div class="tac__bignum">' + (p.done || 0) + ' <span>of ' + (p.total || 0) + '</span></div>' +
-      '<div class="tac__bar"><span style="width:' + pct + '%"></span></div>' +
-      (p.currentJourneyId ? '<div class="tac__current">Now: ' + esc(famLabel(p.currentFamily || '')) + ' · ' + esc(p.currentJourneyId) + '</div>' : '') +
-      '<div class="tac__runstats">' +
-        '<div><span>Completed</span><b>' + (p.done || 0) + '</b></div>' +
-        '<div><span>Hard failures</span><b class="' + ((p.hardViolations || 0) ? 'tac__bad' : '') + '">' + (p.hardViolations || 0) + '</b></div>' +
-        '<div><span>Errors</span><b>' + (p.errors || 0) + '</b></div>' +
-        '<div><span>Elapsed</span><b>' + ms(elapsed) + '</b></div>' +
-        (eta ? '<div><span>~ remaining</span><b>' + ms(eta) + '</b></div>' : '') +
-      '</div>' +
-      '<div class="tac__builderactions"><button class="btn btn--ghost" id="tacCancelBtn" type="button">Cancel test</button></div>';
-  }
-  function tacCancel(runId, statusId) {
-    if (!confirm('Cancel this test?\n\nThe test runner stops before the next scenario. Scenarios already finished keep their results, and the exact pre-run AI routing is restored and verified before the run is marked cancelled.')) return;
-    var btn = acqEl('tacCancelBtn'); if (btn) btn.disabled = true;
-    fetch(API_BASE + '/admin/benchmark/run/cancel', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: runId }) })
-      .then(readJson)
-      .then(function (res) {
-        if (!res.ok) { if (btn) btn.disabled = false; tacStatus('Could not cancel: ' + apiErrorText(res, 'the test was not cancelled.'), true, statusId); return; }
-        tacStatus('Cancel requested. The runner stops before the next scenario.', false, statusId);
-        tacLoadHistory();
-      }).catch(function () { if (btn) btn.disabled = false; tacStatus('Network error — the test was not cancelled.', true, statusId); });
-  }
-  function classifyRun(a) {
-    if (!a) return { label: 'UNKNOWN', cls: '' };
-    if ((a.hardViolations || 0) > 0) return { label: 'FAILED', cls: 'is-bad' };
-    if (a.correctOutcomeRate != null && a.correctOutcomeRate < 90) return { label: 'NEEDS REVIEW', cls: 'is-warn' };
-    return { label: 'GOOD', cls: 'is-ok' };
-  }
-  // The currently-open run record + its per-run engineer reviews + the active
-  // review filter — shared by the result list and the conversation Prev/Next.
-  var tacRunRec = null; var tacRunReviews = {}; var tacReviewFilter = 'all';
-  var REVIEW_LABELS = { not_reviewed: 'Not reviewed', looks_good: 'Looks good', needs_improvement: 'Needs improvement' };
-  var REVIEW_CLS = { not_reviewed: '', looks_good: 'is-ok', needs_improvement: 'is-warn' };
-  function reviewStateFor(journeyId) { var r = tacRunReviews[journeyId]; return (r && r.state) || 'not_reviewed'; }
-  function resultVerdict(r) {
-    if ((r.hardViolations || []).length) return { label: 'FAILED', cls: 'is-bad' };
-    if (!r.reachedOutcome) return { label: 'NEEDS REVIEW', cls: 'is-warn' };
-    return { label: 'GOOD', cls: 'is-ok' };
-  }
-  // The scenario results that match the active review filter, in run order —
-  // this same ordered list drives the conversation Prev/Next workflow.
-  function tacFilteredResults() {
-    var results = (tacRunRec && tacRunRec.results) || [];
-    if (tacReviewFilter === 'all') return results;
-    return results.filter(function (r) { return reviewStateFor(r.journeyId) === tacReviewFilter; });
-  }
-  function tacRenderResult(rec) {
-    var a = rec.aggregate; var el = acqEl('tacResult'); if (!el) return;
-    tacRunRec = rec;
-    el.hidden = false;
-    if (!a) { el.innerHTML = '<div class="tac__runhead">' + esc(rec.status) + '</div><p class="tac__note">No summary is available for this test.</p>'; return; }
-    var total = (rec.progress && rec.progress.total) || rec.journeyCount || 0;
-    var cls = classifyRun(a);
-    var correct = (a.correctOutcomeRate != null && total) ? Math.round(a.correctOutcomeRate / 100 * total) : null;
-    var full = rec.judgeMode !== 'DETERMINISTIC_ONLY';
-    el.innerHTML =
-      '<div class="tac__label">Test result</div>' +
-      '<div class="tac__verdict ' + cls.cls + '">' + cls.label + '</div>' +
-      '<div class="tac__resulthead">' + esc(rec.label || 'Test') + '</div>' +
-      '<div class="tac__metrics">' +
-        '<div class="tac__metric"><span>Diagnosis</span><b>' + (correct != null ? correct + ' / ' + total + ' correct' : '\u2014') + '</b></div>' +
-        '<div class="tac__metric"><span>Safety</span><b class="' + ((a.hardViolations || 0) ? 'tac__bad' : '') + '">' + (a.hardViolations || 0) + ' hard failure' + ((a.hardViolations || 0) === 1 ? '' : 's') + '</b></div>' +
-        '<div class="tac__metric"><span>Conversation</span><b>' + (a.meanTurnsToOutcome != null ? 'avg ' + a.meanTurnsToOutcome + ' turns' : '\u2014') + '</b></div>' +
-        '<div class="tac__metric"><span>Speed</span><b>' + (a.latency && a.latency.perTurnResponse ? 'avg ' + ms(a.latency.perTurnResponse.mean) : '\u2014') + '</b></div>' +
-        (full ? '<div class="tac__metric"><span>Quality</span><b>' + (a.quality != null ? a.quality + ' / 100' : '\u2014') + '</b></div>' : '') +
-      '</div>' +
-      (full ? '' : '<p class="tac__note">Fast Check: conversation-quality score not calculated (no paid review).</p>') +
-      '<div class="tac__conversations" id="tacScenarioList"><div class="tac__muted">Loading conversations…</div></div>' +
-      '<details class="tac__convtech"><summary>Technical details</summary><div class="tac__ea-card">' +
-        '<div class="tac__ea-row"><span>Run ID</span><b>' + esc(rec.runId) + '</b></div>' +
-        '<div class="tac__ea-row"><span>Status</span><b>' + esc(rec.status) + '</b></div>' +
-        '<div class="tac__ea-row"><span>Candidate</span><b>' + esc(((rec.config && rec.config.understand && rec.config.understand.provider) || '\u2014') + ' \u2192 ' + ((rec.config && rec.config.compose && rec.config.compose.provider) || '\u2014')) + '</b></div>' +
-        '<div class="tac__ea-row"><span>Started by</span><b>' + esc(rec.enqueuedByEmail || '\u2014') + '</b></div>' +
-        '<div class="tac__ea-row"><span>Started</span><b>' + esc(whenLong(rec.startedAt)) + '</b></div>' +
-        '<div class="tac__ea-row"><span>Finished</span><b>' + esc(whenLong(rec.completedAt)) + '</b></div>' +
-      '</div></details>' +
-      '<div class="tac__builderactions"><a class="btn btn--ghost" href="#test?tab=batch">Done</a></div>';
-    // Load this run's engineer reviews, then render the per-scenario list (filter comes from the URL).
-    fetch(API_BASE + '/admin/benchmark/reviews?run=' + encodeURIComponent(rec.runId), { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { tacRunReviews = (d && d.reviews) || {}; tacRenderScenarioList(); })
-      .catch(function () { tacRunReviews = {}; tacRenderScenarioList(); });
-  }
-  function tacRenderScenarioList() {
-    var host = acqEl('tacScenarioList'); if (!host) return;
-    var results = (tacRunRec && tacRunRec.results) || [];
-    if (!results.length) { host.innerHTML = '<p class="tac__muted">This test has no per-scenario conversations recorded (legacy run).</p>'; return; }
-    // Count by review state for the filter chips.
-    var counts = { all: results.length, not_reviewed: 0, looks_good: 0, needs_improvement: 0 };
-    results.forEach(function (r) { counts[reviewStateFor(r.journeyId)]++; });
-    var chips = ['all', 'not_reviewed', 'looks_good', 'needs_improvement'].map(function (k) {
-      var label = k === 'all' ? 'All' : REVIEW_LABELS[k];
-      return '<button type="button" class="tac__filterchip' + (tacReviewFilter === k ? ' is-on' : '') + '" data-filter="' + k + '">' + esc(label) + ' (' + counts[k] + ')</button>';
-    }).join('');
-    var filtered = tacFilteredResults();
-    var rows = filtered.map(function (r) {
-      var v = resultVerdict(r);
-      var rev = reviewStateFor(r.journeyId);
-      var lat = r.totalElapsedMs != null ? ms(r.totalElapsedMs) : '\u2014';
-      var sub = (r.reachedOutcome ? 'Diagnosis correct \u2713' : 'Not reached') + ' \u00b7 ' + (r.assistantTurns != null ? r.assistantTurns : (r.transcript || []).length) + ' turns \u00b7 ' + lat;
-      return '<div class="tac__resrow">' +
-        '<span class="tac__resdot ' + v.cls + '" title="' + esc(v.label) + '" aria-hidden="true"></span>' +
-        '<div class="tac__resmain"><div class="tac__resid">' + esc(r.journeyId) + ' \u00b7 ' + esc(famLabel(r.family || '')) + '</div>' +
-          '<div class="tac__ressub">' + esc(sub) + '</div></div>' +
-        (rev !== 'not_reviewed' ? '<span class="tac__revbadge ' + REVIEW_CLS[rev] + '">' + esc(REVIEW_LABELS[rev]) + '</span>' : '') +
-        '<a class="btn btn--primary tac__resview" data-journey="' + esc(r.journeyId) + '" href="' + esc(tacRunHref(tacRunRec.runId, { journey: r.journeyId, review: tacReviewFilter === 'all' ? '' : tacReviewFilter })) + '">View conversation</a>' +
-      '</div>';
-    }).join('');
-    host.innerHTML = '<div class="tac__reviewfilter" role="group" aria-label="Filter by engineer review"><span class="tac__filterlbl">Show</span>' + chips + '</div>' +
-      (rows || '<p class="tac__muted">No conversations match this filter.</p>');
-    Array.prototype.forEach.call(host.querySelectorAll('.tac__filterchip'), function (b) {
-      b.addEventListener('click', function () {
-        tacReviewFilter = b.getAttribute('data-filter');
-        // Keep the filter in the URL (no re-render via hashchange) so Back from a conversation keeps it.
-        writeHash('test/run/' + encodeURIComponent(tacRunRec.runId), { review: tacReviewFilter === 'all' ? '' : tacReviewFilter });
-        tacRenderScenarioList();
-      });
-    });
-  }
-  function tacLoadHistory() {
-    fetch(API_BASE + '/admin/benchmark/runs', { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        if (!data) return; var list = acqEl('tacHistoryList'); if (!list) return;
-        var cards = (data.runs || []).map(function (r) {
-          var a = r.aggregate || {}; var canSelect = r.status === 'COMPLETED';
-          var checked = acqSelected.indexOf(r.runId) !== -1 ? ' checked' : '';
-          var when = r.startedAt ? new Date(r.startedAt) : null;
-          var whenTxt = when ? when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' · ' + when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
-          var verdict = r.status === 'COMPLETED' ? classifyRun(a) : { label: r.status, cls: r.status === 'FAILED' ? 'is-bad' : '' };
-          var count = r.journeyCount || (r.manifest && r.manifest.journeyCount) || (a.n) || '';
-          return '<div class="tac__runcard">' +
-            '<div class="tac__runcardtop"><div><div class="tac__runwhen">' + esc(whenTxt) + '</div><div class="tac__runname">' + esc(r.label || 'Test') + '</div>' +
-              '<div class="tac__runsub">' + esc(String(count)) + ' scenarios</div></div>' +
-              '<span class="tac__pill ' + verdict.cls + '">' + esc(verdict.label) + '</span></div>' +
-            (r.status === 'COMPLETED' ? '<div class="tac__runmetrics">' +
-              '<span>Correct <b>' + (a.correctOutcomeRate != null ? a.correctOutcomeRate + '%' : '\u2014') + '</b></span>' +
-              '<span>Safety <b class="' + ((a.hardViolations || 0) ? 'tac__bad' : '') + '">' + (a.hardViolations != null ? a.hardViolations + ' fail' : '\u2014') + '</b></span>' +
-              '<span>Turns <b>' + (a.meanTurnsToOutcome != null ? a.meanTurnsToOutcome : '\u2014') + '</b></span>' +
-              (a.quality != null ? '<span>Quality <b>' + a.quality + '</b></span>' : '') +
-              '</div>' : '') +
-            '<div class="tac__runactions">' +
-              '<a class="btn btn--ghost tac__runview" data-id="' + esc(r.runId) + '" href="' + esc(tacRunHref(r.runId)) + '">View</a>' +
-              (canSelect ? '<label class="tac__cmpsel"><input type="checkbox" class="tac-sel" data-run="' + esc(r.runId) + '"' + checked + '> Compare</label>' : '') +
-              (r.manifest ? '<button class="btn btn--ghost tac-rerun" data-id="' + esc(r.runId) + '" data-label="' + esc(r.label || 'Test') + '" data-count="' + esc(String(count)) + '" type="button">Rerun</button>' : '') +
-            '</div>' +
-            '<details class="tac__runid"><summary>Details</summary><code>' + esc(r.runId) + '</code></details>' +
-          '</div>';
-        }).join('');
-        list.innerHTML = cards || '<div class="tac__muted">No tests yet. Run a Quick check to get started.</div>';
-        Array.prototype.forEach.call(list.querySelectorAll('.tac-sel'), function (cb) {
-          cb.addEventListener('change', function () {
-            var id = cb.getAttribute('data-run');
-            if (cb.checked) { acqSelected.push(id); if (acqSelected.length > 2) { var drop = acqSelected.shift(); var e2 = list.querySelector('.tac-sel[data-run="' + drop + '"]'); if (e2) e2.checked = false; } }
-            else acqSelected = acqSelected.filter(function (x) { return x !== id; });
-            acqEl('tacCompareBtn').disabled = acqSelected.length !== 2;
-          });
-        });
-        Array.prototype.forEach.call(list.querySelectorAll('.tac-rerun'), function (b) {
-          b.addEventListener('click', function () {
-            var lbl = b.getAttribute('data-label') || 'this test'; var n = b.getAttribute('data-count') || 'the same';
-            if (!confirm('Rerun "' + lbl + '" with Private AI \u2192 Private AI?\n\nThis queues ' + n + ' scenarios again (same questions, same versions). ' + TAC_IMPACT_SHORT)) return;
-            b.disabled = true;
-            fetch(API_BASE + '/admin/benchmark/rerun', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: b.getAttribute('data-id'), understand: { provider: 'lmstudio', model: '' }, compose: { provider: 'lmstudio', model: '' } }) })
-              .then(readJson)
-              .then(function (res) {
-                b.disabled = false;
-                if (res.ok) { tacStatus('Rerun queued: ' + (res.body.label || res.body.runId) + '.'); tacLoadHistory(); tacPollRun(res.body.runId); }
-                else tacStatus('Could not rerun: ' + apiErrorText(res, 'the rerun was not queued.'), true);
-              })
-              .catch(function () { b.disabled = false; tacStatus('Network error — the rerun was not queued.', true); });
-          });
-        });
-        var active = (data.runs || []).filter(function (r) { return r.status === 'RUNNING' || r.status === 'QUEUED'; })[0];
-        if (active && !acqActivePoll) tacPollRun(active.runId, true);
-      }).catch(function () {});
-  }
-
-  // ===== Conversation review =============================================
-  var DIM_LABELS = { DIAGNOSTIC_CORRECTNESS: 'Diagnosis', REASONING_DISCRIMINATION: 'Reasoning', QUESTION_QUALITY: 'Questions', CONVERSATION_EFFICIENCY: 'Efficiency', GROUNDING_CLAIM_DISCIPLINE: 'Grounding', CUSTOMER_ANSWER_QUALITY: 'Answer quality', SAFETY: 'Safety' };
-  function escNl(s) { return esc(String(s == null ? '' : s)).replace(/\n/g, '<br>'); }
-  function whenLong(iso) { if (!iso) return '\u2014'; var d = new Date(iso); return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) + ' \u00b7 ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
-  var tacConvCtx = null; // { runId, journeyId, fromRun }
-
-  // Rendered on the run page ('#test/run/<runId>?journey=<id>'). Prev/Next walk the run's filtered
-  // result list, so the run record is loaded first when the page was opened directly.
-  function tacOpenConversation(runId, journeyId, ctx) {
-    tacConvCtx = { runId: runId, journeyId: journeyId, fromRun: !!(ctx && ctx.fromRun) };
-    var el = acqEl('tacConversation'); if (!el) return;
-    el.hidden = false;
-    el.innerHTML = '<div class="tac__muted">Loading conversation…</div>';
-    var needRun = tacConvCtx.fromRun && !(tacRunRec && tacRunRec.runId === runId);
-    var runP = needRun
-      ? fetch(API_BASE + '/admin/benchmark/run?id=' + encodeURIComponent(runId), { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (rec) {
-          if (!rec) return;
-          tacRunRec = rec;
-          return fetch(API_BASE + '/admin/benchmark/reviews?run=' + encodeURIComponent(runId), { credentials: 'same-origin' })
-            .then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { tacRunReviews = (d && d.reviews) || {}; });
-        }).catch(function () {})
-      : Promise.resolve();
-    runP.then(function () {
-      return fetch(API_BASE + '/admin/benchmark/transcript?run=' + encodeURIComponent(runId) + '&journey=' + encodeURIComponent(journeyId), { credentials: 'same-origin' });
-    })
-      .then(function (r) { if (!r.ok) return r.json().then(function (b) { throw new Error((b && b.error) || 'not found'); }); return r.json(); })
-      .then(function (d) { if (tacConvCtx && tacConvCtx.journeyId === journeyId && tacConvCtx.runId === runId) tacRenderConversation(d); })
-      .catch(function (e) { el.innerHTML = '<div class="tac__runhead">Conversation unavailable</div><p class="tac__note">' + esc(e.message || 'Could not load this conversation.') + '</p>'; });
-  }
-  function tacConvHref(journeyId) {
-    return tacRunHref(tacConvCtx.runId, { journey: journeyId, review: tacReviewFilter === 'all' ? '' : tacReviewFilter });
-  }
-
-  function tacProvenanceRow(p) {
-    var bits = [];
-    bits.push('Scenario ' + esc(p.scenarioId) + (p.journeyVersion != null ? ' \u00b7 v' + esc(String(p.journeyVersion)) : ''));
-    if (p.family) bits.push(esc(famLabel(p.family)));
-    bits.push(esc(whenLong(p.runDate)));
-    bits.push(esc(p.providerPair || ''));
-    bits.push(p.judgeMode === 'DETERMINISTIC_ONLY' ? 'Fast Check' : 'Full Quality Review');
-    bits.push((p.turns != null ? p.turns : '\u2014') + ' turns');
-    if (p.totalElapsedMs != null) bits.push(ms(p.totalElapsedMs));
-    return bits.join(' \u00b7 ');
-  }
-  function tacChatHtml(transcript) {
-    if (!transcript || !transcript.length) return '<p class="tac__muted">No conversation was recorded for this scenario.</p>';
-    return transcript.map(function (t) {
-      var cust = '';
-      if (t.user != null && String(t.user).length) {
-        cust = '<div class="tac__msg tac__msg--customer"><div class="tac__msghead">Customer <span class="tac__sim">Simulated test response</span></div>' +
-          '<div class="tac__bubble">' + escNl(t.user) + '</div></div>';
-      }
-      var reply = '';
-      if (t.reply != null && String(t.reply).length) {
-        var checks = (t.suggestedChecks && t.suggestedChecks.length)
-          ? '<ul class="tac__checks">' + t.suggestedChecks.map(function (c) { return '<li>' + escNl(typeof c === 'string' ? c : (c && c.name) || JSON.stringify(c)) + '</li>'; }).join('') + '</ul>' : '';
-        var lat = t.latencyMs != null ? '<div class="tac__msglat">' + ms(t.latencyMs) + '</div>' : '';
-        reply = '<div class="tac__msg tac__msg--clinic"><div class="tac__msghead">ApplianceClinic</div>' +
-          '<div class="tac__bubble">' + escNl(t.reply) + checks + '</div>' + lat + '</div>';
-      }
-      return cust + reply;
-    }).join('');
-  }
-  function tacExpectedActualHtml(expected, actual) {
-    function line(label, val) { return '<div class="tac__ea-row"><span>' + esc(label) + '</span><b>' + val + '</b></div>'; }
-    var exp;
-    if (expected) {
-      var e = [];
-      if (expected.outcome) e.push(line('Outcome', esc(expected.outcome === 'SAFETY_STOP' ? 'Safety stop (no diagnosis/parts)' : expected.outcome)));
-      if (expected.components && expected.components.length) e.push(line('Components', esc(expected.components.join(', '))));
-      if (expected.shouldAsk) e.push(line('Should ask', escNl(expected.shouldAsk)));
-      if (expected.safety) e.push(line('Safety', esc(expected.safety)));
-      if (expected.mustNotDo && expected.mustNotDo.length) e.push(line('Must not', esc(expected.mustNotDo.join(', '))));
-      if (expected.turns) e.push(line('Turns', esc('ideal ' + (expected.turns.ideal || '\u2014') + ' / max ' + (expected.turns.max || '\u2014'))));
-      if (expected.expectMedia) e.push(line('Media', 'Expected'));
-      exp = '<div class="tac__ea-card"><div class="tac__ea-h">Expected</div>' + (e.join('') || '<div class="tac__muted">No gold detail.</div>') + '</div>';
-    } else {
-      exp = '<div class="tac__ea-card"><div class="tac__ea-h">Expected</div><div class="tac__muted">Scenario gold unavailable.</div></div>';
-    }
-    var act = '';
-    if (actual) {
-      var av = [];
-      av.push(line('Outcome', esc(actual.reachedOutcome ? 'Diagnosis reached' : 'Not reached')));
-      if (actual.suggestedChecks && actual.suggestedChecks.length) av.push(line('Suggested', esc(actual.suggestedChecks.slice(0, 6).join(', '))));
-      av.push(line('Safety', esc(actual.safety || '\u2014')));
-      if (actual.hardViolations && actual.hardViolations.length) av.push(line('Hard failures', esc(actual.hardViolations.join(', '))));
-      av.push(line('Turns', esc(String(actual.turns != null ? actual.turns : '\u2014'))));
-      act = '<div class="tac__ea-card"><div class="tac__ea-h">Actual</div>' + av.join('') + '</div>';
-    }
-    return '<div class="tac__ea">' + exp + act + '</div>';
-  }
-  function tacResultBlockHtml(result) {
-    var v = { GOOD: 'is-ok', 'NEEDS REVIEW': 'is-warn', FAILED: 'is-bad', UNKNOWN: '' }[result.verdict] || '';
-    var hvSafe = !(result.hardViolations || []).some(function (h) { return h === 'FAILED_SAFETY_STOP' || h === 'UNSAFE_ADVICE'; });
-    var dims = result.dimensions || {}; var nj = result.notJudged || [];
-    var why = Object.keys(DIM_LABELS).filter(function (k) { return dims[k] != null; }).map(function (k) {
-      var isNj = nj.indexOf(k) !== -1;
-      return '<div class="tac__ea-row"><span>' + esc(DIM_LABELS[k]) + '</span><b>' + esc(String(Math.round(dims[k]))) + (isNj ? ' <em class="tac__sim">Not reviewed — Fast Check</em>' : '') + '</b></div>';
-    }).join('');
-    return '<div class="tac__label">Test result <span class="tac__labelhint">(machine evaluation)</span></div>' +
-      '<div class="tac__verdict ' + v + '">' + esc(result.verdict) + '</div>' +
-      '<div class="tac__scores">' +
-        '<div class="tac__metric"><span>Diagnosis</span><b>' + (dims.DIAGNOSTIC_CORRECTNESS != null ? Math.round(dims.DIAGNOSTIC_CORRECTNESS) : '\u2014') + '</b></div>' +
-        '<div class="tac__metric"><span>Safety</span><b class="' + (hvSafe ? '' : 'tac__bad') + '">' + (hvSafe ? 'Pass' : 'Fail') + '</b></div>' +
-        '<div class="tac__metric"><span>Conversation</span><b>' + (result.turnsToOutcome != null ? result.turnsToOutcome + ' turns' : '\u2014') + '</b></div>' +
-        '<div class="tac__metric"><span>Speed</span><b>' + (result.latencyMs != null ? ms(result.latencyMs) : '\u2014') + '</b></div>' +
-        (result.judged ? '<div class="tac__metric"><span>Quality</span><b>' + (result.quality != null ? result.quality + ' / 100' : '\u2014') + '</b></div>' : '') +
-      '</div>' +
-      (result.judged ? '' : '<p class="tac__note">Fast Check — subjective conversation-quality dimensions were not reviewed (no paid judge).</p>') +
-      '<details class="tac__why"><summary>Why did it score this way?</summary><div class="tac__ea-card">' + (why || '<div class="tac__muted">No per-dimension detail.</div>') + '</div></details>';
-  }
-  function tacReviewControlsHtml(review) {
-    var state = (review && review.state) || 'not_reviewed';
-    var opts = ['not_reviewed', 'looks_good', 'needs_improvement'].map(function (k) {
-      return '<button type="button" class="tac__revbtn ' + REVIEW_CLS[k] + (state === k ? ' is-on' : '') + '" data-state="' + k + '" aria-pressed="' + (state === k ? 'true' : 'false') + '">' + esc(REVIEW_LABELS[k]) + '</button>';
-    }).join('');
-    var meta = (review && review.reviewedAt) ? '<div class="tac__revmeta">Last reviewed ' + esc(whenLong(review.reviewedAt)) + (review.reviewer ? ' by ' + esc(review.reviewer) : '') + '</div>' : '';
-    return '<div class="tac__label">Engineer review <span class="tac__labelhint">(your assessment — does not change the score)</span></div>' +
-      '<div class="tac__revstates" role="group" aria-label="Engineer review state">' + opts + '</div>' +
-      '<label class="tac__revnotelbl" for="tacRevNote">Engineer note</label>' +
-      '<textarea id="tacRevNote" class="tac__revnote" rows="3" maxlength="4000" placeholder="Optional: what was good or what should improve">' + esc((review && review.note) || '') + '</textarea>' +
-      '<div class="tac__builderactions"><button class="btn btn--primary" id="tacRevSave" type="button">Save review</button><span class="tac__revresult" id="tacRevResult" role="status"></span></div>' + meta;
-  }
-  function tacRenderConversation(d) {
-    var el = acqEl('tacConversation'); if (!el) return;
-    var p = d.provenance || {};
-    // Prev/Next within the current filtered run list (only when opened from a run).
-    var navHtml = '';
-    if (tacConvCtx.fromRun) {
-      var list = tacFilteredResults(); var idx = -1;
-      for (var i = 0; i < list.length; i++) { if (list[i].journeyId === d.journeyId) { idx = i; break; } }
-      var prevId = idx > 0 ? list[idx - 1].journeyId : null;
-      var nextId = (idx >= 0 && idx < list.length - 1) ? list[idx + 1].journeyId : null;
-      // Real links: each conversation has its own URL, so Back/refresh/share all work.
-      navHtml = '<nav class="tac__convnav" aria-label="Conversations in this test">' +
-        (prevId ? '<a class="btn btn--ghost" id="tacConvPrev" href="' + esc(tacConvHref(prevId)) + '">\u2190 Previous</a>' : '<span class="btn btn--ghost is-disabled" aria-disabled="true">\u2190 Previous</span>') +
-        '<span class="tac__convpos">' + (idx >= 0 ? (idx + 1) + ' of ' + list.length : '') + '</span>' +
-        (nextId ? '<a class="btn btn--ghost" id="tacConvNext" href="' + esc(tacConvHref(nextId)) + '">Next \u2192</a>' : '<span class="btn btn--ghost is-disabled" aria-disabled="true">Next \u2192</span>') +
-      '</nav>';
-    }
-    var rev = d.review || { state: 'not_reviewed', note: '' };
-    var badge = rev.state && rev.state !== 'not_reviewed' ? '<span class="tac__revbadge ' + REVIEW_CLS[rev.state] + '">' + esc(REVIEW_LABELS[rev.state]) + '</span>' : '';
-    el.innerHTML =
-      (navHtml ? '<div class="tac__convtop">' + navHtml + '</div>' : '') +
-      '<h2 class="tac__convtitle">' + esc(p.scenarioTitle || d.journeyId) + ' ' + badge + '</h2>' +
-      '<div class="tac__convprov">' + tacProvenanceRow(p) + '</div>' +
-      '<div class="tac__chat">' + tacChatHtml(d.transcript) + '</div>' +
-      tacExpectedActualHtml(d.expected, d.actual) +
-      tacResultBlockHtml(d.result || {}) +
-      '<div class="tac__reviewbox">' + tacReviewControlsHtml(rev) + '</div>' +
-      '<details class="tac__convtech"><summary>Technical details</summary><div class="tac__ea-card">' +
-        '<div class="tac__ea-row"><span>Run ID</span><b>' + esc(d.runId) + '</b></div>' +
-        '<div class="tac__ea-row"><span>Scenario</span><b>' + esc(d.journeyId) + (p.journeyVersion != null ? ' v' + esc(String(p.journeyVersion)) : '') + '</b></div>' +
-        '<div class="tac__ea-row"><span>Candidate</span><b>' + esc(p.providerPair || '') + '</b></div>' +
-      '</div></details>';
-    el.hidden = false;
-    // Engineer review wiring
-    var chosen = rev.state || 'not_reviewed';
-    Array.prototype.forEach.call(el.querySelectorAll('.tac__revbtn'), function (b) {
-      b.addEventListener('click', function () {
-        chosen = b.getAttribute('data-state');
-        Array.prototype.forEach.call(el.querySelectorAll('.tac__revbtn'), function (x) { var on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-      });
-    });
-    // An unsaved engineer note / review choice is guarded like every other Admin form.
-    var savedNote = rev.note || ''; var savedState = chosen;
-    guardForm('tacReview', { el: acqEl('tacRevNote'), isDirty: function () { return (acqEl('tacRevNote').value || '') !== savedNote || chosen !== savedState; },
-      discard: function () { var t = acqEl('tacRevNote'); if (t) t.value = savedNote; chosen = savedState; },
-      leave: 'You have an unsaved engineer review on this test conversation. If you leave now it will be lost. Saved reviews and test results are not affected.' });
-    acqEl('tacRevSave').addEventListener('click', function () {
-      var note = acqEl('tacRevNote').value || '';
-      var res = acqEl('tacRevResult'); if (res) { res.textContent = 'Saving…'; res.className = 'tac__revresult'; }
-      fetch(API_BASE + '/admin/benchmark/review', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ run: d.runId, journey: d.journeyId, state: chosen, note: note }) })
-        .then(readJson)
-        .then(function (r) {
-          if (!r.ok) { if (res) { res.textContent = apiErrorText(r, 'Could not save the review.'); res.className = 'tac__revresult is-bad'; } return; }
-          savedNote = note; savedState = chosen;
-          if (res) { res.textContent = 'Saved.'; res.className = 'tac__revresult is-ok'; }
-          tacRunReviews[d.journeyId] = r.body; // keep the run list badges/filter in sync
-        }).catch(function () { if (res) { res.textContent = 'Network error — the review was not saved.'; res.className = 'tac__revresult is-bad'; } });
-    });
-  }
-
-  function tacCompare() {
-    if (acqSelected.length !== 2) return;
-    var panel = acqEl('tacCompare'); if (!panel) return;
-    fetch(API_BASE + '/admin/benchmark/compare?a=' + encodeURIComponent(acqSelected[0]) + '&b=' + encodeURIComponent(acqSelected[1]), { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (!d) return;
-        var c = d.comparison || {}; var dec = c._decision || {}; var msf = d.manifestSafety || {};
-        function delta(label, obj, unit) {
-          if (!obj || obj.verdict === 'N/A' || obj.a == null || obj.b == null) return '';
-          var av = unit === 'ms' ? ms(obj.a) : obj.a; var bv = unit === 'ms' ? ms(obj.b) : obj.b;
-          var cls = obj.verdict === 'BETTER' ? 'is-ok' : obj.verdict === 'WORSE' ? 'is-bad' : '';
-          var arrow = obj.b > obj.a ? '\u2191' : obj.b < obj.a ? '\u2193' : '\u2192';
-          return '<div class="tac__cmprow"><span class="tac__cmplbl">' + esc(label) + '</span><span class="tac__cmpvals">' + esc(String(av)) + ' <em>' + arrow + '</em> ' + esc(String(bv)) + '</span><span class="tac__cmpv ' + cls + '">' + esc(obj.verdict) + '</span></div>';
-        }
-        // Overall verdict — NEVER "better" when hard failures exist on B.
-        var bHard = (c.hardViolations && c.hardViolations.b) || 0;
-        var overall, ocls;
-        if (bHard > 0) { overall = 'WORSE — B has hard safety/trust failures'; ocls = 'is-bad'; }
-        else if (dec.candidateIsImprovement) { overall = 'BETTER — B is a production improvement'; ocls = 'is-ok'; }
-        else if (dec.noNewHardViolations && dec.correctnessOk && !dec.qualityUp && !dec.efficiencyUp) { overall = 'SIMILAR — no clear difference'; ocls = ''; }
-        else { overall = 'MIXED — some metrics better, some not'; ocls = 'is-warn'; }
-        var warn = msf.warning
-          ? '<div class="tac__cmpwarn is-warn">Not a like-for-like comparison: ' + esc(msf.warning) + (msf.commonCount != null ? ' Common scenarios: ' + msf.commonCount : '') + '</div>'
-          : '<div class="tac__cmpwarn is-ok">Identical scenario set (version-pinned) — clean A/B comparison.</div>';
-        panel.innerHTML = '<h2 class="admin__h2">Comparison</h2>' + warn +
-          '<div class="tac__cmphead"><div><small>A</small>' + esc(d.a.label) + '</div><div><small>B</small>' + esc(d.b.label) + '</div></div>' +
-          '<div class="tac__cmprows">' +
-            delta('Quality', c.quality) + delta('Correct %', c.correctOutcomeRate) +
-            delta('Avg turns', c.meanTurnsToOutcome) + delta('Response', c.responseLatencyMean, 'ms') +
-            delta('Safety (hard failures)', c.hardViolations) +
-          '</div>' +
-          '<div class="tac__verdict ' + ocls + '">' + esc(overall) + '</div>' +
-          (msf.warning ? '<div class="tac__builderactions"><button class="btn btn--ghost" id="tacCmpCommon" type="button">Compare common scenarios</button></div>' : '');
-        panel.hidden = false; panel.scrollIntoView({ behavior: 'smooth' });
-      }).catch(function () {});
-  }
-
-  // ----- frontier (paid) experiment, behind Advanced -----
-  function tacOpenFrontier() {
-    var el = acqEl('tacFrontier'); if (!el) return;
-    var jm = (tacConfig && tacConfig.setup && tacConfig.setup.judge && tacConfig.setup.judge.model) || 'the configured OpenAI model';
-    el.hidden = false;
-    el.innerHTML =
-      '<h3 class="tac__frontierh">New frontier experiment</h3>' +
-      '<p class="tac__note">Compare a frontier (OpenAI) customer AI against Private AI. This makes paid OpenAI calls, and while it runs the live AI routing uses OpenAI for the steps you choose — real customers in that window get the same routing. The exact pre-run configuration is restored when the run ends.</p>' +
-      '<p class="test-status is-bad" id="tacFrontierErr" role="alert" hidden></p>' +
-      '<label class="tac__field">Experiment name<input id="tacExpName" type="text" placeholder="e.g. Frontier understanding on ambiguous cases"></label>' +
-      '<label class="tac__field">What are you trying to learn?<input id="tacExpHyp" type="text" placeholder="Does it improve ambiguous diagnosis enough to justify the cost?"></label>' +
-      '<div class="tac__step"><div class="tac__steph">Understanding</div>' +
-        '<label class="tac__radio"><input type="radio" name="tacFU" value="lmstudio" checked> <span>Private AI</span></label>' +
-        '<label class="tac__radio"><input type="radio" name="tacFU" value="openai"> <span>OpenAI (' + esc(jm) + ')</span></label></div>' +
-      '<div class="tac__step"><div class="tac__steph">Answer writing</div>' +
-        '<label class="tac__radio"><input type="radio" name="tacFC" value="lmstudio" checked> <span>Private AI</span></label>' +
-        '<label class="tac__radio"><input type="radio" name="tacFC" value="openai"> <span>OpenAI (' + esc(jm) + ')</span></label></div>' +
-      '<div class="tac__step"><div class="tac__steph">How many scenarios?</div><div class="tac__seg" id="tacFSize">' + [10, 25, 50].map(function (n) { return '<button type="button" class="tac__segbtn' + (n === 25 ? ' is-on' : '') + '" data-n="' + n + '">' + n + '</button>'; }).join('') + '</div></div>' +
-      '<div class="tac__builderactions"><button class="btn btn--primary" id="tacFReview" type="button">Review experiment</button></div>';
-    Array.prototype.forEach.call(el.querySelectorAll('.tac__segbtn'), function (b) { b.addEventListener('click', function () { Array.prototype.forEach.call(el.querySelectorAll('.tac__segbtn'), function (x) { x.classList.remove('is-on'); }); b.classList.add('is-on'); }); });
-    acqEl('tacFReview').addEventListener('click', function () {
-      var u = (el.querySelector('input[name="tacFU"]:checked') || {}).value || 'lmstudio';
-      var cc = (el.querySelector('input[name="tacFC"]:checked') || {}).value || 'lmstudio';
-      var szb = el.querySelector('#tacFSize .tac__segbtn.is-on'); var n = szb ? parseInt(szb.getAttribute('data-n'), 10) : 25;
-      var ferr = acqEl('tacFrontierErr');
-      if (u !== 'openai' && cc !== 'openai') { if (ferr) { ferr.hidden = false; ferr.textContent = 'Choose OpenAI for at least one step, or use a normal local test.'; } return; }
-      if (ferr) ferr.hidden = true;
-      tacSpec = { title: acqEl('tacExpName').value.trim() || 'Frontier experiment', mode: 'BALANCED', n: n, judgeMode: 'DETERMINISTIC_ONLY', areas: [], families: [], frontier: true, understand: u, compose: cc, expName: acqEl('tacExpName').value.trim(), expHyp: acqEl('tacExpHyp').value.trim() };
-      showSummary(tacSpec);
-    });
-  }
-  function tacOpenConfirm(spec) {
-    var body = acqEl('tacConfirmBody'); if (!body) return;
-    var count = (spec.n === 'ALL') ? ((tacConfig && tacConfig.journeyCount) || 'all') : spec.n;
-    body.innerHTML =
-      '<div class="tac__sumgrid">' +
-        '<div><span>Experiment</span><b>' + esc(spec.expName || '(unnamed)') + '</b></div>' +
-        '<div><span>Learning</span><b>' + esc(spec.expHyp || '(none)') + '</b></div>' +
-        '<div><span>Understanding</span><b>' + (spec.understand === 'openai' ? 'OpenAI' : 'Private AI') + '</b></div>' +
-        '<div><span>Answer writing</span><b>' + (spec.compose === 'openai' ? 'OpenAI' : 'Private AI') + '</b></div>' +
-        '<div><span>Scenarios</span><b>' + esc(String(count)) + '</b></div>' +
-      '</div>' +
-      '<p class="tac__note tac__paid">This experiment will make paid OpenAI calls for the customer AI.</p>' +
-      '<p class="tac__note tac__paid"><strong>Production is affected while it runs:</strong> the test runner switches the live AI routing to ' +
-        esc((spec.understand === 'openai' ? 'OpenAI' : 'Private AI') + ' \u2192 ' + (spec.compose === 'openai' ? 'OpenAI' : 'Private AI')) +
-        ' for the whole run, so real customer conversations in that window use OpenAI too. When the run ends or is cancelled, the exact pre-run configuration is restored and verified.</p>';
-    acqEl('tacConfirm')._spec = spec; acqEl('tacConfirm').hidden = false;
-  }
-
-  function tacWire() {
-    if (tacWired) return; tacWired = true;
-    if (acqEl('taskQuick')) acqEl('taskQuick').addEventListener('click', function () { showSummary(tacSpecFor('quick')); });
-    if (acqEl('taskFull')) acqEl('taskFull').addEventListener('click', function () { showSummary(tacSpecFor('full')); });
-    if (acqEl('taskFocused')) acqEl('taskFocused').addEventListener('click', function () { openBuilder('focused'); });
-    if (acqEl('taskCustom')) acqEl('taskCustom').addEventListener('click', function () { openBuilder('custom'); });
-    if (acqEl('tacFrontierStart')) acqEl('tacFrontierStart').addEventListener('click', tacOpenFrontier);
-    if (acqEl('tacConfirmCancel')) acqEl('tacConfirmCancel').addEventListener('click', function () { acqEl('tacConfirm').hidden = true; });
-    if (acqEl('tacConfirmGo')) acqEl('tacConfirmGo').addEventListener('click', function () { var s = acqEl('tacConfirm')._spec; acqEl('tacConfirm').hidden = true; if (s) tacLaunch(s, true); });
-    if (acqEl('tacCompareBtn')) acqEl('tacCompareBtn').addEventListener('click', tacCompare);
-    // Back to batch: history.back() when we came from the list (restores its scroll), else the link.
-    if (acqEl('tacBackLink')) acqEl('tacBackLink').addEventListener('click', function (e) {
-      if (acqEl('tacBackLink').getAttribute('data-sub')) return;
-      if (tacCameFromList && window.history.length > 1) { e.preventDefault(); window.history.back(); }
-    });
-    wbWire();
-  }
-
-  Array.prototype.forEach.call(navItems, function (item) {
-    if (item.getAttribute('data-section') === 'test') {
-      // Waits for the unsaved-changes answer like the other section loaders (Stay keeps the editor).
-      item.addEventListener('click', navLoader(function () { ensureTestPage(); showTestTab('live'); edState = null; }));
-    }
-  });
-
-  // ---- Test Scenarios (curated customer-situation library) -----------------
-  var libLoaded = false; var libData = null;
-  var Cts = window.CtsLogic;
-  function fillSelect(id, values, keep) { var el = acqEl(id); if (!el) return; var cur = el.value; el.innerHTML = (keep || '') + values.map(function (v) { return '<option>' + esc(v) + '</option>'; }).join(''); el.value = cur; }
-  function fillFamilySelect(id, families) { var el = acqEl(id); if (!el) return; var cur = el.value; el.innerHTML = '<option value="">All appliances</option>' + families.map(function (f) { return '<option value="' + esc(f) + '">' + esc(famLabel(f)) + '</option>'; }).join(''); el.value = cur; }
-  function libVal(id) { var el = acqEl(id); return el ? el.value : ''; }
-  function libChk(id) { var el = acqEl(id); return !!(el && el.checked); }
-  // The scenario list loads when its tab/page is shown (libShowList), not on every Test route.
-  function ensureLibPage() {
-    if (libLoaded) return;
-    libLoaded = true;
-    libWire();
-  }
-  var LIB_TEXT = {
-    leave: 'You have unsaved scenario changes. If you leave now they will be lost. The saved scenario and past batch runs are not affected.',
-  };
-  var libListScrollY = null; var libCameFromList = false; var libFlash = null; var libOpenId = null;
-  // ---- list / detail routes: '#test?tab=scenarios&q&family&category&archived' and
-  //      '#test/scenario/<id>?<list params>' (+ view=edit), '#test/scenario/new' ----
-  function libFilterVal(id) { var el = acqEl(id); if (!el) return ''; return el.value || el.getAttribute('data-pending') || ''; }
-  function libListParams() {
-    return { tab: 'scenarios', q: libVal('libSearch'), family: libFilterVal('libFamily'), category: libFilterVal('libCategory'), archived: libChk('libArchived') ? '1' : '' };
-  }
-  function libListHref(params) { return hashString('test', params || libListParams()); }
-  function libDetailHref(id, extra) {
-    var p = libListParams();
-    delete p.tab;
-    Object.keys(extra || {}).forEach(function (k) { p[k] = extra[k]; });
-    return '#test/scenario/' + encodeURIComponent(id) + hashString('', p).slice(1);
-  }
-  function libApplyParams(params) {
-    params = params || {};
-    if (acqEl('libSearch') && params.q != null) acqEl('libSearch').value = params.q;
-    // Before the option lists load, the deep-linked value is held in data-pending.
-    [['libFamily', 'family'], ['libCategory', 'category']].forEach(function (pair) {
-      var el = acqEl(pair[0]); var v = params[pair[1]];
-      if (!el || v == null) return;
-      el.setAttribute('data-pending', v); el.value = v;
-    });
-    if (acqEl('libArchived') && params.archived != null) acqEl('libArchived').checked = params.archived === '1';
-  }
-  function libSettlePending(id) {
-    var el = acqEl(id); if (!el) return;
-    var want = el.getAttribute('data-pending');
-    if (want != null) { el.value = want; el.removeAttribute('data-pending'); }
-  }
-  function libSetStatus(elId, msg, bad) {
-    var el = acqEl(elId); if (!el) return;
-    el.hidden = !msg; el.textContent = msg || '';
-    el.className = 'test-status' + (msg ? (bad ? ' is-bad' : ' is-ok') : '');
-  }
-  // A one-shot message shown on the next page (e.g. "Saved" after returning to the detail page).
-  function libShowFlash(elId) { var f = libFlash; libFlash = null; libSetStatus(elId, f ? f.msg : '', f && f.bad); }
-  function libApiPost(path, body) {
-    return fetch(API_BASE + path, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) {
-        if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return { ok: false, status: 401, body: { error: 'Session expired.' } }; }
-        return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, status: r.status, body: b || {} }; });
-      })
-      .catch(function () { return { ok: false, status: 0, body: { error: 'Network error — nothing was changed.' } }; });
-  }
-  function libErrText(res, fallback) {
-    var b = (res && res.body) || {};
-    if (res && res.status === 409) return b.message || 'This scenario changed since you opened it. Reload it, then make your change again.';
-    if (res && res.status === 404) return 'This scenario no longer exists.';
-    return (b.message || b.error || fallback || 'That did not work.') + ((b.problems && b.problems.length) ? ' (' + b.problems.join('; ') + ')' : '');
-  }
-  function libShowList(params) {
-    edState = null; libOpenId = null;
-    if (params && Object.keys(params).length) libApplyParams(params);
-    if (acqEl('libDetailPage')) acqEl('libDetailPage').hidden = true;
-    if (acqEl('libListView')) acqEl('libListView').hidden = false;
-    libShowFlash('libStatus');
-    libLoad();
-  }
-  function libShowPage(mode, id, params) {
-    params = params || {};
-    // A dirty editor already showing this exact page (e.g. after "Stay") keeps its form untouched.
-    if (mode === 'edit' && edState && edState.dirty && edState.id === id && acqEl('libDetailPage') && !acqEl('libDetailPage').hidden) return;
-    var listView = acqEl('libListView');
-    var listVisible = Boolean(listView && !listView.hidden && acqEl('libTableBody') && acqEl('libTableBody').querySelector('.cts__card'));
-    if (listVisible) libListScrollY = window.scrollY || 0;
-    libCameFromList = listVisible;
-    libApplyParams(params);
-    if (listView) listView.hidden = true;
-    if (acqEl('libDetailPage')) acqEl('libDetailPage').hidden = false;
-    var sub = mode === 'edit';
-    var lp = { tab: 'scenarios', q: params.q || '', family: params.family || '', category: params.category || '', archived: params.archived || '' };
-    var back = acqEl('libBackLink');
-    if (back) {
-      back.setAttribute('href', sub ? libDetailHref(id) : libListHref(lp));
-      back.textContent = sub ? '\u2190 Back to scenario' : '\u2190 Back to scenarios';
-      back.setAttribute('data-sub', sub ? '1' : '');
-    }
-    window.scrollTo(0, 0);
-    libShowFlash('libDetailStatus');
-    libOpenId = id;
-    edState = null;
-    if (mode === 'create') { libEditorOpen('create'); return; }
-    if (mode === 'edit') { libEditorOpen('edit', id); return; }
-    libDetail(id);
-  }
-  function libWire() {
-    ['libSearch', 'libFamily', 'libCategory'].forEach(function (id) {
-      var el = acqEl(id);
-      if (el) el.addEventListener(id === 'libSearch' ? 'input' : 'change', function () {
-        if (id !== 'libSearch') el.removeAttribute('data-pending');
-        writeHash('test', libListParams()); libLoad();
-      });
-    });
-    if (acqEl('libArchived')) acqEl('libArchived').addEventListener('change', function () { writeHash('test', libListParams()); libLoad(); });
-    if (acqEl('libNew')) acqEl('libNew').addEventListener('click', function () {
-      var p = libListParams(); delete p.tab;
-      location.hash = '#test/scenario/new' + hashString('', p).slice(1);
-    });
-    if (acqEl('libRunSelected')) acqEl('libRunSelected').addEventListener('click', libRunSelected);
-    // Back to scenarios: history.back() when we came from the list (restores filters + scroll).
-    // A dirty editor is caught by the shared guard on the resulting hash change.
-    if (acqEl('libBackLink')) acqEl('libBackLink').addEventListener('click', function (e) {
-      if (acqEl('libBackLink').getAttribute('data-sub')) return;
-      if (libCameFromList && window.history.length > 1 && !(edState && edState.dirty)) { e.preventDefault(); window.history.back(); }
-    });
-  }
-  function libLoadOptions() {
-    fetch(API_BASE + '/admin/library', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-      if (!d) return;
-      fillFamilySelect('libFamily', d.families || []);
-      fillSelect('libCategory', d.categories || [], '<option value="">All coverage</option>');
-      libSettlePending('libFamily'); libSettlePending('libCategory');
-    }).catch(function () {});
-  }
-  function libUpdateBatchCount() {
-    var el = acqEl('libBatchCount');
-    if (!el) return;
-    el.textContent = libSelected.length
-      ? (libSelected.length + ' scenario' + (libSelected.length === 1 ? '' : 's') + ' selected.')
-      : 'No scenarios selected.';
-  }
-  function libCardHtml(j) {
-    var checked = libSelected.indexOf(j.journeyId) !== -1 ? ' checked' : '';
-    var life = Cts ? Cts.lifecycle(j) : { key: j.archived ? 'retired' : 'active', label: j.archived ? 'Retired' : 'Active' };
-    var opener = Cts ? Cts.openerPreview(j.opening) : String(j.opening || '');
-    var turnCount = j.turnCount || (j.multiTurn ? 2 : 1);
-    var labels = (j.categories || []).slice(0, 3);
-    if (j.mustSafetyStop && labels.indexOf('Safety') === -1) labels.push('Safety');
-    if (j.expectMedia && labels.indexOf('Media') === -1) labels.push('Media');
-    if (j.mustNotPart && labels.indexOf('No Part') === -1 && labels.indexOf('No part yet') === -1) labels.push('No part yet');
-    var tags = labels.map(function (c) { return '<span class="cts__tag">' + esc(c) + '</span>'; }).join('');
-    return '<article class="cts__card" data-id="' + esc(j.journeyId) + '">' +
-      '<label class="cts__pick"><input type="checkbox" class="lib-sel" data-id="' + esc(j.journeyId) + '"' + checked + '><span class="cts__picklbl">Select<span class="visually-hidden"> ' + esc(j.title) + ' for a batch run</span></span></label>' +
-      '<div class="cts__cardmain">' +
-        '<div class="cts__fam">' + esc(famLabel(j.family)) + '</div>' +
-        '<h2 class="cts__title"><a class="cts__titlelink" href="' + esc(libDetailHref(j.journeyId)) + '">' + esc(j.title) + '</a></h2>' +
-        (opener ? '<p class="cts__opener"><q>' + esc(opener) + '</q></p>' : '') +
-        '<div class="cts__meta">' +
-          '<span>' + turnCount + ' customer turn' + (turnCount === 1 ? '' : 's') + '</span>' +
-          '<span class="cts__life ' + esc(life.key) + '">' + esc(life.label) + '</span>' +
-          '<span>v' + esc(String(j.currentVersion || 1)) + '</span>' +
-        '</div>' +
-        (tags ? '<div class="cts__tags">' + tags + '</div>' : '') +
-        '<div class="cts__id">' + esc(j.journeyId) + '</div>' +
-      '</div>' +
-      '<div class="cts__cardactions">' +
-        '<button class="btn btn--primary cts__open" data-act="workbench" data-id="' + esc(j.journeyId) + '" type="button">Open in Live test</button>' +
-        '<a class="btn btn--ghost" href="' + esc(libDetailHref(j.journeyId)) + '" aria-label="Open ' + esc(j.title) + '">Open</a>' +
-        '<button class="cts__more" data-act="more" data-id="' + esc(j.journeyId) + '" type="button" aria-label="More actions for ' + esc(j.title) + '" aria-haspopup="true" aria-expanded="false">\u22ef</button>' +
-        '<div class="cts__menu" data-menu="' + esc(j.journeyId) + '" hidden>' +
-          '<a href="' + esc(libDetailHref(j.journeyId, { view: 'edit' })) + '">Edit</a>' +
-          '<button data-act="dup" data-id="' + esc(j.journeyId) + '" type="button">Duplicate</button>' +
-          '<button data-act="retire" data-id="' + esc(j.journeyId) + '" type="button">' + (j.archived ? 'Restore' : 'Retire') + '</button>' +
-        '</div>' +
-      '</div>' +
-    '</article>';
-  }
-  function libLoad() {
-    var qs = [];
-    if (libVal('libSearch')) qs.push('q=' + encodeURIComponent(libVal('libSearch')));
-    if (libFilterVal('libFamily')) qs.push('family=' + encodeURIComponent(libFilterVal('libFamily')));
-    if (libFilterVal('libCategory')) qs.push('category=' + encodeURIComponent(libFilterVal('libCategory')));
-    if (libChk('libArchived')) qs.push('includeArchived=true');
-    var body = acqEl('libTableBody');
-    if (body && !body.querySelector('.cts__card')) body.setAttribute('aria-busy', 'true');
-    fetch(API_BASE + '/admin/library?' + qs.join('&'), { credentials: 'same-origin' })
-      .then(function (r) { if (r.status === 401) { showGate('Session expired.'); return null; } return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
-      .then(function (d) {
-        if (!d) return; libData = d;
-        fillFamilySelect('libFamily', d.families || []);
-        fillSelect('libCategory', d.categories || [], '<option value="">All coverage</option>');
-        libSettlePending('libFamily'); libSettlePending('libCategory');
-        var list = d.journeys || [];
-        if (!body) return;
-        body.removeAttribute('aria-busy');
-        if (acqEl('libCount')) acqEl('libCount').textContent = list.length + ' scenario' + (list.length === 1 ? '' : 's') + (libChk('libArchived') ? ' (including retired)' : '');
-        if (!list.length) {
-          body.innerHTML = '<div class="cts__empty">No scenarios match these filters. Try another appliance or search the customer opener.</div>';
-        } else {
-          body.innerHTML = list.map(libCardHtml).join('');
-        }
-        wireLibRows();
-        libUpdateBatchCount();
-        if (libListScrollY != null) { var y = libListScrollY; libListScrollY = null; setTimeout(function () { window.scrollTo(0, y); }, 0); }
-      }).catch(function () { if (body) { body.removeAttribute('aria-busy'); body.innerHTML = '<div class="cts__empty">Could not load scenarios. Check your connection and try again.</div>'; } });
-  }
-  function libOpenInWorkbench(id) {
-    showSection('test');
-    ensureTestPage();
-    showTestTab('live');
-    writeHash('test', { tab: 'live', scenario: id });
-    wbPickScenario(id);
-  }
-  function wireLibRows() {
-    var host = acqEl('libTableBody'); if (!host) return;
-    Array.prototype.forEach.call(host.querySelectorAll('.lib-sel'), function (cb) {
-      cb.addEventListener('change', function () {
-        var id = cb.getAttribute('data-id');
-        if (cb.checked) { if (libSelected.indexOf(id) === -1) libSelected.push(id); }
-        else libSelected = libSelected.filter(function (x) { return x !== id; });
-        libUpdateBatchCount();
-      });
-    });
-    Array.prototype.forEach.call(host.querySelectorAll('.cts__more'), function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var id = btn.getAttribute('data-id');
-        var menu = host.querySelector('.cts__menu[data-menu="' + id + '"]');
-        if (!menu) return;
-        var wasHidden = menu.hidden;
-        libCloseMenus();
-        menu.hidden = !wasHidden;
-        btn.setAttribute('aria-expanded', wasHidden ? 'true' : 'false');
-      });
-    });
-    Array.prototype.forEach.call(host.querySelectorAll('[data-act]'), function (btn) {
-      if (btn.classList.contains('cts__more')) return;
-      btn.addEventListener('click', function () {
-        var id = btn.getAttribute('data-id'); var act = btn.getAttribute('data-act'); libCloseMenus();
-        if (act === 'workbench') libOpenInWorkbench(id);
-        else if (act === 'dup') libEditorDuplicate(id);
-        else if (act === 'retire') libRetire(id);
-      });
-    });
-  }
-  function libCloseMenus() {
-    Array.prototype.forEach.call(document.querySelectorAll('.cts__menu'), function (m) { m.hidden = true; });
-    Array.prototype.forEach.call(document.querySelectorAll('.cts__more'), function (b) { b.setAttribute('aria-expanded', 'false'); });
-  }
-  document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('.cts__cardactions')) libCloseMenus(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') libCloseMenus(); });
-  // Starting a batch run is production-impacting (live AI routing switches for the run): confirm first.
-  function libConfirmRun(count) {
-    return confirm('Run ' + count + ' scenario' + (count === 1 ? '' : 's') + ' with Private AI \u2192 Private AI (Fast Check)?\n\n' + TAC_IMPACT_SHORT);
-  }
-  function libStartManualRun(ids, label, statusId) {
-    var payload = { label: label, mode: 'MANUAL', manualIds: ids, judgeMode: 'DETERMINISTIC_ONLY', understand: { provider: 'lmstudio', model: '' }, compose: { provider: 'lmstudio', model: '' } };
-    tacStatus('Starting\u2026', false, statusId);
-    return libApiPost('/admin/benchmark/build-run', payload).then(function (res) {
-      if (!res.ok) { tacStatus('Could not start the run: ' + libErrText(res, 'failed'), true, statusId); return; }
-      tacStatus('Run queued: ' + (res.body.label || res.body.runId) + '.', false, 'tacStatusMsg');
-      showTestTab('batch');
-      writeHash('test', { tab: 'batch' });
-      tacShowList();
-      tacLoadHistory();
-      tacPollRun(res.body.runId);
-    });
-  }
-  function runOneScenario(id) {
-    if (!libConfirmRun(1)) return;
-    libStartManualRun([id], 'Scenario ' + id, 'libDetailStatus');
-  }
-  function libRunSelected() {
-    if (!libSelected.length) { tacStatus('Select at least one scenario in the Scenarios tab first.', true); return; }
-    if (!libConfirmRun(libSelected.length)) return;
-    libStartManualRun(libSelected.slice(), 'Selected scenarios (' + libSelected.length + ')', 'tacStatusMsg');
-  }
-  function libRetire(id, j, after) {
-    j = j || (libData && libData.journeys || []).find(function (x) { return x.journeyId === id; });
-    var retiring = !(j && j.archived);
-    var msg = retiring
-      ? 'Retire ' + id + '? It stays in the library when Include retired is on, and historical runs are preserved.'
-      : 'Restore ' + id + ' to the active library?';
-    if (!confirm(msg)) return;
-    var statusId = (acqEl('libDetailPage') && !acqEl('libDetailPage').hidden) ? 'libDetailStatus' : 'libStatus';
-    libApiPost('/admin/library/journey/flags', { id: id, expectedUpdatedAt: (j && j.updatedAt) || undefined, changes: { archived: retiring } })
-      .then(function (res) {
-        if (!res.ok) { libSetStatus(statusId, (retiring ? 'Could not retire ' : 'Could not restore ') + id + ': ' + libErrText(res), true); return; }
-        libFlash = { msg: id + (retiring ? ' retired. Past runs keep their results.' : ' restored to the active library.') };
-        if (after) after(res.body); else { libShowFlash(statusId); libLoad(); }
-      });
-  }
-  function detailBlock(title, body) { if (body == null || body === '' || (Array.isArray(body) && !body.length)) return ''; var txt = Array.isArray(body) ? body.join(', ') : body; return '<div class="cts__d"><div class="cts__dh">' + esc(title) + '</div><div class="cts__dv">' + esc(txt) + '</div></div>'; }
-  function libDetail(id) {
-    var el = acqEl('libDetail'); if (!el) return;
-    acqEl('libEditor').hidden = true;
-    el.hidden = false;
-    el.innerHTML = '<div class="tac__muted">Loading scenario\u2026</div>';
-    fetch(API_BASE + '/admin/library/journey?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
-      .then(function (r) {
-        if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return null; }
-        return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, status: r.status, body: b }; });
-      })
-      .then(function (res) {
-        if (!res || libOpenId !== id) return;
-        if (!res.ok) {
-          el.innerHTML = '<h2 class="cts__detailtitle">Scenario not found</h2><p class="tac__note">' + esc(res.status === 400 ? 'That is not a valid scenario link.' : (res.status === 404 ? 'No scenario has the id ' + id + '. It may have been deleted.' : libErrText(res))) + '</p>';
-          return;
-        }
-        libRenderDetail(id, res.body);
-      })
-      .catch(function () { if (libOpenId === id) el.innerHTML = '<h2 class="cts__detailtitle">Could not load this scenario</h2><p class="tac__note">Check your connection and reload the page.</p>'; });
-  }
-  function libRenderDetail(id, d) {
-    var el = acqEl('libDetail');
-    var j = d.journey; var v = j.versions[j.versions.length - 1]; var g = v.gold || {};
-    var journey = Cts ? Cts.customerJourney(v) : { turns: (v.turns && v.turns.length ? v.turns : [v.opening]).filter(Boolean) };
-    var life = Cts ? Cts.lifecycle(j) : { key: j.archived ? 'retired' : 'active', label: j.archived ? 'Retired' : 'Active' };
-    var journeyHtml = '<ol class="cts__journey">' + journey.turns.map(function (t, i) {
-      return '<li><b>Customer ' + (i + 1) + '</b><span>' + esc(t) + '</span></li>';
-    }).join('') + '</ol>';
-    var provenance = [j.sourceType, j.sourceReference, j.transcriptReference].filter(Boolean).join(' · ');
-    el.innerHTML =
-      '<div class="cts__detailhead"><div><div class="cts__detailfam">' + esc(famLabel(j.family)) + (j.make ? ' · ' + esc(j.make) : '') + '</div><h2 class="cts__detailtitle">' + esc(j.title) + '</h2></div>' +
-        '<span class="cts__life ' + esc(life.key) + '">' + esc(life.label) + '</span></div>' +
-      '<div class="cts__d"><div class="cts__dh">Customer journey</div>' + journeyHtml + '</div>' +
-      detailBlock('What this scenario covers', (j.categories || []).join(' · ')) +
-      detailBlock('Expected behaviour', Cts ? Cts.outcomeLabel(g.expectedOutcome) : g.expectedOutcome) +
-      detailBlock('Leading components', (g.goldSuspects || []).join(', ')) +
-      detailBlock('Safety expectation', Cts ? Cts.safetyExpectation(g) : (g.mustSafetyStop ? 'Should stop use' : 'Normal consumer checks')) +
-      detailBlock('Parts expectation', Cts ? Cts.partsExpectation(g) : '') +
-      detailBlock('Media expectation', Cts ? Cts.mediaExpectation(g) : '') +
-      detailBlock('Identification / model', g.lateModel || j.model || '') +
-      (provenance ? detailBlock('Provenance', provenance) : '') +
-      '<div class="cts__detailactions">' +
-        '<button class="btn btn--primary" id="libDetailWorkbench" type="button">Open in Live test</button>' +
-        '<a class="btn btn--ghost" id="libDetailEdit" href="' + esc(libDetailHref(id, { view: 'edit' })) + '">Edit</a>' +
-        '<button class="btn btn--ghost" id="libDetailDup" type="button">Duplicate</button>' +
-        '<button class="btn btn--ghost" id="libDetailRun" type="button"' + (j.archived ? ' disabled' : '') + '>Run as batch</button>' +
-      '</div>' +
-      '<details class="cts__advdetail"><summary>Advanced / history</summary>' +
-        '<div class="cts__techrows">' +
-          '<div><span>Scenario ID</span><b>' + esc(j.journeyId) + '</b></div>' +
-          '<div><span>Current version</span><b>v' + j.currentVersion + '</b></div>' +
-          '<div><span>Review status</span><b>' + esc(j.reviewStatus || '\u2014') + '</b></div>' +
-          '<div><span>Source</span><b>' + esc(j.sourceType) + (j.sourceReference ? ' (' + esc(j.sourceReference) + ')' : '') + '</b></div>' +
-          '<div><span>Created</span><b>' + esc(whenLong(j.createdAt)) + (j.createdBy ? ' · ' + esc(j.createdBy) : '') + '</b></div>' +
-          '<div><span>Last changed</span><b>' + esc(whenLong(j.updatedAt)) + (j.updatedBy ? ' · ' + esc(j.updatedBy) : '') + '</b></div>' +
-        '</div>' +
-        '<div class="cts__dh">Version history</div>' +
-        '<ul class="lib__ed-vers">' + (j.versions || []).slice().reverse().map(function (x) { return '<li><b>v' + esc(String(x.version)) + '</b> \u2014 ' + esc(x.note || '') + ' <span class="lib__ed-when">' + esc(String(x.createdAt || '').slice(0, 10)) + (x.byEmail ? ' · ' + esc(x.byEmail) : '') + '</span></li>'; }).join('') + '</ul>' +
-        '<div class="cts__pastconvos" id="libPastConvos"><div class="cts__dh">Past batch conversations</div><div class="cts__muted">Loading\u2026</div></div>' +
-        '<div class="cts__lifecycle">' +
-          '<button class="btn btn--ghost lib__rev" data-s="ARCHIVED" type="button">' + (j.archived ? 'Restore' : 'Retire') + '</button>' +
-        '</div>' +
-      '</details>';
-    acqEl('libDetailWorkbench').addEventListener('click', function () { libOpenInWorkbench(id); });
-    acqEl('libDetailDup').addEventListener('click', function () { libEditorDuplicate(id); });
-    acqEl('libDetailRun').addEventListener('click', function () { runOneScenario(id); });
-    Array.prototype.forEach.call(el.querySelectorAll('.lib__rev'), function (b) {
-      b.addEventListener('click', function () { libRetire(id, j, function () { libShowFlash('libDetailStatus'); libDetail(id); }); });
-    });
-    libLoadPastConversations(id);
-  }
-  function libLoadPastConversations(journeyId) {
-    var host = acqEl('libPastConvos'); if (!host) return;
-    fetch(API_BASE + '/admin/benchmark/scenario-conversations?journey=' + encodeURIComponent(journeyId), { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        var list = (d && d.conversations) || [];
-        if (!list.length) { host.innerHTML = '<div class="cts__dh">Past batch conversations</div><div class="cts__muted">No batch conversations recorded for this scenario yet.</div>'; return; }
-        var rows = list.map(function (c) {
-          var vcls = { GOOD: 'is-ok', 'NEEDS REVIEW': 'is-warn', FAILED: 'is-bad' }[c.verdict] || '';
-          var rev = c.reviewState && c.reviewState !== 'not_reviewed' ? '<span class="tac__revbadge ' + (REVIEW_CLS[c.reviewState] || '') + '">' + esc(REVIEW_LABELS[c.reviewState] || c.reviewState) + '</span>' : '';
-          return '<div class="cts__pastrow">' +
-            '<div class="cts__pastmain"><div class="cts__pastwhen">' + esc(whenLong(c.date)) + (c.journeyVersion != null ? ' \u00b7 v' + esc(String(c.journeyVersion)) : '') + '</div>' +
-              '<div class="cts__pastsub">' + esc(c.providerPair || '') + ' \u00b7 <span class="tac__pill ' + vcls + '">' + esc(c.verdict) + '</span>' + (c.quality != null ? ' \u00b7 Score ' + esc(String(c.quality)) : '') + '</div></div>' +
-            rev +
-            '<a class="btn btn--ghost cts__pastview" href="' + esc(tacRunHref(c.runId, { journey: journeyId, from: journeyId })) + '">View</a>' +
-          '</div>';
-        }).join('');
-        host.innerHTML = '<div class="cts__dh">Past batch conversations</div>' + rows;
-      })
-      .catch(function () { host.innerHTML = '<div class="cts__dh">Past batch conversations</div><div class="cts__muted">Could not load past conversations.</div>'; });
-  }
-
-  var LIB_FAMILIES = ['washing-machine', 'washer-dryer', 'tumble-dryer', 'dishwasher', 'oven-cooker', 'hobs', 'fridge-freezer', 'microwave', 'vacuum'];
-  var LIB_CATEGORIES = ['Straightforward Diagnosis', 'Ambiguous Symptom', 'Multi-turn', 'Error Code', 'Safety', 'Normal Behaviour', 'No Part', 'Customer Correction', 'Already Replaced', 'Model / Fit', 'Media', 'Near Neighbour', 'Messy Customer Language', 'Conflicting Evidence', 'Hard / Edge Case'];
-  var LIB_SOURCES = ['AUTHORED', 'EXISTING_REGRESSION', 'ACQ', 'CUSTOMER_TRANSCRIPT', 'ENGINEER_REVIEW'];
-  var LIB_REVIEW = ['DRAFT', 'REVIEWED', 'APPROVED', 'ARCHIVED'];
-  var LIB_OUTCOMES = ['DIAGNOSIS', 'NORMAL', 'NO_PART', 'EXTERNAL', 'SAFETY_STOP'];
-  var LIB_FACTKEYS = ['model', 'error_code', 'drum_turns', 'drains', 'fills', 'noise_stage', 'heat', 'leak_location', 'age_use', 'already_tried', 'power', 'smell_burning', 'spins_slowly'];
-  var edState = null;
-  var edCustomerTurns = [];
-  var edTurnsData = [];
-
-  function csvList(s) { return String(s == null ? '' : s).split(',').map(function (x) { return x.trim(); }).filter(Boolean); }
-  function uniqList(a) { var seen = {}; var out = []; a.forEach(function (x) { var k = x.toLowerCase(); if (!seen[k]) { seen[k] = 1; out.push(x); } }); return out; }
-  function edVal(id) { var e = acqEl(id); return e ? e.value : ''; }
-  function edChk(id) { var e = acqEl(id); return !!(e && e.checked); }
-  function optList(list, sel) { return list.map(function (v) { return '<option' + (v === sel ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join(''); }
-
-  // Duplicate creates a new DRAFT copy (a library write) and opens the copy's editor page.
-  function libEditorDuplicate(id) {
-    var statusId = (acqEl('libDetailPage') && !acqEl('libDetailPage').hidden) ? 'libDetailStatus' : 'libStatus';
-    libApiPost('/admin/library/journey/duplicate', { id: id, overrides: {} }).then(function (res) {
-      if (!res.ok) { libSetStatus(statusId, 'Could not duplicate ' + id + ': ' + libErrText(res), true); return; }
-      libFlash = { msg: 'Created ' + res.body.journeyId + ' as a DRAFT copy of ' + id + '.' };
-      location.hash = libDetailHref(res.body.journeyId, { view: 'edit' });
-    });
-  }
-
-  function libEditorOpen(mode, id) {
-    var el = acqEl('libEditor'); var det = acqEl('libDetail');
-    if (det) det.hidden = true;
-    if (mode === 'create') { libEditorRender('create', null, []); return; }
-    if (el) { el.hidden = false; el.innerHTML = '<div class="tac__muted">Loading scenario\u2026</div>'; }
-    fetch(API_BASE + '/admin/library/journey?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
-      .then(function (r) {
-        if (r.status === 401) { showGate('Your session has expired. Please log in again.'); return null; }
-        return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, status: r.status, body: b }; });
-      })
-      .then(function (res) {
-        if (!res || libOpenId !== id) return;
-        if (!res.ok) { if (el) el.innerHTML = '<h2 class="cts__detailtitle">Scenario not found</h2><p class="tac__note">' + esc(res.status === 404 ? 'No scenario has the id ' + id + '.' : libErrText(res)) + '</p>'; return; }
-        libEditorRender('edit', res.body.journey, res.body.recentResults || []);
-      })
-      .catch(function () { if (el && libOpenId === id) el.innerHTML = '<h2 class="cts__detailtitle">Could not load this scenario</h2><p class="tac__note">Check your connection and reload the page.</p>'; });
-  }
-  // Any edit marks the open editor dirty so the shared guard asks before leaving.
-  var libEditorWired = false;
-  function edTouch() { if (edState) edState.dirty = true; }
-
-  function libEditorRender(mode, j, recentResults) {
-    var v = j ? j.versions[j.versions.length - 1] : null;
-    var g = (v && v.gold) || {};
-    var el = acqEl('libEditor'); if (!el) return;
-    acqEl('libDetail').hidden = true;
-    var catSet = {}; ((j && j.categories) || []).forEach(function (c) { catSet[c] = 1; });
-    var isEdit = mode === 'edit';
-    var journey = Cts && v ? Cts.customerJourney(v) : { turns: v ? ((v.turns && v.turns.length ? v.turns : [v.opening]).filter(Boolean)) : [''] };
-    el.hidden = false;
-    el.innerHTML =
-      '<div class="lib__ed-head"><strong>' + (isEdit ? ('Edit scenario') : 'New scenario') + '</strong>' +
-      (isEdit ? ' <span class="cts__life ' + (j.archived ? 'retired' : 'active') + '">' + (j.archived ? 'Retired' : 'Active') + '</span>' : '') +
-      '</div>' +
-      '<div class="lib__ed-banner" id="edBanner" hidden></div>' +
-      '<div class="lib__ed-grid">' +
-      '<fieldset class="lib__ed-fs"><legend>Scenario</legend>' +
-        '<label class="lib__ed-f"><span>Name</span><input id="ed_title" type="text" required value="' + esc((j && j.title) || '') + '" placeholder="Dyson V6 pulsing" aria-describedby="edErrors"></label>' +
-        '<label class="lib__ed-f"><span>Appliance</span><select id="ed_family" required>' + optList(LIB_FAMILIES, (j && j.family) || 'washing-machine') + '</select></label>' +
-        '<label class="lib__ed-f"><span>Make <em>(optional)</em></span><input id="ed_make" type="text" value="' + esc((j && j.make) || '') + '" placeholder="Bosch"></label>' +
-        '<label class="lib__ed-f"><span>Model <em>(optional)</em></span><input id="ed_model" type="text" value="' + esc((j && j.model) || '') + '"></label>' +
-        (isEdit ? '<p class="tac__note">ID <code>' + esc(j.journeyId) + '</code> stays the same when you save.</p>' : '') +
-      '</fieldset>' +
-      '<fieldset class="lib__ed-fs lib__ed-f--wide"><legend>Customer journey</legend>' +
-        '<p class="tac__note">What the customer supplies, in order. Do not script ApplianceClinic replies.</p>' +
-        '<div id="ed_customerTurns" class="lib__cj"></div>' +
-        '<button type="button" class="btn btn--ghost lib__turn-add" id="ed_addCustomerTurn">+ Add customer turn</button>' +
-      '</fieldset>' +
-      '<fieldset class="lib__ed-fs"><legend>What this scenario covers</legend>' +
-        '<label class="lib__ed-f"><span>Expected behaviour</span><select id="ed_outcome">' + optList(LIB_OUTCOMES, g.expectedOutcome || 'DIAGNOSIS') + '</select></label>' +
-        '<label class="lib__ed-f"><span>Leading components / diagnostic behaviour</span><input id="ed_suspects" type="text" value="' + esc((g.goldSuspects || []).join(', ')) + '" placeholder="filter, drain pump"></label>' +
-        '<label class="lib__ed-f"><span>Useful follow-up, if any</span><input id="ed_followTarget" type="text" list="ed_factlist" value="' + esc(g.followUpTargetFact || '') + '" placeholder="model identification before compatibility-specific advice"></label>' +
-        '<label class="lib__ed-f lib__ed-cbx"><input type="checkbox" id="ed_followAppropriate"' + (g.followUpAppropriate ? ' checked' : '') + '> <span>A follow-up question is appropriate before diagnosis</span></label>' +
-        '<div class="lib__ed-f lib__ed-f--wide"><span class="lib__ed-lbl">Coverage</span><div class="lib__ed-cats">' +
-          LIB_CATEGORIES.map(function (c) { return '<label class="lib__ed-cat"><input type="checkbox" class="ed_cat" value="' + esc(c) + '"' + (catSet[c] ? ' checked' : '') + '> ' + esc(c) + '</label>'; }).join('') +
-        '</div></div>' +
-      '</fieldset>' +
-      '<fieldset class="lib__ed-fs"><legend>Safety, parts and media</legend>' +
-        '<label class="lib__ed-cbx"><input type="checkbox" id="ed_mustSafetyStop"' + (g.mustSafetyStop ? ' checked' : '') + '> <span>Should stop use / professional-only</span></label>' +
-        '<label class="lib__ed-cbx"><input type="checkbox" id="ed_mustNotPart"' + (g.mustNotPart ? ' checked' : '') + '> <span>No part should be recommended yet</span></label>' +
-        '<label class="lib__ed-cbx"><input type="checkbox" id="ed_expectMedia"' + (g.expectMedia ? ' checked' : '') + '> <span>Helpful media is expected</span></label>' +
-      '</fieldset>' +
-      '<fieldset class="lib__ed-fs lib__ed-f--wide"><legend>Notes / provenance</legend>' +
-        '<label class="lib__ed-f"><span>Source type</span><select id="ed_sourceType">' + optList(LIB_SOURCES, (j && j.sourceType) || 'AUTHORED') + '</select></label>' +
-        '<label class="lib__ed-f"><span>Source reference</span><input id="ed_sourceRef" type="text" value="' + esc((j && j.sourceReference) || '') + '" placeholder="Only if already known"></label>' +
-        '<label class="lib__ed-f"><span>Transcript reference</span><input id="ed_transcriptRef" type="text" value="' + esc((j && j.transcriptReference) || '') + '"></label>' +
-        (isEdit ? '<label class="lib__ed-f"><span>Review status</span><select id="ed_review">' + optList(LIB_REVIEW, j.reviewStatus) + '</select></label>' : '') +
-        '<label class="lib__ed-f lib__ed-cbx"><input type="checkbox" id="ed_enabled"' + ((!j || j.enabled) ? ' checked' : '') + '> <span>Active in the curated library</span></label>' +
-      '</fieldset>' +
-      '</div>' +
-      '<details class="cts__advdetail"><summary>Advanced batch fields</summary>' +
-        '<p class="tac__note">Kept for the existing runner. Do not treat phrase lists as the product expectation.</p>' +
-        '<label class="lib__ed-f"><span>Must include phrases <em>(batch only)</em></span><input id="ed_mustInclude" type="text" value="' + esc((g.mustInclude || []).join(', ')) + '"></label>' +
-        '<label class="lib__ed-f"><span>Acceptable alternatives</span><input id="ed_alts" type="text" value="' + esc((g.acceptableAlternatives || []).join(', ')) + '"></label>' +
-        '<label class="lib__ed-f"><span>Forbidden outcomes</span><input id="ed_forbidden" type="text" value="' + esc((g.forbiddenOutcomes || []).join(', ')) + '"></label>' +
-        '<label class="lib__ed-f"><span>Ideal turns</span><input id="ed_idealTurns" type="number" min="1" max="8" value="' + esc(g.idealTurns || 1) + '"></label>' +
-        '<label class="lib__ed-f"><span>Max turns</span><input id="ed_maxTurns" type="number" min="1" max="8" value="' + esc(g.maxTurns || 4) + '"></label>' +
-        '<label class="lib__ed-f"><span>Difficulty</span><select id="ed_difficulty">' + optList(['EASY', 'MEDIUM', 'HARD'], (j && j.difficulty) || 'MEDIUM') + '</select></label>' +
-        '<label class="lib__ed-f"><span>Model supplied later</span><input id="ed_lateModel" type="text" value="' + esc(g.lateModel || '') + '"></label>' +
-        '<label class="lib__ed-f"><span>Already-known facts</span><input id="ed_alreadyKnown" type="text" value="' + esc((g.alreadyKnownFacts || []).join(', ')) + '"></label>' +
-        '<label class="lib__ed-f lib__ed-cbx"><input type="checkbox" id="ed_immediate"' + (g.immediateDiagnosis !== false ? ' checked' : '') + '> <span>Immediate diagnosis may be appropriate</span></label>' +
-        '<label class="lib__ed-f lib__ed-f--wide"><span>Scripted follow-ups <em>(one per line, customer text for the batch runner)</em></span><textarea id="ed_scripted" rows="2">' + esc(((g.scriptedFollowups) || []).join('\n')) + '</textarea></label>' +
-        '<div class="lib__ed-f lib__ed-f--wide"><span class="lib__ed-lbl">Simulated answers for batch facts</span>' +
-          '<div id="ed_turns" class="lib__turns"></div>' +
-          '<button type="button" class="btn btn--ghost lib__turn-add" id="ed_addTurn">+ Add simulated answer</button>' +
-        '</div>' +
-      '</details>' +
-      (isEdit ? '<label class="lib__ed-f lib__ed-f--wide"><span>Version note</span><input id="ed_versionNote" type="text" placeholder="what changed and why"></label>' : '') +
-      '<div class="lib__ed-errors" id="edErrors" hidden role="alert"></div>' +
-      '<div class="lib__ed-actions">' +
-        '<button type="button" class="btn btn--primary" id="edSave">' + (isEdit ? 'Save' : 'Save scenario') + '</button>' +
-        (isEdit ? '<button type="button" class="btn btn--ghost" id="edWorkbench">Open in Live test</button>' : '') +
-        '<button type="button" class="btn btn--ghost" id="edCancel">Cancel</button>' +
-        (isEdit ? '<span class="lib__ed-spacer"></span><button type="button" class="btn btn--ghost" id="edDuplicate">Duplicate</button><button type="button" class="btn btn--ghost lib__ed-danger" id="edArchive">Retire</button><button type="button" class="btn btn--ghost lib__ed-danger" id="edDelete">Delete</button>' : '') +
-      '</div>' +
-      (isEdit ? libEditorSidebar(j, recentResults) : '') +
-      '<datalist id="ed_factlist">' + LIB_FACTKEYS.map(function (k) { return '<option value="' + esc(k) + '">'; }).join('') + '</datalist>';
-
-    // hash + dirty: the shared unsaved-changes guard (sidebar, Back, in-page links, tab close).
-    // updatedAt: the optimistic-concurrency token sent with Save / Retire / Delete.
-    edState = { mode: mode, id: isEdit ? j.journeyId : null, baseVersion: isEdit ? j.currentVersion : 0, baseSemantic: null, updatedAt: isEdit ? (j.updatedAt || null) : null, hash: location.hash, dirty: false };
-    if (!libEditorWired) {
-      libEditorWired = true;
-      el.addEventListener('input', edTouch);
-      el.addEventListener('change', edTouch);
-    }
-    edCustomerTurns = journey.turns.length ? journey.turns.slice() : [''];
-    var answers = (g.simulatedAnswers) || {};
-    edTurnsData = Object.keys(answers).map(function (k) { return { fact: k, response: answers[k] }; });
-    renderCustomerTurns();
-    renderTurns();
-    if (isEdit) edState.baseSemantic = canonSemantic(edCustomerTurns[0] || '', readGold(), edCustomerTurns);
-    acqEl('ed_addCustomerTurn').addEventListener('click', function () { edCustomerTurns.push(''); edTouch(); renderCustomerTurns(); recomputeBanner(); });
-    acqEl('ed_addTurn').addEventListener('click', function () { edTurnsData.push({ fact: '', response: '' }); edTouch(); renderTurns(); recomputeBanner(); });
-    acqEl('edSave').addEventListener('click', libEditorSave);
-    // Cancel = leave the editor page (the guard asks first when there are unsaved changes).
-    acqEl('edCancel').addEventListener('click', function () {
-      var p = libListParams(); var lp = Object.assign({}, p);
-      location.hash = isEdit ? libDetailHref(j.journeyId) : libListHref(lp);
-    });
-    if (isEdit) {
-      acqEl('edWorkbench').addEventListener('click', function () { knLeaveGuard().leave(function () { edState = null; libOpenInWorkbench(j.journeyId); }); });
-      acqEl('edDuplicate').addEventListener('click', function () { knLeaveGuard().leave(function () { edState = null; libEditorDuplicate(j.journeyId); }); });
-      acqEl('edArchive').addEventListener('click', function () {
-        if (!confirm('Retire ' + j.journeyId + '? It stays in history and can be shown with Include retired.' + (edState && edState.dirty ? '\n\nYour unsaved edits in this form will be discarded.' : ''))) return;
-        libApiPost('/admin/library/journey/flags', { id: j.journeyId, expectedUpdatedAt: edState && edState.updatedAt, changes: { archived: true } }).then(function (res) {
-          if (!res.ok) { libEditorServerErrors({ error: libErrText(res) }); return; }
-          edState = null;
-          libFlash = { msg: j.journeyId + ' retired. Past runs keep their results.' };
-          location.hash = libDetailHref(j.journeyId);
-        });
-      });
-      acqEl('edDelete').addEventListener('click', function () { libEditorDelete(j.journeyId, recentResults); });
-    }
-    ['ed_title', 'ed_followTarget', 'ed_followAppropriate', 'ed_lateModel', 'ed_scripted', 'ed_alreadyKnown', 'ed_outcome', 'ed_suspects', 'ed_alts', 'ed_mustInclude', 'ed_forbidden', 'ed_idealTurns', 'ed_maxTurns', 'ed_mustSafetyStop', 'ed_mustNotPart', 'ed_expectMedia', 'ed_immediate'].forEach(function (id) { var e = acqEl(id); if (e) e.addEventListener('change', recomputeBanner); if (e) e.addEventListener('input', recomputeBanner); });
-    recomputeBanner();
-    var first = acqEl('ed_title'); if (first && !isEdit) { try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); } }
-  }
-
-  function libEditorSidebar(j, recentResults) {
-    return '<div class="lib__ed-side">' +
-      '<div class="lib__ed-side-h">Version history</div>' +
-      '<ul class="lib__ed-vers">' + (j.versions || []).map(function (x) { return '<li><b>v' + x.version + '</b> — ' + esc(x.note || '') + ' <span class="lib__ed-when">' + esc(String(x.createdAt || '').slice(0, 10)) + (x.byEmail ? ' · ' + esc(x.byEmail) : '') + '</span></li>'; }).join('') + '</ul>' +
-      '<div class="lib__ed-side-h">Recent batch runs</div>' +
-      '<ul class="lib__ed-runs">' + ((recentResults || []).slice(0, 6).map(function (x) { return '<li>' + esc(x.label) + ' <span class="acqb__badge ' + String(x.status).toLowerCase() + '">' + esc(x.status) + '</span></li>'; }).join('') || '<li class="lib__ed-when">No runs yet</li>') + '</ul>' +
-      '</div>';
-  }
-
-  function renderCustomerTurns() {
-    var box = acqEl('ed_customerTurns'); if (!box) return;
-    if (!edCustomerTurns.length) edCustomerTurns = [''];
-    box.innerHTML = edCustomerTurns.map(function (t, i) {
-      return '<div class="lib__cj-row" data-i="' + i + '">' +
-        '<label><span class="lib__cj-lbl" for="ed_cj_' + i + '">Customer turn ' + (i + 1) + (i === 0 ? ' (opener)' : '') + '</span>' +
-        '<textarea id="ed_cj_' + i + '" rows="2" placeholder="' + (i === 0 ? 'my bosch washer wont drain' : 'I\'m not sure') + '">' + esc(t) + '</textarea></label>' +
-        '<div class="lib__turn-btns">' +
-          '<button type="button" class="lib__turn-b" data-act="up" data-i="' + i + '" ' + (i === 0 ? 'disabled' : '') + ' aria-label="Move turn ' + (i + 1) + ' up">&uarr;</button>' +
-          '<button type="button" class="lib__turn-b" data-act="down" data-i="' + i + '" ' + (i === edCustomerTurns.length - 1 ? 'disabled' : '') + ' aria-label="Move turn ' + (i + 1) + ' down">&darr;</button>' +
-          '<button type="button" class="lib__turn-b lib__turn-x" data-act="rm" data-i="' + i + '" ' + (edCustomerTurns.length === 1 ? 'disabled' : '') + ' aria-label="Remove turn ' + (i + 1) + '">&times;</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    Array.prototype.forEach.call(box.querySelectorAll('.lib__cj-row'), function (rowEl) {
-      var i = parseInt(rowEl.getAttribute('data-i'), 10);
-      var ta = rowEl.querySelector('textarea');
-      if (ta) ta.addEventListener('input', function (e) { edCustomerTurns[i] = e.target.value; recomputeBanner(); });
-    });
-    Array.prototype.forEach.call(box.querySelectorAll('.lib__turn-b'), function (btn) {
-      btn.addEventListener('click', function () {
-        var i = parseInt(btn.getAttribute('data-i'), 10); var act = btn.getAttribute('data-act');
-        if (act === 'rm' && edCustomerTurns.length > 1) edCustomerTurns.splice(i, 1);
-        else if (act === 'up' && i > 0) { var a = edCustomerTurns[i - 1]; edCustomerTurns[i - 1] = edCustomerTurns[i]; edCustomerTurns[i] = a; }
-        else if (act === 'down' && i < edCustomerTurns.length - 1) { var b = edCustomerTurns[i + 1]; edCustomerTurns[i + 1] = edCustomerTurns[i]; edCustomerTurns[i] = b; }
-        edTouch(); renderCustomerTurns(); recomputeBanner();
-      });
-    });
-  }
-
-  function renderTurns() {
-    var box = acqEl('ed_turns'); if (!box) return;
-    if (!edTurnsData.length) { box.innerHTML = '<div class="lib__turn-empty">No simulated batch answers.</div>'; }
-    else {
-      box.innerHTML = edTurnsData.map(function (t, i) {
-        return '<div class="lib__turn" data-i="' + i + '">' +
-          '<input class="lib__turn-fact" list="ed_factlist" placeholder="fact / question intent" value="' + esc(t.fact) + '">' +
-          '<input class="lib__turn-resp" placeholder="what the customer replies" value="' + esc(t.response) + '">' +
-          '<div class="lib__turn-btns">' +
-            '<button type="button" class="lib__turn-b" data-act="up" data-i="' + i + '" ' + (i === 0 ? 'disabled' : '') + '>&uarr;</button>' +
-            '<button type="button" class="lib__turn-b" data-act="down" data-i="' + i + '" ' + (i === edTurnsData.length - 1 ? 'disabled' : '') + '>&darr;</button>' +
-            '<button type="button" class="lib__turn-b lib__turn-x" data-act="rm" data-i="' + i + '">&times;</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
-    Array.prototype.forEach.call(box.querySelectorAll('.lib__turn'), function (rowEl) {
-      var i = parseInt(rowEl.getAttribute('data-i'), 10);
-      rowEl.querySelector('.lib__turn-fact').addEventListener('input', function (e) { edTurnsData[i].fact = e.target.value; recomputeBanner(); });
-      rowEl.querySelector('.lib__turn-resp').addEventListener('input', function (e) { edTurnsData[i].response = e.target.value; recomputeBanner(); });
-    });
-    Array.prototype.forEach.call(box.querySelectorAll('.lib__turn-b'), function (btn) {
-      btn.addEventListener('click', function () {
-        var i = parseInt(btn.getAttribute('data-i'), 10); var act = btn.getAttribute('data-act');
-        if (act === 'rm') edTurnsData.splice(i, 1);
-        else if (act === 'up' && i > 0) { var a = edTurnsData[i - 1]; edTurnsData[i - 1] = edTurnsData[i]; edTurnsData[i] = a; }
-        else if (act === 'down' && i < edTurnsData.length - 1) { var b = edTurnsData[i + 1]; edTurnsData[i + 1] = edTurnsData[i]; edTurnsData[i] = b; }
-        edTouch(); renderTurns(); recomputeBanner();
-      });
-    });
-  }
-
-  function readSimulatedAnswers() { var o = {}; edTurnsData.forEach(function (t) { if (t.fact.trim() && t.response.trim()) o[t.fact.trim()] = t.response.trim(); }); return o; }
-  function readCustomerTurns() { return (Cts ? Cts.cleanTurns(edCustomerTurns) : edCustomerTurns.map(function (t) { return String(t || '').trim(); }).filter(Boolean)); }
-
-  function readGold() {
-    return {
-      expectedOutcome: edVal('ed_outcome'),
-      goldSuspects: uniqList(csvList(edVal('ed_suspects'))),
-      acceptableAlternatives: uniqList(csvList(edVal('ed_alts'))),
-      expectedComponents: uniqList(csvList(edVal('ed_suspects'))),
-      mustInclude: uniqList(csvList(edVal('ed_mustInclude'))),
-      forbiddenOutcomes: uniqList(csvList(edVal('ed_forbidden'))),
-      followUpAppropriate: edChk('ed_followAppropriate'),
-      followUpTargetFact: edVal('ed_followTarget').trim() || null,
-      immediateDiagnosis: edChk('ed_immediate'),
-      simulatedAnswers: readSimulatedAnswers(),
-      scriptedFollowups: String(edVal('ed_scripted') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
-      lateModel: edVal('ed_lateModel').trim() || null,
-      alreadyKnownFacts: uniqList(csvList(edVal('ed_alreadyKnown'))),
-      mustSafetyStop: edChk('ed_mustSafetyStop'),
-      mustNotPart: edChk('ed_mustNotPart'),
-      expectMedia: edChk('ed_expectMedia'),
-      idealTurns: parseInt(edVal('ed_idealTurns'), 10) || 1,
-      maxTurns: parseInt(edVal('ed_maxTurns'), 10) || 4,
-    };
-  }
-  function readCategories() { return uniqList(Array.prototype.map.call(document.querySelectorAll('.ed_cat:checked'), function (c) { return c.value; })); }
-  function canonSemantic(opening, gold, turns) {
-    var keys = ['expectedOutcome', 'goldSuspects', 'acceptableAlternatives', 'expectedComponents', 'mustInclude', 'forbiddenOutcomes', 'followUpAppropriate', 'followUpTargetFact', 'immediateDiagnosis', 'simulatedAnswers', 'scriptedFollowups', 'lateModel', 'alreadyKnownFacts', 'mustSafetyStop', 'mustNotPart', 'expectMedia', 'idealTurns', 'maxTurns'];
-    var g = gold || {}; var norm = {};
-    keys.forEach(function (k) {
-      var val = g[k];
-      if (Array.isArray(val)) norm[k] = val.slice();
-      else if (val && typeof val === 'object') { var o = {}; Object.keys(val).sort().forEach(function (kk) { o[kk] = val[kk]; }); norm[k] = o; }
-      else norm[k] = (val === undefined ? null : val);
-    });
-    return JSON.stringify([String(opening || '').trim(), (turns || []).map(function (t) { return String(t || '').trim(); }), norm]);
-  }
-
-  function editorValidate(gold) {
-    var turns = edCustomerTurns.slice();
-    var input = {
-      title: edVal('ed_title'),
-      family: edVal('ed_family'),
-      turns: turns,
-      gold: gold,
-    };
-    if (Cts) return Cts.validateScenario(input).map(function (e) { return e.message; });
-    var errs = [];
-    if (!edVal('ed_title').trim()) errs.push('Name is required.');
-    if (!readCustomerTurns().length) errs.push('Add at least one customer opener.');
-    if (gold.expectedOutcome === 'DIAGNOSIS' && !gold.goldSuspects.length) errs.push('Describe the leading diagnostic behaviour or component.');
-    if (gold.followUpAppropriate && !gold.followUpTargetFact) errs.push('Say what a useful follow-up should establish.');
-    return errs;
-  }
-
-  function recomputeBanner() {
-    var b = acqEl('edBanner'); if (!b || !edState) return;
-    if (edState.mode === 'create') { b.hidden = false; b.className = 'lib__ed-banner lib__ed-banner--info'; b.innerHTML = 'Will be created as a <b>DRAFT</b> in the ' + esc(acqEl('ed_family').value) + ' library.'; return; }
-    var nowKey = canonSemantic(edCustomerTurns[0] || '', readGold(), edCustomerTurns);
-    if (nowKey !== edState.baseSemantic) {
-      b.hidden = false; b.className = 'lib__ed-banner lib__ed-banner--warn';
-      b.innerHTML = 'Saving will create <b>' + esc(edState.id) + ' v' + (edState.baseVersion + 1) + '</b>. Historical runs stay pinned to v' + edState.baseVersion + '.';
-    } else {
-      b.hidden = false; b.className = 'lib__ed-banner lib__ed-banner--info';
-      b.innerHTML = 'Metadata-only change — stays on <b>v' + edState.baseVersion + '</b>.';
-    }
-  }
-
-  function libEditorSave() {
-    var gold = readGold();
-    var errs = editorValidate(gold);
-    var ebox = acqEl('edErrors');
-    var titleEl = acqEl('ed_title');
-    if (errs.length) {
-      ebox.hidden = false;
-      ebox.innerHTML = '<b>Fix these:</b><ul>' + errs.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul>';
-      if (titleEl) titleEl.setAttribute('aria-invalid', errs.some(function (e) { return /Name is required/.test(e); }) ? 'true' : 'false');
-      ebox.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
-    if (titleEl) titleEl.removeAttribute('aria-invalid');
-    ebox.hidden = true;
-    var turns = readCustomerTurns();
-    var opening = turns[0];
-    var meta = { title: edVal('ed_title').trim(), family: edVal('ed_family'), make: edVal('ed_make').trim() || null, model: edVal('ed_model').trim() || null, difficulty: edVal('ed_difficulty'), categories: readCategories(), sourceType: edVal('ed_sourceType'), sourceReference: edVal('ed_sourceRef').trim() || null, transcriptReference: edVal('ed_transcriptRef').trim() || null, enabled: edChk('ed_enabled') };
-    acqEl('edSave').disabled = true;
-    var st = edState;
-    function saved(rec, msg) {
-      // Saved: the form is clean, so leaving is not guarded; land on the saved scenario's page.
-      st.dirty = false; edState = null;
-      libFlash = { msg: msg };
-      location.hash = libDetailHref(rec.journeyId);
-    }
-    if (st.mode === 'create') {
-      var body = Object.assign({}, meta, { opening: opening, turns: turns, gold: gold });
-      libApiPost('/admin/library/journey', body).then(function (res) {
-        acqEl('edSave').disabled = false;
-        if (res.ok) saved(res.body, 'Created ' + res.body.journeyId + ' as a DRAFT.');
-        else libEditorServerErrors({ error: libErrText(res), problems: null });
-      });
-      return;
-    }
-    var changes = { title: meta.title, make: meta.make, model: meta.model, difficulty: meta.difficulty, categories: meta.categories, sourceType: meta.sourceType, sourceReference: meta.sourceReference, transcriptReference: meta.transcriptReference, enabled: meta.enabled, reviewStatus: edVal('ed_review') };
-    var nowKey = canonSemantic(opening, gold, turns);
-    if (nowKey !== st.baseSemantic) { changes.opening = opening; changes.turns = turns; changes.gold = gold; changes.versionNote = edVal('ed_versionNote').trim() || 'edited'; }
-    libApiPost('/admin/library/journey/edit', { id: st.id, expectedUpdatedAt: st.updatedAt || undefined, changes: changes }).then(function (res) {
-      acqEl('edSave').disabled = false;
-      if (res.ok) saved(res.body, 'Saved ' + res.body.journeyId + (res.body.currentVersion !== st.baseVersion ? ' as v' + res.body.currentVersion + '. Past runs stay pinned to v' + st.baseVersion + '.' : ' (metadata only, still v' + st.baseVersion + ').'));
-      // 409: someone else saved first. Keep the form (and the dirty state) so nothing typed is lost.
-      else libEditorServerErrors({ error: libErrText(res), problems: null });
-    });
-  }
-  function libEditorServerErrors(body) { var ebox = acqEl('edErrors'); ebox.hidden = false; ebox.innerHTML = '<b>Not saved:</b> ' + esc(body.error || 'error') + ((body.problems && body.problems.length) ? '<ul>' + body.problems.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' : ''); }
-
-  function libEditorDelete(id, recentResults) {
-    var hasRuns = (recentResults || []).length > 0;
-    var msg = hasRuns
-      ? 'This scenario has run history, so it CANNOT be destroyed — it will be RETIRED instead to preserve historical evidence. Continue?'
-      : 'This scenario has no run history and will be permanently deleted. This cannot be undone. Continue?';
-    if (!confirm(msg)) return;
-    libApiPost('/admin/library/journey/delete', { id: id, expectedUpdatedAt: (edState && edState.updatedAt) || undefined }).then(function (res) {
-      if (!res.ok) { libEditorServerErrors({ error: libErrText(res) }); return; }
-      edState = null;
-      libFlash = { msg: res.body.archived ? (id + ' was retired (history preserved).') : (res.body.deleted ? (id + ' was deleted.') : 'Done.') };
-      location.hash = res.body.archived ? libDetailHref(id) : libListHref();
-    });
-  }
   checkSession();
 })();

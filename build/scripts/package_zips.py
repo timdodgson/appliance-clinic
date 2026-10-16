@@ -32,16 +32,14 @@ FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
 def diagnosis_engine_entries():
     """The engine's runtime files: the handler and its modules, the ac2 turn and its guardrail kernel, the knowledge the
-    reasoner reads and the media mappings."""
-    top = ['handler.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js', 'admin-config.js', 'inference.js', 'jev-client.js']
+    advisor reads and the media mappings."""
+    top = ['handler.js', 'health.js', 'media.js', 'media-effective.js', 'engine-auth.js', 'admin-config.js', 'inference.js']
     engine = sorted(f'engine/{os.path.basename(p)}' for p in glob.glob(os.path.join(DE, 'engine', '*.js')))
     entries = {name: os.path.join(DE, name) for name in top + engine}
     entries['knowledge/media-information.json'] = os.path.join(DE, 'knowledge', 'media-information.json')
-    # ac2: the LLM-led turn and its guardrail kernel, and the knowledge the reasoner reads.
+    # ac2: the advisor turn and its guardrail kernel, and the knowledge the advisor reads.
     for p in sorted(glob.glob(os.path.join(DE, 'ac2', '*.js'))):
         entries[f'ac2/{os.path.basename(p)}'] = p
-    for p in sorted(glob.glob(os.path.join(DE, 'ac2', 'data', '*.json'))):
-        entries[f'ac2/data/{os.path.basename(p)}'] = p
     for n in ('knowledge-docs.json', 'journey-knowledge.json', 'normal-operation.json', 'safety-information.json'):
         entries[f'knowledge/{n}'] = os.path.join(DE, 'knowledge', n)
     return entries
@@ -65,19 +63,17 @@ def index_meta(knowledge_dir):
 
 def whichpart_api_entries(generated):
     """The whichpart-api zip: its own files, plus the files it copies in from the engine or generates."""
-    # Phase 8: fit-evidence.js (never required) and benchmark/acq-simulator.js (test-only) are no longer shipped.
-    files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js', 'benchmark-auth.js',
-             'package.json', 'transcripts.js', 'ddb.js', 'ac2-state.js', 'ac2-turn.js', 'canonical-audit.js', 'state-token.js',
+    # Phase 8: fit-evidence.js (never required) is no longer shipped. 23.4: the Test area / ACQ-100 benchmark, the
+    # transcript review and the Jev client were retired (ADR 0023).
+    files = ['index.js', 'ai-config.js', 'settings-admin.js', 'config-readback.js',
+             'package.json', 'transcripts.js', 'ddb.js', 'ac2-state.js', 'ac2-turn.js', 'state-token.js',
              'live-test.js', 'media-catalogue.json', 'media-canonical-refs.json', 'knowledge-inspect.js',
-             'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js',
-             'benchmark/acq-scoring.js', 'benchmark/term-match.js', 'benchmark/acq-corpus.js',
-             'benchmark/acq-grade.js', 'benchmark/acq-judge.js', 'benchmark/acq-store.js', 'benchmark/acq-library.js',
-             'benchmark/acq-reviews.js', 'benchmark/routing-override.js', 'benchmark/acq-100.v1.json']
+             'media-inspect.js', 'media-admin.js', 'diagnostics-inspect.js', 'error-codes-admin.js']
     # Phase 7 onwards: runtime files added after the import (docs/migration/runtime-changes.json).
     files += sorted(os.path.relpath(f['path'], 'services/whichpart-api') for f in json.load(open(os.path.join(ROOT, 'docs', 'migration', 'runtime-changes.json')))['added']
                     if f['role'] == 'runtime' and 'whichpart-api' in f['units'])
     entries = {name: os.path.join(WP, name) for name in files}
-    for d in ('transcript-review', 'recalls'):  # zipped as whole directories
+    for d in ('recalls',):  # zipped as whole directories
         for path in sorted(glob.glob(os.path.join(WP, d, '**', '*'), recursive=True)):
             if os.path.isfile(path) and '__pycache__' not in path:
                 entries[os.path.relpath(path, WP)] = path

@@ -19,8 +19,7 @@ function deps(overrides) {
     getMediaOverlayCache: () => ({ applied: true, failed: false, overlayPresent: false, updatedAt: null, version: null }),
     getEffectiveMediaJoin: () => ({ byKnowledgeId: {}, byComponent: {} }),
     countJoinIdentities: () => 22,
-    loadAdminInference: async () => ({ config: null, openaiKey: 'sk-must-not-leak' }),
-    env: { LM_STUDIO_URL: 'http://localhost:1234', UNDERSTAND_PROVIDER: 'lmstudio', COMPOSE_PROVIDER: 'lmstudio' },
+    loadAdminInference: async () => ({ config: { model: 'claude-opus-5-5' }, anthropicKey: 'sk-must-not-leak' }),
   }, overrides);
 }
 
@@ -79,12 +78,10 @@ describe('no diagnosis / LLM / mutation', () => {
     expect(messagesAt).toBeGreaterThan(healthAt);
     expect(handlerSrc.indexOf('await ac2.turn(')).toBeGreaterThan(healthAt);
   });
-  it('does not infer through any provider', async () => {
+  it('does not infer through the provider', async () => {
     let inferred = false;
     const body = await health.build(deps({
-      resolveProvidersFromAdminConfig: () => ({
-        compose: { name: 'lmstudio', model: null },
-      }),
+      resolveAdvisorProvider: () => ({ name: 'anthropic', model: null, converse: async () => { inferred = true; return {}; } }),
     }));
     expect(body.models.inferenceTested).toBe(false);
     expect(inferred).toBe(false);
@@ -92,40 +89,31 @@ describe('no diagnosis / LLM / mutation', () => {
 });
 
 describe('models', () => {
-  it('reports configured local routing without secrets', async () => {
+  it('reports the configured model without the key', async () => {
     const body = await health.build(deps());
-    expect(body.models.reasoner.configured).toBe(true);
-    expect(body.models.reasoner.provider).toBe('lmstudio');
+    expect(body.models.reasoner).toEqual({ configured: true, provider: 'anthropic', model: 'claude-opus-5-5' });
     expect(Object.keys(body.models).sort()).toEqual(['inferenceTested', 'note', 'reasoner']);
     expect(body.models.inferenceTested).toBe(false);
-    expect(JSON.stringify(body)).not.toMatch(/sk-must-not-leak/);
-    expect(JSON.stringify(body)).not.toMatch(/openaiKey/);
+    expect(JSON.stringify(body)).not.toMatch(/sk-must-not-leak|anthropicKey|x-api-key/);
   });
-  it('reports frontier identifiers without the API key or Bearer header', async () => {
+  it('reads the model from a configuration document written before 23.3 (frontier.model)', async () => {
     const body = await health.build(deps({
       loadAdminInference: async () => ({
-        config: {
-          routing: { understand: 'frontier', compose: 'frontier' },
-          frontier: { model: 'gpt-4o-mini' },
-          local: {},
-        },
-        openaiKey: 'sk-must-not-leak',
+        config: { routing: { understand: 'local', compose: 'frontier' }, frontier: { provider: 'anthropic', model: 'claude-opus-5-5' }, local: {} },
+        anthropicKey: 'sk-must-not-leak',
       }),
     }));
-    expect(body.models.reasoner.provider).toBe('openai');
-    expect(body.models.reasoner.model).toBe('gpt-4o-mini');
-    const raw = JSON.stringify(body);
-    expect(raw).not.toMatch(/sk-must-not-leak/);
-    expect(raw).not.toMatch(/Bearer /);
-    expect(raw).not.toMatch(/Authorization/);
+    expect(body.models.reasoner).toMatchObject({ configured: true, provider: 'anthropic', model: 'claude-opus-5-5' });
+    expect(body.health).toBe('healthy');
+    expect(JSON.stringify(body)).not.toMatch(/sk-must-not-leak/);
   });
-  it('reports missing configuration as not configured / degraded', async () => {
-    const body = await health.build(deps({
-      loadAdminInference: async () => ({ config: null, openaiKey: null }),
-      resolveProvidersFromAdminConfig: () => { throw new Error('CONFIG'); },
-    }));
-    expect(body.models.reasoner.configured).toBe(false);
-    expect(body.health).toBe('degraded');
+  it('reports a missing model or key as not configured / degraded', async () => {
+    const noConfig = await health.build(deps({ loadAdminInference: async () => ({ config: null, anthropicKey: null }) }));
+    expect(noConfig.models.reasoner.configured).toBe(false);
+    expect(noConfig.health).toBe('degraded');
+    const noKey = await health.build(deps({ loadAdminInference: async () => ({ config: { model: 'claude-opus-5-5' }, anthropicKey: null }) }));
+    expect(noKey.models.reasoner.configured).toBe(false);
+    expect(noKey.healthReason).toMatch(/advisor's model is not configured/);
   });
 });
 

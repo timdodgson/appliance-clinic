@@ -17,7 +17,7 @@ import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const S = require('../ac2/safety.js');
 const { runTurn, ProviderUnavailableError } = require('../ac2/turn.js');
-const GOLD = JSON.parse(readFileSync(new URL('../../whichpart-api/benchmark/gold-v2/scenarios.v2_4.json', import.meta.url), 'utf8'));
+const GOLD = JSON.parse(readFileSync(new URL('./fixtures/gold-v2-scenarios.v2_4.json', import.meta.url), 'utf8'));
 const SCENARIOS = Array.isArray(GOLD) ? GOLD : GOLD.scenarios;
 
 // Hazards each scenario's customer messages contain (labelled from the scenario text, not from the detector's output).

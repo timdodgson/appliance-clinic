@@ -1,5 +1,5 @@
 /**
- * The diagnosis engine's internal contract (ADR 0019, ADR 0020): the signed requests whichpart-api sends to
+ * The diagnosis engine's internal contract (ADR 0019, ADR 0023): the signed requests whichpart-api sends to
  * `applianceclinic-diagnosis-engine`, and the JSON it returns. Every request carries the AC engine signature over its
  * exact body (ADR 0017); there is no unsigned request. A diagnose request is one ac2 turn (`mode: 'turn'`); any other
  * request that is not feedback or GET /health is refused (400 unsupported_request).
@@ -17,40 +17,32 @@ export interface ChatMessage {
   media?: Array<Record<string, unknown>>;
 }
 
-/** A labelled customer value: what Jev judged from the customer's own words, with its confidence. */
-export interface LabelledValue { value: string; confidence: number | null; turn: number }
+/** A hazard the customer's words raised; it stays active for the rest of the chat unless they later deny it. */
+export interface Hazard {
+  type: string;
+  clause: string;
+  turn: number;
+  /** The fixed warning has been shown to the customer. */
+  shown: boolean;
+  cleared?: boolean;
+  clearedTurn?: number;
+  [extra: string]: unknown;
+}
 
-/** The conversation record (ac3/1). whichpart-api stores it (ac2-state.js) and sends it back each turn. */
+/**
+ * The conversation record (ac3/1): what the engine keeps between turns. whichpart-api stores it (ac2-state.js) and
+ * sends it back each turn (`ac2/record.js`). The advisor reads the conversation itself; the record holds only what
+ * must survive a turn: the appliance identity the advisor learnt, the active hazards and the advisor's outcome.
+ */
 export interface ConversationRecord {
   schema: 'ac3/1';
   turn: number;
-  /** What the customer told us. */
-  customer: {
-    appliance: LabelledValue | null;
-    brand: LabelledValue | null;
-    model: LabelledValue | null;
-    codes: Array<{ code: string; turn: number }>;
-    symptom: LabelledValue | null;
-    symptomArea: LabelledValue | null;
-    checks: Array<{ check: string; result: string; turn: number }>;
-    /** Facts the customer stated (confirmed by Jev from their words), including what is not happening. */
-    facts: Array<{ fact: string; turn: number }>;
-    modelUnavailable: boolean;
-  };
-  /** What our tools added, kept apart from customer facts. */
-  knowledge: { knowledgeIds: string[]; fault: string | null; causes: string[]; components: string[]; codeMeanings: Array<Record<string, unknown>>; modelInfo: Array<Record<string, unknown>> };
-  asked: Array<{ question: string; turn: number; answer: string | null }>;
-  /** What each of our replies did, so the next one builds on it instead of repeating it. */
-  /** reported: the customer has reported back on a check given in an earlier reply. */
-  advice: Array<{ turn: number; action: string | null; check: string | null; question: string | null; reported: boolean }>;
-  hazards: Array<{ type: string; clause: string; turn: number; shown: boolean; [extra: string]: unknown }>;
-  /** 1 = broad help and safe checks; 2 = the owner's checks failed: narrow, model, part. */
-  stage: 1 | 2;
-  narrowed: { component: string; confidence: number | null; turn: number } | null;
-  outcome: 'fixed' | 'part' | 'engineer' | 'normal' | 'safety_stop' | null;
+  customer: { appliance: string | null; brand: string | null; model: string | null };
+  hazards: Hazard[];
+  outcome: 'diagnosing' | 'part_needed' | 'engineer' | 'normal' | 'fixed' | 'out_of_scope' | 'safety_stop' | null;
 }
 
-/** A strong recall match whichpart-api found for a model the customer named (a tool result for the reasoner). */
+/** A strong recall match whichpart-api found for a model the customer named (a note for the advisor). */
 export interface RecallHint { title: string; url: string | null; brand: string | null }
 
 /** One customer turn. */
@@ -58,8 +50,6 @@ export interface EngineTurnRequest {
   mode: 'turn';
   messages: ChatMessage[];
   ac2?: { state?: ConversationRecord | null; tools?: { recalls?: RecallHint[] } };
-  /** The customer's latest photo (data URL), if any. */
-  image?: string;
 }
 
 /** A customer's rating of an earlier reply, forwarded by whichpart-api. */
@@ -69,12 +59,13 @@ export interface EngineFeedbackRequest {
 
 export type EngineRequest = EngineTurnRequest | EngineFeedbackRequest;
 
-/** A refused or failed request. */
+/** A refused or failed request. `reasoner_unavailable` is the historical code for "the advisor could not run". */
 export interface EngineError {
   error: string;
   errorCode: 'engine_signature_required' | 'unsupported_request' | 'reasoner_unavailable' | 'engine_unavailable';
 }
 
+/** A catalogue part (engine/parts-client.js), verified for the customer's model by find_parts. */
 export interface Part {
   title: string;
   partNo: string;
@@ -87,35 +78,39 @@ export interface Part {
 
 export interface SafetyStop { class: string; stopUse: true; message: string }
 
-/** The customer-facing result of a turn. A safety stop or an out-of-scope reply carries only some of the fields. */
+export interface Escalation { to: string; reason: string; forced?: boolean }
+
+/** The customer-facing result of a turn (`ac2/turn.js`). A safety stop carries only the message, safety and escalation. */
 export interface TurnResponse {
   outcome: 'ANSWER' | 'SAFETY_STOP';
   message: string;
-  diagnosis?: { summary: string; likelyArea: string | null; confidenceBand: 'likely' | 'possible' } | null;
-  suggestedChecks?: string[];
-  /** Present only when the part gate verified the part for the customer's confirmed model. */
+  /** Present only when the catalogue lists the part for the customer's model (find_parts). */
   parts?: Part[] | null;
   resolvedModel?: string | null;
-  modelRequired?: boolean;
   safety?: SafetyStop | null;
   safetyInformation?: { text: string; classification?: string | null } | null;
   media?: Array<Record<string, unknown>> | null;
-  codeResult?: { displayed: string; meaning: string | null; recordType: string | null; status: 'RESOLVED' } | null;
-  escalation?: { to: string; reason: string; forced?: boolean } | null;
-  candidates?: Array<Record<string, unknown>>;
-  confidence?: string;
-  status?: string;
+  escalation?: Escalation | null;
 }
 
-/** The bounded audit of the turn (ac2/turn.js): timings, safety, part decision, the plan and this turn's tags. */
+/** A fixed safety check that changed or held the reply. */
+export interface SafetyGate { gate: string; [detail: string]: unknown }
+
+/**
+ * The bounded audit of the turn (`ac2/turn.js`): timings, token usage, the tools the advisor called, the safety gates
+ * that fired, the part decision, escalation and this turn's tags. No customer text, no model reasoning.
+ */
 export interface TurnAudit {
-  schema: 'ac3-audit/1';
+  schema: 'ac4-audit/1';
   turn: number;
   timings: Record<string, number>;
-  safety: { hazards: string[]; gates: Array<Record<string, unknown>>; terminated?: string };
   provider: { name: string | null; model: string | null } | null;
-  tags?: Record<string, unknown>;
-  plan?: string[];
+  safety: { hazards: string[]; gates: SafetyGate[]; terminated?: string };
+  usage?: Record<string, number> | null;
+  toolCalls?: string[];
+  partGate?: { outcome: 'verified' | 'no_catalogue_part' | 'none'; component: string | null; reason: string | null };
+  escalation?: Escalation | null;
+  tags?: { outcome: string | null; media: string | null; enrichment: { knowledgeIds: string[]; codes: Array<Record<string, unknown>>; recalls: number; parts: number } };
   [extra: string]: unknown;
 }
 

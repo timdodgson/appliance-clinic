@@ -2,7 +2,7 @@
 
 [![Build and test](https://github.com/timdodgson/appliance-clinic/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/timdodgson/appliance-clinic/actions/workflows/build-and-test.yml)
 
-**Appliance Clinic is an AI diagnostic service for UK household appliances, currently a proof of concept with no real customers. Each model has one small job: Qwen understands and writes, Jev labels. Code owns the record, safety, the plan for each reply and part recommendations.**
+**Appliance Clinic is an AI diagnostic service for UK household appliances, currently a proof of concept with no real customers. One capable model, Claude, is the advisor: it reads the conversation and our notes, looks up error codes and parts itself, and writes the reply. Code owns the safety rules around it.**
 
 An owner describes a fault in their own words ("dyson v6 pulsing", "my washing machine is full of water"). The goal of every chat is the right outcome, safely and in as few messages as possible:
 - a fix they can do themselves;
@@ -10,7 +10,7 @@ An owner describes a fault in their own words ("dyson v6 pulsing", "my washing m
 - a clear reason to call an engineer; or
 - reassurance that it is normal.
 
-It covers washing machines, washer-dryers, tumble dryers, dishwashers, fridges and freezers, ovens and cookers, hobs, microwaves and vacuum cleaners, on AWS Lambda behind a CloudFront site. This repository holds the runtime, the web front end, the infrastructure as code (AWS CDK), the evaluation suites, and the record of how the service was separated from the monorepo and AWS account it was born in.
+It covers washing machines, washer-dryers, tumble dryers, dishwashers, fridges and freezers, ovens and cookers, hobs, microwaves and vacuum cleaners, on AWS Lambda behind a CloudFront site. This repository holds the runtime, the web front end, the infrastructure as code (AWS CDK), the evaluation sets, and the record of how the service was separated from the monorepo and AWS account it was born in.
 
 ## The story in short
 
@@ -19,55 +19,46 @@ It covers washing machines, washer-dryers, tumble dryers, dishwashers, fridges a
 | 1. Journeys | 63 deterministic journeys (fixed check order, closed vocabulary). The internal suite (GOLD) passed 56/56 |
 | 2. Independent test | A blind 100-case benchmark: **a general-purpose assistant won 94–6** ([report](docs/evaluation/independent-100-case-benchmark.md)) |
 | 3. First rebuild | One LLM call doing the whole turn inside a heavy guardrail kernel: beat the journeys 83–17, still lost 17–83 to the general assistant ([results](docs/evaluation/llm-led-rebuild.md), [ADR 0020](docs/adr/0020-llm-led-diagnosis-with-deterministic-guardrails.md)) |
-| 4. Agreed design | Small jobs per model, a record with a fixed shape, code deciding each reply ([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md)). Live since 2026-10-13; the journey controller is deleted |
+| 4. Pipeline | Small jobs per model (Qwen understands and writes, Jev labels), a fixed record, code deciding each reply ([ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md)). Live 2026-10-13 |
+| 5. Advisor | A code audit showed the pipeline's own steps were blocking parts and damaging replies ([audit](docs/evaluation/code-audit-2026-10-16/REPORT.md)). Replaced by one advisor model with tools inside the guardrail kernel ([ADR 0023](docs/adr/0023-one-advisor-model-with-tools-inside-the-guardrail-kernel.md)). Live since 2026-10-16: 22/22 scripted chats against 2/22 for the pipeline on the same messages |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  B["Browser"] -->|"POST /api<br/>signed session token"| W["whichpart-api (BFF)<br/>record store · transcripts<br/>recall lookup"]
-  W <--> D[("DynamoDB<br/>ac3/1 record · transcripts + tags")]
-  W -->|"IAM (SigV4) + HMAC<br/>mode: turn"| U
+  B["Browser"] -->|"POST /api<br/>signed session token"| W["whichpart-api (BFF)<br/>rate limits · bot check<br/>record store · transcripts · recalls"]
+  W <--> D[("DynamoDB<br/>ac3/1 record · transcripts + audits")]
+  W -->|"IAM (SigV4) + HMAC<br/>mode: turn"| G
   subgraph ENG["Diagnosis engine: one turn"]
     direction TB
-    U["2 Understand<br/>(Qwen)"] --> L["3 Label<br/>(Jev, with confidence)"]
-    L --> E["4 Enrich<br/>RAG · error codes · recalls<br/>model info · parts (stage 2)"]
-    E --> S["6 Safety<br/>Jev hazard + word-list backstop"]
-    S --> P["7 Decide<br/>stage 1 / stage 2 plan<br/>never re-ask what is known"]
-    P --> R["8 Reply<br/>(Qwen, normal chat)"]
-    R --> F["9 Final check<br/>unsafe advice · unverified ids<br/>catalogue-confirmed parts"]
-    F --> M["10 Media + tags<br/>(Jev)"]
+    G["1 Emergency stop<br/>gas · fire (code)"] --> H["2 Hazards<br/>word lists (code)"]
+    H --> N["3 Notes<br/>fault notes · pictures<br/>recalls · active hazards"]
+    N --> A["4 Advise<br/>(Claude, with tools)"]
+    A --> F["5 Fixed checks<br/>banned advice · reassurance<br/>unverified ids · isolation line<br/>parts held under a hazard"]
   end
-  E -.->|"MCP"| X[("Error-code service")]
-  E -.->|"parts for a model"| C[("S4R Parts Catalogue<br/>(external)")]
-  U -.-> Q[("Qwen 3.6<br/>LM Studio")]
-  R -.-> Q
-  L -.-> J[("Jev")]
-  M -.-> J
+  A -.->|"lookup_error_code"| X[("Error-code service")]
+  A -.->|"find_parts"| C[("S4R Parts Catalogue<br/>(external)")]
+  A -.-> M[("Claude<br/>Anthropic API")]
   classDef det fill:#e8f3e8,stroke:#4a7;
   classDef model fill:#fdeee0,stroke:#c73;
   classDef state fill:#e6eefb,stroke:#47a;
   classDef ext fill:#f3f3f3,stroke:#888,stroke-dasharray: 4 3;
-  class W,E,S,P,F det
-  class U,L,R,M,Q,J model
+  class W,G,H,N,F det
+  class A,M model
   class D state
   class X,C ext
 ```
 
-Green boxes are deterministic code, orange are models, blue is persistent state, dashed grey is a service called out of the turn.
+Green boxes are deterministic code, orange are the model, blue is persistent state, dashed grey is a service called out of the turn.
 
 **One customer message** (`services/diagnosis-engine/ac2/turn.js`):
-1. **Receive.** The BFF checks the session token, loads the chat's record (`ac3/1`) and looks up product recalls, then sends a signed turn to the engine.
-2. **Understand (Qwen).** A small call reads the latest message: appliance, brand, model, codes, symptom, question, answer, checks done. These are hints only.
-3. **Label (Jev).** One call labels the message from the customer's own words, with a confidence per label: scope, appliance, make, model, code, symptom area, hazard, unsafe request, answer to the last question, check outcome, model label reachable, and, once checks are done, the narrowed component. Below threshold means "not stated".
-4. **Enrich.** RAG (171 fault notes, the old journeys as knowledge, normal-behaviour notes), error-code meanings from the error-code service, recalls, model info, and in stage 2 the parts catalogue. Enrichment is kept apart from customer facts.
-5. **Record.** The BFF saves the record. This turn's labels, stage, reply action and media are the transcript tags, so real chats show where to improve.
-6. **Safety.** Jev's hazard label plus a word-list backstop. Gas or an active fire returns the fixed emergency wording before any model is called. Any other hazard shows the fixed wording once, and from then on only checks that are safe with the appliance off.
-7. **Decide.** Code makes the plan. Stage 1 gives a broad answer and safe checks, with media, and asks no model number. Stage 2 starts when the owner's checks fail: get the model if it is missing and reachable, then the part. Never ask for anything already in the record.
-8. **Reply (Qwen).** The conversation goes in as a normal chat, with a briefing: what we know, knowledge, plan.
-9. **Final check.** Prohibited advice and unverified part numbers or prices are removed. A part card appears only when the catalogue confirms it for the customer's model.
-10. **Media and tags (Jev).** Jev picks the picture or video for the reply's check and tags what the reply did.
-11. **Send.** If Qwen or Jev cannot run, the turn is an explicit "temporarily unavailable". There is no fallback answer.
+1. **Receive.** The BFF checks rate limits and the bot check, verifies the session token, loads the chat's record (`ac3/1`: the appliance identity learnt so far, active hazards, the advisor's outcome) and looks up product recalls, then sends a signed turn to the engine.
+2. **Emergency stop.** Gas or an active fire in the customer's words returns the fixed emergency wording before any model is called.
+3. **Hazards.** Word lists find other hazards (burning, water on electrics, shock, supply trips, microwave arcing, damaged batteries), respecting negation and questions. A hazard's fixed warning is shown once; the advisor is told it is active.
+4. **Notes.** Fault notes found by keyword, the pictures that go with them, recalls and the active hazards are appended to the latest message as notes the customer did not write.
+5. **Advise.** Claude reads the whole conversation and the notes, calls `lookup_error_code` and `find_parts` when it needs to, and calls `send_reply` with the reply, what it learnt about the appliance, the part ids to show (from the catalogue only), the picture to show (from the notes only) and its outcome. The prompt asks for the most likely cause and one next step in under 120 words.
+6. **Fixed checks.** Banned advice is removed; after a hazard that needs an engineer, reassurance is removed; part numbers and prices that did not come from the catalogue are removed; a step that opens something gets the isolation line; a part is held while a blocking hazard is active.
+7. **Send.** The record keeps what the advisor learnt. If the advisor cannot run, the turn is an explicit "temporarily unavailable". There is no fallback answer.
 
 The full picture is in [docs/architecture/overview.md](docs/architecture/overview.md).
 
@@ -76,8 +67,8 @@ The full picture is in [docs/architecture/overview.md](docs/architecture/overvie
 | Service | Code | Runs as | Job |
 |---|---|---|---|
 | **Web front end** | `apps/web` | Static files in S3 `whichpart-web-<account>`, behind CloudFront at applianceclinic.ai | Chat, admin console, help pages, recall search ([apps/web/README.md](apps/web/README.md)) |
-| **whichpart-api** (BFF) | `services/whichpart-api` | Lambda zip `whichpart-api`, behind CloudFront `/api*` | Turns, sessions and record storage, transcripts with per-turn tags, recalls, admin, scheduled jobs |
-| **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | The turn pipeline above |
+| **whichpart-api** (BFF) | `services/whichpart-api` | Lambda zip `whichpart-api`, behind CloudFront `/api*` | Turns, sessions and record storage, transcripts with per-turn audits, recalls, admin |
+| **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | The turn above |
 | **Error-code service** | `error-codes/mcp` (Python) | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings (MCP over HTTP) and the admin catalogue editor |
 
 The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the request path. Its function still exists in the stack and receives no traffic.
@@ -86,48 +77,47 @@ The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the
 
 | Service | Used for | Called from |
 |---|---|---|
-| **Qwen 3.6** (35B-A3B) on LM Studio, over a private tunnel | Understanding (step 2) and the reply (step 8) | Diagnosis engine |
-| **Jev** (`typesafe/jev`, through Cloudflare AI Gateway) | Labels (step 3), media and reply tags (step 10), scheduled transcript review | Diagnosis engine, whichpart-api |
-| **S4R Parts Catalogue API** | Compatible parts for a model (`PARTS_FOR_MODEL_API`) | Diagnosis engine |
+| **Claude** (Anthropic Messages API; the model id is set in Admin → Settings) | The advisor (step 5) | Diagnosis engine |
+| **S4R Parts Catalogue API** | Compatible parts for a model (`PARTS_FOR_MODEL_API`) | Diagnosis engine (`find_parts`) |
 | **S4R Shop** | Product links (`S4R_PRODUCT_BASE_URL`) | whichpart-api |
+| **Cloudflare Turnstile** | Bot check on a new conversation | Browser, whichpart-api |
 
 The Spares4Repairs (S4R) parts catalogue and shop are third-party services to Appliance Clinic. The only relationship is outbound: AC calls them as a client.
 
-**Naming.** Some production names predate the separation (`whichpart-api`, the `ac2/` folder). They were kept on purpose: renaming a Lambda function or a table means replacing it.
+**Naming.** Some production names predate the separation (`whichpart-api`, the `ac2/` folder, the credential secret `applianceclinic/production/openai`). They were kept on purpose: renaming a Lambda function, a table or a secret means replacing it.
 
-## Where the models are, and are not
+## Where the model is, and is not
 
 | Step | Model | Code |
 |---|---|---|
-| Understand | Qwen reads the message (hints) | none |
-| Label | Jev picks fixed labels with confidence, and confirms each check and fact Qwen read | thresholds; below threshold = not stated |
-| Enrich | none | RAG, error-code service, recalls, model info, parts catalogue |
-| Safety | Jev's hazard label | word-list backstop, fixed wording, gas/fire stop, banned-advice filter |
-| Decide | Jev for fuzzy questions (narrowed?) | stage, what to ask, what never to ask, when a part may be shown |
-| Reply | Qwen writes | final check (unsafe advice, unproved certainty, unverified identifiers) |
-| Media | Jev picks the matching item | candidate media from the knowledge nodes |
+| Emergency stop, hazards | none | word lists, fixed wording, gas/fire stop before any model call |
+| Notes | none | keyword retrieval over the fault notes, media mapping, recall matching |
+| Advise | Claude reads, looks up and writes | the tools it may call and what they return (catalogue, error-code service) |
+| Fixed checks | none | banned-advice filter, reassurance filter after a hazard, unverified identifiers, isolation line, part held under a hazard |
+| Parts | Claude asks `find_parts` | only parts the catalogue returned for the model can be shown |
 
-Every prompt is registered and versioned, with a CI guard ([prompts/README.md](prompts/README.md)).
+The advisor's prompt is registered and versioned, with a CI guard ([prompts/README.md](prompts/README.md)).
 
 ## Safety model
 
-- **Hazards are found twice.** Jev labels hazards from the customer's words, and a word list catches what a model might miss (respecting negation such as "no burning smell", and ignoring a hazard word inside a question or something to look for, such as "look for scorch marks").
-- **Only gas and an active fire end the chat.** Both get the fixed emergency wording at once, before any model is called. Other hazards (burning, water on electrics, shock, supply trips, microwave arcing, damaged batteries, recalls) get fixed stop-use wording once. The chat then continues with checks that are safe with the appliance off.
+- **Gas and an active fire end the chat** with the fixed emergency wording, before any model is called.
+- **Other hazards** (burning, water on electrics, shock, supply trips, microwave arcing, damaged batteries, recalls) get fixed stop-use wording once. The chat continues with checks that are safe with the appliance off; the advisor is told the hazard is active and keeps within it.
 - **Banned advice is removed from every reply**: live testing, opening a microwave casing, discharging capacitors, gas or refrigerant work, bypassing safety devices, running an appliance that smelt of burning.
 - **Precautions travel with checks.** A reply that sends the customer to open, remove or clean something gets the isolation step if it lacks one.
-- **No part without evidence.** A part card only in stage 2, when the fault is narrowed, the model is known, there is no blocking hazard, and the catalogue lists a matching part for that model.
+- **No part without the catalogue.** A part card shows only a part `find_parts` returned for the customer's model, and never while a blocking hazard is active.
+- **Instructions inside a customer message are ignored** by prompt. There is no test set for prompt injection yet (see the risks below).
 
 ## Evaluation and evidence
 
 | Layer | What it shows |
 |---|---|
-| Runtime tests (`npm run test:runtime`) | Unit and contract suites, including the turn pipeline (`ac3-turn.test.mjs`) and the GOLD guardrail regression (an adversarial Qwen with a blind Jev is contained) |
+| Runtime tests (`npm run test:runtime`) | Unit and contract suites, including the turn (`ac4-turn.test.mjs`), the fixed safety checks and the GOLD guardrail regression (the kernel contains an adversarial advisor) |
 | Typecheck, lint, build equivalence | Strict declarations for the engine contract and the `ac3/1` record; rebuilt Lambda zips equal the deployed references |
-| Independent 100-case benchmark | Blind, judged comparisons with a strong general assistant ([journeys](docs/evaluation/independent-100-case-benchmark.md), [first rebuild](docs/evaluation/llm-led-rebuild.md)) |
-| Live smoke chats | Multi-turn chats on the live site after each release (the 2026-10-13 results are in [ADR 0021](docs/adr/0021-understand-label-enrich-decide-reply.md)) |
-| Transcript tags | Each turn's labels, stage, reply action, media and enrichment are stored, so real conversations show where to improve |
+| Scripted chats (`evaluation/scripted/`) | 22 fixed customer messages against the live services, with hand-written pass/fail expectations per reply. Change 23.2: 22/22; the previous pipeline: 2/22 on the same messages ([side by side](evaluation/scripted/SIDE-BY-SIDE.md)) |
+| Earlier benchmarks | The independent 100-case benchmark and the held-out set, blind-judged against a general assistant ([journeys](docs/evaluation/independent-100-case-benchmark.md), [first rebuild](docs/evaluation/llm-led-rebuild.md), [pipeline](docs/evaluation/ac3-pipeline-results.md)). The judge scored overall impressions and missed the faults the code audit found; the harness and its outputs were removed in change 23.4, the frozen case sets and result files stay |
+| Transcript audits | Each turn's timings, tools called, safety gates, part decision and outcome are stored, so real conversations show where to improve |
 
-**GOLD is not a quality score.** A 56/56 GOLD system lost 94–6 to a general assistant. GOLD's scenarios survive only as deterministic regression inputs. Quality is judged on independent cases and, from now on, on real tagged transcripts.
+**GOLD is not a quality score.** A 56/56 GOLD system lost 94–6 to a general assistant. GOLD's scenarios survive only as deterministic regression inputs.
 
 ## Infrastructure and migration
 
@@ -149,8 +139,9 @@ Appliance Clinic began inside the Spares4Repairs monorepo and shared its AWS acc
 | 10–11 | A production truth audit, then one conversation state, signed internal fields and evaluation from real transcripts |
 | 12–13 | Single owners for the remaining decisions; no hidden fallback path and no accepted test failures |
 | 15 | A dedicated canonical diagnosis engine, IAM-authenticated and signed; the legacy diagnosis code deleted |
-| 16–21 | Independent benchmark (lost 94–6), first LLM-led rebuild, then the agreed pipeline (ADR 0021) live and the journey controller deleted |
+| 16–21 | Independent benchmark (lost 94–6), first LLM-led rebuild, then the pipeline (ADR 0021) live and the journey controller deleted |
 | 22 | The error-code service as a Zip Lambda with the repaired dataset (ADR 0022); the retired image function released from the stack and deleted |
+| 23 | The code audit, then one advisor model with tools (ADR 0023); the pipeline, Jev, the provider routing, the transcript review and the admin Test area removed |
 
 The story, with its decisions and trade-offs, is in [docs/portfolio/project-story.md](docs/portfolio/project-story.md). The phase-by-phase evidence is in [docs/migration/](docs/migration/PLAN.md) and [docs/evaluation/](docs/evaluation/README.md).
 
@@ -159,10 +150,10 @@ The story, with its decisions and trade-offs, is in [docs/portfolio/project-stor
 Most of these need the account owner's decision. What each looks like and how to respond is in the [operational risks runbook](infra/production/README.md#operational-risks); the evidence is in [the project story](docs/portfolio/project-story.md#still-open).
 - **Lambda concurrency quota is 10** for the whole AWS account, shared with another site. A real throttle happened on 2026-10-12 during GOLD. Fix: an account-level quota increase.
 - **The engine alarms notify nobody.** `applianceclinic-diagnosis-engine-{FailedTurns,RefusedRequests,Errors,Throttles}` have no notification target. Fix: an AC-owned SNS topic and subscription.
-- **Every turn needs Jev, and nothing alerts on Jev credit or quota.** Running out of Jev credit caused a real outage on 2026-10-11 ([finding](docs/evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)).
-- **Evaluation and production share one Jev account and credit.** GOLD and its judge can use up production's credit. Fix: a separate key or budget for evaluation.
-- **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role`, AC secrets and AC's Jev credit, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
-- **The LLM provider is a single point of failure.** Production reasoning runs on Qwen 3.6 served by LM Studio over a private tunnel; when the tunnel dropped on 2026-10-12 (about 20:25–21:19 UTC) turns failed explicitly, by design. Evaluation runs share the same provider, which serves one request at a time.
+- **One model provider.** Every turn needs the Anthropic API; a credential, quota or outage problem fails every turn explicitly, by design. Nothing alerts on the provider's error rate or on spend.
+- **No prompt-injection test set.** Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has no such cases yet.
+- **Customer photos are not yet proven live** end to end.
+- **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role` and AC secrets, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 
 ## Working on it
 
@@ -182,7 +173,7 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 ```
 
 - **No credentials needed.** None of these commands needs AWS or model credentials.
-- **Credentialed tooling.** The scripts under `infra/production/` act on the live service. They are owner tools and must not be run casually ([CONTRIBUTING.md](CONTRIBUTING.md)).
+- **Credentialed tooling.** The scripts under `infra/production/` and `evaluation/scripted/run.cjs` act on the live service. They are owner tools and must not be run casually ([CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## Documentation
 
@@ -193,7 +184,7 @@ npm run build:zips        # build both Lambda zips and compare them with build/r
 | History of the journey architecture (superseded) | [as-built](docs/architecture/as-built.md), [target](docs/architecture/target.md), [state ownership](docs/architecture/phase-11-state-ownership.md) |
 | Configuration, error contracts | [configuration.md](docs/architecture/configuration.md), [error-handling.md](docs/architecture/error-handling.md) |
 | Decisions | [docs/adr/](docs/adr/README.md) |
-| Prompts and their versioning | [prompts/README.md](prompts/README.md) |
+| The advisor prompt and its versioning | [prompts/README.md](prompts/README.md) |
 | Evaluation | [docs/evaluation/](docs/evaluation/README.md) |
 | Migration plan, results, runbooks | [docs/migration/PLAN.md](docs/migration/PLAN.md), [runbooks](docs/migration/runbooks/README.md) |
 | Project story | [docs/portfolio/project-story.md](docs/portfolio/project-story.md) |

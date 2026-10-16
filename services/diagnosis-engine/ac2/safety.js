@@ -97,7 +97,6 @@ const PROHIBITED_ADVICE = [
   { id: 'bypass', when: '*', re: /\b(bypass|by-pass|bridge|jump(?:er)? out|link out|override)\b[^.]{0,40}\b(thermal fuse|cut-?out|door lock|interlock|thermostat|safety (?:switch|device))\b/ },
   { id: 'refrigerant', when: '*', re: /\b(re-?gas|top up (?:the )?refrigerant|recharge (?:the )?(?:gas|refrigerant)|cut (?:the )?(?:pipe|capillary))\b/ },
   { id: 'gas-dismantle', when: '*', re: /\b(replace|remove|adjust|unscrew|disconnect)\b[^.]{0,30}\b(thermocouple|gas valve|regulator|gas pipe|gas fitting|injector)\b/ },
-  { id: 'tv-open', when: '*', re: /\b(open|remove)\b[^.]{0,20}\b(back (?:panel|cover) of (?:the|your) tv|tv'?s back)\b|\bbacklight strips?\b[^.]{0,40}\b(replace|swap|solder|install)\b/ },
   { id: 'run-after-burning', when: ['burning', 'fire', 'microwave_arcing', 'supply_trip', 'electric_shock', 'electrical_water', 'battery'], re: /\b(run|try|test|switch|turn|power|plug)\b[^.]{0,30}\b(it )?(again|back on|on again|a (?:short |quick |test )?(?:cycle|programme|program|run)|an empty|empty cycle|test run|in again)\b/ },
   { id: 'touch-plug-near-water', when: ['electrical_water'], re: /\b(unplug\w*|pull (?:out )?the plug|(?:switch|turn)(?: \w+){0,3} off(?: \w+){0,3} at the (?:wall|socket|plug)|off at the wall socket|touch the (?:plug|socket))\b/ },
   { id: 'dismantle-casing', when: '*', re: /\b(remove|take off|lift off|unscrew|open up)\b(?: \w+){0,3} (?:glass top|hob top|ceramic top|glass hob|outer casing|outer case|top casing|main casing|casing|motor housing|motor cover|back panel of the (?:hob|microwave|vacuum))\b/ },

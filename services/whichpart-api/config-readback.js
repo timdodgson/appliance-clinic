@@ -15,8 +15,7 @@
  *   last read still showed the prior revision    -> not_visible  (the write was accepted but never observed)
  *   every read failed                            -> read_failed
  *
- * Used by benchmark/routing-override.js (batch override apply/restore/resolve) and settings-admin.js
- * (Settings Apply for diagnostic inference and Jev). Pure: the reader, revision function and sleep
+ * Used by settings-admin.js (Settings Apply for the advisor model). Pure: the reader, revision function and sleep
  * are injected.
  */
 

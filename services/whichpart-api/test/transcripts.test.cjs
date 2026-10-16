@@ -25,7 +25,7 @@ function view(extra) {
     reply: 'Likely a blocked pump filter. Clean it with the machine off.',
     safety: false,
     error: false,
-    diagnosis: { label: 'Not draining', summary: 'Likely a blocked pump filter.' },
+    diagnosis: { summary: 'Likely a blocked pump filter.' },
     parts: [{ name: 'Pump filter', fitStatus: 'VERIFY_FIT' }],
     media: [{ id: 'wm-pump-filter', type: 'DIAGRAM', title: 'Where the pump filter is' }],
   }, extra || {});
@@ -33,11 +33,17 @@ function view(extra) {
 function orch(extra) {
   return Object.assign({
     outcome: 'ANSWER',
-    route: 'SYMPTOMS',
+    route: 'AC2',
     traceId: 'tr-1',
     resolvedModel: null,
     safety: { class: 'NORMAL', stopUse: false },
-    _telemetry: { submitted: { displayedCode: null, make: 'bosch', applianceFamily: 'washing machine' } },
+  }, extra || {});
+}
+/** The engine's bounded audit for the turn (ac2-transcript-audit/2): the customer's appliance lives here. */
+function ac2(extra) {
+  return Object.assign({
+    schemaVersion: 'ac2-transcript-audit/2', path: 'ac2', turn: 1, provider: { name: 'anthropic', model: 'm' },
+    customer: { appliance: 'washing machine', brand: 'bosch', model: null }, hazards: [], outcome: 'diagnosing',
   }, extra || {});
 }
 
@@ -59,7 +65,7 @@ console.log('TURN ORDER + SESSION CONTINUATION');
   const obs = { sessionId: SID, clientTurnId: TID, event: 'turn' };
   tx.persistTurn(store, obs, {
     now, messages: [{ role: 'user', content: 'Bosch washer will not drain' }],
-    view: view(), orch: orch(), requestId: 'rid-1',
+    view: view(), orch: orch(), requestId: 'rid-1', ac2: ac2(),
   }).then(async () => {
     const obs2 = { sessionId: SID, clientTurnId: 't-turn-2', event: 'turn' };
     await tx.persistTurn(store, obs2, {
@@ -132,7 +138,7 @@ console.log('TURN ORDER + SESSION CONTINUATION');
         { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,/9j/secretphoto' } },
       ] }],
       view: view(), orch: orch({ message: 'hidden chain-of-thought should not be stored as a field' }),
-      requestId: 'rid-1', clientTurnId: TID, now,
+      requestId: 'rid-1', clientTurnId: TID, now, ac2: ac2(),
     });
     const blob = JSON.stringify(built);
     check('photo bytes are not stored', !blob.includes('secretphoto') && !blob.includes('data:image'));
@@ -144,7 +150,8 @@ console.log('TURN ORDER + SESSION CONTINUATION');
     check('metadata block is labelled', drill.diagnosticMetadata.label === 'INTERNAL DIAGNOSTIC METADATA');
     check('customer-visible has the reply, not route', drill.customerVisible.turns[0].applianceClinic.reply.indexOf('blocked pump filter') !== -1
       && !Object.prototype.hasOwnProperty.call(drill.customerVisible.turns[0], 'route'));
-    check('route lives in metadata', drill.diagnosticMetadata.route === 'SYMPTOMS', JSON.stringify(drill.diagnosticMetadata));
+    check('route lives in the runtime block, not the customer view', drill.customerVisible.turns[0].runtime.route === 'AC2', JSON.stringify(drill.customerVisible.turns[0].runtime));
+    check('family/make in metadata come from the engine audit', drill.diagnosticMetadata.family === 'washing machine' && drill.diagnosticMetadata.make === 'bosch', JSON.stringify(drill.diagnosticMetadata));
 
     console.log('PAGINATION + FILTERS');
     const pageStore = tx.createMemoryStore();
@@ -155,14 +162,12 @@ console.log('TURN ORDER + SESSION CONTINUATION');
         messages: [{ role: 'user', content: i % 2 ? 'Bosch dishwasher leaking' : 'Hotpoint dryer noisy' }],
         view: view({ reply: 'Advice ' + i, error: i === 3, safety: i === 5, parts: i === 7 ? [{ name: 'Belt' }] : [] }),
         orch: orch({
-          route: i % 2 ? 'SYMPTOMS' : 'ERROR_CODE',
           outcome: i === 5 ? 'SAFETY_STOP' : 'ANSWER',
           safety: i === 5 ? { class: 'STOP_USE', stopUse: true } : { class: 'NORMAL', stopUse: false },
-          _telemetry: { submitted: {
-            displayedCode: i === 9 ? 'F06' : null,
-            make: i % 2 ? 'bosch' : 'hotpoint',
-            applianceFamily: i % 2 ? 'dishwasher' : 'tumble-dryer',
-          } },
+        }),
+        ac2: ac2({
+          customer: { appliance: i % 2 ? 'dishwasher' : 'tumble-dryer', brand: i % 2 ? 'bosch' : 'hotpoint', model: null },
+          tags: { outcome: 'diagnosing', enrichment: { codes: i === 9 ? [{ code: 'F06' }] : [] } },
         }),
         requestId: 'r' + i,
       });
@@ -182,6 +187,8 @@ console.log('TURN ORDER + SESSION CONTINUATION');
     check('safety filter', safes.items.length >= 1 && safes.items.every((r) => r.safetyStop));
     const search = await pageStore.list({ limit: 50, q: 'dishwasher leaking' }, now);
     check('text search over customer text in the queried window', search.items.length >= 1);
+    const coded = await pageStore.get('s-page-09abcd');
+    check('error code from the engine audit', coded.errorCode === 'F06', coded.errorCode);
 
     console.log('RETENTION / TTL');
     const recTtl = tx.emptyRecord('s-ttl-session', now);
@@ -200,68 +207,36 @@ console.log('TURN ORDER + SESSION CONTINUATION');
     }), function () {});
     check('persist failure is swallowed', isolated.ok === false);
 
-    console.log('OPENING PREVIEW + STORED-REVIEW VIEWS');
-    const reviewedStore = tx.createMemoryStore();
-    await tx.persistTurn(reviewedStore, { sessionId: 's-open-preview01', clientTurnId: 't1', event: 'turn' }, {
+    console.log('OPENING PREVIEW + VIEW COUNTS');
+    const previewStore = tx.createMemoryStore();
+    await tx.persistTurn(previewStore, { sessionId: 's-open-preview01', clientTurnId: 't1', event: 'turn' }, {
       now, messages: [{ role: 'user', content: 'My washing machine isn\'t draining and it smells musty' }],
-      view: view(), orch: orch(), requestId: 'rid-op',
+      view: view(), orch: orch(), requestId: 'rid-op', ac2: ac2({ partGate: { outcome: 'verified', component: 'drain pump' }, outcome: 'part_needed' }),
     });
-    const previewRec = await reviewedStore.get('s-open-preview01');
-    previewRec.status = 'ended';
-    previewRec.review = {
-      status: 'reviewed',
-      version: 's9-v1',
-      assessment: {
-        overallAssessment: 'poor',
-        outcome: 'no_useful_outcome',
-        reviewPriority: 'worth_reviewing',
-        looping: 'significant',
-        safetyHandling: 'appropriate',
-        suggestedProductAreas: ['conversation_flow'],
-      },
-    };
-    await reviewedStore.put(previewRec);
     const decoy = tx.emptyRecord('s-decoy-keyword1', now);
     decoy.lastActivityAt = now.toISOString();
-    decoy.turns = [{ seq: 1, at: now.toISOString(), customer: { text: 'This was a poor looping safety disaster', photo: false }, customerVisible: { reply: 'ok' } }];
+    decoy.turns = [{ seq: 1, at: now.toISOString(), customer: { text: 'This was a poor looping safety disaster', photo: false }, customerVisible: { reply: 'ok', parts: [], media: [] } }];
     decoy.searchBlob = 'this was a poor looping safety disaster';
-    decoy.review = {
-      status: 'reviewed',
-      version: 's9-v1',
-      assessment: {
-        overallAssessment: 'good',
-        outcome: 'useful_outcome',
-        reviewPriority: 'normal',
-        looping: 'none',
-        safetyHandling: 'appropriate',
-        suggestedProductAreas: [],
-      },
-    };
-    await reviewedStore.put(decoy);
+    await previewStore.put(decoy);
+    const previewRec = await previewStore.get('s-open-preview01');
     const ov = tx.overviewRow(previewRec, now);
     check('opening preview is first customer turn', ov.openingPreview.indexOf('isn\'t draining') !== -1);
     check('opening preview is truncated display text, not an LLM summary', ov.openingPreview.length <= 160);
-    check('needsAttention uses stored Story 9 reasons', ov.needsAttention === true);
-    check('reviewLooping comes from stored assessment', ov.reviewLooping === 'significant');
-    const listed = await reviewedStore.list({ limit: 50 }, now);
+    check('part recommended comes from the engine part gate', ov.partRecommended === true && ov.ac2.outcome === 'part_needed');
+    const listed = await previewStore.list({ limit: 50 }, now);
     check('list rows include openingPreview', listed.items.some((r) => r.sessionId === 's-open-preview01' && /draining/.test(r.openingPreview)));
     check('newest-first chronology on list', listed.items[0].lastActivityAt >= listed.items[listed.items.length - 1].lastActivityAt);
-    check('viewCounts.all includes retained conversations', listed.viewCounts.all >= 2);
-    check('viewCounts.attention uses needsAttention helper', listed.viewCounts.attention >= 1);
-    check('viewCounts.poor uses overallAssessment', listed.viewCounts.poor >= 1);
-    check('viewCounts.loops uses looping===significant', listed.viewCounts.loops >= 1);
-    check('keyword-only decoy is not poor/attention/loops', listed.items.some((r) => r.sessionId === 's-decoy-keyword1' && r.reviewOverall === 'good' && r.needsAttention === false && r.reviewLooping === 'none'));
-    const poor = await reviewedStore.list({ limit: 50, overall: 'poor' }, now);
-    check('poor filter is stored overallAssessment', poor.items.length === 1 && poor.items[0].sessionId === 's-open-preview01');
-    const attn = await reviewedStore.list({ limit: 50, attention: '1' }, now);
-    check('attention filter uses stored needsAttention', attn.items.every((r) => r.needsAttention) && attn.items.some((r) => r.sessionId === 's-open-preview01'));
-    const loops = await reviewedStore.list({ limit: 50, looping: 'significant' }, now);
-    check('loops filter uses stored looping', loops.items.length === 1 && loops.items[0].reviewLooping === 'significant');
-    const safety = await reviewedStore.list({ limit: 50, safetyHandling: 'concern' }, now);
-    check('safety view uses stored safetyHandling, not transcript words', safety.items.length === 0);
-    check('matchesFilters does not regex-score customer text', tx.matchesFilters(decoy, { attention: true }, now) === false);
+    check('viewCounts.all includes retained conversations', listed.viewCounts.all === 2);
+    check('viewCounts.parts counts part recommendations from the audit', listed.viewCounts.parts === 1);
+    check('keyword-only decoy is not a safety or error row', listed.items.some((r) => r.sessionId === 's-decoy-keyword1' && r.safetyStop === false && r.hasError === false));
+    const parts = await previewStore.list({ limit: 50, partRecommended: '1' }, now);
+    check('partRecommended filter', parts.items.length === 1 && parts.items[0].sessionId === 's-open-preview01');
+    const outcome = await previewStore.list({ limit: 50, outcome: 'part_needed' }, now);
+    check('outcome filter is the stored advisor outcome', outcome.items.length === 1 && outcome.items[0].sessionId === 's-open-preview01');
+    check('matchesFilters does not regex-score customer text', tx.matchesFilters(decoy, { safety: true }, now) === false);
+    check('rows carry no review fields', !('review' in previewRec) && !('needsAttention' in ov));
 
-    console.log('SKIP WITHOUT SESSION (GOLD / TAC)');
+    console.log('SKIP WITHOUT SESSION (LIVE TEST)');
     const skip = await tx.persistTurn(store, null, { messages: [{ role: 'user', content: 'x' }], view: view(), orch: orch() });
     check('no observability -> no persist', skip.skipped === true);
 

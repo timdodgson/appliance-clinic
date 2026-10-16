@@ -1,202 +1,52 @@
 /**
- * Runtime provider-selection tests for the admin-managed ApplianceClinic AI
- * config: the engine seam that turns a stored config into concrete
- * providers, plus the permanent proof of the remote (OpenAI) adapter contract.
- *
- * Fully offline — an injectable fetchSecret and a fake transport mean NO real
- * secret read and NO model call (paid or local) ever happens.
+ * The admin AI configuration and the model credential (admin-config.js): read from Secrets Manager, cached, never
+ * logged. Offline: an injectable fetchSecret, so no real secret is read.
  */
-import { describe, it, expect } from "vitest";
-import { createRequire } from "node:module";
+import { describe, it, expect } from 'vitest';
+import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { loadAdminInference, _resetCache, parseJevSecret, AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID, JEV_SECRET_ID } = require("../admin-config.js");
-const { resolveProvidersFromAdminConfig, LMStudioProvider, OpenAIProvider, InferenceError } = require("../inference.js");
-
-/** Fake transport that records requests and returns scripted responses. */
-function fakeTransport({ nonStreamBody, streamDeltas = [], streamUsage = null, status = 200 } = {}) {
-  const calls = [];
-  return {
-    calls,
-    request(url, opts) { calls.push({ mode: "request", url, headers: opts.headers, body: JSON.parse(opts.body) }); return Promise.resolve({ status, body: nonStreamBody ?? "" }); },
-    stream(url, opts) {
-      calls.push({ mode: "stream", url, headers: opts.headers, body: JSON.parse(opts.body) });
-      for (const d of streamDeltas) opts.onEvent({ choices: [{ delta: { content: d } }] });
-      if (streamUsage) opts.onEvent({ usage: streamUsage });
-      return Promise.resolve();
-    },
-  };
-}
-const okBody = (content, usage) => JSON.stringify({ choices: [{ message: { content } }], ...(usage ? { usage } : {}) });
+const { loadAdminInference, _resetCache, AI_CONFIG_SECRET_ID, OPENAI_SECRET_ID } = require('../admin-config.js');
 
 // A fetchSecret backed by an in-memory map keyed by secret id.
-function fakeSecrets({ config, key } = {}) {
+function fakeSecrets({ config, credential } = {}) {
   return async (id) => {
     if (id === AI_CONFIG_SECRET_ID) return config === undefined ? null : JSON.stringify(config);
-    if (id === OPENAI_SECRET_ID) return key ? JSON.stringify({ apiKey: key }) : null;
+    if (id === OPENAI_SECRET_ID) return credential === undefined ? null : JSON.stringify(credential);
     return null;
   };
 }
 
-describe("loadAdminInference — secret loading & fallback", () => {
-  it("returns config:null when the config secret is absent (fall back to local)", async () => {
+describe('loadAdminInference', () => {
+  it('returns the configuration document and the anthropicApiKey field of the credential secret, and nothing else', async () => {
     _resetCache();
-    const r = await loadAdminInference({ now: 1, env: {}, fetchSecret: fakeSecrets({ config: undefined }) });
-    expect(r.config).toBe(null);
-    expect(r.openaiKey).toBe(null);
-    expect(Object.keys(r).sort()).toEqual(["anthropicKey", "at", "config", "jev", "jevConfigured", "openaiKey"]);
-    expect(r.anthropicKey).toBe(null);
-    expect(r.jev).toBe(null);
+    const r = await loadAdminInference({ now: 1, fetchSecret: fakeSecrets({ config: { model: 'claude-opus-5-5', version: 3 }, credential: { apiKey: 'sk-openai', anthropicApiKey: 'sk-ant' } }) });
+    expect(Object.keys(r).sort()).toEqual(['anthropicKey', 'at', 'config']);
+    expect(r.config).toEqual({ model: 'claude-opus-5-5', version: 3 });
+    expect(r.anthropicKey).toBe('sk-ant');
   });
 
-  it("does NOT read the credential when COMPOSE does not route to frontier", async () => {
+  it('absent or unreadable secrets give null (the provider resolution then fails explicitly)', async () => {
     _resetCache();
-    let keyRead = false;
-    const fetchSecret = async (id) => {
-      if (id === OPENAI_SECRET_ID) { keyRead = true; return JSON.stringify({ apiKey: "sk-x" }); }
-      return JSON.stringify({ routing: { understand: "frontier", compose: "local" }, local: {}, frontier: { model: "m" } });
-    };
-    const r = await loadAdminInference({ now: 1, env: {}, fetchSecret });
-    expect(keyRead).toBe(false);
-    expect(r.openaiKey).toBe(null);
+    const r = await loadAdminInference({ now: 1, fetchSecret: fakeSecrets({}) });
+    expect(r).toMatchObject({ config: null, anthropicKey: null });
+    _resetCache();
+    const bad = await loadAdminInference({ now: 1, fetchSecret: async () => 'not json' });
+    expect(bad).toMatchObject({ config: null, anthropicKey: null });
+    _resetCache();
+    const openaiOnly = await loadAdminInference({ now: 1, fetchSecret: fakeSecrets({ config: { model: 'm' }, credential: { apiKey: 'sk-openai' } }) });
+    expect(openaiOnly.anthropicKey).toBe(null);
   });
 
-  it("reads the credential when COMPOSE routes to frontier", async () => {
-    _resetCache();
-    const cfg = { routing: { understand: "local", compose: "frontier" }, local: {}, frontier: { model: "gpt-4o-mini" } };
-    const r = await loadAdminInference({ now: 1, env: {}, fetchSecret: fakeSecrets({ config: cfg, key: "sk-live" }) });
-    expect(r.openaiKey).toBe("sk-live");
-  });
-
-  it("caches within the TTL and re-reads after reset", async () => {
+  it('caches within the TTL and re-reads after it', async () => {
     _resetCache();
     let reads = 0;
-    const fetchSecret = async (id) => { if (id !== JEV_SECRET_ID) reads++; return JSON.stringify({ routing: { understand: "local", compose: "local" } }); };
-    await loadAdminInference({ now: 1000, env: {}, fetchSecret });
-    await loadAdminInference({ now: 1000 + 30000, env: {}, fetchSecret }); // within 60s TTL
-    expect(reads).toBe(1); // AI config, once
-    await loadAdminInference({ now: 1000 + 120000, env: {}, fetchSecret }); // past TTL
-    expect(reads).toBe(2);
-  });
-
-  it("reads the Jev credential from its secret, and from the environment locally", async () => {
+    const fetchSecret = async () => { reads++; return JSON.stringify({ model: 'm' }); };
+    await loadAdminInference({ now: 1000, fetchSecret });
+    await loadAdminInference({ now: 1000 + 30000, fetchSecret }); // within 60s TTL
+    expect(reads).toBe(2); // the configuration and the credential, once each
+    await loadAdminInference({ now: 1000 + 120000, fetchSecret }); // past TTL
+    expect(reads).toBe(4);
     _resetCache();
-    const fetchSecret = async (id) => (id === JEV_SECRET_ID ? JSON.stringify({ accountId: "acc", apiToken: "tok", gatewayId: "gw" }) : null);
-    const r = await loadAdminInference({ now: 1, env: {}, fetchSecret });
-    expect(r.jev).toEqual({ accountId: "acc", apiToken: "tok", gatewayId: "gw" });
-    expect(r.jevConfigured).toBe(true);
-    expect(parseJevSecret(null, { CLOUDFLARE_ACCOUNT_ID: "a", CLOUDFLARE_API_TOKEN: "t" })).toEqual({ accountId: "a", apiToken: "t", gatewayId: null });
-    expect(parseJevSecret("not json", {})).toBe(null);
-  });
-});
-
-describe("resolveProvidersFromAdminConfig — routing resolution", () => {
-  const env = { LM_STUDIO_URL: "https://deployed-lm.example.app" };
-
-  it("null config falls back to env local/local (production baseline)", () => {
-    const { compose } = resolveProvidersFromAdminConfig(null, null, env);
-    expect(compose).toBeInstanceOf(LMStudioProvider);
-    expect(compose.baseUrl).toBe("https://deployed-lm.example.app");
-  });
-
-  it("local/local with blank admin endpoint uses the deployed LM_STUDIO_URL", () => {
-    const cfg = { routing: { understand: "local", compose: "local" }, local: { endpoint: "", model: "" }, frontier: {} };
-    const { compose } = resolveProvidersFromAdminConfig(cfg, null, env);
-    expect(compose.baseUrl).toBe("https://deployed-lm.example.app");
-  });
-
-  it("admin local endpoint override wins over the deployed default", () => {
-    const cfg = { routing: { understand: "local", compose: "local" }, local: { endpoint: "https://override.example.app", model: "qwen" }, frontier: {} };
-    const { compose } = resolveProvidersFromAdminConfig(cfg, null, env);
-    expect(compose.baseUrl).toBe("https://override.example.app");
-    expect(compose.model).toBe("qwen");
-  });
-
-  it("only the COMPOSE route selects the provider (a retired UNDERSTAND route is ignored)", () => {
-    const cfg = { routing: { understand: "frontier", compose: "local" }, local: {}, frontier: { model: "gpt-4o-mini" } };
-    const providers = resolveProvidersFromAdminConfig(cfg, null, env);
-    expect(Object.keys(providers)).toEqual(["compose"]);
-    expect(providers.compose).toBeInstanceOf(LMStudioProvider);
-    const remote = resolveProvidersFromAdminConfig({ ...cfg, routing: { understand: "local", compose: "frontier" } }, "sk-live", env);
-    expect(remote.compose).toBeInstanceOf(OpenAIProvider);
-    expect(remote.compose.model).toBe("gpt-4o-mini");
-  });
-
-  it("frontier routing with NO key throws CONFIG (no silent local fallback)", () => {
-    const cfg = { routing: { understand: "local", compose: "frontier" }, local: {}, frontier: { model: "gpt-4o-mini" } };
-    let err;
-    try { resolveProvidersFromAdminConfig(cfg, null, env); } catch (e) { err = e; }
-    expect(err).toBeInstanceOf(InferenceError);
-    expect(err.category).toBe("CONFIG");
-  });
-
-  it("frontier routing with NO model throws CONFIG", () => {
-    const cfg = { routing: { understand: "local", compose: "frontier" }, local: {}, frontier: { model: "" } };
-    let err;
-    try { resolveProvidersFromAdminConfig(cfg, "sk-live", env); } catch (e) { err = e; }
-    expect(err.category).toBe("CONFIG");
-  });
-});
-
-describe("remote (OpenAI) adapter contract — permanent proof", () => {
-  const env = {};
-  const frontierCfg = { routing: { understand: "frontier", compose: "frontier" }, local: {}, frontier: { model: "gpt-4o-mini" } };
-
-  it("OpenAI can be selected, requires a key + model, and sends Bearer auth + model", async () => {
-    const t = fakeTransport({ nonStreamBody: okBody("hello", { prompt_tokens: 3, completion_tokens: 2, total_tokens: 5 }) });
-    const { compose: provider } = resolveProvidersFromAdminConfig(frontierCfg, "sk-live", env, { transport: t });
-    const res = await provider.infer({ messages: [{ role: "user", content: "hi" }], temperature: 0, maxTokens: 50, stream: false, timeoutMs: 1000 });
-    expect(res.text).toBe("hello");
-    expect(res.usage).toEqual({ promptTokens: 3, completionTokens: 2, totalTokens: 5 }); // usage normalised
-    expect(t.calls[0].headers.Authorization).toBe("Bearer sk-live");
-    expect(t.calls[0].body.model).toBe("gpt-4o-mini"); // model forwarded
-  });
-
-  it("uses GPT-5-compatible params: max_completion_tokens, no temperature/max_tokens/repeat_penalty", async () => {
-    const t = fakeTransport({ nonStreamBody: okBody("ok") });
-    const { compose: provider } = resolveProvidersFromAdminConfig(frontierCfg, "sk-live", env, { transport: t });
-    await provider.infer({ messages: [{ role: "user", content: "hi" }], temperature: 0, maxTokens: 900, repeatPenalty: 1.1, stream: false, timeoutMs: 1000 });
-    const body = t.calls[0].body;
-    expect(body.max_completion_tokens).toBe(900);
-    expect(body.max_tokens).toBeUndefined();
-    expect(body.temperature).toBeUndefined();
-    expect(body.repeat_penalty).toBeUndefined();
-  });
-
-  it("local (LM Studio) still uses classic max_tokens + temperature", async () => {
-    const t = fakeTransport({ nonStreamBody: okBody("ok") });
-    const { compose: provider } = resolveProvidersFromAdminConfig({ routing: { understand: "local", compose: "local" }, local: {}, frontier: {} }, null, env, { transport: t });
-    await provider.infer({ messages: [{ role: "user", content: "hi" }], temperature: 0, maxTokens: 900, stream: false, timeoutMs: 1000 });
-    const body = t.calls[0].body;
-    expect(body.max_tokens).toBe(900);
-    expect(body.temperature).toBe(0);
-    expect(body.max_completion_tokens).toBeUndefined();
-  });
-
-  it("forwards structured-output response_format to the remote", async () => {
-    const t = fakeTransport({ nonStreamBody: okBody("{}") });
-    const { compose: provider } = resolveProvidersFromAdminConfig(frontierCfg, "sk-live", env, { transport: t });
-    await provider.infer({ messages: [{ role: "user", content: "hi" }], temperature: 0, maxTokens: 50, stream: false, timeoutMs: 1000, responseFormat: { type: "json_object" } });
-    expect(t.calls[0].body.response_format).toEqual({ type: "json_object" });
-  });
-
-  it("streams remote deltas and normalises the usage frame", async () => {
-    const t = fakeTransport({ streamDeltas: ["Hel", "lo"], streamUsage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 } });
-    const { compose } = resolveProvidersFromAdminConfig(frontierCfg, "sk-live", env, { transport: t });
-    const chunks = [];
-    const res = await compose.infer({ messages: [{ role: "user", content: "hi" }], temperature: 0, maxTokens: 50, stream: true, timeoutMs: 1000 }, { onDelta: (d) => chunks.push(d) });
-    expect(chunks.join("")).toBe("Hello");
-    expect(res.text).toBe("Hello");
-    expect(res.usage).toEqual({ promptTokens: 1, completionTokens: 2, totalTokens: 3 });
-    expect(t.calls[0].body.stream_options).toEqual({ include_usage: true }); // asks OpenAI for usage
-  });
-
-  it("a provider error message never contains the credential", async () => {
-    const throwing = { request: () => Promise.reject(new Error("Request timeout")), stream: () => Promise.reject(new Error("Request timeout")) };
-    const { compose: provider } = resolveProvidersFromAdminConfig(frontierCfg, "sk-super-secret", env, { transport: throwing });
-    let err;
-    try { await provider.infer({ messages: [], temperature: 0, maxTokens: 10, stream: false, timeoutMs: 1 }); } catch (e) { err = e; }
-    expect(err).toBeInstanceOf(InferenceError);
-    expect(JSON.stringify({ m: err.message, ...err })).not.toContain("sk-super-secret");
   });
 });

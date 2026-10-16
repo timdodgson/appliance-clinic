@@ -2,12 +2,12 @@
 /**
  * Read-only diagnosis engine health.
  *
- * Reports the diagnosis architecture (ac2: the LLM-led turn inside the deterministic guardrail kernel), whether the
- * reasoner's provider (the admin AI configuration's COMPOSE route) can be resolved, and the media mappings. Does not
- * diagnose, call a model, mutate mappings, or return secrets.
+ * Reports the diagnosis architecture (ac2: the advisor inside the deterministic guardrail kernel), whether the
+ * advisor's model can be resolved (the admin AI configuration names it; the credential secret holds the key), and the
+ * media mappings. Does not diagnose, call a model, mutate mappings, or return secrets.
  */
 
-const { resolveProvidersFromAdminConfig } = require('./inference.js');
+const { resolveAdvisorProvider } = require('./inference.js');
 const mediaEffective = require('./media-effective.js');
 
 const SERVICE = 'diagnosis-engine';
@@ -46,19 +46,15 @@ function overlayStateOf(cache) {
   return 'none';
 }
 
-const NOTE = 'One inference provider serves the ac2 reasoner and its claim extractor (the AI configuration\'s COMPOSE route). Inference was not tested.';
+const NOTE = 'The advisor runs on one model (Claude, the Anthropic Messages API), named by the admin AI configuration. Inference was not tested.';
 const NOT_CONFIGURED = { configured: false, provider: null, model: null };
 
 function describeModels(opts) {
-  const admin = (opts && opts.admin) || { config: null, openaiKey: null };
+  const admin = (opts && opts.admin) || { config: null, anthropicKey: null };
   try {
-    const resolve = (opts && opts.resolveProvidersFromAdminConfig) || resolveProvidersFromAdminConfig;
-    const env = (opts && opts.env) || process.env;
-    const noInfer = {
-      request() { return Promise.reject(new Error('health-does-not-infer')); },
-      stream() { return Promise.reject(new Error('health-does-not-infer')); },
-    };
-    const p = resolve(admin.config, admin.openaiKey, env, { transport: noInfer }).compose;
+    const resolve = (opts && opts.resolveAdvisorProvider) || resolveAdvisorProvider;
+    const noInfer = { request() { return Promise.reject(new Error('health-does-not-infer')); } };
+    const p = resolve(admin.config, admin.anthropicKey, { transport: noInfer });
     return {
       reasoner: p ? { configured: true, provider: p.name || null, model: p.model || null } : { ...NOT_CONFIGURED },
       inferenceTested: false,
@@ -71,7 +67,7 @@ function describeModels(opts) {
 
 function overall(models, media) {
   const issues = [];
-  if (!(models.reasoner && models.reasoner.configured)) issues.push('The reasoner\'s inference provider is not configured');
+  if (!(models.reasoner && models.reasoner.configured)) issues.push('The advisor\'s model is not configured');
   if (!media.baselineLoaded) issues.push('Media baseline mappings are not loaded');
   if (media.overlayState === 'unavailable') {
     issues.push('Media overlay store could not be read; shipped baseline is in use');
@@ -79,7 +75,7 @@ function overall(models, media) {
   if (issues.length) {
     return { status: 'degraded', health: 'degraded', healthReason: issues.join('. ') };
   }
-  return { status: 'ok', health: 'healthy', healthReason: 'The diagnosis engine is running; the reasoner provider and media are available' };
+  return { status: 'ok', health: 'healthy', healthReason: 'The diagnosis engine is running; the advisor model and media are available' };
 }
 
 async function build(deps) {
@@ -87,15 +83,11 @@ async function build(deps) {
   const describeBaseline = deps.describeMediaBaseline || (() => ({ loaded: false, identityCount: 0 }));
   const baseline = describeBaseline() || {};
 
-  let admin = { config: null, openaiKey: null };
+  let admin = { config: null, anthropicKey: null };
   if (typeof deps.loadAdminInference === 'function') {
-    try { admin = await deps.loadAdminInference(deps.adminOpts || {}); } catch { admin = { config: null, openaiKey: null }; }
+    try { admin = await deps.loadAdminInference(deps.adminOpts || {}); } catch { admin = { config: null, anthropicKey: null }; }
   }
-  const models = describeModels({
-    admin,
-    env: deps.env,
-    resolveProvidersFromAdminConfig: deps.resolveProvidersFromAdminConfig,
-  });
+  const models = describeModels({ admin, resolveAdvisorProvider: deps.resolveAdvisorProvider });
 
   if (typeof deps.ensureMediaOverlay === 'function') {
     try { await deps.ensureMediaOverlay(deps.mediaOpts || {}); } catch { /* overlay failure is recorded on the cache */ }

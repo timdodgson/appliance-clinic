@@ -91,29 +91,10 @@
           <div id="dashStateBody"><div class="tac__muted">Loading…</div></div>
         </div>
 
-        <div class="admin__panel dash-panel" id="dashAttention">
-          <h2 class="admin__h2">Needs attention</h2>
-          <div id="dashAttentionBody"><div class="tac__muted">Loading…</div></div>
-        </div>
-
-        <div class="admin__panel dash-panel" id="dashProduction">
-          <div class="dash-panelhead">
-            <div>
-              <h2 class="admin__h2">Production</h2>
-              <p class="dash-note" id="dashPeriodNote">Counts are for conversations in this period, not when they were reviewed.</p>
-            </div>
-            <div class="dash-periods" role="group" aria-label="Time period">
-              <button type="button" class="dash-period" data-period="today" aria-pressed="false">Today</button>
-              <button type="button" class="dash-period is-on" data-period="7d" aria-pressed="true">7 days</button>
-              <button type="button" class="dash-period" data-period="30d" aria-pressed="false">30 days</button>
-            </div>
-          </div>
-          <div id="dashProductionBody"><div class="tac__muted">Loading…</div></div>
-        </div>
-
-        <div class="admin__panel dash-panel" id="dashAreas">
-          <h2 class="admin__h2">Recurring areas</h2>
-          <div id="dashAreasBody"><div class="tac__muted">Loading…</div></div>
+        <div class="admin__panel dash-panel" id="dashActivity">
+          <h2 class="admin__h2">Today</h2>
+          <p class="dash-note">Conversations with activity today, from the anonymous transcript store. Each count links to the conversations it counts.</p>
+          <div id="dashActivityBody"><div class="tac__muted">Loading…</div></div>
         </div>
       </section>
 
@@ -128,10 +109,9 @@
 
         <div class="tx-views" role="radiogroup" aria-label="Conversation views">
           <button type="button" class="tx-view is-on" role="radio" id="txViewAll" data-view="all" aria-checked="true">All</button>
-          <button type="button" class="tx-view" role="radio" id="txViewAttention" data-view="attention" aria-checked="false">Needs attention <span class="tx-view__count" id="txCountAttention" hidden></span></button>
-          <button type="button" class="tx-view" role="radio" id="txViewPoor" data-view="poor" aria-checked="false">Poor <span class="tx-view__count" id="txCountPoor" hidden></span></button>
-          <button type="button" class="tx-view" role="radio" id="txViewSafety" data-view="safety" aria-checked="false">Safety <span class="tx-view__count" id="txCountSafety" hidden></span></button>
-          <button type="button" class="tx-view" role="radio" id="txViewLoops" data-view="loops" aria-checked="false">Loops <span class="tx-view__count" id="txCountLoops" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewSafety" data-view="safety" aria-checked="false">Safety stops <span class="tx-view__count" id="txCountSafety" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewErrors" data-view="errors" aria-checked="false">API errors <span class="tx-view__count" id="txCountErrors" hidden></span></button>
+          <button type="button" class="tx-view" role="radio" id="txViewParts" data-view="parts" aria-checked="false">Part recommended <span class="tx-view__count" id="txCountParts" hidden></span></button>
         </div>
 
         <!-- Primary filter row: the few controls needed for everyday triage. -->
@@ -155,25 +135,12 @@
               <option value="vacuum">Vacuum</option>
             </select>
           </label>
-          <label class="tx-primary__field">Review status
-            <select id="txReviewStatus">
-              <option value="">All</option>
-              <option value="awaiting">Awaiting review</option>
-              <option value="reviewed">Reviewed</option>
-              <option value="failed">Review failed</option>
-              <option value="none">Not eligible yet</option>
-            </select>
-          </label>
           <div class="tx-primary__actions">
             <button class="btn btn--primary" id="txApply" type="button">Apply</button>
             <button class="btn btn--ghost" id="txReset" type="button">Clear filters</button>
           </div>
         </div>
 
-        <!-- Needs-attention is driven by the quick view above; this input backs that
-             view and Dashboard deep-links, so it stays in the DOM but hidden to avoid a
-             duplicate visible control. -->
-        <input type="checkbox" id="txAttention" class="tx-hiddenfield" tabindex="-1" aria-hidden="true" />
 
         <!-- One deliberate specialist surface. Not nested; no second accordion. -->
         <details class="tx-more" id="txMore">
@@ -183,14 +150,6 @@
           </summary>
           <div class="tx__filters">
             <label class="tx__filter">Make <input id="txMake" type="text" placeholder="e.g. Bosch" /></label>
-            <label class="tx__filter">Route
-              <select id="txRoute">
-                <option value="">All</option>
-                <option value="SYMPTOMS">Symptom / RAG</option>
-                <option value="ERROR_CODE">Error code / MCP</option>
-                <option value="ERROR_CODE_AND_SYMPTOMS">Error code + symptoms</option>
-              </select>
-            </label>
             <label class="tx__filter">Lifecycle
               <select id="txLifecycle">
                 <option value="">All</option>
@@ -199,83 +158,16 @@
                 <option value="inactive">Inactive / abandoned</option>
               </select>
             </label>
-            <label class="tx__filter">Overall
-              <select id="txOverall">
-                <option value="">All</option>
-                <option value="good">Good</option>
-                <option value="mixed">Mixed</option>
-                <option value="poor">Poor</option>
-                <option value="insufficient_evidence">Insufficient evidence</option>
-              </select>
-            </label>
-            <label class="tx__filter">Progression
-              <select id="txStateProgression">
-                <option value="">All</option>
-                <option value="poor">Poor</option>
-                <option value="mixed">Mixed</option>
-                <option value="good">Good</option>
-                <option value="insufficient_evidence">Insufficient evidence</option>
-              </select>
-            </label>
-            <label class="tx__filter">Conversation flow
-              <select id="txLooping">
-                <option value="">All</option>
-                <option value="significant">Significant looping</option>
-                <option value="minor">Minor looping</option>
-              </select>
-            </label>
-            <label class="tx__filter">Safety handling
-              <select id="txSafetyHandling">
-                <option value="">All</option>
-                <option value="concern">Safety concern</option>
-                <option value="appropriate">Appropriate</option>
-                <option value="not_applicable">Not applicable</option>
-                <option value="insufficient_evidence">Insufficient evidence</option>
-              </select>
-            </label>
-            <label class="tx__filter">Priority
-              <select id="txPriority">
-                <option value="">All</option>
-                <option value="important">Important</option>
-                <option value="worth_reviewing">Worth reviewing</option>
-                <option value="normal">Normal</option>
-              </select>
-            </label>
             <label class="tx__filter">Outcome
-              <select id="txReviewOutcome">
+              <select id="txOutcome">
                 <option value="">All</option>
-                <option value="useful_outcome">Useful</option>
-                <option value="partial_outcome">Partial</option>
-                <option value="no_useful_outcome">No useful outcome</option>
-                <option value="abandoned">Abandoned</option>
-                <option value="insufficient_evidence">Insufficient evidence</option>
-              </select>
-            </label>
-            <label class="tx__filter">Product area
-              <select id="txProductArea">
-                <option value="">All</option>
-                <option value="understanding">Understanding</option>
-                <option value="clarification">Clarification</option>
-                <option value="diagnostic_reasoning">Diagnostic reasoning</option>
-                <option value="knowledge">Knowledge</option>
-                <option value="parts">Parts</option>
-                <option value="media">Media</option>
-                <option value="safety">Safety</option>
-                <option value="conversation_flow">Conversation flow</option>
-                <option value="identification">Identification</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-            <label class="tx__filter">Journey <input id="txJourney" type="text" placeholder="e.g. wm-not-draining" autocomplete="off" spellcheck="false" /></label>
-            <label class="tx__filter">Path
-              <select id="txCanonical">
-                <option value="">All</option>
-                <option value="control">Canonical control</option>
-                <option value="mixed">Mixed (control + legacy)</option>
-                <option value="shadow">Shadow / not controlled</option>
-                <option value="legacy">Legacy</option>
-                <option value="degraded">Degraded</option>
-                <option value="ac2">AC2 (LLM-led turn)</option>
+                <option value="diagnosing">Diagnosing</option>
+                <option value="part_needed">Part needed</option>
+                <option value="engineer">Engineer needed</option>
+                <option value="normal">Normal behaviour</option>
+                <option value="fixed">Fixed</option>
+                <option value="out_of_scope">Out of scope</option>
+                <option value="safety_stop">Safety stop</option>
               </select>
             </label>
             <label class="tx__filter">Part recommended
@@ -287,7 +179,7 @@
             </label>
             <label class="tx__chk"><input type="checkbox" id="txSafety" /> Safety cases (stop-use)</label>
             <label class="tx__chk"><input type="checkbox" id="txErrors" /> Sessions with API errors</label>
-            <label class="tx__chk"><input type="checkbox" id="txDegraded" /> Sessions with degraded canonical turns</label>
+            <label class="tx__chk"><input type="checkbox" id="txDegraded" /> Sessions with advisor errors (turns the engine could not answer)</label>
           </div>
           <div class="tx__toolbaracts">
             <button class="btn btn--primary" id="txApplyMore" type="button">Apply</button>
@@ -421,8 +313,8 @@
         <h2 class="admin__h2">System path</h2>
         <ol class="dg-path">
           <li>Customer request</li>
-          <li>WhichPart API — customer boundary: the session token and the evidence ledger</li>
-          <li>Diagnosis engine — one ac2 turn: the reasoner inside the deterministic guardrail kernel (evidence ledger, safety gate, claim verifier, part gate)</li>
+          <li>WhichPart API — customer boundary: rate limits, the bot check and the signed conversation state</li>
+          <li>Diagnosis engine — one ac2 turn: the advisor (Claude, with the error-code and parts tools) inside the deterministic guardrail kernel (hazard word lists, banned advice, unverified identifiers, catalogue-only parts)</li>
           <li>Customer view — reply, media and parts</li>
         </ol>
         <p class="dg-path__note">The browser never calls the diagnosis engine or Error Code MCP directly.</p>
@@ -492,16 +384,10 @@
       <section class="admin__section test" data-section="test" hidden>
         <div class="test-pagehead ac-pagehead">
           <h1 class="admin__h1">Test</h1>
-          <p class="admin__lead">Run ApplianceClinic manually, manage curated scenarios, and run them as a batch.</p>
+          <p class="admin__lead">Run a conversation through the live diagnostic system and inspect the result.</p>
         </div>
 
-        <div class="test-tabs" role="tablist" aria-label="Testing tools">
-          <button type="button" role="tab" class="test-tab is-active" data-testtab="live" aria-selected="true" tabindex="0">Live test</button>
-          <button type="button" role="tab" class="test-tab" data-testtab="scenarios" aria-selected="false" tabindex="-1">Scenarios</button>
-          <button type="button" role="tab" class="test-tab" data-testtab="batch" aria-selected="false" tabindex="-1">Batch</button>
-        </div>
-
-        <!-- LIVE TEST — the modern live diagnostic workbench -->
+        <!-- LIVE TEST — the live diagnostic workbench -->
         <div class="test-panel tac" data-testtab="live" role="tabpanel">
         <div class="wb-pagehead">
           <div class="wb-pagehead__copy">
@@ -516,8 +402,8 @@
         <div class="test-impact" id="wbImpact">
           <p class="test-impact__title">What a live test touches</p>
           <ul class="test-impact__list">
-            <li>Each message goes to the <strong>production</strong> diagnostic system — one ac2 turn on the diagnosis engine — exactly as a customer message would, using the AI routing currently set in Settings.</li>
-            <li>Turns belong to one conversation: like a customer’s browser, the Live Test sends back the signed conversation-state token the API returned, so the evidence ledger (facts, identity, questions asked) carries from turn to turn. The token stays in this browser tab only and is never shown. <strong>New conversation</strong> discards it.</li>
+            <li>Each message goes to the <strong>production</strong> diagnostic system — one ac2 turn on the diagnosis engine — exactly as a customer message would, using the advisor model currently set in Settings.</li>
+            <li>Turns belong to one conversation: like a customer’s browser, the Live Test sends back the signed conversation-state token the API returned, so the conversation record (appliance, hazards, outcome) carries from turn to turn. The token stays in this browser tab only and is never shown. <strong>New conversation</strong> discards it.</li>
             <li>No conversation transcript is saved and nothing in Knowledge, Error Codes, Media or Safety changes. The diagnostic engine keeps its usual time-limited conversation state, as it does for every caller.</li>
           </ul>
         </div>
@@ -551,11 +437,8 @@
               <div class="wb-composer__actions">
                 <input id="wbFile" type="file" accept="image/*" hidden />
                 <button class="btn btn--ghost" id="wbPhoto" type="button">Attach photo</button>
-                <button class="btn btn--ghost" id="wbLoadScenario" type="button">Load test scenario</button>
                 <button class="btn btn--primary" id="wbSend" type="submit">Send</button>
               </div>
-              <p class="wb-scenario" id="wbScenarioChip" hidden></p>
-              <div class="wb-nextturns" id="wbNextTurns" hidden></div>
             </form>
           </div>
         </div>
@@ -574,167 +457,8 @@
           </div>
         </details>
 
-        <div class="wb-dialog" id="wbScenarioDlg" hidden>
-          <div class="wb-dialogcard" role="dialog" aria-modal="true" aria-labelledby="wbScenarioTitle">
-            <h2 class="admin__h2" id="wbScenarioTitle">Load test scenario</h2>
-            <p class="tac__note">This fills the composer with the scenario opening. You still send it as a manual test. Later customer turns appear as suggested next messages — they are not submitted automatically.</p>
-            <label class="wb-field" for="wbScenarioQ">Search scenarios</label>
-            <input class="wb-field__input" id="wbScenarioQ" type="search" />
-            <div class="wb-scenariolist" id="wbScenarioList"><div class="tac__muted">Loading…</div></div>
-            <div class="tac__dialogactions">
-              <button class="btn btn--ghost" id="wbScenarioCancel" type="button">Cancel</button>
-            </div>
-          </div>
-        </div>
-
         </div><!-- /Live test panel -->
 
-        <!-- SCENARIOS — curated customer situations for deliberate probing -->
-        <div class="test-panel cts" data-testtab="scenarios" role="tabpanel" hidden>
-          <div id="libListView">
-          <div class="cts-pagehead">
-            <div class="cts-pagehead__copy">
-              <h2 class="admin__h2">Scenarios</h2>
-              <p class="admin__lead">Curated customer situations for probing ApplianceClinic.</p>
-            </div>
-            <div class="cts-pagehead__actions">
-              <button class="btn btn--primary cts__new" id="libNew" type="button">+ New scenario</button>
-            </div>
-          </div>
-
-          <div class="cts__toolbar">
-            <label class="cts__filter cts__filter--search" for="libSearch">Search
-              <span class="ac-search"><svg class="ac-search__icon" aria-hidden="true" focusable="false"><use href="assets/admin-icons.svg?v=1#ai-search"/></svg><input id="libSearch" class="cts__search" type="search" inputmode="search" placeholder="Name, appliance, or what the customer says" autocomplete="off" /></span>
-            </label>
-            <label class="cts__filter" for="libFamily">Appliance
-              <select id="libFamily"><option value="">All appliances</option></select>
-            </label>
-            <label class="cts__filter" for="libCategory">Coverage
-              <select id="libCategory"><option value="">All coverage</option></select>
-            </label>
-            <label class="cts__chk" for="libArchived"><input type="checkbox" id="libArchived"> Include retired</label>
-          </div>
-
-          <p class="test-status" id="libStatus" role="status" aria-live="polite" hidden></p>
-          <p class="cts__count" id="libCount" aria-live="polite"></p>
-          <div class="cts__list" id="libTableBody"><div class="tac__muted">Loading…</div></div>
-          </div><!-- /libListView -->
-
-          <!-- Scenario detail / editor: its own page (#test/scenario/<id>, ?view=edit, #test/scenario/new) -->
-          <div class="test-page" id="libDetailPage" hidden>
-            <a class="tx-back" id="libBackLink" href="#test?tab=scenarios">← Back to scenarios</a>
-            <p class="test-status" id="libDetailStatus" role="status" aria-live="polite" hidden></p>
-            <div class="admin__panel cts__detail" id="libDetail" hidden></div>
-            <div class="admin__panel lib__editor" id="libEditor" hidden></div>
-          </div>
-        </div><!-- /Scenarios panel -->
-
-        <!-- BATCH — one authoritative batch surface over the shared runner -->
-        <div class="test-panel tac" data-testtab="batch" role="tabpanel" hidden>
-          <div id="tacListView">
-          <p class="admin__lead">Run curated scenarios as a batch through the shared test runner, then review the results. This is not GOLD and does not admit scenarios to GOLD.</p>
-
-          <!-- Production routing override: which batch run (if any) owns live AI routing right now. -->
-          <div class="tac-override" id="tacOverride" role="status" aria-live="polite" hidden></div>
-
-          <div class="test-impact test-impact--warn" id="tacImpact">
-            <p class="test-impact__title">Batch runs affect production while they run</p>
-            <ul class="test-impact__list">
-              <li>The test runner sends every scenario to the <strong>production</strong> ApplianceClinic API.</li>
-              <li>For the whole run it switches the <strong>live AI routing</strong> (Settings → AI configuration) to the run's setup. Real customer conversations during the run use that same routing — including OpenAI for a frontier experiment.</li>
-              <li>Only the fields the run needs are changed (COMPOSE routing / model). The exact pre-run configuration is saved first and restored — and verified — when the run completes, fails, times out or is cancelled. If the configuration was changed by someone else meanwhile, it is not overwritten: the run reports a restore conflict for an admin to resolve.</li>
-              <li>One run at a time may own live routing. Settings blocks diagnostic-inference changes while a run owns it. Both the temporary change and the restore appear in Settings change history.</li>
-              <li>Runs never save customer conversation transcripts. Results and engineer reviews are stored with the test history only.</li>
-            </ul>
-          </div>
-
-          <div class="test-batchbar">
-            <p class="cts__batchcount" id="libBatchCount">No scenarios selected.</p>
-            <button class="btn btn--primary" id="libRunSelected" type="button">Run selected scenarios</button>
-            <span class="test-batchbar__hint">Tick scenarios in the Scenarios tab, then run them here.</span>
-          </div>
-          <p class="test-status" id="tacStatusMsg" role="status" aria-live="polite" hidden></p>
-
-          <div class="tac__status" id="tacStatus">
-            <div class="tac__statuscard" id="tacSetup">
-              <div class="tac__statustitle">Current AI setup</div>
-              <div class="tac__setuprows" id="tacSetupRows"><div class="tac__muted">Loading…</div></div>
-            </div>
-          </div>
-
-          <div class="tac__ready-banner" id="tacReady" role="status">
-            <span class="tac__readyicon" aria-hidden="true">✓</span>
-            <span class="tac__readytext"><b id="tacReadyTitle">Ready to test</b><span id="tacReadyMsg">Private AI is configured. Choose a test below to get started.</span></span>
-          </div>
-
-          <div class="tac__actions" id="tacActions">
-            <button class="tac__task" id="taskQuick" type="button">
-              <span class="tac__taskname">Quick check</span>
-              <span class="tac__taskdesc">10 representative customer scenarios. Use after a small change.</span>
-              <span class="tac__taskmeta">Private AI · Fast Check</span>
-              <span class="tac__taskcta">Set up quick check →</span>
-            </button>
-            <button class="tac__task" id="taskFocused" type="button">
-              <span class="tac__taskname">Focused test</span>
-              <span class="tac__taskdesc">Concentrate on one area — Safety, Error Codes, Normal Behaviour or an appliance.</span>
-              <span class="tac__taskmeta">25 scenarios · Private AI</span>
-              <span class="tac__taskcta">Choose focus →</span>
-            </button>
-            <button class="tac__task" id="taskFull" type="button">
-              <span class="tac__taskname">Full local test</span>
-              <span class="tac__taskdesc">All approved scenarios. Use before a significant release.</span>
-              <span class="tac__taskmeta">Private AI · Fast Check</span>
-              <span class="tac__taskcta">Set up full test →</span>
-            </button>
-            <button class="tac__task" id="taskCustom" type="button">
-              <span class="tac__taskname">Custom test</span>
-              <span class="tac__taskdesc">Build your own test set — choose areas, appliances, size and checking.</span>
-              <span class="tac__taskmeta">You choose</span>
-              <span class="tac__taskcta">Build custom test →</span>
-            </button>
-          </div>
-
-          <div class="admin__panel tac__builder" id="tacBuilder" hidden></div>
-          <div class="admin__panel tac__summary" id="tacSummary" hidden></div>
-          <div class="admin__panel tac__running" id="tacRunning" hidden></div>
-
-          <details class="admin__panel tac__adv" id="tacAdvanced">
-            <summary>Advanced &amp; technical</summary>
-            <div class="tac__advbody" id="tacAdvBody">
-              <button class="btn btn--ghost" id="tacFrontierStart" type="button">Compare with Frontier AI (new experiment)</button>
-              <div class="tac__frontier" id="tacFrontier" hidden></div>
-              <div class="tac__techdetails" id="tacTechDetails"></div>
-            </div>
-          </details>
-
-          <div class="admin__panel tac__history">
-            <div class="tac__sectionhead"><h2 class="admin__h2">Past tests</h2><span class="tac__hint" id="tacHistHint">Pick two to compare.</span></div>
-            <div class="tac__historylist" id="tacHistoryList"><div class="tac__muted">Loading…</div></div>
-            <div class="tac__historyactions"><button class="btn btn--primary" id="tacCompareBtn" type="button" disabled>Compare selected</button></div>
-          </div>
-
-          <div class="admin__panel tac__compare" id="tacCompare" hidden></div>
-
-          <div class="tac__dialog" id="tacConfirm" hidden>
-            <div class="tac__dialogcard" role="dialog" aria-modal="true" aria-labelledby="tacConfirmTitle">
-              <h2 class="admin__h2" id="tacConfirmTitle">Confirm paid experiment</h2>
-              <div id="tacConfirmBody"></div>
-              <div class="tac__dialogactions">
-                <button class="btn btn--ghost" id="tacConfirmCancel" type="button">Cancel</button>
-                <button class="btn btn--primary" id="tacConfirmGo" type="button">Confirm paid experiment</button>
-              </div>
-            </div>
-          </div>
-          </div><!-- /tacListView -->
-
-          <!-- Run result / scenario conversation: its own page (#test/run/<runId>, ?journey=<scenarioId>) -->
-          <div class="test-page" id="tacDetailPage" hidden>
-            <a class="tx-back" id="tacBackLink" href="#test?tab=batch">← Back to batch</a>
-            <p class="test-status" id="tacDetailStatus" role="status" aria-live="polite" hidden></p>
-            <div class="admin__panel tac__result" id="tacResult" hidden></div>
-            <div class="admin__panel tac__conversation" id="tacConversation" hidden></div>
-          </div>
-        </div><!-- /Batch panel -->
       </section>
 
       <section class="admin__section" data-section="safety" hidden>
@@ -865,8 +589,8 @@
         <div class="st-pagehead ac-pagehead">
           <div class="st-pagehead__copy">
             <h1 class="admin__h1">Settings</h1>
-            <p class="admin__lead">Show the configurable behaviour ApplianceClinic is actually using, where each value comes from, and change only the settings that are meant to be administrator-controlled.</p>
-            <p class="st-pagehead__note">General settings are shown first. Controls that affect live diagnosis are fenced under Advanced at the bottom. Datasets stay on their own pages. Credentials are never shown.</p>
+            <p class="admin__lead">Show the configurable behaviour ApplianceClinic is actually using, where each value comes from, and change only the one setting that is meant to be administrator-controlled: the advisor model.</p>
+            <p class="st-pagehead__note">General settings are shown first. The advisor model is fenced under Advanced at the bottom. Datasets stay on their own pages. Credentials are never shown.</p>
           </div>
           <div class="st-pagehead__actions">
             <a class="btn btn--ghost" href="#diagnostics">Open Diagnostics</a>
@@ -897,7 +621,7 @@
           </section>
         </div>
 
-        <!-- AI & RUNTIME — read-only model/runtime information, not dangerous -->
+        <!-- AI & RUNTIME — read-only runtime information -->
         <div class="st-group" id="stAiRuntime">
           <h2 class="st-group__h">AI &amp; runtime</h2>
 
@@ -907,112 +631,56 @@
             <div id="stRuntimeStatus"><div class="tac__muted">Loading…</div></div>
           </section>
 
-          <section class="admin__panel st-section" aria-labelledby="stInvTitle">
-            <h2 class="admin__h2" id="stInvTitle">What each setting does</h2>
-            <p class="admin__lead">Every value Settings manages, traced to the code that reads it: current and default value, when a change takes effect, and whether it changes live customer diagnosis. Editing happens under Advanced.</p>
-            <div id="stInventory"><div class="tac__muted">Loading…</div></div>
-          </section>
-
-          <section class="admin__panel st-section" aria-labelledby="stRevTitle">
-            <h2 class="admin__h2" id="stRevTitle">Production review</h2>
-            <p class="admin__lead">How ApplianceClinic reviews production conversations. These values are read-only and set at deployment.</p>
-            <div id="stReviewBody"></div>
-          </section>
-
           <details class="admin__panel st-details">
             <summary>Read-only system configuration</summary>
             <div id="stTechnical"></div>
           </details>
         </div>
 
-        <!-- ADVANCED — fenced, collapsed; high-impact live-runtime controls -->
+        <!-- ADVANCED — fenced, collapsed; the one high-impact live-runtime control -->
         <details class="st-advanced" id="stAdvanced">
           <summary class="st-advanced__summary">
             <span class="st-advanced__title">Advanced — affects live diagnosis</span>
             <span class="st-advanced__tag">Developer / live runtime</span>
           </summary>
-          <p class="st-advanced__warn" role="note">Changes here affect live ApplianceClinic diagnostic traffic. Existing confirmations, write-only credentials and version checks still apply.</p>
+          <p class="st-advanced__warn" role="note">Changes here affect live ApplianceClinic diagnostic traffic. Confirmations, the write-only credential and version checks apply.</p>
 
-          <section class="admin__panel st-section" aria-labelledby="stInfTitle">
+          <section class="admin__panel st-section" aria-labelledby="stAdvTitle">
             <div class="st-section__head">
               <div>
-                <h2 class="admin__h2" id="stInfTitle">Diagnostic inference</h2>
-                <p class="admin__lead">UNDERSTAND and COMPOSE for new customer diagnoses. Saved values become live within about one minute.</p>
+                <h2 class="admin__h2" id="stAdvTitle">Advisor model</h2>
+                <p class="admin__lead">The Claude model that writes every new customer diagnosis reply. Saved values become live within about two minutes.</p>
               </div>
-              <button class="btn btn--primary" id="stEditInference" type="button">Edit</button>
+              <button class="btn btn--primary" id="stEditModel" type="button">Edit</button>
             </div>
-            <p class="st-meta" id="stInfMeta"></p>
-            <p class="st-note" id="stInfStore" hidden></p>
-            <div class="st-override" id="stOverride" role="status" aria-live="polite" hidden></div>
+            <p class="st-meta" id="stAdvisorMeta"></p>
+            <p class="st-note" id="stAdvisorStore" hidden></p>
             <p class="kn-notice" id="stApplyNotice" tabindex="-1" role="status" aria-live="polite" hidden></p>
-            <div class="st-cards" id="stInfCards"></div>
-            <dl class="st-dl st-dl--compact" id="stInfExtras"></dl>
+            <div class="st-cards" id="stAdvisorCard"></div>
             <div class="st-actions">
-              <button class="btn btn--ghost" id="stTestLocal" type="button">Check Private AI connection</button>
-              <button class="btn btn--ghost" id="stTestFrontier" type="button">Check OpenAI connection</button>
-              <button class="btn btn--ghost" id="stOpenKey" type="button">Add OpenAI credential</button>
+              <button class="btn btn--ghost" id="stTestConnection" type="button">Check model connection</button>
+              <button class="btn btn--ghost" id="stOpenKey" type="button">Add model credential</button>
               <span class="st-result" id="stTestResult" role="status"></span>
             </div>
-            <p class="st-hint">Connection checks are read-only: they use the saved configuration and never change it.</p>
+            <p class="st-hint">The connection check is read-only: it uses the stored credential and model and never changes them.</p>
             <details class="st-details st-history" id="stHistory">
-              <summary>Change history — diagnostic inference</summary>
-              <p class="st-note" id="stUnaudited"></p>
+              <summary>Change history — advisor model</summary>
               <div id="stHistoryBody"></div>
-              <h3 class="st-row__title">OpenAI credential</h3>
+              <h3 class="st-row__title">Model credential</h3>
               <div id="stKeyHistoryBody"></div>
-            </details>
-          </section>
-
-          <section class="admin__panel st-section" aria-labelledby="stJevTitle">
-            <div class="st-section__head">
-              <div>
-                <h2 class="admin__h2" id="stJevTitle">Jev UNDERSTAND</h2>
-                <p class="admin__lead">TypeSafe Jev via Cloudflare interprets customer meaning before retrieval. The API token is write-only and is never shown.</p>
-              </div>
-              <button class="btn btn--primary" id="stEditJev" type="button">Configure Jev</button>
-            </div>
-            <p class="st-note" id="stJevStore" hidden></p>
-            <div id="stJevBody"></div>
-            <div class="st-actions">
-              <button class="btn btn--ghost" id="stTestJev" type="button">Test Jev connection</button>
-              <span class="st-result" id="stJevTestResult" role="status"></span>
-            </div>
-            <details class="st-details st-history" id="stJevHistory">
-              <summary>Change history — Jev UNDERSTAND</summary>
-              <div id="stJevHistoryBody"></div>
             </details>
           </section>
         </details>
 
         <dialog class="st-dlg" id="stEditDlg" aria-labelledby="stEditTitle">
           <form method="dialog" class="st-dlg__form" id="stEditForm">
-            <h2 class="admin__h2" id="stEditTitle">Edit diagnostic inference</h2>
-            <p class="admin__lead">Edit locally, then review. Nothing is written until you apply the change on the review step. This changes the COMPOSE model used for new ApplianceClinic diagnoses. UNDERSTAND is TypeSafe Jev and is configured in the Jev UNDERSTAND section. In-flight conversations keep their current providers.</p>
-            <p class="st-note">UNDERSTAND is TypeSafe Jev via Cloudflare (model typesafe/jev). Configure the Cloudflare account and write-only token in Jev UNDERSTAND.</p>
-            <fieldset class="st-fieldset">
-              <legend>COMPOSE</legend>
-              <div class="st-choices" role="radiogroup" aria-label="COMPOSE provider">
-                <label><input type="radio" name="stCompose" value="local" /> Private AI</label>
-                <label id="stComposeFrontierLabel"><input type="radio" name="stCompose" value="frontier" /> OpenAI</label>
-              </div>
-            </fieldset>
-            <p class="st-lock" id="stFrontierLock" hidden>OpenAI routing needs a saved API key.</p>
-            <label class="st-field" for="stLocalModel">Private AI model
-              <input id="stLocalModel" type="text" list="stLocalModelsList" placeholder="Leave blank to use the loaded model" />
-              <datalist id="stLocalModelsList"></datalist>
-              <span class="st-hint">Blank uses whichever model is loaded in LM Studio.</span>
+            <h2 class="admin__h2" id="stEditTitle">Edit advisor model</h2>
+            <p class="admin__lead">Edit locally, then review. Nothing is written until you apply the change on the review step. In-flight conversations keep the model they already loaded.</p>
+            <label class="st-field" for="stModel">Model id
+              <input id="stModel" type="text" list="stModelsList" placeholder="e.g. claude-opus-5-5" autocomplete="off" spellcheck="false" />
+              <datalist id="stModelsList"></datalist>
+              <span class="st-hint">The models the stored credential can use are suggested once loaded.</span>
             </label>
-            <label class="st-field" for="stFrontierModel">OpenAI model
-              <input id="stFrontierModel" type="text" list="stFrontierModelsList" placeholder="Required if a step uses OpenAI" />
-              <datalist id="stFrontierModelsList"></datalist>
-            </label>
-            <details class="st-adv">
-              <summary>Advanced Private AI endpoint</summary>
-              <label class="st-field" for="stLocalEndpoint">Custom address
-                <input id="stLocalEndpoint" type="text" placeholder="Leave blank to use the deployed default" />
-                <span class="st-hint">Only if Private AI runs at a custom address. The deployed default is not shown here.</span>
-              </label>
-            </details>
             <p class="st-result" id="stEditErr" role="alert"></p>
             <div class="st-dlg__actions">
               <button class="btn btn--ghost" id="stEditCancel" value="cancel" type="submit">Cancel</button>
@@ -1023,7 +691,7 @@
 
         <dialog class="st-dlg" id="stConfirmDlg" aria-labelledby="stConfirmTitle">
           <form method="dialog" class="st-dlg__form">
-            <h2 class="admin__h2" id="stConfirmTitle">Review and apply diagnostic change</h2>
+            <h2 class="admin__h2" id="stConfirmTitle">Review and apply the model change</h2>
             <div id="stConfirmBody"></div>
             <label class="st-field" for="stChangeNote">Change reason <span id="stChangeNoteReq">(required — this changes live diagnosis)</span>
               <textarea id="stChangeNote" rows="2" maxlength="300" aria-describedby="stChangeNoteHelp"></textarea>
@@ -1033,50 +701,23 @@
             <div class="st-dlg__actions">
               <button class="btn btn--ghost" id="stConfirmNo" value="cancel" type="submit">Back to edit</button>
               <button class="btn btn--ghost" id="stConflictReload" type="button" hidden>Reload settings</button>
-              <button class="btn btn--primary" id="stConfirmYes" type="button">Apply change</button>
+              <button class="btn btn--primary" id="stConfirmYes" type="button">Apply live change</button>
             </div>
           </form>
         </dialog>
 
         <dialog class="st-dlg" id="stKeyDlg" aria-labelledby="stKeyTitle">
           <form method="dialog" class="st-dlg__form" id="stKeyForm">
-            <h2 class="admin__h2" id="stKeyTitle">OpenAI credential</h2>
-            <p class="admin__lead">The key is stored securely and is never shown again. Leave this closed unless you need to add or replace it.</p>
+            <h2 class="admin__h2" id="stKeyTitle">Model credential</h2>
+            <p class="admin__lead">The Anthropic API key is stored securely and is never shown again. Leave this closed unless you need to add or replace it.</p>
             <p class="st-note" id="stKeyImpact"></p>
-            <label class="st-field" for="stFrontierKey">API key
-              <input id="stFrontierKey" type="password" autocomplete="new-password" data-1p-ignore="" placeholder="Paste a new key to replace the stored one" />
+            <label class="st-field" for="stApiKey">API key
+              <input id="stApiKey" type="password" autocomplete="new-password" data-1p-ignore="" placeholder="Paste a new key to replace the stored one" />
             </label>
             <p class="st-result" id="stKeyResult" role="status"></p>
             <div class="st-dlg__actions">
               <button class="btn btn--ghost" value="cancel" type="submit">Cancel</button>
               <button class="btn btn--primary" id="stSaveKey" type="button">Save key</button>
-            </div>
-          </form>
-        </dialog>
-
-        <dialog class="st-dlg" id="stJevDlg" aria-labelledby="stJevDlgTitle">
-          <form method="dialog" class="st-dlg__form" id="stJevForm" autocomplete="off">
-            <h2 class="admin__h2" id="stJevDlgTitle">Jev UNDERSTAND</h2>
-            <p class="admin__lead">Provider TypeSafe Jev via Cloudflare, model typesafe/jev. The API token is stored securely and is never shown again. Leave the token blank to keep the stored credential.</p>
-            <label class="st-field" for="stJevAccountId">Cloudflare Account ID
-              <input id="stJevAccountId" type="text" autocomplete="off" placeholder="Cloudflare account ID" />
-            </label>
-            <label class="st-field" for="stJevToken">API token
-              <input id="stJevToken" type="password" autocomplete="new-password" data-1p-ignore="" placeholder="Paste a new token to replace the stored one" />
-              <span class="st-hint">Blank keeps the existing credential. A replacement token is never shown again.</span>
-            </label>
-            <label class="st-field" for="stJevGatewayId">Gateway ID (optional)
-              <input id="stJevGatewayId" type="text" autocomplete="off" placeholder="Leave blank if you are not using AI Gateway" />
-            </label>
-            <p class="st-note st-warn" role="note">High impact: Jev interprets every live customer message. A wrong account, gateway or token makes new customer turns fail UNDERSTAND. Takes effect within about 1 minute.</p>
-            <label class="st-field" for="stJevNote">Change reason (required)
-              <textarea id="stJevNote" rows="2" maxlength="300"></textarea>
-              <span class="st-hint">5–300 characters. Stored in the Jev change history with your name.</span>
-            </label>
-            <p class="st-result" id="stJevSaveResult" role="status"></p>
-            <div class="st-dlg__actions">
-              <button class="btn btn--ghost" value="cancel" type="submit">Cancel</button>
-              <button class="btn btn--primary" id="stSaveJev" type="button">Save Jev configuration</button>
             </div>
           </form>
         </dialog>
@@ -1098,15 +739,13 @@
   </div>
 
   <script src="chat-session.js?v=3"></script>
-  <script src="tac-logic.js?v=1"></script>
-  <script src="tac-workbench.js?v=2"></script>
-  <script src="cts-logic.js?v=1"></script>
+  <script src="tac-workbench.js?v=3"></script>
   <script src="kn-logic.js?v=5"></script>
   <script src="md-logic.js?v=3"></script>
   <script src="dg-logic.js?v=1"></script>
   <script src="ec-logic.js?v=3"></script>
-  <script src="st-logic.js?v=5"></script>
+  <script src="st-logic.js?v=6"></script>
   <script src="si-logic.js?v=1"></script>
-  <script src="admin.js?v=57"></script>
+  <script src="admin.js?v=58"></script>
 </body>
 </html>

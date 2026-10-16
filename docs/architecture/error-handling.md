@@ -12,7 +12,7 @@ and pinned by tests rather than unified. Unifying them is a coordinated change w
 | Missing or invalid engine signature (`x-ac-engine-signature`) | 401 `{error, errorCode: "engine_signature_required"}`. Logged (`evt: engine-auth`, `rejected: true`); alarm `-RefusedRequests` |
 | No messages array | 400 `{error}` |
 | Diagnose call that no canonical journey controls | 409 `{error, errorCode: "canonical_not_controlled"}` |
-| Jev, COMPOSE provider or engine failure | 503 `{error, errorCode: "engine_unavailable"}`. Logged with `ok: false` (`jev:<category>` for Jev failures); alarm `-FailedTurns` |
+| The advisor could not run (credential, quota, outage, timeout) | 503 `{error, errorCode: "reasoner_unavailable"}` (historical code name). Any other engine failure: 503 `engine_unavailable`. Logged with `ok: false` and the provider error's category; alarm `-FailedTurns` |
 | Success | 200, buffered JSON lines: `{type:'understand', …}` for understand mode; `{type:'delta'}` then `{type:'done'}` for a canonical reply |
 
 **Pinned by.** The engine tests. The request and response types are declared in

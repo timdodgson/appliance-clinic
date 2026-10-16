@@ -19,7 +19,7 @@ const requires = Object.fromEntries(modules.map((f) => {
 }));
 
 // The handler's `_internal` test surface: the inference provider seam only.
-const INTERNAL = ['_setProvidersForTest'];
+const INTERNAL = ['_setProviderForTest'];
 
 const DELETED = [
   // The legacy diagnosis pipeline, deleted with ADR 0019.
@@ -29,6 +29,10 @@ const DELETED = [
   // The journey controller (Jev UNDERSTAND, mc/1, cs/1, the canonical journeys and COMPOSE), retired with ADR 0020.
   'canonical', 'canonical-runtime.js', 'jev-mc1.js', 'jev-understand.js', 'identity.js', 'security.js',
   'engine/understand.js', 'engine/reply-filters.js', 'engine/catalogue.js', 'ac2/build-journey-knowledge.cjs',
+  // The ADR 0021 pipeline (Qwen, Jev, the claim verifier) retired by the advisor (ADR 0023, change 23.1), and the
+  // leftovers removed in change 23.3: Jev, the in-process copy of the error-code data, the ablation.
+  'ac2/understand.js', 'ac2/labels.js', 'ac2/reasoner.js', 'ac2/verifier.js', 'ac2/reply.js', 'ac2/compose.js', 'ac2/evidence.js',
+  'ac2/parts.js', 'ac2/models.js', 'jev-client.js', 'ac2/errorcodes.js', 'ac2/data',
 ];
 
 describe('engine modules', () => {

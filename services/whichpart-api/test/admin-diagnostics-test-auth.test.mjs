@@ -1,12 +1,8 @@
 /**
- * Diagnostics / Test Admin API — authoritative auth table, method hygiene, input validation,
- * library concurrency and read-only diagnostics.
- *
- * Routes are DERIVED from the router source (every `path.endsWith('/admin/library…')`,
- * `'/admin/benchmark…'` and `'/admin/diagnostics'` branch in index.js), so a new Test-area route
- * added without the gate fails here automatically. For every route × method: no session → 401
- * (or 405 for an unsupported method), non-admin session → 401, and the Test-area S3 store and
- * the AI-config secret are NEVER reached — tripwires throw on any call.
+ * Diagnostics Admin API — auth table derived from the router, method hygiene, read-only diagnostics, and the admin
+ * request log. For every route × method: no session → 401 (or 405 for an unsupported method), non-admin session →
+ * 401, and the AI-config secret is NEVER reached — tripwires throw on any call. The retired Test area
+ * (/admin/library, /admin/benchmark) is a 404 for everyone (ADR 0023).
  */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { createRequire } from 'node:module';
@@ -19,58 +15,19 @@ const src = require('./api-source.cjs')();
 
 const ROUTES = Array.from(new Set(Array.from(src.matchAll(/path\.endsWith\('(\/admin\/(?:library|benchmark|diagnostics)[a-z/_-]*)'\)/g)).map((m) => m[1]))).sort();
 const METHODS = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
-// The methods the Admin client actually uses — everything else must be 405.
-const SUPPORTED = {
-  '/admin/library': ['GET'],
-  '/admin/library/import': ['POST'],
-  '/admin/library/journey': ['GET', 'POST'],
-  '/admin/library/journey/delete': ['POST'],
-  '/admin/library/journey/duplicate': ['POST'],
-  '/admin/library/journey/edit': ['POST'],
-  '/admin/library/journey/flags': ['POST'],
-  '/admin/benchmark/build-run': ['POST'],
-  '/admin/benchmark/compare': ['GET'],
-  '/admin/benchmark/config': ['GET'],
-  '/admin/benchmark/estimate': ['POST'],
-  '/admin/benchmark/rerun': ['POST'],
-  '/admin/benchmark/review': ['GET', 'POST'],
-  '/admin/benchmark/reviews': ['GET'],
-  '/admin/benchmark/run': ['GET', 'POST'],
-  '/admin/benchmark/run/cancel': ['POST'],
-  '/admin/benchmark/routing-override/recover': ['POST'],
-  '/admin/benchmark/routing-override/resolve': ['POST'],
-  '/admin/benchmark/runs': ['GET'],
-  '/admin/benchmark/scenario-conversations': ['GET'],
-  '/admin/benchmark/transcript': ['GET'],
-  '/admin/diagnostics': ['GET'],
-};
-const RUN = 'acq-2026-01-01T00-00-00-000Z-abc12345';
+const SUPPORTED = { '/admin/diagnostics': ['GET'] };
+const RETIRED = ['/admin/library', '/admin/library/journey', '/admin/library/import', '/admin/benchmark/runs', '/admin/benchmark/run', '/admin/benchmark/config', '/admin/benchmark/routing-override/resolve'];
 
 let touched = [];
-const tripS3 = {
-  getObject: async (k) => { touched.push('s3.get'); throw new Error('S3 reached before auth: ' + k); },
-  putObject: async (k) => { touched.push('s3.put'); throw new Error('S3 reached before auth: ' + k); },
-  list: async (p) => { touched.push('s3.list'); throw new Error('S3 reached before auth: ' + p); },
-};
-const AI_FNS = ['loadConfig', 'isKeyConfigured', 'saveConfig', 'loadJevWithStatus'];
+const AI_FNS = ['loadConfig', 'loadConfigWithStatus', 'isKeyConfigured', 'saveConfig', 'getKey'];
 const realAi = {};
-
-function memS3() {
-  const m = new Map();
-  return {
-    m,
-    getObject: async (k) => (m.has(k) ? m.get(k) : null),
-    putObject: async (k, b) => { m.set(k, b); },
-    list: async (p) => Array.from(m.keys()).filter((k) => k.startsWith(p)),
-  };
-}
 function ev(route, method, opts = {}) {
   const p = '/api' + route;
   return {
     rawPath: p, requestContext: { http: { method, path: p }, requestId: 'dt-auth' },
     headers: {}, cookies: [],
-    body: opts.body !== undefined ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : JSON.stringify({ id: 'WM-001', run: RUN, journey: 'WM-001', state: 'looks_good', changes: {} }),
-    queryStringParameters: opts.qs || { id: 'WM-001', run: RUN, journey: 'WM-001', a: RUN, b: RUN },
+    body: opts.body !== undefined ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : JSON.stringify({ id: 'WM-001' }),
+    queryStringParameters: opts.qs || { id: 'WM-001' },
   };
 }
 const ADMIN = async () => ({ username: 'a', email: 'admin@example.test', isAdmin: true });
@@ -80,234 +37,93 @@ function stubAi(fake) {
   for (const k of AI_FNS) aiConfig[k] = fake[k] || (async () => { touched.push('ai.' + k); throw new Error('ai-config reached: ' + k); });
 }
 beforeAll(() => { for (const k of AI_FNS) realAi[k] = aiConfig[k]; });
-afterAll(() => { for (const k of AI_FNS) aiConfig[k] = realAi[k]; api.setAcqS3ForTests(null); api.setSessionForTests(null); });
+afterAll(() => { for (const k of AI_FNS) aiConfig[k] = realAi[k]; api.setSessionForTests(null); api.setDiagnosticsDepsForTests(null); });
+afterEach(() => { api.setSessionForTests(null); api.setDiagnosticsDepsForTests(null); });
 
-describe('NAVIGATION/AUTH — Test-area route table (derived from the router)', () => {
-  it('finds every Library / Benchmark / Diagnostics route', () => {
-    expect(ROUTES).toEqual(Object.keys(SUPPORTED).sort());
-    expect(ROUTES.length).toBe(22);
+describe('NAVIGATION/AUTH — Diagnostics route table (derived from the router)', () => {
+  it('finds only the Diagnostics route: no Library or Benchmark route is routed any more', () => {
+    expect(ROUTES).toEqual(['/admin/diagnostics']);
   });
 
   for (const [label, session] of [['no session', null], ['non-admin session', USER]]) {
-    it(label + ': every route × method is 401 (or 405 if unsupported) and never reaches S3 or ai-config', async () => {
+    it(label + ': every route × method is 401 (or 405 if unsupported) and never reaches ai-config', async () => {
       api.setSessionForTests(session);
-      api.setAcqS3ForTests(tripS3);
       stubAi({});
       touched = [];
-      const table = [];
       for (const route of ROUTES) {
         const supported = [];
         for (const method of METHODS) {
           const r = await api.handler(ev(route, method));
-          table.push([route, method, r.statusCode]);
           expect([401, 405], route + ' ' + method).toContain(r.statusCode);
           if (r.statusCode === 401) {
             supported.push(method);
             expect(JSON.parse(r.body)).toEqual({ error: 'Unauthorized' });
           } else {
-            // 405 bodies name the allowed methods only — no data.
             expect(Object.keys(JSON.parse(r.body))).toEqual(['error']);
           }
         }
         expect(supported, route).toEqual(SUPPORTED[route]);
       }
       expect(touched).toEqual([]);
-      expect(table.filter((t) => (t[2] >= 200 && t[2] < 300) || t[2] >= 500)).toEqual([]);
     });
   }
 
-  it('/admin/library/import (an S3 seed write) is no longer reachable without admin', async () => {
-    api.setAcqS3ForTests(tripS3); touched = [];
-    api.setSessionForTests(null);
-    expect((await api.handler(ev('/admin/library/import', 'POST'))).statusCode).toBe(401);
-    api.setSessionForTests(USER);
-    expect((await api.handler(ev('/admin/library/import', 'POST'))).statusCode).toBe(401);
+  it('the retired Test area is a 404 for every caller and method, and never the diagnose path', async () => {
+    stubAi({});
+    touched = [];
+    for (const session of [null, USER, ADMIN]) {
+      api.setSessionForTests(session);
+      for (const route of RETIRED) {
+        for (const method of METHODS) {
+          const r = await api.handler(ev(route, method));
+          expect(r.statusCode, route + ' ' + method).toBe(404);
+          expect(JSON.parse(r.body)).toEqual({ error: 'not found' });
+        }
+      }
+    }
     expect(touched).toEqual([]);
   });
 
   it('an admin session reaches the handler (the tripwire proves the table is meaningful)', async () => {
     api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(tripS3);
+    stubAi({ loadConfig: async () => { touched.push('ai.loadConfig'); return aiConfig.defaultConfig(); }, isKeyConfigured: async () => { touched.push('ai.isKeyConfigured'); return false; } });
+    api.setDiagnosticsDepsForTests({ fetch: async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => '{}' }), mcpHealthUrl: '', engineHealthUrl: '', loadOverlay: async () => mediaAdmin.emptyState() });
     touched = [];
-    const r = await api.handler(ev('/admin/benchmark/runs', 'GET'));
+    const r = await api.handler(ev('/admin/diagnostics', 'GET'));
+    expect(r.statusCode).toBe(200);
     expect(touched.length).toBeGreaterThan(0);
-    expect(r.statusCode).not.toBe(401);
-  });
-
-  it('ERRORS: a store failure is a clean JSON 500 with no internal detail', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(tripS3);
-    const r = await api.handler(ev('/admin/benchmark/runs', 'GET'));
-    expect(r.statusCode).toBe(500);
-    expect(JSON.parse(r.body)).toEqual({ error: 'The test service could not complete this request. Try again.' });
-    expect(r.body).not.toMatch(/S3 reached|acq\/runs/);
-  });
-
-  it('unsupported methods are 405 even for an admin, before any store access', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(tripS3);
-    touched = [];
-    for (const [route, m] of [['/admin/library', 'DELETE'], ['/admin/benchmark/runs', 'POST'], ['/admin/benchmark/transcript', 'PUT'], ['/admin/library/journey', 'PATCH']]) {
-      expect((await api.handler(ev(route, m))).statusCode, route + ' ' + m).toBe(405);
-    }
-    expect(touched).toEqual([]);
   });
 });
 
-describe('AUTH — admin-api log carries a real auth category for Test-area routes', () => {
+describe('AUTH — admin-api log carries a real auth category', () => {
   it('logs unauthenticated / forbidden / admin, never not-checked, and no secrets', async () => {
     const lines = [];
     const orig = console.log;
     console.log = (x) => { lines.push(String(x)); };
     try {
-      api.setAcqS3ForTests(memS3());
-      stubAi({ loadConfig: async () => ({}), isKeyConfigured: async () => false, loadJevWithStatus: async () => ({ public: {} }) });
+      stubAi({ loadConfig: async () => aiConfig.defaultConfig(), isKeyConfigured: async () => false });
+      api.setDiagnosticsDepsForTests({ fetch: async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => '{}' }), mcpHealthUrl: '', engineHealthUrl: '', loadOverlay: async () => mediaAdmin.emptyState(), loadModels: async () => null });
       api.setSessionForTests(null);
-      const e = ev('/admin/library/journey/edit', 'POST', { body: { id: 'WM-001', changes: { title: 'SECRET-TITLE' } } });
+      const e = ev('/admin/diagnostics', 'GET');
       e.cookies = ['wp_session=SECRET-TOKEN-VALUE'];
       await api.handler(e);
       api.setSessionForTests(USER);
-      await api.handler(ev('/admin/benchmark/runs', 'GET'));
+      await api.handler(ev('/admin/diagnostics', 'GET'));
       api.setSessionForTests(ADMIN);
-      await api.handler(ev('/admin/benchmark/runs', 'GET'));
+      await api.handler(ev('/admin/diagnostics', 'GET'));
     } finally { console.log = orig; api.setSessionForTests(null); }
     const admin = lines.filter((l) => l.indexOf('"evt":"admin-api"') !== -1).map((l) => JSON.parse(l));
     expect(admin.map((a) => [a.path, a.auth, a.status])).toEqual([
-      ['/api/admin/library/journey/edit', 'unauthenticated', 401],
-      ['/api/admin/benchmark/runs', 'forbidden', 401],
-      ['/api/admin/benchmark/runs', 'admin', 200],
+      ['/api/admin/diagnostics', 'unauthenticated', 401],
+      ['/api/admin/diagnostics', 'forbidden', 401],
+      ['/api/admin/diagnostics', 'admin', 200],
     ]);
     const all = lines.join('\n');
-    for (const secret of ['SECRET-TOKEN-VALUE', 'SECRET-TITLE', 'wp_session', 'admin@example.test']) expect(all).not.toContain(secret);
-  });
-});
-
-describe('INPUT — ids used in S3 keys are validated before any store call', () => {
-  afterEach(() => { api.setSessionForTests(null); });
-  it('rejects malformed run / scenario ids with 400 and touches nothing', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(tripS3);
-    touched = [];
-    const cases = [
-      ['/admin/benchmark/run', 'GET', { qs: { id: '../library' } }],
-      ['/admin/benchmark/run', 'GET', { qs: { id: 'acq-x/../../y' } }],
-      ['/admin/benchmark/transcript', 'GET', { qs: { run: RUN, journey: 'WM-001/../x' } }],
-      ['/admin/benchmark/transcript', 'GET', { qs: { run: 'nope', journey: 'WM-001' } }],
-      ['/admin/benchmark/scenario-conversations', 'GET', { qs: { journey: '<script>' } }],
-      ['/admin/benchmark/reviews', 'GET', { qs: { run: 'acq-' } }],
-      ['/admin/benchmark/review', 'GET', { qs: { run: RUN, journey: 'a b' } }],
-      ['/admin/benchmark/review', 'POST', { body: { run: RUN + '/x', journey: 'WM-001', state: 'looks_good' } }],
-      ['/admin/benchmark/compare', 'GET', { qs: { a: RUN, b: '../x' } }],
-      ['/admin/benchmark/run/cancel', 'POST', { body: { id: 'acq-../../x' } }],
-      ['/admin/benchmark/rerun', 'POST', { body: { id: '/etc/passwd' } }],
-      ['/admin/library/journey', 'GET', { qs: { id: 'WM-001/../../x' } }],
-      ['/admin/library/journey', 'GET', { qs: { id: 'new' } }],
-      ['/admin/library/journey/edit', 'POST', { body: { id: '../x', changes: {} } }],
-      ['/admin/library/journey/flags', 'POST', { body: { id: 'WM-001', changes: [] } }],
-      ['/admin/library/journey/delete', 'POST', { body: { id: 'a/b' } }],
-      ['/admin/library/journey/duplicate', 'POST', { body: { id: 'WM-001', overrides: { journeyId: '../x' } } }],
-      ['/admin/library/journey', 'POST', { body: { journeyId: 'x/y', family: 'vacuum' } }],
-      ['/admin/benchmark/build-run', 'POST', { body: { mode: 'MANUAL', manualIds: ['WM-001', '../x'] } }],
-      ['/admin/benchmark/build-run', 'POST', { body: { mode: 'MANUAL', manualIds: 'WM-001' } }],
-      ['/admin/benchmark/review', 'POST', { body: { run: RUN, journey: 'WM-001', state: 'looks_good', note: 'x'.repeat(4001) } }],
-    ];
-    for (const [route, m, o] of cases) {
-      const r = await api.handler(ev(route, m, o));
-      expect(r.statusCode, route + ' ' + m + ' ' + JSON.stringify(o).slice(0, 60)).toBe(400);
-    }
-    expect(touched).toEqual([]);
-  });
-
-  it('caps request bodies at 64 KB (413) before any store call', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(tripS3);
-    touched = [];
-    const r = await api.handler(ev('/admin/library/journey', 'POST', { body: JSON.stringify({ family: 'vacuum', title: 'x'.repeat(70 * 1024) }) }));
-    expect(r.statusCode).toBe(413);
-    expect(touched).toEqual([]);
-  });
-
-  it('invalid JSON is a 400, not a 500', async () => {
-    api.setSessionForTests(ADMIN);
-    api.setAcqS3ForTests(memS3());
-    expect((await api.handler(ev('/admin/library/journey', 'POST', { body: '{not json' }))).statusCode).toBe(400);
-    expect((await api.handler(ev('/admin/library/journey/edit', 'POST', { body: '[1,2]' }))).statusCode).toBe(400);
-  });
-});
-
-describe('ACTIONS — library concurrency, actor attribution and safe delete', () => {
-  afterEach(() => { api.setSessionForTests(null); });
-  async function seeded() {
-    const s3 = memS3();
-    api.setAcqS3ForTests(s3);
-    api.setSessionForTests(ADMIN);
-    const r = await api.handler(ev('/admin/library', 'GET', { qs: {} }));
-    expect(r.statusCode).toBe(200);
-    return s3;
-  }
-  async function getJ(id) { return JSON.parse((await api.handler(ev('/admin/library/journey', 'GET', { qs: { id } }))).body).journey; }
-
-  it('a stale expectedUpdatedAt is refused with 409 and changes nothing', async () => {
-    const s3 = await seeded();
-    const j = await getJ('WM-001');
-    const before = s3.m.get('acq/library.json');
-    const stale = await api.handler(ev('/admin/library/journey/edit', 'POST', { body: { id: 'WM-001', expectedUpdatedAt: '1999-01-01T00:00:00.000Z', changes: { title: 'Stale write' } } }));
-    expect(stale.statusCode).toBe(409);
-    expect(JSON.parse(stale.body).error).toBe('STALE');
-    expect(s3.m.get('acq/library.json')).toBe(before);
-    const fresh = await api.handler(ev('/admin/library/journey/edit', 'POST', { body: { id: 'WM-001', expectedUpdatedAt: j.updatedAt, changes: { title: 'Fresh write' } } }));
-    expect(fresh.statusCode).toBe(200);
-    const after = JSON.parse(fresh.body);
-    expect(after.title).toBe('Fresh write');
-    expect(after.updatedBy).toBe('admin@example.test');
-    // The old token is now stale for the next writer too (flags / delete).
-    expect((await api.handler(ev('/admin/library/journey/flags', 'POST', { body: { id: 'WM-001', expectedUpdatedAt: j.updatedAt, changes: { archived: true } } }))).statusCode).toBe(409);
-    expect((await api.handler(ev('/admin/library/journey/delete', 'POST', { body: { id: 'WM-001', expectedUpdatedAt: j.updatedAt } }))).statusCode).toBe(409);
-  });
-
-  it('retire / restore records the acting admin; omitting the precondition keeps old behaviour', async () => {
-    await seeded();
-    const r = await api.handler(ev('/admin/library/journey/flags', 'POST', { body: { id: 'WM-002', changes: { archived: true } } }));
-    expect(r.statusCode).toBe(200);
-    const j = JSON.parse(r.body);
-    expect(j.archived).toBe(true);
-    expect(j.updatedBy).toBe('admin@example.test');
-  });
-
-  it('unknown scenario is a 404, not a 400/500', async () => {
-    await seeded();
-    expect((await api.handler(ev('/admin/library/journey/edit', 'POST', { body: { id: 'ZZ-999', changes: {} } }))).statusCode).toBe(404);
-    expect((await api.handler(ev('/admin/library/journey/flags', 'POST', { body: { id: 'ZZ-999', changes: { archived: true } } }))).statusCode).toBe(404);
-    expect((await api.handler(ev('/admin/library/journey/duplicate', 'POST', { body: { id: 'ZZ-999' } }))).statusCode).toBe(404);
-  });
-
-  it('safe delete counts EVERY persisted run, not only the newest 200', async () => {
-    const s3 = await seeded();
-    // 201 runs; only the OLDEST one used WM-003.
-    for (let i = 0; i < 201; i++) {
-      const runId = 'acq-2026-01-01T00-00-' + String(i).padStart(3, '0') + 'Z-r' + i;
-      const ids = i === 0 ? ['WM-003'] : ['WM-004'];
-      s3.m.set('acq/runs/' + runId + '.json', JSON.stringify({ runId, status: 'COMPLETED', startedAt: '2026-01-01T00:00:' + String(i).padStart(3, '0'), manifest: { journeyCount: 1, journeys: ids.map((journeyId) => ({ journeyId, version: 1 })) }, results: [] }));
-    }
-    const r = await api.handler(ev('/admin/library/journey/delete', 'POST', { body: { id: 'WM-003' } }));
-    expect(r.statusCode).toBe(200);
-    expect(JSON.parse(r.body)).toEqual({ deleted: false, archived: true });
-  });
-
-  it('cancelling an unknown run is a 404 and writes nothing', async () => {
-    const s3 = await seeded();
-    const keys = Array.from(s3.m.keys());
-    const r = await api.handler(ev('/admin/benchmark/run/cancel', 'POST', { body: { id: RUN } }));
-    expect(r.statusCode).toBe(404);
-    expect(Array.from(s3.m.keys())).toEqual(keys);
+    for (const secret of ['SECRET-TOKEN-VALUE', 'wp_session', 'admin@example.test']) expect(all).not.toContain(secret);
   });
 });
 
 describe('ARCHITECTURE — Diagnostics reports ac2 read-only', () => {
-  afterEach(() => {
-    api.setDiagnosticsDepsForTests(null);
-    api.setSessionForTests(null);
-  });
   async function snapshot() {
     api.setSessionForTests(ADMIN);
     api.setDiagnosticsDepsForTests({
@@ -326,7 +142,7 @@ describe('ARCHITECTURE — Diagnostics reports ac2 read-only', () => {
     expect(d.runtime).not.toHaveProperty('canonical');
     expect(d.runtime).not.toHaveProperty('ac2');
     expect(d.components.map((c) => c.id)).toEqual(['whichpart-api', 'diagnosis-engine', 'error-code-mcp', 'media-resolver', 'parts-catalogue']);
-    expect(JSON.stringify(d)).not.toMatch(/orchestrator/i);
+    expect(JSON.stringify(d)).not.toMatch(/orchestrator|reasoner|qwen|lm studio|jev/i);
   });
   it('diagnostics stays GET-only and reads no mode from the environment', () => {
     expect(SUPPORTED['/admin/diagnostics']).toEqual(['GET']);

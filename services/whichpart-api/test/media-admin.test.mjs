@@ -398,7 +398,7 @@ describe('customer boundary overlay', () => {
         { id: 'wm-pump-filter', type: 'IMAGE', title: 'Pump', url: '/media/wm-pump-filter.svg' },
       ],
     }, 't');
-    expect(untouched.diagnosis.faultId).toBeNull();
+    expect(untouched.safety).toBe(false);
     expect(untouched.media.length).toBe(1);
   });
 });

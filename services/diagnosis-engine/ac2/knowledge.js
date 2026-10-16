@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Knowledge layer: what the reasoner may read. Retrieval informs the reasoner; it never decides control flow.
+ * Knowledge layer: the notes the advisor reads. Retrieval informs the advisor; it never decides control flow.
  *
  * Sources (all shipped with the engine):
  *   knowledge-docs.json      171 fault nodes (likely causes, discriminators, common confusions, advice before replacing)
@@ -189,22 +189,6 @@ function normalNotes({ appliance = null, text = '', limit = 3 } = {}) {
     .map(([, n]) => ({ id: n.id, normal: n.normal, warningSigns: n.warning }));
 }
 
-/** Part-matching rules for a component on an appliance, from the retired journeys. */
-function partMatchers(appliance) {
-  const { journeys } = kb();
-  const out = [];
-  for (const j of journeys) {
-    // The journeys name hobs `hob` (D9); a washer-dryer shares the washing machine's parts.
-    const ja = j.appliance === 'hob' ? 'hobs' : j.appliance;
-    if (appliance && ja !== appliance && !(appliance === 'washer-dryer' && ja === 'washing-machine')) continue;
-    for (const [component, m] of Object.entries(j.partMatch || {})) {
-      if (!m.re) continue;
-      out.push({ component, label: (j.components || {})[component] || component.replace(/-/g, ' '), re: new RegExp(m.re.source, m.re.flags), not: m.not ? new RegExp(m.not.source, m.not.flags) : null });
-    }
-  }
-  return out;
-}
-
 function safetyInformation(knowledgeId) {
   const s = kb().safety[knowledgeId];
   return s && s.text ? { text: s.text, classification: s.classification || null } : null;
@@ -214,10 +198,4 @@ function knownKnowledgeId(id) {
   return kb().docs.some((d) => d.knowledgeId === id);
 }
 
-/** One note by its id, in the same shape retrieve() returns (null when unknown). */
-function noteById(id) {
-  const e = kb().index.find((x) => x.doc.knowledgeId === id);
-  return e ? compactDoc(e) : null;
-}
-
-module.exports = { APPLIANCES, retrieve, noteById, normalNotes, partMatchers, safetyInformation, applianceHints, knownKnowledgeId, words };
+module.exports = { APPLIANCES, retrieve, normalNotes, safetyInformation, applianceHints, knownKnowledgeId, words };

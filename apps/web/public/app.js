@@ -216,7 +216,7 @@
           session.turns.push(Session.assistantTurnRecord(view));
           persistSession();
         }
-        adjustPlaceholder(view);
+        adjustPlaceholder();
         return view || null;
       })
       .catch(function (err) {
@@ -623,17 +623,16 @@
   }
 
   function addBotTurn(view) {
-    var advice = !!view.advisory;
     // SAFETY_STOP is a structured payload flag (view.safety). Presentation only — never inferred
     // from reply wording. safetyInformation is a separate node-attached panel on ordinary replies.
     var safetyStop = !!view.safety;
-    var turn = el('div', 'turn turn--bot' + (advice ? ' turn--advice' : '') + (safetyStop ? ' turn--safety-stop' : ''));
+    var turn = el('div', 'turn turn--bot' + (safetyStop ? ' turn--safety-stop' : ''));
     turn.appendChild(el('div', 'turn__who', 'ApplianceClinic'));
 
     // ENGINEER-LED RESPONSE. Presentation only: we render the STRUCTURED fields the diagnosis engine
-    // already sends (diagnosis.label, diagnosis.summary, reply) — we NEVER parse the prose for
-    // phrases or re-interpret it, and never render via innerHTML. The reply/summary are the engine's
-    // own words shown verbatim via textContent.
+    // already sends (diagnosis.summary, reply) — we NEVER parse the prose for phrases or re-interpret
+    // it, and never render via innerHTML. The reply/summary are the engine's own words shown verbatim
+    // via textContent.
     var resp = el('div', safetyStop ? 'response safety-info safety-info--stop-use' : 'response');
     if (safetyStop) {
       resp.setAttribute('role', 'status');
@@ -643,15 +642,6 @@
       stopHead.appendChild(stopIcon);
       stopHead.appendChild(el('span', 'safety-info__title', safetyTitle('stop-use')));
       resp.appendChild(stopHead);
-    }
-    // Overline: a maintenance tip, else the grounded fault label (structured, not derived from prose).
-    // On a safety-stop the structured heading above is the primary label, so skip the fault overline.
-    if (!safetyStop) {
-      if (advice) {
-        resp.appendChild(el('h3', 'response__diag', 'Maintenance tip'));
-      } else if (view.diagnosis && view.diagnosis.label) {
-        resp.appendChild(el('h3', 'response__diag', view.diagnosis.label));
-      }
     }
     // Lead = the engine's provided primary-finding sentence (diagnosis.summary). Body = the remainder
     // of the engine's reply. If summary is a genuine prefix of reply we split for hierarchy; otherwise
@@ -688,13 +678,11 @@
       turn.appendChild(renderMedia(view.media));
     }
 
-    // Parts are the SECONDARY next step after diagnosis (labelled), not the headline. When we still
-    // need the model to confirm a part, show a restrained model prompt instead of an error.
+    // Parts are the SECONDARY next step after diagnosis (labelled), not the headline. The advisor asks for
+    // the model number in its own words when it needs it, so there is no separate model prompt.
     if (Array.isArray(view.parts) && view.parts.length) {
       turn.appendChild(el('div', 'parts__head', view.parts.length > 1 ? 'Likely components involved' : 'Likely component involved'));
       turn.appendChild(renderParts(view.parts));
-    } else if (view.needsModel && !view.extractedModel) {
-      turn.appendChild(renderModelRequest());
     }
 
     // 👍/👎 feedback — the right/wrong label that turns the trace corpus into a
@@ -706,16 +694,6 @@
 
     thread.appendChild(turn);
     scrollThread();
-  }
-
-  // Restrained model prompt shown when the engine needs the model to confirm a part (needsModel) and
-  // no parts are shown yet. Presentation only — model-first behaviour is unchanged server-side.
-  function renderModelRequest() {
-    var wrap = el('div', 'model-req');
-    wrap.appendChild(el('div', 'model-req__label', 'To check a suitable replacement'));
-    wrap.appendChild(el('p', 'model-req__text',
-      'Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It\u2019s usually on a sticker inside the door or around the frame, or on the back of the appliance.'));
-    return wrap;
   }
 
   function safetyTitle(cls) {
@@ -939,12 +917,8 @@
       : 'Brand-compatible — check it suits your exact model before buying.';
   }
 
-  function adjustPlaceholder(view) {
-    if (view && view.needsModel && !view.extractedModel) {
-      input.placeholder = 'Enter your model number…';
-    } else {
-      input.placeholder = 'Describe what else you’ve noticed…';
-    }
+  function adjustPlaceholder() {
+    input.placeholder = 'Describe what else you’ve noticed…';
     persistSession();
   }
 

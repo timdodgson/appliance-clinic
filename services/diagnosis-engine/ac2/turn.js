@@ -1,12 +1,12 @@
 'use strict';
 /**
- * One customer turn (refactor 2026-10-16).
+ * One customer turn (ADR 0023, refactor 2026-10-16).
  *
  *   1 receive    the BFF loads the chat's record and sends the turn (signed)
  *   2 emergency  gas or an active fire in the latest message: the fixed emergency wording, nothing else
  *   3 hazards    the hazard word lists over the customer's words (persist for the chat unless denied); unsafe requests
  *   4 notes      the fault notes, normal-behaviour notes and pictures for the appliance and what they describe
- *   5 advisor    Opus reads the chat and the notes, looks up error codes and parts when it needs to, writes the reply
+ *   5 advisor    Claude reads the chat and the notes, looks up error codes and parts when it needs to, writes the reply
  *                (advisor.js)
  *   6 final      fixed safety rules on the reply: banned advice removed, no reassurance under a must-be-checked hazard,
  *                part numbers and prices only from the customer or the catalogue; hazard warnings and the isolation
@@ -98,7 +98,7 @@ function notesFor({ appliance, texts, rec, hazards, unsafe, recalls, media }) {
 
 /**
  * input: { messages, state, tools: { recalls } }
- * deps:  { provider (Opus, with converse), resolveCode, lookupParts, mediaCandidates, now? }
+ * deps:  { provider (Claude, with converse), resolveCode, lookupParts, mediaCandidates, now? }
  */
 async function runTurn(input, deps) {
   const now = deps.now || Date.now;
@@ -191,8 +191,8 @@ async function runTurn(input, deps) {
   rec.outcome = a.outcome || null;
   const escalation = hazard ? { to: hazard.policy.escalate || 'engineer', reason: hazard.type, forced: true } : (a.outcome === 'engineer' ? { to: 'engineer', reason: 'reply' } : null);
   audit.partGate = { outcome: parts.length ? 'verified' : (adv.catalogue ? 'no_catalogue_part' : 'none'), component: null, reason: null };
-  // In the shape the admin transcript view reads (whichpart-api transcripts.js ac2Tags).
-  audit.tags = { labels: {}, stage: null, replyAction: { value: a.outcome || null, confidence: null }, media: shown ? shown.id : null, outcome: a.outcome || null,
+  // This turn's tags, in the shape the admin transcript view reads (whichpart-api transcripts.js ac2Tags).
+  audit.tags = { outcome: a.outcome || null, media: shown ? shown.id : null,
     enrichment: { knowledgeIds: kids, codes: adv.codes, recalls: recalls.length, parts: parts.length ? 'verified' : (adv.catalogue ? 'no_catalogue_part' : 'none') } };
   audit.escalation = escalation;
   audit.timings.totalMs = now() - t0;
@@ -200,14 +200,11 @@ async function runTurn(input, deps) {
   const response = {
     outcome: 'ANSWER',
     message: reply,
-    diagnosis: null,
     parts: parts.length ? parts : null,
     resolvedModel: parts.length ? (adv.catalogue.model && adv.catalogue.model.modelNumber) || adv.catalogue.asked : null,
-    modelRequired: false,
     safety: stop ? { class: hazard.type, stopUse: true, message: S.copyFor(hazard.type) } : null,
     safetyInformation: !stop && kids.length ? K.safetyInformation(kids[0]) : null,
     media: shown ? [shown] : null,
-    codeResult: null,
     escalation,
   };
   return { state: rec, response, audit };

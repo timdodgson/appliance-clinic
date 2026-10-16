@@ -81,14 +81,14 @@ To give someone admin access, create the user in the AC pool and add them to the
 | Area | API | Status |
 |---|---|---|
 | Dashboard | `/admin/dashboard` | Kept |
-| Conversations (transcripts, review, quality) | `/admin/transcripts*` | Kept |
-| Test: live workbench, scenarios library, batch quality runs | `/admin/benchmark/*`, `/admin/library*` | Kept |
+| Conversations (transcripts with the per-turn engine audit) | `/admin/transcripts*` | Kept. The scheduled review, its quality views and the re-review action were removed with the pipeline (ADR 0023) |
+| Test: the live workbench | `/api` (admin `liveTest`) | Kept. The scenarios library and the batch quality runs (`/admin/benchmark/*`, `/admin/library*`) were removed (ADR 0023) |
 | Knowledge | `/admin/knowledge`, `/admin/knowledge/record` | **Read-only.** Knowledge ships with the diagnosis engine (ADR 0019). The draft / publish / version-history editor and its seven routes were removed from the API, so their UI was removed here too |
 | Error codes | `/admin/error-codes*` | Kept (draft → publish workflow, history) |
 | Media | `/admin/media*` | Kept (draft → publish workflow, history, knowledge mapping) |
 | Safety: recalls and safety ingest | `/admin/recalls*`, `/admin/safety-ingest*` | Kept |
 | Diagnostics (deployed components, runtime facts) | `/admin/diagnostics` | Kept. The retired shared engine's RAG-index fields are no longer shown (the API stopped sending them) |
-| Settings (transcript retention, inference, Jev, AI config) | `/admin/settings*`, `/admin/ai-config*` | Kept |
+| Settings (transcript retention, the advisor model and its write-only credential) | `/admin/settings*`, `/admin/ai-config*` | Kept. The provider routing and Jev settings were removed (ADR 0023) |
 
 ## Checks
 

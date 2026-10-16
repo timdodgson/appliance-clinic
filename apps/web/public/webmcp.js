@@ -73,16 +73,15 @@
     return {
       applianceFamily: (u && u.appliance) || null,
       make: (u && u.make) || null,
-      model: (view && view.extractedModel) || null,
+      model: (u && u.model) || null,
       code: (u && u.displayedCode) || null,
-      fault: (view && view.diagnosis && view.diagnosis.label) || null,
+      fault: (view && view.diagnosis && view.diagnosis.summary) || null,
       status: status,
       latestReply: (view && view.reply) || (lastAssistant && lastAssistant.content) || '',
       safetyStopActive: viewSafetyStop(view),
       safetyClassification:
         (view && view.safetyInformation && view.safetyInformation.classification)
         || (view && view.safety === true ? 'STOP_USE' : null),
-      needsModel: Boolean(view && view.needsModel),
       partsShown: (view && Array.isArray(view.parts) && view.parts.length) || 0,
       messageCount: messages.length,
     };
