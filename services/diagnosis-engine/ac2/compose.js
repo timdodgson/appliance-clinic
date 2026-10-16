@@ -246,7 +246,9 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   const sameCause = sitKey && sitKey !== 'engineer' && rec.led && rec.led.situation === sitKey;
   rec.led = { situation: sitKey, note: note ? note.knowledgeId : null };
   const ev = note && situation && situation !== 'engineer' && situation.kind === 'cause' ? (note.componentEvidence || []).find((x) => key(x.name) === key(situation.text)) : null;
-  if (situation && situation.kind === 'normal' && settled) {
+  // Normal behaviour is settled when Jev says so, or when it chose the same normal note two turns running (round 6:
+  // WM-07 chose "normal Eco cycle" seven times without marking it settled).
+  if (situation && situation.kind === 'normal' && (settled || sameCause)) {
     // Settled as normal behaviour: say so, say what would make it a fault, and close (round 3: WM-02 went on to checks
     // and the engineer line).
     if (sameCause) {
