@@ -55,10 +55,6 @@ describe('enforcement (ADR 0018: refused, never stripped into a plain request)',
     const g = gate(internalBody, raw, A.sign(KEY, '{}', NOW));
     expect(g.record).toMatchObject({ signature: 'invalid', rejected: true });
   });
-  it('unsigned feedback is rejected', () => {
-    const fb = { feedback: { traceId: 't', rating: 1 } };
-    expect(gate(fb, JSON.stringify(fb), null).record.rejected).toBe(true);
-  });
   it('without a signing key any internal field is rejected (fails closed)', () => {
     const g = A.gateInternalFields(internalBody, ev(A.sign(KEY, raw, NOW)), raw, { key: null, nowS: NOW });
     expect(g.record).toMatchObject({ signature: 'no_key', rejected: true });

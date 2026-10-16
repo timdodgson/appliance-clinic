@@ -244,10 +244,9 @@ old benchmark harness, with the same tests green before and after.
 |---|---|
 | **Account Lambda concurrency is 10**, shared with every workload in the account | Fix: an account-level quota increase (100 recommended), which needs the account owner's approval ([analysis](../evaluation/phase-11-concurrency.md)) |
 | **One model provider; no error-rate or spend monitoring** | Every turn needs the Anthropic API. When the previous provider's credit ran out on 2026-10-11 the service went down ([finding](../evaluation/phase-13-results.md#operational-finding-jev-credit-exhaustion-took-production-down)); the same shape applies. Needed: alerting on the provider error rate and spend |
-| **No prompt-injection test set** | Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has no such cases yet |
+| **A small prompt-injection test set** | Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has four such cases (`INJ-*`), all passing on 2026-10-16 |
 | **Customer photos not proven live** | The advisor accepts images, but no live chat has yet shown a photo reaching it end to end |
 | **No alarm notification target** | The engine alarms go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription |
 | **The old shared engine still runs in AC's account** | It serves S4R; moving it is S4R's change ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)) |
-| **The orchestrator function still exists** | No traffic since change 21.3; removing it from the stack is a separate reviewed change |
+| **The orchestrator function still exists and still receives traffic** | No AC service calls it, yet CloudWatch counted 23,537 invocations of its public Function URL between 2026-10-02 and 2026-10-16. The caller is not identified; it stays until it is |
 | **Evaluation shares production's credential** | The scripted chats use the same model credential as the live service (about $1 a full run) |
-| **The transcript review schedule still fires** | Every 15 minutes the function acknowledges the event with no work; removing the rule is a CDK change |

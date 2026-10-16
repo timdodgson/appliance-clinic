@@ -56,8 +56,8 @@ const part = (extra = {}) => ({ partNo: 'ABC123', title: 'Inverter', price: '80.
 }
 // 7. The view carries only the customer contract: no fields from the retired pipeline
 {
-  const v = toWhichPartView(orch({ message: 'Tell me more', modelRequired: true, codeResult: { meaning: 'x' }, suggestedChecks: ['a'], componentMention: 'none', traceId: null }), 't');
-  check('view keys are the customer contract', Object.keys(v).sort().join(',') === 'components,diagnosis,media,parts,reply,requestId,safety,safetyInformation,traceId', Object.keys(v).sort().join(','));
+  const v = toWhichPartView(orch({ message: 'Tell me more', modelRequired: true, codeResult: { meaning: 'x' }, suggestedChecks: ['a'], componentMention: 'none' }), 't');
+  check('view keys are the customer contract', Object.keys(v).sort().join(',') === 'components,diagnosis,media,parts,reply,requestId,safety,safetyInformation', Object.keys(v).sort().join(','));
   check('no internal ids leak', !/scheme|faultid|bsh_|suggestedChecks|codeResult/i.test(JSON.stringify(v)));
 }
 

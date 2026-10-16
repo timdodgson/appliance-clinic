@@ -60,12 +60,12 @@ configuration document and the Anthropic API key in the credential secret, which
   the Jev settings and secret); the LM Studio and OpenAI providers and the provider routing settings; the scheduled
   transcript review and its admin views; the admin Test area (question library, ACQ-100 benchmark, routing override);
   the independent-100 and rebuild evaluation harnesses and their recorded outputs. The 15-minute
-  `whichpart-transcript-review` schedule still exists in the stack and is acknowledged with no work until a CDK change
-  removes it.
+  `whichpart-transcript-review` schedule was released from the stack and deleted in change 23.5, and the unused
+  feedback path (engine branch, BFF pass-through, the view's `traceId`) in change 23.6.
 - **Quality is checked by scripted pass/fail chats** (`evaluation/scripted/`): 22 fixed customer messages run against
   the live services with hand-written expectations per reply. Change 23.2 passed 22/22; the previous pipeline passed
-  2/22 on the same messages ([side by side](../../evaluation/scripted/SIDE-BY-SIDE.md)). The set is small and has no
-  prompt-injection cases yet.
+  2/22 on the same messages ([side by side](../../evaluation/scripted/SIDE-BY-SIDE.md)). The set is small; four
+  prompt-injection cases (`INJ-*`) were added on 2026-10-16 and pass.
 - **One provider.** Every turn depends on the Anthropic API (with the API's own server-side fallback requested). There
   is no second provider by design.
 - **Not yet proven live:** customer photos reaching the advisor end to end.

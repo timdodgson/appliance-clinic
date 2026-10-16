@@ -59,12 +59,6 @@
   var OFFLINE_ASK_STATUS = 'You’re offline. Diagnosis needs an internet connection. Your conversation is unchanged — try again when you’re back online.';
   var askStatusText = document.getElementById('askStatusText');
 
-  // Feedback thumb icons — proper inline SVG (coloured via CSS, sage), not emoji.
-  var THUMB_UP_SVG =
-    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zM7 10l5-8a2.5 2.5 0 0 1 2.5 2.5V8h4.6a2 2 0 0 1 2 2.32l-1.3 8A2 2 0 0 1 17.8 20H7z"/></svg>';
-  var THUMB_DOWN_SVG =
-    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1zM17 14l-5 8a2.5 2.5 0 0 1-2.5-2.5V16H4.9a2 2 0 0 1-2-2.32l1.3-8A2 2 0 0 1 6.2 4H17z"/></svg>';
-
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     submit();
@@ -685,13 +679,6 @@
       turn.appendChild(renderParts(view.parts));
     }
 
-    // 👍/👎 feedback — the right/wrong label that turns the trace corpus into a
-    // learning signal. Only shown once we have a real reply + a trace to link to.
-    // Restored sessions omit traceId on purpose (internal, not persisted).
-    if (view.reply && view.traceId) {
-      turn.appendChild(renderFeedback(view.traceId));
-    }
-
     thread.appendChild(turn);
     scrollThread();
   }
@@ -830,35 +817,6 @@
       wrap.appendChild(card);
     });
     return wrap;
-  }
-
-  function renderFeedback(traceId) {
-    var wrap = el('div', 'feedback');
-    wrap.appendChild(el('span', 'feedback__q', 'Was this helpful?'));
-    wrap.appendChild(feedbackBtn('up', traceId, wrap));
-    wrap.appendChild(feedbackBtn('down', traceId, wrap));
-    return wrap;
-  }
-
-  function feedbackBtn(rating, traceId, wrap) {
-    var b = el('button', 'feedback__btn feedback__btn--' + rating);
-    b.type = 'button';
-    b.setAttribute('aria-label', rating === 'up' ? 'Helpful' : 'Not helpful');
-    b.innerHTML = rating === 'up' ? THUMB_UP_SVG : THUMB_DOWN_SVG;
-    b.addEventListener('click', function () {
-      sendFeedback(traceId, rating);
-      wrap.innerHTML = '';
-      wrap.appendChild(el('span', 'feedback__thanks', 'Thanks — that helps us improve.'));
-    });
-    return b;
-  }
-
-  function sendFeedback(traceId, rating) {
-    return fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ feedback: { traceId: traceId, rating: rating } }),
-    }).catch(function () { /* best-effort; never block the UI */ });
   }
 
   function renderParts(parts) {

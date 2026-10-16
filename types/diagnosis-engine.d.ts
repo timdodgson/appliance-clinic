@@ -2,7 +2,7 @@
  * The diagnosis engine's internal contract (ADR 0019, ADR 0023): the signed requests whichpart-api sends to
  * `applianceclinic-diagnosis-engine`, and the JSON it returns. Every request carries the AC engine signature over its
  * exact body (ADR 0017); there is no unsigned request. A diagnose request is one ac2 turn (`mode: 'turn'`); any other
- * request that is not feedback or GET /health is refused (400 unsupported_request).
+ * request that is not GET /health is refused (400 unsupported_request).
  */
 
 export type Role = 'user' | 'assistant';
@@ -52,12 +52,7 @@ export interface EngineTurnRequest {
   ac2?: { state?: ConversationRecord | null; tools?: { recalls?: RecallHint[] } };
 }
 
-/** A customer's rating of an earlier reply, forwarded by whichpart-api. */
-export interface EngineFeedbackRequest {
-  feedback: { traceId: string; rating: 'up' | 'down'; note?: string };
-}
-
-export type EngineRequest = EngineTurnRequest | EngineFeedbackRequest;
+export type EngineRequest = EngineTurnRequest;
 
 /** A refused or failed request. `reasoner_unavailable` is the historical code for "the advisor could not run". */
 export interface EngineError {

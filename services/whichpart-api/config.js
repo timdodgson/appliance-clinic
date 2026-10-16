@@ -6,7 +6,7 @@
  */
 const errorCodesAdmin = require('./error-codes-admin');
 
-// The diagnosis engine (applianceclinic-diagnosis-engine): every customer turn (ac2), the feedback side-channel and the
+// The diagnosis engine (applianceclinic-diagnosis-engine): every customer turn (ac2) and the
 // admin health probes. Its Function URL is AWS_IAM; calls are signed (engine-signature.js).
 const ENGINE_URL =
   process.env.ENGINE_URL ||

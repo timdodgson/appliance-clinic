@@ -20,6 +20,7 @@ ROLES=(whichpart-api-role$S diag-orchestrator-role$S error-code-mcp-role$S)
 [[ $PROFILE == production ]] && ROLES+=(ac-diagnosis-engine-role)
 FUNCTIONS=(spares4repairs-diag-orchestrator$S whichpart-api$S)
 [[ $PROFILE == production ]] && FUNCTIONS+=(applianceclinic-diagnosis-engine applianceclinic-error-code-mcp)
+# The transcript-review rule whichpart-transcript-review was released from the stack and deleted in change 23.5.
 RULES=(whichpart-recall-ingest-daily$S whichpart-transcript-review$S)
 umask 077
 

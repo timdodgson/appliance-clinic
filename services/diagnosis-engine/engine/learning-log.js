@@ -1,5 +1,5 @@
 /**
- * Learning trace, feedback and request logging, with PII redaction.
+ * Learning trace and request logging, with PII redaction.
  */
 /** Single-line JSON metric for CloudWatch Logs Insights. */
 // ---------------------------------------------------------------------------
@@ -51,31 +51,6 @@ function s3Client() {
   return _s3Client;
 }
 
-// Feedback record: a customer's 👍/👎 on a reply, linked to its trace by
-// traceId. Written under learning/feedback/ (covered by the same learning/* IAM
-// grant). The miner joins these to traces to surface CONFIRMED misses.
-async function logFeedback(feedback) {
-  if (!LEARNING_BUCKET) return;
-  try {
-    const rating = String((feedback && feedback.rating) || '').toLowerCase();
-    const rec = {
-      evt: 'wp-feedback',
-      ts: new Date().toISOString(),
-      traceId: (feedback && feedback.traceId) || null,
-      rating: rating === 'up' || rating === 'down' ? rating : null,
-      note: redactPII(feedback && feedback.note, 300),
-    };
-    const now = new Date();
-    const dt = now.toISOString().slice(0, 10);
-    const key = `learning/feedback/dt=${dt}/${now.getTime()}-${Math.random().toString(36).slice(2, 10)}.json`;
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    await s3Client().send(new PutObjectCommand({
-      Bucket: LEARNING_BUCKET, Key: key, Body: JSON.stringify(rec), ContentType: 'application/json',
-    }));
-  } catch (e) {
-    console.error('[diagnosis-engine] feedback write failed:', e.message);
-  }
-}
 
 function log(metric) {
   try {
@@ -90,7 +65,6 @@ function rand() {
 }
 
 module.exports = {
-  logFeedback,
   log,
   rand,
 };

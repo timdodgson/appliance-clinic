@@ -42,7 +42,7 @@ describe('finalizeResponse', () => {
   });
   it('leaves non-HTTP (scheduled) results untouched', () => {
     const result = { attempted: 0 };
-    expect(finalizeResponse({ transcriptReview: true }, result)).toBe(result);
+    expect(finalizeResponse({ recallIngest: 'daily' }, result)).toBe(result);
     expect(finalizeResponse({ source: 'aws.events' }, base)).toBe(base);
   });
 });

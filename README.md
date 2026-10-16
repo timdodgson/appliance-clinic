@@ -71,7 +71,7 @@ The full picture is in [docs/architecture/overview.md](docs/architecture/overvie
 | **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | The turn above |
 | **Error-code service** | `error-codes/mcp` (Python) | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings (MCP over HTTP) and the admin catalogue editor |
 
-The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the request path. Its function still exists in the stack and receives no traffic.
+The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the request path: no AC service calls it. Its function still exists in the stack, and it still receives traffic from outside this repository (see the known risks below).
 
 ### External services
 
@@ -105,7 +105,7 @@ The advisor's prompt is registered and versioned, with a CI guard ([prompts/READ
 - **Banned advice is removed from every reply**: live testing, opening a microwave casing, discharging capacitors, gas or refrigerant work, bypassing safety devices, running an appliance that smelt of burning.
 - **Precautions travel with checks.** A reply that sends the customer to open, remove or clean something gets the isolation step if it lacks one.
 - **No part without the catalogue.** A part card shows only a part `find_parts` returned for the customer's model, and never while a blocking hazard is active.
-- **Instructions inside a customer message are ignored** by prompt. There is no test set for prompt injection yet (see the risks below).
+- **Instructions inside a customer message are ignored** by prompt. Four scripted prompt-injection cases (`INJ-*` in `evaluation/scripted/tests.json`) check this on every run (see the risks below).
 
 ## Evaluation and evidence
 
@@ -141,7 +141,7 @@ Appliance Clinic began inside the Spares4Repairs monorepo and shared its AWS acc
 | 15 | A dedicated canonical diagnosis engine, IAM-authenticated and signed; the legacy diagnosis code deleted |
 | 16–21 | Independent benchmark (lost 94–6), first LLM-led rebuild, then the pipeline (ADR 0021) live and the journey controller deleted |
 | 22 | The error-code service as a Zip Lambda with the repaired dataset (ADR 0022); the retired image function released from the stack and deleted |
-| 23 | The code audit, then one advisor model with tools (ADR 0023); the pipeline, Jev, the provider routing, the transcript review and the admin Test area removed |
+| 23 | The code audit, then one advisor model with tools (ADR 0023); the pipeline, Jev, the provider routing, the transcript review and the admin Test area removed; the review schedule and the unused feedback path released (changes 23.5, 23.6) |
 
 The story, with its decisions and trade-offs, is in [docs/portfolio/project-story.md](docs/portfolio/project-story.md). The phase-by-phase evidence is in [docs/migration/](docs/migration/PLAN.md) and [docs/evaluation/](docs/evaluation/README.md).
 
@@ -151,9 +151,10 @@ Most of these need the account owner's decision. What each looks like and how to
 - **Lambda concurrency quota is 10** for the whole AWS account, shared with another site. A real throttle happened on 2026-10-12 during GOLD. Fix: an account-level quota increase.
 - **The engine alarms notify nobody.** `applianceclinic-diagnosis-engine-{FailedTurns,RefusedRequests,Errors,Throttles}` have no notification target. Fix: an AC-owned SNS topic and subscription.
 - **One model provider.** Every turn needs the Anthropic API; a credential, quota or outage problem fails every turn explicitly, by design. Nothing alerts on the provider's error rate or on spend.
-- **No prompt-injection test set.** Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has no such cases yet.
+- **A small prompt-injection test set.** Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has four such cases (`INJ-*`), all passing on 2026-10-16.
 - **Customer photos are not yet proven live** end to end.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role` and AC secrets, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
+- **The retired orchestrator still receives traffic.** `spares4repairs-diag-orchestrator` has a public Function URL and no AC caller, yet CloudWatch counted 23,537 invocations between 2026-10-02 and 2026-10-16 (97 to 8,882 a day). The caller is not identified. It stays in the stack until it is; deleting it before then could break whoever calls it.
 
 ## Working on it
 

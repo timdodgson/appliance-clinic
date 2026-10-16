@@ -11,7 +11,7 @@ async function send(text, view, { status = 200 } = {}) {
     if (url.endsWith('/auth/me')) return me;
     if (url === '/api' && init.method === 'POST') {
       const body = JSON.parse(init.body);
-      if (body.feedback || (body.observability && body.observability.event === 'end')) return { status: 200, body: {} };
+      if (body.observability && body.observability.event === 'end') return { status: 200, body: {} };
       if (view instanceof Error) throw view;
       return { status, body: view };
     }
@@ -165,16 +165,6 @@ describe('customer chat', () => {
     expect(r.bot.querySelector('.response__lead').textContent).toBe('Could you send me the model number?');
     expect(r.bot.querySelector('.model-req')).toBeNull();
     expect(r.bot.querySelector('.part')).toBeNull();
-  });
-
-  it('feedback buttons post the trace id to the AC API', async () => {
-    const r = await send('hob not heating', { reply: 'Check the child lock.', traceId: 'tr-1' });
-    r.bot.querySelector('.feedback__btn--up').click();
-    await settle(r.window);
-    const fb = r.calls.find((c) => c.body && c.body.feedback);
-    expect(fb.url).toBe('/api');
-    expect(fb.body.feedback).toEqual({ traceId: 'tr-1', rating: 'up' });
-    expect(r.bot.querySelector('.feedback__thanks')).not.toBeNull();
   });
 
   it('typing saves the draft without a script error (the live site threw on every keystroke)', async () => {

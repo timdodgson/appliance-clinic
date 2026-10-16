@@ -170,7 +170,6 @@ function metadataFromPath(orch, view, rid, ac2) {
   const c = (ac2 && ac2.customer) || {};
   return {
     requestId: rid || (view && view.requestId) || null,
-    traceId: (orch && orch.traceId) || (view && view.traceId) || null,
     route: (orch && orch.route) || null,
     outcome: (view && view.error) ? 'ERROR' : ((orch && orch.outcome) || null),
     family: c.appliance || null,
@@ -370,7 +369,6 @@ function applyTurn(record, turn, now) {
   if (md.safetyClass) rec.safetyClass = md.safetyClass;
   rec.hasError = Boolean(rec.hasError) || Boolean(md.apiError);
   rec.lastRequestId = md.requestId || rec.lastRequestId;
-  rec.lastTraceId = md.traceId || rec.lastTraceId;
   rec.partsCount = (last && last.customerVisible && last.customerVisible.parts) ? last.customerVisible.parts.length : rec.partsCount;
   rec.mediaCount = (last && last.customerVisible && last.customerVisible.media) ? last.customerVisible.media.length : rec.mediaCount;
   rec.searchBlob = searchBlobFrom(rec);

@@ -44,6 +44,13 @@ describe('runtime overrides', () => {
     expect(() => applyOverrides(live(), { functions: { f: { url: { cors: null } } } })).toThrow(/no Function URL/);
     expect(applyOverrides(l, { functions: { f: { permissions: { PublicInvoke: { invokedViaFunctionUrl: true } } } } }).functions.f.permissionOverrides).toEqual({ PublicInvoke: { invokedViaFunctionUrl: true } });
   });
+  it('releases an EventBridge rule from the stack with a null override, a no-op once the rule is gone (change 23.5)', () => {
+    const l = live(); l.rules = { keep: { scheduleExpression: 'rate(1 day)' }, gone: { scheduleExpression: 'rate(15 minutes)' } };
+    expect(Object.keys(applyOverrides(l, { rules: { gone: null } }).rules)).toEqual(['keep']);
+    expect(l.rules.gone).toBeDefined();
+    expect(Object.keys(applyOverrides(live(), { rules: { gone: null } }).rules || {})).toEqual([]);
+    expect(() => applyOverrides(l, { rules: { gone: { scheduleExpression: 'rate(1 hour)' } } })).toThrow(/only null/);
+  });
   it('maps a statement CloudFormation created back to its imported id, so logical IDs stay stable', () => {
     const { importedSid } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'overrides.js'));
     expect(importedSid('PublicInvoke', 'AcRuntimeStack', 'whichpartapi')).toBe('PublicInvoke');
@@ -162,5 +169,45 @@ describe('runtime overrides', () => {
     // logs and function only: no metric filters or alarms
     expect(Object.keys(r).filter((k) => k.startsWith(fid)).sort()).toEqual([fid, `${fid}FunctionURLAllowPublicAccess`,
       `${fid}FunctionURLInvokeAllowPublicAccess`, `${fid}Logs`, `${fid}Url`].sort());
+  });
+  it.skipIf(!existsSync(cdkLib))('leaves a null-overridden statement and rule out of the template, and refuses an unknown statement (change 23.5)', () => {
+    const cdk = require(cdkLib);
+    const { RuntimeStack } = require(join(REPO_ROOT, 'infra', 'cdk', 'lib', 'runtime-stack.js'));
+    const { mkdtempSync, writeFileSync } = require('node:fs');
+    const { tmpdir } = require('node:os');
+    const fn = { configuration: { FunctionName: 'whichpart-api', Role: 'arn:aws:iam::800960611664:role/whichpart-api-role', PackageType: 'Zip',
+      Runtime: 'nodejs22.x', Handler: 'index.handler', Architectures: ['x86_64'], MemorySize: 512, Timeout: 30, Environment: { Variables: {} } },
+      code: {}, tags: {}, url: { AuthType: 'NONE', InvokeMode: 'BUFFERED', Cors: null }, reservedConcurrency: null,
+      statements: [
+        { Sid: 'PublicInvoke', Effect: 'Allow', Principal: '*', Action: 'lambda:InvokeFunction', Condition: { Bool: { 'lambda:InvokedViaFunctionUrl': 'true' } } },
+        { Sid: 'TranscriptReviewPeriodic', Effect: 'Allow', Principal: { Service: 'events.amazonaws.com' }, Action: 'lambda:InvokeFunction',
+          Condition: { ArnLike: { 'AWS:SourceArn': 'arn:aws:events:eu-west-1:800960611664:rule/whichpart-transcript-review' } } },
+      ] };
+    const rule = (name) => ({ name, scheduleExpression: 'rate(15 minutes)', state: 'ENABLED', description: null, eventBusName: 'default',
+      targets: [{ Id: 'whichpart-api-review', Arn: 'arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api', Input: '{"transcriptReview": true}' }], tags: [] });
+    const path = join(mkdtempSync(join(tmpdir(), 'rel-')), 'live.json');
+    writeFileSync(path, JSON.stringify({ roles: {}, functions: { 'whichpart-api': fn },
+      rules: { 'whichpart-recall-ingest-daily': rule('whichpart-recall-ingest-daily'), 'whichpart-transcript-review': rule('whichpart-transcript-review') } }));
+    const synth = (overrides) => {
+      const app = new cdk.App({ analyticsReporting: false });
+      const stack = new RuntimeStack(app, 'AcRuntimeStack', { env: { account: '800960611664', region: 'eu-west-1' },
+        synthesizer: new cdk.BootstraplessSynthesizer(), step: '5.10', profile: 'production', live: path, overrides,
+        codeLocations: { 'whichpart-api': { s3Bucket: 'b', s3Key: 'k' } } });
+      const { StackShell, ...resources } = app.synth().getStackByName(stack.stackName).template.Resources;
+      return resources;
+    };
+    const before = synth({});
+    expect(Object.keys(before).sort()).toEqual(['whichpartapi', 'whichpartapiPublicInvoke', 'whichpartapiTranscriptReviewPeriodic', 'whichpartapiUrl',
+      'whichpartrecallingestdaily', 'whichparttranscriptreview'].sort());
+    const after = synth({ functions: { 'whichpart-api': { permissions: { TranscriptReviewPeriodic: null } } }, rules: { 'whichpart-transcript-review': null } });
+    expect(Object.keys(after).sort()).toEqual(['whichpartapi', 'whichpartapiPublicInvoke', 'whichpartapiUrl', 'whichpartrecallingestdaily'].sort());
+    // everything else is byte-identical: releasing a resource changes nothing it does not name
+    for (const k of Object.keys(after)) expect(after[k]).toEqual(before[k]);
+    // once the statement and rule are gone from live, the same overrides are a no-op
+    writeFileSync(path, JSON.stringify({ roles: {}, functions: { 'whichpart-api': { ...fn, statements: [fn.statements[0]] } },
+      rules: { 'whichpart-recall-ingest-daily': rule('whichpart-recall-ingest-daily') } }));
+    expect(Object.keys(synth({ functions: { 'whichpart-api': { permissions: { TranscriptReviewPeriodic: null } } }, rules: { 'whichpart-transcript-review': null } })).sort())
+      .toEqual(Object.keys(after).sort());
+    expect(() => synth({ functions: { 'whichpart-api': { permissions: { Nope: { invokedViaFunctionUrl: true } } } } })).toThrow(/unknown statement/);
   });
 });

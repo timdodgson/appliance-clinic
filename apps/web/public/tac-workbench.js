@@ -100,7 +100,6 @@
     ]);
     var request = section('request', 'Request', [
       row('Request ID', view.requestId || meta.requestId || null),
-      row('Trace ID', view.traceId || meta.traceId || null),
       row('Client time', typeof meta.durationMs === 'number' ? String(Math.round(meta.durationMs)) + ' ms' : null),
       row('Conversation window', typeof meta.windowCount === 'number'
         ? String(meta.windowCount) + ' message' + (meta.windowCount === 1 ? '' : 's') + ' (cap ' + (meta.windowCap || 12) + ')'

@@ -21,7 +21,6 @@ const TID = 't-turn-1';
 function view(extra) {
   return Object.assign({
     requestId: 'rid-1',
-    traceId: 'tr-1',
     reply: 'Likely a blocked pump filter. Clean it with the machine off.',
     safety: false,
     error: false,
@@ -34,7 +33,6 @@ function orch(extra) {
   return Object.assign({
     outcome: 'ANSWER',
     route: 'AC2',
-    traceId: 'tr-1',
     resolvedModel: null,
     safety: { class: 'NORMAL', stopUse: false },
   }, extra || {});

@@ -8,7 +8,11 @@
  *   functions.<name>.url.cors              the Function URL CORS: null removes it, an object replaces it (live shape)
  *   functions.<name>.permissions.<sid>     {invokedViaFunctionUrl: true}: a resource-policy statement is limited to
  *                                          invocations through the function's URL. <sid> is the imported statement id
- *                                          (CloudFormation renames the statement when it replaces it)
+ *                                          (CloudFormation renames the statement when it replaces it).
+ *                                          null: the statement is no longer declared (released from the stack; Retain,
+ *                                          so the operator removes it afterwards). A no-op once it is gone
+ *   rules["<name>"]                        null: the EventBridge rule is no longer declared (released from the stack;
+ *                                          Retain, so the operator deletes it afterwards). A no-op once it is gone
  *   rolePolicies["<role>/<policy>"]        the inline policy document
  *   roleManagedPolicies["<role>"]          the role's managed policy ARNs, exactly (T7: always declared in full)
  *   roles["<role>"]                        a role this stack creates (absent from the capture until it exists):
@@ -101,6 +105,10 @@ function applyOverrides(live, overrides) {
     if (!out.roles[role]) throw new Error(`override for unknown role ${role}`);
     if (!Array.isArray(arns)) throw new Error(`managed policies of ${role} must be a list`);
     out.roles[role].managed = arns.slice();
+  }
+  for (const [name, v] of Object.entries(overrides.rules || {})) {
+    if (v !== null) throw new Error(`rule override ${name}: only null (not declared) is supported`);
+    if (out.rules) delete out.rules[name];
   }
   return out;
 }

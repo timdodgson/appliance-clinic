@@ -59,7 +59,7 @@ If you post something by mistake, tell the maintainer at once. Treat any exposed
   ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
 - **No CORS on the engine.** It is not callable from a browser.
 - **Least privilege.** The engine's role (`ac-diagnosis-engine-role`) can write only its own log group, read only the AC
-  AI secrets (`applianceclinic/production/{ai-config,openai}`), write learning feedback and read media overlays.
+  AI secrets (`applianceclinic/production/{ai-config,openai}`), write to its learning prefix and read media overlays.
 - **Historical names.** Some production resources keep names from before the separation, such as
   `spares4repairs-diag-orchestrator` and `spares4repairs-error-code-mcp`. Renaming a Lambda function means replacing it.
   The names do not grant any other system access.

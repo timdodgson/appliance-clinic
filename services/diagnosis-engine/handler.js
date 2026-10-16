@@ -6,7 +6,6 @@
  * Function URL. There is no anonymous or unsigned request path (ADR 0019).
  *
  *   GET  /health                              read-only runtime health
- *   POST {feedback}                           a customer's rating of an earlier reply
  *   POST {mode:'turn', messages, ac2}         one customer turn: the advisor inside the deterministic guardrail kernel
  *                                             (ac2/turn.js, ADR 0023). There is no other diagnose path.
  *
@@ -19,7 +18,7 @@ const { ensureMediaOverlay, getMediaOverlayCache, getEffectiveMediaJoin, describ
   MEDIA_OVERLAY_TTL_MS } = require('./media.js');
 const { gateInternalFields } = require('./engine-auth.js');
 const { _setProviderForTest, MAX_MESSAGES, MAX_BODY_BYTES } = require('./engine/config.js');
-const { logFeedback, log, rand } = require('./engine/learning-log.js');
+const { log, rand } = require('./engine/learning-log.js');
 const ac2 = require('./ac2/runtime.js');
 
 const json = (statusCode, obj) => ({ statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
@@ -47,12 +46,7 @@ exports.handler = async (event) => {
     return json(401, { error: 'This request needs a valid engine signature.', errorCode: 'engine_signature_required' });
   }
 
-  if (body.feedback) {
-    await logFeedback(body.feedback);
-    return json(200, { ok: true });
-  }
-
-  // ac2 (ADR 0020) is the only diagnose path: a request that is not feedback or health must be a turn.
+  // ac2 (ADR 0020) is the only diagnose path: a request that is not GET /health must be a turn.
   if (body.mode !== 'turn') return json(400, { error: 'Unsupported request.', errorCode: 'unsupported_request' });
   let messages = body.messages;
   if (!Array.isArray(messages) || messages.length === 0) return json(400, { error: 'messages array required' });

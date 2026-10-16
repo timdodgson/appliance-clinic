@@ -4963,7 +4963,6 @@
       }
       var meta = {
         requestId: view.requestId,
-        traceId: view.traceId,
         durationMs: wbLastDurationMs,
         windowCount: (body.messages || []).length,
         windowCap: Session.MAX_API_MESSAGES,

@@ -147,6 +147,8 @@ class RuntimeStack extends cdk.Stack {
           if (NEVER_MANAGED_SIDS.has(s.Sid)) continue;
           const sid = importedSid(s.Sid, this.stackName, fid);
           seen.add(sid);
+          // A null override releases the statement from the stack (Retain: nothing physical changes).
+          if (overridden[sid] === null) continue;
           const principal = s.Principal === '*' ? '*' : (s.Principal.Service || s.Principal.AWS);
           const authType = s.Condition?.StringEquals?.['lambda:FunctionUrlAuthType'];
           const sourceArn = s.Condition?.ArnLike?.['AWS:SourceArn'];
@@ -169,7 +171,8 @@ class RuntimeStack extends cdk.Stack {
             perm.addMetadata('ac:updateReplacePolicyReason', 'Changing a permission replaces its statement; the replaced statement must not remain (Phase 7)');
           }
         }
-        for (const sid of Object.keys(overridden)) if (!seen.has(sid)) throw new Error(`permission override for unknown statement ${name} ${sid}`);
+        // A null override of a statement that no longer exists is a no-op (the overrides are the desired state).
+        for (const sid of Object.keys(overridden)) if (!seen.has(sid) && overridden[sid] !== null) throw new Error(`permission override for unknown statement ${name} ${sid}`);
       }
     }
 

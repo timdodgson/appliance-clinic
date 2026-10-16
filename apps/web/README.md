@@ -6,7 +6,7 @@ search. It is plain HTML, CSS and browser JavaScript with no framework or bundle
 
 | Path | What it is |
 |---|---|
-| `public/index.html`, `app.js`, `chat-session.js`, `styles.css` | Customer chat: conversation, photo of the rating plate, safety, media, part cards, feedback, New chat |
+| `public/index.html`, `app.js`, `chat-session.js`, `styles.css` | Customer chat: conversation, photo of the rating plate, safety, media, part cards, New chat |
 | `public/webmcp.js`, `webmcp-badge.js` | WebMCP tools for agent browsers (Chrome origin trial). The tools call the same `/api` as the chat |
 | `public/sw.js` | Service worker. It caches the static shell for offline use; it never caches `/api`, admin or conversations |
 | `public/admin.html`, `admin.js`, `styles-admin.css` | Admin console (see below) |
@@ -59,7 +59,7 @@ In a sandbox with an HTTP proxy, run it with `NODE_USE_ENV_PROXY=1`.
 - **Shop links.** A part card links to the `offers[].url` the API returned, in a new tab with no referrer. This is the
   only path from the site to a shop. No diagnosis request goes anywhere but `/api`, and `test/boundary.test.mjs`
   enforces that.
-- **Other calls:** `POST /api` with `feedback` (thumbs), `GET /api/recalls` (recall search) and `/api/auth/*`.
+- **Other calls:** `GET /api/recalls` (recall search) and `/api/auth/*`.
 
 ## Admin authentication
 
@@ -101,7 +101,7 @@ npm run check      # = lint + typecheck + test + build
   - `admin.js` (about 7,800 lines of string-built DOM code) is linted but not type-checked.
   - `sw.js` is also linted only, because it needs the WebWorker library.
 - **test:** what the customer sees for each kind of reply (normal, error, offline, safety stop, safety panel,
-  diagnosis, media, part card and shop link, model request, feedback, draft saving); admin bootstrap and sign-in; the
+  diagnosis, media, part card and shop link, draft saving); admin bootstrap and sign-in; the
   read-only knowledge page; the API boundary; the build.
 - **build:** deterministic. CI builds twice and compares the manifests.
 

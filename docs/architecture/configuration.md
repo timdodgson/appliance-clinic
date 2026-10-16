@@ -28,7 +28,7 @@ own settings: role, runtime, handler, IAM Function URL, log retention, alarms).
 | `AC_BEARER_VERSIONS` | Not read by code | none | Yes: the pinned engine-signing secret version | A non-secret marker that forces an update on every key rotation |
 | `AI_CONFIG_SECRET_ID`, `OPENAI_SECRET_ID` | Optional | `spares4repairs/${STAGE}/applianceclinic-{ai-config,openai}` (historical names, see below) | Yes: `applianceclinic/production/*` | `admin-config.js`: the advisor's model id (`model` in the AI configuration document) and its Anthropic API key (`anthropicApiKey` in the credential secret, which keeps its historical name). Missing: every turn is "temporarily unavailable" |
 | `ENGINE_SIGNING_TOKEN` | Required: every request must be signed (ADR 0017, ADR 0019) | none: every request is refused with 401 (fails closed) | Yes: a dynamic reference to `applianceclinic/production/engine-signing` | `engine-auth.js` |
-| `LEARNING_BUCKET` | Optional | empty (feedback and media overlays off) | Yes | `engine/learning-log.js`, `media.js` |
+| `LEARNING_BUCKET` | Optional | empty (media overlays off) | Yes | `media.js` |
 | `STAGE` | Optional | `dev` | No | `admin-config.js` (secret-id defaults) |
 | `AI_CONFIG_CACHE_TTL_MS` | Optional | 60000 | No | `admin-config.js`, `engine/config.js` |
 | `MAX_MESSAGES`, `MAX_BODY_BYTES` | Optional | 12, 8 MiB | No | `engine/config.js` |
@@ -52,7 +52,7 @@ provider is the Anthropic API; the model and credential come from the admin conf
 
 | Variable | Required | Default | Set | Read by |
 |---|---|---|---|---|
-| `ENGINE_URL` | Optional | the production engine URL (see below) | Yes: the `applianceclinic-diagnosis-engine` IAM Function URL | `config.js`; every ac2 turn, the feedback POST and the admin health probes, SigV4-signed with this function's role (`engine-signature.js`) |
+| `ENGINE_URL` | Optional | the production engine URL (see below) | Yes: the `applianceclinic-diagnosis-engine` IAM Function URL | `config.js`; every ac2 turn and the admin health probes, SigV4-signed with this function's role (`engine-signature.js`) |
 | `MCP_URL`, `MCP_HEALTH_URL`, `MCP_BEARER_TOKEN` | Optional | derived from `MCP_HEALTH_URL`; empty | Yes | `config.js`, `error-codes-admin.js` |
 | `S4R_PRODUCT_BASE_URL` | Optional | the S4R CloudFront (see below) | Yes | `config.js` |
 | `AC2_ENGINE_TIMEOUT_MS` | Optional | 45000 | No | `ac2-turn.js` (engine call timeout of a turn; well inside the CloudFront origin read timeout of 120 s, change 21.17) |
@@ -77,13 +77,15 @@ provider is the Anthropic API; the model and credential come from the admin conf
 `ACQ_JUDGE_MODEL`, `JEV_SECRET_ID`, `TRANSCRIPT_REVIEW_ENABLED`, `TRANSCRIPT_REVIEW_PROVIDER`, `TRANSCRIPT_REVIEW_MODEL`,
 `TRANSCRIPT_REVIEW_URL`, `TRANSCRIPT_REVIEW_MAX_PER_RUN`, `TRANSCRIPT_REVIEW_JEV_TIMEOUT_MS`, `BENCHMARK_SERVICE_SECRET_ID`,
 `BENCHMARK_SERVICE_SECRET`, `BENCHMARK_SERVICE_SECRET_PREVIOUS`, `BENCHMARK_STAGING_URL`, `LM_STUDIO_URL` and
-`OPENAI_BASE_URL`. The 15-minute `whichpart-transcript-review` schedule still invokes the function; the event is
-acknowledged with no work until a CDK change removes the rule.
+`OPENAI_BASE_URL`. The 15-minute `whichpart-transcript-review` schedule and its Lambda permission were released from
+the stack and deleted in change 23.5.
 
 ## Orchestrator (`spares4repairs-diag-orchestrator`, retired)
 
-The Python orchestrator's source was removed in change 21.1; no service calls it. Its Lambda stays declared in
-AcRuntimeStack with its last deployed image until it is decommissioned. Its variables, as deployed:
+The Python orchestrator's source was removed in change 21.1; no AC service calls it, but its public Function URL still
+receives traffic from an unidentified caller (23,537 invocations between 2026-10-02 and 2026-10-16, from CloudWatch).
+Its Lambda stays declared in AcRuntimeStack with its last deployed image until the caller is identified. Its variables,
+as deployed:
 
 | Variable | Required | Default | Set |
 |---|---|---|---|

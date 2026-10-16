@@ -99,15 +99,10 @@ exports.handler = async (event) => {
   const t0 = Date.now();
   // Phase 7: CORS only for the AC origins, and security headers, on every HTTP response (http-headers.js).
   const res = httpHeaders.finalizeResponse(event, await handleEvent(event));
-  if (event && typeof event === 'object' && !event.transcriptReview && !event.recallIngest && event.source !== 'aws.events') adminRequestLog(event, res, t0);
+  if (event && typeof event === 'object' && !event.recallIngest && event.source !== 'aws.events') adminRequestLog(event, res, t0);
   return res;
 };
 async function handleEvent(event) {
-  if (event && event.transcriptReview) {
-    // The 15-minute `whichpart-transcript-review` schedule still exists in the stack; the automated review it
-    // drove was retired with the earlier pipeline (ADR 0023). Acknowledge the tick and do nothing.
-    return { ok: true, skipped: true, reason: 'transcript review retired' };
-  }
   if (event && (event.source === 'aws.events' || event.recallIngest)) {
     const mode = event.recallIngest === 'backfill' ? 'backfill'
       : event.recallIngest === 'publish' ? 'publish' : 'daily';
@@ -366,18 +361,7 @@ async function handleEvent(event) {
   // (A live test request is refused above if it carries observability, so `obs` is null for it.)
   const obs = live ? null : transcripts.takeObservability(body);
 
-  // Feedback pass-through: forward {feedback:{traceId,rating,note}} to the diagnosis engine (the single
-  // S3 writer/redactor).
-  if (live && (body.feedback || !Array.isArray(body.messages))) return respond(400, { error: 'liveTest requires messages' });
-  if (body.feedback) {
-    try {
-      const feedbackBody = JSON.stringify({ feedback: body.feedback });
-      await fetch(ENGINE_URL, { method: 'POST', headers: signedJsonHeaders(feedbackBody, ENGINE_URL), body: feedbackBody });
-    } catch (e) {
-      log({ evt: 'whichpart-api', rid, feedbackError: e.message });
-    }
-    return respond(200, { ok: true });
-  }
+  if (live && !Array.isArray(body.messages)) return respond(400, { error: 'liveTest requires messages' });
 
   if (obs && obs.event === 'end' && (!Array.isArray(body.messages) || body.messages.length === 0)) {
     await persistTranscriptEnd(obs);
@@ -563,7 +547,6 @@ function toWhichPartView(orch, rid, overlay) {
 
   return {
     requestId: rid,
-    traceId: orch.traceId || null,
     reply,
     safety: Boolean(isSafety),
     safetyInformation,
