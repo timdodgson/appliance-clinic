@@ -299,12 +299,66 @@
     return null;
   }
 
+  // Bot check (change 21.38): an invisible Cloudflare Turnstile token on the first message of a conversation (one
+  // without a state token); the API checks it. Later messages carry the state token instead. Best-effort: if
+  // Turnstile cannot load, the message is sent without a token and the API decides.
+  var TURNSTILE_SITE_KEY = '0x4AAAAAAFYE0xtNR0AYIP4C';
+  var turnstileWidget = null;
+  var turnstileWaiter = null;
+  function turnstileToken() {
+    var ts = window.turnstile;
+    if (!ts || typeof ts.render !== 'function') return Promise.resolve(null);
+    return new Promise(function (resolve) {
+      var done = false;
+      function finish(token) {
+        if (done) return;
+        done = true;
+        turnstileWaiter = null;
+        resolve(token || null);
+      }
+      var timer = setTimeout(function () { finish(null); }, 15000);
+      turnstileWaiter = function (token) { clearTimeout(timer); finish(token); };
+      try {
+        if (turnstileWidget === null) {
+          var box = document.getElementById('turnstileBox');
+          if (!box) {
+            box = el('div', 'turnstile-box');
+            box.id = 'turnstileBox';
+            document.body.appendChild(box);
+          }
+          turnstileWidget = ts.render(box, {
+            sitekey: TURNSTILE_SITE_KEY,
+            action: 'chat',
+            appearance: 'interaction-only',
+            execution: 'execute',
+            callback: function (t) { if (turnstileWaiter) turnstileWaiter(t); },
+            'error-callback': function () { if (turnstileWaiter) turnstileWaiter(null); },
+            'expired-callback': function () { /* a fresh token is requested per conversation */ },
+          });
+        } else {
+          ts.reset(turnstileWidget);
+        }
+        ts.execute(turnstileWidget);
+      } catch (e) {
+        clearTimeout(timer);
+        finish(null);
+      }
+    });
+  }
+
+  function post(payload) {
+    return fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  }
+
   function ask(msgs) {
     var payload = { messages: msgs };
     // Opaque BFF-signed canonical-session token: echoed back verbatim, never inspected here.
-    if (session && typeof session.stateToken === 'string' && session.stateToken) {
-      payload.stateToken = session.stateToken;
-    }
+    var hasState = Boolean(session && typeof session.stateToken === 'string' && session.stateToken);
+    if (hasState) payload.stateToken = session.stateToken;
     if (session && session.id) {
       payload.observability = {
         sessionId: session.id,
@@ -312,10 +366,20 @@
         event: 'turn',
       };
     }
-    return fetch(API_BASE, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
+    var first = hasState ? Promise.resolve(null) : turnstileToken();
+    return first.then(function (t) {
+      if (t) payload.turnstile = t;
+      return post(payload);
+    }).then(function (r) {
+      // A state token the API no longer accepts (e.g. expired) makes this a new conversation: retry once with a check.
+      if (r.status === 403 && !payload.turnstile) {
+        return turnstileToken().then(function (t) {
+          if (!t) return r;
+          payload.turnstile = t;
+          return post(payload);
+        });
+      }
+      return r;
     }).then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();

@@ -22,8 +22,8 @@ describe('API boundary', () => {
       }
     }
   });
-  it('absolute URLs in code are limited to the site itself and privacy-enhanced YouTube embeds', () => {
-    const allowed = /^https:\/\/(applianceclinic\.ai|www\.youtube-nocookie\.com|schema\.org)(\/|$)/;
+  it('absolute URLs in code are limited to the site itself, privacy-enhanced YouTube embeds and the Cloudflare Turnstile bot check', () => {
+    const allowed = /^https:\/\/(applianceclinic\.ai|www\.youtube-nocookie\.com|challenges\.cloudflare\.com|schema\.org)(\/|$)/;
     const seen = new Set();
     for (const { src } of code) for (const m of strip(src).matchAll(/https?:\/\/[A-Za-z0-9.-]+/g)) seen.add(m[0]);
     expect([...seen].filter((u) => !allowed.test(`${u}/`))).toEqual([]);

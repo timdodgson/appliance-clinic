@@ -38,6 +38,26 @@ describe('customer chat', () => {
     expect(r.bot.querySelector('b')).toBeNull();
   });
 
+  it('bot check: a Turnstile token on the first message of a conversation only (change 21.38)', async () => {
+    const page = loadPage('index.html', SCRIPTS, (url) => {
+      if (url.endsWith('/auth/me')) return me;
+      return { status: 200, body: { reply: 'Was the clock flashing?', stateToken: 'cst1.opaque.token' } };
+    });
+    let n = 0;
+    page.window.turnstile = { render: (box, o) => { page.window._cb = o.callback; return 'w1'; }, reset() {}, execute() { n += 1; page.window._cb(`ts-token-${n}`); } };
+    await settle(page.window);
+    for (const text of ['oven not heating', 'no']) {
+      page.document.getElementById('input').value = text;
+      page.document.getElementById('ask').dispatchEvent(new page.window.Event('submit', { cancelable: true }));
+      await settle(page.window);
+    }
+    const calls = page.calls.filter((c) => c.url === '/api' && c.body && c.body.messages);
+    expect(calls).toHaveLength(2);
+    expect(calls[0].body.turnstile).toBe('ts-token-1');
+    expect(calls[1].body.turnstile).toBeUndefined();
+    expect(calls[1].body.stateToken).toBe('cst1.opaque.token');
+  });
+
   it('echoes the state token on the next turn, unopened', async () => {
     const r = await send('oven not heating', { reply: 'Was the clock flashing?', stateToken: 'cst1.opaque.token' });
     r.document.getElementById('input').value = 'no';
