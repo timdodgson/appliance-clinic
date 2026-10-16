@@ -181,7 +181,10 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   // the next retrieved note with real causes is used instead.
   // The fault note stays the same unless the customer now describes a different fault (round 3: stray words such as
   // "refitted the hose" switched a fill fault to a leak note).
-  const prev = rec.led && rec.led.note ? K.noteById(rec.led.note) : null;
+  // A triage note (its cause list holds triage steps, e.g. "leak location / cycle stage...") is not held: once the
+  // customer says more (where the water comes from), the specific note takes over (round 4: WM-05).
+  const held = rec.led && rec.led.note ? K.noteById(rec.led.note) : null;
+  const prev = held && !isTriage(held) ? held : null;
   let note = null;
   if (prev) {
     const same = await askJev(jev, { customerMessages: texts, knownSoFar: known }, {
@@ -194,7 +197,8 @@ async function composeBody({ jev, qwen, question, rec, texts, known, notes, norm
   const sit = o.situations.map((x, i) => ({ id: `s${i + 1}`, ...x }));
   const steps = o.steps.map((x, i) => ({ id: `n${i + 1}`, ...x }));
   // "Needs an engineer" only after at least two reported checks (one cleaned filter is not enough).
-  const allowEngineer = (c.checks.length >= 2 && rec.advice.length >= 2) || rec.stage === 2;
+  // Stage 2 alone (one check reported as not fixing it) is not enough (round 4: WM-06 on the first reply).
+  const allowEngineer = c.checks.length >= 2 && rec.advice.length >= 2;
   const state = { customerMessages: texts, knownSoFar: known, errorCodeMeanings: (codeMeanings || []).filter((m) => m.status === 'RESOLVED').map((m) => `${m.code}: ${m.meaning}`),
     alreadyGiven: given, guidance: note ? { fault: note.fault, discriminators: note.discriminators, evidence: note.componentEvidence } : null, normalBehaviour: normal || [] };
   const show = (x) => (x.length > 220 ? `${x.slice(0, 219)}…` : x);
@@ -292,6 +296,12 @@ const RETEST = /^now that\b|^now (turn|run|start)\b|\bagain\b.*\?$|^(turn|run) .
 
 // Entries that are triage steps or labels, not causes.
 const NOT_A_CAUSE = /\(establish|establish first|^(check|confirm|look|inspect|identify|find)\b|\blocation\b.*\bstage\b|^STAGE\b/i;
+/** A triage note: its cause list holds triage steps rather than causes. */
+function isTriage(note) {
+  const raw = (note.componentEvidence || []).length ? note.componentEvidence.map((x) => x.name) : (note.causes || []);
+  return raw.some((x) => NOT_A_CAUSE.test(x));
+}
+
 /** A note's causes in one wording: component evidence, else the journeys' causes, else the likely components. */
 function causesOf(note) {
   const list = (note.componentEvidence || []).length ? note.componentEvidence.map((x) => x.name) : (note.causes || []).length ? note.causes : (note.likelyComponents || []);
