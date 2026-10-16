@@ -105,3 +105,24 @@ Reviews in `round4-opus/`. Customer messages to the end, round 3 → round 4 (bo
 Left: (1) stage 2 alone must not open "needs an engineer"; (2) a triage note (leak-flood) must hand over to the
 specific note once the customer says where the water comes from - the "stay on the note" fix holds it too tightly;
 (3) the knowledge gaps (carbon brushes; heating checks offered for a normal Eco cycle).
+
+## Round 5 (release 21.34, Opus)
+
+Reviews in `round5-opus/`.
+
+| Test | R4 | R5 | |
+|---|---|---|---|
+| WM-01 | 3, fixed | 3, fixed | same |
+| WM-02 | 2, normal closed | 3, normal closed | same |
+| WM-03 | 5, safety stop | 3, safety stop | same (no brush check) |
+| WM-04 | 3, fixed | 3, fixed | same |
+| WM-05 | 7, loop | 3, engineer | the door-leak note now takes over (fixed), but it has **no steps at all**: turn 2 asked "tell me a bit more", turn 3 ended on the engineer line before the seal was ever checked |
+| WM-06 | 1, engineer | 6+, part stage | no early engineer (fixed); now stuck at the model number: FD 9409 is a production code and the rest of the label is rubbed off, so it keeps asking |
+| WM-07 | 4 | 4 | same |
+| WM-08 | safety stop | safety stop | same |
+| WM-09 | 5, engineer | 5, engineer | same |
+| WM-10 | 5, part path | 4, part path | same |
+
+Left: (1) a note with no steps must borrow the steps of the related notes (here the other leak notes); (2) when the
+customer cannot read the model number, the part stage must move on (say where else to find it, or name the part
+type and the engineer) instead of asking again.

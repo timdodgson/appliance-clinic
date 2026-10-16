@@ -1,0 +1,714 @@
+{
+ "id": "WM-10",
+ "system": "ac3",
+ "sessionId": "bm-ac2-wm-10-c5ff6b4a3f",
+ "endReason": "escalated",
+ "customerTurns": 4,
+ "transcript": [
+  {
+   "role": "customer",
+   "text": "washing machine making a horrible noise"
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is load size / distribution (imbalance). Next: Try an ordinary evenly-distributed load to rule out load imbalance. Let me know what you find."
+  },
+  {
+   "role": "customer",
+   "text": "It's not the load, it happens every spin now, even with small loads. Gets louder as it spins faster, like a jet engine."
+  },
+  {
+   "role": "assistant",
+   "text": "From what you have described, the most likely cause is drum bearings. Check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?"
+  },
+  {
+   "role": "customer",
+   "text": "It rumbles and grinds when I turn it. Also there's a lot of up and down clunky play when I lift the edge of the drum."
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drum bearing]\nThe checks point to the drum bearing. To find the right part, could you give me the make and model number? It is usually on a sticker inside the door rim or on the back of the door.\n[Panel: \"To check a suitable replacement — Enter your model number below. Once we have the model I can check whether a suitable replacement is available. It's usually on a sticker inside the door or around the frame, or on the back of the appliance.\"]"
+  },
+  {
+   "role": "customer",
+   "text": "It's a Zanussi, model ZWF81443W, off the door label. It's about 9 years old, is it worth fixing?"
+  },
+  {
+   "role": "assistant",
+   "text": "[Heading: Likely cause: drum bearing]\nIt depends on the repair cost compared with a new machine. On some washing machines the drum bearings can be replaced on their own, but on others the whole sealed tub has to be changed, which costs much more and often isn't worth it on a 9-year-old machine. The checks point to the drum bearing. I could not find a confirmed match for model ZWF81443W in our parts catalogue, so check with the manufacturer or a parts supplier using the full model number, or ask an appliance engineer to fit it."
+  }
+ ],
+ "meta": [
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 1,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2315,
+     "labelMs": 288,
+     "enrichMs": 0,
+     "composeMs": 891,
+     "replyLabelMs": 280,
+     "totalMs": 3837
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_1",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 1
+      },
+      "symptomArea": {
+       "value": "noise",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": null,
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "making a horrible noise"
+     },
+     "stage": 1,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 1
+     },
+     "checkGiven": "Now run a normal load with a spin. Is it spinning smoothly now, or does it still shake badly?",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:excessive-vibration",
+       "washing-machine:drum-position",
+       "washing-machine:not-draining"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:excessive-vibration\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"load size / distribution (imbalance)\"},\"next\":{\"kind\":\"step\",\"text\":\"try an ordinary evenly-distributed load to rule out load imbalance\"},\"ms\":891,\"offered\":{\"situations\":[\"cause: load size / distribution (imbalance)\",\"cause: transit brackets / bolts still fitted\",\"cause: levelling / feet / floor stability\",\"cause: shock absorbers / dampers\",\"cause: suspension spring / tub support\",\"cause: counterweight / retaining hardware\",\"cause: drum bearings / bearing seal\",\"cause: drum spider / drum support\",\"cause: drum paddle / lifter\",\"cause: foreign object trapped between inner and outer tubs\"],\"next\":[\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery — usually three or four large bolts with plastic spacers. If they're still in, the drum can't move freely and the whole machine shakes. Are any transit bolts still fitted (and have you taken them out), or were they already removed?\",\"check: A single heavy item (a bath mat, rug, duvet or pair of jeans) or a very small load can throw the drum off balance. Was it one heavy item or a small load (and have you evened it out), or a normal mixed load?\",\"check: Check it stands level and firm: press on each top corner — it shouldn't rock — and make sure all four feet touch a solid floor with their lock nuts tight. Did it rock or was a foot loose (and have you adjusted it), or was it already level and firm?\",\"check: Take the washing out and run a spin-only programme with the drum empty. Does it still shake or bang violently with the drum empty, or is it smooth?\",\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, then rock it side to side. Does the drum feel loose — dropping, knocking or clunking — or firm with just a slight springy movement?\",\"step: establish the noise CHARACTER (bang/knock/rumble/tick/scrape), whether it moves, and whether it's load-specific before choosing a part\",\"step: on a new or recently-moved machine, check the transit bolts/brackets are removed and the machine is level with feet locked\",\"step: try an ordinary evenly-distributed load to rule out load imbalance\",\"step: with the power off, rotate the drum by hand for roughness/rumble and check for up/down play (bearing) or off-centre wobble (spider)\",\"step: if there's a big leak with heavy banging, check for a loose counterweight / cracked tub\",\"question: Does it happen with every load or mainly particular loads, and is it shaking/moving, banging heavily, ticking/scraping, or making a deep rumbling/grumbling noise?\",\"question: Is the machine new or has it recently been installed or moved?\"],\"removed\":[],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.11,\"kept\":true},{\"step\":\"check: A single heavy item (a bath mat, rug, duvet or pair of jeans) or a very small load can thr\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.08,\"kept\":true},{\"step\":\"check: Check it stands level and firm: press on each top corner — it shouldn't rock — and make su\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.08,\"kept\":true},{\"step\":\"check: Take the washing out and run a spin-only programme with the drum empty. Does it still shak\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.09,\"kept\":true},{\"step\":\"check: With the machine unplugged and the door open, push the drum firmly down and lift it up, th\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.09,\"kept\":true},{\"step\":\"step: establish the noise CHARACTER (bang/knock/rumble/tick/scrape), whether it moves, and wheth\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.08,\"kept\":true},{\"step\":\"step: on a new or recently-moved machine, check the transit bolts/brackets are removed and the m\",\"done\":0.05,\"refused\":0.04,\"pointless\":0.11,\"kept\":true},{\"step\":\"step: try an ordinary evenly-distributed load to rule out load imbalance\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.09,\"kept\":true},{\"step\":\"step: with the power off, rotate the drum by hand for roughness/rumble and check for up/down pla\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.08,\"kept\":true},{\"step\":\"step: if there's a big leak with heavy banging, check for a loose counterweight / cracked tub\",\"done\":0.04,\"refused\":0.03,\"pointless\":0.14,\"kept\":true},{\"step\":\"question: Does it happen with every load or mainly particular loads, and is it shaking/moving, bangi\",\"done\":0.17,\"refused\":0.05,\"pointless\":0.1,\"kept\":true},{\"step\":\"question: Is the machine new or has it recently been installed or moved?\",\"done\":0.04,\"refused\":0.04,\"pointless\":0.07,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"making a horrible noise\",\"customerQuestion\":null,\"answerToLastQuestion\":null,\"checksReported\":[],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (1)\",\"symptomArea\":\"\\\"noise\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"null (1)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:excessive-vibration\",\"washing-machine:drum-position\",\"washing-machine:not-draining\"],\"normal\":[],\"codes\":[],\"stage\":1}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [],
+     "asked": [],
+     "hazards": []
+    },
+    "ms": 3890
+   },
+   "turn": 1,
+   "status": 200,
+   "ms": 4244,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 2,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2886,
+     "labelMs": 267,
+     "enrichMs": 1,
+     "composeMs": 1067,
+     "replyLabelMs": 287,
+     "totalMs": 4560
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.92
+      },
+      "symptomArea": {
+       "value": "noise",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 0.97
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.97
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.04
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": null,
+       "confidence": null
+      },
+      "checksConfirmed": [
+       0
+      ],
+      "factsConfirmed": [
+       0,
+       1,
+       2
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "very loud noise during spin"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "gives_check",
+      "confidence": 0.43
+     },
+     "checkGiven": "Next, check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — norm",
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:excessive-vibration",
+       "washing-machine:unbalanced-load"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"chosen\",\"answered\":false,\"note\":\"washing-machine:motor-drum\",\"settled\":false,\"situation\":{\"kind\":\"cause\",\"text\":\"drum bearings\"},\"next\":{\"kind\":\"check\",\"text\":\"check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?\"},\"ms\":1067,\"offered\":{\"situations\":[\"cause: retained water / drainage\",\"cause: unbalanced load / overload / spin-setting\",\"cause: foreign object / mechanical obstruction\",\"cause: drum bearings\",\"cause: drive belt [belt-driven machines ONLY]\",\"cause: carbon brushes [brushed universal motor ONLY]\",\"cause: motor thermal fuse / cut-out\",\"cause: start / run capacitor [capacitor-start motors ONLY]\",\"cause: drive motor\",\"cause: motor control / inverter module [where architecture uses one]\",\"normal: Machines deliberately skip or reduce the spin when a load is unbalanced (one heavy item, a small load, a duvet or a bath mat). Clothes then come out wet.\"],\"next\":[\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only programme with the drum empty. Does it spin up properly when it's empty?\",\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up properly on that programme?\",\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very gently, and options such as \\\"no spin\\\", \\\"rinse hold\\\" or a low spin speed stop the final spin. Was a normal programme with a normal spin speed selected, or was one of those options set?\",\"check: check how the drum moves by hand. With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?\",\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check nothing like a sock or the seal is caught in it, and start a programme. Does the door click locked and the lock light come on?\",\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the small flap at the bottom front and slowly unscrew the pump filter. Did you find anything caught in the filter (and clear it), or was it clear?\",\"check: With the filter still out, shine a torch into the opening and gently turn the small plastic impeller with a finger. Does it turn freely with nothing caught, did you find and clear something, or is it broken or rough?\",\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal for a coin, bra wire or other object. Turn the drum slowly by hand and listen for anything sliding or catching. Did you find something and remove it, can you see or hear something stuck that you can't get out, or is there nothing there?\",\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for delivery. If they're still in, it bangs on the spin. Are any transit bolts still fitted (and have you taken them out), or were they already removed?\",\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it turn smoothly and quietly, or does it feel rough or grind as it turns?\"],\"removed\":[\"Washing machines refuse to spin if the load is out of balance — a single heavy i\",\"A single heavy item or a very small load can knock and bang as it spins. Was it \"],\"engineerAllowed\":false,\"verdicts\":[{\"step\":\"check: Let's see whether the machine itself can spin: take the washing out and run a spin-only pr\",\"done\":0.34,\"refused\":0.06,\"pointless\":0.46,\"kept\":true},{\"step\":\"check: Washing machines refuse to spin if the load is out of balance — a single heavy item such a\",\"done\":0.87,\"refused\":0.09,\"pointless\":0.84,\"kept\":false},{\"step\":\"check: run a spin-only (or rinse and spin) programme with the washing in. Does the drum spin up p\",\"done\":0.26,\"refused\":0.05,\"pointless\":0.48,\"kept\":true},{\"step\":\"check: It's also worth checking the settings: wool, delicate and hand-wash programmes spin very g\",\"done\":0.2,\"refused\":0.05,\"pointless\":0.51,\"kept\":true},{\"step\":\"check: check how the drum moves by hand. With the machine unplugged and the door open, how does t\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.13,\"kept\":true},{\"step\":\"check: A washing machine won't run if the door lock doesn't engage. Close the door firmly, check \",\"done\":0.05,\"refused\":0.05,\"pointless\":0.56,\"kept\":true},{\"step\":\"check: A noise while draining is often a coin, button or hair grip caught at the pump. Open the s\",\"done\":0.05,\"refused\":0.05,\"pointless\":0.64,\"kept\":true},{\"step\":\"check: With the filter still out, shine a torch into the opening and gently turn the small plasti\",\"done\":0.04,\"refused\":0.05,\"pointless\":0.29,\"kept\":true},{\"step\":\"check: Look all round the inside of the drum, under the paddles and in the folds of the door seal\",\"done\":0.06,\"refused\":0.05,\"pointless\":0.2,\"kept\":true},{\"step\":\"check: New machines come with transit (shipping) bolts in the back panel that lock the drum for d\",\"done\":0.07,\"refused\":0.05,\"pointless\":0.37,\"kept\":true},{\"step\":\"check: A single heavy item or a very small load can knock and bang as it spins. Was it one heavy \",\"done\":0.86,\"refused\":0.09,\"pointless\":0.84,\"kept\":false},{\"step\":\"check: With the machine unplugged, turn the drum slowly by hand a few times and listen. Does it t\",\"done\":0.06,\"refused\":0.06,\"pointless\":0.14,\"kept\":true}]}}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"very loud noise during spin\",\"customerQuestion\":null,\"answerToLastQuestion\":\"not the load; happens every spin even with small loads\",\"checksReported\":[{\"check\":\"spin with small loads\",\"result\":\"still loud on every spin\"}],\"facts\":[\"happens every spin now\",\"noise gets louder as spin speed increases\",\"sounds like a jet engine\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.92)\",\"symptomArea\":\"\\\"noise\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (0.97)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.97)\",\"modelUnreachable\":\"false (0.04)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"null (null)\",\"checksConfirmed\":[0],\"factsConfirmed\":[0,1,2]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:excessive-vibration\",\"washing-machine:unbalanced-load\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spin with small loads: still loud on every spin",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 2,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 4615
+   },
+   "turn": 2,
+   "status": 200,
+   "ms": 4980,
+   "retried": false,
+   "label": null,
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 3,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2851,
+     "labelMs": 296,
+     "enrichMs": 1,
+     "composeMs": 0,
+     "replyLabelMs": 265,
+     "totalMs": 3477
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "none"
+    },
+    "escalation": null,
+    "status": "stage_2",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.97
+      },
+      "symptomArea": {
+       "value": "noise",
+       "confidence": 1
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": "still_faulty",
+       "confidence": 0.6
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": null,
+       "confidence": null
+      },
+      "code": {
+       "value": null,
+       "confidence": null
+      },
+      "make": {
+       "value": null,
+       "confidence": null
+      },
+      "narrowed": {
+       "value": "drum bearing",
+       "confidence": 0.91
+      },
+      "checksConfirmed": [
+       1
+      ],
+      "factsConfirmed": []
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": null,
+      "model": null,
+      "codes": [],
+      "symptom": "drum rumbles and grinds"
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "asks_question",
+      "confidence": 0.92
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:excessive-vibration",
+       "washing-machine:unbalanced-load"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "none"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"model-needed\",\"component\":\"drum bearing\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":null,\"model\":null,\"codes\":[],\"symptom\":\"drum rumbles and grinds\",\"customerQuestion\":null,\"answerToLastQuestion\":\"rough and grinding when turned by hand\",\"checksReported\":[{\"check\":\"turned drum by hand\",\"result\":\"rumbles and grinds\"},{\"check\":\"lifted edge of drum\",\"result\":\"lot of up and down clunky play\"}],\"facts\":[],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.97)\",\"symptomArea\":\"\\\"noise\\\" (1)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"\\\"still_faulty\\\" (0.6)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"null (null)\",\"code\":\"null (null)\",\"make\":\"null (null)\",\"narrowed\":\"\\\"drum bearing\\\" (0.91)\",\"checksConfirmed\":[1],\"factsConfirmed\":[]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:excessive-vibration\",\"washing-machine:unbalanced-load\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": null,
+     "model": null,
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spin with small loads: still loud on every spin",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "lifted edge of drum: lot of up and down clunky play",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 2,
+       "resolution": "rough and grinding when turned by hand"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the make and model number? It is usually on a sticker inside the door rim or on the back of the door.",
+       "turn": 3,
+       "resolution": null
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 3594
+   },
+   "turn": 3,
+   "status": 200,
+   "ms": 3851,
+   "retried": false,
+   "label": "Likely cause: drum bearing",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": true,
+   "error": null
+  },
+  {
+   "ac2": {
+    "schemaVersion": "ac2-transcript-audit/1",
+    "path": "ac2",
+    "turn": 4,
+    "provider": {
+     "name": "anthropic",
+     "model": "claude-opus-5-5"
+    },
+    "timings": {
+     "understandMs": 2725,
+     "labelMs": 567,
+     "enrichMs": 1,
+     "composeMs": 3498,
+     "replyLabelMs": 275,
+     "totalMs": 7549
+    },
+    "usage": null,
+    "toolCalls": [],
+    "safety": {
+     "hazards": [],
+     "gates": []
+    },
+    "claimsRejected": [],
+    "claimsChecked": 0,
+    "regenerated": false,
+    "partGate": {
+     "outcome": "no_catalogue_part",
+     "component": "drum bearing",
+     "reason": "no-matching-part"
+    },
+    "escalation": {
+     "to": "engineer",
+     "reason": "reply"
+    },
+    "status": "engineer",
+    "candidates": [],
+    "scope": null,
+    "tags": {
+     "labels": {
+      "scope": {
+       "value": "appliance",
+       "confidence": 1
+      },
+      "appliance": {
+       "value": "washing-machine",
+       "confidence": 0.83
+      },
+      "symptomArea": {
+       "value": null,
+       "confidence": 0.98
+      },
+      "hazard": {
+       "value": null,
+       "confidence": 1
+      },
+      "unsafeRequest": {
+       "value": null,
+       "confidence": 1
+      },
+      "lastAnswer": {
+       "value": "answered",
+       "confidence": 1
+      },
+      "checkOutcome": {
+       "value": null,
+       "confidence": 1
+      },
+      "modelUnreachable": {
+       "value": false,
+       "confidence": 0.03
+      },
+      "model": {
+       "value": "ZWF81443W",
+       "confidence": 1
+      },
+      "code": {
+       "value": null,
+       "confidence": 1
+      },
+      "make": {
+       "value": "Zanussi",
+       "confidence": 1
+      },
+      "narrowed": {
+       "value": "drum bearing",
+       "confidence": 0.98
+      },
+      "checksConfirmed": [],
+      "factsConfirmed": [
+       0,
+       1
+      ]
+     },
+     "reading": {
+      "appliance": "washing machine",
+      "brand": "Zanussi",
+      "model": "ZWF81443W",
+      "codes": [],
+      "symptom": null
+     },
+     "stage": 2,
+     "replyAction": {
+      "value": "recommends_engineer",
+      "confidence": 0.61
+     },
+     "checkGiven": null,
+     "media": null,
+     "enrichment": {
+      "knowledgeIds": [
+       "washing-machine:motor-drum",
+       "washing-machine:excessive-vibration",
+       "washing-machine:unbalanced-load"
+      ],
+      "codes": [],
+      "recalls": 0,
+      "parts": "no_catalogue_part"
+     }
+    },
+    "plan": [
+     "jev-led: {\"state\":\"part-not-found\",\"component\":\"drum bearing\",\"answered\":true,\"answer\":\"It depends on the repair cost compared with a new machine.  On some washing machines the drum bearings can be replaced on their own, but on others the whole sealed tub has to be changed, which costs much more and often isn't worth it on a 9-year-old machine.\"}",
+     "trace: {\"understood\":{\"appliance\":\"washing machine\",\"brand\":\"Zanussi\",\"model\":\"ZWF81443W\",\"codes\":[],\"symptom\":null,\"customerQuestion\":\"Is it worth fixing?\",\"answerToLastQuestion\":\"Zanussi ZWF81443W\",\"checksReported\":[],\"facts\":[\"it is about 9 years old\",\"model number taken from door label\"],\"cannotReachModel\":false},\"labels\":{\"scope\":\"\\\"appliance\\\" (1)\",\"appliance\":\"\\\"washing-machine\\\" (0.83)\",\"symptomArea\":\"null (0.98)\",\"hazard\":\"null (1)\",\"unsafeRequest\":\"null (1)\",\"lastAnswer\":\"\\\"answered\\\" (1)\",\"checkOutcome\":\"null (1)\",\"modelUnreachable\":\"false (0.03)\",\"model\":\"\\\"ZWF81443W\\\" (1)\",\"code\":\"null (1)\",\"make\":\"\\\"Zanussi\\\" (1)\",\"narrowed\":\"\\\"drum bearing\\\" (0.98)\",\"checksConfirmed\":[],\"factsConfirmed\":[0,1]},\"notes\":[\"washing-machine:motor-drum\",\"washing-machine:excessive-vibration\",\"washing-machine:unbalanced-load\"],\"normal\":[\"wm-unbalanced-no-spin\"],\"codes\":[],\"stage\":2}"
+    ],
+    "ledger": {
+     "appliance": {
+      "value": "washing-machine",
+      "confidence": 1,
+      "turn": 1
+     },
+     "brand": {
+      "value": "Zanussi",
+      "confidence": 1,
+      "turn": 4
+     },
+     "model": {
+      "value": "ZWF81443W",
+      "confidence": 1,
+      "turn": 4
+     },
+     "codes": [],
+     "facts": [
+      {
+       "id": "c1",
+       "field": "check",
+       "value": "spin with small loads: still loud on every spin",
+       "source": "customer",
+       "status": "stated",
+       "turn": 2,
+       "quote": null
+      },
+      {
+       "id": "c2",
+       "field": "check",
+       "value": "lifted edge of drum: lot of up and down clunky play",
+       "source": "customer",
+       "status": "stated",
+       "turn": 3,
+       "quote": null
+      }
+     ],
+     "asked": [
+      {
+       "key": null,
+       "text": "With the machine unplugged and the door open, how does the drum feel when you turn it by hand — normal, much lighter or looser than usual, or stiff, rough or grinding?",
+       "turn": 2,
+       "resolution": "rough and grinding when turned by hand"
+      },
+      {
+       "key": null,
+       "text": "To find the right part, could you give me the make and model number? It is usually on a sticker inside the door rim or on the back of the door.",
+       "turn": 3,
+       "resolution": "Zanussi ZWF81443W"
+      }
+     ],
+     "hazards": []
+    },
+    "ms": 7597
+   },
+   "turn": 4,
+   "status": 200,
+   "ms": 7959,
+   "retried": false,
+   "label": "Likely cause: drum bearing",
+   "safety": false,
+   "parts": [],
+   "media": 0,
+   "needsModel": false,
+   "error": null
+  }
+ ],
+ "simCostUsd": 0.0334891,
+ "finishedAt": "2026-10-16T00:31:56.493Z"
+}
