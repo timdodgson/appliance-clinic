@@ -1,0 +1,62 @@
+{
+  "id": "21.39-turnstile-enforce",
+  "description": "whichpart-api configuration only (proof of concept): TURNSTILE_MODE observe -> enforce. A new conversation without a passing Cloudflare Turnstile token is refused (403 bot_check_failed). Observe-mode logs: the one real browser visit passed. Rollback: set TURNSTILE_MODE back to observe.",
+  "classification": "SAFE AC CHANGE (configuration of whichpart-api)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Modify",
+      "logicalId": "whichpartapi",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "whichpart-api",
+      "replacement": "False",
+      "details": [
+        "Properties.Environment"
+      ]
+    }
+  ],
+  "grant": [
+    {
+      "Action": [
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:800960611664:function:whichpart-api"
+      ]
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::800960611664:role/whichpart-api-role"
+      ]
+    }
+  ],
+  "grantNotes": "Environment only: UpdateFunctionConfiguration on whichpart-api, and PassRole on its own role (CloudFormation passes the role with the configuration).",
+  "writes": {
+    "types": [
+      "AWS::Lambda::Function"
+    ],
+    "expected": [
+      "lambda:UpdateFunctionConfiguration"
+    ],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy"
+    ],
+    "resources": [
+      "whichpart-api"
+    ],
+    "forbiddenResources": [
+      "spares4repairs-part-finder",
+      "SparesSite-dev",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}
