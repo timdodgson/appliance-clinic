@@ -1,0 +1,86 @@
+{
+  "id": "23.9-release-orchestrator",
+  "description": "ADR 0023, release: AC releases the retired Python orchestrator from AcRuntimeStack with zero physical change. The template no longer declares spares4repairs-diag-orchestrator, its Function URL, its two resource-policy statements (FunctionURLAllowPublicAccess, PublicInvoke), diag-orchestrator-role or the role's two inline policies (ac-function-logs, ac-invoke-diagnosis-engine). Every one has DeletionPolicy Retain in the deployed template, so CloudFormation removes them from the stack only; nothing is deleted, replaced or modified. No AC service calls the orchestrator: the BFF has called the engine directly since the cut-over of 2026-10-12. Its daily invocation counts up to then tracked whichpart-api's own (CloudWatch Invocations, 2026-10-09 to 2026-10-12: 1,709 / 3,533 / 3,137 / 1,422 against the BFF's 2,017 / 3,569 / 3,263 / 2,585), the last invocation was at 18:04 UTC on 2026-10-12, and the role was last used at the same minute; there was no outside caller. It is an unauthenticated public Function URL on a function holding the engine-signing and MCP bearer tokens, so it goes. Proven by a before/after fingerprint of the function configuration, URL, resource policy, role and inline policies, and by CloudTrail (no Lambda or IAM write). Afterwards the operator deletes the Function URL, the function, the two inline policies and the role directly (as the IAM user, outside CloudFormation, which no longer owns them). Its log group /aws/lambda/spares4repairs-diag-orchestrator, the ECR repository spares4repairs-diag-orchestrator (AcDataStack) and the secret applianceclinic/production/orchestrator-bearer (AcDataStack, now unread) stay.",
+  "classification": "SAFE AC CHANGE (ownership only; no physical change)",
+  "stack": "AcRuntimeStack",
+  "kind": "UPDATE",
+  "expectedChanges": [
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairsdiagorchestrator",
+      "type": "AWS::Lambda::Function",
+      "physicalId": "spares4repairs-diag-orchestrator",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairsdiagorchestratorUrl",
+      "type": "AWS::Lambda::Url",
+      "physicalId": "arn:aws:lambda:eu-west-1:800960611664:function:spares4repairs-diag-orchestrator",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairsdiagorchestratorFunctionURLAllowPublicAccess",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "FunctionURLAllowPublicAccess",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "spares4repairsdiagorchestratorPublicInvoke",
+      "type": "AWS::Lambda::Permission",
+      "physicalId": "AcRuntimeStack-spares4repairsdiagorchestratorPublicInvoke-oXjPaPXh9jdW",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "diagorchestratorrole",
+      "type": "AWS::IAM::Role",
+      "physicalId": "diag-orchestrator-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "diagorchestratorroleacfunctionlogs",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-function-logs|diag-orchestrator-role",
+      "replacement": null
+    },
+    {
+      "action": "Remove",
+      "logicalId": "diagorchestratorroleacinvokediagnosisengine",
+      "type": "AWS::IAM::RolePolicy",
+      "physicalId": "ac-invoke-diagnosis-engine|diag-orchestrator-role",
+      "replacement": null
+    }
+  ],
+  "grant": [],
+  "grantNotes": "None: removing retained resources makes no API call on them.",
+  "writes": {
+    "types": [],
+    "expected": [],
+    "forbidden": [
+      "lambda:DeleteFunction",
+      "lambda:DeleteFunctionUrlConfig",
+      "lambda:RemovePermission",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionUrlConfig",
+      "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:UpdateAssumeRolePolicy"
+    ],
+    "resources": [],
+    "forbiddenResources": [
+      "SparesSite-dev",
+      "spares4repairs-diag-orchestrator",
+      "diag-orchestrator-role",
+      "whichpart-api",
+      "applianceclinic-diagnosis-engine",
+      "65vnizdmk4",
+      "eu-west-1_mUWucohuX"
+    ]
+  }
+}

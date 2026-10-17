@@ -248,5 +248,4 @@ old benchmark harness, with the same tests green before and after.
 | **Customer photos not proven live** | The advisor accepts images, but no live chat has yet shown a photo reaching it end to end |
 | **No alarm notification target** | The engine alarms go to ALARM, but nobody is notified. Fix: an AC-owned SNS topic and subscription |
 | **The old shared engine still runs in AC's account** | It serves S4R; moving it is S4R's change ([ADR 0019](../adr/0019-dedicated-canonical-diagnosis-engine.md)) |
-| **The orchestrator function still exists and still receives traffic** | No AC service calls it, yet CloudWatch counted 23,537 invocations of its public Function URL between 2026-10-02 and 2026-10-16. The caller is not identified; it stays until it is |
 | **Evaluation shares production's credential** | The scripted chats use the same model credential as the live service (about $1 a full run) |
