@@ -65,7 +65,9 @@ configuration document and the Anthropic API key in the credential secret, which
   `spares4repairs-diag-orchestrator`, its public Function URL and `diag-orchestrator-role` were released from the stack
   and deleted in change 23.9 (2026-10-17): the traffic it kept receiving was the BFF's own until the cut-over of
   2026-10-12 (its daily counts tracked `whichpart-api`'s; last invocation 18:04 UTC that day), and an unauthenticated
-  URL on a function holding the engine-signing and MCP bearer tokens had no reason to stay.
+  URL on a function holding the engine-signing and MCP bearer tokens had no reason to stay. The release was a no-op
+  (every resource Retain; fingerprints identical; drift IN_SYNC; CloudTrail: no write by the execution role), and the
+  IAM user then deleted the function, its URL, the role and its two inline policies.
 - **Quality is checked by scripted pass/fail chats** (`evaluation/scripted/`): 22 fixed customer messages run against
   the live services with hand-written expectations per reply. Change 23.2 passed 22/22; the previous pipeline passed
   2/22 on the same messages ([side by side](../../evaluation/scripted/SIDE-BY-SIDE.md)). The set is small; four
