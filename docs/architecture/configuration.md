@@ -80,19 +80,13 @@ provider is the Anthropic API; the model and credential come from the admin conf
 `OPENAI_BASE_URL`. The 15-minute `whichpart-transcript-review` schedule and its Lambda permission were released from
 the stack and deleted in change 23.5.
 
-## Orchestrator (`spares4repairs-diag-orchestrator`, retired)
+## Orchestrator (`spares4repairs-diag-orchestrator`, deleted)
 
-The Python orchestrator's source was removed in change 21.1; no AC service calls it, but its public Function URL still
-receives traffic from an unidentified caller (23,537 invocations between 2026-10-02 and 2026-10-16, from CloudWatch).
-Its Lambda stays declared in AcRuntimeStack with its last deployed image until the caller is identified. Its variables,
-as deployed:
-
-| Variable | Required | Default | Set |
-|---|---|---|---|
-| `DIAGNOSIS_ENGINE_URL` (the `applianceclinic-diagnosis-engine` IAM Function URL; was `RAG_URL`), `MCP_URL`, `MCP_BEARER_TOKEN` | Required (`KeyError` at first use) | none | Yes |
-| `ORCH_BEARER_TOKEN` | Required for any request (absent refuses all) | none | Yes |
-| `ENGINE_SIGNING_TOKEN` | Required: without it requests are unsigned and the engine refuses every one (401) | none | Yes: a dynamic reference to `applianceclinic/production/engine-signing` |
-| `AWS_REGION`, `AWS_DEFAULT_REGION`, role credentials | Lambda: used to SigV4-sign every engine call | `eu-west-1` | Lambda sets them |
+The Python orchestrator's source was removed in change 21.1 and the function, its public Function URL and
+`diag-orchestrator-role` were released from AcRuntimeStack and deleted in change 23.9 (2026-10-17). The invocations
+it kept receiving after its retirement were the BFF's own, until the cut-over of 2026-10-12: its daily counts tracked
+`whichpart-api`'s, and both the last invocation and the role's last use were at 18:04 UTC that day. The secret
+`applianceclinic/production/orchestrator-bearer` (AcDataStack) stays and is read by nothing.
 
 ## Error-code MCP (`spares4repairs-error-code-mcp`)
 
@@ -126,5 +120,4 @@ Changing any of these is a runtime release, so it is not made just for tidiness.
 | Name | Why it is kept |
 |---|---|
 | Secrets `spares4repairs/dev/applianceclinic-*` (where still present) | Historical physical names from before the separation. The AC runtimes read `applianceclinic/production/*`; the old names are still named by code defaults and by the state token's previous-key slot, and the old shared engine depends on its configuration. Deleting them is an owner decision |
-| Lambda functions `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp` | Renaming a Lambda function means replacing it, with a new URL and new permissions. The names carry no access |
-| ECR repositories of the same names | They hold those functions' images; renaming means replacing them |
+| ECR repositories `spares4repairs-diag-orchestrator`, `spares4repairs-error-code-mcp` | They hold the images of the two deleted image functions (changes 22.3 and 23.9); renaming means replacing them |

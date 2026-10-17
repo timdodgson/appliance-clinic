@@ -71,7 +71,7 @@ The full picture is in [docs/architecture/overview.md](docs/architecture/overvie
 | **Diagnosis engine** | `services/diagnosis-engine` | Lambda zip `applianceclinic-diagnosis-engine`, IAM-authenticated Function URL | The turn above |
 | **Error-code service** | `error-codes/mcp` (Python) | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings (MCP over HTTP) and the admin catalogue editor |
 
-The Python orchestrator (`spares4repairs-diag-orchestrator`) is no longer in the request path: no AC service calls it. Its function still exists in the stack, and it still receives traffic from outside this repository (see the known risks below).
+The Python orchestrator (`spares4repairs-diag-orchestrator`) is gone: released from the stack and deleted in change 23.9 on 2026-10-17, with its role. No AC service had called it since the BFF cut-over of 2026-10-12.
 
 ### External services
 
@@ -154,7 +154,6 @@ Most of these need the account owner's decision. What each looks like and how to
 - **A small prompt-injection test set.** Out-of-scope requests and attempts to change the instructions are handled by the prompt alone; the scripted set has four such cases (`INJ-*`), all passing on 2026-10-16.
 - **Customer photos are not yet proven live** end to end.
 - **The old shared engine still runs in AC's AWS account**, on `ac-diagnosis-role` and AC secrets, for its external consumer. AC sends it no traffic and does not modify it, by design ([ADR 0019](docs/adr/0019-dedicated-canonical-diagnosis-engine.md)).
-- **The retired orchestrator still receives traffic.** `spares4repairs-diag-orchestrator` has a public Function URL and no AC caller, yet CloudWatch counted 23,537 invocations between 2026-10-02 and 2026-10-16 (97 to 8,882 a day). The caller is not identified. It stays in the stack until it is; deleting it before then could break whoever calls it.
 
 ## Working on it
 

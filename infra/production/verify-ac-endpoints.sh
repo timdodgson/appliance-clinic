@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 7: contract checks for the AC-only endpoints (diag orchestrator, error-code MCP, whichpart-api URL settings).
+# Phase 7: contract checks for the AC-only endpoints (error-code MCP, whichpart-api URL settings).
 # Run as the IAM user, from the repository root, before and after a change:
 #
 #   [MCP_FUNCTION=applianceclinic-error-code-mcp] bash infra/production/verify-ac-endpoints.sh <out-dir>
@@ -7,8 +7,9 @@
 # Handler checks invoke each function with a Function-URL-shaped event (lambda invoke; direct Function URLs are not
 # reachable from every operator network). Only side-effect-free paths are called: GET /health and requests without a
 # valid bearer, which must be refused before any work. No token is read, sent or printed: the "wrong bearer" is a
-# random value generated here. The authenticated path is covered by the customer smoke (whichpart-api -> orchestrator
-# -> MCP). Configuration checks read each URL's auth type and CORS, and each resource-policy statement.
+# random value generated here. The authenticated path is covered by the customer smoke (whichpart-api -> engine -> MCP).
+# Configuration checks read each URL's auth type and CORS, and each resource-policy statement. The orchestrator
+# spares4repairs-diag-orchestrator was released and deleted in change 23.9 (ADR 0023) and is no longer checked.
 # The diagnosis Lambda is never invoked by this script.
 set -euo pipefail
 source "$(dirname "$0")/lib.sh"
@@ -30,18 +31,14 @@ invoke() { # FUNCTION METHOD PATH [AUTH]
 
 # MCP_FUNCTION selects the error-code MCP function; the default is the Zip Lambda applianceclinic-error-code-mcp (ADR 0022;
 # the image function spares4repairs-error-code-mcp was released in change 22.3 and deleted).
-ORCH=spares4repairs-diag-orchestrator; MCP=${MCP_FUNCTION:-applianceclinic-error-code-mcp}
-check "orchestrator GET /health is open" "$(invoke $ORCH GET /health)" 200
-jq -e '.body | fromjson | .status == "ok" and (tostring | test("(?i)token|secret|bearer") | not)' "$O/out.json" >/dev/null && echo "PASS orchestrator /health names no token or secret" || { echo "FAIL orchestrator /health payload"; fail=1; }
-check "orchestrator POST /diagnose without a bearer" "$(invoke $ORCH POST /diagnose)" 401
-check "orchestrator POST /diagnose with a wrong bearer" "$(invoke $ORCH POST /diagnose "$WRONG")" 401
+MCP=${MCP_FUNCTION:-applianceclinic-error-code-mcp}
 check "MCP GET /health is open" "$(invoke $MCP GET /health)" 200
 jq -e '.body | (tostring | test("(?i)bearer_token|secret") | not)' "$O/out.json" >/dev/null && echo "PASS MCP /health names no token or secret" || { echo "FAIL MCP /health payload"; fail=1; }
 check "MCP POST /mcp without a bearer" "$(invoke $MCP POST /mcp)" 401
 check "MCP POST /mcp with a wrong bearer" "$(invoke $MCP POST /mcp "$WRONG")" 401
 : > "$O/out.json"
 
-for f in $ORCH $MCP whichpart-api; do
+for f in $MCP whichpart-api; do
   aws lambda get-function-url-config --function-name "$f" --query '{auth:AuthType, cors:Cors}' --output json > "$O/$f.url.json"
   echo "INFO $f URL: auth $(jq -r .auth "$O/$f.url.json"), CORS $(jq -c .cors "$O/$f.url.json")"
   aws lambda get-policy --function-name "$f" --query Policy --output text | jq -c '[.Statement[] | {Sid, Action, Principal, Condition}]' > "$O/$f.policy.json"

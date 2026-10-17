@@ -76,11 +76,11 @@ describe('runtime overrides', () => {
   it('the committed overrides name only AC functions and AC roles', () => {
     const o = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'cdk', 'config', 'runtime-overrides.json'), 'utf8'));
     // The former shared engine spares4repairs-part-finder and its role ac-diagnosis-role are no longer AC's (change 15.3);
-    // nor is the image function spares4repairs-error-code-mcp (change 22.3, ADR 0022; error-code-mcp-role stays).
-    const AC_FUNCTIONS = ['whichpart-api', 'spares4repairs-diag-orchestrator', 'applianceclinic-diagnosis-engine',
-      'applianceclinic-error-code-mcp'];
+    // nor is the image function spares4repairs-error-code-mcp (change 22.3, ADR 0022; error-code-mcp-role stays), nor the
+    // orchestrator spares4repairs-diag-orchestrator and diag-orchestrator-role (change 23.9, ADR 0023).
+    const AC_FUNCTIONS = ['whichpart-api', 'applianceclinic-diagnosis-engine', 'applianceclinic-error-code-mcp'];
     for (const f of Object.keys(o.functions)) expect(AC_FUNCTIONS, f).toContain(f);
-    const AC_ROLES = ['whichpart-api-role', 'diag-orchestrator-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'];
+    const AC_ROLES = ['whichpart-api-role', 'error-code-mcp-role', 'ac-diagnosis-engine-role'];
     for (const k of Object.keys(o.roles || {})) expect(['ac-diagnosis-engine-role'], k).toContain(k);
     for (const k of Object.keys(o.roleManagedPolicies || {})) expect(AC_ROLES, k).toContain(k);
     for (const k of Object.keys(o.rolePolicies)) expect(AC_ROLES, k).toContain(k.split('/')[0]);

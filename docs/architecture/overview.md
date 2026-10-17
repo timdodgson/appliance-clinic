@@ -45,9 +45,9 @@ Green is deterministic code, orange is the model, blue is persistent state, dash
 | Diagnosis engine | `services/diagnosis-engine` | Lambda zip, IAM Function URL | The turn (`ac2/turn.js`), the advisor (`ac2/advisor.js`), the fixed safety checks (`ac2/safety.js`) |
 | Error-code service | `error-codes/mcp` | Lambda zip `applianceclinic-error-code-mcp` (ADR 0022) | Error-code meanings over MCP; the admin catalogue editor |
 
-The Python orchestrator function still exists in the stack. No AC service calls it, but its public Function URL still
-receives traffic from an unidentified caller (the README's known risks has the measured figure), so it stays. The
-`ac2/` folder name is historical: it now holds the ADR 0023 turn.
+The Python orchestrator function was released from the stack and deleted in change 23.9 (2026-10-17), with its role:
+no AC service had called it since the BFF cut-over of 2026-10-12. The `ac2/` folder name is historical: it now holds
+the ADR 0023 turn.
 
 ## One turn
 

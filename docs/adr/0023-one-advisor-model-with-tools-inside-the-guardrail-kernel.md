@@ -61,7 +61,11 @@ configuration document and the Anthropic API key in the credential secret, which
   transcript review and its admin views; the admin Test area (question library, ACQ-100 benchmark, routing override);
   the independent-100 and rebuild evaluation harnesses and their recorded outputs. The 15-minute
   `whichpart-transcript-review` schedule was released from the stack and deleted in change 23.5, and the unused
-  feedback path (engine branch, BFF pass-through, the view's `traceId`) in change 23.6.
+  feedback path (engine branch, BFF pass-through, the view's `traceId`) in change 23.6. The Python orchestrator
+  `spares4repairs-diag-orchestrator`, its public Function URL and `diag-orchestrator-role` were released from the stack
+  and deleted in change 23.9 (2026-10-17): the traffic it kept receiving was the BFF's own until the cut-over of
+  2026-10-12 (its daily counts tracked `whichpart-api`'s; last invocation 18:04 UTC that day), and an unauthenticated
+  URL on a function holding the engine-signing and MCP bearer tokens had no reason to stay.
 - **Quality is checked by scripted pass/fail chats** (`evaluation/scripted/`): 22 fixed customer messages run against
   the live services with hand-written expectations per reply. Change 23.2 passed 22/22; the previous pipeline passed
   2/22 on the same messages ([side by side](../../evaluation/scripted/SIDE-BY-SIDE.md)). The set is small; four

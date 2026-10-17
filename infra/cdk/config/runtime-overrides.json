@@ -56,32 +56,6 @@
         "TranscriptReviewPeriodic": null
       }
     },
-    "spares4repairs-diag-orchestrator": {
-      "url": {
-        "cors": null
-      },
-      "permissions": {
-        "PublicInvoke": {
-          "invokedViaFunctionUrl": true
-        }
-      },
-      "env": {
-        "set": {
-          "AC_BEARER_VERSIONS": "orchestrator-bearer=d73919bd-b1ce-2ce6-32f0-8625a220edf8,mcp-bearer=40f015b8-f39b-ceb4-a686-b532251fc4bb,engine-signing=60abac20-fba0-aeb8-8a1c-ac39c260a08a",
-          "ENGINE_SIGNING_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/engine-signing:SecretString:token::60abac20-fba0-aeb8-8a1c-ac39c260a08a}}",
-          "MCP_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/mcp-bearer:SecretString:token::40f015b8-f39b-ceb4-a686-b532251fc4bb}}",
-          "MCP_URL": "https://44ydoowtcn66qqwv6tqsi2psee0uflvi.lambda-url.eu-west-1.on.aws/",
-          "ORCH_BEARER_TOKEN": "{{resolve:secretsmanager:applianceclinic/production/orchestrator-bearer:SecretString:token::d73919bd-b1ce-2ce6-32f0-8625a220edf8}}",
-          "DIAGNOSIS_ENGINE_URL": "https://le2kq7wvkhtgsrzsqwqutz3aau0xqkhi.lambda-url.eu-west-1.on.aws/"
-        },
-        "unset": [
-          "RAG_URL"
-        ]
-      },
-      "code": {
-        "imageUri": "800960611664.dkr.ecr.eu-west-1.amazonaws.com/spares4repairs-diag-orchestrator@sha256:6797e244a6e191e6b9d9250e782c3a9da7dc00affadf34e6a45153cc4d161c65"
-      }
-    },
     "applianceclinic-diagnosis-engine": {
       "create": {
         "description": "Appliance Clinic dedicated canonical diagnosis engine (ADR 0019).",
@@ -256,23 +230,6 @@
         }
       ]
     },
-    "diag-orchestrator-role/ac-function-logs": {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ],
-          "Resource": [
-            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator",
-            "arn:aws:logs:eu-west-1:800960611664:log-group:/aws/lambda/spares4repairs-diag-orchestrator:*"
-          ]
-        }
-      ]
-    },
     "error-code-mcp-role/ac-function-logs": {
       "Version": "2012-10-17",
       "Statement": [
@@ -321,33 +278,6 @@
         }
       ]
     },
-    "diag-orchestrator-role/ac-invoke-diagnosis-engine": {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Sid": "InvokeDiagnosisEngineUrl",
-          "Effect": "Allow",
-          "Action": "lambda:InvokeFunctionUrl",
-          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
-          "Condition": {
-            "StringEquals": {
-              "lambda:FunctionUrlAuthType": "AWS_IAM"
-            }
-          }
-        },
-        {
-          "Sid": "InvokeDiagnosisEngineViaUrl",
-          "Effect": "Allow",
-          "Action": "lambda:InvokeFunction",
-          "Resource": "arn:aws:lambda:eu-west-1:800960611664:function:applianceclinic-diagnosis-engine",
-          "Condition": {
-            "Bool": {
-              "lambda:InvokedViaFunctionUrl": "true"
-            }
-          }
-        }
-      ]
-    },
     "whichpart-api-role/ac-invoke-diagnosis-engine": {
       "Version": "2012-10-17",
       "Statement": [
@@ -381,7 +311,6 @@
   },
   "roleManagedPolicies": {
     "whichpart-api-role": [],
-    "diag-orchestrator-role": [],
     "error-code-mcp-role": []
   },
   "roles": {
